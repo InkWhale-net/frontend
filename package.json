@@ -1,45 +1,67 @@
 {
-  "name": "inkwhale_project",
+  "name": "inkwhale-fe",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@chakra-ui/icons": "^2.0.13",
-    "@chakra-ui/react": "^2.4.1",
-    "@emotion/react": "^11.10.5",
-    "@emotion/styled": "^11.10.5",
-    "@fontsource/ibm-plex-sans": "^4.5.13",
-    "@polkadot/api": "^8.9.1",
-    "@polkadot/api-contract": "^8.9.1",
-    "@polkadot/keyring": "^9.5.1",
-    "@polkadot/ui-keyring": "^2.5.1",
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.3.0",
-    "@testing-library/user-event": "^13.5.0",
-    "axios": "^0.27.2",
-    "framer-motion": "^7.6.7",
+    "@chakra-ui/icons": "^1.1.5",
+    "@chakra-ui/react": "1.8.8",
+    "@chakra-ui/system": "^1.12.1",
+    "@chakra-ui/theme-tools": "^1.3.6",
+    "@emotion/cache": "^11.7.1",
+    "@emotion/react": "^11.4.1",
+    "@emotion/styled": "^11.3.0",
+    "@hypertheme-editor/chakra-ui": "^0.1.5",
+    "@polkadot/api": "^9.13.2",
+    "@polkadot/api-contract": "^9.13.2",
+    "@polkadot/extension-dapp": "^0.44.8",
+    "@polkadot/util": "^10.2.3",
+    "@reduxjs/toolkit": "^1.9.1",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^11.2.7",
+    "@testing-library/user-event": "^12.8.3",
+    "apexcharts": "^3.35.2",
+    "axios": "^1.2.2",
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "framer-motion": "^6",
     "numeral": "^2.0.6",
-    "react": "^18.2.0",
+    "react": "17.0.2",
+    "react-apexcharts": "^1.4.0",
+    "react-calendar": "^3.7.0",
+    "react-countdown": "^2.3.5",
+    "react-custom-scrollbars-2": "^4.2.1",
     "react-datetime-picker": "^4.1.1",
-    "react-dom": "^18.2.0",
-    "react-hot-toast": "^2.2.0",
-    "react-icons": "^4.4.0",
-    "react-minimal-pie-chart": "^8.4.0",
-    "react-redux": "^8.0.2",
-    "react-router-dom": "^6.3.0",
-    "react-scripts": "5.0.1",
-    "redux": "^4.2.0",
-    "redux-devtools-extension": "^2.13.9",
-    "redux-thunk": "^2.4.1",
-    "styled-components": "^5.3.5",
-    "sweetalert2": "^11.6.11",
-    "use-force-update": "^1.0.11",
-    "web-vitals": "^2.1.4"
+    "react-dom": "17.0.2",
+    "react-dropzone": "^12.0.4",
+    "react-fade-in": "^2.0.1",
+    "react-floaterjs": "^1.0.6",
+    "react-hot-toast": "^2.4.0",
+    "react-icons": "^4.3.1",
+    "react-is": "^18.0.0",
+    "react-redux": "^8.0.5",
+    "react-router-dom": "^5.3.0",
+    "react-scripts": "5.0.0",
+    "react-spinners": "^0.13.7",
+    "react-table": "^7.7.0",
+    "stylis": "^4.1.1",
+    "stylis-plugin-rtl": "2.0.2",
+    "swiper": "^8.4.5",
+    "web-vitals": "^1.1.2"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "GENERATE_SOURCEMAP=false react-scripts build",
+    "build": "react-scripts build",
+    "buildnomap": "set GENERATE_SOURCEMAP=false&& yarn build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "sitemap": "babel-node ./sitemap-builder.js"
+  },
+  "resolutions": {
+    "react-error-overlay": "6.0.9"
   },
   "eslintConfig": {
     "extends": [
@@ -50,8 +72,6 @@
   "browserslist": {
     "production": [
       ">0.2%",
-      "not ie <= 99",
-      "not android <= 4.4.4",
       "not dead",
       "not op_mini all"
     ],
@@ -60,5 +80,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "gh-pages": "^3.2.3"
   }
 }

@@ -1,51 +1,39 @@
-import { extendTheme } from '@chakra-ui/react';
+import { extendTheme } from "@chakra-ui/react";
 
-const theme = extendTheme({
-  config: { initialColorMode: 'dark', useSystemColorMode: false },
-  fonts: {
-    heading: `"IBM Plex Sans", sans-serif;`,
-    body: `"IBM Plex Sans", sans-serif;`,
-  },
-  styles: {
-    global: {
-      '*': {
-        // border: '1px yellow dotted',
-      },
-      html: {
-        minHeight: '100vh',
-        scrollBehavior: 'smooth',
-      },
-      body: {
-        height: '100%',
-        margin: 0,
-        padding: 0,
-        backgroundColor: '#000',
-        color: '#fff',
-        fontWeight: 'normal',
-        fontSize: '18px',
-        scrollbarWidth: 'none',
-      },
-      'body::-webkit-scrollbar': {
-        display: 'none',
-      },
-      '#root': {
-        height: '100%',
-      },
-      p: { fontSize: '18px' },
-      'h1, h2, h3, h4, h5, h6': {
-        // background: 'linear-gradient(90deg, #00E5ED 0%, #ff5500 100%);',
-        // background: 'linear-gradient(90deg, #00E5ED 0%, #0044FF 100%);',
-        // '-webkit-text-fill-color': 'transparent',
-        // '-webkit-background-clip': 'text',
-        // 'background-clip': 'text',
-        color: 'rgba(255, 255, 255, .3);',
-        background: 'linear-gradient(90deg, #00E5ED 0%, #ff5500 100%);',
-        '-webkit-background-clip': 'text',
-        '-webkit-text-fill-color': 'transparent',
-        'background-clip': 'text',
-      },
-    },
-  },
-});
+import { CardComponent } from "./additions/card/card";
 
-export default theme;
+import { buttonStyles } from "./components/button";
+import { badgeStyles } from "./components/badge";
+import { inputStyles } from "./components/input";
+import { progressStyles } from "./components/progress";
+import { sliderStyles } from "./components/slider";
+import { textareaStyles } from "./components/textarea";
+import { switchStyles } from "./components/switch";
+import { linkStyles } from "./components/link";
+import { headingStyles } from "./components/heading";
+
+import { breakpoints } from "./foundations/breakpoints";
+import { fonts } from "./foundations/fonts";
+import { fontSizes } from "./foundations/fontSizes";
+
+import { globalStyles } from "./styles";
+import { tabsStyles } from "./components/tabs";
+
+export default extendTheme(
+  CardComponent, // card component
+
+  buttonStyles, // button styles
+  badgeStyles, // badge styles
+  inputStyles, // input styles
+  progressStyles, // progress styles
+  sliderStyles, // slider styles
+  textareaStyles, // textarea styles
+  switchStyles, // switch styles
+  linkStyles, // link styles
+  headingStyles,
+  tabsStyles,
+
+  { breakpoints, fonts, fontSizes }, // Breakpoints
+
+  globalStyles
+);
