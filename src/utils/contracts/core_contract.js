@@ -1,8 +1,8 @@
 const core_contract = {
-  CONTRACT_ADDRESS: "5ExAxzS6dxTo6E41ZrnfiYjEXerX2oEfRWnjsbK8BQzZkRmv",
+  CONTRACT_ADDRESS: "5CziXvnbXHwa1zpm7BemypEdqKEsgFp6vZiEokTxJ7hMr6Py",
   CONTRACT_ABI: {
 	  "source": {
-		"hash": "0x8104074e93b39a87b42140373643b676eb9e486348ea4e6e623eefcbd47897e0",
+		"hash": "0x86ffd7ead0dd90ccdb204ffdaf984f633ce8b0cf3c827e5e26e27851ce2d0928",
 		"language": "ink! 4.1.0",
 		"compiler": "rustc 1.70.0-nightly",
 		"build_info": {
@@ -274,18 +274,18 @@ const core_contract = {
 		  {
 			"args": [
 			  {
-				"label": "psp22_hash",
+				"label": "creation_fee",
 				"type": {
 				  "displayName": [
 					"tokenmanagertrait_external",
-					"SetContractHashInput1"
+					"SetCreationFeeInput1"
 				  ],
-				  "type": 4
+				  "type": 6
 				}
 			  }
 			],
 			"docs": [],
-			"label": "TokenManagerTrait::set_contract_hash",
+			"label": "TokenManagerTrait::set_creation_fee",
 			"mutates": true,
 			"payable": false,
 			"returnType": {
@@ -295,33 +295,7 @@ const core_contract = {
 			  ],
 			  "type": 9
 			},
-			"selector": "0xf38784b8"
-		  },
-		  {
-			"args": [
-			  {
-				"label": "inw_contract",
-				"type": {
-				  "displayName": [
-					"tokenmanagertrait_external",
-					"SetInwContractInput1"
-				  ],
-				  "type": 0
-				}
-			  }
-			],
-			"docs": [],
-			"label": "TokenManagerTrait::set_inw_contract",
-			"mutates": true,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 9
-			},
-			"selector": "0x55f43bf5"
+			"selector": "0xa82ecdff"
 		  },
 		  {
 			"args": [
@@ -352,7 +326,7 @@ const core_contract = {
 		  {
 			"args": [],
 			"docs": [],
-			"label": "TokenManagerTrait::get_creation_fee",
+			"label": "TokenManagerTrait::get_contract_hash",
 			"mutates": false,
 			"payable": false,
 			"returnType": {
@@ -362,7 +336,48 @@ const core_contract = {
 			  ],
 			  "type": 19
 			},
-			"selector": "0x034ef9b9"
+			"selector": "0xf39b5876"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "inw_contract",
+				"type": {
+				  "displayName": [
+					"tokenmanagertrait_external",
+					"SetInwContractInput1"
+				  ],
+				  "type": 0
+				}
+			  }
+			],
+			"docs": [],
+			"label": "TokenManagerTrait::set_inw_contract",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 9
+			},
+			"selector": "0x55f43bf5"
+		  },
+		  {
+			"args": [],
+			"docs": [],
+			"label": "TokenManagerTrait::get_inw_contract",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 18
+			},
+			"selector": "0x7d2a84a9"
 		  },
 		  {
 			"args": [
@@ -393,18 +408,18 @@ const core_contract = {
 		  {
 			"args": [
 			  {
-				"label": "creation_fee",
+				"label": "psp22_hash",
 				"type": {
 				  "displayName": [
 					"tokenmanagertrait_external",
-					"SetCreationFeeInput1"
+					"SetContractHashInput1"
 				  ],
-				  "type": 6
+				  "type": 4
 				}
 			  }
 			],
 			"docs": [],
-			"label": "TokenManagerTrait::set_creation_fee",
+			"label": "TokenManagerTrait::set_contract_hash",
 			"mutates": true,
 			"payable": false,
 			"returnType": {
@@ -414,7 +429,7 @@ const core_contract = {
 			  ],
 			  "type": 9
 			},
-			"selector": "0xa82ecdff"
+			"selector": "0xf38784b8"
 		  },
 		  {
 			"args": [],
@@ -434,22 +449,7 @@ const core_contract = {
 		  {
 			"args": [],
 			"docs": [],
-			"label": "TokenManagerTrait::get_inw_contract",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 18
-			},
-			"selector": "0x7d2a84a9"
-		  },
-		  {
-			"args": [],
-			"docs": [],
-			"label": "TokenManagerTrait::get_contract_hash",
+			"label": "TokenManagerTrait::get_creation_fee",
 			"mutates": false,
 			"payable": false,
 			"returnType": {
@@ -459,7 +459,24 @@ const core_contract = {
 			  ],
 			  "type": 23
 			},
-			"selector": "0xf39b5876"
+			"selector": "0x034ef9b9"
+		  },
+		  {
+			"args": [],
+			"docs": [
+			  " Get Azero balance"
+			],
+			"label": "AdminTrait::get_balance",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 24
+			},
+			"selector": "0xc4360570"
 		  },
 		  {
 			"args": [
@@ -1248,6 +1265,34 @@ const core_contract = {
 				  {
 					"index": 47,
 					"name": "InvalidPhaseCount"
+				  },
+				  {
+					"index": 48,
+					"name": "InvalidMaxStakingAmount"
+				  },
+				  {
+					"index": 49,
+					"name": "InvalidApy"
+				  },
+				  {
+					"index": 50,
+					"name": "InvalidMultiplier"
+				  },
+				  {
+					"index": 51,
+					"name": "InvalidWhitelistData"
+				  },
+				  {
+					"index": 52,
+					"name": "PhaseNotExist"
+				  },
+				  {
+					"index": 53,
+					"name": "WhitelistNotExist"
+				  },
+				  {
+					"index": 54,
+					"name": "WhitelistSaleInfoNotExist"
 				  }
 				]
 			  }
@@ -1493,7 +1538,7 @@ const core_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 6
+						"type": 4
 					  }
 					],
 					"index": 0,
@@ -1514,7 +1559,7 @@ const core_contract = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 6
+				"type": 4
 			  },
 			  {
 				"name": "E",
@@ -1652,7 +1697,7 @@ const core_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 4
+						"type": 6
 					  }
 					],
 					"index": 0,
@@ -1673,11 +1718,95 @@ const core_contract = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 4
+				"type": 6
 			  },
 			  {
 				"name": "E",
 				"type": 8
+			  }
+			],
+			"path": [
+			  "Result"
+			]
+		  }
+		},
+		{
+		  "id": 24,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"fields": [
+					  {
+						"type": 25
+					  }
+					],
+					"index": 0,
+					"name": "Ok"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 8
+					  }
+					],
+					"index": 1,
+					"name": "Err"
+				  }
+				]
+			  }
+			},
+			"params": [
+			  {
+				"name": "T",
+				"type": 25
+			  },
+			  {
+				"name": "E",
+				"type": 8
+			  }
+			],
+			"path": [
+			  "Result"
+			]
+		  }
+		},
+		{
+		  "id": 25,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"fields": [
+					  {
+						"type": 6
+					  }
+					],
+					"index": 0,
+					"name": "Ok"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 11
+					  }
+					],
+					"index": 1,
+					"name": "Err"
+				  }
+				]
+			  }
+			},
+			"params": [
+			  {
+				"name": "T",
+				"type": 6
+			  },
+			  {
+				"name": "E",
+				"type": 11
 			  }
 			],
 			"path": [

@@ -548,7 +548,7 @@ export default function FaucetPage({ api }) {
   const tabsData = [
     {
       label: <>Public Sale with Vesting</>,
-      component: !isSaleEnded ? (
+      component: isSaleEnded ? (
         <IWCard
           w="full"
           variant="outline"
@@ -658,7 +658,7 @@ export default function FaucetPage({ api }) {
               },
               {
                 title: "Vesting Duration",
-                content: `${saleInfo?.vestingDuration / 60 / 1000} minutes`,
+                content: `${saleInfo?.vestingDuration / 60/60/24 / 1000} days`,
               },
               {
                 title: "Vesting Start Date/Time",

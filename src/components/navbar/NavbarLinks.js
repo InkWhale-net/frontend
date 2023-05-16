@@ -82,8 +82,12 @@ export default function NavbarLinks(props) {
               </Link>
             </Flex>
           ))}
+          <StakeMenuDropdown
+            setCurrentAnchor={setCurrentAnchor}
+            currentAnchor={currentAnchor}
+          />
 
-          {!currentAccount ? null : (
+          {/* {!currentAccount ? null : (
             <Flex
               _hover={{ textDecoration: "none", bg: "bg.1" }}
               p="6px 10px"
@@ -107,13 +111,58 @@ export default function NavbarLinks(props) {
                 </Text>
               </Link>
             </Flex>
-          )}
+          )} */}
 
           <CreateMenuDropdown
             setCurrentAnchor={setCurrentAnchor}
             currentAnchor={currentAnchor}
           />
-
+          <Flex
+            _hover={{ textDecoration: "none", bg: "bg.1" }}
+            p="6px 10px"
+            bg={"transparent"}
+            borderRadius="5px"
+            ml={{ base: "20px", md: "20px" }}
+          >
+            <Link
+              color={"text.1"}
+              fontWeight="600"
+              bg="transparent"
+              textDecoration="none"
+              _focus={{ borderWidth: "0px" }}
+              _hover={{ textDecoration: "none", bg: "bg.1" }}
+              onClick={() =>
+                toast.success("Coming soon!", { position: "top-center" })
+              }
+            >
+              <Text bg="transparent" fontSize="md">
+                Launchpad
+              </Text>
+            </Link>
+          </Flex>
+          <Flex
+            _hover={{ textDecoration: "none", bg: "bg.1" }}
+            p="6px 10px"
+            bg={"transparent"}
+            borderRadius="5px"
+            ml={{ base: "20px", md: "20px" }}
+          >
+            <Link
+              color={"text.1"}
+              fontWeight="600"
+              bg="transparent"
+              textDecoration="none"
+              _focus={{ borderWidth: "0px" }}
+              _hover={{ textDecoration: "none", bg: "bg.1" }}
+              onClick={() =>
+                toast.success("Coming soon!", { position: "top-center" })
+              }
+            >
+              <Text bg="transparent" fontSize="md">
+                Orderbook Dex
+              </Text>
+            </Link>
+          </Flex>
           <Flex
             _hover={{ textDecoration: "none", bg: "bg.1" }}
             p="6px 10px"
@@ -134,29 +183,6 @@ export default function NavbarLinks(props) {
             >
               <Text bg="transparent" fontSize="md">
                 Docs
-              </Text>
-            </Link>
-          </Flex>
-          <Flex
-            _hover={{ textDecoration: "none", bg: "bg.1" }}
-            p="6px 10px"
-            bg={"transparent"}
-            borderRadius="5px"
-            ml={{ base: "20px", md: "20px" }}
-          >
-            <Link
-              color={"text.1"}
-              fontWeight="600"
-              bg="transparent"
-              textDecoration="none"
-              _focus={{ borderWidth: "0px" }}
-              _hover={{ textDecoration: "none", bg: "bg.1" }}
-              onClick={() =>
-                toast.success("Coming soon!", {position: "top-center"})
-              }
-            >
-              <Text bg="transparent" fontSize="md">
-                Launchpad
               </Text>
             </Link>
           </Flex>
@@ -184,14 +210,14 @@ export const menuListData = [
     title: "Acquire INW",
     href: "/acquire-inw",
   },
-  {
-    title: "Pools",
-    href: "/pools",
-  },
-  {
-    title: "Farms",
-    href: "/farms",
-  },
+  // {
+  //   title: "Pools",
+  //   href: "/pools",
+  // },
+  // {
+  //   title: "Farms",
+  //   href: "/farms",
+  // },
   {
     title: "Tokens",
     href: "/tokens",
@@ -255,6 +281,89 @@ export const CreateMenuDropdown = ({
                 onClick={() => {
                   history.push(item.href);
                   setCurrentAnchor("/create");
+                  // onClose();
+                }}
+              >
+                <MenuItem
+                  _active={{ bg: "transparent" }}
+                  _focus={{ bg: "transparent" }}
+                >
+                  <Flex
+                    w="full"
+                    justify={{ base: "start" }}
+                    alignItems={{ base: "center" }}
+                  >
+                    <Heading as="h5" size="h5" ml="10px">
+                      {item.label}
+                    </Heading>
+                  </Flex>
+                </MenuItem>
+              </Link>
+            </IWCard>
+          ))}
+        </Flex>
+      </MenuList>
+    </Menu>
+  );
+};
+
+export const StakeMenuDropdown = ({
+  onClose,
+  setCurrentAnchor,
+  currentAnchor,
+}) => {
+  const history = useHistory();
+
+  return (
+    <Menu placement="bottom-end">
+      <MenuButton
+        p="0px"
+        _hover={{ bg: "bg.1" }}
+        bg={currentAnchor === "/stake" ? "bg.1" : "transparent"}
+        borderRadius="5px"
+        ml={{ base: "20px", md: "20px" }}
+      >
+        <Flex w="full" p="6px 10px" borderRadius="5px">
+          <Link color={"text.1"} fontWeight="600" textDecoration="none">
+            <Text fontSize="md">Stake</Text>
+          </Link>
+        </Flex>
+      </MenuButton>
+
+      <MenuList
+        p="0px"
+        m="0px"
+        border="none"
+        borderRadius="10px"
+        boxShadow="0px 10px 21px rgba(0, 0, 0, 0.08)"
+      >
+        <Flex flexDirection="column" p="20px">
+          {[
+            { label: "Pools", href: "/pools" },
+            { label: "Farms", href: "/farms" },
+            // { label: "NFT Yield Farm", href: "/create/nft-lp" },
+            // { label: "Token Yield Farm", href: "/create/token-lp" },
+          ].map((item, idx) => (
+            <IWCard
+              key={idx}
+              mb="0px"
+              px="-24px"
+              alignItems={{ base: "center" }}
+              cursor="pointer"
+              variant="menuBlank"
+              minW={{ base: "full", lg: "180px" }}
+            >
+              <Link
+                _hover={{ textDecoration: "none" }}
+                to={item.href}
+                as={RouterLink}
+                color={"text.1"}
+                fontWeight="600"
+                bg="transparent"
+                textDecoration="none"
+                onClick={() => {
+                  history.push(item.href);
+                  setCurrentAnchor("/pools");
                   // onClose();
                 }}
               >

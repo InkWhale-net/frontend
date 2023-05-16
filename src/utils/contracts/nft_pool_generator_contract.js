@@ -1,8 +1,8 @@
 const nft_pool_generator_contract = {
-  CONTRACT_ADDRESS: "5C9HmQvU2RHexVvXQPMZy7z11tZwhq62G8ffemdySgPWmk5u",
+  CONTRACT_ADDRESS: "5HXG3Y3ckL97d95yE8tYtdEc57v16o8B1BxPpg1AWG5qphZZ",
   CONTRACT_ABI: {
 	  "source": {
-		"hash": "0x7d66e4d28449d3b2aa3138459482aaae2049ede77ad0bda9cded49fc2d0ed9b9",
+		"hash": "0xf6dcfb70f5c7f9b961b4e2e51fde71fd5f747dad5b9ca222db8d6c00c004b21e",
 		"language": "ink! 4.1.0",
 		"compiler": "rustc 1.70.0-nightly",
 		"build_info": {
@@ -227,6 +227,33 @@ const nft_pool_generator_contract = {
 			"selector": "0x2393fe3a"
 		  },
 		  {
+			"args": [],
+			"docs": [
+			  " Leaves the contract without owner. It will not be possible to call",
+			  " owner's functions anymore. Can only be called by the current owner.",
+			  "",
+			  " NOTE: Renouncing ownership will leave the contract without an owner,",
+			  " thereby removing any functionality that is only available to the owner.",
+			  "",
+			  " On success a `OwnershipTransferred` event is emitted.",
+			  "",
+			  " # Errors",
+			  "",
+			  " Panics with `CallerIsNotOwner` error if caller is not owner"
+			],
+			"label": "Ownable::renounce_ownership",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 16
+			},
+			"selector": "0x5e228753"
+		  },
+		  {
 			"args": [
 			  {
 				"label": "new_owner",
@@ -266,33 +293,6 @@ const nft_pool_generator_contract = {
 		  {
 			"args": [],
 			"docs": [
-			  " Leaves the contract without owner. It will not be possible to call",
-			  " owner's functions anymore. Can only be called by the current owner.",
-			  "",
-			  " NOTE: Renouncing ownership will leave the contract without an owner,",
-			  " thereby removing any functionality that is only available to the owner.",
-			  "",
-			  " On success a `OwnershipTransferred` event is emitted.",
-			  "",
-			  " # Errors",
-			  "",
-			  " Panics with `CallerIsNotOwner` error if caller is not owner"
-			],
-			"label": "Ownable::renounce_ownership",
-			"mutates": true,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 16
-			},
-			"selector": "0x5e228753"
-		  },
-		  {
-			"args": [],
-			"docs": [
 			  " Returns the address of the current owner."
 			],
 			"label": "Ownable::owner",
@@ -306,221 +306,6 @@ const nft_pool_generator_contract = {
 			  "type": 18
 			},
 			"selector": "0x4fa43c8c"
-		  },
-		  {
-			"args": [
-			  {
-				"label": "contract_owner",
-				"type": {
-				  "displayName": [
-					"genericpoolgeneratortrait_external",
-					"GetPoolByOwnerInput1"
-				  ],
-				  "type": 0
-				}
-			  },
-			  {
-				"label": "index",
-				"type": {
-				  "displayName": [
-					"genericpoolgeneratortrait_external",
-					"GetPoolByOwnerInput2"
-				  ],
-				  "type": 5
-				}
-			  }
-			],
-			"docs": [],
-			"label": "GenericPoolGeneratorTrait::get_pool_by_owner",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 19
-			},
-			"selector": "0x476bc739"
-		  },
-		  {
-			"args": [],
-			"docs": [],
-			"label": "GenericPoolGeneratorTrait::get_pool_count",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 21
-			},
-			"selector": "0x38b09ecb"
-		  },
-		  {
-			"args": [],
-			"docs": [],
-			"label": "GenericPoolGeneratorTrait::get_pool_hash",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 22
-			},
-			"selector": "0x79f903bb"
-		  },
-		  {
-			"args": [],
-			"docs": [],
-			"label": "GenericPoolGeneratorTrait::get_creation_fee",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 23
-			},
-			"selector": "0xea416566"
-		  },
-		  {
-			"args": [],
-			"docs": [],
-			"label": "GenericPoolGeneratorTrait::get_unstake_fee",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 23
-			},
-			"selector": "0xa4395f88"
-		  },
-		  {
-			"args": [
-			  {
-				"label": "contract_owner",
-				"type": {
-				  "displayName": [
-					"genericpoolgeneratortrait_external",
-					"GetPoolCountByOwnerInput1"
-				  ],
-				  "type": 0
-				}
-			  }
-			],
-			"docs": [],
-			"label": "GenericPoolGeneratorTrait::get_pool_count_by_owner",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 21
-			},
-			"selector": "0xa4cef8cd"
-		  },
-		  {
-			"args": [
-			  {
-				"label": "pool_hash",
-				"type": {
-				  "displayName": [
-					"genericpoolgeneratortrait_external",
-					"SetPoolHashInput1"
-				  ],
-				  "type": 4
-				}
-			  }
-			],
-			"docs": [],
-			"label": "GenericPoolGeneratorTrait::set_pool_hash",
-			"mutates": true,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 9
-			},
-			"selector": "0xc49c451f"
-		  },
-		  {
-			"args": [
-			  {
-				"label": "index",
-				"type": {
-				  "displayName": [
-					"genericpoolgeneratortrait_external",
-					"GetPoolInput1"
-				  ],
-				  "type": 5
-				}
-			  }
-			],
-			"docs": [],
-			"label": "GenericPoolGeneratorTrait::get_pool",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 24
-			},
-			"selector": "0xd8207f36"
-		  },
-		  {
-			"args": [],
-			"docs": [],
-			"label": "GenericPoolGeneratorTrait::get_inw_contract",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 18
-			},
-			"selector": "0xd6b47e7a"
-		  },
-		  {
-			"args": [
-			  {
-				"label": "inw_contract",
-				"type": {
-				  "displayName": [
-					"genericpoolgeneratortrait_external",
-					"SetInwContractInput1"
-				  ],
-				  "type": 0
-				}
-			  }
-			],
-			"docs": [],
-			"label": "GenericPoolGeneratorTrait::set_inw_contract",
-			"mutates": true,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 9
-			},
-			"selector": "0xf71a1217"
 		  },
 		  {
 			"args": [
@@ -575,6 +360,221 @@ const nft_pool_generator_contract = {
 			"selector": "0xfd8d8fda"
 		  },
 		  {
+			"args": [],
+			"docs": [],
+			"label": "GenericPoolGeneratorTrait::get_pool_hash",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 19
+			},
+			"selector": "0x79f903bb"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "contract_owner",
+				"type": {
+				  "displayName": [
+					"genericpoolgeneratortrait_external",
+					"GetPoolByOwnerInput1"
+				  ],
+				  "type": 0
+				}
+			  },
+			  {
+				"label": "index",
+				"type": {
+				  "displayName": [
+					"genericpoolgeneratortrait_external",
+					"GetPoolByOwnerInput2"
+				  ],
+				  "type": 5
+				}
+			  }
+			],
+			"docs": [],
+			"label": "GenericPoolGeneratorTrait::get_pool_by_owner",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 20
+			},
+			"selector": "0x476bc739"
+		  },
+		  {
+			"args": [],
+			"docs": [],
+			"label": "GenericPoolGeneratorTrait::get_pool_count",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 22
+			},
+			"selector": "0x38b09ecb"
+		  },
+		  {
+			"args": [],
+			"docs": [],
+			"label": "GenericPoolGeneratorTrait::get_creation_fee",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 23
+			},
+			"selector": "0xea416566"
+		  },
+		  {
+			"args": [],
+			"docs": [],
+			"label": "GenericPoolGeneratorTrait::get_inw_contract",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 18
+			},
+			"selector": "0xd6b47e7a"
+		  },
+		  {
+			"args": [],
+			"docs": [],
+			"label": "GenericPoolGeneratorTrait::get_unstake_fee",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 23
+			},
+			"selector": "0xa4395f88"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "pool_hash",
+				"type": {
+				  "displayName": [
+					"genericpoolgeneratortrait_external",
+					"SetPoolHashInput1"
+				  ],
+				  "type": 4
+				}
+			  }
+			],
+			"docs": [],
+			"label": "GenericPoolGeneratorTrait::set_pool_hash",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 9
+			},
+			"selector": "0xc49c451f"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "contract_owner",
+				"type": {
+				  "displayName": [
+					"genericpoolgeneratortrait_external",
+					"GetPoolCountByOwnerInput1"
+				  ],
+				  "type": 0
+				}
+			  }
+			],
+			"docs": [],
+			"label": "GenericPoolGeneratorTrait::get_pool_count_by_owner",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 22
+			},
+			"selector": "0xa4cef8cd"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "inw_contract",
+				"type": {
+				  "displayName": [
+					"genericpoolgeneratortrait_external",
+					"SetInwContractInput1"
+				  ],
+				  "type": 0
+				}
+			  }
+			],
+			"docs": [],
+			"label": "GenericPoolGeneratorTrait::set_inw_contract",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 9
+			},
+			"selector": "0xf71a1217"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "index",
+				"type": {
+				  "displayName": [
+					"genericpoolgeneratortrait_external",
+					"GetPoolInput1"
+				  ],
+				  "type": 5
+				}
+			  }
+			],
+			"docs": [],
+			"label": "GenericPoolGeneratorTrait::get_pool",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 24
+			},
+			"selector": "0xd8207f36"
+		  },
+		  {
 			"args": [
 			  {
 				"label": "value",
@@ -611,6 +611,23 @@ const nft_pool_generator_contract = {
 			  "type": 9
 			},
 			"selector": "0x07573e99"
+		  },
+		  {
+			"args": [],
+			"docs": [
+			  " Get Azero balance"
+			],
+			"label": "AdminTrait::get_balance",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 26
+			},
+			"selector": "0xc4360570"
 		  },
 		  {
 			"args": [
@@ -1334,6 +1351,98 @@ const nft_pool_generator_contract = {
 				  {
 					"index": 31,
 					"name": "CannotTopupRewardPool"
+				  },
+				  {
+					"index": 32,
+					"name": "NotTimeToPurchase"
+				  },
+				  {
+					"index": 33,
+					"name": "NotTimeToClaim"
+				  },
+				  {
+					"index": 34,
+					"name": "NotTimeToBurn"
+				  },
+				  {
+					"index": 35,
+					"name": "NoTokenPurchased"
+				  },
+				  {
+					"index": 36,
+					"name": "AlreadyBurnt"
+				  },
+				  {
+					"index": 37,
+					"name": "InvalidTime"
+				  },
+				  {
+					"index": 38,
+					"name": "InvalidPercentage"
+				  },
+				  {
+					"index": 39,
+					"name": "InvalidDuration"
+				  },
+				  {
+					"index": 40,
+					"name": "InvalidTopupAmount"
+				  },
+				  {
+					"index": 41,
+					"name": "LaunchpadNotExist"
+				  },
+				  {
+					"index": 42,
+					"name": "InvalidIsActiveInput"
+				  },
+				  {
+					"index": 43,
+					"name": "InvalidCreationFee"
+				  },
+				  {
+					"index": 44,
+					"name": "InvalidPhaseData"
+				  },
+				  {
+					"index": 45,
+					"name": "CannotTopupToken"
+				  },
+				  {
+					"index": 46,
+					"name": "InvalidStartTimeAndEndTime"
+				  },
+				  {
+					"index": 47,
+					"name": "InvalidPhaseCount"
+				  },
+				  {
+					"index": 48,
+					"name": "InvalidMaxStakingAmount"
+				  },
+				  {
+					"index": 49,
+					"name": "InvalidApy"
+				  },
+				  {
+					"index": 50,
+					"name": "InvalidMultiplier"
+				  },
+				  {
+					"index": 51,
+					"name": "InvalidWhitelistData"
+				  },
+				  {
+					"index": 52,
+					"name": "PhaseNotExist"
+				  },
+				  {
+					"index": 53,
+					"name": "WhitelistNotExist"
+				  },
+				  {
+					"index": 54,
+					"name": "WhitelistSaleInfoNotExist"
 				  }
 				]
 			  }
@@ -1579,7 +1688,7 @@ const nft_pool_generator_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 20
+						"type": 4
 					  }
 					],
 					"index": 0,
@@ -1600,7 +1709,7 @@ const nft_pool_generator_contract = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 20
+				"type": 4
 			  },
 			  {
 				"name": "E",
@@ -1614,6 +1723,48 @@ const nft_pool_generator_contract = {
 		},
 		{
 		  "id": 20,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"fields": [
+					  {
+						"type": 21
+					  }
+					],
+					"index": 0,
+					"name": "Ok"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 8
+					  }
+					],
+					"index": 1,
+					"name": "Err"
+				  }
+				]
+			  }
+			},
+			"params": [
+			  {
+				"name": "T",
+				"type": 21
+			  },
+			  {
+				"name": "E",
+				"type": 8
+			  }
+			],
+			"path": [
+			  "Result"
+			]
+		  }
+		},
+		{
+		  "id": 21,
 		  "type": {
 			"def": {
 			  "variant": {
@@ -1646,7 +1797,7 @@ const nft_pool_generator_contract = {
 		  }
 		},
 		{
-		  "id": 21,
+		  "id": 22,
 		  "type": {
 			"def": {
 			  "variant": {
@@ -1676,48 +1827,6 @@ const nft_pool_generator_contract = {
 			  {
 				"name": "T",
 				"type": 5
-			  },
-			  {
-				"name": "E",
-				"type": 8
-			  }
-			],
-			"path": [
-			  "Result"
-			]
-		  }
-		},
-		{
-		  "id": 22,
-		  "type": {
-			"def": {
-			  "variant": {
-				"variants": [
-				  {
-					"fields": [
-					  {
-						"type": 4
-					  }
-					],
-					"index": 0,
-					"name": "Ok"
-				  },
-				  {
-					"fields": [
-					  {
-						"type": 8
-					  }
-					],
-					"index": 1,
-					"name": "Err"
-				  }
-				]
-			  }
-			},
-			"params": [
-			  {
-				"name": "T",
-				"type": 4
 			  },
 			  {
 				"name": "E",
@@ -1843,6 +1952,90 @@ const nft_pool_generator_contract = {
 			],
 			"path": [
 			  "Option"
+			]
+		  }
+		},
+		{
+		  "id": 26,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"fields": [
+					  {
+						"type": 27
+					  }
+					],
+					"index": 0,
+					"name": "Ok"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 8
+					  }
+					],
+					"index": 1,
+					"name": "Err"
+				  }
+				]
+			  }
+			},
+			"params": [
+			  {
+				"name": "T",
+				"type": 27
+			  },
+			  {
+				"name": "E",
+				"type": 8
+			  }
+			],
+			"path": [
+			  "Result"
+			]
+		  }
+		},
+		{
+		  "id": 27,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"fields": [
+					  {
+						"type": 6
+					  }
+					],
+					"index": 0,
+					"name": "Ok"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 11
+					  }
+					],
+					"index": 1,
+					"name": "Err"
+				  }
+				]
+			  }
+			},
+			"params": [
+			  {
+				"name": "T",
+				"type": 6
+			  },
+			  {
+				"name": "E",
+				"type": 11
+			  }
+			],
+			"path": [
+			  "Result"
 			]
 		  }
 		}

@@ -1,8 +1,8 @@
 const public_sale_contract = {
-  CONTRACT_ADDRESS: "5GVBczu8bZPPHJ9Zj9rrHmJLH4fBSpEZ2Kdwd74mcAkoCFtm",
+  CONTRACT_ADDRESS: "5DKkZW8zjxraKESYLuUDKkXhz4zJjyJXuYNc5GqMWEdJHrYZ",
   CONTRACT_ABI: {
 	  "source": {
-		"hash": "0x94a3216c0118c4f7abd4cb298b06c355882b2f1e67f9d49cffd2ecefe1fe2f72",
+		"hash": "0xeb10e776fc46b9d016b50734012cba8e5f7712f323f2923cb05536d2d8c21527",
 		"language": "ink! 4.2.0",
 		"compiler": "rustc 1.70.0-nightly",
 		"build_info": {
@@ -264,44 +264,6 @@ const public_sale_contract = {
 			"selector": "0xf2f6dba3"
 		  },
 		  {
-			"args": [
-			  {
-				"label": "new_owner",
-				"type": {
-				  "displayName": [
-					"ownable_external",
-					"TransferOwnershipInput1"
-				  ],
-				  "type": 0
-				}
-			  }
-			],
-			"default": false,
-			"docs": [
-			  " Transfers ownership of the contract to a `new_owner`.",
-			  " Can only be called by the current owner.",
-			  "",
-			  " On success a `OwnershipTransferred` event is emitted.",
-			  "",
-			  " # Errors",
-			  "",
-			  " Panics with `CallerIsNotOwner` error if caller is not owner.",
-			  "",
-			  " Panics with `NewOwnerIsZero` error if new owner's address is zero."
-			],
-			"label": "Ownable::transfer_ownership",
-			"mutates": true,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 16
-			},
-			"selector": "0x11f43efd"
-		  },
-		  {
 			"args": [],
 			"default": false,
 			"docs": [
@@ -350,6 +312,44 @@ const public_sale_contract = {
 		  {
 			"args": [
 			  {
+				"label": "new_owner",
+				"type": {
+				  "displayName": [
+					"ownable_external",
+					"TransferOwnershipInput1"
+				  ],
+				  "type": 0
+				}
+			  }
+			],
+			"default": false,
+			"docs": [
+			  " Transfers ownership of the contract to a `new_owner`.",
+			  " Can only be called by the current owner.",
+			  "",
+			  " On success a `OwnershipTransferred` event is emitted.",
+			  "",
+			  " # Errors",
+			  "",
+			  " Panics with `CallerIsNotOwner` error if caller is not owner.",
+			  "",
+			  " Panics with `NewOwnerIsZero` error if new owner's address is zero."
+			],
+			"label": "Ownable::transfer_ownership",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 16
+			},
+			"selector": "0x11f43efd"
+		  },
+		  {
+			"args": [
+			  {
 				"label": "vesting_duration",
 				"type": {
 				  "displayName": [
@@ -378,8 +378,8 @@ const public_sale_contract = {
 			"args": [],
 			"default": false,
 			"docs": [],
-			"label": "GenericTokenSaleTrait::get_unclaimed_amount",
-			"mutates": true,
+			"label": "GenericTokenSaleTrait::total_claimed_amount",
+			"mutates": false,
 			"payable": false,
 			"returnType": {
 			  "displayName": [
@@ -388,24 +388,67 @@ const public_sale_contract = {
 			  ],
 			  "type": 19
 			},
-			"selector": "0x0cd12283"
+			"selector": "0x1f3590e4"
 		  },
 		  {
 			"args": [
 			  {
-				"label": "start_time",
+				"label": "buyer",
 				"type": {
 				  "displayName": [
 					"generictokensaletrait_external",
-					"SetStartTimeInput1"
+					"GetBuyerInfoInput1"
 				  ],
-				  "type": 4
+				  "type": 0
 				}
 			  }
 			],
 			"default": false,
 			"docs": [],
-			"label": "GenericTokenSaleTrait::set_start_time",
+			"label": "GenericTokenSaleTrait::get_buyer_info",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 20
+			},
+			"selector": "0x71675782"
+		  },
+		  {
+			"args": [],
+			"default": false,
+			"docs": [],
+			"label": "GenericTokenSaleTrait::is_burned",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 23
+			},
+			"selector": "0xe6421504"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "inw_price",
+				"type": {
+				  "displayName": [
+					"generictokensaletrait_external",
+					"SetInwPriceInput1"
+				  ],
+				  "type": 5
+				}
+			  }
+			],
+			"default": false,
+			"docs": [],
+			"label": "GenericTokenSaleTrait::set_inw_price",
 			"mutates": true,
 			"payable": false,
 			"returnType": {
@@ -415,7 +458,195 @@ const public_sale_contract = {
 			  ],
 			  "type": 8
 			},
-			"selector": "0x04697380"
+			"selector": "0xbbdc2b16"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "amount",
+				"type": {
+				  "displayName": [
+					"generictokensaletrait_external",
+					"PurchaseInput1"
+				  ],
+				  "type": 5
+				}
+			  }
+			],
+			"default": false,
+			"docs": [],
+			"label": "GenericTokenSaleTrait::purchase",
+			"mutates": true,
+			"payable": true,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 8
+			},
+			"selector": "0xfc854c90"
+		  },
+		  {
+			"args": [],
+			"default": false,
+			"docs": [],
+			"label": "GenericTokenSaleTrait::claim",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 8
+			},
+			"selector": "0x2e060143"
+		  },
+		  {
+			"args": [],
+			"default": false,
+			"docs": [],
+			"label": "GenericTokenSaleTrait::get_balance",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 24
+			},
+			"selector": "0x3321577e"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "total_amount",
+				"type": {
+				  "displayName": [
+					"generictokensaletrait_external",
+					"SetTotalAmountInput1"
+				  ],
+				  "type": 5
+				}
+			  }
+			],
+			"default": false,
+			"docs": [],
+			"label": "GenericTokenSaleTrait::set_total_amount",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 8
+			},
+			"selector": "0x9099bb70"
+		  },
+		  {
+			"args": [],
+			"default": false,
+			"docs": [],
+			"label": "GenericTokenSaleTrait::total_purchased_amount",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 19
+			},
+			"selector": "0x045239b0"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "amount",
+				"type": {
+				  "displayName": [
+					"generictokensaletrait_external",
+					"TopupInput1"
+				  ],
+				  "type": 5
+				}
+			  }
+			],
+			"default": false,
+			"docs": [],
+			"label": "GenericTokenSaleTrait::topup",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 8
+			},
+			"selector": "0x8afc6b74"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "immediate_buying_rate",
+				"type": {
+				  "displayName": [
+					"generictokensaletrait_external",
+					"SetImmediateBuyingRateInput1"
+				  ],
+				  "type": 6
+				}
+			  }
+			],
+			"default": false,
+			"docs": [],
+			"label": "GenericTokenSaleTrait::set_immediate_buying_rate",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 8
+			},
+			"selector": "0x9f28ae3e"
+		  },
+		  {
+			"args": [],
+			"default": false,
+			"docs": [],
+			"label": "GenericTokenSaleTrait::immediate_buying_rate",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 26
+			},
+			"selector": "0x8b835be0"
+		  },
+		  {
+			"args": [],
+			"default": false,
+			"docs": [],
+			"label": "GenericTokenSaleTrait::get_unclaimed_amount",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 24
+			},
+			"selector": "0x0cd12283"
 		  },
 		  {
 			"args": [],
@@ -429,7 +660,7 @@ const public_sale_contract = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 21
+			  "type": 27
 			},
 			"selector": "0x7b7a54ac"
 		  },
@@ -464,38 +695,6 @@ const public_sale_contract = {
 			"args": [],
 			"default": false,
 			"docs": [],
-			"label": "GenericTokenSaleTrait::inw_price",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 22
-			},
-			"selector": "0xeb730c59"
-		  },
-		  {
-			"args": [],
-			"default": false,
-			"docs": [],
-			"label": "GenericTokenSaleTrait::claim",
-			"mutates": true,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 8
-			},
-			"selector": "0x2e060143"
-		  },
-		  {
-			"args": [],
-			"default": false,
-			"docs": [],
 			"label": "GenericTokenSaleTrait::end_time",
 			"mutates": false,
 			"payable": false,
@@ -504,7 +703,7 @@ const public_sale_contract = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 21
+			  "type": 27
 			},
 			"selector": "0x9a7338d4"
 		  },
@@ -512,7 +711,7 @@ const public_sale_contract = {
 			"args": [],
 			"default": false,
 			"docs": [],
-			"label": "GenericTokenSaleTrait::total_purchased_amount",
+			"label": "GenericTokenSaleTrait::inw_price",
 			"mutates": false,
 			"payable": false,
 			"returnType": {
@@ -520,79 +719,9 @@ const public_sale_contract = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 22
+			  "type": 19
 			},
-			"selector": "0x045239b0"
-		  },
-		  {
-			"args": [
-			  {
-				"label": "buyer",
-				"type": {
-				  "displayName": [
-					"generictokensaletrait_external",
-					"GetBuyerInfoInput1"
-				  ],
-				  "type": 0
-				}
-			  }
-			],
-			"default": false,
-			"docs": [],
-			"label": "GenericTokenSaleTrait::get_buyer_info",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 23
-			},
-			"selector": "0x71675782"
-		  },
-		  {
-			"args": [],
-			"default": false,
-			"docs": [],
-			"label": "GenericTokenSaleTrait::total_claimed_amount",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 22
-			},
-			"selector": "0x1f3590e4"
-		  },
-		  {
-			"args": [
-			  {
-				"label": "immediate_buying_rate",
-				"type": {
-				  "displayName": [
-					"generictokensaletrait_external",
-					"SetImmediateBuyingRateInput1"
-				  ],
-				  "type": 6
-				}
-			  }
-			],
-			"default": false,
-			"docs": [],
-			"label": "GenericTokenSaleTrait::set_immediate_buying_rate",
-			"mutates": true,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 8
-			},
-			"selector": "0x9f28ae3e"
+			"selector": "0xeb730c59"
 		  },
 		  {
 			"args": [],
@@ -606,7 +735,7 @@ const public_sale_contract = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 21
+			  "type": 27
 			},
 			"selector": "0xeb8a7b3d"
 		  },
@@ -614,7 +743,23 @@ const public_sale_contract = {
 			"args": [],
 			"default": false,
 			"docs": [],
-			"label": "GenericTokenSaleTrait::immediate_buying_rate",
+			"label": "GenericTokenSaleTrait::burn",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 8
+			},
+			"selector": "0x16895379"
+		  },
+		  {
+			"args": [],
+			"default": false,
+			"docs": [],
+			"label": "GenericTokenSaleTrait::total_amount",
 			"mutates": false,
 			"payable": false,
 			"returnType": {
@@ -622,9 +767,9 @@ const public_sale_contract = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 26
+			  "type": 19
 			},
-			"selector": "0x8b835be0"
+			"selector": "0x3badc100"
 		  },
 		  {
 			"args": [
@@ -654,135 +799,6 @@ const public_sale_contract = {
 			"selector": "0x9309d971"
 		  },
 		  {
-			"args": [
-			  {
-				"label": "amount",
-				"type": {
-				  "displayName": [
-					"generictokensaletrait_external",
-					"TopupInput1"
-				  ],
-				  "type": 5
-				}
-			  }
-			],
-			"default": false,
-			"docs": [],
-			"label": "GenericTokenSaleTrait::topup",
-			"mutates": true,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 8
-			},
-			"selector": "0x8afc6b74"
-		  },
-		  {
-			"args": [],
-			"default": false,
-			"docs": [],
-			"label": "GenericTokenSaleTrait::get_balance",
-			"mutates": true,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 19
-			},
-			"selector": "0x3321577e"
-		  },
-		  {
-			"args": [],
-			"default": false,
-			"docs": [],
-			"label": "GenericTokenSaleTrait::burn",
-			"mutates": true,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 8
-			},
-			"selector": "0x16895379"
-		  },
-		  {
-			"args": [
-			  {
-				"label": "total_amount",
-				"type": {
-				  "displayName": [
-					"generictokensaletrait_external",
-					"SetTotalAmountInput1"
-				  ],
-				  "type": 5
-				}
-			  }
-			],
-			"default": false,
-			"docs": [],
-			"label": "GenericTokenSaleTrait::set_total_amount",
-			"mutates": true,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 8
-			},
-			"selector": "0x9099bb70"
-		  },
-		  {
-			"args": [],
-			"default": false,
-			"docs": [],
-			"label": "GenericTokenSaleTrait::is_burned",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 27
-			},
-			"selector": "0xe6421504"
-		  },
-		  {
-			"args": [
-			  {
-				"label": "inw_price",
-				"type": {
-				  "displayName": [
-					"generictokensaletrait_external",
-					"SetInwPriceInput1"
-				  ],
-				  "type": 5
-				}
-			  }
-			],
-			"default": false,
-			"docs": [],
-			"label": "GenericTokenSaleTrait::set_inw_price",
-			"mutates": true,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 8
-			},
-			"selector": "0xbbdc2b16"
-		  },
-		  {
 			"args": [],
 			"default": false,
 			"docs": [],
@@ -801,21 +817,21 @@ const public_sale_contract = {
 		  {
 			"args": [
 			  {
-				"label": "amount",
+				"label": "start_time",
 				"type": {
 				  "displayName": [
 					"generictokensaletrait_external",
-					"PurchaseInput1"
+					"SetStartTimeInput1"
 				  ],
-				  "type": 5
+				  "type": 4
 				}
 			  }
 			],
 			"default": false,
 			"docs": [],
-			"label": "GenericTokenSaleTrait::purchase",
+			"label": "GenericTokenSaleTrait::set_start_time",
 			"mutates": true,
-			"payable": true,
+			"payable": false,
 			"returnType": {
 			  "displayName": [
 				"ink",
@@ -823,23 +839,7 @@ const public_sale_contract = {
 			  ],
 			  "type": 8
 			},
-			"selector": "0xfc854c90"
-		  },
-		  {
-			"args": [],
-			"default": false,
-			"docs": [],
-			"label": "GenericTokenSaleTrait::total_amount",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 22
-			},
-			"selector": "0x3badc100"
+			"selector": "0x04697380"
 		  },
 		  {
 			"args": [
@@ -928,6 +928,24 @@ const public_sale_contract = {
 			  "type": 8
 			},
 			"selector": "0xd9aad284"
+		  },
+		  {
+			"args": [],
+			"default": false,
+			"docs": [
+			  " Get Azero balance"
+			],
+			"label": "AdminTrait::get_balance",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 24
+			},
+			"selector": "0xc4360570"
 		  },
 		  {
 			"args": [
@@ -1647,6 +1665,62 @@ const public_sale_contract = {
 				  {
 					"index": 40,
 					"name": "InvalidTopupAmount"
+				  },
+				  {
+					"index": 41,
+					"name": "LaunchpadNotExist"
+				  },
+				  {
+					"index": 42,
+					"name": "InvalidIsActiveInput"
+				  },
+				  {
+					"index": 43,
+					"name": "InvalidCreationFee"
+				  },
+				  {
+					"index": 44,
+					"name": "InvalidPhaseData"
+				  },
+				  {
+					"index": 45,
+					"name": "CannotTopupToken"
+				  },
+				  {
+					"index": 46,
+					"name": "InvalidStartTimeAndEndTime"
+				  },
+				  {
+					"index": 47,
+					"name": "InvalidPhaseCount"
+				  },
+				  {
+					"index": 48,
+					"name": "InvalidMaxStakingAmount"
+				  },
+				  {
+					"index": 49,
+					"name": "InvalidApy"
+				  },
+				  {
+					"index": 50,
+					"name": "InvalidMultiplier"
+				  },
+				  {
+					"index": 51,
+					"name": "InvalidWhitelistData"
+				  },
+				  {
+					"index": 52,
+					"name": "PhaseNotExist"
+				  },
+				  {
+					"index": 53,
+					"name": "WhitelistNotExist"
+				  },
+				  {
+					"index": 54,
+					"name": "WhitelistSaleInfoNotExist"
 				  }
 				]
 			  }
@@ -1911,7 +1985,7 @@ const public_sale_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 20
+						"type": 5
 					  }
 					],
 					"index": 0,
@@ -1932,7 +2006,7 @@ const public_sale_contract = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 20
+				"type": 5
 			  },
 			  {
 				"name": "E",
@@ -1946,6 +2020,203 @@ const public_sale_contract = {
 		},
 		{
 		  "id": 20,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"fields": [
+					  {
+						"type": 21
+					  }
+					],
+					"index": 0,
+					"name": "Ok"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 15
+					  }
+					],
+					"index": 1,
+					"name": "Err"
+				  }
+				]
+			  }
+			},
+			"params": [
+			  {
+				"name": "T",
+				"type": 21
+			  },
+			  {
+				"name": "E",
+				"type": 15
+			  }
+			],
+			"path": [
+			  "Result"
+			]
+		  }
+		},
+		{
+		  "id": 21,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"index": 0,
+					"name": "None"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 22
+					  }
+					],
+					"index": 1,
+					"name": "Some"
+				  }
+				]
+			  }
+			},
+			"params": [
+			  {
+				"name": "T",
+				"type": 22
+			  }
+			],
+			"path": [
+			  "Option"
+			]
+		  }
+		},
+		{
+		  "id": 22,
+		  "type": {
+			"def": {
+			  "composite": {
+				"fields": [
+				  {
+					"name": "purchased_amount",
+					"type": 5,
+					"typeName": "Balance"
+				  },
+				  {
+					"name": "vesting_amount",
+					"type": 5,
+					"typeName": "Balance"
+				  },
+				  {
+					"name": "claimed_amount",
+					"type": 5,
+					"typeName": "Balance"
+				  },
+				  {
+					"name": "last_updated_time",
+					"type": 4,
+					"typeName": "u64"
+				  }
+				]
+			  }
+			},
+			"path": [
+			  "inkwhale_project",
+			  "impls",
+			  "generic_token_sale",
+			  "data",
+			  "BuyerInformation"
+			]
+		  }
+		},
+		{
+		  "id": 23,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"fields": [
+					  {
+						"type": 7
+					  }
+					],
+					"index": 0,
+					"name": "Ok"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 15
+					  }
+					],
+					"index": 1,
+					"name": "Err"
+				  }
+				]
+			  }
+			},
+			"params": [
+			  {
+				"name": "T",
+				"type": 7
+			  },
+			  {
+				"name": "E",
+				"type": 15
+			  }
+			],
+			"path": [
+			  "Result"
+			]
+		  }
+		},
+		{
+		  "id": 24,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"fields": [
+					  {
+						"type": 25
+					  }
+					],
+					"index": 0,
+					"name": "Ok"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 15
+					  }
+					],
+					"index": 1,
+					"name": "Err"
+				  }
+				]
+			  }
+			},
+			"params": [
+			  {
+				"name": "T",
+				"type": 25
+			  },
+			  {
+				"name": "E",
+				"type": 15
+			  }
+			],
+			"path": [
+			  "Result"
+			]
+		  }
+		},
+		{
+		  "id": 25,
 		  "type": {
 			"def": {
 			  "variant": {
@@ -1983,203 +2254,6 @@ const public_sale_contract = {
 			],
 			"path": [
 			  "Result"
-			]
-		  }
-		},
-		{
-		  "id": 21,
-		  "type": {
-			"def": {
-			  "variant": {
-				"variants": [
-				  {
-					"fields": [
-					  {
-						"type": 4
-					  }
-					],
-					"index": 0,
-					"name": "Ok"
-				  },
-				  {
-					"fields": [
-					  {
-						"type": 15
-					  }
-					],
-					"index": 1,
-					"name": "Err"
-				  }
-				]
-			  }
-			},
-			"params": [
-			  {
-				"name": "T",
-				"type": 4
-			  },
-			  {
-				"name": "E",
-				"type": 15
-			  }
-			],
-			"path": [
-			  "Result"
-			]
-		  }
-		},
-		{
-		  "id": 22,
-		  "type": {
-			"def": {
-			  "variant": {
-				"variants": [
-				  {
-					"fields": [
-					  {
-						"type": 5
-					  }
-					],
-					"index": 0,
-					"name": "Ok"
-				  },
-				  {
-					"fields": [
-					  {
-						"type": 15
-					  }
-					],
-					"index": 1,
-					"name": "Err"
-				  }
-				]
-			  }
-			},
-			"params": [
-			  {
-				"name": "T",
-				"type": 5
-			  },
-			  {
-				"name": "E",
-				"type": 15
-			  }
-			],
-			"path": [
-			  "Result"
-			]
-		  }
-		},
-		{
-		  "id": 23,
-		  "type": {
-			"def": {
-			  "variant": {
-				"variants": [
-				  {
-					"fields": [
-					  {
-						"type": 24
-					  }
-					],
-					"index": 0,
-					"name": "Ok"
-				  },
-				  {
-					"fields": [
-					  {
-						"type": 15
-					  }
-					],
-					"index": 1,
-					"name": "Err"
-				  }
-				]
-			  }
-			},
-			"params": [
-			  {
-				"name": "T",
-				"type": 24
-			  },
-			  {
-				"name": "E",
-				"type": 15
-			  }
-			],
-			"path": [
-			  "Result"
-			]
-		  }
-		},
-		{
-		  "id": 24,
-		  "type": {
-			"def": {
-			  "variant": {
-				"variants": [
-				  {
-					"index": 0,
-					"name": "None"
-				  },
-				  {
-					"fields": [
-					  {
-						"type": 25
-					  }
-					],
-					"index": 1,
-					"name": "Some"
-				  }
-				]
-			  }
-			},
-			"params": [
-			  {
-				"name": "T",
-				"type": 25
-			  }
-			],
-			"path": [
-			  "Option"
-			]
-		  }
-		},
-		{
-		  "id": 25,
-		  "type": {
-			"def": {
-			  "composite": {
-				"fields": [
-				  {
-					"name": "purchased_amount",
-					"type": 5,
-					"typeName": "Balance"
-				  },
-				  {
-					"name": "vesting_amount",
-					"type": 5,
-					"typeName": "Balance"
-				  },
-				  {
-					"name": "claimed_amount",
-					"type": 5,
-					"typeName": "Balance"
-				  },
-				  {
-					"name": "last_updated_time",
-					"type": 4,
-					"typeName": "u64"
-				  }
-				]
-			  }
-			},
-			"path": [
-			  "inkwhale_project",
-			  "impls",
-			  "generic_token_sale",
-			  "data",
-			  "BuyerInformation"
 			]
 		  }
 		},
@@ -2234,7 +2308,7 @@ const public_sale_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 7
+						"type": 4
 					  }
 					],
 					"index": 0,
@@ -2255,7 +2329,7 @@ const public_sale_contract = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 7
+				"type": 4
 			  },
 			  {
 				"name": "E",
