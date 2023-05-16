@@ -548,7 +548,7 @@ export default function FaucetPage({ api }) {
   const tabsData = [
     {
       label: <>Public Sale with Vesting</>,
-      component: isSaleEnded ? (
+      component: !isSaleEnded ? (
         <IWCard
           w="full"
           variant="outline"
