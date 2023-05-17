@@ -4,6 +4,7 @@ import { formatBalance } from "@polkadot/util";
 import axios from "axios";
 import BN from "bn.js";
 import numeral from "numeral";
+import Keyring from "@polkadot/keyring";
 
 // "12,345" (string) or 12,345 (string) -> 12345 (number)
 export const formatChainStringToNumber = (str) => {
@@ -52,7 +53,7 @@ export const formatNumToBN = (number = 0, decimal = 12) => {
   if(number > 10 ** 6) {
     numberMul = 0
   }
-  return new BN(+number * 10 ** numberMul).mul(new BN(10 ** (decimal - 6))).toString();
+  return new BN(+number * 10 ** numberMul).mul(new BN(10 ** (decimal - numberMul))).toString();
 };
 
 export const formatNumDynDecimal = (num = 0, dec = 4) => {
@@ -188,3 +189,21 @@ export function roundDown(number, decimals = 4) {
   decimals = decimals || 0;
   return Math.floor(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
+
+export const getPublicCurrentAccount = () => {
+  const keyring = new Keyring();
+  const PHRASE =
+    "entire material egg meadow latin bargain dutch coral blood melt acoustic thought";
+
+  keyring.addFromUri(PHRASE, { name: "Nobody" });
+
+  const keyringOptions = keyring
+    .getPairs()
+    .map(({ address, meta: { name } }) => ({
+      key: address,
+      address,
+      name,
+    }));
+
+  return keyringOptions[0];
+};

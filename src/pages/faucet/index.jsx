@@ -44,6 +44,7 @@ import BN from "bn.js";
 import { ADDRESSES_INW } from "constants";
 import { roundUp } from "utils";
 import { roundDown } from "utils";
+import { getPublicCurrentAccount } from "utils";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
 
@@ -70,6 +71,7 @@ export default function FaucetPage({ api }) {
   const [accountInfo, setAccountInfo] = useState(null);
   // eslint-disable-next-line no-unused-vars
   const [accountInfoLoading, setAccountInfoLoading] = useState(false);
+  const publicCurrentAccount = getPublicCurrentAccount();
 
   const prepareAccountInfoData = useCallback(() => {
     setAccountInfoLoading(true);
@@ -129,7 +131,7 @@ export default function FaucetPage({ api }) {
 
   const getPriceInw = async (token) => {
     let price = await execContractQuery(
-      currentAccount?.address,
+      publicCurrentAccount?.address,
       api,
       token.CONTRACT_ABI,
       token.CONTRACT_ADDRESS,
@@ -141,7 +143,7 @@ export default function FaucetPage({ api }) {
 
   const getSaleInfo = async (token) => {
     let query1 = execContractQuery(
-      currentAccount?.address,
+      publicCurrentAccount?.address,
       api,
       token.CONTRACT_ABI,
       token.CONTRACT_ADDRESS,
@@ -159,7 +161,7 @@ export default function FaucetPage({ api }) {
     );
 
     const query3 = execContractQuery(
-      currentAccount?.address,
+      publicCurrentAccount?.address,
       api,
       token.CONTRACT_ABI,
       token.CONTRACT_ADDRESS,
@@ -168,7 +170,7 @@ export default function FaucetPage({ api }) {
     );
 
     const query4 = execContractQuery(
-      currentAccount?.address,
+      publicCurrentAccount?.address,
       api,
       token.CONTRACT_ABI,
       token.CONTRACT_ADDRESS,
@@ -177,7 +179,7 @@ export default function FaucetPage({ api }) {
     );
 
     const query5 = execContractQuery(
-      currentAccount?.address,
+      publicCurrentAccount?.address,
       api,
       token.CONTRACT_ABI,
       token.CONTRACT_ADDRESS,
@@ -185,7 +187,7 @@ export default function FaucetPage({ api }) {
       "genericTokenSaleTrait::totalClaimedAmount"
     );
     const query6 = execContractQuery(
-      currentAccount?.address,
+      publicCurrentAccount?.address,
       api,
       token.CONTRACT_ABI,
       token.CONTRACT_ADDRESS,
@@ -194,7 +196,7 @@ export default function FaucetPage({ api }) {
     );
 
     const query7 = execContractQuery(
-      currentAccount?.address,
+      publicCurrentAccount?.address,
       api,
       token.CONTRACT_ABI,
       token.CONTRACT_ADDRESS,
@@ -202,7 +204,7 @@ export default function FaucetPage({ api }) {
       "genericTokenSaleTrait::totalPurchasedAmount"
     );
     const query8 = execContractQuery(
-      currentAccount?.address,
+      publicCurrentAccount?.address,
       api,
       token.CONTRACT_ABI,
       token.CONTRACT_ADDRESS,
@@ -210,7 +212,7 @@ export default function FaucetPage({ api }) {
       "genericTokenSaleTrait::isBurned"
     );
     const query9 = execContractQuery(
-      currentAccount?.address,
+      publicCurrentAccount?.address,
       api,
       token.CONTRACT_ABI,
       token.CONTRACT_ADDRESS,
@@ -281,7 +283,7 @@ export default function FaucetPage({ api }) {
 
   const getBalanceINWOfAddress = (address) => {
     return execContractQuery(
-      currentAccount?.address,
+      publicCurrentAccount?.address,
       api,
       azt_contract.CONTRACT_ABI,
       azt_contract.CONTRACT_ADDRESS,
@@ -364,7 +366,7 @@ export default function FaucetPage({ api }) {
 
   const getBalanceContract = async (token) => {
     let balance = await execContractQuery(
-      currentAccount?.address,
+      publicCurrentAccount?.address,
       api,
       azt_contract.CONTRACT_ABI,
       azt_contract.CONTRACT_ADDRESS,
@@ -378,7 +380,7 @@ export default function FaucetPage({ api }) {
   };
   const getPublicsaleInfo = async (token) => {
     let endTime = await execContractQuery(
-      currentAccount?.address,
+      publicCurrentAccount?.address,
       api,
       token.CONTRACT_ABI,
       token.CONTRACT_ADDRESS,
@@ -404,17 +406,13 @@ export default function FaucetPage({ api }) {
   };
 
   useEffect(() => {
-    if (!(api && currentAccount?.address)) return;
+    if (!(api && publicCurrentAccount?.address)) return;
     getInfo();
   }, [tabIndex]);
 
   useEffect(() => {
-    if (!(api && currentAccount?.address)) return;
+    if (!(api && publicCurrentAccount?.address)) return;
     getInfo();
-    const interval = setInterval(() => {
-      getInfo();
-    }, 60000);
-    return () => clearInterval(interval);
   }, [api, currentAccount]);
 
   const inwPublicMintHandler = async () => {

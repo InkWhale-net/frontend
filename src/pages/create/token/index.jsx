@@ -92,7 +92,7 @@ export default function CreateTokenPage({ api }) {
 
     if (
       parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) <
-      createTokenFee
+      createTokenFee?.replaceAll(",", "")
     ) {
       toast.error(
         `You don't have enough INW. Create Token costs ${createTokenFee} INW`
@@ -113,6 +113,7 @@ export default function CreateTokenPage({ api }) {
       ",",
       ""
     );
+    console.log(allowanceINWQr, createTokenFee, 'createTokenFeecreateTokenFee');
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
       toast.success("Step 1: Approving...");
@@ -124,7 +125,7 @@ export default function CreateTokenPage({ api }) {
         0, //-> value
         "psp22::approve",
         core_contract.CONTRACT_ADDRESS,
-        formatNumToBN(createTokenFee)
+        formatNumToBN(Number.MAX_SAFE_INTEGER)
       );
       if (!approve) return;
     }
