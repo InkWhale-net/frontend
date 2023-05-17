@@ -14,7 +14,7 @@ import {
   Text,
   useBreakpointValue,
   VStack,
-  Im
+  Im,
 } from "@chakra-ui/react";
 
 import { ipfsClient } from "api/client";
@@ -37,13 +37,17 @@ export default function ImageUploadIcon({
   const avatarProfileSize = useBreakpointValue([260, 360]);
   const ref = useRef();
 
+  useEffect(() => {
+    if (!iconUrl) {
+      setImagePreviewUrl("");
+    }
+  }, [iconUrl]);
+
   const retrieveNewIcon = (e) => {
     let data;
     if (e) data = e.target.files[0];
 
     if (!supportedFormat.includes(data?.type)) {
-
-      
       toast.error(
         `Please use .png .jpeg .jpeg, .gif format, the ${
           e.target?.files[0] && e.target.files[0].type.split("/")[1]
@@ -107,6 +111,7 @@ export default function ImageUploadIcon({
     }
   };
 
+
   return (
     <VStack h="full" justifyContent="flex-start" alignItems="start">
       <Box>
@@ -124,9 +129,9 @@ export default function ImageUploadIcon({
           </Square>
         )}
 
-        {!imagePreviewUrl && iconUrl && (
+        {/* {!imagePreviewUrl && iconUrl && (
           <Square size={["130px", "180px"]}>
-            {/* <Image
+            <Image
               h="full"
               w="full"
               alt="avatar"
@@ -134,7 +139,7 @@ export default function ImageUploadIcon({
               objectFit="cover"
               objectPosition="center"
               src={getCachedImageShort(profile?.avatar, 500)}
-            />{" "} */}
+            />{" "}
             <Image
               size={500}
               w={["130px", "180px"]}
@@ -142,8 +147,7 @@ export default function ImageUploadIcon({
               src={iconUrl}
             />
           </Square>
-        )}
-
+        )} */}
       </Box>
 
       <Center w="full" justifyContent="center">
@@ -171,7 +175,6 @@ export default function ImageUploadIcon({
           </label>
         </VStack>
         <Spacer />
-
       </Center>
       <Text ml={2} fontSize="14px" color="brand.grayLight">
         Recommended file size is {limitedSize.width}x{limitedSize.height} px

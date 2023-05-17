@@ -326,8 +326,8 @@ export default function CreateNFTLPPage({ api }) {
     setMultiplier("");
     setDuration("");
     setStartTime(new Date());
-    setSelectedContractAddr("");
-    setSelectedCollectionAddr("");
+    // setSelectedContractAddr("");
+    // setSelectedCollectionAddr("");
 
     await delay(3000);
 

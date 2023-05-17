@@ -66,7 +66,11 @@ export default function CreateTokenPage({ api }) {
 
   const updateIcon = async (contractAddress) => {
     if (iconIPFSUrl) {
-      APICall.updateTokenIcon({ contractAddress, tokenIconUrl: iconIPFSUrl });
+      APICall.updateTokenIcon({
+        contractAddress,
+        tokenGeneratorContractAddress: core_contract.CONTRACT_ADDRESS,
+        tokenIconUrl: iconIPFSUrl,
+      });
     }
   };
 
@@ -113,7 +117,6 @@ export default function CreateTokenPage({ api }) {
       ",",
       ""
     );
-    console.log(allowanceINWQr, createTokenFee, 'createTokenFeecreateTokenFee');
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
       toast.success("Step 1: Approving...");
@@ -149,16 +152,16 @@ export default function CreateTokenPage({ api }) {
       12 // tokenDecimal
     );
 
-    await APICall.askBEupdate({ type: "token", poolContract: "new" });
-
     setTokenName("");
     setTokenSymbol("");
     setTotalSupply("");
+    await APICall.askBEupdate({ type: "token", poolContract: "new" });
 
     await delay(3000);
 
     toast.promise(
       delay(15000).then(() => {
+        setIconIPFSUrl();
         if (currentAccount) {
           dispatch(fetchAllTokensList({}));
           dispatch(fetchUserBalance({ currentAccount, api }));
@@ -173,7 +176,7 @@ export default function CreateTokenPage({ api }) {
   }
 
   const hasMorePage = useMemo(
-    () => (currentPage) * 4 < allTokensList?.length,
+    () => currentPage * 4 < allTokensList?.length,
     [currentPage, allTokensList]
   );
 
@@ -284,7 +287,7 @@ export default function CreateTokenPage({ api }) {
             </Box>
             <Box w={{ base: "full" }}>
               <IWInput
-                type="text"
+                type="number"
                 value={totalSupply}
                 label="Total Supply"
                 placeholder="0"

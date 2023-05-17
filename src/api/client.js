@@ -42,8 +42,8 @@ export const APICall = {
     return { ret, status, message } ;
   },
 
-  updateTokenIcon: async ({ contractAddress, tokenIconUrl }) => {
-    return await client("POST", "/updateTokenUrl", { contractAddress, tokenIconUrl });
+  updateTokenIcon: async ({ contractAddress, tokenGeneratorContractAddress, tokenIconUrl }) => {
+    return await client("POST", "/updateTokenUrl", { contractAddress, tokenGeneratorContractAddress, tokenIconUrl });
   },
 
   // Get list of staking pools

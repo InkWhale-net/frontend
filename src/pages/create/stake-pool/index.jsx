@@ -169,7 +169,7 @@ export default function CreateStakePoolPage({ api }) {
 
     if (
       parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) <
-      createTokenFee
+      createTokenFee?.replaceAll(',', '')
     ) {
       toast.error(
         `You don't have enough INW. Create Stake Pool costs ${createTokenFee} INW`
@@ -247,7 +247,6 @@ export default function CreateStakePoolPage({ api }) {
     }
 
     await delay(3000);
-
     toast.success(`Step ${step}: Process...`);
     await execContractTx(
       currentAccount,
