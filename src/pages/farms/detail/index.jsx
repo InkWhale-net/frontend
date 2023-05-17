@@ -665,7 +665,7 @@ const MyStakeRewardInfoNFT = ({
       multiplier,
       tokenDecimal,
       startTime,
-      duration
+      duration,
     });
     setUnclaimedRewardNFT(ret);
   };
@@ -735,7 +735,7 @@ const MyStakeRewardInfoNFT = ({
             buttonVariant="outline"
             buttonLabel="Claim Rewards"
             onClick={handleClaimNFTLP}
-            disableBtn={!+unclaimedRewardNFT>0}
+            disableBtn={!(+unclaimedRewardNFT > 0)}
             message="Claim All Rewards. Continue?"
           />
         </CardThreeColumn>
@@ -1135,7 +1135,7 @@ const MyStakeRewardInfoToken = ({
             action="claim"
             buttonVariant="outline"
             buttonLabel="Claim Rewards"
-            disableBtn={!+unclaimedRewardToken>0}
+            disableBtn={!+unclaimedRewardToken > 0}
             onClick={handleClaimTokenLP}
             message="Claim All Rewards. Continue?"
           />
@@ -1274,7 +1274,7 @@ const PoolInfo = ({
           data={[
             {
               title: "Pool Contract Address",
-              content: <AddressCopier address={poolContract}/>,
+              content: <AddressCopier address={poolContract} />,
             },
             {
               title: "Multiplier",
@@ -1297,13 +1297,15 @@ const PoolInfo = ({
             },
             {
               title: "Max Staking Amount",
-              content: `${formatNumDynDecimal(maxStakingAmount)} ${tokenSymbol}`,
+              content: `${formatNumDynDecimal(maxStakingAmount)} ${"NFT"}${
+                mode === "NFT_FARM" && totalStaked > 1 ? "s" : ""
+              }`,
             },
             {
               title: "Total Value Locked",
-              content: `${formatNumDynDecimal(totalStaked)} ${
-                mode === "NFT_FARM" ? "NFT" : ""
-              }${mode === "NFT_FARM" && totalStaked > 1 ? "s" : ""}`,
+              content: `${formatNumDynDecimal(totalStaked)} ${"NFT"}${
+                mode === "NFT_FARM" && totalStaked > 1 ? "s" : ""
+              }`,
             },
           ]}
         />

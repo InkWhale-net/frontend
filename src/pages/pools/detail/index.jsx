@@ -373,7 +373,7 @@ const MyStakeRewardInfo = ({
       return;
     }
 
-    if (!amount || +tokenBalance.replaceAll(',','') < +amount) {
+    if (!amount || +tokenBalance?.replaceAll(',','') < +amount) {
       toast.error("Invalid Amount!");
       return;
     }
@@ -407,7 +407,6 @@ const MyStakeRewardInfo = ({
       await delay(3000);
 
       toast.success("Step 2: Process...");
-
       await execContractTx(
         currentAccount,
         api,
@@ -577,7 +576,7 @@ const MyStakeRewardInfo = ({
           action="claim"
           buttonVariant="outline"
           buttonLabel="Claim Rewards"
-          disableBtn={!+unclaimedReward>0}
+          disableBtn={!(+unclaimedReward>0)}
           onClick={handleClaimRewards}
           message="Claim All Rewards. Continue?"
         />

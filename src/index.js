@@ -44,6 +44,7 @@ import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
 import { fetchAllNFTPools } from "redux/slices/allPoolsSlice";
 import { fetchAllTokenPools } from "redux/slices/allPoolsSlice";
 import { web3Enable } from "@polkadot/extension-dapp";
+import AdminPage from "pages/admin";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 
@@ -190,6 +191,8 @@ const App = () => {
             path={`/my-pools/:contractAddress`}
             component={MyPoolDetailPage}
           />{" "}
+          <Route exact path={`/admin`} component={AdminPage} />
+
           <Route>
             <FaucetPage />
           </Route>
