@@ -25,6 +25,13 @@ import FadeIn from "react-fade-in/lib/FadeIn";
 import TokenIcon from "components/TokenIcon";
 import AddressCopier from "components/address-copier/AddressCopier";
 
+const getStatusPool = (startTime, duration) => {
+  if (startTime + duration * 1000 < new Date()) {
+    return "Pool ended!";
+  }
+  return startTime < new Date() ? "Pool live!" : "Upcoming";
+};
+
 export function IWTable({
   tableHeader,
   tableBody,
@@ -189,7 +196,22 @@ export const formatDataCellTable = (itemObj, header, mode) => {
     case "startTime":
       return (
         <>
-          <IWCountDown date={itemObj[header] + itemObj["duration"] * 1000} />
+          <IWCountDown
+            date={
+              itemObj[header] < new Date()
+                ? itemObj[header] + itemObj["duration"] * 1000
+                : itemObj[header]
+            }
+          />
+        </>
+      );
+
+    case "status":
+      return (
+        <>
+          <Text>
+            {getStatusPool(itemObj["startTime"], itemObj["duration"])}
+          </Text>
         </>
       );
 

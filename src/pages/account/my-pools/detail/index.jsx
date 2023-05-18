@@ -127,10 +127,16 @@ export default function MyPoolDetailPage({ api }) {
         label: "Reward Pool",
       },
       {
+        name: "status",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "Status",
+      },
+      {
         name: "startTime",
         hasTooltip: false,
         tooltipContent: "",
-        label: "Expired In",
+        label: "Countdown",
       },
     ],
 
@@ -172,10 +178,16 @@ export default function MyPoolDetailPage({ api }) {
         label: "Multiplier",
       },
       {
+        name: "status",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "Status",
+      },
+      {
         name: "startTime",
         hasTooltip: false,
         tooltipContent: "",
-        label: "Expired In",
+        label: "Countdown",
       },
     ],
 
@@ -217,10 +229,16 @@ export default function MyPoolDetailPage({ api }) {
         label: "Multiplier",
       },
       {
+        name: "status",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "Status",
+      },
+      {
         name: "startTime",
         hasTooltip: false,
         tooltipContent: "",
-        label: "Expired In",
+        label: "Countdown",
       },
     ],
 

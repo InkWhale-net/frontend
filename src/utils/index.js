@@ -181,6 +181,16 @@ export function isPoolEnded(startTime = 0, duration = 0) {
   return false;
 }
 
+export function isPoolNotStart(startTime = 0, duration = 0) {
+  const nowTime = Date.now();
+
+  if (nowTime < startTime) {
+    return true;
+  }
+
+  return false;
+}
+
 export function roundUp(v, n = 4) {
   return Math.ceil(v * Math.pow(10, n)) / Math.pow(10, n);
 }

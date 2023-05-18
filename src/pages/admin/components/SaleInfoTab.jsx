@@ -8,11 +8,13 @@ import {
 } from "@chakra-ui/react";
 import IWCard from "components/card/Card";
 import IWInput from "components/input/Input";
+import useInterval from "hook/useInterval";
 import React, { useState, useEffect, useMemo } from "react";
 import DateTimePicker from "react-datetime-picker";
 import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { getPublicCurrentAccount } from "utils";
+import { formatNumToBN } from "utils";
 import { formatQueryResultToNumber } from "utils";
 import { execContractTx } from "utils/contracts";
 import { execContractQuery } from "utils/contracts";
@@ -201,7 +203,8 @@ export default function SaleInfoTab() {
       private_sale_contract.CONTRACT_ADDRESS,
       0, //-> value
       "adminTrait::withdrawFee",
-      pricePrivate
+      formatNumToBN(saleInfo?.withdrawablePrivate),
+      currentAccount?.address
     );
   };
 
@@ -214,12 +217,19 @@ export default function SaleInfoTab() {
       public_sale_contract.CONTRACT_ADDRESS,
       0, //-> value
       "adminTrait::withdrawFee",
-      pricePrivate
+      formatNumToBN(saleInfo?.withdrawablePublic),
+      currentAccount?.address
     );
   };
 
+  useInterval(() => {
+    getBalanceSale();
+    getEndDate();
+  }, 7000);
+
   useEffect(() => {
-    if (currentAccount?.address) getBalanceSale();
+    if (!currentAccount?.address) return;
+    getBalanceSale();
     getEndDate();
   }, [currentAccount]);
 
@@ -253,8 +263,8 @@ export default function SaleInfoTab() {
               direction={{ base: "column" }}
               align={{ base: "column", xl: "center" }}
             >
-              {!!saleInfo?.withdrawablePrivate && (
-                <Text>{saleInfo?.withdrawablePrivate} AZERO</Text>
+              {isOwner && (
+                <Text>{saleInfo?.withdrawablePrivate || 0} AZERO</Text>
               )}
               <Button isDisabled={!isOwner} onClick={withdrawPrivate} w="full">
                 Withdraw All
@@ -274,8 +284,8 @@ export default function SaleInfoTab() {
               direction={{ base: "column" }}
               align={{ base: "column", xl: "center" }}
             >
-              {!!saleInfo?.withdrawablePublic && (
-                <Text>{saleInfo?.withdrawablePublic} AZERO</Text>
+              {isOwner && (
+                <Text>{saleInfo?.withdrawablePublic || 0} AZERO</Text>
               )}
               <Button isDisabled={!isOwner} onClick={withdrawPublic} w="full">
                 Withdraw All
@@ -362,8 +372,7 @@ export default function SaleInfoTab() {
               align={{ base: "column", xl: "center" }}
             >
               <Button
-                isDisabled={!isOwner}
-                isDisabled={Date.now() < saleInfo?.endTimePrivate}
+                isDisabled={!isOwner || Date.now() < saleInfo?.endTimePrivate}
                 onClick={burnAfterSalePrivate}
                 w="full"
               >
@@ -381,8 +390,7 @@ export default function SaleInfoTab() {
               align={{ base: "column", xl: "center" }}
             >
               <Button
-                isDisabled={!isOwner}
-                isDisabled={Date.now() < saleInfo?.endTimePublic}
+                isDisabled={!isOwner || Date.now() < saleInfo?.endTimePublic}
                 onClick={burnAfterSalePublic}
                 w="full"
               >
@@ -418,8 +426,7 @@ export default function SaleInfoTab() {
                 placeholder="Enter INW price"
               />
               <Button
-                isDisabled={!isOwner}
-                isDisabled={Date.now() >= saleInfo?.endTimePrivate}
+                isDisabled={!isOwner || Date.now() >= saleInfo?.endTimePrivate}
                 onClick={changePricePrivate}
                 w="full"
               >
@@ -447,8 +454,7 @@ export default function SaleInfoTab() {
                 placeholder="Enter INW price"
               />
               <Button
-                isDisabled={!isOwner}
-                isDisabled={Date.now() >= saleInfo?.endTimePublic}
+                isDisabled={!isOwner || Date.now() >= saleInfo?.endTimePublic}
                 onClick={changePricePublic}
                 w="full"
               >

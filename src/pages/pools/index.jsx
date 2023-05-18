@@ -110,10 +110,16 @@ export default function PoolsPage({ api }) {
         label: "Reward Pool",
       },
       {
+        name: "status",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "Status",
+      },
+      {
         name: "startTime",
         hasTooltip: false,
         tooltipContent: "",
-        label: "Expired In",
+        label: "Countdown",
       },
       {
         name: "stakeInfo",

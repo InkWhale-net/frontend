@@ -6,13 +6,17 @@ import { Flex, Text } from "@chakra-ui/react";
 export default function IWCountDown({ date }) {
   const renderer = ({ days, hours, minutes, seconds, completed }) => {
     if (completed) {
-      return <Text>Pool ended!</Text>;
+      return <></>;
     } else {
       return (
         <Flex>
-          {days ?<Text textAlign="left" minW="42px">
-            {zeroPad(days)}d
-          </Text> : ''}
+          {days ? (
+            <Text textAlign="left" mr={days > 99 ? "2" : ""} minW={"42px"}>
+              {zeroPad(days)}d
+            </Text>
+          ) : (
+            ""
+          )}
           <Text textAlign="left" minW="40px">
             {zeroPad(hours)}h
           </Text>
@@ -28,7 +32,7 @@ export default function IWCountDown({ date }) {
   };
   return (
     <span>
-      <Countdown key={date.toString()} date={date} renderer={renderer} />
+      <Countdown key={date?.toString()} date={date} renderer={renderer} />
     </span>
   );
 }

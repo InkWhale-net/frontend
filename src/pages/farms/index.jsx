@@ -147,10 +147,16 @@ export default function FarmsPage() {
         label: "Multiplier",
       },
       {
+        name: "status",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "Status",
+      },
+      {
         name: "startTime",
         hasTooltip: false,
         tooltipContent: "",
-        label: "Expired In",
+        label: "Countdown",
       },
       {
         name: "stakeInfo",
@@ -195,12 +201,17 @@ export default function FarmsPage() {
         tooltipContent: `Multiplier determines how many reward tokens will the staker receive per 1 token in 24 hours.`,
         label: "Multiplier",
       },
-
+      {
+        name: "status",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "Status",
+      },
       {
         name: "startTime",
         hasTooltip: false,
         tooltipContent: "",
-        label: "Expired In",
+        label: "Countdown",
       },
       {
         name: "stakeInfo",

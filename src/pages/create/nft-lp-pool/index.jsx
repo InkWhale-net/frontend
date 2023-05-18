@@ -393,10 +393,16 @@ export default function CreateNFTLPPage({ api }) {
         label: "Multiplier",
       },
       {
+        name: "status",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "Status",
+      },
+      {
         name: "startTime",
         hasTooltip: false,
         tooltipContent: "",
-        label: "Expired In",
+        label: "Countdown",
       },
     ],
 

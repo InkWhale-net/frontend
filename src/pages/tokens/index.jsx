@@ -223,7 +223,7 @@ const TokensTabCheckBalance = ({
   const { currentAccount } = useSelector((s) => s.wallet);
 
   const [addressCheckBalance, setAddressCheckBalance] = useState("");
-  const [tokenBalance, setTokenBalance] = useState(0);
+  const [tokenBalance, setTokenBalance] = useState('');
 
   async function checkBalanceHandler() {
     if (!currentAccount) {
@@ -301,7 +301,7 @@ const TokensTabCheckBalance = ({
             <IWInput
               value={tokenBalance}
               isDisabled={true}
-              placeholder="0"
+              placeholder=""
               inputRightElementIcon={
                 <Heading as="h5" size="h5" fontWeight="semibold">
                   {tokenInfo?.title}
@@ -500,7 +500,7 @@ const TokensTabBurnToken = ({
     );
 
     await delay(2000).then(() => {
-      setBurnAmount(0);
+      setBurnAmount('');
       loadTokenInfo();
     });
   }

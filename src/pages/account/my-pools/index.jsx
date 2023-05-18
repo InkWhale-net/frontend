@@ -49,10 +49,16 @@ export default function MyPoolsPage({ api }) {
         label: "Reward Pool",
       },
       {
+        name: "status",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "Status",
+      },
+      {
         name: "startTime",
         hasTooltip: false,
         tooltipContent: "",
-        label: "Expired In",
+        label: "Countdown",
       },
     ],
 
@@ -178,10 +184,16 @@ const MyNFTAndTokenPoolsTab = () => {
         label: "Multiplier",
       },
       {
+        name: "status",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "Status",
+      },
+      {
         name: "startTime",
         hasTooltip: false,
         tooltipContent: "",
-        label: "Expired In",
+        label: "Countdown",
       },
     ],
 
@@ -222,10 +234,16 @@ const MyNFTAndTokenPoolsTab = () => {
       },
 
       {
+        name: "status",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "Status",
+      },
+      {
         name: "startTime",
         hasTooltip: false,
         tooltipContent: "",
-        label: "Expired In",
+        label: "Countdown",
       },
     ],
 

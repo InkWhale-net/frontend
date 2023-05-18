@@ -117,9 +117,11 @@ export default function CreateTokenPage({ api }) {
       ",",
       ""
     );
+    let step = 1
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success("Step 1: Approving...");
+      toast.success(`Step ${step}: Approving...`);
+      step++
       let approve = await execContractTx(
         currentAccount,
         "api",
@@ -135,7 +137,7 @@ export default function CreateTokenPage({ api }) {
 
     await delay(3000);
 
-    toast.success("Processing...");
+    toast.success(`Step ${step}: Processing...`);
 
     await execContractTxAndCallAPI(
       currentAccount,

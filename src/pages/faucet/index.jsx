@@ -59,7 +59,7 @@ export default function FaucetPage({ api }) {
   const [selectedContractAddress, setSelectedContractAddress] = useState(null);
 
   const [inwTotalSupply, setInwTotalSupply] = useState(0);
-  const [availableMint, setAvailableMint] = useState("0");
+  const [availableMint, setAvailableMint] = useState("");
   const [inwBuyAmount, setInwBuyAmount] = useState("");
   const [azeroBuyAmount, setAzeroBuyAmount] = useState("");
   const [inwInCur, setInwInCur] = useState(0);
@@ -395,6 +395,7 @@ export default function FaucetPage({ api }) {
   }, [api, currentAccount, getInwMintingCapAndTotalSupply]);
 
   const getInfo = () => {
+    resetField()
     if (tabIndex === 0) {
       getPriceInw(private_sale);
       getSaleInfo(private_sale);
@@ -437,7 +438,7 @@ export default function FaucetPage({ api }) {
     );
 
     await delay(5000);
-
+    resetField()
     toast.promise(
       delay(1000).then(() => {
         if (currentAccount) {
@@ -476,7 +477,7 @@ export default function FaucetPage({ api }) {
     );
 
     await delay(5000);
-
+    resetField()
     toast.promise(
       delay(1000).then(() => {
         if (currentAccount) {
@@ -543,6 +544,11 @@ export default function FaucetPage({ api }) {
     setAzeroBuyAmount((target.value * parseFloat(inwPrice)))
   }
 
+  const resetField = () => {
+    setInwBuyAmount('')
+    setAzeroBuyAmount('')
+  }
+
   const tabsData = [
     {
       label: <>Public Sale with Vesting</>,
@@ -592,7 +598,7 @@ export default function FaucetPage({ api }) {
                <IWInput
                 value={azeroBuyAmount}
                 onChange={onChangeAzeroInput}
-                placeholder="0"
+                placeholder="Enter AZERO amount"
                 inputRightElementIcon={<AzeroLogo />}
               />
               {inwPrice > 0 && <Flex
@@ -736,7 +742,7 @@ export default function FaucetPage({ api }) {
               <IWInput
                 value={azeroBuyAmount}
                 onChange={onChangeAzeroInput}
-                placeholder="0"
+                placeholder="Enter AZERO amount"
                 inputRightElementIcon={<AzeroLogo />}
               />
               {inwPrice > 0 && <Flex

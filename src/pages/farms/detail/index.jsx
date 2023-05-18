@@ -114,10 +114,16 @@ export default function FarmDetailPage() {
         label: "Multiplier",
       },
       {
+        name: "status",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "Status",
+      },
+      {
         name: "startTime",
         hasTooltip: false,
         tooltipContent: "",
-        label: "Expired In",
+        label: "Countdown",
       },
     ],
 
@@ -732,7 +738,7 @@ const MyStakeRewardInfoNFT = ({
         >
           <ConfirmModal
             action="claim"
-            buttonVariant="outline"
+            buttonVariant="primary"
             buttonLabel="Claim Rewards"
             onClick={handleClaimNFTLP}
             disableBtn={!(+unclaimedRewardNFT > 0)}
@@ -1133,7 +1139,7 @@ const MyStakeRewardInfoToken = ({
         >
           <ConfirmModal
             action="claim"
-            buttonVariant="outline"
+            buttonVariant="primary"
             buttonLabel="Claim Rewards"
             disableBtn={!+unclaimedRewardToken > 0}
             onClick={handleClaimTokenLP}

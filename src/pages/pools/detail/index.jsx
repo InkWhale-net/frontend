@@ -41,7 +41,7 @@ import { useCallback } from "react";
 import { toastMessages } from "constants";
 import { calcUnclaimedReward } from "utils";
 import { APICall } from "api/client";
-import { isPoolEnded } from "utils";
+import { isPoolEnded, isPoolNotStart } from "utils";
 import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
 import { useMemo } from "react";
 import { fetchUserBalance } from "redux/slices/walletSlice";
@@ -90,10 +90,16 @@ export default function PoolDetailPage({ api }) {
         label: "Reward Pool",
       },
       {
+        name: "status",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "Status",
+      },
+      {
         name: "startTime",
         hasTooltip: false,
         tooltipContent: "",
-        label: "Expired In",
+        label: "Countdown",
       },
     ],
 
@@ -574,7 +580,7 @@ const MyStakeRewardInfo = ({
       >
         <ConfirmModal
           action="claim"
-          buttonVariant="outline"
+          buttonVariant="primary"
           buttonLabel="Claim Rewards"
           disableBtn={!(+unclaimedReward>0)}
           onClick={handleClaimRewards}
@@ -612,7 +618,7 @@ const MyStakeRewardInfo = ({
                 action="stake"
                 buttonVariant="primary"
                 buttonLabel="Stake"
-                disableBtn={isPoolEnded(startTime, duration)}
+                disableBtn={isPoolEnded(startTime, duration) ||  isPoolNotStart(startTime)}
                 onClick={handleStake}
                 message={`Stake ${amount} ${tokenSymbol}. Continue?`}
               />
