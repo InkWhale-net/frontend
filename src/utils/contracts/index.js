@@ -84,11 +84,9 @@ export async function execContractQuery(
   ...args
 ) {
   const contract = new ContractPromise(wsApi, contractAbi, contractAddress);
-  // console.log("execContractQuery", queryName);
   // let gasLimit = 6946816000 * 5;
 
   const gasLimit = readOnlyGasLimit(wsApi);
-
   try {
     const { result, output } = await contract.query[queryName](
       callerAddress,
@@ -167,7 +165,7 @@ export async function execContractTx(
         }
 
         events.forEach(({ event: { method } }) => {
-          if (method === "ExtrinsicSuccess" && status.type === "InBlock") {
+          if (method === "ExtrinsicSuccess" && status.type === "Finalized") {
             toast.success("Successful!");
           } else if (method === "ExtrinsicFailed") {
             toast.error(`${toastMessages.CUSTOM} ${method}.`);
@@ -183,7 +181,6 @@ export async function execContractTx(
 
   return unsubscribe;
 }
-
 
 export async function execContractTxAndCallAPI(
   caller, // -> currentAccount Object
@@ -248,10 +245,10 @@ export async function execContractTxAndCallAPI(
           toast.success(`Processing ...`);
         }
         events.forEach(({ event: { method, data } }) => {
-          if(method === "Instantiated" && data?.contract) {
-            APIUpdate(data.contract?.toHuman())
+          if (method === "Instantiated" && data?.contract) {
+            APIUpdate(data.contract?.toHuman());
           }
-          if (method === "ExtrinsicSuccess" && status.type === "InBlock") {
+          if (method === "ExtrinsicSuccess" && status.type === "Finalized") {
             toast.success("Successful!");
           } else if (method === "ExtrinsicFailed") {
             toast.error(`${toastMessages.CUSTOM} ${method}.`);

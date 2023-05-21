@@ -1,5 +1,6 @@
 import { Box, Button, Heading, Select, Show, Stack } from "@chakra-ui/react";
 import { APICall } from "api/client";
+import { SelectSearch } from "components/SelectSearch";
 import IWCard from "components/card/Card";
 import IWCardOneColumn from "components/card/CardOneColumn";
 import SectionContainer from "components/container/SectionContainer";
@@ -7,6 +8,7 @@ import IWInput from "components/input/Input";
 import IWTabs from "components/tabs/IWTabs";
 
 import React, { useState, useEffect } from "react";
+import { useMemo } from "react";
 import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { formatChainStringToNumber } from "utils";
@@ -45,13 +47,21 @@ export default function TokensPage() {
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      if(selectedContractAddr) {
+      if (selectedContractAddr) {
         loadTokenInfo();
       }
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
   }, [selectedContractAddr]);
+
+  const selectedToken = useMemo(
+    () =>
+      faucetTokensList?.find(
+        (el) => el.contractAddress === selectedContractAddr
+      ),
+    [selectedContractAddr, faucetTokensList]
+  );
 
   async function loadTokenInfo() {
     if (!currentAccount) {
@@ -166,23 +176,28 @@ export default function TokensPage() {
                 <Heading as="h4" size="h4" mb="12px">
                   Token Contract Address
                 </Heading>
-                <Select
-                  label="Token Contract Address"
-                  value={selectedContractAddr}
-                  // isDisabled={accountInfoLoading}
-                  id="token"
-                  placeholder="Select token"
-                  onChange={({ target }) => {
-                    setSelectedContractAddr(target.value);
+                <SelectSearch
+                  name="token"
+                  placeholder="Select Token..."
+                  closeMenuOnSelect={true}
+                  // filterOption={filterOptions}
+                  value={ selectedToken ? {
+                    value: selectedToken?.contractAddress,
+                    label: `${selectedToken?.symbol} (${
+                      selectedToken?.name
+                    }) - ${addressShortener(selectedToken?.contractAddress)}`,
+                  } : ''}  
+                  isSearchable
+                  onChange={({ value }) => {
+                    setSelectedContractAddr(value);
                   }}
-                >
-                  {faucetTokensList?.map((token, idx) => (
-                    <option key={idx} value={token.contractAddress}>
-                      {token?.symbol} ({token?.name}) -{" "}
-                      {addressShortener(token?.contractAddress)}
-                    </option>
-                  ))}
-                </Select>
+                  options={faucetTokensList?.map((token, idx) => ({
+                    value: token?.contractAddress,
+                    label: `${token?.symbol} (${
+                      token?.name
+                    }) - ${addressShortener(token?.contractAddress)}`,
+                  }))}
+                ></SelectSearch>
               </Box>
               <Box w="full" pr={{ lg: "20px" }}>
                 <IWInput
@@ -223,7 +238,7 @@ const TokensTabCheckBalance = ({
   const { currentAccount } = useSelector((s) => s.wallet);
 
   const [addressCheckBalance, setAddressCheckBalance] = useState("");
-  const [tokenBalance, setTokenBalance] = useState('');
+  const [tokenBalance, setTokenBalance] = useState("");
 
   async function checkBalanceHandler() {
     if (!currentAccount) {
@@ -500,7 +515,7 @@ const TokensTabBurnToken = ({
     );
 
     await delay(2000).then(() => {
-      setBurnAmount('');
+      setBurnAmount("");
       loadTokenInfo();
     });
   }

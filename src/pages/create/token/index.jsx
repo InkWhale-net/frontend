@@ -60,9 +60,9 @@ export default function CreateTokenPage({ api }) {
 
       setCreateToken(fee);
     };
-
+    if(!(currentAccount?.address && api)) return
     fetchCreateTokenFee();
-  }, [currentAccount]);
+  }, [currentAccount, api]);
 
   const updateIcon = async (contractAddress) => {
     if (iconIPFSUrl) {
@@ -157,12 +157,12 @@ export default function CreateTokenPage({ api }) {
     setTokenName("");
     setTokenSymbol("");
     setTotalSupply("");
-    await APICall.askBEupdate({ type: "token", poolContract: "new" });
-
     await delay(3000);
 
+    await APICall.askBEupdate({ type: "token", poolContract: "new" });
+
     toast.promise(
-      delay(15000).then(() => {
+      delay(10000).then(() => {
         setIconIPFSUrl();
         if (currentAccount) {
           dispatch(fetchAllTokensList({}));
@@ -170,7 +170,7 @@ export default function CreateTokenPage({ api }) {
         }
       }),
       {
-        loading: "Please wait up to 15s for the data to be updated! ",
+        loading: "Please wait up to 10s for the data to be updated! ",
         success: "Done !",
         error: "Could not fetch data!!!",
       }

@@ -82,15 +82,14 @@ export default function FarmsPage() {
     let ret = allNFTPoolsList;
 
     if (showMyStakedPools) {
-      ret = allNFTPoolsList.filter((p) => p.stakeInfo);
+      ret = ret.filter((p) => p.stakeInfo);
     }
 
     if (endedPools) {
-      ret = allNFTPoolsList.filter((p) =>
+      ret = ret.filter((p) =>
         isPoolEnded(p?.startTime, p?.duration)
       );
     }
-    console.log(allNFTPoolsList, "allNFTPoolsListallNFTPoolsList");
 
     return ret;
   }, [allNFTPoolsList, showMyStakedPools, endedPools]);

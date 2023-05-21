@@ -132,7 +132,7 @@ export default function NavbarLinks(props) {
               _focus={{ borderWidth: "0px" }}
               _hover={{ textDecoration: "none", bg: "bg.1" }}
               onClick={() =>
-                toast.success("Coming soon!", { position: "top-center" })
+                toast.success("Coming soon!")
               }
             >
               <Text bg="transparent" fontSize="md">
@@ -155,7 +155,7 @@ export default function NavbarLinks(props) {
               _focus={{ borderWidth: "0px" }}
               _hover={{ textDecoration: "none", bg: "bg.1" }}
               onClick={() =>
-                toast.success("Coming soon!", { position: "top-center" })
+                toast.success("Coming soon!")
               }
             >
               <Text bg="transparent" fontSize="md">

@@ -7,6 +7,7 @@ import {
   Select,
   Stack,
   Text,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import IWCard from "components/card/Card";
 import IWCardOneColumn from "components/card/CardOneColumn";
@@ -360,7 +361,7 @@ export default function FaucetPage({ api }) {
       inwBuyAmount * parseFloat(inwPrice) >=
         formatChainStringToNumber(azeroBalance) ||
       isSaleEnded ||
-      availableMint?.replaceAll(",", "") < +inwBuyAmount
+      availableMint?.replaceAll(",", "") < +inwBuyAmount || !(inwBuyAmount > 0)
     );
   }, [azeroBalance, inwBuyAmount, inwPrice, isSaleEnded, availableMint]);
 
@@ -549,6 +550,8 @@ export default function FaucetPage({ api }) {
     setAzeroBuyAmount('')
   }
 
+  const [isBigScreen] = useMediaQuery("(min-width: 480px)");
+
   const tabsData = [
     {
       label: <>Public Sale with Vesting</>,
@@ -604,6 +607,7 @@ export default function FaucetPage({ api }) {
               {inwPrice > 0 && <Flex
                 mt={{ base: "15px", lg: "0px" }}
                 w="full"
+                flexDirection={{base: 'column', lg: 'row'}}
                 justifyContent="space-between"
               >
                 <Text textAlign="left" fontSize="md" lineHeight="28px">
@@ -691,7 +695,7 @@ export default function FaucetPage({ api }) {
       isDisabled: false,
     },
     {
-      label: <>Public Sale No Vesting</>,
+      label: `${isBigScreen ? 'Public Sale' : ''} No Vesting`,
       component: (
         <IWCard
           w="full"
@@ -748,6 +752,7 @@ export default function FaucetPage({ api }) {
               {inwPrice > 0 && <Flex
                 mt={{ base: "15px", lg: "0px" }}
                 w="full"
+                flexDirection={{base: 'column', lg: 'row'}}
                 justifyContent="space-between"
               >
                 <Text textAlign="left" fontSize="md" lineHeight="28px">
@@ -829,7 +834,7 @@ export default function FaucetPage({ api }) {
               { title: "Max Supply", content: `${inwTotalSupply} INW` },
               { title: "In Circulation ", content: `${inwInCur} INW` },
               { title: "Total Burned ", content: `${formatNumDynDecimal(inwBurn)} INW` },
-              { title: "Your Vesting Amount: ", content: `${+saleInfo?.buyerInfo?.purchasedAmount?.replaceAll(',', '') * 95 /100 || 0} INW` },
+              { title: "Your Vesting Amount ", content: `${formatNumDynDecimal(+saleInfo?.buyerInfo?.purchasedAmount?.replaceAll(',', '') * 95 /100 || 0)} INW` },
               { title: "Your Balance: ", content: `${inwBalance} INW` },
             ]}
           />

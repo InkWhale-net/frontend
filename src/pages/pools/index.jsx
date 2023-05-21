@@ -62,11 +62,11 @@ export default function PoolsPage({ api }) {
     let ret = allStakingPoolsList;
 
     if (showMyStakedPools) {
-      ret = allStakingPoolsList.filter((p) => p.stakeInfo);
+      ret = ret.filter((p) => p.stakeInfo);
     }
 
     if (endedPools) {
-      ret = allStakingPoolsList.filter((p) =>
+      ret = ret.filter((p) =>
         isPoolEnded(p?.startTime, p?.duration)
       );
     }

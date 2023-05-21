@@ -80,22 +80,21 @@ export function SidebarResponsive(props) {
         finalFocusRef={btnRef}
       >
         <DrawerOverlay />
-        <DrawerContent w="285px" maxW="285px" bg={"white"}>
+        <DrawerContent minW="285px" bg={"white"}>
           <DrawerCloseButton
             zIndex="3"
             onClose={onClose}
             _focus={{ boxShadow: "none" }}
             _hover={{ boxShadow: "none" }}
           />
-          <DrawerBody maxW="285px" px="0rem" pb="0">
+          <DrawerBody minW="285px" px="0rem" pb="0">
             <Scrollbars
               autoHide
               renderTrackVertical={renderTrack}
               renderThumbVertical={renderThumb}
               renderView={renderView}
             >
-              <Content         onClose={onClose}
- routes={routes} />
+              <Content onClose={onClose} routes={routes} />
             </Scrollbars>
           </DrawerBody>
         </DrawerContent>

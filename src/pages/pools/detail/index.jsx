@@ -379,7 +379,7 @@ const MyStakeRewardInfo = ({
       return;
     }
 
-    if (!amount || +tokenBalance?.replaceAll(',','') < +amount) {
+    if (!amount || +tokenBalance?.replaceAll(",", "") < +amount) {
       toast.error("Invalid Amount!");
       return;
     }
@@ -515,7 +515,7 @@ const MyStakeRewardInfo = ({
       apy,
       tokenDecimal,
       startTime,
-      duration
+      duration,
     });
     setUnclaimedReward(ret);
   };
@@ -582,7 +582,7 @@ const MyStakeRewardInfo = ({
           action="claim"
           buttonVariant="primary"
           buttonLabel="Claim Rewards"
-          disableBtn={!(+unclaimedReward>0)}
+          disableBtn={!(+unclaimedReward > 0)}
           onClick={handleClaimRewards}
           message="Claim All Rewards. Continue?"
         />
@@ -618,9 +618,16 @@ const MyStakeRewardInfo = ({
                 action="stake"
                 buttonVariant="primary"
                 buttonLabel="Stake"
-                disableBtn={isPoolEnded(startTime, duration) ||  isPoolNotStart(startTime)}
+                disableBtn={
+                  isPoolEnded(startTime, duration) || isPoolNotStart(startTime)
+                }
                 onClick={handleStake}
-                message={`Stake ${amount} ${tokenSymbol}. Continue?`}
+                message={
+                  <>
+                    Stake {amount} {tokenSymbol}.<br />
+                    Unstake will costs {unstakeFee} INW. Continue?
+                  </>
+                }
               />
 
               <ConfirmModal
@@ -650,7 +657,7 @@ const PoolInfo = (props) => {
     tokenName,
     tokenTotalSupply,
     tokenSymbol,
-    maxStakingAmount
+    maxStakingAmount,
   } = props;
 
   return (
@@ -665,7 +672,7 @@ const PoolInfo = (props) => {
         data={[
           {
             title: "Pool Contract Address",
-            content: <AddressCopier address={poolContract}/>,
+            content: <AddressCopier address={poolContract} />,
           },
           { title: "APR", content: `${apy / 100}%` },
           {

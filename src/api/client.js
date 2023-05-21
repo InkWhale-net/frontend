@@ -39,6 +39,7 @@ export const APICall = {
   getTokensList: async ({ limit = 1000, offset = 0, sort = -1 }) => {
     let { ret, status, message } = await client("POST", "/getTokens", { limit, offset, sort })
     ret = ret.filter(el => !!el?.contractAddress)
+    ret.unshift(ret.pop())
     return { ret, status, message } ;
   },
 

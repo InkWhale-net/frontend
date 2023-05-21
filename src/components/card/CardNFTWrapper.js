@@ -1,9 +1,10 @@
 import { Button, Heading, VStack, Wrap, WrapItem } from "@chakra-ui/react";
 import ImageCloudFlare from "components/image-cf/ImageCF";
+import ConfirmModal from "components/modal/ConfirmModal";
 import { Fragment } from "react-is";
 
 export default function IWCardNFTWrapper(props) {
-  const { data, action, actionHandler } = props;
+  const { data, action, actionHandler, unstakeFee } = props;
 
   return (
     <>
@@ -40,10 +41,18 @@ export default function IWCardNFTWrapper(props) {
                   >
                     {nftName}
                   </Heading>
-
-                  <Button onClick={() => actionHandler(tokenID)} w="full">
-                    {action}
-                  </Button>
+                  <ConfirmModal
+                    action={action}
+                    buttonVariant="primary"
+                    buttonLabel={action}
+                    onClick={() => actionHandler(tokenID)}
+                    message={
+                      <>
+                        {action} {nftName}.<br />
+                        Unstake costs ${unstakeFee} INW. Continue?
+                      </>
+                    }
+                  />
                 </VStack>
               </WrapItem>
             </Fragment>

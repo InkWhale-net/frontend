@@ -410,7 +410,7 @@ const MyStakeRewardInfoNFT = ({
 
           const { status, ret } = await APICall.getNFTByIdFromArtZero({
             collection_address: nftInfo?.nftContractAddress,
-            token_id: parseInt(stakedID.U64),
+            token_id: parseInt(stakedID?.U64),
           });
 
           if (status === "OK") {
@@ -460,6 +460,7 @@ const MyStakeRewardInfoNFT = ({
       component: (
         <AvailableNFTs
           action="Stake NFT"
+          unstakeFee={unstakeFee}
           data={availableNFT}
           actionHandler={stakeNftHandler}
         />
@@ -471,6 +472,7 @@ const MyStakeRewardInfoNFT = ({
       component: (
         <StakedNFTs
           action="Unstake NFT"
+          unstakeFee={unstakeFee}
           data={stakedNFT}
           actionHandler={unstakeNftHandler}
         />
