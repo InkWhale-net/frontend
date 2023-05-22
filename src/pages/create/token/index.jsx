@@ -60,7 +60,6 @@ export default function CreateTokenPage({ api }) {
 
       setCreateToken(fee);
     };
-    if(!(currentAccount?.address && api)) return
     fetchCreateTokenFee();
   }, [currentAccount, api]);
 
