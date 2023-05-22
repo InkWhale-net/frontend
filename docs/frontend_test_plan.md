@@ -86,10 +86,36 @@ Test Steps:
 ### Acquire INW
 
 #### Acquire INW with vesting
+```
+Test Case ID: ACQVT001
+Test Case Description: This test case verifies the successful acquisition of a token with vesting.
+
+Test Steps:
+
+Open the token acquisition platform.
+Navigate to the token acquisition section.
+Enter the desired amount of tokens and select the vesting option.
+Confirm the acquisition request.
+Sign the transaction using the Ethereum wallet.
+Verify that the acquired tokens reflect in the user's wallet balance.
+Validate that the vesting schedule is correctly applied to the acquired tokens.
+Wait for the vesting duration to pass.
+Verify that the total acquired amount is fully vested and available for transfer.
+Perform necessary cleanup activities.
+Expected Results:
+
+The tokens are successfully acquired with vesting.
+The acquired tokens are visible in the user's wallet.
+The vesting schedule is correctly applied.
+The total acquired amount is fully vested after the vesting duration.
+No errors or unexpected behavior occur during the acquisition process.
+Cleanup activities are performed without any issues.
+Note: This test case assumes the presence of a functioning token acquisition platform, a deployed vesting contract, and a valid Ethereum wallet for signing transactions.
+```
 
 #### Acquire INW without vesting](#Acquire-INW-without-vesting)
 
-### Create
+### Create a token
 
 ### Tokens
 
