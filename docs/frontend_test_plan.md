@@ -20,7 +20,7 @@
     - [Stake a Token](#Stake-a-Token)
     - [Stake a Token](#Stake-a-farm)
     - [Admin](#Admin)
-      - [Claim balance](#Claim-balance)
+    - [Claim balance](#Claim-balance)
 
 ## Introduction
 ```
@@ -83,7 +83,30 @@ Test Steps:
   5.	Verify that the table displays the stakers who are eligible for the trade discount.
   6.	Verify that the table displays the trade fee and trade discount for each stake NFT quantity.
 ```
-### My Collection
+### Acquire INW
+
+#### Acquire INW with vesting
+
+#### Acquire INW without vesting](#Acquire-INW-without-vesting)
+
+### Create
+
+### Tokens
+
+#### Check token
+
+#### Transfer token
+
+#### Burn token
+
+### Create a token staking pool
+      - [Create a project](#Create-a-project) 
+### Create an NFT yield farm
+      - [Create a project](#Create-a-project) 
+### Stake a Token
+### Stake a farm 
+### Admin
+    - [Claim balance](#Claim-balance)
 
 ```
 Test case ID: collection_001
