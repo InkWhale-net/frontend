@@ -42,75 +42,49 @@ By following this comprehensive test plan, we aim to ensure the NFT Yield and Fa
 ### My Account
 ```
 Test case ID: my_account_001
-Test case Name: Verify Dashboard Page Information Display
-Pre-requisite: User must be logged in and have access to the Dashboard page.
+Test case Name: Verify My Account Display
+Pre-requisite: User must have a valid wallet address
 Expectations:
-  -	The user's address should be displayed on the Dashboard page.
-  -	The number of NFTs for sale should be displayed on the Dashboard page.
-  -	The number of Staked NFTs should be displayed on the Dashboard page.
-  -	The number of Pending Staked NFTs should be displayed on the Dashboard page.
-  -	The total number of owned NFTs should be displayed on the Dashboard page.
-  -	The recent reward history should be displayed on the Dashboard page.
-  -	The Info staking NFT should be displayed on the Dashboard page.
+  -	The user's address should be displayed on the Account page.
+  -	The Azero balance should be displayed on the Account page.
+  -	The INW balance should be displayed on the Account page.
+  - My Tokens, My pool, My farm buttons can be clicked and lead users to view information
+  - The user can log in and log out of the account
 
 Test Steps:
-  1.	Login to the NFT marketplace as a registered user.
-  2.	Navigate to the Dashboard page.
+  1.	Log in to the Ink Whale platform.
+  2.	Navigate to the Connect button. Choose the wallet and confirm with the wallet. 
   3.	Verify that the user's address is displayed on the page.
-  4.	Verify that the number of NFTs for sale is displayed on the page.
-  5.	Verify that the number of Staked NFTs is displayed on the page.
-  6.	Verify that the number of Pending Staked NFTs is displayed on the page.
-  7.	Verify that the total number of owned NFTs is displayed on the page.
-  8.	Verify that the recent reward history is displayed on the page.
-  9.	Verify that the Info staking NFT is displayed on the page.
+  4.	Verify that the Azero balance should be displayed correctly on the Account page.
+  5.	Verify that the INW balance should be displayed correctly on the Account page.
+  6.	Verify that My Tokens, My pool, My farm buttons can be clicked and lead users to view information
+  7.  Click log out, the wallet is disconnected 
 
 ```
 
-```Test case ID: my_account_002
-Test case Name: Verify Functionality of Trade Discount Modal for PMP NFT Staked
-Pre-requisite: User must be logged in and have access to the Dashboard page.
-Expectations:
-  -	The user should be able to access the Trade Discount Modal on the Dashboard page.
-  -	The modal should display a table with three columns: Stakers, Trade Fee, and Trade Discount by Percent.
-  -	The user should be able to view the stakers who are eligible for the trade discount.
-  -	The user should be able to view the trade fee and trade discount for each stake NFT quantity.
-
-Test Steps:
-  1.	Login to the NFT marketplace as a registered user.
-  2.	Navigate to the Dashboard page.
-  3.	Locate and access the Trade Discount Modal.
-  4.	Verify that the modal displays a table with the columns Stakers, Trade Fee, and Trade Discount by Percent.
-  5.	Verify that the table displays the stakers who are eligible for the trade discount.
-  6.	Verify that the table displays the trade fee and trade discount for each stake NFT quantity.
-```
 ### Acquire INW
 
 #### Acquire INW with vesting
 ```
-Test Case ID: ACQVT001
+Test Case ID: acquire_INW_001
 Test Case Description: This test case verifies the successful acquisition of a token with vesting.
 
 Test Steps:
 
-Open the token acquisition platform.
-Navigate to the token acquisition section.
-Enter the desired amount of tokens and select the vesting option.
-Confirm the acquisition request.
-Sign the transaction using the Ethereum wallet.
-Verify that the acquired tokens reflect in the user's wallet balance.
-Validate that the vesting schedule is correctly applied to the acquired tokens.
-Wait for the vesting duration to pass.
-Verify that the total acquired amount is fully vested and available for transfer.
-Perform necessary cleanup activities.
+1. Open the Ink Whale platform.
+2. Navigate to the Acquire INW tab in the toolbar.
+3. Select the vesting option & Enter the desired amount of INW tokens and check the converted amount of Azero to be paid
+4. Click Acquire INW button then Sign the transaction with your wallet.
+5. Claim the INW generated vesting amount. Wait for the vesting duration to pass and claim all INW vesting amount
+
 Expected Results:
 
-The tokens are successfully acquired with vesting.
-The acquired tokens are visible in the user's wallet.
-The vesting schedule is correctly applied.
-The total acquired amount is fully vested after the vesting duration.
-No errors or unexpected behavior occur during the acquisition process.
-Cleanup activities are performed without any issues.
-Note: This test case assumes the presence of a functioning token acquisition platform, a deployed vesting contract, and a valid Ethereum wallet for signing transactions.
+- The tokens are successfully acquired with vesting and are visible in the user's wallet.
+- INW vesting amount, INW balance, Azero balance are correctly applied and available in the wallet.
+- The INW vesting amount, INW balance, Azero balance are correctly applied on the left side of the page.
+- The unclaimed INW vesting amount is added correctly every block.
+- The total acquired amount is fully vested after the vesting duration.
+
 ```
 
 #### Acquire INW without vesting](#Acquire-INW-without-vesting)
