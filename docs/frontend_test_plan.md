@@ -66,31 +66,97 @@ Test Steps:
 
 #### Acquire INW with vesting
 ```
-Test Case ID: acquire_INW_001
+Test Case ID: acquire_INW_with_vesting_001
 Test Case Description: This test case verifies the successful acquisition of a token with vesting.
 
 Test Steps:
 
-1. Open the Ink Whale platform.
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet
 2. Navigate to the Acquire INW tab in the toolbar.
-3. Select the vesting option & Enter the desired amount of INW tokens and check the converted amount of Azero to be paid
+3. Select the vesting option & Enter the desired amount of INW tokens and check the converted amount of Azero to be paid. The entered amount must be a positive number and cannot be higher than the total available INW.
 4. Click Acquire INW button then Sign the transaction with your wallet.
 5. Claim the INW generated vesting amount. Wait for the vesting duration to pass and claim all INW vesting amount
 
 Expected Results:
 
 - The tokens are successfully acquired with vesting and are visible in the user's wallet.
-- INW vesting amount, INW balance, Azero balance are correctly applied and available in the wallet.
-- The INW vesting amount, INW balance, Azero balance are correctly applied on the left side of the page.
+- INW balance is added with 5% of acquired INW
+- Azero balance is deducted with the paid Azero and a little gas fee
+- The INW vesting amount is added with 95% of acquired INW
 - The unclaimed INW vesting amount is added correctly every block.
 - The total acquired amount is fully vested after the vesting duration.
+```
 
+```
+Test Case ID: acquire_INW_with_vesting_002
+Test Case Description: This test case verifies the successful acquisition of a token with vesting.
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet
+2. Navigate to the Acquire INW tab in the toolbar.
+3. Select the vesting option & Enter the desired amount of INW tokens that is either a negative number or higher than the total available INW.
+4. Click Acquire INW button then Sign the transaction with your wallet.
+
+Expected Results:
+
+- Notice pop-up to figure out the wrong format of the desired amount of INW tokens, thus transaction cannot be made successful. 
 ```
 
 #### Acquire INW without vesting](#Acquire-INW-without-vesting)
+```
+Test Case ID: acquire_INW_without_vesting_001
+Test Case Description: This test case verifies the successful acquisition of a token without vesting.
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet
+2. Navigate to the Acquire INW tab in the toolbar.
+3. Select the without vesting option. Enter the desired amount of INW tokens that is either a negative number or higher than the total available INW and check the converted amount of Azero to be paid
+4. Click Acquire INW button then Sign the transaction with your wallet.
+
+Expected Results:
+
+- The INW are successfully acquired without vesting (all acquired INW is added to balance)  and are visible in the user's wallet.
+- INW balance is added with 100% of acquired INW
+- Azero balance is deducted with the paid Azero and a little gas fee
+```
+
+```
+Test Case ID: acquire_INW_without_vesting_002
+Test Case Description: This test case verifies the successful acquisition of a token without vesting.
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet.
+2. Navigate to the Acquire INW tab in the toolbar.
+3. Select the without vesting option. Enter the desired amount of INW tokens that is either a negative number or higher than the total available INW.
+4. Click Acquire INW button then Sign the transaction with your wallet.
+
+Expected Results:
+
+- Notice pop-up to figure out the wrong format of the desired amount of INW tokens, thus transaction cannot be made successful.
+```
 
 ### Create a token
 
+```
+Test Case ID: create_a_token_001
+Test Case Description: This test case verifies the successful creation of a token
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet
+2. Navigate to the Acquire INW tab in the toolbar.
+3. Select the without vesting option. Enter the desired amount of INW tokens that is either a negative number or higher than the total available INW and check the converted amount of Azero to be paid
+4. Click Acquire INW button then Sign the transaction with your wallet.
+
+Expected Results:
+
+- The INW are successfully acquired without vesting (all acquired INW is added to balance)  and are visible in the user's wallet.
+- INW balance is added with 100% of acquired INW
+- Azero balance is deducted with the paid Azero and a little gas fee
+```
 ### Tokens
 
 #### Check token
