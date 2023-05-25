@@ -89,7 +89,7 @@ Expected Results:
 
 ```
 Test Case ID: acquire_INW_with_vesting_002
-Test Case Description: This test case verifies the successful acquisition of a token with vesting.
+Test Case Description: This test case verifies the unsuccessful acquisition of a token with vesting due to invalid desired amoung of INW filled.
 
 Test Steps:
 
@@ -124,7 +124,7 @@ Expected Results:
 
 ```
 Test Case ID: acquire_INW_without_vesting_002
-Test Case Description: This test case verifies the successful acquisition of a token without vesting.
+Test Case Description: This test case verifies the unsuccessful acquisition of a token without vesting due to invalid desired amoung of INW filled.
 
 Test Steps:
 
@@ -146,20 +146,60 @@ Test Case Description: This test case verifies the successful creation of a toke
 
 Test Steps:
 
-1. Open the Ink Whale platform & connect to an Aleph Zero native wallet
-2. Navigate to the Acquire INW tab in the toolbar.
-3. Select the without vesting option. Enter the desired amount of INW tokens that is either a negative number or higher than the total available INW and check the converted amount of Azero to be paid
-4. Click Acquire INW button then Sign the transaction with your wallet.
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. Make sure you have enough INW balance for transaction fee & a Azero for gas fee.
+2. Navigate to the Create tab in the toolbar, then select Token
+3. Fill in the required information as prompted including: 
+- Token Name
+- Token Symbol
+- Total Supply: must be a positive integer
+- Token icon: must be in a format of gif, jpeg, jpg, png
+4. Click on the "CREATE TOKEN" button. Then, confirm this action with your wallet. 
 
 Expected Results:
 
-- The INW are successfully acquired without vesting (all acquired INW is added to balance)  and are visible in the user's wallet.
-- INW balance is added with 100% of acquired INW
-- Azero balance is deducted with the paid Azero and a little gas fee
+- The token is successfully created and displayed in Token tab.
+- INW balance is deducted with transaction fee
 ```
-### Tokens
 
+```
+Test Case ID: create_a_token_002
+Test Case Description: This test case verifies the unsuccessful creation of a token due to invalid fillings
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. Make sure you have enough INW balance for transaction fee & a Azero for gas fee.
+2. Navigate to the Create tab in the toolbar, then select Token
+3. Fill in invalid information as prompted including one of the information below: 
+- Total Supply: not a positive integer, or
+- Token icon: not in a format of gif, jpeg, jpg, png
+4. Click on the "CREATE TOKEN" button
+
+Expected Results:
+
+- Notice pop-up to figure out the wrong format of one of the information, thus transaction cannot be made successful.
+```
+
+```
+Test Case ID: create_a_token_003
+Test Case Description: This test case verifies the unsuccessful creation of a token due to low INW balance
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. Make sure you have less INW balance for transaction fee 
+2. Navigate to the Create tab in the toolbar, then select Token
+3. Fill in invalid information as prompted including one of the information below: 
+- Total Supply: not a positive integer, or
+- Token icon: not in a format of gif, jpeg, jpg, png
+4. Click on the "CREATE TOKEN" button
+
+Expected Results:
+
+- Notice pop-up to figure out low INW , thus transaction cannot be made successful.
+```
+
+### Tokens
 #### Check token
+
 
 #### Transfer token
 
