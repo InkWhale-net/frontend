@@ -8,15 +8,12 @@
       - [Acquire INW with vesting](#Acquire-INW-with-vesting)
       - [Acquire INW without vesting](#Acquire-INW-without-vesting)
     - [Create a token](#Create-a-token)
-      - [Create a project](#Create-a-project)
     - [Tokens](#Tokens)
       - [Check token](#Check-token)
       - [Transfer token](#Transfer-token)
       - [Burn token](#Burn-token)
     - [Create a token staking pool](#Create-a-token-staking-pool)
-      - [Create a project](#Create-a-project) 
     - [Create an NFT yield farm](#Create-an-NFT-yield-farm)
-      - [Create a project](#Create-a-project) 
     - [Stake a Token](#Stake-a-Token)
     - [Stake a Token](#Stake-a-farm)
     - [Admin](#Admin)
@@ -200,8 +197,109 @@ Expected Results:
 ### Tokens
 #### Check token
 
+```
+Test Case ID: check_balance_of_a_token_001
+Test Case Description: This test case verifies the successful check of a wallet's balance of a token
 
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. Make sure you have the wallet address to check balance of a token.
+2. Navigate to the Tokens tab in the toolbar, then select Check balance tab
+3. Choose the token you want to check by one of the 3 ways below:
+- Scroll down and choose the token, the contract address of the token will be loaded, or
+- Search the token name and choose the token, the contract address of the token will be loaded, or
+- Paste the contract address, the token will be loaded, or
+4. Fill in the valid wallet address 
+5. Click on the "CHECK" button. 
+
+Expected Results:
+
+- The amount of token is shown in the box to reveal the token balance of the wallet.
+```
+
+```
+Test Case ID: check_balance_of_a_token_002
+Test Case Description: This test case verifies the unsuccessful check of a wallet's balance of a token due to invalid contract address or invalid wallet address
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. Make sure you have the wallet address to check balance of a token.
+2. Navigate to the Tokens tab in the toolbar, then select Check balance tab
+3. Choose the token you want to check by one of the 2 ways below
+- Search the token name but no token resulted for the search, or
+- Paste the contract address, but no token resulted for the search
+4. Fill in the wallet address which is not a valid Aleph Zero native wallet
+5. Click on the "CHECK" button. 
+
+Expected Results:
+
+- Notice pop-up to figure out Invalid Contract address or Invalid address , thus  cannot be made successful.
+```
 #### Transfer token
+
+```
+Test Case ID: transfer_tokens_001
+Test Case Description: This test case verifies the successful transfer tokens to a wallet
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. Make sure you have the wallet address to to transfer tokens.
+2. Navigate to the Tokens tab in the toolbar, then select Transfer Tokens tab
+3. Choose the token you want to check by one of the 3 ways below:
+- Scroll down and choose the token, the contract address of the token will be loaded, or
+- Search the token name and choose the token, the contract address of the token will be loaded, or
+- Paste the contract address, the token will be loaded
+4. Fill in the valid wallet address
+5. Fill in the amount of tokens you want to transfer
+6. Click on the "TRANSFER" button. Then, confirm this action with your wallet. 
+
+Expected Results:
+
+- The amount of token is successfully transferred from your wallet to the wallet you filled.
+- Your balance is deducted with the transferred amount
+- The receipt wallet is added with the transferred amount
+```
+
+```
+Test Case ID: transfer_tokens_002
+Test Case Description: This test case verifies the unsuccessful transfer tokens to a wallet due to invalid contract address or invalid wallet address
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. Make sure you have the wallet address to to transfer tokens.
+2. Navigate to the Tokens tab in the toolbar, then select Transfer Tokens tab
+3. Choose the token you want to check by one of the 3 ways below:
+- Search the token name but no token resulted for the search, or
+- Paste the contract address, but no token resulted for the search, or
+4. Fill in the wallet address which is not a valid Aleph Zero native wallet
+5. Fill in the amount of tokens you want to transfer
+6. Click on the "TRANSFER" button. 
+
+Expected Results:
+
+- Notice pop-up to figure out Invalid Contract address or Invalid address , thus  cannot be made successful.
+```
+
+```
+Test Case ID: transfer_tokens_003
+Test Case Description: This test case verifies the unsuccessful transfer tokens to a wallet due to low balance or invalid amount
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. Make sure you have the wallet address to to transfer tokens.
+2. Navigate to the Tokens tab in the toolbar, then select Transfer Tokens tab
+3. Choose the token you want to check by one of the 3 ways below:
+- Scroll down and choose the token, the contract address of the token will be loaded, or
+- Search the token name and choose the token, the contract address of the token will be loaded, or
+- Paste the contract address, the token will be loaded
+4. Fill in the valid wallet address
+5. Fill in the amount of tokens you want to transfer but the amount is either greater than your balance or the amount is not a positive number.
+6. Click on the "TRANSFER" button. 
+
+Expected Results:
+
+- Notice pop-up to figure out Low balance or Invalid amount , thus  cannot be made successful.
+```
 
 #### Burn token
 
