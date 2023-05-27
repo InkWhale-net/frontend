@@ -21,7 +21,6 @@
     - [Stake an NFT](#Stake-an-NFT)
       - [Untake an NFT](#Untake-an-NFT)
     - [Admin](#Admin)
-    - [Claim balance](#Claim-balance)
 
 ## Introduction
 ```
