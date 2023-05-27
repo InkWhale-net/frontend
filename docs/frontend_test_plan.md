@@ -13,9 +13,13 @@
       - [Transfer token](#Transfer-token)
       - [Burn token](#Burn-token)
     - [Create a token staking pool](#Create-a-token-staking-pool)
+      - [Remove rewards after pool ends](#Remove-rewards-after-pool-ends)
     - [Create an NFT yield farm](#Create-an-NFT-yield-farm)
+      - [Remove rewards after farm ends](#Remove-rewards-after-farm-ends)
     - [Stake a Token](#Stake-a-Token)
-    - [Stake a Token](#Stake-a-farm)
+      - [Untake a Token](#Untake-a-Token)
+    - [Stake an NFT](#Stake-an-NFT)
+      - [Untake an NFT](#Untake-an-NFT)
     - [Admin](#Admin)
     - [Claim balance](#Claim-balance)
 
@@ -439,6 +443,42 @@ Expected Results:
 - Notice pop-up to figure out Low balance or Invalid information , thus  cannot be made successful.
 ```
 
+#### Remove rewards after pool ends
+```
+Test Case ID: remove_rewards_after_pool_ends_001
+Test Case Description: This test case verifies the successful removal of rewards after pool ends
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. Make sure the pool has ended.
+2. Navigate to the "Create" tab in the toolbar, then select "Token Staking Pool"
+3. Scroll down and Choose the pool in "My staking pool" you want to remove rewards.
+4. Fill in the amount of rewards you want to remove or simply click "Max" to remove the rest rewards.
+5. Click on the "Remove rewards" button. Then, confirm this action with your wallet. 
+
+Expected Results:
+
+- The rewards is successfully removed and added up to your balance.
+```
+
+```
+Test Case ID: remove_rewards_after_pool_ends_002
+Test Case Description: This test case verifies the unsuccessful removal of rewards after pool ends due to invalid amount
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. Make sure the pool has ended.
+2. Navigate to the "Create" tab in the toolbar, then select "Token Staking Pool"
+3. Scroll down and Choose the pool in "My staking pool" you want to remove rewards.
+4. Fill in the amount of rewards you want to remove but the amount is not a positive number or higher than the max rewards.
+5. Click on the "Remove rewards" button. 
+
+Expected Results:
+
+- Notice pop-up to figure out Invalid amount , thus  cannot be made successful.
+```
+
+
 ### Create an NFT yield farm
 ```
 Test Case ID: create_an_NFT_yield_farm_001
@@ -527,9 +567,169 @@ Expected Results:
 - Notice pop-up to figure out Low balance or Invalid information , thus  cannot be made successful.
 ```
 
-### Stake a Token
+#### Remove rewards after farm ends
+```
+Test Case ID: remove_rewards_after_farm_ends_001
+Test Case Description: This test case verifies the successful removal of rewards after farm ends
 
-### Stake a farm 
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. Make sure the pool has ended.
+2. Navigate to the "Create" tab in the toolbar, then select "NFT Yield Farm"
+3. Scroll down and Choose the pool in "My farms" you want to remove rewards.
+4. Fill in the amount of rewards you want to remove or simply click "Max" to remove the rest rewards.
+5. Click on the "Remove rewards" button. Then, confirm this action with your wallet. 
+
+Expected Results:
+
+- The rewards is successfully removed and added up to your balance.
+```
+
+```
+Test Case ID: remove_rewards_after_farm_ends_002
+Test Case Description: This test case verifies the unsuccessful removal of rewards after farm ends due to invalid amount
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. Make sure the pool has ended.
+2. Navigate to the "Create" tab in the toolbar, then select "NFT Yield Farm"
+3. Scroll down and Choose the pool in "My staking pool" you want to remove rewards.
+4. Fill in the amount of rewards you want to remove but the amount is not a positive number or higher than the max rewards.
+5. Click on the "Remove rewards" button. 
+
+Expected Results:
+
+- Notice pop-up to figure out Invalid amount , thus  cannot be made successful.
+```
+
+### Stake a Token
+```
+Test Case ID: stake_a_token_001
+Test Case Description: This test case verifies the successful staking of a token in a pool
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. 
+2. Navigate to the "Stake" tab in the toolbar, then select "Pools"
+3. Choose or search the token you want to stake 
+4. Fill in the positive amount of the token you want to stake. Make sure you have enough balance for staking
+5. Click on the "Stake" button. Then, confirm this action with your wallet. 
+
+Expected Results:
+
+- "The stakes" amount is added up with the staking amount.
+- "My unclaimed rewards" is getting added up with APY% every block
+- Token balance is deducted with staking amount
+```
+
+```
+Test Case ID: stake_a_token_002
+Test Case Description: This test case verifies the unsuccessful staking of a token in a pool due invalid amount or low balance
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. 
+2. Navigate to the "Stake" tab in the toolbar, then select "Pools"
+3. Choose or search the token you want to stake 
+4. Fill in a non-positive number of the token you want to stake or a positive number that is higher than the balance
+5. Click on the "Stake" button. 
+
+Expected Results:
+
+- Notice pop-up to figure out Low balance or Invalid amount , thus  cannot be made successful.
+```
+#### Unstake a Token
+```
+Test Case ID: unstake_a_token_001
+Test Case Description: This test case verifies the successful unstaking of a token in a pool
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. 
+2. Navigate to the "Stake" tab in the toolbar, then select "Pools"
+3. Choose or search the pool you want to unstake 
+4. Fill in the positive amount of the token you want to unstake
+5. Click on the "Unstake" button. Then, confirm this action with your wallet. 
+
+Expected Results:
+
+- "The stakes" amount is deducted with the unstaking amount.
+- "My unclaimed rewards" is getting added up with APY% of the rest staking amount if any available every block
+- Token balance is added with unstaking amount
+```
+
+```
+Test Case ID: unstake_a_token_002
+Test Case Description: This test case verifies the unsuccessful unstaking of a token in a pool due to invalid amount
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. 
+2. Navigate to the "Stake" tab in the toolbar, then select "Pools"
+3. Choose or search the pool you want to unstake 
+4. Fill in the amount of the token you want to unstake but the amount is either not a positive number, or is higher than the amount you staked.
+5. Click on the "Unstake" button. 
+
+Expected Results:
+
+- Notice pop-up to figure out Invalid amount , thus  cannot be made successful.
+```
+
+```
+Test Case ID: unstake_a_token_003
+Test Case Description: This test case verifies the unsuccessful unstaking of a token in a pool due INW low balance for transaction fee
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet.
+2. Navigate to the "Stake" tab in the toolbar, then select "Pools"
+3. Choose or search the pool you want to unstake 
+4. Fill in the positive amount of the token you want to unstake, but INW balance is not enough to pay for transaction fee
+5. Click on the "Unstake" button. 
+
+Expected Results:
+
+- Notice pop-up to figure out low INW balance, thus  cannot be made successful.
+```
+
+### Stake an NFT 
+```
+Test Case ID: stake_an_NFT_001
+Test Case Description: This test case verifies the successful staking of an NFT in a farm
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. 
+2. Navigate to the "Stake" tab in the toolbar, then select "Farms"
+3. Choose or search the farm you want to stake 
+4. Choose the NFT in the "Available NFTs" you want to stake. 
+5. Click on the "Stake" button. Then, confirm this action with your wallet. 
+
+Expected Results:
+
+- "My stakes" amount is added up with 1 more NFT.
+- "My unclaimed rewards" is getting added up with APY% every block
+```
+
+#### Unstake an NFT
+```
+Test Case ID: unstake_an_NFT_001
+Test Case Description: This test case verifies the successful unstaking of an NFT in a farm
+
+Test Steps:
+
+1. Open the Ink Whale platform & connect to an Aleph Zero native wallet. 
+2. Navigate to the "Stake" tab in the toolbar, then select "Farms"
+3. Choose or search the farm you want to unstake 
+4. Choose the NFT in the "Staked NFTs" you want to unstake.
+5. Click on the "Unstake" button. Then, confirm this action with your wallet. 
+
+Expected Results:
+
+- "My stakes" amount is deducted with 1 more NFT.
+- "My unclaimed rewards" is getting added up  APY% of the rest staking amount if any available every block
+```
+
 ### Admin
     - [Claim balance](#Claim-balance)
 
