@@ -181,12 +181,18 @@ export default function TokensPage() {
                   placeholder="Select Token..."
                   closeMenuOnSelect={true}
                   // filterOption={filterOptions}
-                  value={ selectedToken ? {
-                    value: selectedToken?.contractAddress,
-                    label: `${selectedToken?.symbol} (${
-                      selectedToken?.name
-                    }) - ${addressShortener(selectedToken?.contractAddress)}`,
-                  } : ''}  
+                  value={
+                    selectedToken
+                      ? {
+                          value: selectedToken?.contractAddress,
+                          label: `${selectedToken?.symbol} (${
+                            selectedToken?.name
+                          }) - ${addressShortener(
+                            selectedToken?.contractAddress
+                          )}`,
+                        }
+                      : ""
+                  }
                   isSearchable
                   onChange={({ value }) => {
                     setSelectedContractAddr(value);
@@ -324,7 +330,11 @@ const TokensTabCheckBalance = ({
               }
             />
 
-            <Button onClick={() => checkBalanceHandler()} w="full">
+            <Button
+              isDisabled={!addressCheckBalance}
+              onClick={() => checkBalanceHandler()}
+              w="full"
+            >
               Check
             </Button>
           </Stack>
@@ -455,7 +465,11 @@ const TokensTabTransferToken = ({
               }
             />
 
-            <Button onClick={() => transferTokenHandler()} w="full">
+            <Button
+              isDisabled={!Number(transferAmount) || !transferAddress}
+              onClick={() => transferTokenHandler()}
+              w="full"
+            >
               Transfer
             </Button>
           </Stack>
@@ -572,7 +586,11 @@ const TokensTabBurnToken = ({
               }
             />
 
-            <Button onClick={burnTokenHandler} w="full">
+            <Button
+              isDisabled={!Number(burnAmount)}
+              onClick={burnTokenHandler}
+              w="full"
+            >
               Burn
             </Button>
           </Stack>
