@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // import { SearchIcon } from "@chakra-ui/icons";
 // import IWInput from "components/input/Input";
 import {
@@ -36,7 +37,7 @@ export default function FarmsPage() {
 
   const [showMyStakedPools, setShowMyStakedPools] = useState(false);
 
-  const [endedPools, setendedPools] = useState(false);
+  const [endedPools, setEndedPools] = useState(false);
 
   const [keywords, setKeywords] = useState("");
   const [resultList, setResultList] = useState(null);
@@ -300,7 +301,7 @@ export default function FarmsPage() {
               <Switch
                 id="zero-reward-pools"
                 isChecked={endedPools}
-                onChange={() => setendedPools(!endedPools)}
+                onChange={() => setEndedPools(!endedPools)}
               />
               <FormLabel
                 mb="0"

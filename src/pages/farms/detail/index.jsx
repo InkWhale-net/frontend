@@ -168,6 +168,7 @@ export default function FarmDetailPage() {
       ),
       component: (
         <PoolInfo
+          mode={currMode}
           {...currentNFTPool}
           {...currentTokenPool}
           rewardPool={
@@ -1259,7 +1260,7 @@ const PoolInfo = ({
           {nftInfo?.name}
         </Link>
       ),
-      volume: `${nftInfo?.volume} AZERO`,
+      volume: `${formatNumDynDecimal(nftInfo?.volume)} AZERO`,
       totalSupply: `${nftInfo?.nft_count} NFT${nftInfo?.nft_count > 1 && "s"}`,
       royaltyFee: `${(nftInfo?.royaltyFee / 100).toFixed(2)}%`,
     },
@@ -1296,8 +1297,10 @@ const PoolInfo = ({
               content: `${new Date(startTime).toLocaleString("en-US")}`,
             },
             {
-              title: "Pool Length (days)",
-              content: `${duration / 86400} days`,
+              title: "Pool Length",
+              content: `${duration / 86400} day${
+                duration / 86400 > 1 ? "s" : ""
+              }`,
             },
             {
               title: "Reward Pool",
@@ -1306,7 +1309,7 @@ const PoolInfo = ({
             {
               title: "Max Staking Amount",
               content: `${formatNumDynDecimal(maxStakingAmount)} ${"NFT"}${
-                mode === "NFT_FARM" && totalStaked > 1 ? "s" : ""
+                mode === "NFT_FARM" && maxStakingAmount > 1 ? "s" : ""
               }`,
             },
             {
@@ -1317,7 +1320,6 @@ const PoolInfo = ({
             },
           ]}
         />
-
         <Stack w="full" spacing="30px">
           {mode === "TOKEN_FARM" ? (
             <CardTwoColumn
