@@ -599,11 +599,6 @@ const MyStakeRewardInfo = ({
               onChange={({ target }) => setAmount(target.value)}
               type="number"
               placeholder="Enter amount to stake or unstake"
-              // inputRightElementIcon={
-              //   <Heading as="h5" size="h5">
-              //     $WAL
-              //   </Heading>
-              // }
             />
 
             <HStack
@@ -619,13 +614,16 @@ const MyStakeRewardInfo = ({
                 buttonVariant="primary"
                 buttonLabel="Stake"
                 disableBtn={
-                  isPoolEnded(startTime, duration) || isPoolNotStart(startTime)
+                  !Number(amount) ||
+                  isPoolEnded(startTime, duration) ||
+                  isPoolNotStart(startTime)
                 }
                 onClick={handleStake}
                 message={
                   <>
                     Stake {amount} {tokenSymbol}.<br />
-                    Unstake will costs {unstakeFee} INW. Continue?
+                    Unstake will costs {Number(unstakeFee)?.toFixed(0)} INW.
+                    Continue?
                   </>
                 }
               />
@@ -634,8 +632,11 @@ const MyStakeRewardInfo = ({
                 action="unstake"
                 buttonVariant="primary"
                 buttonLabel="Unstake"
+                disableBtn={!Number(amount)}
                 onClick={handleUnstake}
-                message={`Unstake costs ${unstakeFee} INW. Continue?`}
+                message={`Unstake costs ${Number(unstakeFee)?.toFixed(
+                  0
+                )} INW. Continue?`}
               />
             </HStack>
           </Flex>
