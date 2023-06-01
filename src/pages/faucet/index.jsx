@@ -599,6 +599,7 @@ export default function FaucetPage({ api }) {
               />
 
                <IWInput
+                type="number"
                 value={azeroBuyAmount}
                 onChange={onChangeAzeroInput}
                 placeholder="Enter AZERO amount"
@@ -744,6 +745,7 @@ export default function FaucetPage({ api }) {
               />
 
               <IWInput
+                type="number"
                 value={azeroBuyAmount}
                 onChange={onChangeAzeroInput}
                 placeholder="Enter AZERO amount"
