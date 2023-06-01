@@ -361,7 +361,8 @@ export default function FaucetPage({ api }) {
       inwBuyAmount * parseFloat(inwPrice) >=
         formatChainStringToNumber(azeroBalance) ||
       isSaleEnded ||
-      availableMint?.replaceAll(",", "") < +inwBuyAmount || !(inwBuyAmount > 0)
+      availableMint?.replaceAll(",", "") < +inwBuyAmount ||
+      !(inwBuyAmount > 0)
     );
   }, [azeroBalance, inwBuyAmount, inwPrice, isSaleEnded, availableMint]);
 
@@ -388,7 +389,10 @@ export default function FaucetPage({ api }) {
       0,
       "genericTokenSaleTrait::endTime"
     );
-    setSaleInfo({...saleInfo, endTimeSale: endTime?.toHuman()?.Ok?.replaceAll(",", "") });
+    setSaleInfo({
+      ...saleInfo,
+      endTimeSale: endTime?.toHuman()?.Ok?.replaceAll(",", ""),
+    });
   };
 
   useEffect(() => {
@@ -396,7 +400,7 @@ export default function FaucetPage({ api }) {
   }, [api, currentAccount, getInwMintingCapAndTotalSupply]);
 
   const getInfo = () => {
-    resetField()
+    resetField();
     if (tabIndex === 0) {
       getPriceInw(private_sale);
       getSaleInfo(private_sale);
@@ -439,7 +443,7 @@ export default function FaucetPage({ api }) {
     );
 
     await delay(5000);
-    resetField()
+    resetField();
     toast.promise(
       delay(1000).then(() => {
         if (currentAccount) {
@@ -478,7 +482,7 @@ export default function FaucetPage({ api }) {
     );
 
     await delay(5000);
-    resetField()
+    resetField();
     toast.promise(
       delay(1000).then(() => {
         if (currentAccount) {
@@ -536,19 +540,19 @@ export default function FaucetPage({ api }) {
   };
 
   const onChangeAzeroInput = ({ target }) => {
-    setAzeroBuyAmount(target.value)
-    setInwBuyAmount(roundDown(target.value / parseFloat(inwPrice)))
-  }
+    setAzeroBuyAmount(target.value);
+    setInwBuyAmount(roundDown(target.value / parseFloat(inwPrice)));
+  };
 
   const onChangeInwInput = ({ target }) => {
-    setInwBuyAmount(target.value)
-    setAzeroBuyAmount((target.value * parseFloat(inwPrice)))
-  }
+    setInwBuyAmount(target.value);
+    setAzeroBuyAmount(target.value * parseFloat(inwPrice));
+  };
 
   const resetField = () => {
-    setInwBuyAmount('')
-    setAzeroBuyAmount('')
-  }
+    setInwBuyAmount("");
+    setAzeroBuyAmount("");
+  };
 
   const [isBigScreen] = useMediaQuery("(min-width: 480px)");
 
@@ -598,25 +602,28 @@ export default function FaucetPage({ api }) {
                 }
               />
 
-               <IWInput
+              <IWInput
+                type="number"
                 value={azeroBuyAmount}
                 onChange={onChangeAzeroInput}
                 placeholder="Enter AZERO amount"
                 inputRightElementIcon={<AzeroLogo />}
               />
-              {inwPrice > 0 && <Flex
-                mt={{ base: "15px", lg: "0px" }}
-                w="full"
-                flexDirection={{base: 'column', lg: 'row'}}
-                justifyContent="space-between"
-              >
-                <Text textAlign="left" fontSize="md" lineHeight="28px">
-                  Price: {inwPrice} INW / Azero
-                </Text>
-                <Text textAlign="left" fontSize="md" lineHeight="28px">
-                  INW Available to acquire: {availableMint}
-                </Text>
-              </Flex>}
+              {inwPrice > 0 && (
+                <Flex
+                  mt={{ base: "15px", lg: "0px" }}
+                  w="full"
+                  flexDirection={{ base: "column", lg: "row" }}
+                  justifyContent="space-between"
+                >
+                  <Text textAlign="left" fontSize="md" lineHeight="28px">
+                    Price: {inwPrice} INW / Azero
+                  </Text>
+                  <Text textAlign="left" fontSize="md" lineHeight="28px">
+                    INW Available to acquire: {availableMint}
+                  </Text>
+                </Flex>
+              )}
               {inwBuyAmount ? (
                 <Flex
                   mt={{ base: "15px", lg: "0px" }}
@@ -625,9 +632,9 @@ export default function FaucetPage({ api }) {
                 >
                   <Text textAlign="left" fontSize="md" lineHeight="28px">
                     You will receive {roundUp((inwBuyAmount * 5) / 100)} INW (5%
-                    of total purchase) and the rest will be claimable every
-                    day during 18-month vesting period. Vesting period starts
-                    after public sale ends.
+                    of total purchase) and the rest will be claimable every day
+                    during 18-month vesting period. Vesting period starts after
+                    public sale ends.
                     {/* , then linear vesting over the next 24 months */}
                   </Text>
                 </Flex>
@@ -666,7 +673,9 @@ export default function FaucetPage({ api }) {
               },
               {
                 title: "Vesting Duration",
-                content: `${saleInfo?.vestingDuration / 60/60/24 / 1000} days`,
+                content: `${
+                  saleInfo?.vestingDuration / 60 / 60 / 24 / 1000
+                } days`,
               },
               {
                 title: "Vesting Start Date/Time",
@@ -695,7 +704,7 @@ export default function FaucetPage({ api }) {
       isDisabled: false,
     },
     {
-      label: `${isBigScreen ? 'Public Sale' : ''} No Vesting`,
+      label: `${isBigScreen ? "Public Sale" : ""} No Vesting`,
       component: (
         <IWCard
           w="full"
@@ -744,24 +753,27 @@ export default function FaucetPage({ api }) {
               />
 
               <IWInput
+                type="number"
                 value={azeroBuyAmount}
                 onChange={onChangeAzeroInput}
                 placeholder="Enter AZERO amount"
                 inputRightElementIcon={<AzeroLogo />}
               />
-              {inwPrice > 0 && <Flex
-                mt={{ base: "15px", lg: "0px" }}
-                w="full"
-                flexDirection={{base: 'column', lg: 'row'}}
-                justifyContent="space-between"
-              >
-                <Text textAlign="left" fontSize="md" lineHeight="28px">
-                  Price: {inwPrice} INW / Azero
-                </Text>
-                <Text textAlign="left" fontSize="md" lineHeight="28px">
-                  INW Available to acquire: {availableMint}
-                </Text>
-              </Flex>}
+              {inwPrice > 0 && (
+                <Flex
+                  mt={{ base: "15px", lg: "0px" }}
+                  w="full"
+                  flexDirection={{ base: "column", lg: "row" }}
+                  justifyContent="space-between"
+                >
+                  <Text textAlign="left" fontSize="md" lineHeight="28px">
+                    Price: {inwPrice} INW / Azero
+                  </Text>
+                  <Text textAlign="left" fontSize="md" lineHeight="28px">
+                    INW Available to acquire: {availableMint}
+                  </Text>
+                </Flex>
+              )}
 
               {inwBuyAmount ? (
                 <Flex
@@ -833,8 +845,18 @@ export default function FaucetPage({ api }) {
               },
               { title: "Max Supply", content: `${inwTotalSupply} INW` },
               { title: "In Circulation ", content: `${inwInCur} INW` },
-              { title: "Total Burned ", content: `${formatNumDynDecimal(inwBurn)} INW` },
-              { title: "Your Vesting Amount ", content: `${formatNumDynDecimal(+saleInfo?.buyerInfo?.purchasedAmount?.replaceAll(',', '') * 95 /100 || 0)} INW` },
+              {
+                title: "Total Burned ",
+                content: `${formatNumDynDecimal(inwBurn)} INW`,
+              },
+              {
+                title: "Your Vesting Amount ",
+                content: `${formatNumDynDecimal(
+                  (+saleInfo?.buyerInfo?.purchasedAmount?.replaceAll(",", "") *
+                    95) /
+                    100 || 0
+                )} INW`,
+              },
               { title: "Your Balance: ", content: `${inwBalance} INW` },
             ]}
           />
