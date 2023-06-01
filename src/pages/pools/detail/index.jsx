@@ -240,7 +240,6 @@ const MyStakeRewardInfo = ({
   duration,
   startTime,
   tokenDecimal,
-  maxStakingAmount,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -370,15 +369,6 @@ const MyStakeRewardInfo = ({
   }
 
   async function handleStake() {
-    const userCurrentStake = stakeInfo?.stakedValue / 10 ** 12;
-    if (maxStakingAmount - userCurrentStake - amount < 0) {
-      toast.error(
-        `Maximum staking amount is ${maxStakingAmount}. Currently, the maximum remaining stake is ${
-          maxStakingAmount - userCurrentStake
-        }`
-      );
-      return;
-    }
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
       return;
