@@ -48,8 +48,12 @@ export default function IWCardNFTWrapper(props) {
                     onClick={() => actionHandler(tokenID)}
                     message={
                       <>
-                        {action} {nftName}.<br />
-                        Unstake costs ${unstakeFee} INW. Continue?
+                        {action} {nftName}
+                        <br />
+                        {action === "Unstake NFT"
+                          ? ` costs ${unstakeFee} INW.`
+                          : " "}{" "}
+                        Continue?
                       </>
                     }
                   />
