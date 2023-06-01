@@ -10,7 +10,7 @@ import IWTabs from "components/tabs/IWTabs";
 import React, { useState, useEffect } from "react";
 import { useMemo } from "react";
 import { toast } from "react-hot-toast";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { formatChainStringToNumber } from "utils";
 import { formatQueryResultToNumber } from "utils";
 import { delay } from "utils";
@@ -21,6 +21,7 @@ import { execContractTx } from "utils/contracts";
 import { execContractQuery } from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
+import { fetchUserBalance } from "redux/slices/walletSlice";
 
 export default function TokensPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -353,7 +354,8 @@ const TokensTabTransferToken = ({
   loadTokenInfo,
   ...rest
 }) => {
-  const { currentAccount } = useSelector((s) => s.wallet);
+  const { currentAccount, api } = useSelector((s) => s.wallet);
+  const dispatch = useDispatch();
 
   const [transferAddress, setTransferAddress] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
@@ -404,6 +406,7 @@ const TokensTabTransferToken = ({
       setTransferAddress("");
       setTransferAmount("");
       loadTokenInfo();
+      dispatch(fetchUserBalance({ currentAccount, api }));
     });
   }
 
@@ -488,7 +491,8 @@ const TokensTabBurnToken = ({
   loadTokenInfo,
   ...rest
 }) => {
-  const { currentAccount } = useSelector((s) => s.wallet);
+  const { currentAccount, api } = useSelector((s) => s.wallet);
+  const dispatch = useDispatch();
 
   const [burnAmount, setBurnAmount] = useState("");
 
@@ -531,6 +535,7 @@ const TokensTabBurnToken = ({
     await delay(2000).then(() => {
       setBurnAmount("");
       loadTokenInfo();
+      dispatch(fetchUserBalance({ currentAccount, api }));
     });
   }
 
