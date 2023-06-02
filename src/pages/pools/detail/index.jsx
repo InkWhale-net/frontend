@@ -240,6 +240,7 @@ const MyStakeRewardInfo = ({
   duration,
   startTime,
   tokenDecimal,
+  maxStakingAmount,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -394,6 +395,15 @@ const MyStakeRewardInfo = ({
       return;
     }
 
+    const userCurrentStake = stakeInfo?.stakedValue / 10 ** 12 || 0;
+    if (maxStakingAmount - userCurrentStake - amount < 0) {
+      toast.error(
+        `Maximum staking amount is ${maxStakingAmount}. Currently, the maximum remaining stake is ${
+          maxStakingAmount - userCurrentStake
+        }`
+      );
+      return;
+    }
     try {
       //Approve
       toast.success("Step 1: Approving...");
