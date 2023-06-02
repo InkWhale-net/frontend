@@ -1,7 +1,13 @@
 import { Box, Flex, Heading, Text } from "@chakra-ui/react";
 import React from "react";
 
-function SectionContainer({ children, title, description, ...rest }) {
+function SectionContainer({
+  children,
+  title,
+  description,
+  scrollRef,
+  ...rest
+}) {
   return (
     <Flex
       direction="column"
@@ -12,6 +18,7 @@ function SectionContainer({ children, title, description, ...rest }) {
       py={{ base: "20px", xl: "40px" }}
       px={{ base: "20px", xl: "135px" }}
       {...rest}
+      ref={scrollRef}
     >
       {/* <Box
         border="1px solid blue"

@@ -4,11 +4,15 @@ import SectionContainer from "components/container/SectionContainer";
 import { IWTable } from "components/table/IWTable";
 import { useSelector } from "react-redux";
 import IWTabs from "components/tabs/IWTabs";
-import { useHistory } from "react-router-dom";
-import { useEffect } from "react";
+import { useHistory, useLocation } from "react-router-dom";
+import { useEffect, useRef } from "react";
 
 export default function MyPoolsPage({ api }) {
   const history = useHistory();
+  const location = useLocation();
+  const tokenSectionRef = useRef(null);
+  const poolSectionRef = useRef(null);
+  const farmSectionRef = useRef(null);
 
   const { currentAccount } = useSelector((s) => s.wallet);
 
@@ -113,17 +117,40 @@ export default function MyPoolsPage({ api }) {
 
     tableBody: allTokensList?.filter(
       (el) => el.creator === currentAccount?.address
-      ),
+    ),
   };
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const componentId = searchParams.get("section");
+    const scrollTo = (ref) => {
+      const targetPosition = ref.current.offsetTop - 50;
+      window.scrollTo({ top: targetPosition, behavior: "smooth" });
+    };
+
+    switch (componentId) {
+      case "token":
+        scrollTo(tokenSectionRef);
+        break;
+      case "pools":
+        scrollTo(poolSectionRef);
+        break;
+      case "farms":
+        scrollTo(farmSectionRef);
+        break;
+    }
+  }, [location.search, history]);
 
   return (
     <>
       <SectionContainer
+        id="mytoken"
         mt={{ base: "0px", xl: "20px" }}
         title="My Staking Pools"
         description={
           <span>Stake some tokens to earn more. High APR, low risk.</span>
         }
+        scrollRef={poolSectionRef}
       >
         <Stack
           w="full"
@@ -135,12 +162,13 @@ export default function MyPoolsPage({ api }) {
         </Stack>
       </SectionContainer>
 
-      <MyNFTAndTokenPoolsTab />
+      <MyNFTAndTokenPoolsTab scrollRef={farmSectionRef} />
 
       <SectionContainer
         mt={{ base: "0px", xl: "8px" }}
         title="My Tokens"
         description={``}
+        scrollRef={tokenSectionRef}
       >
         <IWTable {...tableDataTokens} isDisableRowClick={true} />
       </SectionContainer>
@@ -148,7 +176,7 @@ export default function MyPoolsPage({ api }) {
   );
 }
 
-const MyNFTAndTokenPoolsTab = () => {
+const MyNFTAndTokenPoolsTab = ({ scrollRef }) => {
   const { myNFTPoolsList, myTokenPoolsList } = useSelector((s) => s.myPools);
 
   const tableDataNFT = {
@@ -268,6 +296,7 @@ const MyNFTAndTokenPoolsTab = () => {
       mt={{ base: "0px", xl: "20px" }}
       title="My Yield Farm Pools"
       description={<span>Stake NFT or Tokens to earn more</span>}
+      scrollRef={scrollRef}
     >
       <Stack
         w="full"

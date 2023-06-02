@@ -318,7 +318,7 @@ export const WalletConnect = () => {
                 key={idx}
                 alignItems="start"
                 width={{ base: "33%" }}
-                onClick={() => history.push("/my-pools")}
+                onClick={() => history.push(`/my-pools?section=${item?.id}`)}
               >
                 <MenuCardIcon {...item} />
               </MenuItem>
@@ -437,6 +437,7 @@ const myMenuList = [
     icon: <MyLPFarmsIcon />,
     title: "My Tokens",
     href: "/my-pools",
+    id: "token",
   },
   {
     borderColor: "#93F0F5",
@@ -448,6 +449,7 @@ const myMenuList = [
     icon: <MyPoolsIcon />,
     title: "My pools",
     href: "/my-pools",
+    id: "pools",
   },
   {
     borderColor: "#93F0F5",
@@ -459,5 +461,6 @@ const myMenuList = [
     icon: <MyNFTFarmsIcon />,
     title: "My NFT Farms",
     href: "/my-pool",
+    id: "farms",
   },
 ];
