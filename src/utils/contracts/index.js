@@ -121,7 +121,7 @@ export async function execContractTx(
   // console.log("azeroBalance = ", azeroBalance);
 
   if (azeroBalance < 0.005) {
-    toast.error("Account low balance! Please top up!");
+    toast.error("You don’t have enough azero for transaction fee!");
     return;
   }
 
@@ -202,7 +202,7 @@ export async function execContractTxAndCallAPI(
   // console.log("azeroBalance = ", azeroBalance);
 
   if (azeroBalance < 0.005) {
-    toast.error("Account low balance! Please top up!");
+    toast.error("You don’t have enough azero for transaction fee!");
     return;
   }
 
