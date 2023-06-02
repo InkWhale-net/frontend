@@ -146,7 +146,7 @@ export default function CreateNFTLPPage({ api }) {
 
       if (status === "OK") {
         if (isUnmounted) return;
-        ret = ret.filter(el => !el.name?.toLowerCase()?.includes('domain'))
+        ret = ret.filter((el) => !el.name?.toLowerCase()?.includes("domain"));
         return setCollectionList(ret);
       }
 
@@ -238,6 +238,19 @@ export default function CreateNFTLPPage({ api }) {
       minReward.replaceAll(",", "")
     ) {
       toast.error(`You don't have enough ${tokenSymbol} to topup the reward`);
+      return;
+    }
+
+    const endDate = startTime && new Date(startTime?.getTime());
+    endDate?.setDate(startTime?.getDate() + parseInt(duration));
+    if (!!endDate) {
+      const currentDate = new Date();
+      if (endDate < currentDate) {
+        toast.error(`Pool can not end in the pass`);
+        return;
+      }
+    } else {
+      toast.error(`Invalid start Date & Time`);
       return;
     }
 
