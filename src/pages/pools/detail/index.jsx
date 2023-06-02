@@ -370,15 +370,6 @@ const MyStakeRewardInfo = ({
   }
 
   async function handleStake() {
-    const userCurrentStake = stakeInfo?.stakedValue / 10 ** 12;
-    if (maxStakingAmount - userCurrentStake - amount < 0) {
-      toast.error(
-        `Maximum staking amount is ${maxStakingAmount}. Currently, the maximum remaining stake is ${
-          maxStakingAmount - userCurrentStake
-        }`
-      );
-      return;
-    }
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
       return;
@@ -404,6 +395,15 @@ const MyStakeRewardInfo = ({
       return;
     }
 
+    const userCurrentStake = stakeInfo?.stakedValue / 10 ** 12 || 0;
+    if (maxStakingAmount - userCurrentStake - amount < 0) {
+      toast.error(
+        `Maximum staking amount is ${maxStakingAmount}. Currently, the maximum remaining stake is ${
+          maxStakingAmount - userCurrentStake
+        }`
+      );
+      return;
+    }
     try {
       //Approve
       toast.success("Step 1: Approving...");
