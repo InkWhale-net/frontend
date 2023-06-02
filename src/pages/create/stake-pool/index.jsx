@@ -169,7 +169,7 @@ export default function CreateStakePoolPage({ api }) {
 
     if (
       parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) <
-      createTokenFee?.replaceAll(',', '')
+      createTokenFee?.replaceAll(",", "")
     ) {
       toast.error(
         `You don't have enough INW. Create Stake Pool costs ${createTokenFee} INW`
@@ -182,6 +182,18 @@ export default function CreateStakePoolPage({ api }) {
       minReward?.replaceAll(",", "")
     ) {
       toast.error(`You don't have enough ${tokenSymbol} to topup the reward`);
+      return;
+    }
+    const endDate = startTime && new Date(startTime?.getTime());
+    endDate?.setDate(startTime?.getDate() + parseInt(duration));
+    if (!!endDate) {
+      const currentDate = new Date();
+      if (endDate < currentDate) {
+        toast.error(`Pool can not end in the pass`);
+        return;
+      }
+    } else {
+      toast.error(`Invalid start Date & Time`);
       return;
     }
 
