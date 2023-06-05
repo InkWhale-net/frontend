@@ -99,51 +99,47 @@ function SidebarContent({ onClose }) {
         <CreateMenuDropdown onClose={onClose} />
         <StakeMenuDropdown onClose={onClose} />
         <Flex
+          _hover={{ textDecoration: "none", bg: "bg.1" }}
+          p="6px 10px"
+          bg={"transparent"}
+          borderRadius="5px"
+          ml={{ base: "20px", md: "20px" }}
+        >
+          <Link
+            color={"text.1"}
+            fontWeight="600"
+            bg="transparent"
+            textDecoration="none"
+            _focus={{ borderWidth: "0px" }}
             _hover={{ textDecoration: "none", bg: "bg.1" }}
-            p="6px 10px"
-            bg={"transparent"}
-            borderRadius="5px"
-            ml={{ base: "20px", md: "20px" }}
+            onClick={() => toast.success("Coming soon!")}
           >
-            <Link
-              color={"text.1"}
-              fontWeight="600"
-              bg="transparent"
-              textDecoration="none"
-              _focus={{ borderWidth: "0px" }}
-              _hover={{ textDecoration: "none", bg: "bg.1" }}
-              onClick={() =>
-                toast.success("Coming soon!")
-              }
-            >
-              <Text bg="transparent" fontSize="md">
-                Launchpad
-              </Text>
-            </Link>
-          </Flex>
-          <Flex
+            <Text bg="transparent" fontSize="md">
+              Launchpad
+            </Text>
+          </Link>
+        </Flex>
+        <Flex
+          _hover={{ textDecoration: "none", bg: "bg.1" }}
+          p="6px 10px"
+          bg={"transparent"}
+          borderRadius="5px"
+          ml={{ base: "20px", md: "20px" }}
+        >
+          <Link
+            color={"text.1"}
+            fontWeight="600"
+            bg="transparent"
+            textDecoration="none"
+            _focus={{ borderWidth: "0px" }}
             _hover={{ textDecoration: "none", bg: "bg.1" }}
-            p="6px 10px"
-            bg={"transparent"}
-            borderRadius="5px"
-            ml={{ base: "20px", md: "20px" }}
+            onClick={() => toast.success("Coming soon!")}
           >
-            <Link
-              color={"text.1"}
-              fontWeight="600"
-              bg="transparent"
-              textDecoration="none"
-              _focus={{ borderWidth: "0px" }}
-              _hover={{ textDecoration: "none", bg: "bg.1" }}
-              onClick={() =>
-                toast.success("Coming soon!")
-              }
-            >
-              <Text bg="transparent" fontSize="md">
-                Orderbook Dex
-              </Text>
-            </Link>
-          </Flex>
+            <Text bg="transparent" fontSize="md">
+              Orderbook Dex
+            </Text>
+          </Link>
+        </Flex>
         <Flex ml="30px" pt="10px" w="full">
           <WalletButton />
         </Flex>
