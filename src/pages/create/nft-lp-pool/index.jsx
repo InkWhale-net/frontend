@@ -242,6 +242,19 @@ export default function CreateNFTLPPage({ api }) {
       return;
     }
 
+    const endDate = startTime && new Date(startTime?.getTime());
+    endDate?.setDate(startTime?.getDate() + parseInt(duration));
+    if (!!endDate) {
+      const currentDate = new Date();
+      if (endDate < currentDate) {
+        toast.error(`Pool can not end in the pass`);
+        return;
+      }
+    } else {
+      toast.error(`Invalid start Date & Time`);
+      return;
+    }
+
     const allowanceINWQr = await execContractQuery(
       currentAccount?.address,
       "api",
