@@ -35,6 +35,7 @@ import { formatNumDynDecimal } from "utils";
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import { roundUp } from "utils";
 import { SelectSearch } from "components/SelectSearch";
+import { execContractTxAndCallAPI } from "utils/contracts";
 
 export default function CreateStakePoolPage({ api }) {
   const dispatch = useDispatch();
@@ -260,13 +261,14 @@ export default function CreateStakePoolPage({ api }) {
 
     await delay(3000);
     toast.success(`Step ${step}: Process...`);
-    await execContractTx(
+    await execContractTxAndCallAPI(
       currentAccount,
       "api",
       pool_generator_contract.CONTRACT_ABI,
       pool_generator_contract.CONTRACT_ADDRESS,
       0, //-> value
       "newPool",
+      () => APICall.askBEupdate({ type: "pool", poolContract: "new" }),
       currentAccount?.address,
       selectedContractAddr,
       formatNumToBN(maxStake, 12),
@@ -275,8 +277,6 @@ export default function CreateStakePoolPage({ api }) {
       startTime.getTime()
     );
 
-    await APICall.askBEupdate({ type: "pool", poolContract: "new" });
-
     setApy("");
     setDuration("");
     setStartTime(new Date());
@@ -284,7 +284,7 @@ export default function CreateStakePoolPage({ api }) {
     await delay(3000);
 
     toast.promise(
-      delay(10000).then(() => {
+      delay(30000).then(() => {
         if (currentAccount) {
           dispatch(fetchUserBalance({ currentAccount, api }));
           dispatch(fetchMyStakingPools({ currentAccount }));
@@ -293,7 +293,7 @@ export default function CreateStakePoolPage({ api }) {
         fetchTokenBalance();
       }),
       {
-        loading: "Please wait up to 10s for the data to be updated! ",
+        loading: "Please wait a minute for the data to be updated! ",
         success: "Done !",
         error: "Could not fetch data!!!",
       }

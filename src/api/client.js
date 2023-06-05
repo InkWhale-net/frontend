@@ -37,14 +37,26 @@ const client = async (
 export const APICall = {
   // Get list of tokens
   getTokensList: async ({ limit = 1000, offset = 0, sort = -1 }) => {
-    let { ret, status, message } = await client("POST", "/getTokens", { limit, offset, sort })
-    ret = ret.filter(el => !!el?.contractAddress)
-    ret.unshift(ret.pop())
-    return { ret, status, message } ;
+    let { ret, status, message } = await client("POST", "/getTokens", {
+      limit,
+      offset,
+      sort,
+    });
+    ret = ret.filter((el) => !!el?.contractAddress);
+    ret.unshift(ret.pop());
+    return { ret, status, message };
   },
 
-  updateTokenIcon: async ({ contractAddress, tokenGeneratorContractAddress, tokenIconUrl }) => {
-    return await client("POST", "/updateTokenUrl", { contractAddress, tokenGeneratorContractAddress, tokenIconUrl });
+  updateTokenIcon: async ({
+    contractAddress,
+    tokenGeneratorContractAddress,
+    tokenIconUrl,
+  }) => {
+    return await client("POST", "/updateTokenUrl", {
+      contractAddress,
+      tokenGeneratorContractAddress,
+      tokenIconUrl,
+    });
   },
 
   // Get list of staking pools

@@ -35,6 +35,7 @@ import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import { roundUp } from "utils";
 import ImageUploadIcon from "../token/UploadIcon";
 import { SelectSearch } from "components/SelectSearch";
+import { execContractTxAndCallAPI } from "utils/contracts";
 
 export default function CreateNFTLPPage({ api }) {
   const dispatch = useDispatch();
@@ -146,7 +147,7 @@ export default function CreateNFTLPPage({ api }) {
 
       if (status === "OK") {
         if (isUnmounted) return;
-        ret = ret.filter(el => !el.name?.toLowerCase()?.includes('domain'))
+        ret = ret.filter((el) => !el.name?.toLowerCase()?.includes("domain"));
         return setCollectionList(ret);
       }
 
@@ -305,13 +306,14 @@ export default function CreateNFTLPPage({ api }) {
 
     toast.success(`Step ${step}: Process ...`);
 
-    await execContractTx(
+    await execContractTxAndCallAPI(
       currentAccount,
       "api",
       nft_pool_generator_contract.CONTRACT_ABI,
       nft_pool_generator_contract.CONTRACT_ADDRESS,
       0, //-> value
       "newPool",
+      () => APICall.askBEupdate({ type: "nft", poolContract: "new" }),
       currentAccount?.address,
       selectedCollectionAddr,
       selectedContractAddr,
@@ -321,7 +323,7 @@ export default function CreateNFTLPPage({ api }) {
       startTime.getTime()
     );
 
-    await APICall.askBEupdate({ type: "nft", poolContract: "new" });
+    // await APICall.askBEupdate({ type: "nft", poolContract: "new" });
 
     setMultiplier("");
     setDuration("");
@@ -332,7 +334,7 @@ export default function CreateNFTLPPage({ api }) {
     await delay(3000);
 
     toast.promise(
-      delay(80000).then(() => {
+      delay(30000).then(() => {
         if (currentAccount) {
           dispatch(fetchMyNFTPools({ currentAccount }));
           dispatch(fetchUserBalance({ currentAccount, api }));

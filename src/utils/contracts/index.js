@@ -241,14 +241,28 @@ export async function execContractTxAndCallAPI(
           txType: queryName,
           api: wsApi,
         });
+
         if (Object.keys(status.toHuman())[0] === "0") {
           toast.success(`Processing ...`);
         }
-        events.forEach(({ event: { method, data } }) => {
+
+        let newContractAddress;
+        events.forEach(async ({ event: { method, data } }) => {
           if (method === "Instantiated" && data?.contract) {
-            APIUpdate(data.contract?.toHuman());
+            // APIUpdate(data.contract?.toHuman());
+            newContractAddress = data.contract?.toHuman();
+            console.log("newContractAddress", newContractAddress);
           }
           if (method === "ExtrinsicSuccess" && status.type === "Finalized") {
+            const res = await APIUpdate(newContractAddress);
+            console.log(
+              "method",
+              method,
+              "status.type",
+              status.type,
+              "res",
+              res
+            );
             toast.success("Successful!");
           } else if (method === "ExtrinsicFailed") {
             toast.error(`${toastMessages.CUSTOM} ${method}.`);
