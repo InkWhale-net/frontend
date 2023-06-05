@@ -55,7 +55,6 @@ function SidebarContent({ onClose }) {
               as={RouterLink}
               onClick={() => {
                 onClose();
-
                 setCurrentAnchor(href);
               }}
               bg="transparent"
@@ -71,7 +70,7 @@ function SidebarContent({ onClose }) {
           </Flex>
         ))}
 
-        {!currentAccount ? null : (
+        {/* {!currentAccount ? null : (
           <Flex
             _hover={{ textDecoration: "none", bg: "bg.1" }}
             p="6px 10px"
@@ -94,11 +93,15 @@ function SidebarContent({ onClose }) {
               </Text>
             </Link>
           </Flex>
-        )}
+        )} */}
 
+        <StakeMenuDropdown
+          onClose={onClose}
+          setCurrentAnchor={setCurrentAnchor}
+          currentAnchor={currentAnchor}
+        />
         <CreateMenuDropdown onClose={onClose} />
-        <StakeMenuDropdown onClose={onClose} />
-        <Flex
+        {/* <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
           p="6px 10px"
           bg={"transparent"}
@@ -118,7 +121,7 @@ function SidebarContent({ onClose }) {
               Launchpad
             </Text>
           </Link>
-        </Flex>
+        </Flex> */}
         <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
           p="6px 10px"
@@ -137,6 +140,27 @@ function SidebarContent({ onClose }) {
           >
             <Text bg="transparent" fontSize="md">
               Orderbook Dex
+            </Text>
+          </Link>
+        </Flex>
+        <Flex
+          _hover={{ textDecoration: "none", bg: "bg.1" }}
+          p="6px 10px"
+          bg={"transparent"}
+          borderRadius="5px"
+          ml={{ base: "20px", md: "20px" }}
+        >
+          <Link
+            color={"text.1"}
+            fontWeight="600"
+            bg="transparent"
+            textDecoration="none"
+            _focus={{ borderWidth: "0px" }}
+            _hover={{ textDecoration: "none", bg: "bg.1" }}
+            onClick={() => window.open("https://docs.inkwhale.net/", "_blank")}
+          >
+            <Text bg="transparent" fontSize="md">
+              Docs
             </Text>
           </Link>
         </Flex>
