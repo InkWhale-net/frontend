@@ -137,7 +137,7 @@ export default function PoolsPage({ api }) {
       mt={{ base: "0px", xl: "20px" }}
       title="Staking Pools"
       description={
-        <span>Stake some tokens to earn more. High APR, low risk.</span>
+        <span>Stake tokens to earn more. High APR, low risk.</span>
       }
     >
       <Stack

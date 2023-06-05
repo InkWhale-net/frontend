@@ -241,7 +241,7 @@ export default function FarmsPage() {
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
       title="Yield Farms"
-      description={<span>Stake NFT or Tokens to earn more</span>}
+      description={<span>Stake NFT to earn tokens</span>}
     >
       <Stack
         w="full"

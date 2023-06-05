@@ -336,8 +336,8 @@ export const StakeMenuDropdown = ({
       >
         <Flex flexDirection="column" p="20px">
           {[
-            { label: "Pools", href: "/pools" },
-            { label: "Farms", href: "/farms" },
+            { label: "Token Pools", href: "/pools" },
+            { label: "NFT Pools", href: "/farms" },
             // { label: "NFT Yield Farm", href: "/create/nft-lp" },
             // { label: "Token Yield Farm", href: "/create/token-lp" },
           ].map((item, idx) => (
