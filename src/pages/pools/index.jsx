@@ -66,9 +66,7 @@ export default function PoolsPage({ api }) {
     }
 
     if (endedPools) {
-      ret = ret.filter((p) =>
-        isPoolEnded(p?.startTime, p?.duration)
-      );
+      ret = ret.filter((p) => isPoolEnded(p?.startTime, p?.duration));
     }
 
     return ret;
@@ -136,9 +134,7 @@ export default function PoolsPage({ api }) {
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
       title="Staking Pools"
-      description={
-        <span>Stake some tokens to earn more. High APR, low risk.</span>
-      }
+      description={<span>Stake tokens to earn more</span>}
     >
       <Stack
         w="full"
@@ -172,9 +168,10 @@ export default function PoolsPage({ api }) {
           <Flex
             w="full"
             mb={{ base: "10px", lg: "0px" }}
-            align={{ base: "center" }}
+            align={{ base: "left", lg: "center" }}
             justifyContent={{ base: "end" }}
             spacing={{ base: "0px", lg: "20px" }}
+            flexDirection={{ base: "column", lg: "row" }}
           >
             <IWInput
               value={keywords}
@@ -210,7 +207,7 @@ export default function PoolsPage({ api }) {
               </FormLabel>
             </FormControl>
           </Flex>
-          {/* 
+          {/*
           <Box minW="155px" maxW="160px">
             <Select
               id="token"

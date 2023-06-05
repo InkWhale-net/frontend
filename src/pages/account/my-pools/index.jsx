@@ -148,7 +148,7 @@ export default function MyPoolsPage({ api }) {
         mt={{ base: "0px", xl: "20px" }}
         title="My Staking Pools"
         description={
-          <span>Stake some tokens to earn more. High APR, low risk.</span>
+          <span>Stake tokens to earn more. High APR, low risk.</span>
         }
         scrollRef={poolSectionRef}
       >
@@ -295,7 +295,7 @@ const MyNFTAndTokenPoolsTab = ({ scrollRef }) => {
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
       title="My Yield Farm Pools"
-      description={<span>Stake NFT or Tokens to earn more</span>}
+      description={<span>Stake NFT to earn tokens</span>}
       scrollRef={scrollRef}
     >
       <Stack

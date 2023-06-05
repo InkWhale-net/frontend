@@ -117,7 +117,7 @@ export default function NavbarLinks(props) {
             setCurrentAnchor={setCurrentAnchor}
             currentAnchor={currentAnchor}
           />
-          <Flex
+          {/* <Flex
             _hover={{ textDecoration: "none", bg: "bg.1" }}
             p="6px 10px"
             bg={"transparent"}
@@ -131,15 +131,13 @@ export default function NavbarLinks(props) {
               textDecoration="none"
               _focus={{ borderWidth: "0px" }}
               _hover={{ textDecoration: "none", bg: "bg.1" }}
-              onClick={() =>
-                toast.success("Coming soon!")
-              }
+              onClick={() => toast.success("Coming soon!")}
             >
               <Text bg="transparent" fontSize="md">
                 Launchpad
               </Text>
             </Link>
-          </Flex>
+          </Flex> */}
           <Flex
             _hover={{ textDecoration: "none", bg: "bg.1" }}
             p="6px 10px"
@@ -154,9 +152,7 @@ export default function NavbarLinks(props) {
               textDecoration="none"
               _focus={{ borderWidth: "0px" }}
               _hover={{ textDecoration: "none", bg: "bg.1" }}
-              onClick={() =>
-                toast.success("Coming soon!")
-              }
+              onClick={() => toast.success("Coming soon!")}
             >
               <Text bg="transparent" fontSize="md">
                 Orderbook Dex
@@ -259,6 +255,10 @@ export const CreateMenuDropdown = ({
             { label: "Token", href: "/create/token" },
             { label: "Staking Pool Token", href: "/create/stake-pool" },
             { label: "NFT Yield Farm", href: "/create/nft-lp" },
+            {
+              label: "Launchpad",
+              onClick: () => toast.success("Coming soon!"),
+            },
             // { label: "Token Yield Farm", href: "/create/token-lp" },
           ].map((item, idx) => (
             <IWCard
@@ -272,17 +272,14 @@ export const CreateMenuDropdown = ({
             >
               <Link
                 _hover={{ textDecoration: "none" }}
-                to={item.href}
-                as={RouterLink}
+                to={item?.href}
+                as={item?.href && RouterLink}
                 color={"text.1"}
                 fontWeight="600"
                 bg="transparent"
                 textDecoration="none"
-                onClick={() => {
-                  history.push(item.href);
-                  setCurrentAnchor("/create");
-                  // onClose();
-                }}
+                _disabled={true}
+                onClick={item?.onClick}
               >
                 <MenuItem
                   _active={{ bg: "transparent" }}
@@ -325,7 +322,7 @@ export const StakeMenuDropdown = ({
       >
         <Flex w="full" p="6px 10px" borderRadius="5px">
           <Link color={"text.1"} fontWeight="600" textDecoration="none">
-            <Text fontSize="md">Stake</Text>
+            <Text fontSize="md">Pools</Text>
           </Link>
         </Flex>
       </MenuButton>
@@ -339,8 +336,8 @@ export const StakeMenuDropdown = ({
       >
         <Flex flexDirection="column" p="20px">
           {[
-            { label: "Pools", href: "/pools" },
-            { label: "Farms", href: "/farms" },
+            { label: "Token Pools", href: "/pools" },
+            { label: "NFT Pools", href: "/farms" },
             // { label: "NFT Yield Farm", href: "/create/nft-lp" },
             // { label: "Token Yield Farm", href: "/create/token-lp" },
           ].map((item, idx) => (
