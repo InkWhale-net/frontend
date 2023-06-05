@@ -629,13 +629,12 @@ const MyStakeRewardInfo = ({
                   isPoolNotStart(startTime)
                 }
                 onClick={handleStake}
-                message={
-                  <>
-                    Stake {amount} {tokenSymbol}.<br />
-                    Unstake will costs {Number(unstakeFee)?.toFixed(0)} INW.
-                    Continue?
-                  </>
-                }
+                message={formatMessageStakingPool(
+                  "stake",
+                  amount,
+                  tokenSymbol,
+                  unstakeFee
+                )}
               />
 
               <ConfirmModal
@@ -644,9 +643,12 @@ const MyStakeRewardInfo = ({
                 buttonLabel="Unstake"
                 disableBtn={!Number(amount)}
                 onClick={handleUnstake}
-                message={`Unstake costs ${Number(unstakeFee)?.toFixed(
-                  0
-                )} INW. Continue?`}
+                message={formatMessageStakingPool(
+                  "unstake",
+                  amount,
+                  tokenSymbol,
+                  unstakeFee
+                )}
               />
             </HStack>
           </Flex>
@@ -723,4 +725,25 @@ const PoolInfo = (props) => {
       />
     </Stack>
   );
+};
+
+const formatMessageStakingPool = (action, amount, tokenSymbol, unstakeFee) => {
+  if (action === "stake") {
+    return (
+      <>
+        You are staking {amount} ${tokenSymbol}.<br />
+        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)} $INW.
+        Continue?
+      </>
+    );
+  }
+
+  if (action === "unstake") {
+    return (
+      <>
+        You are unstaking {amount} ${tokenSymbol}.<br />
+        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)} $INW. Continue?
+      </>
+    );
+  }
 };

@@ -46,16 +46,7 @@ export default function IWCardNFTWrapper(props) {
                     buttonVariant="primary"
                     buttonLabel={action}
                     onClick={() => actionHandler(tokenID)}
-                    message={
-                      <>
-                        {action} {nftName}
-                        <br />
-                        {action === "Unstake NFT"
-                          ? ` costs ${unstakeFee} INW.`
-                          : " "}{" "}
-                        Continue?
-                      </>
-                    }
+                    message={formatMessageNFTPool(action, nftName, unstakeFee)}
                   />
                 </VStack>
               </WrapItem>
@@ -66,3 +57,24 @@ export default function IWCardNFTWrapper(props) {
     </>
   );
 }
+
+const formatMessageNFTPool = (action, nftName, unstakeFee) => {
+  if (action === "Stake NFT") {
+    return (
+      <>
+        You are staking NFT {nftName}.<br />
+        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)} $INW.
+        Continue?
+      </>
+    );
+  }
+
+  if (action === "Unstake NFT") {
+    return (
+      <>
+        You are unstaking NFT {nftName}.<br />
+        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)} $INW. Continue?
+      </>
+    );
+  }
+};
