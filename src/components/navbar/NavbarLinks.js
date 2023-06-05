@@ -322,7 +322,7 @@ export const StakeMenuDropdown = ({
       >
         <Flex w="full" p="6px 10px" borderRadius="5px">
           <Link color={"text.1"} fontWeight="600" textDecoration="none">
-            <Text fontSize="md">Stake</Text>
+            <Text fontSize="md">Pools</Text>
           </Link>
         </Flex>
       </MenuButton>

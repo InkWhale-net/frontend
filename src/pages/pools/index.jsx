@@ -134,7 +134,7 @@ export default function PoolsPage({ api }) {
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
       title="Staking Pools"
-      description={<span>Stake tokens to earn more. High APR, low risk.</span>}
+      description={<span>Stake tokens to earn more</span>}
     >
       <Stack
         w="full"
@@ -207,7 +207,7 @@ export default function PoolsPage({ api }) {
               </FormLabel>
             </FormControl>
           </Flex>
-          {/* 
+          {/*
           <Box minW="155px" maxW="160px">
             <Select
               id="token"
