@@ -8,29 +8,31 @@ import {
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
-import { IWTable } from "components/table/IWTable";
 import { toastMessages } from "constants";
 
-import React, { useState, useEffect } from "react";
 import { APICall } from "api/client";
+import { InfiniteTable } from "components/table/InfiniteTable";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import { delay } from "utils";
-import { isAddressValid } from "utils";
-import { formatNumToBN } from "utils";
-import { formatQueryResultToNumber } from "utils";
-import { execContractQuery } from "utils/contracts";
-import { execContractTx } from "utils/contracts";
+import {
+  delay,
+  formatNumToBN,
+  formatQueryResultToNumber,
+  isAddressValid,
+} from "utils";
+import {
+  execContractQuery,
+  execContractTx,
+  execContractTxAndCallAPI,
+} from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
 import core_contract from "utils/contracts/core_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
-import { InfiniteTable } from "components/table/InfiniteTable";
-import { useMemo } from "react";
-import ImageUploadIcon from "./UploadIcon";
-import { execContractTxAndCallAPI } from "utils/contracts";
 import ImportTokenForm from "./ImportToken";
+import ImageUploadIcon from "./UploadIcon";
 
 export default function CreateTokenPage({ api }) {
   const dispatch = useDispatch();

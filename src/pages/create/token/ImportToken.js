@@ -1,63 +1,28 @@
-import {
-  Box,
-  Button,
-  Heading,
-  SimpleGrid,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Button, Heading, VStack } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
-import { IWTable } from "components/table/IWTable";
-import { toastMessages } from "constants";
 
-import React, { useState, useEffect, useRef } from "react";
+import { web3FromSource } from "@polkadot/extension-dapp";
+import { stringToHex } from "@polkadot/util";
 import { APICall } from "api/client";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import { delay } from "utils";
-import { isAddressValid } from "utils";
-import { formatNumToBN } from "utils";
-import { formatQueryResultToNumber } from "utils";
+import { delay, formatQueryResultToNumber, isAddressValid } from "utils";
 import { execContractQuery } from "utils/contracts";
-import { execContractTx } from "utils/contracts";
-import azt_contract from "utils/contracts/azt_contract";
 import core_contract from "utils/contracts/core_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
-import { InfiniteTable } from "components/table/InfiniteTable";
-import { useMemo } from "react";
 import ImageUploadIcon from "./UploadIcon";
-import { execContractTxAndCallAPI } from "utils/contracts";
-import { web3FromSource } from "@polkadot/extension-dapp";
-import { stringToHex } from "@polkadot/util";
 
 const ImportTokenForm = ({ api }) => {
   const dispatch = useDispatch();
   const { currentAccount } = useSelector((s) => s.wallet);
-  const { allTokensList } = useSelector((s) => s.allPools);
 
   const [tokenAddress, setTokenAddress] = useState("");
-  const [mintAddress, setMintAddress] = useState(currentAccount?.address);
   const [importIconIPFSUrl, setImportIconIPFSUrl] = useState(null);
   const [tokenInfo, setTokenInfo] = useState({ title: "", content: "" });
-  const importTokenImageRef = useRef(null);
-  console.log(importTokenImageRef, "importTokenImageRef");
-  const [tokenIcon, setTokenIcon] = useState({
-    IPFSUrl: null,
-    localSource: null,
-  });
-
-  const updateIcon = async (contractAddress) => {
-    if (importIconIPFSUrl) {
-      APICall.updateTokenIcon({
-        contractAddress,
-        tokenGeneratorContractAddress: core_contract.CONTRACT_ADDRESS,
-        tokenIconUrl: importIconIPFSUrl,
-      });
-    }
-  };
 
   const loadTokenInfo = async () => {
     try {
@@ -126,10 +91,10 @@ const ImportTokenForm = ({ api }) => {
         "ownable::owner"
       );
       const tokenOwnerAddress = queryResult.toHuman().Ok;
-      // if (tokenOwnerAddress != currentAccount?.address) {
-      //   toast.error("Token owner not match");
-      //   return;
-      // }
+      if (tokenOwnerAddress != currentAccount?.address) {
+        toast.error("Token owner not match");
+        return;
+      }
       const { signer } = await web3FromSource(currentAccount?.meta?.source);
       const { signature } = await signer.signRaw({
         address: currentAccount.address,
@@ -157,10 +122,9 @@ const ImportTokenForm = ({ api }) => {
           creator: tokenOwnerAddress,
           signature,
         });
-        // console.log(ret, status, message);
         if (status === "OK") {
-          setTokenInfo({ title: "", content: "" })
-          setTokenAddress("")
+          setTokenInfo({ title: "", content: "" });
+          setTokenAddress("");
           toast.promise(
             delay(1000).then(() => {
               setImportIconIPFSUrl();
@@ -245,17 +209,6 @@ const ImportTokenForm = ({ api }) => {
               value={tokenInfo?.title}
               label="Token Symbol"
               placeholder="Token Symbol"
-            />
-          </Box>
-        )}
-        {!!tokenInfo?.supply && (
-          <Box w={{ base: "full", lg: "50%" }}>
-            <IWInput
-              disabled
-              type="number"
-              value={tokenInfo?.supply}
-              label="Total Supply"
-              placeholder="0"
             />
           </Box>
         )}
