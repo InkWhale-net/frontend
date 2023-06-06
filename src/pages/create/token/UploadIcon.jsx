@@ -29,6 +29,7 @@ export default function ImageUploadIcon({
   iconUrl,
   limitedSize = { width: "50", height: "50" },
   setIsUploadIconIPFSUrl,
+  keyInput,
 }) {
   const [imgURL, setImgURL] = useState(null);
 
@@ -111,7 +112,6 @@ export default function ImageUploadIcon({
     }
   };
 
-
   return (
     <VStack h="full" justifyContent="flex-start" alignItems="start">
       <Box>
@@ -152,12 +152,12 @@ export default function ImageUploadIcon({
 
       <Center w="full" justifyContent="center">
         <VStack>
-          <label htmlFor="inputTag" style={{ cursor: "pointer" }}>
+          <label htmlFor={`inputTag-${keyInput}`} style={{ cursor: "pointer" }}>
             <input
               disabled={isDisabled}
               ref={ref}
               style={{ display: "none" }}
-              id="inputTag"
+              id={`inputTag-${keyInput}`}
               onChange={retrieveNewIcon}
               type="file"
               accept="image/png, image/jpg, image/jpeg, image/gif"

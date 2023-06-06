@@ -30,6 +30,7 @@ import { InfiniteTable } from "components/table/InfiniteTable";
 import { useMemo } from "react";
 import ImageUploadIcon from "./UploadIcon";
 import { execContractTxAndCallAPI } from "utils/contracts";
+import ImportTokenForm from "./ImportToken";
 
 export default function CreateTokenPage({ api }) {
   const dispatch = useDispatch();
@@ -116,11 +117,11 @@ export default function CreateTokenPage({ api }) {
       ",",
       ""
     );
-    let step = 1
+    let step = 1;
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
       toast.success(`Step ${step}: Approving...`);
-      step++
+      step++;
       let approve = await execContractTx(
         currentAccount,
         "api",
@@ -309,6 +310,7 @@ export default function CreateTokenPage({ api }) {
               <ImageUploadIcon
                 iconUrl={iconIPFSUrl}
                 setImageIPFSUrl={setIconIPFSUrl}
+                keyInput={0}
               />
             </Box>
           </SimpleGrid>
@@ -318,7 +320,7 @@ export default function CreateTokenPage({ api }) {
           </Button>
         </VStack>
       </SectionContainer>
-
+      <ImportTokenForm />
       <SectionContainer
         mt={{ base: "0px", xl: "8px" }}
         title="Recent Tokens"

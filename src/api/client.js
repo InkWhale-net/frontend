@@ -58,6 +58,27 @@ export const APICall = {
       tokenIconUrl,
     });
   },
+  importToken: async ({
+    tokenAddress,
+    tokenGeneratorContractAddress,
+    tokenIconUrl,
+    name,
+    symbol,
+    decimal,
+    creator,
+    signature,
+  }) => {
+    return await client("POST", "/importToken", {
+      tokenAddress,
+      tokenGeneratorContractAddress,
+      tokenIconUrl,
+      name,
+      symbol,
+      decimal,
+      creator,
+      signature,
+    });
+  },
 
   // Get list of staking pools
   getStakingPoolsList: async ({
