@@ -3,7 +3,6 @@ import SectionContainer from "components/container/SectionContainer";
 
 import { IWTable } from "components/table/IWTable";
 import { useSelector } from "react-redux";
-import IWTabs from "components/tabs/IWTabs";
 import { useHistory, useLocation } from "react-router-dom";
 import { useEffect, useRef } from "react";
 
@@ -278,19 +277,6 @@ const MyNFTAndTokenPoolsTab = ({ scrollRef }) => {
     tableBody: myTokenPoolsList,
   };
 
-  const tabsData = [
-    {
-      label: <>NFT Yield Farms</>,
-      component: <IWTable {...tableDataNFT} mode="NFT_FARM" />,
-      isDisabled: false,
-    },
-    // {
-    //   label: <>Token Yield Farms</>,
-    //   component: <IWTable {...tableDataToken} mode="TOKEN_FARM" />,
-    //   isDisabled: false,
-    // },
-  ];
-
   return (
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
@@ -298,14 +284,7 @@ const MyNFTAndTokenPoolsTab = ({ scrollRef }) => {
       description={<span>Stake NFT to earn tokens</span>}
       scrollRef={scrollRef}
     >
-      <Stack
-        w="full"
-        spacing="30px"
-        alignItems="start"
-        direction={{ base: "column" }}
-      >
-        <IWTabs tabsData={tabsData} />
-      </Stack>
+      <IWTable {...tableDataNFT} mode="NFT_FARM" />
     </SectionContainer>
   );
 };
