@@ -46,6 +46,7 @@ import { ADDRESSES_INW } from "constants";
 import { roundUp } from "utils";
 import { roundDown } from "utils";
 import { getPublicCurrentAccount } from "utils";
+import { APICall } from "api/client";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
 
@@ -336,19 +337,28 @@ export default function FaucetPage({ api }) {
 
     setInwTotalSupply(inwTotalSupply.replace(".0000", ""));
 
-    let result2 = await execContractQuery(
-      process.env.REACT_APP_PUBLIC_ADDRESS,
-      api,
-      azt_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
-      0,
-      "psp22::totalSupply"
-    );
-    setInwBurn(
-      roundUp(+inwTotalSupply.replaceAll(",", ""), 0) -
-        +roundUp(formatQueryResultToNumber(result2)?.replaceAll(",", ""), 0)
-    );
-    getINWIncur(formatQueryResultToNumber(result2));
+    const INWTotalSupplyResponse = await APICall.getINWTotalSupply();
+    if (INWTotalSupplyResponse?.status === "OK") {
+      setInwBurn(
+        roundUp(+inwTotalSupply.replaceAll(",", ""), 0) -
+          +roundUp(
+            INWTotalSupplyResponse.ret.totalSupply?.replaceAll(",", "") /
+              10 ** 12,
+            0
+          )
+      );
+    } else {
+      toast.error("Get In inCirculation fail");
+    }
+
+    const INWInCirculationResponse = await APICall.getINWInCirculation();
+    if (INWInCirculationResponse?.status === "OK") {
+      setInwInCur(
+        formatNumDynDecimal(INWInCirculationResponse.ret.inCirculation, 2)
+      );
+    } else {
+      toast.error("Get In inCirculation fail");
+    }
   }, [api]);
 
   const isSaleEnded = useMemo(

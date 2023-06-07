@@ -250,7 +250,7 @@ const ImportTokenForm = ({ api }) => {
           w="full"
           maxW={{ lg: "170px" }}
           onClick={importToken}
-          disabled={!!!tokenInfo}
+          disabled={!(!!tokenInfo && importIconIPFSUrl)}
         >
           Import Token
         </Button>
