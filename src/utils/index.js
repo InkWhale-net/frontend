@@ -49,11 +49,13 @@ export function delay(sec) {
 }
 
 export const formatNumToBN = (number = 0, decimal = 12) => {
-  let numberMul = 6
-  if(number > 10 ** 6) {
-    numberMul = 0
+  let numberMul = 6;
+  if (number > 10 ** 6) {
+    numberMul = 0;
   }
-  return new BN(+number * 10 ** numberMul).mul(new BN(10 ** (decimal - numberMul))).toString();
+  return new BN(+number * 10 ** numberMul)
+    .mul(new BN(10 ** (decimal - numberMul)))
+    .toString();
 };
 
 export const formatNumDynDecimal = (num = 0, dec = 4) => {
@@ -216,4 +218,15 @@ export const getPublicCurrentAccount = () => {
     }));
 
   return keyringOptions[0];
+};
+
+export const moveINWToBegin = (tokensList) => {
+  const INWIndex = tokensList.findIndex((element) => element.symbol === "INW");
+  if (INWIndex > -1) {
+    const element = tokensList.splice(INWIndex, 1)[0];
+    tokensList.unshift(element);
+    return tokensList.filter(
+      (e) => !!e?.contractAddress && e?.contractAddress != "undefined"
+    );
+  }
 };

@@ -22,6 +22,7 @@ import { execContractQuery } from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { fetchUserBalance } from "redux/slices/walletSlice";
+import { moveINWToBegin } from "utils";
 
 export default function TokensPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -29,6 +30,7 @@ export default function TokensPage() {
   const [selectedContractAddr, setSelectedContractAddr] = useState(null);
   const [faucetTokensList, setFaucetTokensList] = useState([]);
   const [tokenInfo, setTokenInfo] = useState({ title: "", content: "" });
+
   useEffect(() => {
     let isUnmounted = false;
     const getFaucetTokensListData = async () => {
@@ -36,8 +38,7 @@ export default function TokensPage() {
 
       if (status === "OK") {
         if (isUnmounted) return;
-
-        return setFaucetTokensList(ret);
+        return setFaucetTokensList(moveINWToBegin(ret));
       }
 
       toast.error(`Get faucet tokens list failed. ${message}`);

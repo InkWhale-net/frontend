@@ -36,6 +36,7 @@ import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import { roundUp } from "utils";
 import { SelectSearch } from "components/SelectSearch";
 import { execContractTxAndCallAPI } from "utils/contracts";
+import { moveINWToBegin } from "utils";
 
 export default function CreateStakePoolPage({ api }) {
   const dispatch = useDispatch();
@@ -111,7 +112,7 @@ export default function CreateStakePoolPage({ api }) {
       if (status === "OK") {
         if (isUnmounted) return;
 
-        return setFaucetTokensList(ret);
+        return setFaucetTokensList(moveINWToBegin(ret));
       }
 
       toast.error(`Get faucet tokens list failed. ${message}`);
