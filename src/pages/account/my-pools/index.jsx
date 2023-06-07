@@ -3,7 +3,6 @@ import SectionContainer from "components/container/SectionContainer";
 
 import { IWTable } from "components/table/IWTable";
 import { useSelector } from "react-redux";
-import IWTabs from "components/tabs/IWTabs";
 import { useHistory, useLocation } from "react-router-dom";
 import { useEffect, useRef } from "react";
 
