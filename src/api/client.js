@@ -80,6 +80,15 @@ export const APICall = {
     });
   },
 
+  // get INW total supply
+  getINWTotalSupply: async () => {
+    return await client("POST", "/getINWTotalSupply", {});
+  },
+
+  getINWInCirculation: async () => {
+    return await client("POST", "/getINWInCirculation", {});
+  },
+
   // Get list of staking pools
   getStakingPoolsList: async ({
     limit = 1000,
