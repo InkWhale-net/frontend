@@ -27,7 +27,7 @@ export default function ImageUploadIcon({
   setImageIPFSUrl,
   isDisabled = false,
   iconUrl,
-  limitedSize = { width: "50", height: "50" },
+  limitedSize = { width: "300", height: "300" },
   setIsUploadIconIPFSUrl,
   keyInput,
 }) {
