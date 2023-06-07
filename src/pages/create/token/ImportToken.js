@@ -22,13 +22,13 @@ const ImportTokenForm = ({ api }) => {
 
   const [tokenAddress, setTokenAddress] = useState("");
   const [importIconIPFSUrl, setImportIconIPFSUrl] = useState(null);
-  const [tokenInfo, setTokenInfo] = useState({ title: "", content: "" });
+  const [tokenInfo, setTokenInfo] = useState(null);
 
   const loadTokenInfo = async () => {
     try {
       if (!currentAccount) {
         toast.error("Please connect wallet!");
-        return setTokenInfo({ title: "", content: "" });
+        return setTokenInfo(null);
       }
       if (!isAddressValid(tokenAddress)) {
         toast.error("Invalid address!");
@@ -64,12 +64,23 @@ const ImportTokenForm = ({ api }) => {
       );
       const tokenSymbol = queryResult2.toHuman().Ok;
 
+      let queryResult3 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenAddress,
+        0,
+        "psp22::totalSupply"
+      );
+      const totalSupply = queryResult3.toHuman().Ok;
+
       setTokenInfo((prev) => {
         return {
           ...prev,
           title: tokenSymbol,
           name: tokenName,
           content: balance,
+          totalSupply,
         };
       });
     } catch (error) {
@@ -212,11 +223,23 @@ const ImportTokenForm = ({ api }) => {
             />
           </Box>
         )}
+        {!!tokenInfo?.totalSupply && (
+          <Box w={{ base: "full", lg: "50%" }}>
+            <IWInput
+              disabled
+              type="text"
+              value={tokenInfo?.totalSupply}
+              label="Total supply"
+              placeholder="Total supply"
+            />
+          </Box>
+        )}
         <Box w="full">
           <Heading as="h4" size="h4" mb="12px">
             Token Icon
           </Heading>
           <ImageUploadIcon
+            isDisabled={!!!tokenInfo}
             keyInput={1}
             iconUrl={importIconIPFSUrl}
             setImageIPFSUrl={setImportIconIPFSUrl}
@@ -227,7 +250,7 @@ const ImportTokenForm = ({ api }) => {
           w="full"
           maxW={{ lg: "170px" }}
           onClick={importToken}
-          disabled={!(!!tokenInfo?.name && !!tokenInfo?.name)}
+          disabled={!!!tokenInfo}
         >
           Import Token
         </Button>
