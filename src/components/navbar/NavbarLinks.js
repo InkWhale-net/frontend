@@ -253,8 +253,8 @@ export const CreateMenuDropdown = ({
         <Flex flexDirection="column" p="20px">
           {[
             { label: "Token", href: "/create/token" },
-            { label: "Staking Pool Token", href: "/create/stake-pool" },
-            { label: "NFT Yield Farm", href: "/create/nft-lp" },
+            { label: "Token Staking Pool", href: "/create/stake-pool" },
+            { label: "NFT Staking Pool", href: "/create/nft-lp" },
             {
               label: "Launchpad",
               onClick: () => toast.success("Coming soon!"),
