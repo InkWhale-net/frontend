@@ -42,7 +42,7 @@ export const APICall = {
       offset,
       sort,
     });
-    ret = ret.filter((el) => !!el?.contractAddress && el.contractAddress !== 'undefined');
+    ret = ret.filter((el) => !!el?.contractAddress && el?.contractAddress !== 'undefined');
     ret.unshift(ret.pop());
     return { ret, status, message };
   },
