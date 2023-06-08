@@ -679,12 +679,9 @@ const TokenInformation = ({ tokenInfo }) => {
       direction={{ base: "column", lg: "row" }}
     >
       <IWCardOneColumn
-        title="Token Detail Information"
+        w={{ base: "full" }}
+        title={tokenInfo?.name || ""}
         data={[
-          tokenInfo?.name && {
-            title: "Token Name",
-            content: tokenInfo?.name,
-          },
           tokenInfo?.title && {
             title: "Token Symbol",
             content: tokenInfo?.title,
