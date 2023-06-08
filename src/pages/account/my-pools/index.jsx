@@ -280,7 +280,7 @@ const MyNFTAndTokenPoolsTab = ({ scrollRef }) => {
   return (
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
-      title="My Yield Farm Pools"
+      title="My NFT Staking Pools"
       description={<span>Stake NFT to earn tokens</span>}
       scrollRef={scrollRef}
     >

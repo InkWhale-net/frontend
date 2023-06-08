@@ -47,6 +47,7 @@ import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
 import { useMemo } from "react";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import AddressCopier from "components/address-copier/AddressCopier";
+import { roundUp } from "utils";
 
 export default function PoolDetailPage({ api }) {
   const params = useParams();
@@ -243,6 +244,8 @@ const MyStakeRewardInfo = ({
   const dispatch = useDispatch();
 
   const { currentAccount, api } = useSelector((s) => s.wallet);
+  const { allStakingPoolsList } = useSelector((s) => s.allPools);
+  const params = useParams();
 
   const [unstakeFee, setUnstakeFee] = useState(0);
   const [stakeInfo, setStakeInfo] = useState(null);
@@ -291,14 +294,29 @@ const MyStakeRewardInfo = ({
 
       const balance = formatQueryResultToNumber(result);
       setTokenBalance(balance);
+      let queryResult = await execContractQuery(
+        currentAccount?.address,
+        api,
+        pool_contract.CONTRACT_ABI,
+        poolContract,
+        0,
+        "genericPoolContractTrait::getStakeInfo",
+        currentAccount?.address
+      );
 
-      // const userCurrentStake = stakeInfo?.stakedValue / 10 ** 12 || 0;
-      // setRemainStaking(maxStakingAmount - userCurrentStake);
+      let info = queryResult?.toHuman().Ok;
+
+      const userCurrentStake = info.stakedValue.replaceAll(",", "") / 10 ** 12;
+      setRemainStaking(roundUp(maxStakingAmount - userCurrentStake, 4));
     } catch (error) {
       console.log(error);
     }
   }, [api, currentAccount?.address, currentAccount?.balance, tokenContract]);
-
+  const currentPool = useMemo(() => {
+    return allStakingPoolsList?.find(
+      (p) => p?.poolContract === params?.contractAddress
+    );
+  }, [allStakingPoolsList, params?.contractAddress]);
   useEffect(() => {
     fetchUserStakeInfo();
     fetchTokenBalance();
@@ -396,12 +414,25 @@ const MyStakeRewardInfo = ({
       return;
     }
 
-    const userCurrentStake = stakeInfo?.stakedValue / 10 ** 12 || 0;
+    let queryResult = await execContractQuery(
+      currentAccount?.address,
+      api,
+      pool_contract.CONTRACT_ABI,
+      poolContract,
+      0,
+      "genericPoolContractTrait::getStakeInfo",
+      currentAccount?.address
+    );
+
+    let info = queryResult?.toHuman().Ok;
+
+    const userCurrentStake = info.stakedValue.replaceAll(",", "") / 10 ** 12;
+
     if (maxStakingAmount - userCurrentStake - amount < 0) {
       toast.error(
-        `Maximum staking amount is ${maxStakingAmount}. Currently, the maximum remaining stake is ${
+        `You can not stake more than ${roundUp(
           maxStakingAmount - userCurrentStake
-        }`
+        )} ${tokenSymbol}`
       );
       return;
     }
