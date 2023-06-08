@@ -303,7 +303,8 @@ const MyStakeRewardInfo = ({
 
       let info = queryResult?.toHuman().Ok;
 
-      const userCurrentStake = info.stakedValue.replaceAll(",", "") / 10 ** 12;
+      const userCurrentStake =
+        info?.stakedValue?.replaceAll(",", "") / 10 ** 12 || 0;
       setRemainStaking(roundUp(maxStakingAmount - userCurrentStake, 4));
     } catch (error) {
       console.log(error);
@@ -419,12 +420,13 @@ const MyStakeRewardInfo = ({
 
     let info = queryResult?.toHuman().Ok;
 
-    const userCurrentStake = info.stakedValue.replaceAll(",", "") / 10 ** 12;
+    const userCurrentStake =
+      info?.stakedValue?.replaceAll(",", "") / 10 ** 12 || 0;
 
     if (maxStakingAmount - userCurrentStake - amount < 0) {
       toast.error(
-        `You can not stake more than ${roundUp(
-          maxStakingAmount - userCurrentStake
+        `You can not stake more than ${formatNumDynDecimal(
+          roundUp(maxStakingAmount - userCurrentStake)
         )} ${tokenSymbol}`
       );
       return;
@@ -678,7 +680,7 @@ const MyStakeRewardInfo = ({
             </HStack>
           </Flex>
           <Box fontSize={14} ml="2px">
-            Max Staking Amount: {remainStaking}
+            Max Staking Amount: {formatNumDynDecimal(remainStaking)}
           </Box>
         </IWCard>
       </CardThreeColumn>
