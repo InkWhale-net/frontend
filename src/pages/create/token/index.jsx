@@ -34,6 +34,8 @@ import psp22_contract from "utils/contracts/psp22_contract";
 import ImportTokenForm from "./ImportToken";
 import ImageUploadIcon from "./UploadIcon";
 import SaleTab from "components/tabs/SaleTab";
+import { roundUp } from "utils";
+const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage({ api }) {
   const dispatch = useDispatch();
@@ -49,6 +51,8 @@ export default function CreateTokenPage({ api }) {
   const [createTokenFee, setCreateToken] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [iconIPFSUrl, setIconIPFSUrl] = useState(null);
+
+  const [listToken, setListToken] = useState([]);
 
   useEffect(() => {
     const fetchCreateTokenFee = async () => {
@@ -67,6 +71,47 @@ export default function CreateTokenPage({ api }) {
     };
     fetchCreateTokenFee();
   }, [currentAccount, api]);
+
+  const addTotalSupply = async () => {
+    const processedTokenList = await Promise.all(
+      allTokensList.map(async (e) => {
+        let queryResult = await execContractQuery(
+          currentAccount?.address,
+          "api",
+          psp22_contract.CONTRACT_ABI,
+          e?.contractAddress,
+          0,
+          "psp22::totalSupply"
+        );
+        const rawTotalSupply = queryResult.toHuman().Ok;
+        let queryResult1 = await execContractQuery(
+          currentAccount?.address,
+          "api",
+          psp22_contract.CONTRACT_ABI,
+          e?.contractAddress,
+          0,
+          "psp22Metadata::tokenDecimals"
+        );
+        const decimals = queryResult1.toHuman().Ok;
+        const totalSupply = roundUp(
+          rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
+          0
+        );
+        await delay(50);
+        return {
+          ...e,
+          totalSupply,
+        };
+      })
+    );
+    setListToken(processedTokenList);
+  };
+
+  useEffect(() => {
+    // setListToken([...listToken, allTokensList.slice(x)])
+    // setListToken(allTokensList);
+    addTotalSupply();
+  }, [currentPage]);
 
   const updateIcon = async (contractAddress) => {
     if (iconIPFSUrl) {
@@ -228,7 +273,7 @@ export default function CreateTokenPage({ api }) {
         name: "totalSupply",
         hasTooltip: false,
         tooltipContent: "",
-        label: "Initial Mint",
+        label: "Total supply",
       },
     ],
   };
@@ -245,7 +290,7 @@ export default function CreateTokenPage({ api }) {
               {createTokenFee} INW
             </Text>
           </span>
-          <VStack w="full">
+          <VStack w="full" mt={4}>
             <SimpleGrid
               w="full"
               columns={{ base: 1, lg: 2 }}
@@ -357,13 +402,15 @@ export default function CreateTokenPage({ api }) {
         title="Recent Tokens"
         description={``}
       >
-        {allTokensList?.filter(el => !!el)?.length > 0 && <InfiniteTable
-          {...tableData}
-          tableBody={allTokensList?.slice(0, currentPage * 4) || []}
-          getNext={() => (hasMorePage ? setCurrentPage(currentPage + 1) : "")}
-          hasMore={hasMorePage}
-          isDisableRowClick={true}
-        />}
+        {listToken?.filter((el) => !!el)?.length > 0 && (
+          <InfiniteTable
+            {...tableData}
+            tableBody={listToken?.slice(0, currentPage * 4) || []}
+            getNext={() => (hasMorePage ? setCurrentPage(currentPage + 1) : "")}
+            hasMore={hasMorePage}
+            isDisableRowClick={true}
+          />
+        )}
       </SectionContainer>
     </>
   );

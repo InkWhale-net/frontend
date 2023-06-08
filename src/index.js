@@ -194,7 +194,7 @@ const App = () => {
           <Route exact path={`/admin`} component={AdminPage} />
 
           <Route>
-            <FaucetPage />
+            <FaucetPage api={api}/>
           </Route>
         </Switch>
       </DefaultLayout>

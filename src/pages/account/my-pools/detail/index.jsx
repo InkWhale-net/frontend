@@ -279,7 +279,7 @@ export default function MyPoolDetailPage({ api }) {
       collectionLink: (
         <Link
           isExternal
-          href={`https://artzero.io/demotestnet/#/collection/${currentNFTPool?.nftInfo?.nftContractAddress}`}
+          href={`https://a0.artzero.io/collection/${currentNFTPool?.nftInfo?.nftContractAddress}`}
         >
           {currentNFTPool?.nftInfo?.name}
         </Link>

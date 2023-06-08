@@ -1257,7 +1257,7 @@ const PoolInfo = ({
       collectionLink: (
         <Link
           isExternal
-          href={`https://artzero.io/demotestnet/#/collection/${nftInfo?.nftContractAddress}`}
+          href={`https://a0.artzero.io/collection/${nftInfo?.nftContractAddress}`}
         >
           {nftInfo?.name}
         </Link>
