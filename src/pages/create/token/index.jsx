@@ -361,13 +361,13 @@ export default function CreateTokenPage({ api }) {
         title="Recent Tokens"
         description={``}
       >
-        <InfiniteTable
+        {allTokensList?.filter(el => !!el)?.length > 0 && <InfiniteTable
           {...tableData}
           tableBody={allTokensList?.slice(0, currentPage * 4) || []}
           getNext={() => (hasMorePage ? setCurrentPage(currentPage + 1) : "")}
           hasMore={hasMorePage}
           isDisableRowClick={true}
-        />
+        />}
       </SectionContainer>
     </>
   );
