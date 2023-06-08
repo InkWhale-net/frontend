@@ -60,11 +60,11 @@ export default function ImageUploadIcon({
       return;
     }
 
-    if (data?.size >= 5242880) {
+    if (data?.size >= 524288) {
       toast.error(
-        `Maximum size support is 5MB, your image size is ${(
-          data?.size / 1000000
-        ).toFixed(2)}MB.`
+        `Maximum size support is 512KB, your image size is ${(
+          data?.size / 1048576
+        ).toFixed(1)}MB.`
       );
       ref.current.value = null;
       // setNewIconData(null);

@@ -1,5 +1,6 @@
 import { ChevronRightIcon, QuestionOutlineIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -250,6 +251,7 @@ const MyStakeRewardInfo = ({
   const [unstakeFee, setUnstakeFee] = useState(0);
   const [stakeInfo, setStakeInfo] = useState(null);
   const [tokenBalance, setTokenBalance] = useState();
+  const [remainStaking, setRemainStaking] = useState(0);
 
   const [amount, setAmount] = useState("");
 
@@ -293,6 +295,8 @@ const MyStakeRewardInfo = ({
 
       const balance = formatQueryResultToNumber(result);
       setTokenBalance(balance);
+      const userCurrentStake = stakeInfo?.stakedValue / 10 ** 12 || 0;
+      setRemainStaking(maxStakingAmount - userCurrentStake);
     } catch (error) {
       console.log(error);
     }
@@ -385,7 +389,7 @@ const MyStakeRewardInfo = ({
       return;
     }
 
-    if (!rewardPool || parseInt(rewardPool) <= 0) {
+    if (!rewardPool || +rewardPool <= 0) {
       toast.error("There is no reward balance in this pool!");
       return;
     }
@@ -652,6 +656,7 @@ const MyStakeRewardInfo = ({
               />
             </HStack>
           </Flex>
+          <Box fontSize={14} ml="2px">Max Staking Amount: {remainStaking}</Box>
         </IWCard>
       </CardThreeColumn>
     </Stack>

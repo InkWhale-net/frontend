@@ -33,6 +33,7 @@ import core_contract from "utils/contracts/core_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import ImportTokenForm from "./ImportToken";
 import ImageUploadIcon from "./UploadIcon";
+import SaleTab from "components/tabs/SaleTab";
 
 export default function CreateTokenPage({ api }) {
   const dispatch = useDispatch();
@@ -43,6 +44,7 @@ export default function CreateTokenPage({ api }) {
   const [mintAddress, setMintAddress] = useState(currentAccount?.address);
   const [tokenSymbol, setTokenSymbol] = useState("");
   const [totalSupply, setTotalSupply] = useState("");
+  const [tabIndex, setTabIndex] = useState(0);
 
   const [createTokenFee, setCreateToken] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -230,23 +232,10 @@ export default function CreateTokenPage({ api }) {
       },
     ],
   };
-
-  return (
-    <>
-      <SectionContainer
-        mt={{ base: "0px", xl: "20px" }}
-        title="Create Token"
-        description={
-          <span>
-            Create standard PSP22 (ERC20) token and mint the total supply to a
-            specific address. The creation requires
-            <Text as="span" fontWeight="700" color="text.1">
-              {" "}
-              {createTokenFee} INW
-            </Text>
-          </span>
-        }
-      >
+  const tabsData = [
+    {
+      label: <>Create Token</>,
+      component: (
         <VStack w="full">
           <SimpleGrid
             w="full"
@@ -317,12 +306,56 @@ export default function CreateTokenPage({ api }) {
             </Box>
           </SimpleGrid>
 
-          <Button w="full" maxW={{ lg: "170px" }} onClick={createNewToken}>
+          <Button
+            isDisabled={
+              !(
+                !!iconIPFSUrl &&
+                !!tokenName &&
+                !!tokenSymbol &&
+                !!totalSupply &&
+                !!mintAddress
+              )
+            }
+            w="full"
+            maxW={{ lg: "170px" }}
+            onClick={createNewToken}
+          >
             Create Token
           </Button>
         </VStack>
+      ),
+      isDisabled: false,
+    },
+    {
+      label: <>Import Token</>,
+      component: <ImportTokenForm />,
+      isDisabled: false,
+    },
+  ];
+  return (
+    <>
+      <SectionContainer
+        mt={{ base: "0px", xl: "8px" }}
+        title="Create/Import Token"
+        description={
+          <span>
+            Create standard PSP22 (ERC20) token and mint the total supply to a
+            specific address. The creation requires
+            <Text as="span" fontWeight="700" color="text.1">
+              {" "}
+              {createTokenFee} INW
+            </Text>
+          </span>
+        }
+      >
+        <SaleTab
+          tabsData={tabsData}
+          tabIndex={tabIndex}
+          onChangeTab={(index) => {
+            setTabIndex(index);
+          }}
+        />
       </SectionContainer>
-      <ImportTokenForm />
       <SectionContainer
         mt={{ base: "0px", xl: "8px" }}
         title="Recent Tokens"

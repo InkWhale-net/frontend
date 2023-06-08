@@ -825,8 +825,7 @@ export default function FaucetPage({ api }) {
             available at {inwMintingFee}
             <AzeroLogo w="14px" h="14px" ml="2px" mb="3px" /> per INW. You can
             trade INW on PanoramaSwap in due time. */}
-            INW will be airdropped to ArtZero's Early Contributors; Public Sale
-            Participants; and Validator Stakers after 18th April 2023{" "}
+            Check INW token information and acquire INW to be able to use platform features
             <Link
               isExternal
               fontWeight="400"
