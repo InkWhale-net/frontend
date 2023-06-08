@@ -22,13 +22,26 @@ export default function ConfirmModal({
   buttonVariant,
   children,
   disableBtn,
+  onValidate,
   ...rest
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const onProcess = async () => {
+    if (!!onValidate) {
+      const validation = await onValidate();
+      if (validation) onOpen();
+    } else onOpen();
+  };
+
   return (
     <>
-      <Button onClick={onOpen} w="full" disabled={disableBtn} variant={buttonVariant}>
+      <Button
+        onClick={() => onProcess()}
+        w="full"
+        disabled={disableBtn}
+        variant={buttonVariant}
+      >
         {buttonLabel}
       </Button>
 
@@ -57,7 +70,6 @@ export default function ConfirmModal({
                 w="127px"
                 onClick={() => {
                   onClick();
-
                   delay(500).then(() => onClose());
                 }}
               >

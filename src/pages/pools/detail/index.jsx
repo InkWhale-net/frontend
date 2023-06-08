@@ -248,6 +248,7 @@ const MyStakeRewardInfo = ({
   const [stakeInfo, setStakeInfo] = useState(null);
   const [tokenBalance, setTokenBalance] = useState();
   const [remainStaking, setRemainStaking] = useState(0);
+  const [currentStaking, setCurrentStaking] = useState(0);
 
   const [amount, setAmount] = useState("");
 
@@ -382,55 +383,64 @@ const MyStakeRewardInfo = ({
     });
   }
 
-  async function handleStake() {
-    if (!currentAccount) {
-      toast.error(toastMessages.NO_WALLET);
-      return;
-    }
+  async function onValidateStake() {
+    try {
+      if (!currentAccount) {
+        toast.error(toastMessages.NO_WALLET);
+        return false;
+      }
 
-    if (isPoolEnded(startTime, duration)) {
-      toast.error("Pool is ended!");
-      return;
-    }
+      if (isPoolEnded(startTime, duration)) {
+        toast.error("Pool is ended!");
+        return false;
+      }
 
-    if (!amount || +tokenBalance?.replaceAll(",", "") < +amount) {
-      toast.error("Invalid Amount!");
-      return;
-    }
+      if (!amount || +tokenBalance?.replaceAll(",", "") < +amount) {
+        toast.error("Invalid Amount!");
+        return false;
+      }
 
-    if (!rewardPool || +rewardPool <= 0) {
-      toast.error("There is no reward balance in this pool!");
-      return;
-    }
+      if (!rewardPool || +rewardPool <= 0) {
+        toast.error("There is no reward balance in this pool!");
+        return false;
+      }
 
-    if (formatChainStringToNumber(tokenBalance) < amount) {
-      toast.error("Not enough tokens!");
-      return;
-    }
+      if (formatChainStringToNumber(tokenBalance) < amount) {
+        toast.error("Not enough tokens!");
+        return false;
+      }
 
-    let queryResult = await execContractQuery(
-      currentAccount?.address,
-      api,
-      pool_contract.CONTRACT_ABI,
-      poolContract,
-      0,
-      "genericPoolContractTrait::getStakeInfo",
-      currentAccount?.address
-    );
-
-    let info = queryResult?.toHuman().Ok;
-
-    const userCurrentStake =
-      info?.stakedValue?.replaceAll(",", "") / 10 ** 12 || 0;
-
-    if (maxStakingAmount - userCurrentStake - amount < 0) {
-      toast.error(
-        `You can not stake more than ${formatNumDynDecimal(
-          roundUp(maxStakingAmount - userCurrentStake)
-        )} ${tokenSymbol}`
+      let queryResult = await execContractQuery(
+        currentAccount?.address,
+        api,
+        pool_contract.CONTRACT_ABI,
+        poolContract,
+        0,
+        "genericPoolContractTrait::getStakeInfo",
+        currentAccount?.address
       );
-      return;
+
+      let info = queryResult?.toHuman().Ok;
+
+      const userCurrentStake =
+        info?.stakedValue?.replaceAll(",", "") / 10 ** 12 || 0;
+
+      if (maxStakingAmount - userCurrentStake - amount < 0) {
+        toast.error(
+          `You can not stake more than ${formatNumDynDecimal(
+            roundUp(maxStakingAmount - userCurrentStake)
+          )} ${tokenSymbol}`
+        );
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error(error);
+      toast.error(`Unknow error`);
     }
+  }
+
+  async function handleStake() {
     try {
       //Approve
       toast.success("Step 1: Approving...");
@@ -475,7 +485,38 @@ const MyStakeRewardInfo = ({
       setAmount("");
     });
   }
+  async function onValidateUnstake() {
+    try {
+      let queryResult = await execContractQuery(
+        currentAccount?.address,
+        api,
+        pool_contract.CONTRACT_ABI,
+        poolContract,
+        0,
+        "genericPoolContractTrait::getStakeInfo",
+        currentAccount?.address
+      );
 
+      let info = queryResult?.toHuman().Ok;
+
+      const userCurrentStake =
+        info?.stakedValue?.replaceAll(",", "") / 10 ** 12 || 0;
+      if (userCurrentStake === 0) {
+        toast.error(`You musk stake first`);
+        return false;
+      }
+      if (amount > userCurrentStake) {
+        toast.error(
+          `You can not unstake higher ${userCurrentStake} ${tokenSymbol}`
+        );
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error(error);
+      toast.error(`Unknow error`);
+    }
+  }
   async function handleUnstake() {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
@@ -650,6 +691,7 @@ const MyStakeRewardInfo = ({
                 action="stake"
                 buttonVariant="primary"
                 buttonLabel="Stake"
+                onValidate={onValidateStake}
                 disableBtn={
                   !Number(amount) ||
                   isPoolEnded(startTime, duration) ||
@@ -670,6 +712,7 @@ const MyStakeRewardInfo = ({
                 buttonLabel="Unstake"
                 disableBtn={!Number(amount)}
                 onClick={handleUnstake}
+                onValidate={onValidateUnstake}
                 message={formatMessageStakingPool(
                   "unstake",
                   amount,
