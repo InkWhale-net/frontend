@@ -30,14 +30,8 @@ export default function ConfirmModal({
   const onProcess = async () => {
     if (!!onValidate) {
       const validation = await onValidate();
-      if (validation) {
-        await onClick();
-        await delay(500).then(() => onClose());
-      }
-    } else {
-      await onClick();
-      await delay(500).then(() => onClose());
-    }
+      if (validation) onOpen();
+    } else onOpen();
   };
 
   return (
