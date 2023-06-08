@@ -574,7 +574,7 @@ export default function FaucetPage({ api }) {
 
   const onChangeInwInput = ({ target }) => {
     setInwBuyAmount(target.value);
-    setAzeroBuyAmount(roundDown(target.value * parseFloat(inwPrice)));
+    setAzeroBuyAmount(roundUp(target.value * parseFloat(inwPrice)));
   };
 
   const resetField = () => {
