@@ -1,4 +1,4 @@
-import { Box, Button, Heading, VStack } from "@chakra-ui/react";
+import { Box, Button, Heading, SimpleGrid, VStack } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 
@@ -15,6 +15,8 @@ import { execContractQuery } from "utils/contracts";
 import core_contract from "utils/contracts/core_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import ImageUploadIcon from "./UploadIcon";
+import { roundUp } from "utils";
+import { formatNumDynDecimal } from "utils";
 
 const ImportTokenForm = ({ api }) => {
   const dispatch = useDispatch();
@@ -72,15 +74,39 @@ const ImportTokenForm = ({ api }) => {
         0,
         "psp22::totalSupply"
       );
-      const totalSupply = queryResult3.toHuman().Ok;
+      const rawTotalSupply = queryResult3.toHuman().Ok;
 
+      let queryResult4 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenAddress,
+        0,
+        "psp22Metadata::tokenDecimals"
+      );
+      const decimals = queryResult4.toHuman().Ok;
+      const totalSupply = roundUp(
+        rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
+        0
+      );
+      let queryResult5 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenAddress,
+        0,
+        "ownable::owner"
+      );
+      const owner = queryResult5?.toHuman()?.Ok;
       setTokenInfo((prev) => {
         return {
           ...prev,
           title: tokenSymbol,
           name: tokenName,
           content: balance,
-          totalSupply,
+          totalSupply: formatNumDynDecimal(totalSupply, 4),
+          decimals,
+          owner,
         };
       });
     } catch (error) {
@@ -103,7 +129,7 @@ const ImportTokenForm = ({ api }) => {
       );
       const tokenOwnerAddress = queryResult.toHuman().Ok;
       if (tokenOwnerAddress != currentAccount?.address) {
-        toast.error("Token owner not match");
+        toast.error("You must be the owner of the token contract to continue");
         return;
       }
       const { signer } = await web3FromSource(currentAccount?.meta?.source);
@@ -159,49 +185,42 @@ const ImportTokenForm = ({ api }) => {
     }
   };
   return (
-    <SectionContainer
-      mt={{ base: "0px", xl: "20px" }}
-      title="Import Token"
-      //   description={
-      //     <span>
-      //       Create standard PSP22 (ERC20) token and mint the total supply to a
-      //       specific address. The creation requires
-      //       <Text as="span" fontWeight="700" color="text.1">
-      //         {" "}
-      //         {createTokenFee} INW
-      //       </Text>
-      //     </span>
-      //   }
-    >
-      <VStack w="full" align={{ base: "flex-start" }}>
-        <Box
-          display={{ base: "flex" }}
-          alignItems={{
-            base: "flex-end",
-          }}
-          w={{ base: "full", lg: "50%" }}
-          sx={{ flexDirection: "row" }}
-        >
-          <Box w={{ base: "full" }}>
-            <IWInput
-              type="text"
-              value={tokenAddress}
-              label="Token address"
-              onChange={({ target }) => setTokenAddress(target.value)}
-              placeholder="Address"
-            />
-          </Box>
-          <Button
-            marginLeft={{ base: "10px" }}
-            paddingLeft={{ base: "32px" }}
-            paddingRight={{ base: "32px" }}
-            onClick={loadTokenInfo}
-          >
-            Load
-          </Button>
+    <VStack w="full" align={{ base: "flex-start" }}>
+      <Box
+        display={{ base: "flex" }}
+        alignItems={{
+          base: "flex-end",
+        }}
+        w={{ base: "full", lg: "50%" }}
+        sx={{ flexDirection: "row" }}
+      >
+        <Box w={{ base: "full" }}>
+          <IWInput
+            type="text"
+            value={tokenAddress}
+            label="Token address"
+            onChange={({ target }) => setTokenAddress(target.value)}
+            placeholder="Address"
+          />
         </Box>
+        <Button
+          marginLeft={{ base: "10px" }}
+          paddingLeft={{ base: "32px" }}
+          paddingRight={{ base: "32px" }}
+          onClick={loadTokenInfo}
+        >
+          Load
+        </Button>
+      </Box>
+      <SimpleGrid
+        w="full"
+        columns={{ base: 1, lg: 2 }}
+        spacingX={{ lg: "20px" }}
+        spacingY={{ base: "20px", lg: "32px" }}
+        mb={{ base: "30px" }}
+      >
         {!!tokenInfo?.name && (
-          <Box w={{ base: "full", lg: "50%" }}>
+          <Box w={{ base: "full" }}>
             <IWInput
               disabled
               type="text"
@@ -211,9 +230,8 @@ const ImportTokenForm = ({ api }) => {
             />
           </Box>
         )}
-
         {!!tokenInfo?.title && (
-          <Box w={{ base: "full", lg: "50%" }}>
+          <Box w={{ base: "full" }}>
             <IWInput
               disabled
               type="text"
@@ -224,7 +242,7 @@ const ImportTokenForm = ({ api }) => {
           </Box>
         )}
         {!!tokenInfo?.totalSupply && (
-          <Box w={{ base: "full", lg: "50%" }}>
+          <Box w={{ base: "full" }}>
             <IWInput
               disabled
               type="text"
@@ -234,28 +252,51 @@ const ImportTokenForm = ({ api }) => {
             />
           </Box>
         )}
-        <Box w="full">
-          <Heading as="h4" size="h4" mb="12px">
-            Token Icon
-          </Heading>
-          <ImageUploadIcon
-            isDisabled={!!!tokenInfo}
-            keyInput={1}
-            iconUrl={importIconIPFSUrl}
-            setImageIPFSUrl={setImportIconIPFSUrl}
-          />
-        </Box>
+        {!!tokenInfo?.decimals && (
+          <Box w={{ base: "full" }}>
+            <IWInput
+              disabled
+              type="text"
+              value={tokenInfo?.decimals}
+              label="Decimals"
+              placeholder="Decimals"
+            />
+          </Box>
+        )}
+        {!!tokenInfo?.owner && (
+          <Box w={{ base: "full" }}>
+            <IWInput
+              disabled
+              type="text"
+              value={tokenInfo?.owner}
+              label="Owner"
+              placeholder="Owner"
+            />
+          </Box>
+        )}
+      </SimpleGrid>
 
-        <Button
-          w="full"
-          maxW={{ lg: "170px" }}
-          onClick={importToken}
-          disabled={!(!!tokenInfo && importIconIPFSUrl)}
-        >
-          Import Token
-        </Button>
-      </VStack>
-    </SectionContainer>
+      <Box w="full">
+        <Heading as="h4" size="h4" mb="12px">
+          Token Icon
+        </Heading>
+        <ImageUploadIcon
+          isDisabled={!!!tokenInfo}
+          keyInput={1}
+          iconUrl={importIconIPFSUrl}
+          setImageIPFSUrl={setImportIconIPFSUrl}
+        />
+      </Box>
+
+      <Button
+        w="full"
+        maxW={{ lg: "170px" }}
+        onClick={importToken}
+        disabled={!(!!tokenInfo && importIconIPFSUrl)}
+      >
+        Import Token
+      </Button>
+    </VStack>
   );
 };
 export default ImportTokenForm;

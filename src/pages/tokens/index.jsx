@@ -1,4 +1,12 @@
-import { Box, Button, Heading, Select, Show, Stack } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Heading,
+  Select,
+  Show,
+  SimpleGrid,
+  Stack,
+} from "@chakra-ui/react";
 import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
 import IWCard from "components/card/Card";
@@ -23,6 +31,8 @@ import azt_contract from "utils/contracts/azt_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { moveINWToBegin } from "utils";
+import { formatNumDynDecimal } from "utils";
+import { roundUp } from "utils";
 
 export default function TokensPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -97,9 +107,57 @@ export default function TokensPage() {
       "psp22Metadata::tokenSymbol"
     );
     const tokenSymbol = queryResult1.toHuman().Ok;
+    let queryResult2 = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      selectedContractAddr,
+      0,
+      "psp22Metadata::tokenName"
+    );
+    const tokenName = queryResult2.toHuman().Ok;
+    let queryResult3 = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      selectedContractAddr,
+      0,
+      "psp22::totalSupply"
+    );
+    const rawTotalSupply = queryResult3.toHuman().Ok;
 
+    let queryResult4 = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      selectedContractAddr,
+      0,
+      "psp22Metadata::tokenDecimals"
+    );
+    const decimals = queryResult4.toHuman().Ok;
+    const totalSupply = roundUp(
+      rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
+      0
+    );
+    let queryResult5 = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      selectedContractAddr,
+      0,
+      "ownable::owner"
+    );
+    const owner = queryResult5?.toHuman()?.Ok;
     setTokenInfo((prev) => {
-      return { ...prev, title: tokenSymbol, content: balance };
+      return {
+        ...prev,
+        title: tokenSymbol,
+        content: balance,
+        name: tokenName,
+        totalSupply: formatNumDynDecimal(totalSupply, 4),
+        decimals,
+        owner,
+      };
     });
   }
 
@@ -116,6 +174,7 @@ export default function TokensPage() {
       ),
       isDisabled: false,
     },
+
     {
       label: (
         <>
@@ -148,6 +207,11 @@ export default function TokensPage() {
           loadTokenInfo={loadTokenInfo}
         />
       ),
+      isDisabled: false,
+    },
+    tokenInfo?.title && {
+      label: <>Token Info</>,
+      component: <TokenInformation tokenInfo={tokenInfo} />,
       isDisabled: false,
     },
   ];
@@ -228,7 +292,7 @@ export default function TokensPage() {
             </Stack>
           </IWCard>
 
-          <IWTabs tabsData={tabsData} />
+          <IWTabs tabsData={tabsData.filter((e) => !!e)} />
         </Stack>
       </SectionContainer>
     </>
@@ -602,6 +666,52 @@ const TokensTabBurnToken = ({
           </Stack>
         </IWCard>
       </IWCard>
+    </Stack>
+  );
+};
+
+const TokenInformation = ({ tokenInfo }) => {
+  return (
+    <Stack
+      w="full"
+      spacing="30px"
+      alignItems="start"
+      direction={{ base: "column", lg: "row" }}
+    >
+      <IWCardOneColumn
+        title="Token Detail Information"
+        data={[
+          tokenInfo?.name && {
+            title: "Token Name",
+            content: tokenInfo?.name,
+          },
+          tokenInfo?.title && {
+            title: "Token Symbol",
+            content: tokenInfo?.title,
+          },
+          tokenInfo?.totalSupply && {
+            title: "Total supply",
+            content: tokenInfo?.totalSupply,
+          },
+          tokenInfo?.decimals && {
+            title: "Decimals",
+            content: tokenInfo?.decimals,
+          },
+          tokenInfo?.owner && {
+            title: "Owner",
+            content: tokenInfo?.owner,
+          },
+          // {
+          //   title: "Azero Balance",
+          //   content: `${balance?.azero || 0} AZERO`,
+          // },
+          // { title: "INW Balance", content: `${balance?.inw || 0} INW` },
+          // {
+          //   title: !tokenInfo?.title ? "" : `${tokenInfo?.title} Balance`,
+          //   content: `${tokenInfo?.content} ${tokenInfo?.title}`,
+          // },
+        ].filter((e) => !!e)}
+      />
     </Stack>
   );
 };

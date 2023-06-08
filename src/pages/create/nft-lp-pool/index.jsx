@@ -36,6 +36,7 @@ import { roundUp } from "utils";
 import ImageUploadIcon from "../token/UploadIcon";
 import { SelectSearch } from "components/SelectSearch";
 import { execContractTxAndCallAPI } from "utils/contracts";
+import { moveINWToBegin } from "utils";
 
 export default function CreateNFTLPPage({ api }) {
   const dispatch = useDispatch();
@@ -133,7 +134,7 @@ export default function CreateNFTLPPage({ api }) {
       if (status === "OK") {
         if (isUnmounted) return;
 
-        return setFaucetTokensList(ret);
+        return setFaucetTokensList(moveINWToBegin(ret));
       }
 
       toast.error(`Get faucet tokens list failed. ${message}`);
@@ -347,7 +348,7 @@ export default function CreateNFTLPPage({ api }) {
     await delay(3000);
 
     toast.promise(
-      delay(30000).then(() => {
+      delay(40000).then(() => {
         if (currentAccount) {
           dispatch(fetchMyNFTPools({ currentAccount }));
           dispatch(fetchUserBalance({ currentAccount, api }));
@@ -428,7 +429,7 @@ export default function CreateNFTLPPage({ api }) {
     <>
       <SectionContainer
         mt={{ base: "0px", xl: "20px" }}
-        title="Create NFT Yield Farm"
+        title="Create NFT Staking Pool"
         description={
           <span>
             NFT Stakers get rewards in selected token. The creation costs
@@ -664,7 +665,7 @@ export default function CreateNFTLPPage({ api }) {
           </SimpleGrid>
 
           <Button w="full" maxW={{ lg: "260px" }} onClick={createNFTLPHandler}>
-            Create NFT Yield Farm
+            Create NFT Staking Pool
           </Button>
         </VStack>
       </SectionContainer>
