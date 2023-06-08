@@ -282,10 +282,8 @@ export default function CreateStakePoolPage({ api }) {
     setDuration("");
     setStartTime(new Date());
 
-    await delay(3000);
-
     toast.promise(
-      delay(30000).then(() => {
+      delay(10000).then(() => {
         if (currentAccount) {
           dispatch(fetchUserBalance({ currentAccount, api }));
           dispatch(fetchMyStakingPools({ currentAccount }));
