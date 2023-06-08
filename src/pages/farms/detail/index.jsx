@@ -52,6 +52,7 @@ import { fetchAllTokenPools } from "redux/slices/allPoolsSlice";
 import { isPoolEnded } from "utils";
 import useInterval from "hook/useInterval";
 import AddressCopier from "components/address-copier/AddressCopier";
+import { isPoolNotStart } from "utils";
 
 export default function FarmDetailPage() {
   const params = useParams();
@@ -523,6 +524,11 @@ const MyStakeRewardInfoNFT = ({
 
     if (isPoolEnded(startTime, duration)) {
       toast.error("Pool is ended!");
+      return;
+    }
+
+    if (isPoolNotStart(startTime)) {
+      toast.error("Pool is not start!");
       return;
     }
 
