@@ -34,6 +34,7 @@ const ImportTokenForm = ({ api }) => {
       }
       if (!isAddressValid(tokenAddress)) {
         toast.error("Invalid address!");
+        setTokenInfo(null);
         return;
       }
       let queryResult = await execContractQuery(
@@ -110,7 +111,8 @@ const ImportTokenForm = ({ api }) => {
         };
       });
     } catch (error) {
-      console.log(error);
+      toast.error("Invalid address!");
+      setTokenInfo(null);
     }
   };
 
@@ -160,7 +162,7 @@ const ImportTokenForm = ({ api }) => {
           signature,
         });
         if (status === "OK") {
-          setTokenInfo({ title: "", content: "" });
+          setTokenInfo(null);
           setTokenAddress("");
           toast.promise(
             delay(15000).then(() => {
