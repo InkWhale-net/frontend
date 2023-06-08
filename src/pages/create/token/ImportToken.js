@@ -192,7 +192,7 @@ const ImportTokenForm = ({ api }) => {
         Register your token to Ink Whale. You must be the contract owner to
         perform this action
       </span>
-      <VStack w="full" align={{ base: "flex-start" }}>
+      <VStack mt={4} w="full" align={{ base: "flex-start" }}>
         <Box
           display={{ base: "flex" }}
           alignItems={{
