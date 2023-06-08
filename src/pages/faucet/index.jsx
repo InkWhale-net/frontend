@@ -348,8 +348,17 @@ export default function FaucetPage({ api }) {
             )
           )
         );
+        let result1 = await execContractQuery(
+          process.env.REACT_APP_PUBLIC_ADDRESS,
+          api,
+          azt_contract.CONTRACT_ABI,
+          azt_contract.CONTRACT_ADDRESS,
+          0,
+          "psp22Capped::cap"
+        );
+        const inwTotalSupplyCap = formatQueryResultToNumber(result1);
         setInwBurn(
-          roundUp(+inwTotalSupply?.replaceAll(",", "") || 0, 0) -
+          roundUp(+inwTotalSupplyCap?.replaceAll(",", "") || 0, 0) -
             +roundDown(
               INWTotalSupplyResponse?.ret?.totalSupply?.replaceAll(",", "") /
                 10 ** 12,

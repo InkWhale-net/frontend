@@ -290,7 +290,7 @@ export default function CreateTokenPage({ api }) {
               {createTokenFee} INW
             </Text>
           </span>
-          <VStack w="full">
+          <VStack w="full" mt={4}>
             <SimpleGrid
               w="full"
               columns={{ base: 1, lg: 2 }}
