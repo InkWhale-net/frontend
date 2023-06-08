@@ -6,7 +6,7 @@ export default function TokenIcon({tokenContract}) {
   const { allTokensList } = useSelector((s) => s.allPools);
   const tokenSelected = useMemo(() => {
     return allTokensList?.find(
-      (token) => token.contractAddress === tokenContract
+      (token) => token?.contractAddress === tokenContract
     );
   }, [tokenContract, allTokensList]);
   return tokenSelected?.tokenIconUrl ? (
