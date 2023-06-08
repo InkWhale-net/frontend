@@ -821,10 +821,6 @@ export default function FaucetPage({ api }) {
         title="INW Tokens"
         description={
           <>
-            {/* INW tokens are used as transaction fee. 100M INW tokens are
-            available at {inwMintingFee}
-            <AzeroLogo w="14px" h="14px" ml="2px" mb="3px" /> per INW. You can
-            trade INW on PanoramaSwap in due time. */}
             Check INW token information and acquire INW to be able to use
             platform features
           </>
@@ -837,9 +833,8 @@ export default function FaucetPage({ api }) {
           direction={{ base: "column", lg: "row" }}
         >
           <IWCardOneColumn
-            title="Ink Whale Token"
+            title="Ink Whale Token (INW)"
             data={[
-              { title: "Token Symbol", content: "INW" },
               {
                 title: "Contract Address",
                 content: <AddressCopier address={inwContractAddress} />,

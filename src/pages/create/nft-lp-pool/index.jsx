@@ -204,7 +204,7 @@ export default function CreateNFTLPPage({ api }) {
     }
 
     if (!(multiplier > 0)) {
-      toast.error(`Annual Percentage Yield (APR) % must be greater than 0`);
+      toast.error(`Annual Percentage Rate (APR) % must be greater than 0`);
       return;
     }
 

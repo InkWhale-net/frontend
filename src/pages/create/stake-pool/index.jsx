@@ -156,7 +156,7 @@ export default function CreateStakePoolPage({ api }) {
     }
 
     if (!(apy > 0)) {
-      toast.error(`Annual Percentage Yield (APR) % must be greater than 0`);
+      toast.error(`Annual Percentage Rate (APR) % must be greater than 0`);
       return;
     }
 
@@ -463,7 +463,7 @@ export default function CreateStakePoolPage({ api }) {
               <IWInput
                 type="number"
                 placeholder="0"
-                label="Annual Percentage Yield (APR) %"
+                label="Annual Percentage Rate (APR) %"
                 value={apy}
                 onChange={({ target }) => setApy(target.value)}
               />
