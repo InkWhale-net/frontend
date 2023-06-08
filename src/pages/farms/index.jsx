@@ -226,7 +226,7 @@ export default function FarmsPage() {
 
   const tabsData = [
     {
-      label: <>NFT Yield Farms</>,
+      label: <>NFT Staking Pool</>,
       component: <IWTable {...tableDataNFT} mode="NFT_FARM" />,
       isDisabled: false,
     },

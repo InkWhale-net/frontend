@@ -161,11 +161,7 @@ export default function FarmDetailPage() {
       isDisabled: false,
     },
     {
-      label: (
-        <>
-          Pool Info<Show above="md">rmation</Show>
-        </>
-      ),
+      label: <>Pool Information</>,
       component: (
         <PoolInfo
           mode={currMode}
