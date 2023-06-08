@@ -59,7 +59,6 @@ export default function PoolDetailPage({ api }) {
       (p) => p?.poolContract === params?.contractAddress
     );
   }, [allStakingPoolsList, params?.contractAddress]);
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -238,6 +237,7 @@ const MyStakeRewardInfo = ({
   startTime,
   tokenDecimal,
   maxStakingAmount,
+  totalStaked,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -248,7 +248,6 @@ const MyStakeRewardInfo = ({
   const [stakeInfo, setStakeInfo] = useState(null);
   const [tokenBalance, setTokenBalance] = useState();
   const [remainStaking, setRemainStaking] = useState(0);
-  const [currentStaking, setCurrentStaking] = useState(0);
 
   const [amount, setAmount] = useState("");
 
@@ -292,21 +291,7 @@ const MyStakeRewardInfo = ({
 
       const balance = formatQueryResultToNumber(result);
       setTokenBalance(balance);
-      let queryResult = await execContractQuery(
-        currentAccount?.address,
-        api,
-        pool_contract.CONTRACT_ABI,
-        poolContract,
-        0,
-        "genericPoolContractTrait::getStakeInfo",
-        currentAccount?.address
-      );
-
-      let info = queryResult?.toHuman().Ok;
-
-      const userCurrentStake =
-        info?.stakedValue?.replaceAll(",", "") / 10 ** 12 || 0;
-      setRemainStaking(roundUp(maxStakingAmount - userCurrentStake, 4));
+      setRemainStaking(roundUp(maxStakingAmount - totalStaked, 4));
     } catch (error) {
       console.log(error);
     }
@@ -410,25 +395,10 @@ const MyStakeRewardInfo = ({
         return false;
       }
 
-      let queryResult = await execContractQuery(
-        currentAccount?.address,
-        api,
-        pool_contract.CONTRACT_ABI,
-        poolContract,
-        0,
-        "genericPoolContractTrait::getStakeInfo",
-        currentAccount?.address
-      );
-
-      let info = queryResult?.toHuman().Ok;
-
-      const userCurrentStake =
-        info?.stakedValue?.replaceAll(",", "") / 10 ** 12 || 0;
-
-      if (maxStakingAmount - userCurrentStake - amount < 0) {
+      if (maxStakingAmount - totalStaked - amount < 0) {
         toast.error(
           `You can not stake more than ${formatNumDynDecimal(
-            roundUp(maxStakingAmount - userCurrentStake)
+            roundUp(maxStakingAmount - totalStaked)
           )} ${tokenSymbol}`
         );
         return false;
@@ -775,7 +745,7 @@ const PoolInfo = (props) => {
             content: `${formatNumDynDecimal(maxStakingAmount)} ${tokenSymbol}`,
           },
           {
-            title: "Total Value Locked",
+            title: "Total Value Loscked",
             content: `${formatNumDynDecimal(totalStaked)} ${tokenSymbol}`,
           },
         ]}
@@ -804,8 +774,8 @@ const formatMessageStakingPool = (action, amount, tokenSymbol, unstakeFee) => {
   if (action === "stake") {
     return (
       <>
-        You are staking {amount} ${tokenSymbol}.<br />
-        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)} $INW.
+        You are staking {amount} {tokenSymbol}.<br />
+        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)} INW.
         Continue?
       </>
     );
@@ -815,7 +785,7 @@ const formatMessageStakingPool = (action, amount, tokenSymbol, unstakeFee) => {
     return (
       <>
         You are unstaking {amount} ${tokenSymbol}.<br />
-        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)} $INW. Continue?
+        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)} INW. Continue?
       </>
     );
   }
