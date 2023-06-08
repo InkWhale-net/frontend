@@ -336,40 +336,41 @@ export default function FaucetPage({ api }) {
       setInwTotalSupply(0);
       return;
     }
-
-    let result1 = await execContractQuery(
-      process.env.REACT_APP_PUBLIC_ADDRESS,
-      api,
-      azt_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
-      0,
-      "psp22Capped::cap"
-    );
-    const inwTotalSupply = formatQueryResultToNumber(result1);
-
-    setInwTotalSupply(inwTotalSupply.replace(".0000", ""));
-
-    const INWTotalSupplyResponse = await APICall.getINWTotalSupply();
-    if (INWTotalSupplyResponse?.status === "OK") {
-      setInwBurn(
-        roundUp(+inwTotalSupply.replaceAll(",", ""), 0) -
-          +roundDown(
-            INWTotalSupplyResponse.ret.totalSupply?.replaceAll(",", "") /
-              10 ** 12,
-            0
+    try {
+      const INWTotalSupplyResponse = await APICall.getINWTotalSupply();
+      if (INWTotalSupplyResponse?.status === "OK") {
+        setInwTotalSupply(
+          formatNumDynDecimal(
+            roundUp(
+              INWTotalSupplyResponse?.ret?.totalSupply?.replaceAll(",", "") /
+                10 ** 12 || 0,
+              4
+            )
           )
-      );
-    } else {
-      toast.error("Get In inCirculation fail");
-    }
+        );
+        setInwBurn(
+          roundUp(+inwTotalSupply?.replaceAll(",", "") || 0, 0) -
+            +roundDown(
+              INWTotalSupplyResponse?.ret?.totalSupply?.replaceAll(",", "") /
+                10 ** 12,
+              0
+            )
+        );
+      } else {
+        toast.error("Get In inCirculation fail");
+      }
 
-    const INWInCirculationResponse = await APICall.getINWInCirculation();
-    if (INWInCirculationResponse?.status === "OK") {
-      setInwInCur(
-        formatNumDynDecimal(INWInCirculationResponse.ret.inCirculation, 2)
-      );
-    } else {
-      toast.error("Get In inCirculation fail");
+      const INWInCirculationResponse = await APICall.getINWInCirculation();
+      if (INWInCirculationResponse?.status === "OK") {
+        setInwInCur(
+          formatNumDynDecimal(INWInCirculationResponse.ret.inCirculation, 2)
+        );
+      } else {
+        toast.error("Get In inCirculation fail");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("unknow error");
     }
   }, [api]);
 
@@ -387,11 +388,19 @@ export default function FaucetPage({ api }) {
     return (
       inwBuyAmount * parseFloat(inwPrice) >=
         formatChainStringToNumber(azeroBalance) ||
-      isSaleEnded || notSaleStart || 
+      isSaleEnded ||
+      notSaleStart ||
       availableMint?.replaceAll(",", "") < +inwBuyAmount ||
       !(inwBuyAmount > 0)
     );
-  }, [azeroBalance, inwBuyAmount, inwPrice, notSaleStart, isSaleEnded, availableMint]);
+  }, [
+    azeroBalance,
+    inwBuyAmount,
+    inwPrice,
+    notSaleStart,
+    isSaleEnded,
+    availableMint,
+  ]);
 
   const getBalanceContract = async (token) => {
     let balance = await execContractQuery(
@@ -597,7 +606,7 @@ export default function FaucetPage({ api }) {
                 Acquire INW Tokens
               </Heading> */}
               <Flex>
-              {saleInfo?.endTimeSale ? (
+                {saleInfo?.endTimeSale ? (
                   notSaleStart ? (
                     <>
                       Sale start in:{" "}
@@ -875,7 +884,7 @@ export default function FaucetPage({ api }) {
                 title: "Contract Address",
                 content: <AddressCopier address={inwContractAddress} />,
               },
-              { title: "Max Supply", content: `${inwTotalSupply} INW` },
+              { title: "Total Supply", content: `${inwTotalSupply} INW` },
               { title: "In Circulation ", content: `${inwInCur} INW` },
               {
                 title: "Total Burned ",
