@@ -15,39 +15,38 @@ import {
 import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 
+import { APICall } from "api/client";
+import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
-import IWTabs from "components/tabs/IWTabs";
-import ConfirmModal from "components/modal/ConfirmModal";
 import IWCardOneColumn from "components/card/CardOneColumn";
 import CardThreeColumn from "components/card/CardThreeColumn";
 import CardTwoColumn from "components/card/CardTwoColumn";
-import { useParams } from "react-router-dom";
+import ConfirmModal from "components/modal/ConfirmModal";
 import { formatDataCellTable } from "components/table/IWTable";
-import { addressShortener } from "utils";
-import { formatNumDynDecimal } from "utils";
-import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
-import psp22_contract from "utils/contracts/psp22_contract";
-import { formatQueryResultToNumber } from "utils";
-import { execContractQuery } from "utils/contracts";
-import { useEffect } from "react";
-import { execContractTx } from "utils/contracts";
-import pool_contract from "utils/contracts/pool_contract";
-import { delay } from "utils";
-import { formatNumToBN } from "utils";
-import { toast } from "react-hot-toast";
-import azt_contract from "utils/contracts/azt_contract";
-import { formatChainStringToNumber } from "utils";
-import { useCallback } from "react";
+import IWTabs from "components/tabs/IWTabs";
 import { toastMessages } from "constants";
-import { calcUnclaimedReward } from "utils";
-import { APICall } from "api/client";
-import { isPoolEnded, isPoolNotStart } from "utils";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
-import { useMemo } from "react";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import AddressCopier from "components/address-copier/AddressCopier";
-import { roundUp } from "utils";
+import {
+  addressShortener,
+  calcUnclaimedReward,
+  delay,
+  formatChainStringToNumber,
+  formatNumDynDecimal,
+  formatNumToBN,
+  formatQueryResultToNumber,
+  isPoolEnded,
+  isPoolNotStart,
+  roundUp,
+} from "utils";
+import { execContractQuery, execContractTx } from "utils/contracts";
+import azt_contract from "utils/contracts/azt_contract";
+import pool_contract from "utils/contracts/pool_contract";
+import psp22_contract from "utils/contracts/psp22_contract";
 
 export default function PoolDetailPage({ api }) {
   const params = useParams();
@@ -244,8 +243,6 @@ const MyStakeRewardInfo = ({
   const dispatch = useDispatch();
 
   const { currentAccount, api } = useSelector((s) => s.wallet);
-  const { allStakingPoolsList } = useSelector((s) => s.allPools);
-  const params = useParams();
 
   const [unstakeFee, setUnstakeFee] = useState(0);
   const [stakeInfo, setStakeInfo] = useState(null);
@@ -312,11 +309,7 @@ const MyStakeRewardInfo = ({
       console.log(error);
     }
   }, [api, currentAccount?.address, currentAccount?.balance, tokenContract]);
-  const currentPool = useMemo(() => {
-    return allStakingPoolsList?.find(
-      (p) => p?.poolContract === params?.contractAddress
-    );
-  }, [allStakingPoolsList, params?.contractAddress]);
+
   useEffect(() => {
     fetchUserStakeInfo();
     fetchTokenBalance();
