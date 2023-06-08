@@ -15,38 +15,38 @@ import {
 import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 
+import { APICall } from "api/client";
+import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
-import IWTabs from "components/tabs/IWTabs";
-import ConfirmModal from "components/modal/ConfirmModal";
 import IWCardOneColumn from "components/card/CardOneColumn";
 import CardThreeColumn from "components/card/CardThreeColumn";
 import CardTwoColumn from "components/card/CardTwoColumn";
-import { useParams } from "react-router-dom";
+import ConfirmModal from "components/modal/ConfirmModal";
 import { formatDataCellTable } from "components/table/IWTable";
-import { addressShortener } from "utils";
-import { formatNumDynDecimal } from "utils";
-import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
-import psp22_contract from "utils/contracts/psp22_contract";
-import { formatQueryResultToNumber } from "utils";
-import { execContractQuery } from "utils/contracts";
-import { useEffect } from "react";
-import { execContractTx } from "utils/contracts";
-import pool_contract from "utils/contracts/pool_contract";
-import { delay } from "utils";
-import { formatNumToBN } from "utils";
-import { toast } from "react-hot-toast";
-import azt_contract from "utils/contracts/azt_contract";
-import { formatChainStringToNumber } from "utils";
-import { useCallback } from "react";
+import IWTabs from "components/tabs/IWTabs";
 import { toastMessages } from "constants";
-import { calcUnclaimedReward } from "utils";
-import { APICall } from "api/client";
-import { isPoolEnded, isPoolNotStart } from "utils";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
-import { useMemo } from "react";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import AddressCopier from "components/address-copier/AddressCopier";
+import {
+  addressShortener,
+  calcUnclaimedReward,
+  delay,
+  formatChainStringToNumber,
+  formatNumDynDecimal,
+  formatNumToBN,
+  formatQueryResultToNumber,
+  isPoolEnded,
+  isPoolNotStart,
+  roundUp,
+} from "utils";
+import { execContractQuery, execContractTx } from "utils/contracts";
+import azt_contract from "utils/contracts/azt_contract";
+import pool_contract from "utils/contracts/pool_contract";
+import psp22_contract from "utils/contracts/psp22_contract";
 
 export default function PoolDetailPage({ api }) {
   const params = useParams();
@@ -291,9 +291,20 @@ const MyStakeRewardInfo = ({
 
       const balance = formatQueryResultToNumber(result);
       setTokenBalance(balance);
+      let queryResult = await execContractQuery(
+        currentAccount?.address,
+        api,
+        pool_contract.CONTRACT_ABI,
+        poolContract,
+        0,
+        "genericPoolContractTrait::getStakeInfo",
+        currentAccount?.address
+      );
 
-      // const userCurrentStake = stakeInfo?.stakedValue / 10 ** 12 || 0;
-      // setRemainStaking(maxStakingAmount - userCurrentStake);
+      let info = queryResult?.toHuman().Ok;
+
+      const userCurrentStake = info.stakedValue.replaceAll(",", "") / 10 ** 12;
+      setRemainStaking(roundUp(maxStakingAmount - userCurrentStake, 4));
     } catch (error) {
       console.log(error);
     }
@@ -396,12 +407,25 @@ const MyStakeRewardInfo = ({
       return;
     }
 
-    const userCurrentStake = stakeInfo?.stakedValue / 10 ** 12 || 0;
+    let queryResult = await execContractQuery(
+      currentAccount?.address,
+      api,
+      pool_contract.CONTRACT_ABI,
+      poolContract,
+      0,
+      "genericPoolContractTrait::getStakeInfo",
+      currentAccount?.address
+    );
+
+    let info = queryResult?.toHuman().Ok;
+
+    const userCurrentStake = info.stakedValue.replaceAll(",", "") / 10 ** 12;
+
     if (maxStakingAmount - userCurrentStake - amount < 0) {
       toast.error(
-        `Maximum staking amount is ${maxStakingAmount}. Currently, the maximum remaining stake is ${
+        `You can not stake more than ${roundUp(
           maxStakingAmount - userCurrentStake
-        }`
+        )} ${tokenSymbol}`
       );
       return;
     }
