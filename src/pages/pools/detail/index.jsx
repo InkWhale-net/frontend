@@ -118,11 +118,7 @@ export default function PoolDetailPage({ api }) {
       isDisabled: false,
     },
     {
-      label: (
-        <span>
-          Pool Info<Show above="md">rmation</Show>
-        </span>
-      ),
+      label: <span>Pool Information</span>,
       component: (
         <PoolInfo
           {...currentPool}
@@ -295,8 +291,9 @@ const MyStakeRewardInfo = ({
 
       const balance = formatQueryResultToNumber(result);
       setTokenBalance(balance);
-      const userCurrentStake = stakeInfo?.stakedValue / 10 ** 12 || 0;
-      setRemainStaking(maxStakingAmount - userCurrentStake);
+
+      // const userCurrentStake = stakeInfo?.stakedValue / 10 ** 12 || 0;
+      // setRemainStaking(maxStakingAmount - userCurrentStake);
     } catch (error) {
       console.log(error);
     }
@@ -656,7 +653,9 @@ const MyStakeRewardInfo = ({
               />
             </HStack>
           </Flex>
-          <Box fontSize={14} ml="2px">Max Staking Amount: {remainStaking}</Box>
+          <Box fontSize={14} ml="2px">
+            Max Staking Amount: {remainStaking}
+          </Box>
         </IWCard>
       </CardThreeColumn>
     </Stack>
