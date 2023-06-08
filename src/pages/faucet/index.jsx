@@ -221,6 +221,14 @@ export default function FaucetPage({ api }) {
       0,
       "genericTokenSaleTrait::getUnclaimedAmount"
     );
+    let query10 = execContractQuery(
+      publicCurrentAccount?.address,
+      api,
+      token.CONTRACT_ABI,
+      token.CONTRACT_ADDRESS,
+      0,
+      "genericTokenSaleTrait::startTime"
+    );
     const [
       endTime,
       buyInfoQr,
@@ -231,6 +239,7 @@ export default function FaucetPage({ api }) {
       totalPuchaedQr,
       isBurnedQr,
       unclaimAmount,
+      startTimeQr,
     ] = await Promise.all([
       query1,
       query2,
@@ -241,11 +250,13 @@ export default function FaucetPage({ api }) {
       query7,
       query8,
       query9,
+      query10,
     ]);
-    const leftAmount =
-      +balanceTotalInwQr.toHuman().Ok?.replaceAll(",", "") -
-      +balancePurchaseInwQr.toHuman().Ok?.replaceAll(",", "");
+    // const leftAmount =
+    //   +balanceTotalInwQr.toHuman().Ok?.replaceAll(",", "") -
+    //   +balancePurchaseInwQr.toHuman().Ok?.replaceAll(",", "");
     const result = endTime?.toHuman()?.Ok?.replaceAll(",", "");
+    const startTime = startTimeQr?.toHuman()?.Ok?.replaceAll(",", "");
     const result2 = buyInfoQr?.toHuman()?.Ok;
     const result3 = balanceTotalInwQr?.toHuman()?.Ok;
     const buyInfo = {
@@ -258,7 +269,7 @@ export default function FaucetPage({ api }) {
         2
       ),
     };
-    setAvailableMint(formatNumDynDecimal(leftAmount / 10 ** 12));
+    // setAvailableMint(formatNumDynDecimal(leftAmount / 10 ** 12));
     setSaleInfo({
       buyerInfo: buyInfo,
       totalSale: formatNumDynDecimal(
@@ -270,6 +281,7 @@ export default function FaucetPage({ api }) {
         2
       ),
       endTimeSale: result,
+      startTimeSale: startTime,
       unclaimAmount: unclaimAmount?.toHuman()?.Ok?.Ok?.replaceAll(",", "") || 0,
       burnedAmount: isBurnedQr?.toHuman()?.Ok
         ? result3?.replaceAll(",", "") -
@@ -341,7 +353,7 @@ export default function FaucetPage({ api }) {
     if (INWTotalSupplyResponse?.status === "OK") {
       setInwBurn(
         roundUp(+inwTotalSupply.replaceAll(",", ""), 0) -
-          +roundUp(
+          +roundDown(
             INWTotalSupplyResponse.ret.totalSupply?.replaceAll(",", "") /
               10 ** 12,
             0
@@ -364,6 +376,11 @@ export default function FaucetPage({ api }) {
   const isSaleEnded = useMemo(
     () => Date.now() >= saleInfo?.endTimeSale,
     [saleInfo?.endTimeSale]
+  );
+
+  const notSaleStart = useMemo(
+    () => Date.now() < saleInfo?.startTimeSale,
+    [saleInfo?.startTimeSale]
   );
 
   const disableBuyBtn = useMemo(() => {
@@ -414,6 +431,7 @@ export default function FaucetPage({ api }) {
     if (tabIndex === 0) {
       getPriceInw(private_sale);
       getSaleInfo(private_sale);
+      getBalanceContract(private_sale);
     } else {
       getPublicsaleInfo(public_sale);
       getPriceInw(public_sale);
@@ -579,13 +597,24 @@ export default function FaucetPage({ api }) {
                 Acquire INW Tokens
               </Heading> */}
               <Flex>
-                {saleInfo?.endTimeSale ? (
-                  <>
-                    Sale end in:{" "}
-                    <Text paddingLeft={"4px"}>
-                      <IWCountDown date={+saleInfo?.endTimeSale} />{" "}
-                    </Text>{" "}
-                  </>
+              {saleInfo?.endTimeSale ? (
+                  notSaleStart ? (
+                    <>
+                      Sale start in:{" "}
+                      <Text paddingLeft={"4px"}>
+                        <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
+                      </Text>{" "}
+                    </>
+                  ) : !isSaleEnded ? (
+                    <>
+                      Sale end in:{" "}
+                      <Text paddingLeft={"4px"}>
+                        <IWCountDown date={+saleInfo?.endTimeSale} />{" "}
+                      </Text>{" "}
+                    </>
+                  ) : (
+                    <>Sale Ended!</>
+                  )
                 ) : (
                   ""
                 )}
@@ -726,7 +755,14 @@ export default function FaucetPage({ api }) {
               </Heading> */}
               <Flex>
                 {saleInfo?.endTimeSale ? (
-                  !isSaleEnded ? (
+                  notSaleStart ? (
+                    <>
+                      Sale start in:{" "}
+                      <Text paddingLeft={"4px"}>
+                        <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
+                      </Text>{" "}
+                    </>
+                  ) : !isSaleEnded ? (
                     <>
                       Sale end in:{" "}
                       <Text paddingLeft={"4px"}>
