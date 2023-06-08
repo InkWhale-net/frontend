@@ -34,6 +34,7 @@ const ImportTokenForm = ({ api }) => {
       }
       if (!isAddressValid(tokenAddress)) {
         toast.error("Invalid address!");
+        setTokenInfo(null);
         return;
       }
       let queryResult = await execContractQuery(
@@ -110,7 +111,8 @@ const ImportTokenForm = ({ api }) => {
         };
       });
     } catch (error) {
-      console.log(error);
+      toast.error("Invalid address!");
+      setTokenInfo(null);
     }
   };
 
@@ -160,7 +162,7 @@ const ImportTokenForm = ({ api }) => {
           signature,
         });
         if (status === "OK") {
-          setTokenInfo({ title: "", content: "" });
+          setTokenInfo(null);
           setTokenAddress("");
           toast.promise(
             delay(15000).then(() => {
@@ -185,118 +187,124 @@ const ImportTokenForm = ({ api }) => {
     }
   };
   return (
-    <VStack w="full" align={{ base: "flex-start" }}>
-      <Box
-        display={{ base: "flex" }}
-        alignItems={{
-          base: "flex-end",
-        }}
-        w={{ base: "full" }}
-        sx={{ flexDirection: "row" }}
-      >
-        <Box w={{ base: "full" }}>
-          <IWInput
-            type="text"
-            value={tokenAddress}
-            label="Token address"
-            onChange={({ target }) => setTokenAddress(target.value)}
-            placeholder="Address"
+    <>
+      <span>
+        Register your token to Ink Whale. You must be the contract owner to
+        perform this action
+      </span>
+      <VStack w="full" align={{ base: "flex-start" }}>
+        <Box
+          display={{ base: "flex" }}
+          alignItems={{
+            base: "flex-end",
+          }}
+          w={{ base: "full" }}
+          sx={{ flexDirection: "row" }}
+        >
+          <Box w={{ base: "full" }}>
+            <IWInput
+              type="text"
+              value={tokenAddress}
+              label="Token address"
+              onChange={({ target }) => setTokenAddress(target.value)}
+              placeholder="Address"
+            />
+          </Box>
+          <Button
+            marginLeft={{ base: "10px" }}
+            paddingLeft={{ base: "32px" }}
+            paddingRight={{ base: "32px" }}
+            onClick={loadTokenInfo}
+          >
+            Load
+          </Button>
+        </Box>
+        <SimpleGrid
+          w="full"
+          columns={{ base: 1, lg: 2 }}
+          spacingX={{ lg: "20px" }}
+          spacingY={{ base: "20px", lg: "32px" }}
+          mb={{ base: "30px" }}
+        >
+          {!!tokenInfo?.name && (
+            <Box w={{ base: "full" }}>
+              <IWInput
+                disabled
+                type="text"
+                value={tokenInfo?.name}
+                label="Token Name"
+                placeholder="Token Name"
+              />
+            </Box>
+          )}
+          {!!tokenInfo?.title && (
+            <Box w={{ base: "full" }}>
+              <IWInput
+                disabled
+                type="text"
+                value={tokenInfo?.title}
+                label="Token Symbol"
+                placeholder="Token Symbol"
+              />
+            </Box>
+          )}
+          {!!tokenInfo?.totalSupply && (
+            <Box w={{ base: "full" }}>
+              <IWInput
+                disabled
+                type="text"
+                value={tokenInfo?.totalSupply}
+                label="Total supply"
+                placeholder="Total supply"
+              />
+            </Box>
+          )}
+          {!!tokenInfo?.decimals && (
+            <Box w={{ base: "full" }}>
+              <IWInput
+                disabled
+                type="text"
+                value={tokenInfo?.decimals}
+                label="Decimals"
+                placeholder="Decimals"
+              />
+            </Box>
+          )}
+          {!!tokenInfo?.owner && (
+            <Box w={{ base: "full" }}>
+              <IWInput
+                disabled
+                type="text"
+                value={tokenInfo?.owner}
+                label="Owner"
+                placeholder="Owner"
+              />
+            </Box>
+          )}
+        </SimpleGrid>
+
+        <Box w="full">
+          <Heading as="h4" size="h4" mb="12px">
+            Token Icon
+          </Heading>
+          <ImageUploadIcon
+            isDisabled={!!!tokenInfo}
+            keyInput={1}
+            iconUrl={importIconIPFSUrl}
+            setImageIPFSUrl={setImportIconIPFSUrl}
           />
         </Box>
+
         <Button
-          marginLeft={{ base: "10px" }}
-          paddingLeft={{ base: "32px" }}
-          paddingRight={{ base: "32px" }}
-          onClick={loadTokenInfo}
+          w="full"
+          maxW={{ lg: "170px" }}
+          onClick={importToken}
+          disabled={!(!!tokenInfo && importIconIPFSUrl)}
         >
-          Load
+          Import Token
         </Button>
-      </Box>
-      <SimpleGrid
-        w="full"
-        columns={{ base: 1, lg: 2 }}
-        spacingX={{ lg: "20px" }}
-        spacingY={{ base: "20px", lg: "32px" }}
-        mb={{ base: "30px" }}
-      >
-        {!!tokenInfo?.name && (
-          <Box w={{ base: "full" }}>
-            <IWInput
-              disabled
-              type="text"
-              value={tokenInfo?.name}
-              label="Token Name"
-              placeholder="Token Name"
-            />
-          </Box>
-        )}
-        {!!tokenInfo?.title && (
-          <Box w={{ base: "full" }}>
-            <IWInput
-              disabled
-              type="text"
-              value={tokenInfo?.title}
-              label="Token Symbol"
-              placeholder="Token Symbol"
-            />
-          </Box>
-        )}
-        {!!tokenInfo?.totalSupply && (
-          <Box w={{ base: "full" }}>
-            <IWInput
-              disabled
-              type="text"
-              value={tokenInfo?.totalSupply}
-              label="Total supply"
-              placeholder="Total supply"
-            />
-          </Box>
-        )}
-        {!!tokenInfo?.decimals && (
-          <Box w={{ base: "full" }}>
-            <IWInput
-              disabled
-              type="text"
-              value={tokenInfo?.decimals}
-              label="Decimals"
-              placeholder="Decimals"
-            />
-          </Box>
-        )}
-        {!!tokenInfo?.owner && (
-          <Box w={{ base: "full" }}>
-            <IWInput
-              disabled
-              type="text"
-              value={tokenInfo?.owner}
-              label="Owner"
-              placeholder="Owner"
-            />
-          </Box>
-        )}
-      </SimpleGrid>
-
-      <Box w="full">
-        <Heading as="h4" size="h4" mb="12px">
-          Token Icon
-        </Heading>
-        <ImageUploadIcon
-          isDisabled={!!!tokenInfo}
-          keyInput={1}
-          iconUrl={importIconIPFSUrl}
-          setImageIPFSUrl={setImportIconIPFSUrl}
-        />
-      </Box>
-
-      <Button
-        w="full"
-        maxW={{ lg: "170px" }}
-        onClick={importToken}
-        disabled={!(!!tokenInfo && importIconIPFSUrl)}
-      >
-        Import Token
-      </Button>
-    </VStack>
+      </VStack>
+    </>
   );
 };
 export default ImportTokenForm;

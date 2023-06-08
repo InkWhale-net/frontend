@@ -236,93 +236,102 @@ export default function CreateTokenPage({ api }) {
     {
       label: <>Create Token</>,
       component: (
-        <VStack w="full">
-          <SimpleGrid
-            w="full"
-            columns={{ base: 1, lg: 2 }}
-            spacingX={{ lg: "20px" }}
-            spacingY={{ base: "20px", lg: "32px" }}
-            mb={{ base: "30px" }}
-          >
-            <Box w={{ base: "full" }}>
-              <IWInput
-                type="text"
-                value={tokenName}
-                label="Token Name"
-                placeholder="Token Name"
-                onChange={({ target }) => setTokenName(target.value)}
-              />
-            </Box>
-            <Box w={{ base: "full" }}>
-              <IWInput
-                type="text"
-                value={mintAddress}
-                label="Mint to"
-                onChange={({ target }) => setMintAddress(target.value)}
-                placeholder="Address"
-              />
-            </Box>
-            <Box w={{ base: "full" }}>
-              <IWInput
-                type="text"
-                value={tokenSymbol}
-                label="Token Symbol"
-                placeholder="Token Symbol"
-                onChange={({ target }) => setTokenSymbol(target.value)}
-              />
-            </Box>
-            <Box w={{ base: "full" }}>
-              <IWInput
-                isDisabled={true}
-                value={`${currentAccount?.balance?.azero || 0} AZERO`}
-                label="Your Azero Balance"
-              />
-            </Box>
-            <Box w={{ base: "full" }}>
-              <IWInput
-                type="number"
-                value={totalSupply}
-                label="Total Supply"
-                placeholder="0"
-                onChange={({ target }) => setTotalSupply(target.value)}
-              />
-            </Box>
-            <Box w={{ base: "full" }}>
-              <IWInput
-                isDisabled={true}
-                value={`${currentAccount?.balance?.inw || 0} INW`}
-                label="Your INW Balance"
-              />
-            </Box>
-            <Box w="full">
-              <Heading as="h4" size="h4" mb="12px">
-                Token Icon
-              </Heading>
-              <ImageUploadIcon
-                iconUrl={iconIPFSUrl}
-                setImageIPFSUrl={setIconIPFSUrl}
-                keyInput={0}
-              />
-            </Box>
-          </SimpleGrid>
-
-          <Button
-            isDisabled={
-              !(
-                !!iconIPFSUrl &&
-                !!tokenName &&
-                !!tokenSymbol &&
-                !!totalSupply &&
-                !!mintAddress
-              )
-            }
-            w="full"
-            maxW={{ lg: "170px" }}
-            onClick={createNewToken}
-          >
-            Create Token
-          </Button>
-        </VStack>
+        <>
+          <span>
+            Create standard PSP22 (ERC20) token and mint the total supply to a
+            specific address. The creation requires
+            <Text as="span" fontWeight="700" color="text.1">
+              {" "}
+              {createTokenFee} INW
+            </Text>
+          </span>
+          <VStack w="full">
+            <SimpleGrid
+              w="full"
+              columns={{ base: 1, lg: 2 }}
+              spacingX={{ lg: "20px" }}
+              spacingY={{ base: "20px", lg: "32px" }}
+              mb={{ base: "30px" }}
+            >
+              <Box w={{ base: "full" }}>
+                <IWInput
+                  type="text"
+                  value={tokenName}
+                  label="Token Name"
+                  placeholder="Token Name"
+                  onChange={({ target }) => setTokenName(target.value)}
+                />
+              </Box>
+              <Box w={{ base: "full" }}>
+                <IWInput
+                  type="text"
+                  value={mintAddress}
+                  label="Mint to"
+                  onChange={({ target }) => setMintAddress(target.value)}
+                  placeholder="Address"
+                />
+              </Box>
+              <Box w={{ base: "full" }}>
+                <IWInput
+                  type="text"
+                  value={tokenSymbol}
+                  label="Token Symbol"
+                  placeholder="Token Symbol"
+                  onChange={({ target }) => setTokenSymbol(target.value)}
+                />
+              </Box>
+              <Box w={{ base: "full" }}>
+                <IWInput
+                  isDisabled={true}
+                  value={`${currentAccount?.balance?.azero || 0} AZERO`}
+                  label="Your Azero Balance"
+                />
+              </Box>
+              <Box w={{ base: "full" }}>
+                <IWInput
+                  type="number"
+                  value={totalSupply}
+                  label="Total Supply"
+                  placeholder="0"
+                  onChange={({ target }) => setTotalSupply(target.value)}
+                />
+              </Box>
+              <Box w={{ base: "full" }}>
+                <IWInput
+                  isDisabled={true}
+                  value={`${currentAccount?.balance?.inw || 0} INW`}
+                  label="Your INW Balance"
+                />
+              </Box>
+              <Box w="full">
+                <Heading as="h4" size="h4" mb="12px">
+                  Token Icon
+                </Heading>
+                <ImageUploadIcon
+                  iconUrl={iconIPFSUrl}
+                  setImageIPFSUrl={setIconIPFSUrl}
+                  keyInput={0}
+                />
+              </Box>
+            </SimpleGrid>
+            <Button
+              isDisabled={
+                !(
+                  !!iconIPFSUrl &&
+                  !!tokenName &&
+                  !!tokenSymbol &&
+                  !!totalSupply &&
+                  !!mintAddress
+                )
+              }
+              w="full"
+              maxW={{ lg: "170px" }}
+              onClick={createNewToken}
+            >
+              Create Token
+            </Button>
+          </VStack>
+        </>
       ),
       isDisabled: false,
     },
@@ -334,20 +343,7 @@ export default function CreateTokenPage({ api }) {
   ];
   return (
     <>
-      <SectionContainer
-        mt={{ base: "0px", xl: "8px" }}
-        title="Create/Import Token"
-        description={
-          <span>
-            Create standard PSP22 (ERC20) token and mint the total supply to a
-            specific address. The creation requires
-            <Text as="span" fontWeight="700" color="text.1">
-              {" "}
-              {createTokenFee} INW
-            </Text>
-          </span>
-        }
-      >
+      <SectionContainer mt={{ base: "0px", xl: "8px" }}>
         <SaleTab
           tabsData={tabsData}
           tabIndex={tabIndex}
