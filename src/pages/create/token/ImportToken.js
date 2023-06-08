@@ -163,7 +163,7 @@ const ImportTokenForm = ({ api }) => {
           setTokenInfo({ title: "", content: "" });
           setTokenAddress("");
           toast.promise(
-            delay(1000).then(() => {
+            delay(15000).then(() => {
               setImportIconIPFSUrl();
               if (currentAccount) {
                 dispatch(fetchAllTokensList({}));
