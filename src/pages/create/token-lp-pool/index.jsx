@@ -490,7 +490,7 @@ export default function CreateTokenLPPage({ api }) {
 
       <SectionContainer
         mt={{ base: "0px", xl: "8px" }}
-        title="My Yield Farm Pools"
+        title="My NFT Staking Pools"
         description=""
       >
         <IWTable
