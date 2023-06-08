@@ -33,6 +33,8 @@ import { fetchUserBalance } from "redux/slices/walletSlice";
 import { moveINWToBegin } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { roundUp } from "utils";
+import CardTwoColumn from "components/card/CardTwoColumn";
+import AddressCopier from "components/address-copier/AddressCopier";
 
 export default function TokensPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -678,7 +680,7 @@ const TokenInformation = ({ tokenInfo }) => {
       alignItems="start"
       direction={{ base: "column", lg: "row" }}
     >
-      <IWCardOneColumn
+      <CardTwoColumn
         w={{ base: "full" }}
         title={tokenInfo?.name || ""}
         data={[
@@ -696,7 +698,7 @@ const TokenInformation = ({ tokenInfo }) => {
           },
           tokenInfo?.owner && {
             title: "Owner",
-            content: tokenInfo?.owner,
+            content: <AddressCopier address={tokenInfo?.owner} />,
           },
           // {
           //   title: "Azero Balance",
