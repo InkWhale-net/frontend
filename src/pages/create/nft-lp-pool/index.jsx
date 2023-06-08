@@ -143,7 +143,7 @@ export default function CreateNFTLPPage({ api }) {
 
     const getCollectionListData = async () => {
       let { ret, status, message } = await APICall.getAllCollectionsFromArtZero(
-        { isActive: true, ignoreNoNFT: false }
+        { isActive: true, ignoreNoNFT: false, limit:  10000 }
       );
 
       if (status === "OK") {

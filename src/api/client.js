@@ -42,7 +42,7 @@ export const APICall = {
       offset,
       sort,
     });
-    ret = ret.filter((el) => !!el?.contractAddress);
+    ret = ret.filter((el) => !!el?.contractAddress && el.contractAddress !== 'undefined');
     ret.unshift(ret.pop());
     return { ret, status, message };
   },
@@ -206,13 +206,14 @@ export const APICall = {
     return ret;
   },
 
-  getAllCollectionsFromArtZero: async ({ isActive, ignoreNoNFT }) => {
+  getAllCollectionsFromArtZero: async ({ isActive, ignoreNoNFT, limit }) => {
     const ret = await client(
       "POST",
       "/getCollections",
       {
         isActive,
         ignoreNoNFT,
+        limit
       },
       process.env.REACT_APP_ARTZERO_API_BASE_URL
     );
