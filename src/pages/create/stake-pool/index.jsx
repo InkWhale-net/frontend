@@ -262,14 +262,13 @@ export default function CreateStakePoolPage({ api }) {
 
     await delay(3000);
     toast.success(`Step ${step}: Process...`);
-    await execContractTxAndCallAPI(
+    await execContractTx(
       currentAccount,
       "api",
       pool_generator_contract.CONTRACT_ABI,
       pool_generator_contract.CONTRACT_ADDRESS,
       0, //-> value
       "newPool",
-      () => APICall.askBEupdate({ type: "pool", poolContract: "new" }),
       currentAccount?.address,
       selectedContractAddr,
       formatNumToBN(maxStake, 12),
@@ -277,13 +276,15 @@ export default function CreateStakePoolPage({ api }) {
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
     );
+    await delay(3000);
+
+    await APICall.askBEupdate({ type: "pool", poolContract: "new" });
 
     setApy("");
     setDuration("");
     setStartTime(new Date());
-
     toast.promise(
-      delay(10000).then(() => {
+      delay(25000).then(() => {
         if (currentAccount) {
           dispatch(fetchUserBalance({ currentAccount, api }));
           dispatch(fetchMyStakingPools({ currentAccount }));
@@ -292,7 +293,7 @@ export default function CreateStakePoolPage({ api }) {
         fetchTokenBalance();
       }),
       {
-        loading: "Please wait a minute for the data to be updated! ",
+        loading: "Please wait 20s for the data to be updated! ",
         success: "Done !",
         error: "Could not fetch data!!!",
       }

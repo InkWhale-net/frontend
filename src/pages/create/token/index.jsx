@@ -174,7 +174,7 @@ export default function CreateTokenPage({ api }) {
         }
       }),
       {
-        loading: "Please wait a minute for the data to be updated! ",
+        loading: "Please wait 10s for the data to be updated! ",
         success: "Done !",
         error: "Could not fetch data!!!",
       }

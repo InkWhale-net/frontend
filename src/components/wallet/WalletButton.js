@@ -317,7 +317,7 @@ export const WalletConnect = () => {
             </Flex>
           </IWCard> */}
 
-          {/* <Flex
+          <Flex
             w="full"
             mt={{ base: "12px" }}
             mb={{ base: "24px" }}
@@ -337,7 +337,7 @@ export const WalletConnect = () => {
                 <MenuCardIcon {...item} />
               </MenuItem>
             ))}
-          </Flex> */}
+          </Flex>
 
           <Button
             w="full"
