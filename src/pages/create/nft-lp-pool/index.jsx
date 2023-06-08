@@ -338,17 +338,15 @@ export default function CreateNFTLPPage({ api }) {
     );
 
     // await APICall.askBEupdate({ type: "nft", poolContract: "new" });
-
+    await delay(3000);
     setMultiplier("");
     setDuration("");
     setStartTime(new Date());
     // setSelectedContractAddr("");
     // setSelectedCollectionAddr("");
 
-    await delay(3000);
-
     toast.promise(
-      delay(40000).then(() => {
+      delay(10000).then(() => {
         if (currentAccount) {
           dispatch(fetchMyNFTPools({ currentAccount }));
           dispatch(fetchUserBalance({ currentAccount, api }));
@@ -357,7 +355,7 @@ export default function CreateNFTLPPage({ api }) {
         fetchTokenBalance();
       }),
       {
-        loading: "Please wait a minute for the data to be updated! ",
+        loading: "Please wait 10s for the data to be updated! ",
         success: "Done !",
         error: "Could not fetch data!!!",
       }

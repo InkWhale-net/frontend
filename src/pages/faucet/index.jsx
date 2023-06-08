@@ -387,11 +387,11 @@ export default function FaucetPage({ api }) {
     return (
       inwBuyAmount * parseFloat(inwPrice) >=
         formatChainStringToNumber(azeroBalance) ||
-      isSaleEnded ||
+      isSaleEnded || notSaleStart || 
       availableMint?.replaceAll(",", "") < +inwBuyAmount ||
       !(inwBuyAmount > 0)
     );
-  }, [azeroBalance, inwBuyAmount, inwPrice, isSaleEnded, availableMint]);
+  }, [azeroBalance, inwBuyAmount, inwPrice, notSaleStart, isSaleEnded, availableMint]);
 
   const getBalanceContract = async (token) => {
     let balance = await execContractQuery(
@@ -574,7 +574,7 @@ export default function FaucetPage({ api }) {
 
   const onChangeInwInput = ({ target }) => {
     setInwBuyAmount(target.value);
-    setAzeroBuyAmount(target.value * parseFloat(inwPrice));
+    setAzeroBuyAmount(roundUp(target.value * parseFloat(inwPrice)));
   };
 
   const resetField = () => {

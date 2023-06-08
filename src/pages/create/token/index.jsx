@@ -161,12 +161,12 @@ export default function CreateTokenPage({ api }) {
     setTokenName("");
     setTokenSymbol("");
     setTotalSupply("");
-    await delay(3000);
+    await delay(1000);
 
     await APICall.askBEupdate({ type: "token", poolContract: "new" });
 
     toast.promise(
-      delay(30000).then(() => {
+      delay(10000).then(() => {
         setIconIPFSUrl();
         if (currentAccount) {
           dispatch(fetchAllTokensList({}));
@@ -174,7 +174,7 @@ export default function CreateTokenPage({ api }) {
         }
       }),
       {
-        loading: "Please wait a minute for the data to be updated! ",
+        loading: "Please wait 10s for the data to be updated! ",
         success: "Done !",
         error: "Could not fetch data!!!",
       }

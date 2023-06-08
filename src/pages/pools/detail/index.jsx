@@ -59,7 +59,6 @@ export default function PoolDetailPage({ api }) {
       (p) => p?.poolContract === params?.contractAddress
     );
   }, [allStakingPoolsList, params?.contractAddress]);
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -238,6 +237,7 @@ const MyStakeRewardInfo = ({
   startTime,
   tokenDecimal,
   maxStakingAmount,
+  totalStaked,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -291,21 +291,7 @@ const MyStakeRewardInfo = ({
 
       const balance = formatQueryResultToNumber(result);
       setTokenBalance(balance);
-      let queryResult = await execContractQuery(
-        currentAccount?.address,
-        api,
-        pool_contract.CONTRACT_ABI,
-        poolContract,
-        0,
-        "genericPoolContractTrait::getStakeInfo",
-        currentAccount?.address
-      );
-
-      let info = queryResult?.toHuman().Ok;
-
-      const userCurrentStake =
-        info?.stakedValue?.replaceAll(",", "") / 10 ** 12 || 0;
-      setRemainStaking(roundUp(maxStakingAmount - userCurrentStake, 4));
+      setRemainStaking(roundUp(maxStakingAmount - totalStaked, 4));
     } catch (error) {
       console.log(error);
     }
@@ -382,55 +368,49 @@ const MyStakeRewardInfo = ({
     });
   }
 
+  async function onValidateStake() {
+    try {
+      if (!currentAccount) {
+        toast.error(toastMessages.NO_WALLET);
+        return false;
+      }
+
+      if (isPoolEnded(startTime, duration)) {
+        toast.error("Pool is ended!");
+        return false;
+      }
+
+      if (!amount || +tokenBalance?.replaceAll(",", "") < +amount) {
+        toast.error("Invalid Amount!");
+        return false;
+      }
+
+      if (!rewardPool || +rewardPool <= 0) {
+        toast.error("There is no reward balance in this pool!");
+        return false;
+      }
+
+      if (formatChainStringToNumber(tokenBalance) < amount) {
+        toast.error("Not enough tokens!");
+        return false;
+      }
+
+      if (maxStakingAmount - totalStaked - amount < 0) {
+        toast.error(
+          `You can not stake more than ${formatNumDynDecimal(
+            roundUp(maxStakingAmount - totalStaked)
+          )} ${tokenSymbol}`
+        );
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error(error);
+      toast.error(`Unknow error`);
+    }
+  }
+
   async function handleStake() {
-    if (!currentAccount) {
-      toast.error(toastMessages.NO_WALLET);
-      return;
-    }
-
-    if (isPoolEnded(startTime, duration)) {
-      toast.error("Pool is ended!");
-      return;
-    }
-
-    if (!amount || +tokenBalance?.replaceAll(",", "") < +amount) {
-      toast.error("Invalid Amount!");
-      return;
-    }
-
-    if (!rewardPool || +rewardPool <= 0) {
-      toast.error("There is no reward balance in this pool!");
-      return;
-    }
-
-    if (formatChainStringToNumber(tokenBalance) < amount) {
-      toast.error("Not enough tokens!");
-      return;
-    }
-
-    let queryResult = await execContractQuery(
-      currentAccount?.address,
-      api,
-      pool_contract.CONTRACT_ABI,
-      poolContract,
-      0,
-      "genericPoolContractTrait::getStakeInfo",
-      currentAccount?.address
-    );
-
-    let info = queryResult?.toHuman().Ok;
-
-    const userCurrentStake =
-      info?.stakedValue?.replaceAll(",", "") / 10 ** 12 || 0;
-
-    if (maxStakingAmount - userCurrentStake - amount < 0) {
-      toast.error(
-        `You can not stake more than ${formatNumDynDecimal(
-          roundUp(maxStakingAmount - userCurrentStake)
-        )} ${tokenSymbol}`
-      );
-      return;
-    }
     try {
       //Approve
       toast.success("Step 1: Approving...");
@@ -475,7 +455,38 @@ const MyStakeRewardInfo = ({
       setAmount("");
     });
   }
+  async function onValidateUnstake() {
+    try {
+      let queryResult = await execContractQuery(
+        currentAccount?.address,
+        api,
+        pool_contract.CONTRACT_ABI,
+        poolContract,
+        0,
+        "genericPoolContractTrait::getStakeInfo",
+        currentAccount?.address
+      );
 
+      let info = queryResult?.toHuman().Ok;
+
+      const userCurrentStake =
+        info?.stakedValue?.replaceAll(",", "") / 10 ** 12 || 0;
+      if (userCurrentStake === 0) {
+        toast.error(`You musk stake first`);
+        return false;
+      }
+      if (amount > userCurrentStake) {
+        toast.error(
+          `You can not unstake higher ${userCurrentStake} ${tokenSymbol}`
+        );
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error(error);
+      toast.error(`Unknow error`);
+    }
+  }
   async function handleUnstake() {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
@@ -650,6 +661,7 @@ const MyStakeRewardInfo = ({
                 action="stake"
                 buttonVariant="primary"
                 buttonLabel="Stake"
+                onValidate={onValidateStake}
                 disableBtn={
                   !Number(amount) ||
                   isPoolEnded(startTime, duration) ||
@@ -670,6 +682,7 @@ const MyStakeRewardInfo = ({
                 buttonLabel="Unstake"
                 disableBtn={!Number(amount)}
                 onClick={handleUnstake}
+                onValidate={onValidateUnstake}
                 message={formatMessageStakingPool(
                   "unstake",
                   amount,
@@ -732,7 +745,7 @@ const PoolInfo = (props) => {
             content: `${formatNumDynDecimal(maxStakingAmount)} ${tokenSymbol}`,
           },
           {
-            title: "Total Value Locked",
+            title: "Total Value Loscked",
             content: `${formatNumDynDecimal(totalStaked)} ${tokenSymbol}`,
           },
         ]}
@@ -761,8 +774,8 @@ const formatMessageStakingPool = (action, amount, tokenSymbol, unstakeFee) => {
   if (action === "stake") {
     return (
       <>
-        You are staking {amount} ${tokenSymbol}.<br />
-        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)} $INW.
+        You are staking {amount} {tokenSymbol}.<br />
+        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)} INW.
         Continue?
       </>
     );
@@ -772,7 +785,7 @@ const formatMessageStakingPool = (action, amount, tokenSymbol, unstakeFee) => {
     return (
       <>
         You are unstaking {amount} ${tokenSymbol}.<br />
-        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)} $INW. Continue?
+        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)} INW. Continue?
       </>
     );
   }

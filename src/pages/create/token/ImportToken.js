@@ -165,7 +165,7 @@ const ImportTokenForm = ({ api }) => {
           setTokenInfo(null);
           setTokenAddress("");
           toast.promise(
-            delay(15000).then(() => {
+            delay(10000).then(() => {
               setImportIconIPFSUrl();
               if (currentAccount) {
                 dispatch(fetchAllTokensList({}));
@@ -173,7 +173,7 @@ const ImportTokenForm = ({ api }) => {
               }
             }),
             {
-              loading: "Please wait a minute for the data to be updated! ",
+              loading: "Please wait 10s for the data to be updated! ",
               success: "Done !",
               error: "Could not fetch data!!!",
             }

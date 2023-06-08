@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 import { getGasLimit } from "./dryRun";
 
 import { BN, BN_ONE } from "@polkadot/util";
+import { delay } from "utils";
 const MAX_CALL_WEIGHT = new BN(5_000_000_000_000).isub(BN_ONE);
 
 let wsApi;
@@ -254,6 +255,7 @@ export async function execContractTxAndCallAPI(
             console.log("newContractAddress", newContractAddress);
           }
           if (method === "ExtrinsicSuccess" && status.type === "Finalized") {
+            await delay(3000)
             const res = await APIUpdate(newContractAddress);
             console.log(
               "method",
