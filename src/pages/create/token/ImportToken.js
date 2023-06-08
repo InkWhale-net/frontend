@@ -191,7 +191,7 @@ const ImportTokenForm = ({ api }) => {
         alignItems={{
           base: "flex-end",
         }}
-        w={{ base: "full", lg: "50%" }}
+        w={{ base: "full" }}
         sx={{ flexDirection: "row" }}
       >
         <Box w={{ base: "full" }}>
