@@ -206,14 +206,6 @@ export const menuListData = [
     title: "Acquire INW",
     href: "/acquire-inw",
   },
-  // {
-  //   title: "Pools",
-  //   href: "/pools",
-  // },
-  // {
-  //   title: "Farms",
-  //   href: "/farms",
-  // },
   {
     title: "Tokens",
     href: "/tokens",
@@ -229,7 +221,7 @@ export const CreateMenuDropdown = ({
 
   return (
     <Menu placement="bottom-end">
-      <MenuButton
+      {/* <MenuButton
         p="0px"
         _hover={{ bg: "bg.1" }}
         bg={currentAnchor === "/create" ? "bg.1" : "transparent"}
@@ -241,7 +233,7 @@ export const CreateMenuDropdown = ({
             <Text fontSize="md">Create</Text>
           </Link>
         </Flex>
-      </MenuButton>
+      </MenuButton> */}
 
       <MenuList
         p="0px"

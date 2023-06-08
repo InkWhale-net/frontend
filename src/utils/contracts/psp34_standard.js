@@ -217,37 +217,12 @@ const psp34_standard = {
 		  {
 			"args": [],
 			"docs": [
-			  " Returns the address of the current owner."
+			  " Returns the collection `Id` of the NFT token.",
+			  "",
+			  " This can represents the relationship between tokens/contracts/pallets."
 			],
-			"label": "Ownable::owner",
+			"label": "PSP34::collection_id",
 			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 22
-			},
-			"selector": "0x4fa43c8c"
-		  },
-		  {
-			"args": [],
-			"docs": [
-			  " Leaves the contract without owner. It will not be possible to call",
-			  " owner's functions anymore. Can only be called by the current owner.",
-			  "",
-			  " NOTE: Renouncing ownership will leave the contract without an owner,",
-			  " thereby removing any functionality that is only available to the owner.",
-			  "",
-			  " On success a `OwnershipTransferred` event is emitted.",
-			  "",
-			  " # Errors",
-			  "",
-			  " Panics with `CallerIsNotOwner` error if caller is not owner"
-			],
-			"label": "Ownable::renounce_ownership",
-			"mutates": true,
 			"payable": false,
 			"returnType": {
 			  "displayName": [
@@ -256,7 +231,37 @@ const psp34_standard = {
 			  ],
 			  "type": 23
 			},
-			"selector": "0x5e228753"
+			"selector": "0xffa27a5f"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "owner",
+				"type": {
+				  "displayName": [
+					"psp34_external",
+					"BalanceOfInput1"
+				  ],
+				  "type": 0
+				}
+			  }
+			],
+			"docs": [
+			  " Returns the balance of the owner.",
+			  "",
+			  " This represents the amount of unique tokens the owner has."
+			],
+			"label": "PSP34::balance_of",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 23
+			},
+			"selector": "0xcde7e55f"
 		  },
 		  {
 			"args": [
@@ -417,6 +422,83 @@ const psp34_standard = {
 			  "type": 31
 			},
 			"selector": "0x628413fe"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "owner",
+				"type": {
+				  "displayName": [
+					"psp34_external",
+					"AllowanceInput1"
+				  ],
+				  "type": 0
+				}
+			  },
+			  {
+				"label": "operator",
+				"type": {
+				  "displayName": [
+					"psp34_external",
+					"AllowanceInput2"
+				  ],
+				  "type": 0
+				}
+			  },
+			  {
+				"label": "id",
+				"type": {
+				  "displayName": [
+					"psp34_external",
+					"AllowanceInput3"
+				  ],
+				  "type": 26
+				}
+			  }
+			],
+			"docs": [
+			  " Returns `true` if the operator is approved by the owner to withdraw `id` token.",
+			  " If `id` is `None`, returns `true` if the operator is approved to withdraw all owner's tokens."
+			],
+			"label": "PSP34::allowance",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 31
+			},
+			"selector": "0x4790f55a"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "id",
+				"type": {
+				  "displayName": [
+					"psp34_external",
+					"OwnerOfInput1"
+				  ],
+				  "type": 24
+				}
+			  }
+			],
+			"docs": [
+			  " Returns the owner of the token if any."
+			],
+			"label": "PSP34::owner_of",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 32
+			},
+			"selector": "0x1168624d"
 		  },
 		  {
 			"args": [
@@ -678,7 +760,7 @@ const psp34_standard = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 39
+			  "type": 41
 			},
 			"selector": "0x6f315836"
 		  },
@@ -2291,7 +2373,7 @@ const psp34_standard = {
 				  {
 					"fields": [
 					  {
-						"type": 0
+						"type": 24
 					  }
 					],
 					"index": 0,
@@ -2312,7 +2394,7 @@ const psp34_standard = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 0
+				"type": 24
 			  },
 			  {
 				"name": "E",
@@ -2646,6 +2728,81 @@ const psp34_standard = {
 		},
 		{
 		  "id": 30,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"index": 0,
+					"name": "None"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 24
+					  }
+					],
+					"index": 1,
+					"name": "Some"
+				  }
+				]
+			  }
+			},
+			"params": [
+			  {
+				"name": "T",
+				"type": 24
+			  }
+			],
+			"path": [
+			  "Option"
+			]
+		  }
+		},
+		{
+		  "id": 27,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"fields": [
+					  {
+						"type": 28
+					  }
+					],
+					"index": 0,
+					"name": "Ok"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 12
+					  }
+					],
+					"index": 1,
+					"name": "Err"
+				  }
+				]
+			  }
+			},
+			"params": [
+			  {
+				"name": "T",
+				"type": 28
+			  },
+			  {
+				"name": "E",
+				"type": 12
+			  }
+			],
+			"path": [
+			  "Result"
+			]
+		  }
+		},
+		{
+		  "id": 28,
 		  "type": {
 			"def": {
 			  "variant": {
@@ -3129,6 +3286,58 @@ const psp34_standard = {
 			  {
 				"name": "T",
 				"type": 10
+			  },
+			  {
+				"name": "E",
+				"type": 12
+			  }
+			],
+			"path": [
+			  "Result"
+			]
+		  }
+		},
+		{
+		  "id": 40,
+		  "type": {
+			"def": {
+			  "sequence": {
+				"type": 10
+			  }
+			}
+		  }
+		},
+		{
+		  "id": 41,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"fields": [
+					  {
+						"type": 40
+					  }
+					],
+					"index": 0,
+					"name": "Ok"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 12
+					  }
+					],
+					"index": 1,
+					"name": "Err"
+				  }
+				]
+			  }
+			},
+			"params": [
+			  {
+				"name": "T",
+				"type": 40
 			  },
 			  {
 				"name": "E",

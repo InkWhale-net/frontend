@@ -14,6 +14,7 @@ import {
   Square,
   Text,
   useDisclosure,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import { toast } from "react-hot-toast";
@@ -34,6 +35,7 @@ import { addressShortener } from "utils";
 
 import PolkadotjsLogo from "assets/img/wallet/PolkadotjsLogo.svg";
 import SubWalletLogo from "assets/img/wallet/SubWalletLogo.svg";
+import NovaLogo from "assets/img/wallet/nova.jpg";
 import WalletModal from "./WalletModal";
 import { disconnectCurrentAccount } from "redux/slices/walletSlice";
 import AddressCopier from "components/address-copier/AddressCopier";
@@ -125,7 +127,23 @@ export default function WalletButton({ currentAccountAddress }) {
   );
 }
 
+const getWallet = (key) => {
+  switch (key) {
+    case "polkadot":
+      return PolkadotjsLogo
+  
+    case "nova":
+      return NovaLogo
+    case "subwallet": 
+      return SubWalletLogo
+    default:
+      break;
+  }
+}
+
 const WalletNotConnect = ({ onClick }) => {
+  const [isBigScreen] = useMediaQuery("(min-width: 480px)");
+
   return (
     <Menu placement="bottom-end">
       <MenuButton
@@ -145,7 +163,7 @@ const WalletNotConnect = ({ onClick }) => {
         boxShadow="0px 10px 21px rgba(0, 0, 0, 0.08)"
       >
         <Flex flexDirection="column" p="20px">
-          {supportWallets.map((item, idx) => (
+          {supportWallets.filter(el => !(isBigScreen && el.isMobile)).map((item, idx) => (
             <IWCard
               key={idx}
               mb="0px"
@@ -181,11 +199,7 @@ const WalletNotConnect = ({ onClick }) => {
                       h="26px"
                       alt={item.name}
                       src={
-                        item.extensionName === "polkadot-js"
-                          ? PolkadotjsLogo
-                          : item.extensionName === "subwallet-js"
-                          ? SubWalletLogo
-                          : ""
+                          getWallet(item.title)
                       }
                     />
                   </Circle>
@@ -303,7 +317,7 @@ export const WalletConnect = () => {
             </Flex>
           </IWCard> */}
 
-          <Flex
+          {/* <Flex
             w="full"
             mt={{ base: "12px" }}
             mb={{ base: "24px" }}
@@ -323,7 +337,7 @@ export const WalletConnect = () => {
                 <MenuCardIcon {...item} />
               </MenuItem>
             ))}
-          </Flex>
+          </Flex> */}
 
           <Button
             w="full"
@@ -334,7 +348,7 @@ export const WalletConnect = () => {
               localStorage.removeItem("localCurrentAccount");
 
               if (location?.pathname === "/my-pools") {
-                history.push("/faucet");
+                history.push("/token");
               }
             }}
           >

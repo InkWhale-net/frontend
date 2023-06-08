@@ -22,6 +22,12 @@ export const supportWallets = [
     title: "polkadot",
     extensionName: "polkadot-js",
   },
+  {
+    name: "Nova Wallet",
+    title: "nova",
+    isMobile: true, 
+    extensionName: "polkadot-js",
+  },
 ];
 
 // {

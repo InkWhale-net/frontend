@@ -219,7 +219,7 @@ const azt_contract = {
 				"type": {
 				  "displayName": [
 					"psp22_external",
-					"TransferFromInput1"
+					"ApproveInput1"
 				  ],
 				  "type": 4
 				}
@@ -239,7 +239,7 @@ const azt_contract = {
 				"type": {
 				  "displayName": [
 					"psp22_external",
-					"TransferFromInput3"
+					"ApproveInput2"
 				  ],
 				  "type": 0
 				}
@@ -256,27 +256,20 @@ const azt_contract = {
 			  }
 			],
 			"docs": [
-			  " Transfers `value` tokens on the behalf of `from` to the account `to`",
-			  " with additional `data` in unspecified format.",
+			  " Allows `spender` to withdraw from the caller's account multiple times, up to",
+			  " the `value` amount.",
 			  "",
-			  " This can be used to allow a contract to transfer tokens on ones behalf and/or",
-			  " to charge fees in sub-currencies, for example.",
+			  " If this function is called again it overwrites the current allowance with `value`.",
 			  "",
-			  " On success a `Transfer` and `Approval` events are emitted.",
+			  " An `Approval` event is emitted.",
 			  "",
 			  " # Errors",
-			  "",
-			  " Returns `InsufficientAllowance` error if there are not enough tokens allowed",
-			  " for the caller to withdraw from `from`.",
-			  "",
-			  " Returns `InsufficientBalance` error if there are not enough tokens on",
-			  " the the account Balance of `from`.",
 			  "",
 			  " Returns `ZeroSenderAddress` error if sender's address is zero.",
 			  "",
 			  " Returns `ZeroRecipientAddress` error if recipient's address is zero."
 			],
-			"label": "PSP22::transfer_from",
+			"label": "PSP22::approve",
 			"mutates": true,
 			"payable": false,
 			"returnType": {
@@ -286,7 +279,7 @@ const azt_contract = {
 			  ],
 			  "type": 10
 			},
-			"selector": "0x54b3c76e"
+			"selector": "0x3d261bd4"
 		  },
 		  {
 			"args": [
@@ -524,9 +517,9 @@ const azt_contract = {
 		  {
 			"args": [],
 			"docs": [
-			  " Returns the address of the current owner."
+			  " Returns the token symbol."
 			],
-			"label": "Ownable::owner",
+			"label": "PSP22Metadata::token_symbol",
 			"mutates": false,
 			"payable": false,
 			"returnType": {
@@ -536,7 +529,24 @@ const azt_contract = {
 			  ],
 			  "type": 16
 			},
-			"selector": "0x4fa43c8c"
+			"selector": "0x34205be5"
+		  },
+		  {
+			"args": [],
+			"docs": [
+			  " Returns the token's cap"
+			],
+			"label": "PSP22Capped::cap",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 12
+			},
+			"selector": "0xf40366b4"
 		  },
 		  {
 			"args": [
@@ -2118,6 +2128,6 @@ const azt_contract = {
 	  ],
 	  "version": "4"
 	}
-};
-
-export default azt_contract;
+  };
+  
+  export default azt_contract;
