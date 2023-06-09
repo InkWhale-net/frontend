@@ -143,7 +143,7 @@ export default function CreateNFTLPPage({ api }) {
 
     const getCollectionListData = async () => {
       let { ret, status, message } = await APICall.getAllCollectionsFromArtZero(
-        { isActive: true, ignoreNoNFT: false, limit:  10000 }
+        { isActive: true, ignoreNoNFT: false, limit: 10000 }
       );
 
       if (status === "OK") {
@@ -420,7 +420,10 @@ export default function CreateNFTLPPage({ api }) {
       },
     ],
 
-    tableBody: myNFTPoolsList,
+    tableBody: myNFTPoolsList.map((e) => ({
+      ...e,
+      maxStakingAmount: formatNumDynDecimal(e?.maxStakingAmount),
+    })),
   };
 
   return (
