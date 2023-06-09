@@ -252,9 +252,9 @@ export default function FaucetPage({ api }) {
       query9,
       query10,
     ]);
-    // const leftAmount =
-    //   +balanceTotalInwQr.toHuman().Ok?.replaceAll(",", "") -
-    //   +balancePurchaseInwQr.toHuman().Ok?.replaceAll(",", "");
+    const leftAmount =
+      +balanceTotalInwQr.toHuman().Ok?.replaceAll(",", "") -
+      +balancePurchaseInwQr.toHuman().Ok?.replaceAll(",", "");
     const result = endTime?.toHuman()?.Ok?.replaceAll(",", "");
     const startTime = startTimeQr?.toHuman()?.Ok?.replaceAll(",", "");
     const result2 = buyInfoQr?.toHuman()?.Ok;
@@ -269,7 +269,7 @@ export default function FaucetPage({ api }) {
         2
       ),
     };
-    // setAvailableMint(formatNumDynDecimal(leftAmount / 10 ** 12));
+    setAvailableMint(formatNumDynDecimal(leftAmount / 10 ** 12));
     setSaleInfo({
       buyerInfo: buyInfo,
       totalSale: formatNumDynDecimal(
@@ -449,7 +449,7 @@ export default function FaucetPage({ api }) {
     if (tabIndex === 0) {
       getPriceInw(private_sale);
       getSaleInfo(private_sale);
-      getBalanceContract(private_sale);
+      // getBalanceContract(private_sale);
     } else {
       getPublicsaleInfo(public_sale);
       getPriceInw(public_sale);
