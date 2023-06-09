@@ -47,6 +47,7 @@ import { roundUp } from "utils";
 import { roundDown } from "utils";
 import { getPublicCurrentAccount } from "utils";
 import { APICall } from "api/client";
+import useInterval from "hook/useInterval";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
 
@@ -445,7 +446,6 @@ export default function FaucetPage({ api }) {
   }, [api, currentAccount, getInwMintingCapAndTotalSupply]);
 
   const getInfo = () => {
-    resetField();
     if (tabIndex === 0) {
       getPriceInw(private_sale);
       getSaleInfo(private_sale);
@@ -460,12 +460,18 @@ export default function FaucetPage({ api }) {
   useEffect(() => {
     if (!(api && publicCurrentAccount?.address)) return;
     getInfo();
+    resetField();
   }, [tabIndex]);
 
   useEffect(() => {
     if (!(api && publicCurrentAccount?.address)) return;
     getInfo();
   }, [api, currentAccount]);
+
+  useInterval(() => {
+    console.log('getinnnnnfff');
+    getInfo();
+  }, 7000);
 
   const inwPublicMintHandler = async () => {
     if (!api) {
