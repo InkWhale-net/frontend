@@ -745,7 +745,7 @@ const PoolInfo = (props) => {
             content: `${formatNumDynDecimal(maxStakingAmount)} ${tokenSymbol}`,
           },
           {
-            title: "Total Value Loscked",
+            title: "Total Value Locked",
             content: `${formatNumDynDecimal(totalStaked)} ${tokenSymbol}`,
           },
         ]}
