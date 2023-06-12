@@ -7,7 +7,7 @@ import {
   InputRightElement,
 } from "@chakra-ui/react";
 
-var reg = /^\d*\.?\d*$/
+var reg = /^\d*\.?\d*$/;
 
 function IWInput(props) {
   const {
@@ -44,7 +44,7 @@ function IWInput(props) {
           </Heading>
         </FormLabel>
       )}
-      <InputGroup>
+      <InputGroup {...rest}>
         {inputRightElementIcon && (
           <InputRightElement
             right="16px"
@@ -57,7 +57,7 @@ function IWInput(props) {
           onChange={onChangeInput}
           type={type}
           id={id}
-          onWheel={(e) => e.target.blur()} 
+          onWheel={(e) => e.target.blur()}
           min={0}
           placeholder={placeholder}
         />{" "}
