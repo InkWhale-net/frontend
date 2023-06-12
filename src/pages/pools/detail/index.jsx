@@ -715,6 +715,38 @@ const PoolInfo = (props) => {
     tokenSymbol,
     maxStakingAmount,
   } = props;
+  const { currentAccount } = useSelector((s) => s.wallet);
+  const [totalSupply, setTotalSupply] = useState(0);
+
+  const getPoolInfo = async () => {
+    let queryResult = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      tokenContract,
+      0,
+      "psp22::totalSupply"
+    );
+    const rawTotalSupply = queryResult.toHuman().Ok;
+    let queryResult1 = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      tokenContract,
+      0,
+      "psp22Metadata::tokenDecimals"
+    );
+    const decimals = queryResult1.toHuman().Ok;
+    const totalSupply = roundUp(
+      rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
+      0
+    );
+    setTotalSupply(totalSupply);
+  };
+
+  useEffect(() => {
+    getPoolInfo();
+  }, [currentAccount]);
 
   return (
     <Stack
@@ -761,7 +793,7 @@ const PoolInfo = (props) => {
           },
           {
             title: "Total Supply",
-            content: `${formatNumDynDecimal(tokenTotalSupply)} ${tokenSymbol}`,
+            content: `${formatNumDynDecimal(totalSupply)}`,
           },
           { title: "Token Symbol", content: tokenSymbol },
         ]}
