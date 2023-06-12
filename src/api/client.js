@@ -42,7 +42,9 @@ export const APICall = {
       offset,
       sort,
     });
-    ret = ret.filter((el) => !!el?.contractAddress && el?.contractAddress !== 'undefined');
+    ret = ret.filter(
+      (el) => !!el?.contractAddress && el?.contractAddress !== "undefined"
+    );
     ret.unshift(ret.pop());
     return { ret, status, message };
   },
@@ -77,6 +79,11 @@ export const APICall = {
       decimal,
       creator,
       signature,
+    });
+  },
+  getTokenInfor: async ({ tokenAddress }) => {
+    return await client("POST", "/getTokenInfor", {
+      tokenAddress,
     });
   },
 
@@ -213,7 +220,7 @@ export const APICall = {
       {
         isActive,
         ignoreNoNFT,
-        limit
+        limit,
       },
       process.env.REACT_APP_ARTZERO_API_BASE_URL
     );
