@@ -469,7 +469,6 @@ export default function FaucetPage({ api }) {
   }, [api, currentAccount]);
 
   useInterval(() => {
-    console.log('getinnnnnfff');
     getInfo();
   }, 7000);
 
@@ -591,14 +590,19 @@ export default function FaucetPage({ api }) {
     );
   };
 
+  const checkNumeric = (text) => /^\d*(\.\d*)?$/.test(text);
   const onChangeAzeroInput = ({ target }) => {
-    setAzeroBuyAmount(target.value);
-    setInwBuyAmount(roundDown(target.value / parseFloat(inwPrice)));
+    if (checkNumeric(target.value) == true) {
+      setAzeroBuyAmount(target.value);
+      setInwBuyAmount(roundDown(target.value / parseFloat(inwPrice)));
+    }
   };
 
   const onChangeInwInput = ({ target }) => {
-    setInwBuyAmount(target.value);
-    setAzeroBuyAmount(roundUp(target.value * parseFloat(inwPrice)));
+    if (checkNumeric(target.value) == true) {
+      setInwBuyAmount(target.value);
+      setAzeroBuyAmount(roundUp(target.value * parseFloat(inwPrice)));
+    }
   };
 
   const resetField = () => {
