@@ -310,7 +310,7 @@ export default function CreateTokenLPPage({ api }) {
     <>
       <SectionContainer
         mt={{ base: "0px", xl: "20px" }}
-        title="Create Token Yield Farm"
+        title="Create Token Staking Pool"
         description={
           <span>
             Stakers get rewards in selected token. The creation costs
@@ -483,7 +483,7 @@ export default function CreateTokenLPPage({ api }) {
             maxW={{ lg: "260px" }}
             onClick={createTokenLPHandler}
           >
-            Create Token Yield Farm
+            Create Token Staking Pool
           </Button>
         </VStack>
       </SectionContainer>
