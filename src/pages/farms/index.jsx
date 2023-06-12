@@ -87,9 +87,7 @@ export default function FarmsPage() {
     }
 
     if (endedPools) {
-      ret = ret.filter((p) =>
-        isPoolEnded(p?.startTime, p?.duration)
-      );
+      ret = ret.filter((p) => isPoolEnded(p?.startTime, p?.duration));
     }
 
     return ret;
@@ -275,43 +273,56 @@ export default function FarmsPage() {
           <Flex
             w="full"
             mb={{ base: "10px", lg: "0px" }}
-            align={{ base: "center" }}
+            align={{ base: "left", lg: "center" }}
             justifyContent={{ base: "end" }}
             spacing={{ base: "0px", lg: "20px" }}
+            flexDirection={{ base: "column", lg: "row" }}
           >
             <IWInput
               value={keywords}
-              width="350px"
+              width={{ base: "100%", lg: "350px" }}
               onChange={({ target }) => setKeywords(target.value)}
               placeholder="Search"
             />
-            <FormControl maxW="205px" display="flex" alignItems="center">
-              <Switch
-                id="my-stake"
-                isDisabled={!currentAccount?.address}
-                isChecked={showMyStakedPools}
-                onChange={() => setShowMyStakedPools(!showMyStakedPools)}
-              />
-              <FormLabel htmlFor="my-stake" mb="0" ml="10px" fontWeight="400">
-                My Stake Only
-              </FormLabel>
-            </FormControl>
+            <Box
+              display="flex"
+              justifyContent={{ base: "center", lg: "flex-end" }}
+            >
+              <FormControl maxW="205px" display="flex" alignItems="center">
+                <Switch
+                  id="my-stake"
+                  isDisabled={!currentAccount?.address}
+                  isChecked={showMyStakedPools}
+                  onChange={() => setShowMyStakedPools(!showMyStakedPools)}
+                />
+                <FormLabel
+                  htmlFor="my-stake"
+                  mb="0"
+                  ml="10px"
+                  fontWeight="400"
+                  whiteSpace="nowrap"
+                >
+                  My Stake Only
+                </FormLabel>
+              </FormControl>
 
-            <FormControl maxW="200px" display="flex" alignItems="center">
-              <Switch
-                id="zero-reward-pools"
-                isChecked={endedPools}
-                onChange={() => setEndedPools(!endedPools)}
-              />
-              <FormLabel
-                mb="0"
-                ml="10px"
-                fontWeight="400"
-                htmlFor="zero-reward-pools"
-              >
-                Farm Ended Only
-              </FormLabel>
-            </FormControl>
+              <FormControl maxW="200px" display="flex" alignItems="center">
+                <Switch
+                  id="zero-reward-pools"
+                  isChecked={endedPools}
+                  onChange={() => setEndedPools(!endedPools)}
+                />
+                <FormLabel
+                  mb="0"
+                  ml="10px"
+                  fontWeight="400"
+                  htmlFor="zero-reward-pools"
+                  whiteSpace="nowrap"
+                >
+                  Farm Ended Only
+                </FormLabel>
+              </FormControl>
+            </Box>
           </Flex>
 
           {/* <Box minW="155px" maxW="160px">
