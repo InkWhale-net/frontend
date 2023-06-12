@@ -494,7 +494,7 @@ const MyStakeRewardInfoNFT = ({
       "claimReward"
     );
 
-    await APICall.askBEupdate({ type: "pool", poolContract });
+    await APICall.askBEupdate({ type: "nft", poolContract });
 
     await delay(3000);
 
@@ -568,7 +568,6 @@ const MyStakeRewardInfoNFT = ({
     );
 
     await APICall.askBEupdate({ type: "nft", poolContract });
-    await APICall.askBEupdate({ type: "pool", poolContract });
     await APICall.askBEupdateNFTFromArtZero({
       token_id: tokenID,
       collection_address: NFTtokenContract,
@@ -640,7 +639,6 @@ const MyStakeRewardInfoNFT = ({
     );
 
     await APICall.askBEupdate({ type: "nft", poolContract });
-    await APICall.askBEupdate({ type: "pool", poolContract });
     await APICall.askBEupdateNFTFromArtZero({
       token_id: tokenID,
       collection_address: NFTtokenContract,
