@@ -673,7 +673,7 @@ export default function CreateNFTLPPage({ api }) {
 
       <SectionContainer
         mt={{ base: "0px", xl: "8px" }}
-        title="My NFT Yield Farm"
+        title="My NFT Staking Pools"
         description=""
       >
         <IWTable
