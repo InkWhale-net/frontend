@@ -377,7 +377,7 @@ const MyStakeRewardInfoNFT = ({
       });
 
     if (status === "OK") {
-      setAvailableNFT(ret);
+      setAvailableNFT(ret?.filter(nft => nft?.owner === currentAccount?.address));
     }
   }, [currentAccount?.address, nftInfo?.nftContractAddress]);
 
@@ -408,7 +408,7 @@ const MyStakeRewardInfoNFT = ({
 
           const { status, ret } = await APICall.getNFTByIdFromArtZero({
             collection_address: nftInfo?.nftContractAddress,
-            token_id: parseInt(stakedID?.U64),
+            token_id: stakedID?.U64?.replaceAll(',', ''),
           });
 
           if (status === "OK") {
