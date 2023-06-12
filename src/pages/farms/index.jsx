@@ -222,18 +222,18 @@ export default function FarmsPage() {
     tableBody: tokenLPListFiltered,
   };
 
-  const tabsData = [
-    {
-      label: <>NFT Staking Pool</>,
-      component: <IWTable {...tableDataNFT} mode="NFT_FARM" />,
-      isDisabled: false,
-    },
-    // {
-    //   label: <>Token Yield Farms</>,
-    //   component: <IWTable {...tableDataToken} mode="TOKEN_FARM" />,
-    //   isDisabled: false,
-    // },
-  ];
+  // const tabsData = [
+  //   {
+  //     label: <>NFT Staking Pool</>,
+  //     component: ,
+  //     isDisabled: false,
+  //   },
+  //   // {
+  //   //   label: <>Token Yield Farms</>,
+  //   //   component: <IWTable {...tableDataToken} mode="TOKEN_FARM" />,
+  //   //   isDisabled: false,
+  //   // },
+  // ];
 
   return (
     <SectionContainer
@@ -346,7 +346,11 @@ export default function FarmsPage() {
           </Box> */}
         </HStack>
 
-        <IWTabs tabsData={tabsData} loading={loading} />
+        {/* <IWTabs tabsData={tabsData} loading={loading} /> */}
+        {
+          console.log(loading)
+        }
+        {!loading && <IWTable {...tableDataNFT} mode="NFT_FARM" />}
       </Stack>
     </SectionContainer>
   );

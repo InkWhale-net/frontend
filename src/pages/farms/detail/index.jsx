@@ -193,12 +193,12 @@ export default function FarmDetailPage() {
             separator={<ChevronRightIcon color="gray.500" />}
           >
             <BreadcrumbItem color="text.1">
-              <BreadcrumbLink href="#/farms">Yield Farm</BreadcrumbLink>
+              <BreadcrumbLink href="#/farms">Staking Pool</BreadcrumbLink>
             </BreadcrumbItem>
 
             <BreadcrumbItem color="text.2">
               <BreadcrumbLink>
-                {currMode === "NFT_FARM" ? "NFT " : "Token"} Yield Farm
+                {currMode === "NFT_FARM" ? "NFT " : "Token"} Staking Pool
               </BreadcrumbLink>
             </BreadcrumbItem>
           </Breadcrumb>
@@ -213,7 +213,7 @@ export default function FarmDetailPage() {
             : currMode === "TOKEN_FARM"
             ? "Token"
             : null
-        } Yield Farm`}
+        } Staking Pool`}
       >
         <Stack
           w="full"

@@ -22,8 +22,8 @@ export default function IWCardNFTWrapper(props) {
                 >
                   <ImageCloudFlare
                     borderWidth="1px"
-                    w="222px"
-                    h="222px"
+                    w={{ base: "180px", lg: "222px" }}
+                    h={{ base: "180px", lg: "222px" }}
                     size="500"
                     alt={nftName}
                     borderRadius="5px"

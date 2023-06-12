@@ -1,10 +1,9 @@
-import { Image, Stack } from "@chakra-ui/react";
+import { Box, Image, Stack } from "@chakra-ui/react";
 
 import AddressCopier from "components/address-copier/AddressCopier";
 import CardThreeColumn from "components/card/CardThreeColumn";
 import CardTwoColumn from "components/card/CardTwoColumn";
 const TokenInformation = ({ tokenInfo }) => {
-  console.log(tokenInfo);
   return (
     <Stack
       w="full"
@@ -12,21 +11,24 @@ const TokenInformation = ({ tokenInfo }) => {
       alignItems="start"
       direction={{ base: "column", lg: "row" }}
     >
-      <CardThreeColumn
+      <CardTwoColumn
         w={{ base: "full" }}
-        title={tokenInfo?.name || ""}
-        data={[
-          tokenInfo?.tokenIconUrl && {
-            title: "",
-            content: (
+        title={
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            {tokenInfo?.tokenIconUrl && (
               <Image
-                w="80px"
+                mr="8px"
+                h="42px"
+                w="42px"
                 borderRadius={"10px"}
                 src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${tokenInfo?.tokenIconUrl}`}
                 alt="logo"
               />
-            ),
-          },
+            )}
+            {tokenInfo?.name}
+          </Box>
+        }
+        data={[
           tokenInfo?.title && {
             title: "Token Symbol",
             content: tokenInfo?.title,
@@ -35,7 +37,6 @@ const TokenInformation = ({ tokenInfo }) => {
             title: "Total supply",
             content: tokenInfo?.totalSupply,
           },
-          tokenInfo?.tokenIconUrl && {},
           tokenInfo?.decimals && {
             title: "Decimals",
             content: tokenInfo?.decimals,
