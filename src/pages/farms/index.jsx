@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-// import { SearchIcon } from "@chakra-ui/icons";
+import { SearchIcon } from "@chakra-ui/icons";
 // import IWInput from "components/input/Input";
 import {
   Box,
@@ -280,15 +280,24 @@ export default function FarmsPage() {
           >
             <IWInput
               value={keywords}
-              width={{ base: "100%", lg: "350px" }}
+              width={{ base: "full", lg: "350px" }}
               onChange={({ target }) => setKeywords(target.value)}
               placeholder="Search"
+              inputRightElementIcon={<SearchIcon color="#57527E" />}
             />
             <Box
               display="flex"
-              justifyContent={{ base: "center", lg: "flex-end" }}
+              justifyContent={{ base: "flex-start", lg: "flex-end" }}
+              marginTop={{ base: "20px", lg: "none" }}
             >
-              <FormControl maxW="205px" display="flex" alignItems="center">
+              <FormControl
+                maxW={{
+                  base: "160px",
+                  lg: "205px",
+                }}
+                display="flex"
+                alignItems="center"
+              >
                 <Switch
                   id="my-stake"
                   isDisabled={!currentAccount?.address}
@@ -306,7 +315,12 @@ export default function FarmsPage() {
                 </FormLabel>
               </FormControl>
 
-              <FormControl maxW="200px" display="flex" alignItems="center">
+              <FormControl
+                maxW="200px"
+                display="flex"
+                alignItems="center"
+                justifyContent={{ base: "flex-end", lg: "none" }}
+              >
                 <Switch
                   id="zero-reward-pools"
                   isChecked={endedPools}
