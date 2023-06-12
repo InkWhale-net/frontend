@@ -175,37 +175,49 @@ export default function PoolsPage({ api }) {
           >
             <IWInput
               value={keywords}
-              width="350px"
+              width={{ base: "100%", lg: "350px" }}
               onChange={({ target }) => setKeywords(target.value)}
               placeholder="Search"
             />
-            <FormControl maxW="205px" display="flex" alignItems="center">
-              <Switch
-                id="my-stake"
-                isDisabled={!currentAccount?.address}
-                isChecked={showMyStakedPools}
-                onChange={() => setShowMyStakedPools(!showMyStakedPools)}
-              />
-              <FormLabel htmlFor="my-stake" mb="0" ml="10px" fontWeight="400">
-                My Stake Only
-              </FormLabel>
-            </FormControl>
+            <Box
+              display="flex"
+              justifyContent={{ base: "center", lg: "flex-end" }}
+            >
+              <FormControl maxW="205px" display="flex" alignItems="center">
+                <Switch
+                  id="my-stake"
+                  isDisabled={!currentAccount?.address}
+                  isChecked={showMyStakedPools}
+                  onChange={() => setShowMyStakedPools(!showMyStakedPools)}
+                />
+                <FormLabel
+                  htmlFor="my-stake"
+                  mb="0"
+                  ml="10px"
+                  fontWeight="400"
+                  whiteSpace="nowrap"
+                >
+                  My Stake Only
+                </FormLabel>
+              </FormControl>
 
-            <FormControl maxW="200px" display="flex" alignItems="center">
-              <Switch
-                id="zero-reward-pools"
-                isChecked={endedPools}
-                onChange={() => setendedPools(!endedPools)}
-              />
-              <FormLabel
-                mb="0"
-                ml="10px"
-                fontWeight="400"
-                htmlFor="zero-reward-pools"
-              >
-                Pool Ended Only
-              </FormLabel>
-            </FormControl>
+              <FormControl maxW="200px" display="flex" alignItems="center">
+                <Switch
+                  id="zero-reward-pools"
+                  isChecked={endedPools}
+                  onChange={() => setendedPools(!endedPools)}
+                />
+                <FormLabel
+                  mb="0"
+                  ml="10px"
+                  fontWeight="400"
+                  htmlFor="zero-reward-pools"
+                  whiteSpace="nowrap"
+                >
+                  Pool Ended Only
+                </FormLabel>
+              </FormControl>
+            </Box>
           </Flex>
           {/*
           <Box minW="155px" maxW="160px">
