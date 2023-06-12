@@ -347,9 +347,6 @@ export default function FarmsPage() {
         </HStack>
 
         {/* <IWTabs tabsData={tabsData} loading={loading} /> */}
-        {
-          console.log(loading)
-        }
         {!loading && <IWTable {...tableDataNFT} mode="NFT_FARM" />}
       </Stack>
     </SectionContainer>
