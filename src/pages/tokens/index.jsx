@@ -138,6 +138,18 @@ export default function TokensPage() {
       "ownable::owner"
     );
     const owner = queryResult5?.toHuman()?.Ok;
+    let tokenIconUrl = null;
+    try {
+      const { status, ret } = await APICall.getTokenInfor({
+        tokenAddress: selectedContractAddr,
+      });
+      if (status === "OK") {
+        tokenIconUrl = ret?.tokenIconUrl;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
     setTokenInfo((prev) => {
       return {
         ...prev,
@@ -147,6 +159,7 @@ export default function TokensPage() {
         totalSupply: formatNumDynDecimal(totalSupply, 4),
         decimals,
         owner,
+        tokenIconUrl,
       };
     });
   }
