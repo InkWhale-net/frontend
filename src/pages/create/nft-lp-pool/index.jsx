@@ -420,7 +420,7 @@ export default function CreateNFTLPPage({ api }) {
       },
     ],
 
-    tableBody: myNFTPoolsList.map((e) => ({
+    tableBody: myNFTPoolsList?.map((e) => ({
       ...e,
       maxStakingAmount: formatNumDynDecimal(e?.maxStakingAmount),
     })),
