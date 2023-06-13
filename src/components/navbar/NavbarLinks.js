@@ -244,9 +244,27 @@ export const CreateMenuDropdown = ({
       >
         <Flex flexDirection="column" p="20px">
           {[
-            { label: "Token", href: "/create/token" },
-            { label: "Token Staking Pool", href: "/create/stake-pool" },
-            { label: "NFT Staking Pool", href: "/create/nft-lp" },
+            {
+              label: "Token",
+              onClick: () => {
+                if (onClose) onClose();
+              },
+              href: "/create/token",
+            },
+            {
+              label: "Token Staking Pool",
+              href: "/create/stake-pool",
+              onClick: () => {
+                if (onClose) onClose();
+              },
+            },
+            {
+              label: "NFT Staking Pool",
+              onClick: () => {
+                if (onClose) onClose();
+              },
+              href: "/create/nft-lp",
+            },
             {
               label: "Launchpad",
               onClick: () => toast.success("Coming soon!"),
@@ -328,7 +346,10 @@ export const StakeMenuDropdown = ({
       >
         <Flex flexDirection="column" p="20px">
           {[
-            { label: "Token Pools", href: "/pools" },
+            {
+              label: "Token Pools",
+              href: "/pools",
+            },
             { label: "NFT Pools", href: "/farms" },
             // { label: "NFT Yield Farm", href: "/create/nft-lp" },
             // { label: "Token Yield Farm", href: "/create/token-lp" },
@@ -353,7 +374,7 @@ export const StakeMenuDropdown = ({
                 onClick={() => {
                   history.push(item.href);
                   setCurrentAnchor("/pools");
-                  // onClose();
+                  if (onClose) onClose();
                 }}
               >
                 <MenuItem

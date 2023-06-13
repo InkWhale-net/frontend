@@ -360,7 +360,7 @@ export default function CreateStakePoolPage({ api }) {
       },
     ],
 
-    tableBody: myStakingPoolsList.map((e) => ({
+    tableBody: myStakingPoolsList?.map((e) => ({
       ...e,
       maxStakingAmount: formatNumDynDecimal(e?.maxStakingAmount),
     })),
