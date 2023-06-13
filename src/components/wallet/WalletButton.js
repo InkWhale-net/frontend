@@ -41,7 +41,7 @@ import { disconnectCurrentAccount } from "redux/slices/walletSlice";
 import AddressCopier from "components/address-copier/AddressCopier";
 import { logOutMyPools } from "redux/slices/myPoolsSlice";
 
-export default function WalletButton({ currentAccountAddress }) {
+export default function WalletButton({ currentAccountAddress, onCloseSidebar }) {
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { currentAccount, allAccounts } = useSelector((state) => state.wallet);
@@ -121,7 +121,7 @@ export default function WalletButton({ currentAccountAddress }) {
       {!currentAccount ? (
         <WalletNotConnect onClick={handleClick} />
       ) : (
-        <WalletConnect />
+        <WalletConnect onClose={onCloseSidebar} />
       )}
     </>
   );
@@ -130,16 +130,16 @@ export default function WalletButton({ currentAccountAddress }) {
 const getWallet = (key) => {
   switch (key) {
     case "polkadot":
-      return PolkadotjsLogo
-  
+      return PolkadotjsLogo;
+
     case "nova":
-      return NovaLogo
-    case "subwallet": 
-      return SubWalletLogo
+      return NovaLogo;
+    case "subwallet":
+      return SubWalletLogo;
     default:
       break;
   }
-}
+};
 
 const WalletNotConnect = ({ onClick }) => {
   const [isBigScreen] = useMediaQuery("(min-width: 480px)");
@@ -163,61 +163,61 @@ const WalletNotConnect = ({ onClick }) => {
         boxShadow="0px 10px 21px rgba(0, 0, 0, 0.08)"
       >
         <Flex flexDirection="column" p="20px">
-          {supportWallets.filter(el => !(isBigScreen && el.isMobile)).map((item, idx) => (
-            <IWCard
-              key={idx}
-              mb="0px"
-              px="-24px"
-              alignItems={{ base: "start" }}
-              cursor="pointer"
-              variant="menuBlank"
-              minW={{ base: "full", lg: "180px" }}
-            >
-              <Flex
-                w="full"
-                mt="-6px"
-                justify={{ base: "start" }}
-                alignItems={{ base: "center" }}
-                onClick={() => onClick(item.extensionName)}
+          {supportWallets
+            .filter((el) => !(isBigScreen && el.isMobile))
+            .map((item, idx) => (
+              <IWCard
+                key={idx}
+                mb="0px"
+                px="-24px"
+                alignItems={{ base: "start" }}
+                cursor="pointer"
+                variant="menuBlank"
+                minW={{ base: "full", lg: "180px" }}
               >
-                <MenuItem
-                  pl="0"
+                <Flex
+                  w="full"
                   mt="-6px"
-                  justifyContent="start"
-                  _active={{ bg: "transparent" }}
-                  _focus={{ bg: "transparent" }}
+                  justify={{ base: "start" }}
+                  alignItems={{ base: "center" }}
+                  onClick={() => onClick(item.extensionName)}
                 >
-                  <Circle
-                    w="44px"
-                    h="44px"
-                    borderWidth="1px"
-                    borderColor="border"
-                    bg="white"
+                  <MenuItem
+                    pl="0"
+                    mt="-6px"
+                    justifyContent="start"
+                    _active={{ bg: "transparent" }}
+                    _focus={{ bg: "transparent" }}
                   >
-                    <Image
-                      w="26px"
-                      h="26px"
-                      alt={item.name}
-                      src={
-                          getWallet(item.title)
-                      }
-                    />
-                  </Circle>
+                    <Circle
+                      w="44px"
+                      h="44px"
+                      borderWidth="1px"
+                      borderColor="border"
+                      bg="white"
+                    >
+                      <Image
+                        w="26px"
+                        h="26px"
+                        alt={item.name}
+                        src={getWallet(item.title)}
+                      />
+                    </Circle>
 
-                  <Heading as="h5" size="h5" ml="10px">
-                    {item.name}
-                  </Heading>
-                </MenuItem>
-              </Flex>
-            </IWCard>
-          ))}
+                    <Heading as="h5" size="h5" ml="10px">
+                      {item.name}
+                    </Heading>
+                  </MenuItem>
+                </Flex>
+              </IWCard>
+            ))}
         </Flex>
       </MenuList>
     </Menu>
   );
 };
 
-export const WalletConnect = () => {
+export const WalletConnect = ({ onClose }) => {
   const history = useHistory();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -332,7 +332,10 @@ export const WalletConnect = () => {
                 key={idx}
                 alignItems="start"
                 width={{ base: "33%" }}
-                onClick={() => history.push(`/my-pools?section=${item?.id}`)}
+                onClick={() => {
+                  history.push(`/my-pools?section=${item?.id}`);
+                  onClose();
+                }}
               >
                 <MenuCardIcon {...item} />
               </MenuItem>

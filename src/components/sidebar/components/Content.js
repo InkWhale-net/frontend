@@ -165,7 +165,7 @@ function SidebarContent({ onClose }) {
           </Link>
         </Flex>
         <Flex ml="30px" pt="10px" w="full">
-          <WalletButton />
+          <WalletButton onCloseSidebar={onClose} />
         </Flex>
       </Stack>
     </Flex>
