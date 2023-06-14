@@ -333,7 +333,7 @@ export default function FarmsPage() {
                   htmlFor="zero-reward-pools"
                   whiteSpace="nowrap"
                 >
-                  Farm Ended Only
+                  Pools Ended Only
                 </FormLabel>
               </FormControl>
             </Box>

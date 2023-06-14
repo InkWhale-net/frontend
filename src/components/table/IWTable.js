@@ -99,7 +99,7 @@ export function IWTable({
 
         <Tbody>
           {loading ? (
-            <>
+            Array.from({ length: 3 }).map((e) => (
               <Tr>
                 {tableHeader?.map((_, idx) => (
                   <Td p="0" key={idx}>
@@ -107,21 +107,7 @@ export function IWTable({
                   </Td>
                 ))}
               </Tr>
-              <Tr>
-                {tableHeader?.map((_, idx) => (
-                  <Td p="0" key={idx}>
-                    <Skeleton height="60px" />
-                  </Td>
-                ))}
-              </Tr>
-              <Tr>
-                {tableHeader?.map((_, idx) => (
-                  <Td p="0" key={idx}>
-                    <Skeleton height="60px" />
-                  </Td>
-                ))}
-              </Tr>
-            </>
+            ))
           ) : (
             <>
               {tableBody?.length === 0 ? (
