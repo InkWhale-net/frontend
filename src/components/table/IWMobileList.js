@@ -1,29 +1,22 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Circle,
   Flex,
+  Grid,
   Image,
-  Skeleton,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
   Text,
-  Th,
-  Thead,
   Tooltip,
-  Tr,
 } from "@chakra-ui/react";
+import TokenIcon from "components/TokenIcon";
+import AddressCopier from "components/address-copier/AddressCopier";
 import IWCountDown from "components/countdown/CountDown";
-import { Fragment } from "react";
+import ImageCloudFlare from "components/image-cf/ImageCF";
+import React, { useEffect } from "react";
+import FadeIn from "react-fade-in/lib/FadeIn";
 import { GoStar } from "react-icons/go";
 import { useHistory, useLocation } from "react-router-dom";
 import { formatNumDynDecimal } from "utils";
-import ImageCloudFlare from "components/image-cf/ImageCF";
-import { addressShortener } from "utils";
-import FadeIn from "react-fade-in/lib/FadeIn";
-import TokenIcon from "components/TokenIcon";
-import AddressCopier from "components/address-copier/AddressCopier";
 
 const getStatusPool = (startTime, duration) => {
   if (startTime + duration * 1000 < new Date()) {
@@ -32,7 +25,50 @@ const getStatusPool = (startTime, duration) => {
   return startTime < new Date() ? "Pool live!" : "Upcoming";
 };
 
-export function IWTable({
+const ElementCard = ({ tableHeader, itemObj, mode, onClickItemHandler }) => {
+  return (
+    <Box
+      w={{ base: "full" }}
+      minH={{ base: "20px" }}
+      mb={{ base: "14px" }}
+      borderWidth={{ base: "2px" }}
+      borderRadius={{ base: "10px" }}
+      padding={{ base: "14px" }}
+      _hover={{
+        borderColor: "#93F0F5",
+      }}
+      onClick={() => onClickItemHandler(itemObj)}
+    >
+      <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+        {tableHeader.map(
+          ({ name, label, hasTooltip, tooltipContent }, index) => {
+            return (
+              <React.Fragment key={index}>
+                <Flex alignItems="center">
+                  {label}
+                  {hasTooltip && (
+                    <Tooltip fontSize="md" label={tooltipContent}>
+                      <QuestionOutlineIcon ml="6px" color="text.2" />
+                    </Tooltip>
+                  )}
+                </Flex>
+                <Box
+                  p={{ base: "4px" }}
+                  color={{ base: "#57527E" }}
+                  fontWeight={{ base: "bold" }}
+                >
+                  <FadeIn>{formatDataCellTable(itemObj, name, mode)}</FadeIn>
+                </Box>
+              </React.Fragment>
+            );
+          }
+        )}
+      </Grid>
+    </Box>
+  );
+};
+
+export function IWMobileList({
   tableHeader,
   tableBody,
   mode,
@@ -42,8 +78,7 @@ export function IWTable({
 }) {
   const history = useHistory();
   const location = useLocation();
-
-  function onClickRowHandler(itemObj) {
+  const onClickItemHandler = (itemObj) => {
     if (isDisableRowClick) return;
 
     if (customURLRowClick) {
@@ -59,94 +94,26 @@ export function IWTable({
       state: { ...itemObj, mode },
       pathname: `${location.pathname}/${itemObj?.poolContract}`,
     });
-  }
+  };
   return (
-    <TableContainer
-      w="full"
-      color="text.1"
-      fontSize="md"
-      fontWeight="600"
-      lineHeight="20px"
-      borderRadius="10px"
-      border="1px solid #E3DFF3"
-    >
-      <Table variant="simple">
-        <Thead>
-          <Tr>
-            {tableHeader?.map(({ name, label, hasTooltip, tooltipContent }) => (
-              <Th
-                key={name}
-                h="60px"
-                bg="bg.5"
-                color="text.2"
-                fontWeight="400"
-                fontSize="16px"
-                lineHeight="28px"
-                textTransform="none"
-              >
-                <Flex alignItems="center">
-                  {label}
-                  {hasTooltip && (
-                    <Tooltip fontSize="md" label={tooltipContent}>
-                      <QuestionOutlineIcon ml="6px" color="text.2" />
-                    </Tooltip>
-                  )}
-                </Flex>
-              </Th>
-            ))}
-          </Tr>
-        </Thead>
-
-        <Tbody>
-          {loading ? (
-            Array.from({ length: 3 }).map((e) => (
-              <Tr>
-                {tableHeader?.map((_, idx) => (
-                  <Td p="0" key={idx}>
-                    <Skeleton height="60px" />
-                  </Td>
-                ))}
-              </Tr>
-            ))
-          ) : (
-            <>
-              {tableBody?.length === 0 ? (
-                <Tr>
-                  <Td colSpan={tableHeader?.length} textAlign="center">
-                    <Text textAlign="center" w="full">
-                      No data found!
-                    </Text>
-                  </Td>
-                </Tr>
-              ) : (
-                tableBody?.map((itemObj, idx) => {
-                  return (
-                    <Fragment key={idx}>
-                      <Tr
-                        h="60px"
-                        cursor="pointer"
-                        _hover={{ bg: "bg.1" }}
-                        onClick={() => onClickRowHandler(itemObj)}
-                      >
-                        {tableHeader?.map((i, idx) => {
-                          return (
-                            <Td key={idx}>
-                              <FadeIn>
-                                {formatDataCellTable(itemObj, i?.name, mode)}
-                              </FadeIn>
-                            </Td>
-                          );
-                        })}
-                      </Tr>
-                    </Fragment>
-                  );
-                })
-              )}
-            </>
-          )}
-        </Tbody>
-      </Table>
-    </TableContainer>
+    <Box w={{ base: "full" }}>
+      {loading ? null : tableBody?.length === 0 ? (
+        <Text textAlign="center" w="full">
+          No data found!
+        </Text>
+      ) : (
+        tableBody?.map((itemObj, idx) => {
+          return (
+            <ElementCard
+              tableHeader={tableHeader}
+              itemObj={itemObj}
+              mode={mode}
+              onClickItemHandler={onClickItemHandler}
+            />
+          );
+        })
+      )}
+    </Box>
   );
 }
 

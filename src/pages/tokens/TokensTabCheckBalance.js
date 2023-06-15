@@ -1,4 +1,5 @@
 import { Button, Heading, Stack } from "@chakra-ui/react";
+import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
 import IWCardOneColumn from "components/card/CardOneColumn";
 import IWInput from "components/input/Input";
@@ -6,11 +7,7 @@ import IWInput from "components/input/Input";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
-import {
-  addressShortener,
-  formatQueryResultToNumber,
-  isAddressValid,
-} from "utils";
+import { formatQueryResultToNumber, isAddressValid } from "utils";
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 const TokensTabCheckBalance = ({
@@ -65,9 +62,11 @@ const TokensTabCheckBalance = ({
         data={[
           {
             title: "Account Address",
-            content: !address
-              ? "No account selected"
-              : addressShortener(address),
+            content: !address ? (
+              "No account selected"
+            ) : (
+              <AddressCopier address={address} />
+            ),
           },
           {
             title: "Azero Balance",

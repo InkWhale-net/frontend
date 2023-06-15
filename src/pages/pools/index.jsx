@@ -9,6 +9,7 @@ import {
   Select,
   Stack,
   Switch,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { delay } from "utils";
 import SectionContainer from "components/container/SectionContainer";
@@ -20,6 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
 import { isPoolEnded } from "utils";
 import IWInput from "components/input/Input";
+import { IWMobileList } from "components/table/IWMobileList";
 
 export default function PoolsPage({ api }) {
   const dispatch = useDispatch();
@@ -34,7 +36,7 @@ export default function PoolsPage({ api }) {
 
   const [keywords, setKeywords] = useState("");
   const [resultList, setResultList] = useState(null);
-
+  const isSmallerThanMd = useBreakpointValue({ base: true, md: false });
   const getSearchResult = () => {
     const result =
       poolsListDataFiltered?.filter((el) =>
@@ -254,8 +256,11 @@ export default function PoolsPage({ api }) {
             </Select>
           </Box> */}
         </HStack>
-
-        <IWTable {...tableData} />
+        {isSmallerThanMd ? (
+          <IWMobileList {...tableData} />
+        ) : (
+          <IWTable {...tableData} />
+        )}
       </Stack>
     </SectionContainer>
   );
