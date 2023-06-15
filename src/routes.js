@@ -7,6 +7,7 @@ import CreateStakePoolPage from "pages/create/stake-pool";
 import MyBalancePage from "pages/account/my-balance";
 import CreateNFTLPPage from "pages/create/nft-lp-pool";
 import CreateTokenLPPage from "pages/create/token-lp-pool";
+import CreateLaunchpadPage from "pages/create-launchpad";
 
 const routes = [
   {
@@ -63,6 +64,11 @@ const routes = [
     layout: "/default",
     path: "/account/my-pools",
     component: MyBalancePage,
+  },
+  {
+    layout: "/default",
+    path: "/create/launchpad",
+    component: CreateLaunchpadPage,
   },
 ];
 

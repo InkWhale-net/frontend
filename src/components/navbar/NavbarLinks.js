@@ -267,7 +267,10 @@ export const CreateMenuDropdown = ({
             },
             {
               label: "Launchpad",
-              onClick: () => toast.success("Coming soon!"),
+              onClick: () => {
+                if (onClose) onClose();
+              },
+              href: "/create/launchpad",
             },
             // { label: "Token Yield Farm", href: "/create/token-lp" },
           ].map((item, idx) => (
