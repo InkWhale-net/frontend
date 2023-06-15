@@ -1,4 +1,5 @@
 import { Button, Heading, Stack } from "@chakra-ui/react";
+import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
 import IWCardOneColumn from "components/card/CardOneColumn";
 import IWInput from "components/input/Input";
@@ -7,12 +8,7 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import {
-  addressShortener,
-  delay,
-  formatChainStringToNumber,
-  formatNumToBN,
-} from "utils";
+import { delay, formatChainStringToNumber, formatNumToBN } from "utils";
 import { execContractTx } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 
@@ -85,9 +81,11 @@ const TokensTabBurnToken = ({
         data={[
           {
             title: "Account Address",
-            content: !address
-              ? "No account selected"
-              : addressShortener(address),
+            content: !address ? (
+              "No account selected"
+            ) : (
+              <AddressCopier address={address} />
+            ),
           },
           {
             title: "Azero Balance",
