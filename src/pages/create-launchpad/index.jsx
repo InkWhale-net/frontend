@@ -1,12 +1,17 @@
 import { CheckIcon } from "@chakra-ui/icons";
-import { Button } from "@chakra-ui/react";
+import { Box, Button, Center } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 import Steps, { Step } from "rc-steps";
+import styles from "./style.module.scss";
 import { useContext, useEffect, useState } from "react";
-import CreateLaunchpadContextProvider, { CreateLaunchpadContext } from "./CreateLaunchpadContext";
+import CreateLaunchpadContextProvider, {
+  CreateLaunchpadContext,
+} from "./CreateLaunchpadContext";
 
 function CreateLaunchpadLayout({ api }) {
-  const { nextStep, prevStep, itemStep, current } = useContext(CreateLaunchpadContext);
+  const { nextStep, prevStep, itemStep, current } = useContext(
+    CreateLaunchpadContext
+  );
 
   return (
     <SectionContainer
@@ -20,27 +25,24 @@ function CreateLaunchpadLayout({ api }) {
       }
     >
       <CreateLaunchpadContextProvider>
-        <div style={{ width: "100%" }}>
-          <Steps
-            current={current}
-            // onChange={(val) => {
-            //   // eslint-disable-next-line no-console
-            //   console.log("Change:", val);
-            //   setCurrent(val);
-            // }}
-            items={itemStep}
-          >
-            {" "}
-          </Steps>
-          <div>
-            <Button type="button" onClick={prevStep}>
+        <Box w={'full'}>
+          <div className={styles.step_block}>
+            <Steps
+              className={styles.step_create}
+              current={current}
+              items={itemStep}
+            ></Steps>
+          </div>
+          <Box>{itemStep[current]?.content}</Box>
+          <Center mt={'60px'}>
+            <Button w={'101px'} mr={'12px'} type="button" onClick={prevStep}>
               Back
             </Button>
-            <Button type="button" onClick={nextStep}>
+            <Button w={'101px'} type="button" onClick={nextStep}>
               Next
             </Button>
-          </div>
-        </div>
+          </Center>
+        </Box>
       </CreateLaunchpadContextProvider>
     </SectionContainer>
   );
