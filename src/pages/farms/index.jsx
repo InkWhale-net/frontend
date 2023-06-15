@@ -7,22 +7,22 @@ import {
   FormControl,
   FormLabel,
   HStack,
-  Select,
   Stack,
   Switch,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 
-import { IWTable } from "components/table/IWTable";
-import IWTabs from "components/tabs/IWTabs";
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
-import { useMemo } from "react";
-import { delay } from "utils";
-import { fetchAllNFTPools } from "redux/slices/allPoolsSlice";
-import { fetchAllTokenPools } from "redux/slices/allPoolsSlice";
-import { isPoolEnded } from "utils";
 import IWInput from "components/input/Input";
+import { IWMobileList } from "components/table/IWMobileList";
+import { IWTable } from "components/table/IWTable";
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchAllNFTPools,
+  fetchAllTokenPools,
+} from "redux/slices/allPoolsSlice";
+import { delay, isPoolEnded } from "utils";
 
 export default function FarmsPage() {
   const dispatch = useDispatch();
@@ -41,7 +41,7 @@ export default function FarmsPage() {
 
   const [keywords, setKeywords] = useState("");
   const [resultList, setResultList] = useState(null);
-
+  const isSmallerThanMd = useBreakpointValue({ base: true, md: false });
   const searchCondition = (el) => {
     return (
       el.tokenSymbol.toLowerCase().includes(keywords.trim().toLowerCase()) ||
@@ -338,7 +338,6 @@ export default function FarmsPage() {
               </FormControl>
             </Box>
           </Flex>
-
           {/* <Box minW="155px" maxW="160px">
             <Select
               id="token"
@@ -361,7 +360,12 @@ export default function FarmsPage() {
         </HStack>
 
         {/* <IWTabs tabsData={tabsData} loading={loading} /> */}
-        {!loading && <IWTable {...tableDataNFT} mode="NFT_FARM" />}
+        {!loading &&
+          (isSmallerThanMd ? (
+            <IWMobileList {...tableDataNFT} mode="NFT_FARM" />
+          ) : (
+            <IWTable {...tableDataNFT} mode="NFT_FARM" />
+          ))}
       </Stack>
     </SectionContainer>
   );
