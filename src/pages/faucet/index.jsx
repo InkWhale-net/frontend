@@ -308,29 +308,29 @@ export default function FaucetPage({ api }) {
     );
   };
 
-  const getINWIncur = async (totalSupply) => {
-    let balanceQrs = await Promise.all([
-      getBalanceINWOfAddress(ADDRESSES_INW.INW_TREASURY),
-      getBalanceINWOfAddress(ADDRESSES_INW.INT_GROWTH),
-      getBalanceINWOfAddress(ADDRESSES_INW.INW_REWARD_POOL),
-      getBalanceINWOfAddress(ADDRESSES_INW.INW_TEAM),
-      getBalanceINWOfAddress(public_sale.CONTRACT_ADDRESS),
-      getBalanceINWOfAddress(private_sale.CONTRACT_ADDRESS),
-    ]);
-    const sumBalance = balanceQrs.reduce(
-      (accumulator, currentValue) =>
-        accumulator + +(currentValue?.toHuman()?.Ok?.replaceAll(",", "") || 0),
-      0
-    );
-    setInwInCur(
-      formatNumDynDecimal(
-        roundUp(
-          (totalSupply?.replaceAll(",", "") || 0) - sumBalance / 10 ** 12
-        ),
-        2
-      )
-    );
-  };
+  // const getINWIncur = async (totalSupply) => {
+  //   let balanceQrs = await Promise.all([
+  //     getBalanceINWOfAddress(ADDRESSES_INW.INW_TREASURY),
+  //     getBalanceINWOfAddress(ADDRESSES_INW.INT_GROWTH),
+  //     getBalanceINWOfAddress(ADDRESSES_INW.INW_REWARD_POOL),
+  //     getBalanceINWOfAddress(ADDRESSES_INW.INW_TEAM),
+  //     getBalanceINWOfAddress(public_sale.CONTRACT_ADDRESS),
+  //     getBalanceINWOfAddress(private_sale.CONTRACT_ADDRESS),
+  //   ]);
+  //   const sumBalance = balanceQrs.reduce(
+  //     (accumulator, currentValue) =>
+  //       accumulator + +(currentValue?.toHuman()?.Ok?.replaceAll(",", "") || 0),
+  //     0
+  //   );
+  //   setInwInCur(
+  //     formatNumDynDecimal(
+  //       roundUp(
+  //         (totalSupply?.replaceAll(",", "") || 0) - sumBalance / 10 ** 12
+  //       ),
+  //       2
+  //     )
+  //   );
+  // };
 
   const getInwMintingCapAndTotalSupply = useCallback(async () => {
     if (!api) {
@@ -359,11 +359,11 @@ export default function FaucetPage({ api }) {
         );
         const inwTotalSupplyCap = formatQueryResultToNumber(result1);
         setInwBurn(
-          roundUp(+inwTotalSupplyCap?.replaceAll(",", "") || 0, 0) -
-            +roundDown(
+          roundUp(inwTotalSupplyCap?.replaceAll(",", "") || 0, 2) -
+            roundDown(
               INWTotalSupplyResponse?.ret?.totalSupply?.replaceAll(",", "") /
                 10 ** 12,
-              0
+              2
             )
         );
       } else {
