@@ -342,7 +342,7 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       );
     case "tokenSymbol":
       return (
-        <Flex alignItems={"center"}>
+        <Flex alignItems={"center"} mr={{ base: "20px" }}>
           <TokenIcon tokenContract={itemObj["tokenContract"]} />
           <Text textAlign="left">{itemObj[header]} </Text>
         </Flex>
