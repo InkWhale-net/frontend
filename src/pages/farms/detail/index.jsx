@@ -4,8 +4,8 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   Flex,
-  HStack,
   Heading,
+  HStack,
   Link,
   Show,
   Stack,
@@ -21,6 +21,7 @@ import IWCardNFTWrapper from "components/card/CardNFTWrapper";
 import IWCardOneColumn from "components/card/CardOneColumn";
 import CardThreeColumn from "components/card/CardThreeColumn";
 import CardTwoColumn from "components/card/CardTwoColumn";
+import NFTGroup from "components/card/NFTGroup";
 import IWInput from "components/input/Input";
 import ConfirmModal from "components/modal/ConfirmModal";
 import { formatDataCellTable } from "components/table/IWTable";
@@ -37,6 +38,7 @@ import {
 } from "redux/slices/allPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import {
+  addressShortener,
   calcUnclaimedRewardNftLP,
   calcUnclaimedRewardTokenLP,
   delay,
@@ -53,13 +55,16 @@ import lp_pool_contract from "utils/contracts/lp_pool_contract";
 import nft_pool_contract from "utils/contracts/nft_pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import psp34_standard from "utils/contracts/psp34_standard";
+import { updateUnstakeFee } from "redux/slices/bulkStakeSlide";
+import { closeBulkDialog } from "redux/slices/bulkStakeSlide";
+import { isBoolean } from "@polkadot/util";
 
 export default function FarmDetailPage() {
   const params = useParams();
 
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allNFTPoolsList, allTokenPoolsList } = useSelector((s) => s.allPools);
-
+  const [refetchData, setRefetchData] = useState();
   const currentNFTPool = useMemo(() => {
     return allNFTPoolsList?.find(
       (p) => p?.poolContract === params?.contractAddress
@@ -81,7 +86,6 @@ export default function FarmDetailPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
   const cardData = {
     cardHeaderList: [
       {
@@ -149,6 +153,7 @@ export default function FarmDetailPage() {
         currMode === "NFT_FARM" ? (
           <MyStakeRewardInfoNFT
             mode={currMode}
+            refetchData={refetchData}
             {...currentNFTPool}
             {...currentAccount}
           />
@@ -288,6 +293,12 @@ export default function FarmDetailPage() {
       <SectionContainer mt={{ base: "-28px", xl: "-48px" }}>
         <IWTabs tabsData={tabsData} />
       </SectionContainer>
+      <NFTGroup
+        mode={currMode}
+        refetchData={refetchData}
+        setRefetchData={setRefetchData}
+        {...currentNFTPool}
+      />
     </>
   );
 }
@@ -308,6 +319,7 @@ const MyStakeRewardInfoNFT = ({
   NFTtokenContract,
   startTime,
   duration,
+  refetchData,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -407,14 +419,15 @@ const MyStakeRewardInfoNFT = ({
           );
 
           let stakedID = queryResult?.toHuman().Ok;
+          if (!!stakedID?.U64) {
+            const { status, ret } = await APICall.getNFTByIdFromArtZero({
+              collection_address: nftInfo?.nftContractAddress,
+              token_id: stakedID?.U64?.replaceAll(",", ""),
+            });
 
-          const { status, ret } = await APICall.getNFTByIdFromArtZero({
-            collection_address: nftInfo?.nftContractAddress,
-            token_id: stakedID?.U64?.replaceAll(",", ""),
-          });
-
-          if (status === "OK") {
-            return ret[0];
+            if (status === "OK") {
+              return ret[0];
+            }
           }
         })
       );
@@ -448,6 +461,7 @@ const MyStakeRewardInfoNFT = ({
       );
 
       const fee = formatQueryResultToNumber(result);
+      dispatch(updateUnstakeFee(fee));
       setUnstakeFee(fee);
     };
 
@@ -518,6 +532,33 @@ const MyStakeRewardInfoNFT = ({
     );
   }
 
+  const getStakeNft = () => {
+    if (!isBoolean(refetchData)) return;
+    toast.promise(
+      delay(10000).then(() => {
+        if (currentAccount) {
+          dispatch(fetchAllNFTPools({ currentAccount }));
+          dispatch(fetchUserBalance({ currentAccount, api }));
+        }
+
+        fetchUserStakeInfo();
+        fetchTokenBalance();
+        fetchAvailableNFT();
+        fetchStakedNFT();
+      }),
+      {
+        loading: "Please wait up to 10s for the data to be updated! ",
+        success: "Done !",
+        error: "Could not fetch data!!!",
+      }
+    );
+  };
+
+  useEffect(() => {
+    dispatch(closeBulkDialog());
+    getStakeNft();
+  }, [refetchData]);
+
   async function stakeNftHandler(tokenID) {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
@@ -577,24 +618,11 @@ const MyStakeRewardInfoNFT = ({
 
     await delay(3000);
 
-    toast.promise(
-      delay(10000).then(() => {
-        if (currentAccount) {
-          dispatch(fetchAllNFTPools({ currentAccount }));
-          dispatch(fetchUserBalance({ currentAccount, api }));
-        }
-
-        fetchUserStakeInfo();
-        fetchTokenBalance();
-        fetchAvailableNFT();
-        fetchStakedNFT();
-      }),
-      {
-        loading: "Please wait up to 10s for the data to be updated! ",
-        success: "Done !",
-        error: "Could not fetch data!!!",
-      }
-    );
+    toast.promise({
+      loading: "Please wait up to 10s for the data to be updated! ",
+      success: "Done !",
+      error: "Could not fetch data!!!",
+    });
   }
 
   async function unstakeNftHandler(tokenID) {
@@ -759,7 +787,7 @@ const MyStakeRewardInfoNFT = ({
           px="0px"
           // mt={{ base: "-38px", xl: "-48px" }}
         >
-          <IWTabs tabsData={tabsNFTData} />
+          <IWTabs tabsData={tabsNFTData} onChangeTab={() => dispatch(closeBulkDialog())}/>
         </SectionContainer>
       ) : null}
     </>
@@ -868,11 +896,12 @@ const MyStakeRewardInfoToken = ({
       );
 
       const fee = formatQueryResultToNumber(result);
+
       setUnstakeFee(fee);
     };
 
     fetchFee();
-  }, [currentAccount?.address, currentAccount?.balance, poolContract]);
+  }, [currentAccount?.address, poolContract]);
 
   async function handleClaimTokenLP() {
     if (!currentAccount) {

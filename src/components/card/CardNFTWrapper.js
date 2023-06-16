@@ -1,8 +1,6 @@
 import {
   Box,
-  Button,
   Heading,
-  Icon,
   IconButton,
   VStack,
   Wrap,
@@ -11,13 +9,23 @@ import {
 import ImageCloudFlare from "components/image-cf/ImageCF";
 import ConfirmModal from "components/modal/ConfirmModal";
 import { useState } from "react";
+import { AiFillMinusSquare, AiOutlinePlusSquare } from "react-icons/ai";
 import { Fragment } from "react-is";
-import { PlusSquareIcon } from "@chakra-ui/icons";
+import { useDispatch, useSelector } from "react-redux";
+import { updateSelectedMultiStake } from "redux/slices/bulkStakeSlide";
 
 const NFTCard = (props) => {
   const [isHovered, setIsHovered] = useState(false);
-  const { nftName, avatar, tokenID } = props.cardData;
-  const { action, actionHandler, unstakeFee, updateSelectedBulk } = props;
+  const dispatch = useDispatch();
+  const { listNFTStake } = useSelector((s) => s.bulkStake);
+
+  const { nftName, avatar, tokenID } = props?.cardData;
+  const { action, actionHandler, unstakeFee } = props;
+
+  const isSelected = listNFTStake
+    .map((e) => e?.tokenID)
+    ?.includes(props?.cardData?.tokenID);
+
   return (
     <Fragment>
       <WrapItem>
@@ -29,8 +37,35 @@ const NFTCard = (props) => {
           w={{ base: "160px", sm: "170px", md: "270px" }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          border={isHovered ? "4px solid #93F0F5" : "4px solid #FFF"}
+          border={
+            isHovered || isSelected ? "4px solid #93F0F5" : "4px solid #FFF"
+          }
         >
+          <IconButton
+            position="absolute"
+            alignSelf="flex-end"
+            aria-label="select nft"
+            variant="link"
+            width={"42px"}
+            height={"42px"}
+            marginTop={"16px"}
+            // variant={isSelected ? "solid" : "outline"}
+            icon={
+              isSelected ? (
+                <AiFillMinusSquare size={"42px"} color="#93F0F5" />
+              ) : (
+                <AiOutlinePlusSquare size={"42px"} color="#93F0F5" />
+              )
+            }
+            onClick={() =>
+              dispatch(
+                updateSelectedMultiStake({
+                  data: props?.cardData,
+                  action: props.action,
+                })
+              )
+            }
+          />
           <ImageCloudFlare
             borderWidth="1px"
             w={{ base: "none", lg: "222px" }}
@@ -40,24 +75,6 @@ const NFTCard = (props) => {
             borderRadius="5px"
             src={avatar}
           />
-          <Box
-            sx={{
-              position: "absolute",
-              display: "flex",
-              justifyContent: "flex-end",
-            }}
-            w={{ base: "none", lg: "222px" }}
-          >
-            {isHovered && (
-              <IconButton
-                mr={{ base: "10px" }}
-                aria-label="Search database"
-                icon={<PlusSquareIcon w={"42px"} h={"42px"} color="#93F0F5" />}
-                variant="link"
-                onClick={() => updateSelectedBulk(props.cardData, props.action)}
-              />
-            )}
-          </Box>
           <Heading
             w="full"
             as="h4"
@@ -70,13 +87,20 @@ const NFTCard = (props) => {
           >
             {nftName}
           </Heading>
-          <ConfirmModal
-            action={action}
-            buttonVariant="primary"
-            buttonLabel={action}
-            onClick={() => actionHandler(tokenID)}
-            message={formatMessageNFTPool(action, nftName, unstakeFee)}
-          />
+          <Box
+            display={{ base: "flex" }}
+            justifyContent={{ base: "flex-start" }}
+            w={{ base: "full" }}
+          >
+            <ConfirmModal
+              flex={1}
+              action={action}
+              buttonVariant="primary"
+              buttonLabel={action}
+              onClick={() => actionHandler(tokenID)}
+              message={formatMessageNFTPool(action, nftName, unstakeFee)}
+            />
+          </Box>
         </VStack>
       </WrapItem>
     </Fragment>
@@ -90,7 +114,9 @@ export default function IWCardNFTWrapper(props) {
     <>
       <Wrap spacing={{ base: "10px", md: "30px" }} w="full">
         {data?.map((cardData, idx) => {
-          return <NFTCard {...props} cardData={cardData} key={idx} />;
+          return (
+            !!cardData && <NFTCard {...props} cardData={cardData} key={idx} />
+          );
         })}
       </Wrap>
     </>
