@@ -188,10 +188,11 @@ export default function CreateStakePoolPage({ api }) {
     }
     const endDate = startTime && new Date(startTime?.getTime());
     endDate?.setDate(startTime?.getDate() + parseInt(duration));
+    console.log(startTime?.getTime())
     if (!!endDate) {
       const currentDate = new Date();
-      if (endDate < currentDate) {
-        toast.error(`Pool can not end in the pass`);
+      if (startTime < currentDate || endDate < currentDate) {
+        toast.error(`Pool can not start or end in the pass`);
         return;
       }
     } else {

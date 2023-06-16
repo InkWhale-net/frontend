@@ -4,12 +4,11 @@ import { closeBulkDialog } from "redux/slices/bulkStakeSlide";
 
 import { Box, IconButton, Slide } from "@chakra-ui/react";
 import ConfirmModal from "components/modal/ConfirmModal";
-import useBulkStake from "hook/useBulkStake";
-import { delay } from "utils";
-import { toast } from "react-hot-toast";
-import { fetchAllNFTPools } from "redux/slices/allPoolsSlice";
-import { fetchUserBalance } from "redux/slices/walletSlice";
 import { useAppContext } from "contexts/AppContext";
+import useBulkStake from "hook/useBulkStake";
+import { toast } from "react-hot-toast";
+
+const MAX_NFT_ACTION = 2;
 
 const NFTGroup = ({
   mode,
@@ -44,7 +43,6 @@ const NFTGroup = ({
 
   const handleBulkUnStake = async () => {
     await doBulkUnStake(() => setRefetchData(!refetchData));
-    
   };
 
   const onBulkAction = () => {
@@ -80,12 +78,19 @@ const NFTGroup = ({
                 listNFTStake?.length || 0
               }) NFTs`}
               disableBtn={false}
+              onValidate={() => {
+                if (listNFTStake.length > MAX_NFT_ACTION) {
+                  toast.error(`Maximum bulk ${action} is ${MAX_NFT_ACTION} `);
+                  return false;
+                }
+                return true;
+              }}
               onClick={onBulkAction}
               message={
                 <>
                   You are bulk {action?.replace("NFT", "")} (
-                  {listNFTStake?.length || 0}) NFTs <br /> Unstaking {action !== 'Unstake NFT' && 'later'} will
-                  cost you{" "}
+                  {listNFTStake?.length || 0}) NFTs <br /> Unstaking{" "}
+                  {action !== "Unstake NFT" && "later"} will cost you{" "}
                   {Number(unstakeFee * listNFTStake?.length)?.toFixed(0)} INW.
                   Continue?
                 </>
