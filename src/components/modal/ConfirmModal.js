@@ -30,7 +30,6 @@ export default function ConfirmModal({
   const onProcess = async () => {
     if (!!onValidate) {
       const validation = await onValidate();
-      console.log(validation)
       if (validation) onOpen();
     } else onOpen();
   };
