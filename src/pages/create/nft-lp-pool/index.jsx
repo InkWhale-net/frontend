@@ -37,6 +37,7 @@ import ImageUploadIcon from "../token/UploadIcon";
 import { SelectSearch } from "components/SelectSearch";
 import { execContractTxAndCallAPI } from "utils/contracts";
 import { moveINWToBegin } from "utils";
+import { excludeFacetList } from "utils";
 
 export default function CreateNFTLPPage({ api }) {
   const dispatch = useDispatch();
@@ -130,11 +131,10 @@ export default function CreateNFTLPPage({ api }) {
     let isUnmounted = false;
     const getFaucetTokensListData = async () => {
       let { ret, status, message } = await APICall.getTokensList({});
-
       if (status === "OK") {
         if (isUnmounted) return;
 
-        return setFaucetTokensList(moveINWToBegin(ret));
+        return setFaucetTokensList(moveINWToBegin(excludeFacetList(ret)) || []);
       }
 
       toast.error(`Get faucet tokens list failed. ${message}`);
