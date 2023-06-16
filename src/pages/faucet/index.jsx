@@ -678,7 +678,7 @@ export default function FaucetPage({ api }) {
                   justifyContent="space-between"
                 >
                   <Text textAlign="left" fontSize="md" lineHeight="28px">
-                    Price: {inwPrice} INW / Azero
+                    Price: {inwPrice} Azero / INW 
                   </Text>
                   <Text textAlign="left" fontSize="md" lineHeight="28px">
                     INW Available to acquire: {availableMint}
@@ -835,7 +835,7 @@ export default function FaucetPage({ api }) {
                   justifyContent="space-between"
                 >
                   <Text textAlign="left" fontSize="md" lineHeight="28px">
-                    Price: {inwPrice} INW / Azero
+                    Price: {inwPrice} Azero / INW
                   </Text>
                   <Text textAlign="left" fontSize="md" lineHeight="28px">
                     INW Available to acquire: {availableMint}
