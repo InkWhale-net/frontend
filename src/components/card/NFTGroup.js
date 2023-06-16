@@ -8,7 +8,7 @@ import { useAppContext } from "contexts/AppContext";
 import useBulkStake from "hook/useBulkStake";
 import { toast } from "react-hot-toast";
 
-const MAX_NFT_ACTION = 2;
+const MAX_NFT_ACTION = 5;
 
 const NFTGroup = ({
   mode,
