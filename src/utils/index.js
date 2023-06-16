@@ -232,6 +232,12 @@ export const moveINWToBegin = (tokensList) => {
   );
 };
 
+export const excludeFacetList = (tokensList) =>
+  tokensList.filter(
+    (element) =>
+      element?.contractAddress != process.env.REACT_APP_EXCLUDE_TOKEN_ADDRESS
+  );
+
 const toContractAbiMessage = (contractPromise, message) => {
   const value = contractPromise.abi.messages.find((m) => m.method === message);
 
