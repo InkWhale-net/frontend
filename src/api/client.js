@@ -246,6 +246,7 @@ export const APICall = {
   },
 
   getNFTByIdFromArtZero: async ({ collection_address, token_id }) => {
+    if (!token_id) return { status: "failed" };
     const ret = await client(
       "POST",
       "/getNFTByID",
