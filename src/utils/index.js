@@ -232,10 +232,10 @@ export const moveINWToBegin = (tokensList) => {
   );
 };
 
-export const excludeFacetList = (tokensList) =>
+export const excludeNFT = (tokensList) =>
   tokensList.filter(
     (element) =>
-      element?.contractAddress != process.env.REACT_APP_EXCLUDE_TOKEN_ADDRESS
+      element?.nftContractAddress != process.env.REACT_APP_EXCLUDE_TOKEN_ADDRESS
   );
 
 const toContractAbiMessage = (contractPromise, message) => {
