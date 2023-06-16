@@ -14,52 +14,57 @@ import {
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 
-import { useParams } from "react-router-dom";
-import IWCard from "components/card/Card";
-import IWTabs from "components/tabs/IWTabs";
-import ConfirmModal from "components/modal/ConfirmModal";
-import IWCardOneColumn from "components/card/CardOneColumn";
-import CardTwoColumn from "components/card/CardTwoColumn";
-import CardThreeColumn from "components/card/CardThreeColumn";
-import IWCardNFTWrapper from "components/card/CardNFTWrapper";
-import { formatDataCellTable } from "components/table/IWTable";
-import { useDispatch, useSelector } from "react-redux";
-import { useCallback, useState, useEffect } from "react";
-import { execContractQuery } from "utils/contracts";
-import nft_pool_contract from "utils/contracts/nft_pool_contract";
-import { formatChainStringToNumber } from "utils";
-import psp22_contract from "utils/contracts/psp22_contract";
-import { formatQueryResultToNumber } from "utils";
-import { addressShortener } from "utils";
-import { formatNumDynDecimal } from "utils";
-import { calcUnclaimedRewardNftLP } from "utils";
-import { toast } from "react-hot-toast";
-import { toastMessages } from "constants";
-import { execContractTx } from "utils/contracts";
-import { delay } from "utils";
 import { APICall } from "api/client";
-import { formatNumToBN } from "utils";
-import psp34_standard from "utils/contracts/psp34_standard";
-import azt_contract from "utils/contracts/azt_contract";
-import { calcUnclaimedRewardTokenLP } from "utils";
-import lp_pool_contract from "utils/contracts/lp_pool_contract";
-import IWInput from "components/input/Input";
-import { NFTBannerCard } from "components/card/Card";
-import { useMemo } from "react";
-import { fetchUserBalance } from "redux/slices/walletSlice";
-import { fetchAllNFTPools } from "redux/slices/allPoolsSlice";
-import { fetchAllTokenPools } from "redux/slices/allPoolsSlice";
-import { isPoolEnded } from "utils";
-import useInterval from "hook/useInterval";
 import AddressCopier from "components/address-copier/AddressCopier";
-import { isPoolNotStart } from "utils";
+import IWCard, { NFTBannerCard } from "components/card/Card";
+import IWCardNFTWrapper from "components/card/CardNFTWrapper";
+import IWCardOneColumn from "components/card/CardOneColumn";
+import CardThreeColumn from "components/card/CardThreeColumn";
+import CardTwoColumn from "components/card/CardTwoColumn";
+import NFTGroup from "components/card/NFTGroup";
+import IWInput from "components/input/Input";
+import ConfirmModal from "components/modal/ConfirmModal";
+import { formatDataCellTable } from "components/table/IWTable";
+import IWTabs from "components/tabs/IWTabs";
+import { toastMessages } from "constants";
+import useInterval from "hook/useInterval";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import {
+  fetchAllNFTPools,
+  fetchAllTokenPools,
+} from "redux/slices/allPoolsSlice";
+import { fetchUserBalance } from "redux/slices/walletSlice";
+import {
+  addressShortener,
+  calcUnclaimedRewardNftLP,
+  calcUnclaimedRewardTokenLP,
+  delay,
+  formatChainStringToNumber,
+  formatNumDynDecimal,
+  formatNumToBN,
+  formatQueryResultToNumber,
+  isPoolEnded,
+  isPoolNotStart,
+} from "utils";
+import { execContractQuery, execContractTx } from "utils/contracts";
+import azt_contract from "utils/contracts/azt_contract";
+import lp_pool_contract from "utils/contracts/lp_pool_contract";
+import nft_pool_contract from "utils/contracts/nft_pool_contract";
+import psp22_contract from "utils/contracts/psp22_contract";
+import psp34_standard from "utils/contracts/psp34_standard";
+import { updateUnstakeFee } from "redux/slices/bulkStakeSlide";
+import { closeBulkDialog } from "redux/slices/bulkStakeSlide";
+import { isBoolean } from "@polkadot/util";
 
 export default function FarmDetailPage() {
   const params = useParams();
 
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allNFTPoolsList, allTokenPoolsList } = useSelector((s) => s.allPools);
-
+  const [refetchData, setRefetchData] = useState();
   const currentNFTPool = useMemo(() => {
     return allNFTPoolsList?.find(
       (p) => p?.poolContract === params?.contractAddress
@@ -81,7 +86,6 @@ export default function FarmDetailPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
   const cardData = {
     cardHeaderList: [
       {
@@ -149,6 +153,7 @@ export default function FarmDetailPage() {
         currMode === "NFT_FARM" ? (
           <MyStakeRewardInfoNFT
             mode={currMode}
+            refetchData={refetchData}
             {...currentNFTPool}
             {...currentAccount}
           />
@@ -288,6 +293,12 @@ export default function FarmDetailPage() {
       <SectionContainer mt={{ base: "-28px", xl: "-48px" }}>
         <IWTabs tabsData={tabsData} />
       </SectionContainer>
+      <NFTGroup
+        mode={currMode}
+        refetchData={refetchData}
+        setRefetchData={setRefetchData}
+        {...currentNFTPool}
+      />
     </>
   );
 }
@@ -308,6 +319,7 @@ const MyStakeRewardInfoNFT = ({
   NFTtokenContract,
   startTime,
   duration,
+  refetchData,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -377,7 +389,9 @@ const MyStakeRewardInfoNFT = ({
       });
 
     if (status === "OK") {
-      setAvailableNFT(ret?.filter(nft => nft?.owner === currentAccount?.address));
+      setAvailableNFT(
+        ret?.filter((nft) => nft?.owner === currentAccount?.address)
+      );
     }
   }, [currentAccount?.address, nftInfo?.nftContractAddress]);
 
@@ -405,14 +419,15 @@ const MyStakeRewardInfoNFT = ({
           );
 
           let stakedID = queryResult?.toHuman().Ok;
+          if (!!stakedID?.U64) {
+            const { status, ret } = await APICall.getNFTByIdFromArtZero({
+              collection_address: nftInfo?.nftContractAddress,
+              token_id: stakedID?.U64?.replaceAll(",", ""),
+            });
 
-          const { status, ret } = await APICall.getNFTByIdFromArtZero({
-            collection_address: nftInfo?.nftContractAddress,
-            token_id: stakedID?.U64?.replaceAll(',', ''),
-          });
-
-          if (status === "OK") {
-            return ret[0];
+            if (status === "OK") {
+              return ret[0];
+            }
           }
         })
       );
@@ -446,6 +461,7 @@ const MyStakeRewardInfoNFT = ({
       );
 
       const fee = formatQueryResultToNumber(result);
+      dispatch(updateUnstakeFee(fee));
       setUnstakeFee(fee);
     };
 
@@ -516,6 +532,33 @@ const MyStakeRewardInfoNFT = ({
     );
   }
 
+  const getStakeNft = () => {
+    if (!isBoolean(refetchData)) return;
+    toast.promise(
+      delay(10000).then(() => {
+        if (currentAccount) {
+          dispatch(fetchAllNFTPools({ currentAccount }));
+          dispatch(fetchUserBalance({ currentAccount, api }));
+        }
+
+        fetchUserStakeInfo();
+        fetchTokenBalance();
+        fetchAvailableNFT();
+        fetchStakedNFT();
+      }),
+      {
+        loading: "Please wait up to 10s for the data to be updated! ",
+        success: "Done !",
+        error: "Could not fetch data!!!",
+      }
+    );
+  };
+
+  useEffect(() => {
+    dispatch(closeBulkDialog());
+    getStakeNft();
+  }, [refetchData]);
+
   async function stakeNftHandler(tokenID) {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
@@ -575,24 +618,11 @@ const MyStakeRewardInfoNFT = ({
 
     await delay(3000);
 
-    toast.promise(
-      delay(10000).then(() => {
-        if (currentAccount) {
-          dispatch(fetchAllNFTPools({ currentAccount }));
-          dispatch(fetchUserBalance({ currentAccount, api }));
-        }
-
-        fetchUserStakeInfo();
-        fetchTokenBalance();
-        fetchAvailableNFT();
-        fetchStakedNFT();
-      }),
-      {
-        loading: "Please wait up to 10s for the data to be updated! ",
-        success: "Done !",
-        error: "Could not fetch data!!!",
-      }
-    );
+    toast.promise({
+      loading: "Please wait up to 10s for the data to be updated! ",
+      success: "Done !",
+      error: "Could not fetch data!!!",
+    });
   }
 
   async function unstakeNftHandler(tokenID) {
@@ -696,9 +726,11 @@ const MyStakeRewardInfoNFT = ({
           data={[
             {
               title: "Account Address",
-              content: address
-                ? addressShortener(address)
-                : "No account selected",
+              content: address ? (
+                <AddressCopier address={address} />
+              ) : (
+                "No account selected"
+              ),
             },
             {
               title: "AZERO Balance",
@@ -755,7 +787,7 @@ const MyStakeRewardInfoNFT = ({
           px="0px"
           // mt={{ base: "-38px", xl: "-48px" }}
         >
-          <IWTabs tabsData={tabsNFTData} />
+          <IWTabs tabsData={tabsNFTData} onChangeTab={() => dispatch(closeBulkDialog())}/>
         </SectionContainer>
       ) : null}
     </>
@@ -864,11 +896,12 @@ const MyStakeRewardInfoToken = ({
       );
 
       const fee = formatQueryResultToNumber(result);
+
       setUnstakeFee(fee);
     };
 
     fetchFee();
-  }, [currentAccount?.address, currentAccount?.balance, poolContract]);
+  }, [currentAccount?.address, poolContract]);
 
   async function handleClaimTokenLP() {
     if (!currentAccount) {
@@ -1091,9 +1124,11 @@ const MyStakeRewardInfoToken = ({
           data={[
             {
               title: "Account Address",
-              content: address
-                ? addressShortener(address)
-                : "No account selected",
+              content: address ? (
+                <AddressCopier address={address} />
+              ) : (
+                "No account selected"
+              ),
             },
             {
               title: "AZERO Balance",
@@ -1331,7 +1366,7 @@ const PoolInfo = ({
                 },
                 {
                   title: "Contract Address",
-                  content: addressShortener(lptokenContract),
+                  content: <AddressCopier address={lptokenContract} />,
                 },
                 {
                   title: "Total Supply",
@@ -1348,7 +1383,7 @@ const PoolInfo = ({
               { title: "Total Name", content: tokenName },
               {
                 title: "Contract Address",
-                content: addressShortener(tokenContract),
+                content: <AddressCopier address={tokenContract} />,
               },
               {
                 title: "Total Supply",

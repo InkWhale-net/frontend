@@ -1,4 +1,5 @@
 import { Button, Heading, Stack } from "@chakra-ui/react";
+import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
 import IWCardOneColumn from "components/card/CardOneColumn";
 import IWInput from "components/input/Input";
@@ -8,7 +9,6 @@ import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import {
-  addressShortener,
   delay,
   formatChainStringToNumber,
   formatNumToBN,
@@ -94,9 +94,11 @@ const TokensTabTransferToken = ({
         data={[
           {
             title: "Account Address",
-            content: !address
-              ? "No account selected"
-              : addressShortener(address),
+            content: !address ? (
+              "No account selected"
+            ) : (
+              <AddressCopier address={address} />
+            ),
           },
           {
             title: "Azero Balance",

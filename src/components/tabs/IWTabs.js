@@ -8,12 +8,12 @@ import {
 } from "@chakra-ui/react";
 // import { useState } from "react";
 
-export default function IWTabs({ tabsData, ...rest }) {
+export default function IWTabs({ tabsData, onChangeTab, ...rest }) {
   // const [tabIndex, setTabIndex] = useState(0);
 
   return (
     <Tabs
-      // onChange={(index) => setTabIndex(index)}
+      onChange={onChangeTab}
       isLazy
       w="full"
     >

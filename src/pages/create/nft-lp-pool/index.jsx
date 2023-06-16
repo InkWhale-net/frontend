@@ -247,8 +247,8 @@ export default function CreateNFTLPPage({ api }) {
     endDate?.setDate(startTime?.getDate() + parseInt(duration));
     if (!!endDate) {
       const currentDate = new Date();
-      if (endDate < currentDate) {
-        toast.error(`Pool can not end in the pass`);
+      if (startTime < currentDate || endDate < currentDate) {
+        toast.error(`Pool can not start or end in the past`);
         return;
       }
     } else {

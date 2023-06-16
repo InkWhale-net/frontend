@@ -32,7 +32,6 @@ import { useParams } from "react-router-dom";
 import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import {
-  addressShortener,
   calcUnclaimedReward,
   delay,
   formatChainStringToNumber,
@@ -582,9 +581,11 @@ const MyStakeRewardInfo = ({
         data={[
           {
             title: "Account Address",
-            content: address
-              ? addressShortener(address)
-              : "No account selected",
+            content: address ? (
+              <AddressCopier address={address} />
+            ) : (
+              "No account selected"
+            ),
           },
           {
             title: "AZERO Balance",
@@ -789,7 +790,7 @@ const PoolInfo = (props) => {
           { title: "Token Name", content: tokenName },
           {
             title: "Contract Address",
-            content: addressShortener(tokenContract),
+            content: <AddressCopier address={tokenContract} />,
           },
           {
             title: "Total Supply",

@@ -3,8 +3,6 @@ import {
   Button,
   Flex,
   Heading,
-  Link,
-  Select,
   Stack,
   Text,
   useMediaQuery,
@@ -15,39 +13,33 @@ import SectionContainer from "components/container/SectionContainer";
 import { AzeroLogo } from "components/icons/Icons";
 import IWInput from "components/input/Input";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import azt_contract from "utils/contracts/azt_contract";
-import token_sale from "utils/contracts/token_sale";
 import private_sale from "utils/contracts/private_sale";
 import public_sale from "utils/contracts/public_sale";
 
-import { formatQueryResultToNumber } from "utils";
-import { execContractQuery } from "utils/contracts";
-import { addressShortener } from "utils";
-import { isAddressValid } from "utils";
-import { toastMessages } from "constants";
-import { toast } from "react-hot-toast";
-import { delay } from "utils";
-import { execContractTx } from "utils/contracts";
-import { formatNumToBN } from "utils";
-import { fetchUserBalance } from "redux/slices/walletSlice";
-import { formatNumDynDecimal } from "utils";
-import { formatChainStringToNumber } from "utils";
-import AddressCopier from "components/address-copier/AddressCopier";
-import IWTabs from "components/tabs/IWTabs";
-import SaleTab from "components/tabs/SaleTab";
-import IWCountDown from "components/countdown/CountDown";
-import { formatBalance } from "@polkadot/util";
-import CardThreeColumn from "components/card/CardThreeColumn";
-import BN from "bn.js";
-import { ADDRESSES_INW } from "constants";
-import { roundUp } from "utils";
-import { roundDown } from "utils";
-import { getPublicCurrentAccount } from "utils";
 import { APICall } from "api/client";
+import AddressCopier from "components/address-copier/AddressCopier";
+import CardThreeColumn from "components/card/CardThreeColumn";
+import IWCountDown from "components/countdown/CountDown";
+import SaleTab from "components/tabs/SaleTab";
+import { toastMessages } from "constants";
 import useInterval from "hook/useInterval";
+import { toast } from "react-hot-toast";
+import { fetchUserBalance } from "redux/slices/walletSlice";
+import {
+  delay,
+  formatChainStringToNumber,
+  formatNumDynDecimal,
+  formatNumToBN,
+  formatQueryResultToNumber,
+  getPublicCurrentAccount,
+  roundDown,
+  roundUp,
+} from "utils";
+import { execContractQuery, execContractTx } from "utils/contracts";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
 
@@ -83,9 +75,11 @@ export default function FaucetPage({ api }) {
       let ret = [
         {
           title: "Account Address",
-          content: !currentAccount?.address
-            ? "No account selected"
-            : addressShortener(currentAccount?.address),
+          content: !currentAccount?.address ? (
+            "No account selected"
+          ) : (
+            <AddressCopier address={currentAccount?.address} />
+          ),
         },
         { title: "Azero Balance", content: `${azeroBalance} AZERO` },
         { title: "INW Balance", content: `${inwBalance} INW` },
@@ -308,29 +302,29 @@ export default function FaucetPage({ api }) {
     );
   };
 
-  const getINWIncur = async (totalSupply) => {
-    let balanceQrs = await Promise.all([
-      getBalanceINWOfAddress(ADDRESSES_INW.INW_TREASURY),
-      getBalanceINWOfAddress(ADDRESSES_INW.INT_GROWTH),
-      getBalanceINWOfAddress(ADDRESSES_INW.INW_REWARD_POOL),
-      getBalanceINWOfAddress(ADDRESSES_INW.INW_TEAM),
-      getBalanceINWOfAddress(public_sale.CONTRACT_ADDRESS),
-      getBalanceINWOfAddress(private_sale.CONTRACT_ADDRESS),
-    ]);
-    const sumBalance = balanceQrs.reduce(
-      (accumulator, currentValue) =>
-        accumulator + +(currentValue?.toHuman()?.Ok?.replaceAll(",", "") || 0),
-      0
-    );
-    setInwInCur(
-      formatNumDynDecimal(
-        roundUp(
-          (totalSupply?.replaceAll(",", "") || 0) - sumBalance / 10 ** 12
-        ),
-        2
-      )
-    );
-  };
+  // const getINWIncur = async (totalSupply) => {
+  //   let balanceQrs = await Promise.all([
+  //     getBalanceINWOfAddress(ADDRESSES_INW.INW_TREASURY),
+  //     getBalanceINWOfAddress(ADDRESSES_INW.INT_GROWTH),
+  //     getBalanceINWOfAddress(ADDRESSES_INW.INW_REWARD_POOL),
+  //     getBalanceINWOfAddress(ADDRESSES_INW.INW_TEAM),
+  //     getBalanceINWOfAddress(public_sale.CONTRACT_ADDRESS),
+  //     getBalanceINWOfAddress(private_sale.CONTRACT_ADDRESS),
+  //   ]);
+  //   const sumBalance = balanceQrs.reduce(
+  //     (accumulator, currentValue) =>
+  //       accumulator + +(currentValue?.toHuman()?.Ok?.replaceAll(",", "") || 0),
+  //     0
+  //   );
+  //   setInwInCur(
+  //     formatNumDynDecimal(
+  //       roundUp(
+  //         (totalSupply?.replaceAll(",", "") || 0) - sumBalance / 10 ** 12
+  //       ),
+  //       2
+  //     )
+  //   );
+  // };
 
   const getInwMintingCapAndTotalSupply = useCallback(async () => {
     if (!api) {
@@ -359,11 +353,11 @@ export default function FaucetPage({ api }) {
         );
         const inwTotalSupplyCap = formatQueryResultToNumber(result1);
         setInwBurn(
-          roundUp(+inwTotalSupplyCap?.replaceAll(",", "") || 0, 0) -
-            +roundDown(
+          roundUp(inwTotalSupplyCap?.replaceAll(",", "") || 0, 2) -
+            roundDown(
               INWTotalSupplyResponse?.ret?.totalSupply?.replaceAll(",", "") /
                 10 ** 12,
-              0
+              2
             )
         );
       } else {
@@ -684,7 +678,7 @@ export default function FaucetPage({ api }) {
                   justifyContent="space-between"
                 >
                   <Text textAlign="left" fontSize="md" lineHeight="28px">
-                    Price: {inwPrice} INW / Azero
+                    Price: {inwPrice} Azero / INW 
                   </Text>
                   <Text textAlign="left" fontSize="md" lineHeight="28px">
                     INW Available to acquire: {availableMint}
@@ -841,7 +835,7 @@ export default function FaucetPage({ api }) {
                   justifyContent="space-between"
                 >
                   <Text textAlign="left" fontSize="md" lineHeight="28px">
-                    Price: {inwPrice} INW / Azero
+                    Price: {inwPrice} Azero / INW
                   </Text>
                   <Text textAlign="left" fontSize="md" lineHeight="28px">
                     INW Available to acquire: {availableMint}
