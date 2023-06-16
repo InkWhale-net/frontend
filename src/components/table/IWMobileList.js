@@ -36,6 +36,7 @@ const ElementCard = ({ tableHeader, itemObj, mode, onClickItemHandler }) => {
       padding={{ base: "14px" }}
       _hover={{
         borderColor: "#93F0F5",
+        backgroundColor: '#E8FDFF'
       }}
       onClick={() => onClickItemHandler(itemObj)}
     >
