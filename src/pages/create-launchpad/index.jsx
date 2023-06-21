@@ -12,7 +12,6 @@ function CreateLaunchpadLayout({ api }) {
   const { nextStep, prevStep, itemStep, current } = useContext(
     CreateLaunchpadContext
   );
-
   return (
     <SectionContainer
       mt={{ base: "0px", xl: "8px" }}
@@ -25,7 +24,7 @@ function CreateLaunchpadLayout({ api }) {
       }
     >
       <CreateLaunchpadContextProvider>
-        <Box w={'full'}>
+        <Box w={"full"}>
           <div className={styles.step_block}>
             <Steps
               className={styles.step_create}
@@ -34,12 +33,14 @@ function CreateLaunchpadLayout({ api }) {
             ></Steps>
           </div>
           <Box>{itemStep[current]?.content}</Box>
-          <Center mt={'60px'}>
-            <Button w={'101px'} mr={'12px'} type="button" onClick={prevStep}>
-              Back
-            </Button>
-            <Button w={'101px'} type="button" onClick={nextStep}>
-              Next
+          <Center mt={"60px"}>
+            {current > 0 && (
+              <Button w={"101px"} mr={"12px"} type="button" onClick={prevStep}>
+                Back
+              </Button>
+            )}
+            <Button w={"101px"} type="button" onClick={nextStep}>
+              {current < itemStep?.length - 1 ? "Next" : "Finish"}
             </Button>
           </Center>
         </Box>

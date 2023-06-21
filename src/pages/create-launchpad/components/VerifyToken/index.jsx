@@ -1,4 +1,14 @@
-import { Box, Flex, Heading, Link, SimpleGrid } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  Link,
+  Radio,
+  RadioGroup,
+  SimpleGrid,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import { current } from "@reduxjs/toolkit";
 import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
@@ -15,11 +25,15 @@ import { roundUp } from "utils";
 import { isAddressValid } from "utils";
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
+import SectionContainer from "../sectionContainer";
 
 export default function VerifyToken() {
   const [tokenInfo, setTokenInfo] = useState({});
   const { currentAccount } = useSelector((s) => s.wallet);
   const [tokenAddress, setTokenAddress] = useState("");
+  const [currencyOption, setCurrencyOption] = useState(null);
+  const [feeOption, setFeeOption] = useState(null);
+  const [listingOption, setListingOption] = useState(null);
   const { allTokensList } = useSelector((s) => s.allPools);
 
   const tokenList = useMemo(() => {
@@ -151,6 +165,11 @@ export default function VerifyToken() {
       };
     });
   }
+
+  const currencyOptions = ["BNB", "BUSD", "USDC", "USDT"];
+  const feeOptions = ["5% BNB raised only", "Other"];
+  const listingOptions = ["Auto Listing", "Manual Listing"];
+
   return (
     <>
       <Box w={{ base: "full" }}>
@@ -232,6 +251,42 @@ export default function VerifyToken() {
           <div>{tokenInfo?.balance}</div>
         </Flex>
       </Box>
+      {/* <SectionContainer
+        title="Currency"
+        description="User will pay with BNB for your token"
+      >
+        <RadioGroup onChange={setCurrencyOption} value={currencyOption}>
+          <Stack direction="column">
+            {currencyOptions.map((option) => (
+              <Radio key={option} value={option}>
+                {option}
+              </Radio>
+            ))}
+          </Stack>
+        </RadioGroup>
+      </SectionContainer>
+      <SectionContainer title="Fee Options">
+        <RadioGroup onChange={setFeeOption} value={feeOption}>
+          <Stack direction="column">
+            {feeOptions.map((option) => (
+              <Radio key={option} value={option}>
+                {option}
+              </Radio>
+            ))}
+          </Stack>
+        </RadioGroup>
+      </SectionContainer>
+      <SectionContainer title="Currency">
+        <RadioGroup onChange={setListingOption} value={listingOption}>
+          <Stack direction="column">
+            {listingOptions.map((option) => (
+              <Radio key={option} value={option}>
+                {option}
+              </Radio>
+            ))}
+          </Stack>
+        </RadioGroup>
+      </SectionContainer> */}
     </>
   );
 }
