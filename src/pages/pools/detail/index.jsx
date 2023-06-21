@@ -1,4 +1,9 @@
 import { ChevronRightIcon, QuestionOutlineIcon } from "@chakra-ui/icons";
+
+import {
+  AiOutlineQuestionCircle,
+  AiOutlineExclamationCircle,
+} from "react-icons/ai";
 import {
   Box,
   Breadcrumb,
@@ -32,7 +37,6 @@ import { useParams } from "react-router-dom";
 import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import {
-  addressShortener,
   calcUnclaimedReward,
   delay,
   formatChainStringToNumber,
@@ -53,6 +57,7 @@ export default function PoolDetailPage({ api }) {
 
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allStakingPoolsList } = useSelector((s) => s.allPools);
+  const [remainStaking, setRemainStaking] = useState(null);
 
   const currentPool = useMemo(() => {
     return allStakingPoolsList?.find(
@@ -74,7 +79,13 @@ export default function PoolDetailPage({ api }) {
       {
         name: "totalStaked",
         hasTooltip: true,
-        tooltipContent: `Total Value Locked: Total tokens staked into this pool`,
+        tooltipContent:
+          remainStaking === 0
+            ? "Max Staking Amount reached"
+            : `Total Value Locked: Total tokens staked into this pool`,
+        tooltipIcon: remainStaking === 0 && (
+          <AiOutlineExclamationCircle ml="6px" color="text.1" />
+        ),
         label: "TVL",
       },
       {
@@ -113,7 +124,14 @@ export default function PoolDetailPage({ api }) {
   const tabsData = [
     {
       label: "My Stakes & Rewards",
-      component: <MyStakeRewardInfo {...currentPool} {...currentAccount} />,
+      component: (
+        <MyStakeRewardInfo
+          {...currentPool}
+          {...currentAccount}
+          remainStaking={remainStaking}
+          setRemainStaking={setRemainStaking}
+        />
+      ),
       isDisabled: false,
     },
     {
@@ -171,7 +189,8 @@ export default function PoolDetailPage({ api }) {
               justifyContent={{ base: "space-between" }}
             >
               {cardData?.cardHeaderList?.map((item) => {
-                const { name, hasTooltip, label, tooltipContent } = item;
+                const { name, hasTooltip, label, tooltipContent, tooltipIcon } =
+                  item;
 
                 return (
                   <Flex
@@ -192,7 +211,13 @@ export default function PoolDetailPage({ api }) {
                       {label}
                       {hasTooltip && (
                         <Tooltip fontSize="md" label={tooltipContent}>
-                          <QuestionOutlineIcon ml="6px" color="text.2" />
+                          <span style={{ marginLeft: "6px" }}>
+                            {tooltipIcon ? (
+                              tooltipIcon
+                            ) : (
+                              <AiOutlineQuestionCircle color="text.2" />
+                            )}
+                          </span>
                         </Tooltip>
                       )}
                     </Flex>
@@ -238,6 +263,8 @@ const MyStakeRewardInfo = ({
   tokenDecimal,
   maxStakingAmount,
   totalStaked,
+  remainStaking,
+  setRemainStaking,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -247,7 +274,6 @@ const MyStakeRewardInfo = ({
   const [unstakeFee, setUnstakeFee] = useState(0);
   const [stakeInfo, setStakeInfo] = useState(null);
   const [tokenBalance, setTokenBalance] = useState();
-  const [remainStaking, setRemainStaking] = useState(0);
 
   const [amount, setAmount] = useState("");
 
@@ -394,7 +420,10 @@ const MyStakeRewardInfo = ({
         toast.error("Not enough tokens!");
         return false;
       }
-
+      if (roundUp(maxStakingAmount - totalStaked) === 0) {
+        toast.error(`Max Staking Amount reached`);
+        return false;
+      }
       if (maxStakingAmount - totalStaked - amount < 0) {
         toast.error(
           `You can not stake more than ${formatNumDynDecimal(
@@ -582,9 +611,11 @@ const MyStakeRewardInfo = ({
         data={[
           {
             title: "Account Address",
-            content: address
-              ? addressShortener(address)
-              : "No account selected",
+            content: address ? (
+              <AddressCopier address={address} />
+            ) : (
+              "No account selected"
+            ),
           },
           {
             title: "AZERO Balance",
@@ -647,6 +678,7 @@ const MyStakeRewardInfo = ({
               onChange={({ target }) => setAmount(target.value)}
               type="number"
               placeholder="Enter amount to stake or unstake"
+              isDisabled={!(remainStaking > 0)}
             />
 
             <HStack
@@ -693,7 +725,9 @@ const MyStakeRewardInfo = ({
             </HStack>
           </Flex>
           <Box fontSize={14} ml="2px">
-            Max Staking Amount: {formatNumDynDecimal(remainStaking)}
+            {remainStaking > 0
+              ? `Max Staking Amount: ${formatNumDynDecimal(remainStaking)}`
+              : "Max Staking Amount reached"}
           </Box>
         </IWCard>
       </CardThreeColumn>
@@ -789,7 +823,7 @@ const PoolInfo = (props) => {
           { title: "Token Name", content: tokenName },
           {
             title: "Contract Address",
-            content: addressShortener(tokenContract),
+            content: <AddressCopier address={tokenContract} />,
           },
           {
             title: "Total Supply",

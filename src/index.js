@@ -47,6 +47,8 @@ import { fetchAllTokenPools } from "redux/slices/allPoolsSlice";
 import { web3Enable } from "@polkadot/extension-dapp";
 import AdminPage from "pages/admin";
 import CreateLaunchpadPage from "pages/create-launchpad";
+import { AppContextProvider } from "contexts/AppContext";
+import { useAppContext } from "contexts/AppContext";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 
@@ -63,6 +65,7 @@ const App = () => {
     allNFTPoolsList,
     allTokenPoolsList,
   } = useSelector((s) => s.allPools);
+  const { setCurrentApi } = useAppContext();
 
   const [api, setApi] = useState(null);
   // const [, setLastChainBlock] = useState(null);
@@ -93,6 +96,8 @@ const App = () => {
       setApi(wsApi);
 
       initialApi(wsApi);
+
+      setCurrentApi(wsApi);
 
       await wsApi.rpc.chain.subscribeNewHeads((lastHeader) => {
         // eslint-disable-next-line no-unused-vars
@@ -195,9 +200,8 @@ const App = () => {
             component={MyPoolDetailPage}
           />{" "}
           <Route exact path={`/admin`} component={AdminPage} />
-
           <Route>
-            <FaucetPage api={api}/>
+            <FaucetPage api={api} />
           </Route>
         </Switch>
       </DefaultLayout>
@@ -208,23 +212,25 @@ const App = () => {
 ReactDOM.render(
   <ChakraProvider theme={theme}>
     <React.StrictMode>
-      <ReduxProvider store={store}>
-        <Toaster
-          position="bottom-right"
-          reverseOrder={true}
-          toastOptions={{
-            style: {
-              padding: "8px",
-              fontSize: "16px",
-              color: "#57527E",
-              borderRadius: "5px",
-              background: "#E8FDFF",
-            },
-          }}
-        />
+      <AppContextProvider>
+        <ReduxProvider store={store}>
+          <Toaster
+            position="bottom-right"
+            reverseOrder={true}
+            toastOptions={{
+              style: {
+                padding: "8px",
+                fontSize: "16px",
+                color: "#57527E",
+                borderRadius: "5px",
+                background: "#E8FDFF",
+              },
+            }}
+          />
 
-        <App />
-      </ReduxProvider>
+          <App />
+        </ReduxProvider>
+      </AppContextProvider>
     </React.StrictMode>
   </ChakraProvider>,
   document.getElementById("root")

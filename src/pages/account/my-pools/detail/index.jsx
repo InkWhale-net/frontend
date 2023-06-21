@@ -431,7 +431,16 @@ const MyPoolInfo = ({
       const withdrawableRs = rewardPool - +unclaimRw.replaceAll(",", "");
       setWithdrawbleAm(roundDown(withdrawableRs, 3));
     }
-  }, [api, currentAccount?.address, currentAccount?.balance, duration, poolContract, rewardPool, startTime, tokenContract]);
+  }, [
+    api,
+    currentAccount?.address,
+    currentAccount?.balance,
+    duration,
+    poolContract,
+    rewardPool,
+    startTime,
+    tokenContract,
+  ]);
 
   useEffect(() => {
     mode !== "TOKEN_FARM" && fetchTokenBalance();
@@ -481,7 +490,11 @@ const MyPoolInfo = ({
     let ret = [
       {
         title: "Account Address",
-        content: address ? addressShortener(address) : "No account selected",
+        content: address ? (
+          <AddressCopier address={address} />
+        ) : (
+          "No account selected"
+        ),
       },
       {
         title: "AZERO Balance",
@@ -969,7 +982,7 @@ const MyPoolInfo = ({
                   { title: "Token Name", content: lptokenName },
                   {
                     title: "Contract Address",
-                    content: addressShortener(lptokenContract),
+                    content: <AddressCopier address={lptokenContract} />,
                   },
                   {
                     title: "Total Supply",
@@ -987,7 +1000,7 @@ const MyPoolInfo = ({
                   { title: "Token Name", content: tokenName },
                   {
                     title: "Contract Address",
-                    content: addressShortener(tokenContract),
+                    content: <AddressCopier address={tokenContract} />,
                   },
                   {
                     title: "Total Supply",
@@ -1007,7 +1020,7 @@ const MyPoolInfo = ({
                 { title: "Token Name", content: tokenName },
                 {
                   title: "Contract Address",
-                  content: addressShortener(tokenContract),
+                  content: <AddressCopier address={tokenContract} />,
                 },
                 {
                   title: "Total Supply",

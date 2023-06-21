@@ -41,7 +41,10 @@ import { disconnectCurrentAccount } from "redux/slices/walletSlice";
 import AddressCopier from "components/address-copier/AddressCopier";
 import { logOutMyPools } from "redux/slices/myPoolsSlice";
 
-export default function WalletButton({ currentAccountAddress, onCloseSidebar }) {
+export default function WalletButton({
+  currentAccountAddress,
+  onCloseSidebar,
+}) {
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { currentAccount, allAccounts } = useSelector((state) => state.wallet);
@@ -334,7 +337,7 @@ export const WalletConnect = ({ onClose }) => {
                 width={{ base: "33%" }}
                 onClick={() => {
                   history.push(`/my-pools?section=${item?.id}`);
-                  onClose();
+                  if (onClose) onClose();
                 }}
               >
                 <MenuCardIcon {...item} />

@@ -5,6 +5,7 @@ import axios from "axios";
 import BN from "bn.js";
 import numeral from "numeral";
 import Keyring from "@polkadot/keyring";
+import { toast } from "react-hot-toast";
 
 // "12,345" (string) or 12,345 (string) -> 12345 (number)
 export const formatChainStringToNumber = (str) => {
@@ -228,5 +229,95 @@ export const moveINWToBegin = (tokensList) => {
   }
   return tokensList.filter(
     (e) => !!e?.contractAddress && e?.contractAddress != "undefined"
-  ); 
+  );
 };
+
+export const excludeNFT = (tokensList) =>
+  tokensList.filter(
+    (element) =>
+      element?.nftContractAddress != process.env.REACT_APP_EXCLUDE_TOKEN_ADDRESS
+  );
+
+const toContractAbiMessage = (contractPromise, message) => {
+  const value = contractPromise.abi.messages.find((m) => m.method === message);
+
+  if (!value) {
+    const messages = contractPromise?.abi.messages
+      .map((m) => m.method)
+      .join(", ");
+
+    const error = `"${message}" not found in metadata.spec.messages: [${messages}]`;
+    console.error(error);
+
+    return { ok: false, error };
+  }
+
+  return { ok: true, value };
+};
+
+export async function getGasLimitBulkAction(
+  api,
+  userAddress,
+  message,
+  contract,
+  options = {},
+  args = []
+) {
+  const abiMessage = toContractAbiMessage(contract, message);
+
+  if (!abiMessage.ok) return abiMessage;
+
+  const { value, gasLimit, storageDepositLimit } = options;
+
+  const { gasRequired } = await api.call.contractsApi.call(
+    userAddress,
+    contract.address,
+    value ?? new BN(0),
+    gasLimit ?? null,
+    storageDepositLimit ?? null,
+    abiMessage.value.toU8a(args)
+  );
+
+  const refTime = gasRequired.refTime.toHuman().replaceAll(",", "");
+  const proofSize = gasRequired.proofSize.toHuman().replaceAll(",", "");
+
+  const gasRequiredAdjust = api.registry.createType("WeightV2", {
+    refTime: new BN(refTime * 10 ** 0).mul(new BN(2)),
+    proofSize: new BN(proofSize * 10 ** 0).mul(new BN(2)),
+  });
+
+  return { ok: true, value: gasRequiredAdjust };
+}
+
+export async function getEstimatedGasBatchTx(
+  address,
+  contract,
+  value,
+  queryName,
+  ...args
+) {
+  let ret;
+  // getEstimatedGasBatchTx
+  try {
+    const gasLimitResult = await getGasLimitBulkAction(
+      contract?.api,
+      address,
+      queryName,
+      contract,
+      { value },
+      args
+    );
+
+    if (!gasLimitResult.ok) {
+      console.log(queryName, "getEstimatedGas err ", gasLimitResult.error);
+      return;
+    }
+
+    ret = gasLimitResult?.value;
+  } catch (error) {
+    toast.error("Error fetch gas:", error.message);
+    console.log("error fetchGas xx>>", error.message);
+  }
+
+  return ret;
+}

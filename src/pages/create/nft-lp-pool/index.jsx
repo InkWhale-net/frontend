@@ -37,6 +37,7 @@ import ImageUploadIcon from "../token/UploadIcon";
 import { SelectSearch } from "components/SelectSearch";
 import { execContractTxAndCallAPI } from "utils/contracts";
 import { moveINWToBegin } from "utils";
+import { excludeNFT } from "utils";
 
 export default function CreateNFTLPPage({ api }) {
   const dispatch = useDispatch();
@@ -130,11 +131,10 @@ export default function CreateNFTLPPage({ api }) {
     let isUnmounted = false;
     const getFaucetTokensListData = async () => {
       let { ret, status, message } = await APICall.getTokensList({});
-
       if (status === "OK") {
         if (isUnmounted) return;
 
-        return setFaucetTokensList(moveINWToBegin(ret));
+        return setFaucetTokensList(moveINWToBegin(ret) || []);
       }
 
       toast.error(`Get faucet tokens list failed. ${message}`);
@@ -149,7 +149,7 @@ export default function CreateNFTLPPage({ api }) {
       if (status === "OK") {
         if (isUnmounted) return;
         ret = ret.filter((el) => !el.name?.toLowerCase()?.includes("domain"));
-        return setCollectionList(ret);
+        return setCollectionList(excludeNFT(ret));
       }
 
       toast.error(`Get Collection list failed. ${message}`);
@@ -247,8 +247,8 @@ export default function CreateNFTLPPage({ api }) {
     endDate?.setDate(startTime?.getDate() + parseInt(duration));
     if (!!endDate) {
       const currentDate = new Date();
-      if (endDate < currentDate) {
-        toast.error(`Pool can not end in the pass`);
+      if (startTime < currentDate || endDate < currentDate) {
+        toast.error(`Pool can not start or end in the past`);
         return;
       }
     } else {
