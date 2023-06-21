@@ -4,6 +4,7 @@ import "assets/css/App.css";
 import "react-datetime-picker/dist/DateTimePicker.css";
 import "react-calendar/dist/Calendar.css";
 import "react-clock/dist/Clock.css";
+import 'rc-steps/assets/index.css';
 import { HashRouter, Redirect, Route, Switch } from "react-router-dom";
 import DefaultLayout from "layouts/default";
 import { ChakraProvider } from "@chakra-ui/react";
@@ -45,6 +46,7 @@ import { fetchAllNFTPools } from "redux/slices/allPoolsSlice";
 import { fetchAllTokenPools } from "redux/slices/allPoolsSlice";
 import { web3Enable } from "@polkadot/extension-dapp";
 import AdminPage from "pages/admin";
+import CreateLaunchpadPage from "pages/create-launchpad";
 import { AppContextProvider } from "contexts/AppContext";
 import { useAppContext } from "contexts/AppContext";
 
@@ -183,6 +185,7 @@ const App = () => {
             component={CreateStakePoolPage}
           />
           <Route exact path={`/create/nft-lp`} component={CreateNFTLPPage} />
+          <Route exact path={`/create/launchpad`} component={CreateLaunchpadPage} />
           <Route
             exact
             path={`/create/token-lp`}
