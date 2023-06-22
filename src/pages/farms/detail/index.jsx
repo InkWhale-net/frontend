@@ -55,6 +55,7 @@ import lp_pool_contract from "utils/contracts/lp_pool_contract";
 import nft_pool_contract from "utils/contracts/nft_pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import psp34_standard from "utils/contracts/psp34_standard";
+import psp34_ID_standard from "utils/contracts/azero-domains-nft";
 import { updateUnstakeFee } from "redux/slices/bulkStakeSlide";
 import { closeBulkDialog } from "redux/slices/bulkStakeSlide";
 import { isBoolean } from "@polkadot/util";
@@ -559,7 +560,7 @@ const MyStakeRewardInfoNFT = ({
     getStakeNft();
   }, [refetchData]);
 
-  async function stakeNftHandler(tokenID) {
+  async function stakeNftHandler(tokenID, isAzDomain) {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
       return;
@@ -579,19 +580,19 @@ const MyStakeRewardInfoNFT = ({
       toast.error("There is no reward balance in this pool!");
       return;
     }
-
+    const type = isAzDomain ? 'bytes': 'u64'
     //Approve
     toast.success("Step 1: Approving...");
-
+    console.log(tokenID, type, 'tokenIDtokenID');
     let approve = await execContractTx(
       currentAccount,
       "api",
-      psp34_standard.CONTRACT_ABI,
+      isAzDomain ? psp34_ID_standard.CONTRACT_ABI : psp34_standard.CONTRACT_ABI,
       NFTtokenContract,
       0, //-> value
       "psp34::approve",
       poolContract,
-      { u64: tokenID },
+      { [type]: tokenID },
       true
     );
     if (!approve) return;
@@ -607,7 +608,7 @@ const MyStakeRewardInfoNFT = ({
       poolContract,
       0, //-> value
       "stake",
-      { u64: tokenID }
+      { [type]: tokenID }
     );
 
     await APICall.askBEupdate({ type: "nft", poolContract });

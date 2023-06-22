@@ -19,13 +19,12 @@ const NFTCard = (props) => {
   const dispatch = useDispatch();
   const { listNFTStake } = useSelector((s) => s.bulkStake);
 
-  const { nftName, avatar, tokenID } = props?.cardData;
+  const { nftName, avatar, tokenID, isAzDomain, azDomainName } = props?.cardData;
   const { action, actionHandler, unstakeFee } = props;
 
   const isSelected = listNFTStake
     .map((e) => e?.tokenID)
     ?.includes(props?.cardData?.tokenID);
-
   return (
     <Fragment>
       <WrapItem>
@@ -97,7 +96,7 @@ const NFTCard = (props) => {
               action={action}
               buttonVariant="primary"
               buttonLabel={action}
-              onClick={() => actionHandler(tokenID)}
+              onClick={() => actionHandler(isAzDomain ? azDomainName : tokenID, isAzDomain)}
               message={formatMessageNFTPool(action, nftName, unstakeFee)}
             />
           </Box>

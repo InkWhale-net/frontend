@@ -148,7 +148,6 @@ export default function CreateNFTLPPage({ api }) {
 
       if (status === "OK") {
         if (isUnmounted) return;
-        ret = ret.filter((el) => !el.name?.toLowerCase()?.includes("domain"));
         return setCollectionList(excludeNFT(ret));
       }
 
