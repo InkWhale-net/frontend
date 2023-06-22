@@ -17,33 +17,33 @@ const CheckedIcon = () => {
   );
 };
 
-const CreateLaunchpadContextProvider = ({ children }) => {
+const CreateLaunchpadContextProvider = (props) => {
   const [current, setCurrent] = useState(0);
   const [itemStep, setItemStep] = useState([
     {
       title: "Verify Token",
       description: "Enter the token address and verify",
-      content: <VerifyToken />,
+      content: <VerifyToken {...props} />,
     },
     {
       title: "Project Info",
       description: "Enter the project information ",
-      content: <ProjectInfor />,
+      content: <ProjectInfor {...props} />,
     },
     {
       title: "Project Roadmap",
       description: "Enter the project roadmap",
-      content: <ProjectRoadmap />,
+      content: <ProjectRoadmap {...props} />,
     },
     {
       title: "Team",
       description: "Enter the project phase",
-      content: <Team />,
+      content: <Team {...props} />,
     },
     {
       title: "Phase",
       description: "Phase information",
-      content: <Phase />,
+      content: <Phase {...props} />,
     },
     // {
     //   title: "Finish",
@@ -62,7 +62,6 @@ const CreateLaunchpadContextProvider = ({ children }) => {
   };
 
   const prevStep = () => {
-    console.log(current, "currentcurrent");
     const prefStep = Math.max(current - 1, 0);
     setItemStep((prevState) => {
       const { icon, ...step } = prevState[prefStep];
@@ -82,7 +81,7 @@ const CreateLaunchpadContextProvider = ({ children }) => {
         current,
       }}
     >
-      {children}
+      {props.children}
     </CreateLaunchpadContext.Provider>
   );
 };
