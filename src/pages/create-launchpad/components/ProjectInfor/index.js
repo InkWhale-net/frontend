@@ -9,6 +9,13 @@ const ProjectInfor = () => {
   const [projectInfor, setProjectInfor] = useState(null);
   return (
     <>
+      <SimpleGrid
+        w="full"
+        columns={{ base: 1, lg: 2 }}
+        spacingX={{ lg: "20px" }}
+        spacingY={{ base: "20px", lg: "32px" }}
+        mb={{ base: "30px" }}
+      ></SimpleGrid>
       <Box w={{ base: "full" }}>
         <SectionContainer title="Project Name">
           <IWInput

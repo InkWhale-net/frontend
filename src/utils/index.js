@@ -6,6 +6,7 @@ import BN from "bn.js";
 import numeral from "numeral";
 import Keyring from "@polkadot/keyring";
 import { toast } from "react-hot-toast";
+import { SupportedChainId, resolveAddressToDomain } from "@azns/resolver-core";
 
 // "12,345" (string) or 12,345 (string) -> 12345 (number)
 export const formatChainStringToNumber = (str) => {
@@ -321,3 +322,20 @@ export async function getEstimatedGasBatchTx(
 
   return ret;
 }
+
+export const resolveDomain = async (address) => {
+  // if (
+  //   process.env.REACT_APP_NETWORK === "alephzero-testnet" ||
+  //   process.env.REACT_APP_NETWORK === "alephzero"
+  // ) {
+
+  // }
+  try {
+    const domains = await resolveAddressToDomain(address, {
+      chainId: SupportedChainId.AlephZeroTestnet,
+    });
+    return domains[0];
+  } catch (error) {
+    console.log("resolveDomain error", error);
+  }
+};

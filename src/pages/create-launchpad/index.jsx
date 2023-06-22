@@ -8,10 +8,18 @@ import CreateLaunchpadContextProvider, {
   CreateLaunchpadContext,
 } from "./CreateLaunchpadContext";
 
-function CreateLaunchpadLayout({ api }) {
+function CreateLaunchpadLayout({ launchpadData }) {
   const { nextStep, prevStep, itemStep, current } = useContext(
     CreateLaunchpadContext
   );
+  const isNextButtonActive = () => {
+    switch (current) {
+      case 0:
+        return !!launchpadData?.token;
+      default:
+        return true;
+    }
+  };
   return (
     <SectionContainer
       mt={{ base: "0px", xl: "8px" }}
@@ -35,11 +43,22 @@ function CreateLaunchpadLayout({ api }) {
           <Box>{itemStep[current]?.content}</Box>
           <Center mt={"60px"}>
             {current > 0 && (
-              <Button w={"101px"} mr={"12px"} type="button" onClick={prevStep}>
+              <Button
+                w={"101px"}
+                mr={"12px"}
+                type="button"
+                onClick={prevStep}
+                disabled
+              >
                 Back
               </Button>
             )}
-            <Button w={"101px"} type="button" onClick={nextStep}>
+            <Button
+              w={"101px"}
+              type="button"
+              onClick={nextStep}
+              disabled={!isNextButtonActive()}
+            >
               {current < itemStep?.length - 1 ? "Next" : "Finish"}
             </Button>
           </Center>
@@ -50,9 +69,20 @@ function CreateLaunchpadLayout({ api }) {
 }
 
 const CreateLaunchpadPage = () => {
+  const [launchpadData, updateLaunchpadData] = useState({
+    token: null,
+    projectInfor: null,
+    roadmap: null,
+    team: null,
+    phase: null,
+  });
+  const updateToken = (value) => {
+    updateLaunchpadData({ ...launchpadData, token: value });
+  };
+
   return (
-    <CreateLaunchpadContextProvider>
-      <CreateLaunchpadLayout />
+    <CreateLaunchpadContextProvider updateToken={updateToken}>
+      <CreateLaunchpadLayout launchpadData={launchpadData} />
     </CreateLaunchpadContextProvider>
   );
 };

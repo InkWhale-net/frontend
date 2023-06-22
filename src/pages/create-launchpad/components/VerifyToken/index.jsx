@@ -27,14 +27,11 @@ import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 import SectionContainer from "../sectionContainer";
 
-export default function VerifyToken() {
-  const [tokenInfo, setTokenInfo] = useState({});
+export default function VerifyToken({ updateToken }) {
+  const [tokenInfo, setTokenInfo] = useState(null);
   const { currentAccount } = useSelector((s) => s.wallet);
-  const [tokenAddress, setTokenAddress] = useState("");
-  const [currencyOption, setCurrencyOption] = useState(null);
-  const [feeOption, setFeeOption] = useState(null);
-  const [listingOption, setListingOption] = useState(null);
   const { allTokensList } = useSelector((s) => s.allPools);
+  const [tokenAddress, setTokenAddress] = useState("");
 
   const tokenList = useMemo(() => {
     return (
@@ -54,7 +51,7 @@ export default function VerifyToken() {
     return () => clearTimeout(delayDebounceFn);
   }, [tokenAddress]);
 
-  async function loadTokenInfo() {
+  const loadTokenInfo = async () => {
     if (!currentAccount) {
       toast.error("Please connect wallet!");
       return setTokenInfo({});
@@ -164,11 +161,14 @@ export default function VerifyToken() {
         tokenIconUrl,
       };
     });
-  }
+  };
 
-  const currencyOptions = ["BNB", "BUSD", "USDC", "USDT"];
-  const feeOptions = ["5% BNB raised only", "Other"];
-  const listingOptions = ["Auto Listing", "Manual Listing"];
+  // const currencyOptions = ["BNB", "BUSD", "USDC", "USDT"];
+  // const feeOptions = ["5% BNB raised only", "Other"];
+  // const listingOptions = ["Auto Listing", "Manual Listing"];
+  useEffect(() => {
+    updateToken(tokenInfo);
+  }, [tokenInfo]);
 
   return (
     <>
@@ -210,46 +210,54 @@ export default function VerifyToken() {
             />
           </Box>
         </SimpleGrid>
-        <Flex
-          py="12px"
-          borderBottom={"1px solid #E3DFF3"}
-          justifyContent={"space-between"}
-        >
-          <div>Name:</div>
-          <div>{tokenInfo?.symbol}</div>
-        </Flex>
-        <Flex
-          py="12px"
-          borderBottom={"1px solid #E3DFF3"}
-          justifyContent={"space-between"}
-        >
-          <div>Symbol:</div>
-          <div>{tokenInfo?.name}</div>
-        </Flex>
-        <Flex
-          py="12px"
-          borderBottom={"1px solid #E3DFF3"}
-          justifyContent={"space-between"}
-        >
-          <div>Decimals:</div>
-          <div>{tokenInfo?.decimals}</div>
-        </Flex>
-        <Flex
-          py="12px"
-          borderBottom={"1px solid #E3DFF3"}
-          justifyContent={"space-between"}
-        >
-          <div>Total supply:</div>
-          <div>{tokenInfo?.totalSupply}</div>
-        </Flex>
-        <Flex
-          py="12px"
-          borderBottom={"1px solid #E3DFF3"}
-          justifyContent={"space-between"}
-        >
-          <div>Balance:</div>
-          <div>{tokenInfo?.balance}</div>
-        </Flex>
+        {tokenInfo && (
+          <Box
+            borderWidth={"1px"}
+            padding={{ base: "8px" }}
+            borderRadius={{ base: "4px" }}
+          >
+            <Flex
+              py="12px"
+              // borderBottom={"1px solid #E3DFF3"}
+              justifyContent={"space-between"}
+            >
+              <Text>Name:</Text>
+              <Text>{tokenInfo?.symbol}</Text>
+            </Flex>
+            <Flex
+              py="12px"
+              // borderBottom={"1px solid #E3DFF3"}
+              justifyContent={"space-between"}
+            >
+              <Text>Symbol:</Text>
+              <Text>{tokenInfo?.name}</Text>
+            </Flex>
+            <Flex
+              py="12px"
+              // borderBottom={"1px solid #E3DFF3"}
+              justifyContent={"space-between"}
+            >
+              <Text>Decimals:</Text>
+              <Text>{tokenInfo?.decimals}</Text>
+            </Flex>
+            <Flex
+              py="12px"
+              // borderBottom={"1px solid #E3DFF3"}
+              justifyContent={"space-between"}
+            >
+              <Text>Total supply:</Text>
+              <Text>{tokenInfo?.totalSupply}</Text>
+            </Flex>
+            <Flex
+              py="12px"
+              // borderBottom={"1px solid #E3DFF3"}
+              justifyContent={"space-between"}
+            >
+              <Text>Balance:</Text>
+              <Text>{tokenInfo?.balance}</Text>
+            </Flex>
+          </Box>
+        )}
       </Box>
       {/* <SectionContainer
         title="Currency"
