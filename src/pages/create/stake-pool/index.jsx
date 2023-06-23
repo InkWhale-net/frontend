@@ -3,7 +3,6 @@ import {
   Button,
   Flex,
   Heading,
-  Select,
   SimpleGrid,
   Text,
   Tooltip,
@@ -13,30 +12,31 @@ import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 import { IWTable } from "components/table/IWTable";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { QuestionOutlineIcon } from "@chakra-ui/icons";
+import { APICall } from "api/client";
+import { SelectSearch } from "components/SelectSearch";
+import { toastMessages } from "constants";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import DateTimePicker from "react-datetime-picker";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserBalance } from "redux/slices/walletSlice";
-import { delay } from "utils";
-import { isAddressValid } from "utils";
-import { formatNumToBN } from "utils";
-import { formatQueryResultToNumber } from "utils";
-import { execContractQuery } from "utils/contracts";
-import { execContractTx } from "utils/contracts";
-import azt_contract from "utils/contracts/azt_contract";
-import psp22_contract from "utils/contracts/psp22_contract";
-import { APICall } from "api/client";
-import { addressShortener } from "utils";
-import DateTimePicker from "react-datetime-picker";
-import pool_generator_contract from "utils/contracts/pool_generator";
-import { toastMessages } from "constants";
 import { fetchMyStakingPools } from "redux/slices/myPoolsSlice";
-import { formatNumDynDecimal } from "utils";
-import { QuestionOutlineIcon } from "@chakra-ui/icons";
-import { roundUp } from "utils";
-import { SelectSearch } from "components/SelectSearch";
-import { execContractTxAndCallAPI } from "utils/contracts";
-import { moveINWToBegin } from "utils";
+import { fetchUserBalance } from "redux/slices/walletSlice";
+import {
+  addressShortener,
+  delay,
+  formatNumDynDecimal,
+  formatNumToBN,
+  formatQueryResultToNumber,
+  formatTokenAmount,
+  isAddressValid,
+  moveINWToBegin,
+  roundUp,
+} from "utils";
+import { execContractQuery, execContractTx } from "utils/contracts";
+import azt_contract from "utils/contracts/azt_contract";
+import pool_generator_contract from "utils/contracts/pool_generator";
+import psp22_contract from "utils/contracts/psp22_contract";
 
 export default function CreateStakePoolPage({ api }) {
   const dispatch = useDispatch();
@@ -55,6 +55,8 @@ export default function CreateStakePoolPage({ api }) {
 
   const [tokenBalance, setTokenBalance] = useState(0);
   const [tokenSymbol, setTokenSymbol] = useState("");
+  const [tokenInfor, setTokenInfor] = useState(null);
+  const [stakingPoolList, setStakingPoolList] = useState([]);
 
   const fetchTokenBalance = useCallback(async () => {
     if (!selectedContractAddr) return;
@@ -68,7 +70,9 @@ export default function CreateStakePoolPage({ api }) {
       toast.error("Invalid address!");
       return;
     }
-
+    const foundItem = faucetTokensList.find(
+      (item) => item.contractAddress === selectedContractAddr
+    );
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
@@ -79,11 +83,10 @@ export default function CreateStakePoolPage({ api }) {
       currentAccount?.address
     );
 
-    const bal = formatQueryResultToNumber(queryResult);
+    const bal = formatQueryResultToNumber(queryResult, foundItem?.decimal);
     setTokenBalance(bal);
-    const foundItem = faucetTokensList.find(
-      (item) => item.contractAddress === selectedContractAddr
-    );
+
+    setTokenInfor(foundItem);
     if (!foundItem?.symbol) {
       let queryResult1 = await execContractQuery(
         currentAccount?.address,
@@ -139,6 +142,19 @@ export default function CreateStakePoolPage({ api }) {
     fetchCreateTokenFee();
   }, [currentAccount]);
 
+  const formatMaxStakingAmount = async (_myStakingPoolsList) => {
+    setStakingPoolList(
+      _myStakingPoolsList?.map((e) => ({
+        ...e,
+        maxStakingAmount:
+          e?.maxStakingAmount &&
+          formatTokenAmount(e?.maxStakingAmount, e?.tokenDecimal),
+      }))
+    );
+  };
+  useEffect(() => {
+    formatMaxStakingAmount(myStakingPoolsList);
+  }, [myStakingPoolsList]);
   async function createStakingPoolHandler() {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
@@ -188,7 +204,6 @@ export default function CreateStakePoolPage({ api }) {
     }
     const endDate = startTime && new Date(startTime?.getTime());
     endDate?.setDate(startTime?.getDate() + parseInt(duration));
-    console.log(startTime?.getTime())
     if (!!endDate) {
       const currentDate = new Date();
       if (startTime < currentDate || endDate < currentDate) {
@@ -225,7 +240,8 @@ export default function CreateStakePoolPage({ api }) {
       pool_generator_contract.CONTRACT_ADDRESS
     );
     const allowanceToken = formatQueryResultToNumber(
-      allowanceTokenQr
+      allowanceTokenQr,
+      tokenInfor?.decimal
     ).replaceAll(",", "");
     let step = 1;
 
@@ -272,7 +288,7 @@ export default function CreateStakePoolPage({ api }) {
       "newPool",
       currentAccount?.address,
       selectedContractAddr,
-      formatNumToBN(maxStake, 12),
+      formatNumToBN(maxStake, tokenInfor?.decimal || 12),
       parseInt(apy * 100),
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
@@ -361,10 +377,7 @@ export default function CreateStakePoolPage({ api }) {
       },
     ],
 
-    tableBody: myStakingPoolsList?.map((e) => ({
-      ...e,
-      maxStakingAmount: formatNumDynDecimal(e?.maxStakingAmount),
-    })),
+    tableBody: stakingPoolList,
   };
   return (
     <>
