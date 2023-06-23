@@ -56,6 +56,7 @@ import AddressCopier from "components/address-copier/AddressCopier";
 import { BN } from "bn.js";
 import { roundUp } from "utils";
 import { roundDown } from "utils";
+import { formatTokenAmount } from "utils";
 
 export default function MyPoolDetailPage({ api }) {
   const [state, setState] = useState({});
@@ -391,6 +392,7 @@ const MyPoolInfo = ({
   lptokenSymbol,
   lptokenName,
   lptokenTotalSupply,
+  tokenDecimal,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -416,7 +418,7 @@ const MyPoolInfo = ({
       currentAccount?.address
     );
 
-    const balance = formatQueryResultToNumber(result);
+    const balance = formatQueryResultToNumber(result, parseInt(tokenDecimal));
     setTokenBalance(balance);
     if (isPoolEnded(startTime, duration)) {
       const unclaimRwQr = await execContractQuery(
@@ -896,7 +898,7 @@ const MyPoolInfo = ({
               {
                 title: "Max Staking Amount",
                 content: `${formatNumDynDecimal(
-                  maxStakingAmount
+                  formatTokenAmount(maxStakingAmount, tokenDecimal)
                 )} ${tokenSymbol}`,
               },
               {

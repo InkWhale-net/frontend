@@ -27,6 +27,7 @@
     "babel-preset-react": "^6.24.1",
     "babel-register": "^6.26.0",
     "buffer": "^6.0.3",
+    "ethers": "^6.6.0",
     "framer-motion": "^6",
     "ipfs-http-client": "^52.0.0",
     "loglevel": "^1.8.1",

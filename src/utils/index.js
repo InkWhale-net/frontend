@@ -7,6 +7,7 @@ import numeral from "numeral";
 import Keyring from "@polkadot/keyring";
 import { toast } from "react-hot-toast";
 import { SupportedChainId, resolveAddressToDomain } from "@azns/resolver-core";
+import { formatUnits } from "ethers";
 
 // "12,345" (string) or 12,345 (string) -> 12345 (number)
 export const formatChainStringToNumber = (str) => {
@@ -338,4 +339,8 @@ export const resolveDomain = async (address) => {
   } catch (error) {
     console.log("resolveDomain error", error);
   }
+};
+
+export const formatTokenAmount = (value, decimal = 12) => {
+  return formatUnits(value?.toString()?.replace(/,/g, ""), decimal);
 };
