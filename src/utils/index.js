@@ -329,7 +329,6 @@ export const resolveDomain = async (address) => {
   //   process.env.REACT_APP_NETWORK === "alephzero-testnet" ||
   //   process.env.REACT_APP_NETWORK === "alephzero"
   // ) {
-
   // }
   try {
     const domains = await resolveAddressToDomain(address, {

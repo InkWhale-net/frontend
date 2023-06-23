@@ -35,7 +35,6 @@ const TokensTabCheckBalance = ({
     if (!isAddressValid(addressCheckBalance)) {
       return toast.error("Invalid address!");
     }
-
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
@@ -45,9 +44,17 @@ const TokensTabCheckBalance = ({
       "psp22::balanceOf",
       addressCheckBalance
     );
+    let tokenDecimalQuery = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      selectedContractAddr,
+      0,
+      "psp22Metadata::tokenDecimals"
+    );
+    const decimal = tokenDecimalQuery.toHuman()?.Ok;
 
-    const bal = formatQueryResultToNumber(queryResult);
-
+    const bal = formatQueryResultToNumber(queryResult, parseInt(decimal));
     setTokenBalance(bal);
   }
   return (
