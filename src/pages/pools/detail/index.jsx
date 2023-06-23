@@ -314,8 +314,7 @@ const MyStakeRewardInfo = ({
         "psp22::balanceOf",
         currentAccount?.address
       );
-
-      const balance = formatQueryResultToNumber(result);
+      const balance = formatQueryResultToNumber(result, tokenDecimal);
       setTokenBalance(balance);
       setRemainStaking(roundUp(maxStakingAmount - totalStaked, 4));
     } catch (error) {
@@ -499,7 +498,7 @@ const MyStakeRewardInfo = ({
       let info = queryResult?.toHuman().Ok;
 
       const userCurrentStake =
-        info?.stakedValue?.replaceAll(",", "") / 10 ** 12 || 0;
+        info?.stakedValue?.replaceAll(",", "") / 10 ** tokenDecimal || 0;
       if (userCurrentStake === 0) {
         toast.error(`You musk stake first`);
         return false;
@@ -536,7 +535,7 @@ const MyStakeRewardInfo = ({
       return;
     }
 
-    if (stakeInfo?.stakedValue / 10 ** 12 < amount) {
+    if (stakeInfo?.stakedValue / 10 ** tokenDecimal < amount) {
       toast.error("Not enough tokens!");
       return;
     }
@@ -638,7 +637,7 @@ const MyStakeRewardInfo = ({
           {
             title: "My Stakes ",
             content: `${formatNumDynDecimal(
-              stakeInfo?.stakedValue / 10 ** 12
+              stakeInfo?.stakedValue / 10 ** tokenDecimal
             )} ${tokenSymbol}`,
           },
           {

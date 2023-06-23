@@ -823,7 +823,7 @@ const MyPoolInfo = ({
         poolContract,
         0, //-> value
         "genericPoolContractTrait::withdrawRewardPool",
-        formatNumToBN(amount)
+        formatNumToBN(amount, tokenDecimal)
       );
 
       await APICall.askBEupdate({ type: "pool", poolContract });
