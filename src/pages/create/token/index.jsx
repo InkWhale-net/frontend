@@ -35,12 +35,14 @@ import ImportTokenForm from "./ImportToken";
 import ImageUploadIcon from "./UploadIcon";
 import SaleTab from "components/tabs/SaleTab";
 import { roundUp } from "utils";
+import { useAppContext } from "contexts/AppContext";
 const PAGINATION_AMOUNT = 32;
 
-export default function CreateTokenPage({ api }) {
+export default function CreateTokenPage() {
   const dispatch = useDispatch();
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allTokensList } = useSelector((s) => s.allPools);
+  const { api } = useAppContext();
 
   const [tokenName, setTokenName] = useState("");
   const [mintAddress, setMintAddress] = useState(currentAccount?.address);
@@ -71,10 +73,9 @@ export default function CreateTokenPage({ api }) {
     };
     fetchCreateTokenFee();
   }, [currentAccount, api]);
-
-  const addTotalSupply = async () => {
+  const addTotalSupply = async (_allTokensList) => {
     const processedTokenList = await Promise.all(
-      allTokensList.map(async (e) => {
+      _allTokensList.map(async (e) => {
         let queryResult = await execContractQuery(
           currentAccount?.address,
           "api",
@@ -106,12 +107,11 @@ export default function CreateTokenPage({ api }) {
     );
     setListToken(processedTokenList);
   };
-
   useEffect(() => {
     // setListToken([...listToken, allTokensList.slice(x)])
     // setListToken(allTokensList);
-    addTotalSupply();
-  }, [currentPage]);
+    if (allTokensList?.length > 0 && !!api) addTotalSupply(allTokensList);
+  }, [allTokensList, api]);
 
   const updateIcon = async (contractAddress) => {
     if (iconIPFSUrl) {
