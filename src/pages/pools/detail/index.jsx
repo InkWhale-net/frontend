@@ -75,6 +75,9 @@ export default function PoolDetailPage({ api }) {
               )
             )
           : poolData?.maxStakingAmount,
+      totalStaked: parseFloat(
+        formatTokenAmount(poolData?.totalStaked, poolData?.tokenDecimal)
+      ),
     };
   }, [allStakingPoolsList, params?.contractAddress]);
   useEffect(() => {
@@ -464,7 +467,7 @@ const MyStakeRewardInfo = ({
         0, //-> value
         "psp22::approve",
         poolContract,
-        formatNumToBN(amount)
+        formatNumToBN(amount, tokenDecimal)
       );
       if (!approve) return;
 
@@ -478,7 +481,7 @@ const MyStakeRewardInfo = ({
         poolContract,
         0, //-> value
         "stake",
-        formatNumToBN(amount)
+        formatNumToBN(amount, tokenDecimal)
       );
 
       await APICall.askBEupdate({ type: "pool", poolContract });
@@ -564,7 +567,7 @@ const MyStakeRewardInfo = ({
       0, //-> value
       "psp22::approve",
       poolContract,
-      formatNumToBN(unstakeFee)
+      formatNumToBN(unstakeFee, tokenDecimal)
     );
 
     if (!approve) return;
@@ -580,7 +583,7 @@ const MyStakeRewardInfo = ({
       poolContract,
       0, //-> value
       "unstake",
-      formatNumToBN(amount)
+      formatNumToBN(amount, tokenDecimal)
     );
 
     await APICall.askBEupdate({ type: "pool", poolContract });
@@ -783,9 +786,9 @@ const PoolInfo = (props) => {
       "psp22Metadata::tokenDecimals"
     );
     const decimals = queryResult1.toHuman().Ok;
+
     const totalSupply = roundUp(
-      rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
-      0
+      formatTokenAmount(rawTotalSupply?.replaceAll(",", ""), parseInt(decimals))
     );
     setTotalSupply(totalSupply);
   };

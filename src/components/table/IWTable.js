@@ -25,6 +25,7 @@ import { addressShortener } from "utils";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import TokenIcon from "components/TokenIcon";
 import AddressCopier from "components/address-copier/AddressCopier";
+import { formatTokenAmount } from "utils";
 
 const getStatusPool = (startTime, duration) => {
   if (startTime + duration * 1000 < new Date()) {
@@ -269,7 +270,9 @@ export const formatDataCellTable = (itemObj, header, mode) => {
     case "stakeInfo":
       const numberStakeInfo =
         itemObj[header] &&
-        formatNumDynDecimal(itemObj[header].stakedValue / 10 ** 12);
+        formatNumDynDecimal(
+          formatTokenAmount(itemObj[header].stakedValue, itemObj?.tokenDecimal)
+        );
 
       const numberNFTStakeInfo =
         itemObj[header] && formatNumDynDecimal(itemObj[header].stakedValue);
@@ -283,10 +286,12 @@ export const formatDataCellTable = (itemObj, header, mode) => {
                 <GoStar color="#FFB800" />
               </Flex>
             ) : (
-              <Flex alignItems="center">
-                <Text mr="8px">{numberStakeInfo}</Text>
-                <GoStar color="#FFB800" />
-              </Flex>
+              numberStakeInfo > 0 && (
+                <Flex alignItems="center">
+                  <Text mr="8px">{numberStakeInfo}</Text>
+                  <GoStar color="#FFB800" />
+                </Flex>
+              )
             )
           ) : (
             ""

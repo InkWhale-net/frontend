@@ -55,27 +55,33 @@ export default function PoolsPage({ api }) {
     }
 
     setResultList(
-      result.map((e, index) => {
-        // setRemainStaking(roundUp(maxStakingAmount - totalStaked, 4));
-        const maxObjStakingAmount =
-          typeof e?.maxStakingAmount == "string"
-            ? parseFloat(
-                formatTokenAmount(e?.maxStakingAmount, e?.tokenDecimal)
-              )
-            : e?.maxStakingAmount;
-        const remainStaking = roundUp(maxObjStakingAmount - e?.totalStaked, 4);
-        return {
-          ...e,
-          maxStakingAmount: maxObjStakingAmount,
-          hasTooltip: remainStaking === 0 && (
-            <Tooltip fontSize="md" label="Max Staking Amount reached">
-              <span style={{ marginLeft: "6px" }}>
-                <AiOutlineExclamationCircle ml="6px" color="text.1" />
-              </span>
-            </Tooltip>
-          ),
-        };
-      })
+      result
+        ?.filter((e) => !(e?.totalStaked > 0 && e?.totalStaked < 1))
+        .map((e, index) => {
+          // setRemainStaking(roundUp(maxStakingAmount - totalStaked, 4));
+          const maxObjStakingAmount =
+            typeof e?.maxStakingAmount == "string"
+              ? parseFloat(
+                  formatTokenAmount(e?.maxStakingAmount, e?.tokenDecimal)
+                )
+              : e?.maxStakingAmount;
+          const totalStaked = parseFloat(
+            formatTokenAmount(e?.totalStaked, e?.tokenDecimal)
+          );
+          const remainStaking = roundUp(maxObjStakingAmount - totalStaked, 4);
+          return {
+            ...e,
+            totalStaked,
+            maxStakingAmount: maxObjStakingAmount,
+            hasTooltip: remainStaking === 0 && (
+              <Tooltip fontSize="md" label="Max Staking Amount reached">
+                <span style={{ marginLeft: "6px" }}>
+                  <AiOutlineExclamationCircle ml="6px" color="text.1" />
+                </span>
+              </Tooltip>
+            ),
+          };
+        })
     );
   };
 
