@@ -51,6 +51,7 @@ import { execContractQuery, execContractTx } from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
 import pool_contract from "utils/contracts/pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
+import { formatTokenAmount } from "utils";
 
 export default function PoolDetailPage({ api }) {
   const params = useParams();
@@ -60,9 +61,21 @@ export default function PoolDetailPage({ api }) {
   const [remainStaking, setRemainStaking] = useState(null);
 
   const currentPool = useMemo(() => {
-    return allStakingPoolsList?.find(
+    const poolData = allStakingPoolsList?.find(
       (p) => p?.poolContract === params?.contractAddress
     );
+    return {
+      ...poolData,
+      maxStakingAmount:
+        typeof poolData?.maxStakingAmount == "string"
+          ? parseFloat(
+              formatTokenAmount(
+                poolData?.maxStakingAmount,
+                poolData?.tokenDecimal
+              )
+            )
+          : poolData?.maxStakingAmount,
+    };
   }, [allStakingPoolsList, params?.contractAddress]);
   useEffect(() => {
     window.scrollTo(0, 0);
