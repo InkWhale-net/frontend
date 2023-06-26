@@ -9,6 +9,7 @@ import {
   Select,
   Stack,
   Switch,
+  Tooltip,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { delay } from "utils";
@@ -23,6 +24,11 @@ import { isPoolEnded } from "utils";
 import IWInput from "components/input/Input";
 import { IWMobileList } from "components/table/IWMobileList";
 import { formatTokenAmount } from "utils";
+import {
+  AiOutlineExclamationCircle,
+  AiOutlineQuestionCircle,
+} from "react-icons/ai";
+import { roundUp } from "utils";
 
 export default function PoolsPage({ api }) {
   const dispatch = useDispatch();
@@ -49,15 +55,25 @@ export default function PoolsPage({ api }) {
     }
 
     setResultList(
-      result.map((e) => {
+      result.map((e, index) => {
+        // setRemainStaking(roundUp(maxStakingAmount - totalStaked, 4));
+        const maxObjStakingAmount =
+          typeof e?.maxStakingAmount == "string"
+            ? parseFloat(
+                formatTokenAmount(e?.maxStakingAmount, e?.tokenDecimal)
+              )
+            : e?.maxStakingAmount;
+        const remainStaking = roundUp(maxObjStakingAmount - e?.totalStaked, 4);
         return {
           ...e,
-          maxStakingAmount:
-            typeof e?.maxStakingAmount == "string"
-              ? parseFloat(
-                  formatTokenAmount(e?.maxStakingAmount, e?.tokenDecimal)
-                )
-              : e?.maxStakingAmount,
+          maxStakingAmount: maxObjStakingAmount,
+          hasTooltip: remainStaking === 0 && (
+            <Tooltip fontSize="md" label="Max Staking Amount reached">
+              <span style={{ marginLeft: "6px" }}>
+                <AiOutlineExclamationCircle ml="6px" color="text.1" />
+              </span>
+            </Tooltip>
+          ),
         };
       })
     );

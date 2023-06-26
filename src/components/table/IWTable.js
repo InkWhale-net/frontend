@@ -1,5 +1,6 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Circle,
   Flex,
   Image,
@@ -155,12 +156,13 @@ export const formatDataCellTable = (itemObj, header, mode) => {
     case "totalStaked":
       const extPart = `NFT${itemObj[header] > 1 ? "s" : ""}`;
       return (
-        <>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
           <Text>
             {formatNumDynDecimal(itemObj[header])}{" "}
             {itemObj["NFTtokenContract"] && extPart}
           </Text>
-        </>
+          {itemObj?.hasTooltip}
+        </Box>
       );
 
     case "multiplier":
