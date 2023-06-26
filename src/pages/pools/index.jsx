@@ -22,6 +22,7 @@ import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
 import { isPoolEnded } from "utils";
 import IWInput from "components/input/Input";
 import { IWMobileList } from "components/table/IWMobileList";
+import { formatTokenAmount } from "utils";
 
 export default function PoolsPage({ api }) {
   const dispatch = useDispatch();
@@ -46,7 +47,20 @@ export default function PoolsPage({ api }) {
       setResultList();
       return;
     }
-    setResultList(result);
+
+    setResultList(
+      result.map((e) => {
+        return {
+          ...e,
+          maxStakingAmount:
+            typeof e?.maxStakingAmount == "string"
+              ? parseFloat(
+                  formatTokenAmount(e?.maxStakingAmount, e?.tokenDecimal)
+                )
+              : e?.maxStakingAmount,
+        };
+      })
+    );
   };
 
   useEffect(() => {
