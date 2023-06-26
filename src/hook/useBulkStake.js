@@ -131,7 +131,7 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
 
             // dispatch(clearTxStatus());
           } else {
-            handleBulkListing(updateData);
+            handleBulkStaking(updateData);
           }
         }
         // batchTxResponseErrorHandler({
@@ -150,7 +150,7 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
     return unsubscribe;
   };
 
-  const handleBulkListing = async (updateData) => {
+  const handleBulkStaking = async (updateData) => {
     // if (hasNullPrice) {
     //   toast.error("Price can not be zero!");
     //   return;
@@ -236,7 +236,7 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
                   : `Bulk staking are not fully successful! ${totalSuccessTxCount} staking completed successfully.`
               );
             }
-            updateData()
+            updateData();
           }
         }
       )
@@ -250,13 +250,16 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
     //   toast.error("Price can not be zero!");
     //   return;
     // }
-    const numberNft = listNFTStake?.length
+    const numberNft = listNFTStake?.length;
 
     toast.success(numberNft > 0 && `Bulk unstakeing process...`);
     if (
-      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) < unstakeFee * numberNft
+      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) <
+      unstakeFee * numberNft
     ) {
-      toast.error(`You don't have enough INW. Unstake costs ${unstakeFee*numberNft} INW`);
+      toast.error(
+        `You don't have enough INW. Unstake costs ${unstakeFee * numberNft} INW`
+      );
       return;
     }
 
@@ -270,7 +273,7 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
       0, //-> value
       "psp22::approve",
       poolContract,
-      formatNumToBN(unstakeFee*numberNft)
+      formatNumToBN(unstakeFee * numberNft)
     );
     if (!approve) return;
 
@@ -355,7 +358,7 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
                   : `Bulk unstaking are not fully successful! ${totalSuccessTxCount} staking completed successfully.`
               );
             }
-            updateData()
+            updateData();
           }
         }
       )
@@ -367,12 +370,12 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
 
   const doBulkStake = async (updateData) => {
     const hasUnapproved = await hasUnapprovedTx();
-    
+
     if (hasUnapproved) {
       await handleApproveTx(updateData);
       return;
     }
-    await handleBulkListing(updateData);
+    await handleBulkStaking(updateData);
   };
 
   return {

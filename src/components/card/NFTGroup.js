@@ -41,24 +41,6 @@ const NFTGroup = ({
     NFTtokenContract,
   });
   const handleBulkStake = async () => {
-    if (!currentAccount) {
-      toast.error(toastMessages.NO_WALLET);
-      return;
-    }
-    if (isPoolEnded(startTime, duration)) {
-      toast.error("Pool is ended!");
-      return;
-    }
-
-    if (isPoolNotStart(startTime)) {
-      toast.error("Pool is not start!");
-      return;
-    }
-
-    if (!rewardPool || parseInt(rewardPool) <= 0) {
-      toast.error("There is no reward balance in this pool!");
-      return;
-    }
     await doBulkStake(() => setRefetchData(!refetchData));
   };
 
@@ -103,6 +85,37 @@ const NFTGroup = ({
                 if (listNFTStake.length > MAX_NFT_ACTION) {
                   toast.error(`Maximum bulk ${action} is ${MAX_NFT_ACTION} `);
                   return false;
+                }
+                if (!currentAccount) {
+                  toast.error(toastMessages.NO_WALLET);
+                  return;
+                }
+
+                if (action === "Unstake NFT") {
+                  if (
+                    parseInt(
+                      currentAccount?.balance?.inw?.replaceAll(",", "")
+                    ) < unstakeFee
+                  ) {
+                    toast.error(
+                      `You don't have enough INW. Unstake costs ${unstakeFee} INW`
+                    );
+                    return;
+                  }
+                } else {
+                  if (isPoolEnded(startTime, duration)) {
+                    toast.error("Pool is ended!");
+                    return;
+                  }
+
+                  if (isPoolNotStart(startTime)) {
+                    toast.error("Pool is not start!");
+                    return;
+                  }
+                  if (!rewardPool || parseInt(rewardPool) <= 0) {
+                    toast.error("There is no reward balance in this pool!");
+                    return;
+                  }
                 }
                 return true;
               }}
