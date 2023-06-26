@@ -7,6 +7,9 @@ import ConfirmModal from "components/modal/ConfirmModal";
 import { useAppContext } from "contexts/AppContext";
 import useBulkStake from "hook/useBulkStake";
 import { toast } from "react-hot-toast";
+import { toastMessages } from "constants";
+import { isPoolEnded } from "utils";
+import { isPoolNotStart } from "utils";
 
 const MAX_NFT_ACTION = 5;
 
@@ -38,6 +41,24 @@ const NFTGroup = ({
     NFTtokenContract,
   });
   const handleBulkStake = async () => {
+    if (!currentAccount) {
+      toast.error(toastMessages.NO_WALLET);
+      return;
+    }
+    if (isPoolEnded(startTime, duration)) {
+      toast.error("Pool is ended!");
+      return;
+    }
+
+    if (isPoolNotStart(startTime)) {
+      toast.error("Pool is not start!");
+      return;
+    }
+
+    if (!rewardPool || parseInt(rewardPool) <= 0) {
+      toast.error("There is no reward balance in this pool!");
+      return;
+    }
     await doBulkStake(() => setRefetchData(!refetchData));
   };
 

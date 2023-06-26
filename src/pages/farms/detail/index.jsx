@@ -4,8 +4,8 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   Flex,
-  Heading,
   HStack,
+  Heading,
   Link,
   Show,
   Stack,
@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 
+import { isBoolean } from "@polkadot/util";
 import { APICall } from "api/client";
 import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard, { NFTBannerCard } from "components/card/Card";
@@ -36,9 +37,9 @@ import {
   fetchAllNFTPools,
   fetchAllTokenPools,
 } from "redux/slices/allPoolsSlice";
+import { closeBulkDialog, updateUnstakeFee } from "redux/slices/bulkStakeSlide";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import {
-  addressShortener,
   calcUnclaimedRewardNftLP,
   calcUnclaimedRewardTokenLP,
   delay,
@@ -55,9 +56,6 @@ import lp_pool_contract from "utils/contracts/lp_pool_contract";
 import nft_pool_contract from "utils/contracts/nft_pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import psp34_standard from "utils/contracts/psp34_standard";
-import { updateUnstakeFee } from "redux/slices/bulkStakeSlide";
-import { closeBulkDialog } from "redux/slices/bulkStakeSlide";
-import { isBoolean } from "@polkadot/util";
 
 export default function FarmDetailPage() {
   const params = useParams();
@@ -787,7 +785,10 @@ const MyStakeRewardInfoNFT = ({
           px="0px"
           // mt={{ base: "-38px", xl: "-48px" }}
         >
-          <IWTabs tabsData={tabsNFTData} onChangeTab={() => dispatch(closeBulkDialog())}/>
+          <IWTabs
+            tabsData={tabsNFTData}
+            onChangeTab={() => dispatch(closeBulkDialog())}
+          />
         </SectionContainer>
       ) : null}
     </>
