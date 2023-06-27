@@ -82,8 +82,8 @@ const MyBalance = ({ scrollRef }) => {
     <>
       <SectionContainer
         mt={{ base: "0px", xl: "20px" }}
-        title="My Balance"
-        description={<span>Token list</span>}
+        title="My Balances"
+        description={<span>Your token balances</span>}
         scrollRef={scrollRef}
       >
         <Stack
