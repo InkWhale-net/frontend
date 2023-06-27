@@ -170,7 +170,12 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       return mode === "TOKEN_FARM" ? (
         <Text>{(itemObj[header] / 10 ** 6).toFixed(2)}</Text>
       ) : mode === "NFT_FARM" ? (
-        <Text>{(itemObj[header] / 10 ** 12).toFixed(2)}</Text>
+        // <Text>{(itemObj[header] / 10 ** 12).toFixed(2)}</Text>
+        <Text>
+          {formatNumDynDecimal(
+            formatTokenAmount(itemObj[header], itemObj?.tokenDecimal)
+          )}
+        </Text>
       ) : (
         <></>
       );
