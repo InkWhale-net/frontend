@@ -5,13 +5,15 @@ import { IWTable } from "components/table/IWTable";
 import { useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { useEffect, useRef } from "react";
+import MyNFTAndTokenPoolsTab from "./MyNFTAndTokenPoolsTab";
+import MyBalance from "./MyBalance";
 
 export default function MyPoolsPage({ api }) {
   const history = useHistory();
   const location = useLocation();
   const tokenSectionRef = useRef(null);
   const poolSectionRef = useRef(null);
-  const farmSectionRef = useRef(null);
+  const balanceSectionRef = useRef(null);
 
   const { currentAccount } = useSelector((s) => s.wallet);
 
@@ -134,14 +136,15 @@ export default function MyPoolsPage({ api }) {
       case "pools":
         scrollTo(poolSectionRef);
         break;
-      case "farms":
-        scrollTo(farmSectionRef);
+      case "balance":
+        scrollTo(balanceSectionRef);
         break;
     }
   }, [location.search, history]);
 
   return (
     <>
+      <MyBalance scrollRef={balanceSectionRef} />
       <SectionContainer
         id="mytoken"
         mt={{ base: "0px", xl: "20px" }}
@@ -161,7 +164,7 @@ export default function MyPoolsPage({ api }) {
         </Stack>
       </SectionContainer>
 
-      <MyNFTAndTokenPoolsTab scrollRef={farmSectionRef} />
+      <MyNFTAndTokenPoolsTab />
 
       <SectionContainer
         mt={{ base: "0px", xl: "8px" }}
@@ -174,117 +177,3 @@ export default function MyPoolsPage({ api }) {
     </>
   );
 }
-
-const MyNFTAndTokenPoolsTab = ({ scrollRef }) => {
-  const { myNFTPoolsList, myTokenPoolsList } = useSelector((s) => s.myPools);
-
-  const tableDataNFT = {
-    tableHeader: [
-      {
-        name: "nftInfo",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Stake",
-      },
-      {
-        name: "tokenSymbol",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Earn",
-      },
-      {
-        name: "totalStaked",
-        hasTooltip: true,
-        tooltipContent: `Total Value Locked: Total tokens staked into this pool`,
-        label: "TVL",
-      },
-      {
-        name: "rewardPool",
-        hasTooltip: true,
-        tooltipContent: `Available tokens to pay for stakers`,
-        label: "Reward Pool",
-      },
-      {
-        name: "multiplier",
-        hasTooltip: true,
-        tooltipContent: `Multiplier determines how many reward tokens will the staker receive per 1 NFTs in 24 hours.`,
-        label: "Multiplier",
-      },
-      {
-        name: "status",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Status",
-      },
-      {
-        name: "startTime",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Countdown",
-      },
-    ],
-
-    tableBody: myNFTPoolsList,
-  };
-
-  const tableDataToken = {
-    tableHeader: [
-      {
-        name: "lptokenSymbol",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Stake",
-      },
-      {
-        name: "tokenSymbol",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Earn",
-      },
-      {
-        name: "totalStaked",
-        hasTooltip: true,
-        tooltipContent: `Total Value Locked: Total tokens staked into this pool`,
-        label: "TVL",
-      },
-      {
-        name: "rewardPool",
-        hasTooltip: true,
-        tooltipContent: `Available tokens to pay for stakers`,
-        label: "Reward Pool",
-      },
-      {
-        name: "multiplier",
-        hasTooltip: true,
-        tooltipContent: `Multiplier determines how many reward tokens will the staker receive per 1 token in 24 hours.`,
-        label: "Multiplier",
-      },
-
-      {
-        name: "status",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Status",
-      },
-      {
-        name: "startTime",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Countdown",
-      },
-    ],
-
-    tableBody: myTokenPoolsList,
-  };
-
-  return (
-    <SectionContainer
-      mt={{ base: "0px", xl: "20px" }}
-      title="My NFT Staking Pools"
-      description={<span>Stake NFT to earn tokens</span>}
-      scrollRef={scrollRef}
-    >
-      <IWTable {...tableDataNFT} mode="NFT_FARM" />
-    </SectionContainer>
-  );
-};

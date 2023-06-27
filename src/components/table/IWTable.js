@@ -333,6 +333,29 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       ) : (
         ""
       );
+    case "name":
+      if (itemObj?.showIcon)
+        return (
+          <>
+            <Flex
+              w="full"
+              justify={{ base: "start" }}
+              alignItems={{ base: "center" }}
+            >
+              <Circle w="30px" h="30px" bg="white">
+                <Image
+                  w="38px"
+                  borderRadius={"10px"}
+                  src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${itemObj["tokenIconUrl"]}`}
+                  alt="logo"
+                />
+              </Circle>
+
+              <Text ml="8px">{itemObj[header]}</Text>
+            </Flex>
+          </>
+        );
+      else return itemObj[header];
     case "tokenTotalSupply":
       const tokenTotalSupply = itemObj[header].replaceAll(",", "");
       return (
