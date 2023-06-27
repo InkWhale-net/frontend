@@ -80,7 +80,7 @@ const NFTGroup = ({
               buttonLabel={`Bulk ${action?.replace("NFT", "")} (${
                 listNFTStake?.length || 0
               }) NFTs`}
-              disableBtn={false}
+              disableBtn={!(listNFTStake?.length > 1)}
               onValidate={() => {
                 if (listNFTStake.length > MAX_NFT_ACTION) {
                   toast.error(`Maximum bulk ${action} is ${MAX_NFT_ACTION} `);

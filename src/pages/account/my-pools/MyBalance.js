@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { formatTokenAmount } from "utils";
+import { formatNumDynDecimal } from "utils";
 
 const MyBalance = ({ scrollRef }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -67,7 +68,7 @@ const MyBalance = ({ scrollRef }) => {
           );
           return {
             ...e,
-            balance: tokenBalance,
+            balance: formatNumDynDecimal(tokenBalance),
             showIcon: true,
           };
         }
