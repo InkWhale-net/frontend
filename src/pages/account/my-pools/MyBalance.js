@@ -92,20 +92,7 @@ const MyBalance = ({ scrollRef }) => {
           alignItems="start"
           direction={{ base: "column" }}
         >
-          {/* <Stack
-                w="100%"
-                spacing="20px"
-                direction={{ base: "column" }}
-                align={{ base: "column", xl: "center" }}
-              >
-                <IWInput
-                  type="number"
-                  placeholder="Search"
-                  inputRightElementIcon={<SearchIcon color="text.1" />}
-                />
-              </Stack> */}
-
-          <IWTable {...tableData} />
+          <IWTable {...tableData} isDisableRowClick={true} />
         </Stack>
       </SectionContainer>
     </>
