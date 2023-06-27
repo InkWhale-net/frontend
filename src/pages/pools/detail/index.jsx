@@ -139,6 +139,17 @@ export default function PoolDetailPage({ api }) {
 
   const tabsData = [
     {
+      label: <span>Pool Information</span>,
+      component: (
+        <PoolInfo
+          {...currentPool}
+          rewardPool={currentPool?.rewardPool}
+          totalStaked={currentPool?.totalStaked}
+        />
+      ),
+      isDisabled: false,
+    },
+    {
       label: "My Stakes & Rewards",
       component: (
         <MyStakeRewardInfo
@@ -146,17 +157,6 @@ export default function PoolDetailPage({ api }) {
           {...currentAccount}
           remainStaking={remainStaking}
           setRemainStaking={setRemainStaking}
-        />
-      ),
-      isDisabled: false,
-    },
-    {
-      label: <span>Pool Information</span>,
-      component: (
-        <PoolInfo
-          {...currentPool}
-          rewardPool={currentPool?.rewardPool}
-          totalStaked={currentPool?.totalStaked}
         />
       ),
       isDisabled: false,
