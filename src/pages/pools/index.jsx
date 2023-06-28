@@ -71,7 +71,6 @@ export default function PoolsPage({ api }) {
           const remainStaking = roundUp(maxObjStakingAmount - totalStaked, 4);
           return {
             ...e,
-            totalStaked,
             maxStakingAmount: maxObjStakingAmount,
             hasTooltip: remainStaking === 0 && (
               <Tooltip fontSize="md" label="Max Staking Amount reached">
