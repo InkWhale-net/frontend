@@ -46,7 +46,6 @@ const ImportTokenForm = ({ api }) => {
         "psp22::balanceOf",
         currentAccount?.address
       );
-      const balance = formatQueryResultToNumber(queryResult);
 
       let queryResult1 = await execContractQuery(
         currentAccount?.address,
@@ -99,6 +98,10 @@ const ImportTokenForm = ({ api }) => {
         "ownable::owner"
       );
       const owner = queryResult5?.toHuman()?.Ok;
+      const balance = formatQueryResultToNumber(
+        queryResult,
+        parseInt(decimals)
+      );
       setTokenInfo((prev) => {
         return {
           ...prev,
