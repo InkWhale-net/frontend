@@ -57,6 +57,7 @@ import nft_pool_contract from "utils/contracts/nft_pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import psp34_standard from "utils/contracts/psp34_standard";
 import PoolInfo from "./PoolInfor";
+import { formatTokenAmount } from "utils";
 
 export default function FarmDetailPage() {
   const params = useParams();
@@ -64,10 +65,15 @@ export default function FarmDetailPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allNFTPoolsList, allTokenPoolsList } = useSelector((s) => s.allPools);
   const [refetchData, setRefetchData] = useState();
+
+  const [currentNFTPoolData, setCurrentNFTPoolData] = useState(null);
+
   const currentNFTPool = useMemo(() => {
-    return allNFTPoolsList?.find(
+    const nftPool = allNFTPoolsList?.find(
       (p) => p?.poolContract === params?.contractAddress
     );
+
+    return nftPool;
   }, [allNFTPoolsList, params?.contractAddress]);
 
   const currentTokenPool = useMemo(() => {
@@ -85,6 +91,32 @@ export default function FarmDetailPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const updateTokenData = async () => {
+    let queryResult = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      currentNFTPool?.tokenContract,
+      0,
+      "psp22::totalSupply"
+    );
+    const rawTotalSupply = queryResult.toHuman().Ok;
+    setCurrentNFTPoolData({
+      ...currentNFTPool,
+      tokenTotalSupply: formatTokenAmount(
+        rawTotalSupply.replaceAll(",", ""),
+        currentNFTPool?.tokenDecimal
+      ),
+    });
+  };
+
+  useEffect(() => {
+    if (currentNFTPool) {
+      updateTokenData();
+    }
+  }, [currentNFTPool]);
+
   const cardData = {
     cardHeaderList: [
       {
@@ -132,7 +164,7 @@ export default function FarmDetailPage() {
     ],
 
     cardValue: {
-      ...currentNFTPool,
+      ...currentNFTPoolData,
       ...currentTokenPool,
       totalStaked:
         currMode === "NFT_FARM"
@@ -170,7 +202,7 @@ export default function FarmDetailPage() {
       component: (
         <PoolInfo
           mode={currMode}
-          {...currentNFTPool}
+          {...currentNFTPoolData}
           {...currentTokenPool}
           rewardPool={
             currMode === "NFT_FARM"

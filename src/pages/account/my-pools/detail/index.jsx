@@ -429,7 +429,10 @@ const MyPoolInfo = ({
         0,
         "genericPoolContractTrait::totalUnclaimedReward"
       );
-      const unclaimRw = formatQueryResultToNumber(unclaimRwQr);
+      const unclaimRw = formatQueryResultToNumber(
+        unclaimRwQr,
+        parseInt(tokenDecimal)
+      );
       const withdrawableRs = rewardPool - +unclaimRw.replaceAll(",", "");
       setWithdrawbleAm(roundDown(withdrawableRs, 3));
     }
@@ -462,7 +465,6 @@ const MyPoolInfo = ({
       "psp22::balanceOf",
       currentAccount?.address
     );
-
     const balance = formatQueryResultToNumber(result);
     setTokenBalance(balance);
     const resultLP = await execContractQuery(

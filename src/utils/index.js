@@ -344,7 +344,7 @@ export const formatTokenAmount = (value, decimal = 12) => {
   try {
     return formatUnits(value?.toString()?.replace(/,/g, ""), decimal);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return;
   }
 };

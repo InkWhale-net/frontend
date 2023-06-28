@@ -3,6 +3,7 @@ import { Link, Stack } from "@chakra-ui/react";
 import AddressCopier from "components/address-copier/AddressCopier";
 import { NFTBannerCard } from "components/card/Card";
 import CardTwoColumn from "components/card/CardTwoColumn";
+import { formatTokenAmount } from "utils";
 import { formatNumDynDecimal } from "utils";
 const PoolInfo = ({
   mode,
@@ -23,6 +24,7 @@ const PoolInfo = ({
   lptokenName,
   lptokenSymbol,
   lptokenTotalSupply,
+  tokenDecimal,
   ...rest
 }) => {
   const cardDataPoolInfo = {
@@ -89,10 +91,9 @@ const PoolInfo = ({
             },
             {
               title: "Multiplier",
-              content:
-                mode === "TOKEN_FARM"
-                  ? (multiplier / 10 ** 18).toFixed(2)
-                  : (multiplier / 10 ** 12).toFixed(2),
+              content: formatNumDynDecimal(
+                formatTokenAmount(multiplier, tokenDecimal)
+              ),
             },
             {
               title: "Start Date",
