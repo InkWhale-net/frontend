@@ -29,6 +29,7 @@ import TokensPage from "pages/tokens";
 import CreateTokenPage from "pages/create/token";
 import CreateStakePoolPage from "pages/create/stake-pool";
 import MyBalancePage from "pages/account/my-balance";
+import TokensTransactionPage from "pages/tokens/transactions";
 import jsonrpc from "@polkadot/types/interfaces/jsonrpc";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { initialApi } from "utils/contracts";
@@ -177,7 +178,8 @@ const App = () => {
             component={FarmDetailPage}
           />
           <Route exact path={`/farms`} component={FarmsPage} />{" "}
-          <Route exact path={`/tokens`} component={TokensPage} />
+          <Route exact path={`/tokens/interaction`} component={TokensPage} />
+          <Route exact path={`/tokens/transaction`} component={TokensTransactionPage} />
           <Route exact path={`/create/token`} component={CreateTokenPage} />
           <Route
             exact

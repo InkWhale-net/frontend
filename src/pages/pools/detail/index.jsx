@@ -75,9 +75,9 @@ export default function PoolDetailPage({ api }) {
               )
             )
           : poolData?.maxStakingAmount,
-      totalStaked: parseFloat(
-        formatTokenAmount(poolData?.totalStaked, poolData?.tokenDecimal)
-      ),
+      // totalStaked: parseFloat(
+      //   formatTokenAmount(poolData?.totalStaked, poolData?.tokenDecimal)
+      // ),
     };
   }, [allStakingPoolsList, params?.contractAddress]);
   useEffect(() => {
@@ -693,7 +693,7 @@ const MyStakeRewardInfo = ({
               onChange={({ target }) => setAmount(target.value)}
               type="number"
               placeholder="Enter amount to stake or unstake"
-              isDisabled={!(remainStaking > 0)}
+              // isDisabled={!(remainStaking > 0)}
             />
 
             <HStack

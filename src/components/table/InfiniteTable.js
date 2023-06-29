@@ -24,6 +24,8 @@ import { addressShortener } from "utils";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import InfiniteScroll from "react-infinite-scroll-component";
 import AddressCopier from "components/address-copier/AddressCopier";
+import TokenIcon from "components/TokenIcon";
+import { format } from "utils/datetime";
 
 export function InfiniteTable({
   tableHeader,
@@ -318,7 +320,13 @@ export const formatDataCellTable = (itemObj, header, mode) => {
           <Text>{itemObj[header] / 86400} days</Text>
         </>
       );
-
+    case "tokenSymbol":
+      return (
+        <Flex alignItems={"center"} mr={{ base: "20px" }}>
+          <TokenIcon tokenContract={itemObj["tokenContract"]} />
+          <Text textAlign="left">{itemObj[header]} </Text>
+        </Flex>
+      );
     case "tokenTotalSupply":
       const tokenTotalSupply = itemObj[header].replaceAll(",", "");
       return (
@@ -326,8 +334,32 @@ export const formatDataCellTable = (itemObj, header, mode) => {
           <Text>{formatNumDynDecimal(tokenTotalSupply / 10 ** 12)}</Text>
         </>
       );
+    case "time":
+      return (
+        <>
+          <Text>{format(itemObj[header], "MMMM Do YYYY, h:mm:ss a")}</Text>
+        </>
+      );
 
     case "contractAddress":
+      return (
+        <>
+          <AddressCopier address={itemObj[header]} />
+        </>
+      );
+    case "tokenContract":
+      return (
+        <>
+          <AddressCopier address={itemObj[header]} />
+        </>
+      );
+    case "fromAddress":
+      return (
+        <>
+          <AddressCopier address={itemObj[header]} />
+        </>
+      );
+    case "toAddress":
       return (
         <>
           <AddressCopier address={itemObj[header]} />
