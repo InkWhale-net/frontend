@@ -95,8 +95,8 @@ export const APICall = {
   getINWInCirculation: async () => {
     return await client("POST", "/getINWInCirculation", {});
   },
-  getTransactionHistory: async ({ tokenContract, fromAddress, toAddress }) => {
-    return await client("POST", "/getTransactionHistory", { tokenContract, fromAddress });
+  getTransactionHistory: async ({ tokenContract, queryAddress }) => {
+    return await client("POST", "/getTransactionHistory", { tokenContract, queryAddress });
   },
 
   // Get list of staking pools

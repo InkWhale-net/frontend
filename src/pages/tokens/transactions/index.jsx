@@ -47,7 +47,7 @@ export default function TokensPage() {
     [selectedContractAddr, faucetTokensList]
   );
   useEffect(() => {
-    console.log(selectedToken);
+    getTokenTransaction(selectedToken?.contractAddress);
   }, [selectedToken]);
   useEffect(() => {
     let isUnmounted = false;
@@ -65,72 +65,76 @@ export default function TokensPage() {
     return () => (isUnmounted = true);
   }, []);
 
-  const getTokenTransaction = async () => {
-    const { ret, status, message } = await APICall.getTransactionHistory({
-      tokenContract: "5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX",
-      fromAddress: currentAccount.address,
-    });
-
+  const getTokenTransaction = async (tokenContract) => {
+    let queryBody = { queryAddress: currentAccount.address };
+    if (tokenContract) queryBody.tokenContract = tokenContract;
+    const { ret, status, message } = await APICall.getTransactionHistory(
+      queryBody
+    );
+    console.log(ret);
     if (status === "OK") {
       const transactionList = await Promise.all(
         ret?.map(async (txObj) => {
-          let queryResult = await execContractQuery(
-            currentAccount?.address,
-            "api",
-            psp22_contract.CONTRACT_ABI,
-            txObj?.data?.tokenContract,
-            0,
-            "psp22Metadata::tokenDecimals"
-          );
-          const decimal = queryResult?.toHuman()?.Ok;
-          let queryResult1 = await execContractQuery(
-            currentAccount?.address,
-            "api",
-            psp22_contract.CONTRACT_ABI,
-            txObj?.data?.tokenContract,
-            0,
-            "psp22Metadata::tokenName"
-          );
-          const tokenName = queryResult1.toHuman().Ok;
-          let queryResult2 = await execContractQuery(
-            currentAccount?.address,
-            "api",
-            psp22_contract.CONTRACT_ABI,
-            txObj?.data?.tokenContract,
-            0,
-            "psp22Metadata::tokenSymbol"
-          );
-          const tokenSymbol = queryResult2.toHuman().Ok;
-          return {
-            token: {
-              address: txObj?.data?.tokenContract,
-              name: tokenName,
-              symbol: tokenSymbol,
-              decimal: parseInt(decimal),
-            },
-            tokenContract: txObj?.data?.tokenContract,
-            tokenSymbol,
-            amount: formatNumDynDecimal(
-              formatTokenAmount(
-                txObj?.data?.amount?.replaceAll(",", ""),
-                parseInt(decimal)
-              )
-            ),
-            time: txObj?.createdTime,
-            fromAddress: txObj?.fromAddress,
-            toAddress: txObj?.toAddress,
-          };
+          if (txObj?.data?.tokenContract) {
+            let queryResult = await execContractQuery(
+              currentAccount?.address,
+              "api",
+              psp22_contract.CONTRACT_ABI,
+              txObj?.data?.tokenContract,
+              0,
+              "psp22Metadata::tokenDecimals"
+            );
+            const decimal = queryResult?.toHuman()?.Ok;
+            let queryResult1 = await execContractQuery(
+              currentAccount?.address,
+              "api",
+              psp22_contract.CONTRACT_ABI,
+              txObj?.data?.tokenContract,
+              0,
+              "psp22Metadata::tokenName"
+            );
+            const tokenName = queryResult1?.toHuman().Ok;
+            let queryResult2 = await execContractQuery(
+              currentAccount?.address,
+              "api",
+              psp22_contract.CONTRACT_ABI,
+              txObj?.data?.tokenContract,
+              0,
+              "psp22Metadata::tokenSymbol"
+            );
+            const tokenSymbol = queryResult2?.toHuman().Ok;
+            if (decimal && tokenName && tokenSymbol)
+              return {
+                token: {
+                  address: txObj?.data?.tokenContract,
+                  name: tokenName,
+                  symbol: tokenSymbol,
+                  decimal: parseInt(decimal),
+                },
+                tokenContract: txObj?.data?.tokenContract,
+                tokenSymbol,
+                amount: formatNumDynDecimal(
+                  formatTokenAmount(
+                    txObj?.data?.amount?.replaceAll(",", ""),
+                    parseInt(decimal)
+                  )
+                ),
+                time: txObj?.createdTime,
+                fromAddress: txObj?.fromAddress,
+                toAddress: txObj?.toAddress,
+                currentAccount: currentAccount?.address,
+              };
+          }
         })
       );
-      setTransactions(transactionList);
-      // setTransactions([]);
+      setTransactions(transactionList.filter((e) => e));
     } else {
       toast.error(message);
     }
   };
 
   useEffect(() => {
-    if (!!currentAccount) getTokenTransaction();
+    if (!!currentAccount?.address) getTokenTransaction();
   }, [currentAccount]);
 
   const tableData = {
@@ -200,7 +204,7 @@ export default function TokensPage() {
               </Heading>
               <SelectSearch
                 name="token"
-                placeholder="Select Token..."
+                placeholder="All token"
                 closeMenuOnSelect={true}
                 // filterOption={filterOptions}
                 value={
@@ -219,12 +223,17 @@ export default function TokensPage() {
                 onChange={({ value }) => {
                   setSelectedContractAddr(value);
                 }}
-                options={faucetTokensList?.map((token, idx) => ({
-                  value: token?.contractAddress,
-                  label: `${token?.symbol} (${
-                    token?.name
-                  }) - ${addressShortener(token?.contractAddress)}`,
-                }))}
+                options={[
+                  {
+                    label: "All token",
+                  },
+                  ...faucetTokensList?.map((token, idx) => ({
+                    value: token?.contractAddress,
+                    label: `${token?.symbol} (${
+                      token?.name
+                    }) - ${addressShortener(token?.contractAddress)}`,
+                  })),
+                ]}
               ></SelectSearch>
             </Box>
             <HStack

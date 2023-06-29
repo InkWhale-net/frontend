@@ -80,6 +80,7 @@ export default function PoolDetailPage({ api }) {
       // ),
     };
   }, [allStakingPoolsList, params?.contractAddress]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -99,9 +100,16 @@ export default function PoolDetailPage({ api }) {
           remainStaking === 0
             ? "Max Staking Amount reached"
             : `Total Value Locked: Total tokens staked into this pool`,
-        tooltipIcon: remainStaking === 0 && (
-          <AiOutlineExclamationCircle ml="6px" color="text.1" />
-        ),
+        tooltipIcon: roundUp(
+          currentPool?.maxStakingAmount -
+            parseFloat(
+              formatTokenAmount(
+                currentPool?.totalStaked,
+                currentPool?.tokenDecimal
+              )
+            ),
+          4
+        ) === 0 && <AiOutlineExclamationCircle ml="6px" color="text.1" />,
         label: "TVL",
       },
       {
@@ -332,7 +340,14 @@ const MyStakeRewardInfo = ({
       );
       const balance = formatQueryResultToNumber(result, tokenDecimal);
       setTokenBalance(balance);
-      setRemainStaking(roundUp(maxStakingAmount - totalStaked, 4));
+
+      setRemainStaking(
+        roundUp(
+          maxStakingAmount -
+            parseFloat(formatTokenAmount(totalStaked, tokenDecimal)),
+          4
+        )
+      );
     } catch (error) {
       console.log(error);
     }

@@ -1,5 +1,6 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Circle,
   Flex,
   Image,
@@ -26,6 +27,9 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import AddressCopier from "components/address-copier/AddressCopier";
 import TokenIcon from "components/TokenIcon";
 import { format } from "utils/datetime";
+import { useSelector } from "react-redux";
+import { AiOutlineDownload } from "react-icons/ai";
+import { BsArrowUpRight } from "react-icons/bs";
 
 export function InfiniteTable({
   tableHeader,
@@ -39,6 +43,7 @@ export function InfiniteTable({
 }) {
   const history = useHistory();
   const location = useLocation();
+  const { currentAccount } = useSelector((s) => s.wallet);
 
   function onClickRowHandler(itemObj) {
     if (isDisableRowClick) return;
@@ -363,6 +368,19 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       return (
         <>
           <AddressCopier address={itemObj[header]} />
+        </>
+      );
+    case "amount":
+      return (
+        <>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            {itemObj?.fromAddress == itemObj?.currentAccount ? (
+              <BsArrowUpRight style={{ marginRight: "4px" }} color="#31A5FF"/>
+            ) : (
+              <AiOutlineDownload style={{ marginRight: "4px" }} />
+            )}
+            {itemObj[header]}{" "}
+          </Box>
         </>
       );
     case "tokenIconUrl":
