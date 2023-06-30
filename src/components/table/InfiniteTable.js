@@ -15,21 +15,17 @@ import {
   Tooltip,
   Tr,
 } from "@chakra-ui/react";
-import IWCountDown from "components/countdown/CountDown";
-import { Fragment } from "react";
-import { GoStar } from "react-icons/go";
-import { useHistory, useLocation } from "react-router-dom";
-import { formatNumDynDecimal } from "utils";
-import ImageCloudFlare from "components/image-cf/ImageCF";
-import { addressShortener } from "utils";
-import FadeIn from "react-fade-in/lib/FadeIn";
-import InfiniteScroll from "react-infinite-scroll-component";
-import AddressCopier from "components/address-copier/AddressCopier";
 import TokenIcon from "components/TokenIcon";
+import AddressCopier from "components/address-copier/AddressCopier";
+import IWCountDown from "components/countdown/CountDown";
+import ImageCloudFlare from "components/image-cf/ImageCF";
+import { Fragment } from "react";
+import FadeIn from "react-fade-in/lib/FadeIn";
+import { GoStar } from "react-icons/go";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { useHistory, useLocation } from "react-router-dom";
+import { addressShortener, formatNumDynDecimal } from "utils";
 import { format } from "utils/datetime";
-import { useSelector } from "react-redux";
-import { AiOutlineDownload } from "react-icons/ai";
-import { BsArrowUpRight } from "react-icons/bs";
 
 export function InfiniteTable({
   tableHeader,
@@ -43,7 +39,6 @@ export function InfiniteTable({
 }) {
   const history = useHistory();
   const location = useLocation();
-  const { currentAccount } = useSelector((s) => s.wallet);
 
   function onClickRowHandler(itemObj) {
     if (isDisableRowClick) return;
@@ -374,11 +369,7 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       return (
         <>
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            {itemObj?.fromAddress == itemObj?.currentAccount ? (
-              <BsArrowUpRight style={{ marginRight: "4px" }} color="#31A5FF"/>
-            ) : (
-              <AiOutlineDownload style={{ marginRight: "4px" }} />
-            )}
+            {itemObj?.amountIcon}
             {itemObj[header]}{" "}
           </Box>
         </>

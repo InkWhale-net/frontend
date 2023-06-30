@@ -1,32 +1,30 @@
-import { SearchIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
   Flex,
+  FormControl,
+  FormLabel,
   HStack,
   Heading,
-  Show,
   Stack,
+  Switch,
 } from "@chakra-ui/react";
 import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
-import IWCard from "components/card/Card";
 import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 import { InfiniteTable } from "components/table/InfiniteTable";
-import IWTabs from "components/tabs/IWTabs";
 
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
+import { AiOutlineDownload } from "react-icons/ai";
+import { BsArrowUpRight } from "react-icons/bs";
 import { useSelector } from "react-redux";
-import { formatTokenAmount } from "utils";
 import {
   addressShortener,
   formatNumDynDecimal,
-  formatQueryResultToNumber,
-  isAddressValid,
+  formatTokenAmount,
   moveINWToBegin,
-  roundUp,
 } from "utils";
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
@@ -35,7 +33,11 @@ export default function TokensPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
   const [transactions, setTransactions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [keywords, setKeywords] = useState("");
+  const [keywords, setKeywords] = useState({
+    queryAddress: "",
+    fromOnly: false,
+    toOnly: false,
+  });
   const [faucetTokensList, setFaucetTokensList] = useState([]);
   const [selectedContractAddr, setSelectedContractAddr] = useState(null);
 
@@ -47,8 +49,20 @@ export default function TokensPage() {
     [selectedContractAddr, faucetTokensList]
   );
   useEffect(() => {
+    setKeywords({
+      queryAddress: "",
+      fromOnly: false,
+      toOnly: false,
+    });
     getTokenTransaction(selectedToken?.contractAddress);
   }, [selectedToken]);
+
+  useEffect(() => {
+    if (!(keywords?.queryAddress?.length > 0))
+      getTokenTransaction(selectedToken?.contractAddress);
+    setKeywords({ ...keywords, fromOnly: false, toOnly: false });
+  }, [keywords?.queryAddress]);
+
   useEffect(() => {
     let isUnmounted = false;
     const getFaucetTokensListData = async () => {
@@ -65,13 +79,17 @@ export default function TokensPage() {
     return () => (isUnmounted = true);
   }, []);
 
-  const getTokenTransaction = async (tokenContract) => {
-    let queryBody = { queryAddress: currentAccount.address };
+  const getTokenTransaction = async (tokenContract, keywordData) => {
+    let queryBody = {};
     if (tokenContract) queryBody.tokenContract = tokenContract;
+    if (keywordData?.queryAddress)
+      queryBody.queryAddress = keywordData?.queryAddress;
+    if (keywordData?.fromOnly) queryBody.isFromOnly = keywordData?.fromOnly;
+    if (keywordData?.toOnly) queryBody.isToOnly = keywordData?.toOnly;
+
     const { ret, status, message } = await APICall.getTransactionHistory(
       queryBody
     );
-    console.log(ret);
     if (status === "OK") {
       const transactionList = await Promise.all(
         ret?.map(async (txObj) => {
@@ -123,6 +141,16 @@ export default function TokensPage() {
                 fromAddress: txObj?.fromAddress,
                 toAddress: txObj?.toAddress,
                 currentAccount: currentAccount?.address,
+                amountIcon:
+                  keywords?.queryAddress?.length > 0 &&
+                  (txObj?.fromAddress == currentAccount?.address ? (
+                    <BsArrowUpRight
+                      style={{ marginRight: "4px" }}
+                      color="#31A5FF"
+                    />
+                  ) : (
+                    <AiOutlineDownload style={{ marginRight: "4px" }} />
+                  )),
               };
           }
         })
@@ -255,87 +283,106 @@ export default function TokensPage() {
                 flexDirection={{ base: "column", lg: "row" }}
               >
                 <IWInput
-                  value={keywords}
+                  value={keywords?.queryAddress}
                   width={{ base: "full" }}
-                  onChange={({ target }) => setKeywords(target.value)}
+                  onChange={({ target }) =>
+                    setKeywords({ ...keywords, queryAddress: target.value })
+                  }
                   placeholder="Search with From/To"
-                  inputRightElementIcon={<SearchIcon color="#57527E" />}
+                  // inputRightElementIcon={<SearchIcon color="#57527E" />}
                 />
-                {/* <Box
-              display="flex"
-              justifyContent={{ base: "flex-start", lg: "flex-end" }}
-              marginTop={{ base: "20px", lg: "none" }}
-            >
-              <FormControl
-                maxW={{
-                  base: "160px",
-                  lg: "205px",
-                }}
-                display="flex"
-                alignItems="center"
-              >
-                <Switch
-                  id="my-stake"
-                  isDisabled={!currentAccount?.address}
-                  isChecked={showMyStakedPools}
-                  onChange={() => setShowMyStakedPools(!showMyStakedPools)}
-                />
-                <FormLabel
-                  htmlFor="my-stake"
-                  mb="0"
-                  ml="10px"
-                  fontWeight="400"
-                  whiteSpace="nowrap"
-                >
-                  My Stake Only
-                </FormLabel>
-              </FormControl>
-
-              <FormControl
-                maxW="200px"
-                display="flex"
-                alignItems="center"
-                justifyContent={{ base: "flex-end", lg: "none" }}
-              >
-                <Switch
-                  id="zero-reward-pools"
-                  isChecked={endedPools}
-                  onChange={() => setendedPools(!endedPools)}
-                />
-                <FormLabel
-                  mb="0"
-                  ml="10px"
-                  fontWeight="400"
-                  htmlFor="zero-reward-pools"
-                  whiteSpace="nowrap"
-                >
-                  Pool Ended Only
-                </FormLabel>
-              </FormControl>
-            </Box> */}
               </Flex>
-              {/*
-          <Box minW="155px" maxW="160px">
-            <Select
-              id="token"
-              fontSize="md"
-              fontWeight="400"
-              variant="unstyled"
-              defaultValue={-1}
-              cursor="pointer"
-              border="0px red dotted"
-              placeholder="Sort by selection"
-              onChange={({ target }) => setSortPools(target.value)}
-            >
-              {[1, -1].map((item, idx) => (
-                <option key={idx} value={item}>
-                  {item === -1 ? "New to old" : item === 1 ? "Old to new" : ""}
-                </option>
-              ))}
-            </Select>
-          </Box> */}
+              <Button
+                isDisabled={false}
+                onClick={() => {
+                  getTokenTransaction(selectedToken?.contractAddress, keywords);
+                }}
+              >
+                Load
+              </Button>
             </HStack>
           </Stack>
+          <Box
+            display="flex"
+            justifyContent={{ base: "flex-start", lg: "flex-end" }}
+            marginTop={{ base: "20px", lg: "none" }}
+          >
+            <FormControl
+              maxW={{
+                base: "160px",
+                lg: "205px",
+              }}
+              display="flex"
+              alignItems="center"
+            >
+              <Switch
+                id="from-only"
+                isDisabled={
+                  !(keywords?.queryAddress && currentAccount?.address)
+                }
+                isChecked={keywords?.fromOnly}
+                onChange={() => {
+                  if (keywords?.fromOnly == false)
+                    setKeywords({
+                      ...keywords,
+                      fromOnly: true,
+                      toOnly: false,
+                    });
+                  else
+                    setKeywords({
+                      ...keywords,
+                      fromOnly: false,
+                    });
+                }}
+              />
+              <FormLabel
+                htmlFor="my-stake"
+                mb="0"
+                ml="10px"
+                fontWeight="400"
+                whiteSpace="nowrap"
+              >
+                From Address only
+              </FormLabel>
+            </FormControl>
+
+            <FormControl
+              maxW="200px"
+              display="flex"
+              alignItems="center"
+              justifyContent={{ base: "flex-end", lg: "none" }}
+            >
+              <Switch
+                id="to-only"
+                isDisabled={
+                  !(keywords?.queryAddress && currentAccount?.address)
+                }
+                isChecked={keywords?.toOnly}
+                onChange={() => {
+                  if (keywords?.toOnly == false)
+                    setKeywords({
+                      ...keywords,
+                      fromOnly: false,
+                      toOnly: true,
+                    });
+                  else
+                    setKeywords({
+                      ...keywords,
+                      toOnly: false,
+                    });
+                }}
+              />
+              <FormLabel
+                mb="0"
+                ml="10px"
+                fontWeight="400"
+                htmlFor="zero-reward-pools"
+                whiteSpace="nowrap"
+              >
+                To Address Only
+              </FormLabel>
+            </FormControl>
+          </Box>
           {transactions?.length > 0 ? (
             <InfiniteTable
               {...tableData}
