@@ -159,9 +159,11 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       return (
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Text>
-            {formatNumDynDecimal(
-              formatTokenAmount(itemObj[header], itemObj?.tokenDecimal)
-            )}{" "}
+            {mode == "NFT_FARM"
+              ? itemObj[header]
+              : formatNumDynDecimal(
+                  formatTokenAmount(itemObj[header], itemObj?.tokenDecimal)
+                )}{" "}
             {itemObj["NFTtokenContract"] && extPart}
           </Text>
           {itemObj?.hasTooltip}
