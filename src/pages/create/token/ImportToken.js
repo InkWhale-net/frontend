@@ -102,17 +102,28 @@ const ImportTokenForm = ({ api }) => {
         queryResult,
         parseInt(decimals)
       );
-      setTokenInfo((prev) => {
-        return {
-          ...prev,
-          title: tokenSymbol,
-          name: tokenName,
-          content: balance,
-          totalSupply: formatNumDynDecimal(totalSupply, 4),
-          decimals,
-          owner,
-        };
-      });
+      if (
+        tokenSymbol &&
+        tokenName &&
+        balance &&
+        totalSupply &&
+        decimals &&
+        owner
+      ) {
+        setTokenInfo((prev) => {
+          return {
+            ...prev,
+            title: tokenSymbol,
+            name: tokenName,
+            content: balance,
+            totalSupply: formatNumDynDecimal(totalSupply, 4),
+            decimals,
+            owner,
+          };
+        });
+      } else {
+        toast.error("Invalid address!");
+      }
     } catch (error) {
       toast.error("Invalid address!");
       setTokenInfo(null);
