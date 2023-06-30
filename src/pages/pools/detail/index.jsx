@@ -582,7 +582,7 @@ const MyStakeRewardInfo = ({
       0, //-> value
       "psp22::approve",
       poolContract,
-      formatNumToBN(unstakeFee, tokenDecimal)
+      formatNumToBN(unstakeFee)
     );
 
     if (!approve) return;
