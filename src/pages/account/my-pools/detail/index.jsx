@@ -434,7 +434,7 @@ const MyPoolInfo = ({
         parseInt(tokenDecimal)
       );
       const withdrawableRs = rewardPool - +unclaimRw.replaceAll(",", "");
-      setWithdrawbleAm(roundDown(withdrawableRs, 3));
+      setWithdrawbleAm(roundDown(withdrawableRs, 4));
     }
   }, [
     api,
