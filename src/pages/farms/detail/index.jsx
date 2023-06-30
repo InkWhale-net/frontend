@@ -1,4 +1,4 @@
-import { ChevronRightIcon, QuestionOutlineIcon } from "@chakra-ui/icons";
+import { ChevronRightIcon } from "@chakra-ui/icons";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,7 +6,6 @@ import {
   Flex,
   HStack,
   Heading,
-  Link,
   Show,
   Stack,
   Text,
@@ -17,11 +16,10 @@ import SectionContainer from "components/container/SectionContainer";
 import { isBoolean } from "@polkadot/util";
 import { APICall } from "api/client";
 import AddressCopier from "components/address-copier/AddressCopier";
-import IWCard, { NFTBannerCard } from "components/card/Card";
+import IWCard from "components/card/Card";
 import IWCardNFTWrapper from "components/card/CardNFTWrapper";
 import IWCardOneColumn from "components/card/CardOneColumn";
 import CardThreeColumn from "components/card/CardThreeColumn";
-import CardTwoColumn from "components/card/CardTwoColumn";
 import NFTGroup from "components/card/NFTGroup";
 import IWInput from "components/input/Input";
 import ConfirmModal from "components/modal/ConfirmModal";
@@ -31,6 +29,10 @@ import { toastMessages } from "constants";
 import useInterval from "hook/useInterval";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
+import {
+  AiOutlineExclamationCircle,
+  AiOutlineQuestionCircle,
+} from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
@@ -47,6 +49,7 @@ import {
   formatNumDynDecimal,
   formatNumToBN,
   formatQueryResultToNumber,
+  formatTokenAmount,
   isPoolEnded,
   isPoolNotStart,
 } from "utils";
@@ -57,7 +60,6 @@ import nft_pool_contract from "utils/contracts/nft_pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import psp34_standard from "utils/contracts/psp34_standard";
 import PoolInfo from "./PoolInfor";
-import { formatTokenAmount } from "utils";
 
 export default function FarmDetailPage() {
   const params = useParams();
@@ -91,7 +93,13 @@ export default function FarmDetailPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
+  const maxStaked = useMemo(() => {
+    return !(
+      parseFloat(currentNFTPool?.maxStakingAmount) -
+        currentNFTPool?.totalStaked >
+      0
+    );
+  }, [currentNFTPool]);
   const updateTokenData = async () => {
     let queryResult = await execContractQuery(
       currentAccount?.address,
@@ -102,12 +110,14 @@ export default function FarmDetailPage() {
       "psp22::totalSupply"
     );
     const rawTotalSupply = queryResult.toHuman().Ok;
+
     setCurrentNFTPoolData({
       ...currentNFTPool,
       tokenTotalSupply: formatTokenAmount(
         rawTotalSupply.replaceAll(",", ""),
         currentNFTPool?.tokenDecimal
       ),
+      maxStakingAmount: parseFloat(currentNFTPool?.maxStakingAmount),
     });
   };
 
@@ -134,8 +144,13 @@ export default function FarmDetailPage() {
       {
         name: "totalStaked",
         hasTooltip: true,
-        tooltipContent: `Total Value Locked: Total tokens staked into this pool`,
+        tooltipContent: maxStaked
+          ? "Max Staking Amount reached"
+          : "Total Value Locked: Total tokens staked into this pool",
         label: "TVL",
+        tooltipIcon: maxStaked && (
+          <AiOutlineExclamationCircle ml="6px" color="text.1" />
+        ),
       },
       {
         name: "rewardPool",
@@ -183,6 +198,7 @@ export default function FarmDetailPage() {
       component:
         currMode === "NFT_FARM" ? (
           <MyStakeRewardInfoNFT
+            maxStaked={maxStaked}
             mode={currMode}
             refetchData={refetchData}
             {...currentNFTPool}
@@ -270,7 +286,7 @@ export default function FarmDetailPage() {
               justifyContent={{ base: "space-between" }}
             >
               {cardData?.cardHeaderList?.map(
-                ({ name, hasTooltip, label, tooltipContent }) => {
+                ({ name, hasTooltip, label, tooltipContent, tooltipIcon }) => {
                   return name === "myStake" ? null : (
                     <Flex
                       mt={{ base: "15px", lg: "0px" }}
@@ -290,7 +306,13 @@ export default function FarmDetailPage() {
                         {label}
                         {hasTooltip && (
                           <Tooltip fontSize="md" label={tooltipContent}>
-                            <QuestionOutlineIcon ml="6px" color="text.2" />
+                            <span style={{ marginLeft: "6px" }}>
+                              {tooltipIcon ? (
+                                tooltipIcon
+                              ) : (
+                                <AiOutlineQuestionCircle color="text.2" />
+                              )}
+                            </span>
                           </Tooltip>
                         )}
                       </Flex>
@@ -351,6 +373,9 @@ const MyStakeRewardInfoNFT = ({
   startTime,
   duration,
   refetchData,
+  totalStaked,
+  maxStakingAmount,
+  maxStaked,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -504,6 +529,7 @@ const MyStakeRewardInfoNFT = ({
       label: "Available NFTs",
       component: (
         <AvailableNFTs
+          disableBtn={maxStaked}
           action="Stake NFT"
           unstakeFee={unstakeFee}
           data={availableNFT}
@@ -1272,8 +1298,8 @@ const MyStakeRewardInfoToken = ({
 };
 
 const AvailableNFTs = (props) => {
-  // { data, action, actionHandler }
   const { currentAccount } = useSelector((s) => s.wallet);
+  const { isAllowStake } = props;
 
   if (!currentAccount?.address) {
     // return <Text>Please connect wallet!<Text/>

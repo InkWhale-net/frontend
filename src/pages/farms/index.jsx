@@ -9,6 +9,7 @@ import {
   HStack,
   Stack,
   Switch,
+  Tooltip,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
@@ -17,6 +18,7 @@ import IWInput from "components/input/Input";
 import { IWMobileList } from "components/table/IWMobileList";
 import { IWTable } from "components/table/IWTable";
 import { useEffect, useMemo, useState } from "react";
+import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllNFTPools,
@@ -56,7 +58,18 @@ export default function FarmsPage() {
       setResultList();
       return;
     }
-    setResultList(result);
+    setResultList(
+      result.map((e) => ({
+        ...e,
+        hasTooltip: !(parseFloat(e?.maxStakingAmount) - e?.totalStaked > 0) && (
+          <Tooltip fontSize="md" label="Max Staking Amount reached">
+            <span style={{ marginLeft: "6px" }}>
+              <AiOutlineExclamationCircle ml="6px" color="text.1" />
+            </span>
+          </Tooltip>
+        ),
+      }))
+    );
   };
 
   useEffect(() => {

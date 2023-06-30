@@ -41,31 +41,33 @@ const NFTCard = (props) => {
             isHovered || isSelected ? "4px solid #93F0F5" : "4px solid #FFF"
           }
         >
-          <IconButton
-            position="absolute"
-            alignSelf="flex-end"
-            aria-label="select nft"
-            variant="link"
-            width={"42px"}
-            height={"42px"}
-            marginTop={"16px"}
-            // variant={isSelected ? "solid" : "outline"}
-            icon={
-              isSelected ? (
-                <AiFillMinusSquare size={"42px"} color="#93F0F5" />
-              ) : (
-                <AiOutlinePlusSquare size={"42px"} color="#93F0F5" />
-              )
-            }
-            onClick={() =>
-              dispatch(
-                updateSelectedMultiStake({
-                  data: props?.cardData,
-                  action: props.action,
-                })
-              )
-            }
-          />
+          {props?.disableBtn || (
+            <IconButton
+              position="absolute"
+              alignSelf="flex-end"
+              aria-label="select nft"
+              variant="link"
+              width={"42px"}
+              height={"42px"}
+              marginTop={"16px"}
+              // variant={isSelected ? "solid" : "outline"}
+              icon={
+                isSelected ? (
+                  <AiFillMinusSquare size={"42px"} color="#93F0F5" />
+                ) : (
+                  <AiOutlinePlusSquare size={"42px"} color="#93F0F5" />
+                )
+              }
+              onClick={() =>
+                dispatch(
+                  updateSelectedMultiStake({
+                    data: props?.cardData,
+                    action: props.action,
+                  })
+                )
+              }
+            />
+          )}
           <ImageCloudFlare
             borderWidth="1px"
             w={{ base: "none", lg: "222px" }}
@@ -93,6 +95,7 @@ const NFTCard = (props) => {
             w={{ base: "full" }}
           >
             <ConfirmModal
+              disableBtn={props?.disableBtn}
               flex={1}
               action={action}
               buttonVariant="primary"

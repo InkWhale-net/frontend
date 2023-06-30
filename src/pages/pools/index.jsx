@@ -6,29 +6,22 @@ import {
   FormControl,
   FormLabel,
   HStack,
-  Select,
   Stack,
   Switch,
   Tooltip,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { delay } from "utils";
 import SectionContainer from "components/container/SectionContainer";
+import { delay } from "utils";
 
-import { IWTable } from "components/table/IWTable";
-import { useEffect } from "react";
-import { useState, useMemo, useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
-import { isPoolEnded } from "utils";
 import IWInput from "components/input/Input";
 import { IWMobileList } from "components/table/IWMobileList";
-import { formatTokenAmount } from "utils";
-import {
-  AiOutlineExclamationCircle,
-  AiOutlineQuestionCircle,
-} from "react-icons/ai";
-import { roundUp } from "utils";
+import { IWTable } from "components/table/IWTable";
+import { useEffect, useMemo, useState } from "react";
+import { AiOutlineExclamationCircle } from "react-icons/ai";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
+import { formatTokenAmount, isPoolEnded, roundUp } from "utils";
 
 export default function PoolsPage({ api }) {
   const dispatch = useDispatch();
