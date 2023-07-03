@@ -185,7 +185,7 @@ export default function TokensPage() {
                   currentAccount: currentAccount?.address,
                   amountIcon:
                     keywords?.queryAddress?.length > 0 &&
-                    (txObj?.fromAddress == currentAccount?.address ? (
+                    (txObj?.fromAddress == keywords?.queryAddress ? (
                       <BsArrowUpRight
                         style={{ marginRight: "4px" }}
                         color="#31A5FF"
