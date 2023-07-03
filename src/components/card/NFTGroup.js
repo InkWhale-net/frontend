@@ -7,6 +7,9 @@ import ConfirmModal from "components/modal/ConfirmModal";
 import { useAppContext } from "contexts/AppContext";
 import useBulkStake from "hook/useBulkStake";
 import { toast } from "react-hot-toast";
+import { toastMessages } from "constants";
+import { isPoolEnded } from "utils";
+import { isPoolNotStart } from "utils";
 
 const MAX_NFT_ACTION = 5;
 
@@ -77,11 +80,42 @@ const NFTGroup = ({
               buttonLabel={`Bulk ${action?.replace("NFT", "")} (${
                 listNFTStake?.length || 0
               }) NFTs`}
-              disableBtn={false}
+              disableBtn={!(listNFTStake?.length > 1)}
               onValidate={() => {
                 if (listNFTStake.length > MAX_NFT_ACTION) {
                   toast.error(`Maximum bulk ${action} is ${MAX_NFT_ACTION} `);
                   return false;
+                }
+                if (!currentAccount) {
+                  toast.error(toastMessages.NO_WALLET);
+                  return;
+                }
+
+                if (action === "Unstake NFT") {
+                  if (
+                    parseInt(
+                      currentAccount?.balance?.inw?.replaceAll(",", "")
+                    ) < unstakeFee
+                  ) {
+                    toast.error(
+                      `You don't have enough INW. Unstake costs ${unstakeFee} INW`
+                    );
+                    return;
+                  }
+                } else {
+                  if (isPoolEnded(startTime, duration)) {
+                    toast.error("Pool is ended!");
+                    return;
+                  }
+
+                  if (isPoolNotStart(startTime)) {
+                    toast.error("Pool is not start!");
+                    return;
+                  }
+                  if (!rewardPool || parseInt(rewardPool) <= 0) {
+                    toast.error("There is no reward balance in this pool!");
+                    return;
+                  }
                 }
                 return true;
               }}

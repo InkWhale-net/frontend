@@ -56,6 +56,7 @@ import AddressCopier from "components/address-copier/AddressCopier";
 import { BN } from "bn.js";
 import { roundUp } from "utils";
 import { roundDown } from "utils";
+import { formatTokenAmount } from "utils";
 
 export default function MyPoolDetailPage({ api }) {
   const [state, setState] = useState({});
@@ -391,6 +392,7 @@ const MyPoolInfo = ({
   lptokenSymbol,
   lptokenName,
   lptokenTotalSupply,
+  tokenDecimal,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -416,7 +418,7 @@ const MyPoolInfo = ({
       currentAccount?.address
     );
 
-    const balance = formatQueryResultToNumber(result);
+    const balance = formatQueryResultToNumber(result, parseInt(tokenDecimal));
     setTokenBalance(balance);
     if (isPoolEnded(startTime, duration)) {
       const unclaimRwQr = await execContractQuery(
@@ -427,9 +429,12 @@ const MyPoolInfo = ({
         0,
         "genericPoolContractTrait::totalUnclaimedReward"
       );
-      const unclaimRw = formatQueryResultToNumber(unclaimRwQr);
+      const unclaimRw = formatQueryResultToNumber(
+        unclaimRwQr,
+        parseInt(tokenDecimal)
+      );
       const withdrawableRs = rewardPool - +unclaimRw.replaceAll(",", "");
-      setWithdrawbleAm(roundDown(withdrawableRs, 3));
+      setWithdrawbleAm(roundDown(withdrawableRs, 4));
     }
   }, [
     api,
@@ -460,7 +465,6 @@ const MyPoolInfo = ({
       "psp22::balanceOf",
       currentAccount?.address
     );
-
     const balance = formatQueryResultToNumber(result);
     setTokenBalance(balance);
     const resultLP = await execContractQuery(
@@ -568,7 +572,7 @@ const MyPoolInfo = ({
         0, //-> value
         "psp22::approve",
         poolContract,
-        formatNumToBN(amount)
+        formatNumToBN(amount, tokenDecimal)
       );
       if (!approve) return;
 
@@ -583,7 +587,7 @@ const MyPoolInfo = ({
         poolContract,
         0, //-> value
         "genericPoolContractTrait::topupRewardPool",
-        formatNumToBN(amount)
+        formatNumToBN(amount, tokenDecimal)
       );
 
       await APICall.askBEupdate({ type: "pool", poolContract });
@@ -621,7 +625,7 @@ const MyPoolInfo = ({
         0, //-> value
         "psp22::approve",
         poolContract,
-        formatNumToBN(amount)
+        formatNumToBN(amount, tokenDecimal)
       );
       if (!approve) return;
 
@@ -636,7 +640,7 @@ const MyPoolInfo = ({
         poolContract,
         0, //-> value
         "genericPoolContractTrait::topupRewardPool",
-        formatNumToBN(amount)
+        formatNumToBN(amount, tokenDecimal)
       );
 
       await APICall.askBEupdate({ type: "nft", poolContract });
@@ -674,7 +678,7 @@ const MyPoolInfo = ({
         0, //-> value
         "psp22::approve",
         poolContract,
-        formatNumToBN(amount)
+        formatNumToBN(amount, tokenDecimal)
       );
       if (!approve) return;
 
@@ -689,7 +693,7 @@ const MyPoolInfo = ({
         poolContract,
         0, //-> value
         "genericPoolContractTrait::topupRewardPool",
-        formatNumToBN(amount)
+        formatNumToBN(amount, tokenDecimal)
       );
 
       await APICall.askBEupdate({ type: "lp", poolContract });
@@ -739,7 +743,6 @@ const MyPoolInfo = ({
       toast.error("Not enough reward tokens!");
       return;
     }
-
     if (mode === "STAKING_POOL") {
       toast.success("Process...");
       await execContractTx(
@@ -749,7 +752,7 @@ const MyPoolInfo = ({
         poolContract,
         0, //-> value
         "genericPoolContractTrait::withdrawRewardPool",
-        formatNumToBN(amount)
+        formatNumToBN(amount, tokenDecimal)
       );
 
       await APICall.askBEupdate({ type: "pool", poolContract });
@@ -785,7 +788,7 @@ const MyPoolInfo = ({
         poolContract,
         0, //-> value
         "genericPoolContractTrait::withdrawRewardPool",
-        formatNumToBN(amount)
+        formatNumToBN(amount, tokenDecimal)
       );
 
       await APICall.askBEupdate({ type: "nft", poolContract });
@@ -821,7 +824,7 @@ const MyPoolInfo = ({
         poolContract,
         0, //-> value
         "genericPoolContractTrait::withdrawRewardPool",
-        formatNumToBN(amount)
+        formatNumToBN(amount, tokenDecimal)
       );
 
       await APICall.askBEupdate({ type: "pool", poolContract });
@@ -896,7 +899,7 @@ const MyPoolInfo = ({
               {
                 title: "Max Staking Amount",
                 content: `${formatNumDynDecimal(
-                  maxStakingAmount
+                  formatTokenAmount(maxStakingAmount, tokenDecimal)
                 )} ${tokenSymbol}`,
               },
               {

@@ -7,6 +7,7 @@ import numeral from "numeral";
 import Keyring from "@polkadot/keyring";
 import { toast } from "react-hot-toast";
 import { SupportedChainId, resolveAddressToDomain } from "@azns/resolver-core";
+import { formatUnits } from "ethers";
 
 // "12,345" (string) or 12,345 (string) -> 12345 (number)
 export const formatChainStringToNumber = (str) => {
@@ -328,7 +329,6 @@ export const resolveDomain = async (address) => {
   //   process.env.REACT_APP_NETWORK === "alephzero-testnet" ||
   //   process.env.REACT_APP_NETWORK === "alephzero"
   // ) {
-
   // }
   try {
     const domains = await resolveAddressToDomain(address, {
@@ -337,5 +337,14 @@ export const resolveDomain = async (address) => {
     return domains[0];
   } catch (error) {
     console.log("resolveDomain error", error);
+  }
+};
+
+export const formatTokenAmount = (value, decimal = 12) => {
+  try {
+    return formatUnits(value?.toString()?.replace(/,/g, ""), decimal);
+  } catch (error) {
+    // console.log(error);
+    return;
   }
 };

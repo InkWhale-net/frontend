@@ -4,7 +4,7 @@ import "assets/css/App.css";
 import "react-datetime-picker/dist/DateTimePicker.css";
 import "react-calendar/dist/Calendar.css";
 import "react-clock/dist/Clock.css";
-import 'rc-steps/assets/index.css';
+import "rc-steps/assets/index.css";
 import { HashRouter, Redirect, Route, Switch } from "react-router-dom";
 import DefaultLayout from "layouts/default";
 import { ChakraProvider } from "@chakra-ui/react";
@@ -29,6 +29,7 @@ import TokensPage from "pages/tokens";
 import CreateTokenPage from "pages/create/token";
 import CreateStakePoolPage from "pages/create/stake-pool";
 import MyBalancePage from "pages/account/my-balance";
+import TokensTransactionPage from "pages/tokens/transactions";
 import jsonrpc from "@polkadot/types/interfaces/jsonrpc";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { initialApi } from "utils/contracts";
@@ -49,8 +50,10 @@ import AdminPage from "pages/admin";
 import CreateLaunchpadPage from "pages/create-launchpad";
 import { AppContextProvider } from "contexts/AppContext";
 import { useAppContext } from "contexts/AppContext";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
+const queryClient = new QueryClient();
 
 const App = () => {
   const dispatch = useDispatch();
@@ -177,7 +180,12 @@ const App = () => {
             component={FarmDetailPage}
           />
           <Route exact path={`/farms`} component={FarmsPage} />{" "}
-          <Route exact path={`/tokens`} component={TokensPage} />
+          <Route exact path={`/tokens/interaction`} component={TokensPage} />
+          <Route
+            exact
+            path={`/tokens/transaction`}
+            component={TokensTransactionPage}
+          />
           <Route exact path={`/create/token`} component={CreateTokenPage} />
           <Route
             exact
@@ -185,7 +193,11 @@ const App = () => {
             component={CreateStakePoolPage}
           />
           <Route exact path={`/create/nft-lp`} component={CreateNFTLPPage} />
-          <Route exact path={`/create/launchpad`} component={CreateLaunchpadPage} />
+          <Route
+            exact
+            path={`/create/launchpad`}
+            component={CreateLaunchpadPage}
+          />
           <Route
             exact
             path={`/create/token-lp`}
@@ -212,25 +224,27 @@ const App = () => {
 ReactDOM.render(
   <ChakraProvider theme={theme}>
     <React.StrictMode>
-      <AppContextProvider>
-        <ReduxProvider store={store}>
-          <Toaster
-            position="bottom-right"
-            reverseOrder={true}
-            toastOptions={{
-              style: {
-                padding: "8px",
-                fontSize: "16px",
-                color: "#57527E",
-                borderRadius: "5px",
-                background: "#E8FDFF",
-              },
-            }}
-          />
+      <QueryClientProvider client={queryClient}>
+        <AppContextProvider>
+          <ReduxProvider store={store}>
+            <Toaster
+              position="bottom-right"
+              reverseOrder={true}
+              toastOptions={{
+                style: {
+                  padding: "8px",
+                  fontSize: "16px",
+                  color: "#57527E",
+                  borderRadius: "5px",
+                  background: "#E8FDFF",
+                },
+              }}
+            />
 
-          <App />
-        </ReduxProvider>
-      </AppContextProvider>
+            <App />
+          </ReduxProvider>
+        </AppContextProvider>
+      </QueryClientProvider>
     </React.StrictMode>
   </ChakraProvider>,
   document.getElementById("root")

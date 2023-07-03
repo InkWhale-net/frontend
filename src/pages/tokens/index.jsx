@@ -85,8 +85,16 @@ export default function TokensPage() {
       "psp22::balanceOf",
       currentAccount?.address
     );
-
-    const balance = formatQueryResultToNumber(queryResult);
+    let queryResult4 = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      selectedContractAddr,
+      0,
+      "psp22Metadata::tokenDecimals"
+    );
+    const decimals = queryResult4.toHuman().Ok;
+    const balance = formatQueryResultToNumber(queryResult, parseInt(decimals));
 
     let queryResult1 = await execContractQuery(
       currentAccount?.address,
@@ -116,15 +124,6 @@ export default function TokensPage() {
     );
     const rawTotalSupply = queryResult3.toHuman().Ok;
 
-    let queryResult4 = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      selectedContractAddr,
-      0,
-      "psp22Metadata::tokenDecimals"
-    );
-    const decimals = queryResult4.toHuman().Ok;
     const totalSupply = roundUp(
       rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
       0

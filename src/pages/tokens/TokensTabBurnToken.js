@@ -59,7 +59,7 @@ const TokensTabBurnToken = ({
       0, //-> value
       "psp22Burnable::burn",
       currentAccount?.address,
-      formatNumToBN(burnAmount)
+      formatNumToBN(burnAmount, parseInt(tokenInfo?.decimals))
     );
 
     await delay(2000).then(() => {

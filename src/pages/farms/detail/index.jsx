@@ -1,12 +1,11 @@
-import { ChevronRightIcon, QuestionOutlineIcon } from "@chakra-ui/icons";
+import { ChevronRightIcon } from "@chakra-ui/icons";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   Flex,
-  Heading,
   HStack,
-  Link,
+  Heading,
   Show,
   Stack,
   Text,
@@ -14,13 +13,13 @@ import {
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 
+import { isBoolean } from "@polkadot/util";
 import { APICall } from "api/client";
 import AddressCopier from "components/address-copier/AddressCopier";
-import IWCard, { NFTBannerCard } from "components/card/Card";
+import IWCard from "components/card/Card";
 import IWCardNFTWrapper from "components/card/CardNFTWrapper";
 import IWCardOneColumn from "components/card/CardOneColumn";
 import CardThreeColumn from "components/card/CardThreeColumn";
-import CardTwoColumn from "components/card/CardTwoColumn";
 import NFTGroup from "components/card/NFTGroup";
 import IWInput from "components/input/Input";
 import ConfirmModal from "components/modal/ConfirmModal";
@@ -30,15 +29,19 @@ import { toastMessages } from "constants";
 import useInterval from "hook/useInterval";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
+import {
+  AiOutlineExclamationCircle,
+  AiOutlineQuestionCircle,
+} from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
   fetchAllNFTPools,
   fetchAllTokenPools,
 } from "redux/slices/allPoolsSlice";
+import { closeBulkDialog, updateUnstakeFee } from "redux/slices/bulkStakeSlide";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import {
-  addressShortener,
   calcUnclaimedRewardNftLP,
   calcUnclaimedRewardTokenLP,
   delay,
@@ -46,6 +49,7 @@ import {
   formatNumDynDecimal,
   formatNumToBN,
   formatQueryResultToNumber,
+  formatTokenAmount,
   isPoolEnded,
   isPoolNotStart,
 } from "utils";
@@ -55,9 +59,7 @@ import lp_pool_contract from "utils/contracts/lp_pool_contract";
 import nft_pool_contract from "utils/contracts/nft_pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import psp34_standard from "utils/contracts/psp34_standard";
-import { updateUnstakeFee } from "redux/slices/bulkStakeSlide";
-import { closeBulkDialog } from "redux/slices/bulkStakeSlide";
-import { isBoolean } from "@polkadot/util";
+import PoolInfo from "./PoolInfor";
 
 export default function FarmDetailPage() {
   const params = useParams();
@@ -65,10 +67,15 @@ export default function FarmDetailPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allNFTPoolsList, allTokenPoolsList } = useSelector((s) => s.allPools);
   const [refetchData, setRefetchData] = useState();
+
+  const [currentNFTPoolData, setCurrentNFTPoolData] = useState(null);
+
   const currentNFTPool = useMemo(() => {
-    return allNFTPoolsList?.find(
+    const nftPool = allNFTPoolsList?.find(
       (p) => p?.poolContract === params?.contractAddress
     );
+
+    return nftPool;
   }, [allNFTPoolsList, params?.contractAddress]);
 
   const currentTokenPool = useMemo(() => {
@@ -86,6 +93,40 @@ export default function FarmDetailPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+  const maxStaked = useMemo(() => {
+    return !(
+      parseFloat(currentNFTPool?.maxStakingAmount) -
+        currentNFTPool?.totalStaked >
+      0
+    );
+  }, [currentNFTPool]);
+  const updateTokenData = async () => {
+    let queryResult = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      currentNFTPool?.tokenContract,
+      0,
+      "psp22::totalSupply"
+    );
+    const rawTotalSupply = queryResult.toHuman().Ok;
+
+    setCurrentNFTPoolData({
+      ...currentNFTPool,
+      tokenTotalSupply: formatTokenAmount(
+        rawTotalSupply.replaceAll(",", ""),
+        currentNFTPool?.tokenDecimal
+      ),
+      maxStakingAmount: parseFloat(currentNFTPool?.maxStakingAmount),
+    });
+  };
+
+  useEffect(() => {
+    if (currentNFTPool) {
+      updateTokenData();
+    }
+  }, [currentNFTPool]);
+
   const cardData = {
     cardHeaderList: [
       {
@@ -103,8 +144,13 @@ export default function FarmDetailPage() {
       {
         name: "totalStaked",
         hasTooltip: true,
-        tooltipContent: `Total Value Locked: Total tokens staked into this pool`,
+        tooltipContent: maxStaked
+          ? "Max Staking Amount reached"
+          : "Total Value Locked: Total tokens staked into this pool",
         label: "TVL",
+        tooltipIcon: maxStaked && (
+          <AiOutlineExclamationCircle ml="6px" color="text.1" />
+        ),
       },
       {
         name: "rewardPool",
@@ -133,7 +179,7 @@ export default function FarmDetailPage() {
     ],
 
     cardValue: {
-      ...currentNFTPool,
+      ...currentNFTPoolData,
       ...currentTokenPool,
       totalStaked:
         currMode === "NFT_FARM"
@@ -152,6 +198,7 @@ export default function FarmDetailPage() {
       component:
         currMode === "NFT_FARM" ? (
           <MyStakeRewardInfoNFT
+            maxStaked={maxStaked}
             mode={currMode}
             refetchData={refetchData}
             {...currentNFTPool}
@@ -171,7 +218,7 @@ export default function FarmDetailPage() {
       component: (
         <PoolInfo
           mode={currMode}
-          {...currentNFTPool}
+          {...currentNFTPoolData}
           {...currentTokenPool}
           rewardPool={
             currMode === "NFT_FARM"
@@ -239,7 +286,7 @@ export default function FarmDetailPage() {
               justifyContent={{ base: "space-between" }}
             >
               {cardData?.cardHeaderList?.map(
-                ({ name, hasTooltip, label, tooltipContent }) => {
+                ({ name, hasTooltip, label, tooltipContent, tooltipIcon }) => {
                   return name === "myStake" ? null : (
                     <Flex
                       mt={{ base: "15px", lg: "0px" }}
@@ -259,7 +306,13 @@ export default function FarmDetailPage() {
                         {label}
                         {hasTooltip && (
                           <Tooltip fontSize="md" label={tooltipContent}>
-                            <QuestionOutlineIcon ml="6px" color="text.2" />
+                            <span style={{ marginLeft: "6px" }}>
+                              {tooltipIcon ? (
+                                tooltipIcon
+                              ) : (
+                                <AiOutlineQuestionCircle color="text.2" />
+                              )}
+                            </span>
                           </Tooltip>
                         )}
                       </Flex>
@@ -320,6 +373,9 @@ const MyStakeRewardInfoNFT = ({
   startTime,
   duration,
   refetchData,
+  totalStaked,
+  maxStakingAmount,
+  maxStaked,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -372,7 +428,7 @@ const MyStakeRewardInfoNFT = ({
       currentAccount?.address
     );
 
-    const balance = formatQueryResultToNumber(result);
+    const balance = formatQueryResultToNumber(result, tokenDecimal);
     setTokenBalance(balance);
   }, [currentAccount?.address, currentAccount?.balance, tokenContract]);
 
@@ -473,6 +529,7 @@ const MyStakeRewardInfoNFT = ({
       label: "Available NFTs",
       component: (
         <AvailableNFTs
+          disableBtn={maxStaked}
           action="Stake NFT"
           unstakeFee={unstakeFee}
           data={availableNFT}
@@ -787,7 +844,10 @@ const MyStakeRewardInfoNFT = ({
           px="0px"
           // mt={{ base: "-38px", xl: "-48px" }}
         >
-          <IWTabs tabsData={tabsNFTData} onChangeTab={() => dispatch(closeBulkDialog())}/>
+          <IWTabs
+            tabsData={tabsNFTData}
+            onChangeTab={() => dispatch(closeBulkDialog())}
+          />
         </SectionContainer>
       ) : null}
     </>
@@ -1237,170 +1297,9 @@ const MyStakeRewardInfoToken = ({
   );
 };
 
-const PoolInfo = ({
-  mode,
-  nftInfo,
-  poolContract,
-  startTime,
-  duration,
-  rewardPool,
-  totalStaked,
-  maxStakingAmount,
-  tokenSymbol,
-  tokenName,
-  tokenContract,
-  multiplier,
-  tokenTotalSupply,
-  lptokenContract,
-  lptokenDecimal,
-  lptokenName,
-  lptokenSymbol,
-  lptokenTotalSupply,
-  ...rest
-}) => {
-  const cardDataPoolInfo = {
-    cardHeaderList: [
-      {
-        name: "collectionLink",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "ArtZero Collection Link",
-      },
-      {
-        name: "totalSupply",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "NFT Supply",
-      },
-      {
-        name: "royaltyFee",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Royalty Fee",
-      },
-      {
-        name: "volume",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Volume",
-      },
-    ],
-
-    cardValue: {
-      collectionLink: (
-        <Link
-          isExternal
-          href={`https://a0.artzero.io/collection/${nftInfo?.nftContractAddress}`}
-        >
-          {nftInfo?.name}
-        </Link>
-      ),
-      volume: `${formatNumDynDecimal(nftInfo?.volume)} AZERO`,
-      totalSupply: `${nftInfo?.nft_count} NFT${nftInfo?.nft_count > 1 && "s"}`,
-      royaltyFee: `${(nftInfo?.royaltyFee / 100).toFixed(2)}%`,
-    },
-  };
-
-  return (
-    <>
-      {mode === "NFT_FARM" ? (
-        <NFTBannerCard cardData={cardDataPoolInfo} nftInfo={nftInfo} />
-      ) : null}
-
-      <Stack
-        w="full"
-        spacing="30px"
-        alignItems="start"
-        direction={{ base: "column", lg: "row" }}
-      >
-        <CardTwoColumn
-          title="General Information"
-          data={[
-            {
-              title: "Pool Contract Address",
-              content: <AddressCopier address={poolContract} />,
-            },
-            {
-              title: "Multiplier",
-              content:
-                mode === "TOKEN_FARM"
-                  ? (multiplier / 10 ** 18).toFixed(2)
-                  : (multiplier / 10 ** 12).toFixed(2),
-            },
-            {
-              title: "Start Date",
-              content: `${new Date(startTime).toLocaleString("en-US")}`,
-            },
-            {
-              title: "Pool Length",
-              content: `${duration / 86400} day${
-                duration / 86400 > 1 ? "s" : ""
-              }`,
-            },
-            {
-              title: "Reward Pool",
-              content: `${formatNumDynDecimal(rewardPool)} ${tokenSymbol}`,
-            },
-            {
-              title: "Max Staking Amount",
-              content: `${formatNumDynDecimal(maxStakingAmount)} ${"NFT"}${
-                mode === "NFT_FARM" && maxStakingAmount > 1 ? "s" : ""
-              }`,
-            },
-            {
-              title: "Total Value Locked",
-              content: `${formatNumDynDecimal(totalStaked)} ${"NFT"}${
-                mode === "NFT_FARM" && totalStaked > 1 ? "s" : ""
-              }`,
-            },
-          ]}
-        />
-        <Stack w="full" spacing="30px">
-          {mode === "TOKEN_FARM" ? (
-            <CardTwoColumn
-              title="Staking Token Information"
-              data={[
-                {
-                  title: "Total Name",
-                  content: lptokenName,
-                },
-                {
-                  title: "Contract Address",
-                  content: <AddressCopier address={lptokenContract} />,
-                },
-                {
-                  title: "Total Supply",
-                  content: `${formatNumDynDecimal(lptokenTotalSupply)}`,
-                },
-                { title: "Token Symbol", content: lptokenSymbol },
-              ]}
-            />
-          ) : null}
-
-          <CardTwoColumn
-            title="Reward Token Information"
-            data={[
-              { title: "Total Name", content: tokenName },
-              {
-                title: "Contract Address",
-                content: <AddressCopier address={tokenContract} />,
-              },
-              {
-                title: "Total Supply",
-                content: `${formatNumDynDecimal(tokenTotalSupply)}`,
-              },
-              { title: "Token Symbol", content: tokenSymbol },
-            ]}
-          />
-        </Stack>
-      </Stack>
-    </>
-  );
-};
-
 const AvailableNFTs = (props) => {
-  // { data, action, actionHandler }
   const { currentAccount } = useSelector((s) => s.wallet);
+  const { isAllowStake } = props;
 
   if (!currentAccount?.address) {
     // return <Text>Please connect wallet!<Text/>

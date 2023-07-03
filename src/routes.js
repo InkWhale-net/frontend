@@ -2,6 +2,7 @@ import FaucetPage from "pages/faucet";
 import PoolsPage from "pages/pools";
 import FarmsPage from "pages/farms";
 import TokensPage from "pages/tokens";
+import TokensTransactionPage from "pages/tokens/transactions";
 import CreateTokenPage from "pages/create/token";
 import CreateStakePoolPage from "pages/create/stake-pool";
 import MyBalancePage from "pages/account/my-balance";
@@ -27,8 +28,13 @@ const routes = [
   },
   {
     layout: "/default",
-    path: "/tokens",
+    path: "/tokens/interaction",
     component: TokensPage,
+  },
+  {
+    layout: "/default",
+    path: "/tokens/transaction",
+    component: TokensTransactionPage,
   },
   {
     layout: "/default",
