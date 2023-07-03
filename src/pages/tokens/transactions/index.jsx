@@ -32,6 +32,7 @@ import IWPaginationTable from "components/table/IWPaginationTable";
 import { roundUp } from "utils";
 import { getTimestamp } from "utils";
 import { useAppContext } from "contexts/AppContext";
+import { useMutation } from "react-query";
 
 export default function TokensPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -73,13 +74,21 @@ export default function TokensPage() {
       fromOnly: false,
       toOnly: false,
     });
-    setPagination({ pageIndex: 0, pageSize: 10 });
-    // getTokenTransaction(selectedToken?.contractAddress);
+    if (pagination?.pageIndex != 0) {
+      setPagination({ pageIndex: 0, pageSize: 10 });
+    } else {
+      if (selectedToken)
+        tokenTransactionMutation.mutate(
+          selectedToken?.contractAddress,
+          keywords
+        );
+      else tokenTransactionMutation.mutate();
+    }
   }, [selectedToken]);
 
   useEffect(() => {
     if (!(keywords?.queryAddress?.length > 0))
-      getTokenTransaction(selectedToken?.contractAddress);
+      tokenTransactionMutation.mutate(selectedToken?.contractAddress);
     setKeywords({ ...keywords, fromOnly: false, toOnly: false });
   }, [keywords?.queryAddress]);
 
@@ -100,99 +109,104 @@ export default function TokensPage() {
   }, []);
 
   useEffect(() => {
-    getTokenTransaction(selectedToken?.contractAddress, keywords);
+    tokenTransactionMutation.mutate(selectedToken?.contractAddress, keywords);
   }, [pageIndex, pageSize, api]);
-  const getTokenTransaction = async (tokenContract, keywordData) => {
-    let queryBody = {};
-    if (tokenContract) queryBody.tokenContract = tokenContract;
-    if (keywordData?.queryAddress)
-      queryBody.queryAddress = keywordData?.queryAddress;
-    if (keywordData?.fromOnly) queryBody.isFromOnly = keywordData?.fromOnly;
-    if (keywordData?.toOnly) queryBody.isToOnly = keywordData?.toOnly;
-    queryBody.limit = pageSize;
-    queryBody.offset = pageIndex * pageSize;
 
-    const { ret, status, message } = await APICall.getTransactionHistory(
-      queryBody
-    );
-    console.log(ret?.dataArray);
-    setTotalPage(roundUp(ret?.total / 10, 0));
-    if (status === "OK") {
-      const transactionList = await Promise.all(
-        ret?.dataArray?.map(async (txObj) => {
-          if (txObj?.data?.tokenContract) {
-            let queryResult = await execContractQuery(
-              currentAccount?.address,
-              "api",
-              psp22_contract.CONTRACT_ABI,
-              txObj?.data?.tokenContract,
-              0,
-              "psp22Metadata::tokenDecimals"
-            );
-            const decimal = queryResult?.toHuman()?.Ok;
-            let queryResult1 = await execContractQuery(
-              currentAccount?.address,
-              "api",
-              psp22_contract.CONTRACT_ABI,
-              txObj?.data?.tokenContract,
-              0,
-              "psp22Metadata::tokenName"
-            );
-            const tokenName = queryResult1?.toHuman().Ok;
-            let queryResult2 = await execContractQuery(
-              currentAccount?.address,
-              "api",
-              psp22_contract.CONTRACT_ABI,
-              txObj?.data?.tokenContract,
-              0,
-              "psp22Metadata::tokenSymbol"
-            );
-            const tokenSymbol = queryResult2?.toHuman().Ok;
-            const timeEvent = await getTimestamp(api, txObj?.blockNumber);
+  const tokenTransactionMutation = useMutation(async () => {
+    await new Promise(async (resolve) => {
+      let queryBody = {};
+      if (selectedToken?.contractAddress)
+        queryBody.tokenContract = selectedToken?.contractAddress;
+      if (keywords?.queryAddress)
+        queryBody.queryAddress = keywords?.queryAddress;
+      if (keywords?.fromOnly) queryBody.isFromOnly = keywords?.fromOnly;
+      if (keywords?.toOnly) queryBody.isToOnly = keywords?.toOnly;
+      queryBody.limit = pageSize;
+      queryBody.offset = pageIndex * pageSize;
 
-            if (decimal && tokenName && tokenSymbol)
-              return {
-                token: {
-                  address: txObj?.data?.tokenContract,
-                  name: tokenName,
-                  symbol: tokenSymbol,
-                  decimal: parseInt(decimal),
-                },
-                tokenContract: txObj?.data?.tokenContract,
-                tokenSymbol,
-                amount: formatNumDynDecimal(
-                  formatTokenAmount(
-                    txObj?.data?.amount?.replaceAll(",", ""),
-                    parseInt(decimal)
-                  )
-                ),
-                blockNumber: timeEvent,
-                time: txObj?.createdTime,
-                fromAddress: txObj?.fromAddress,
-                toAddress: txObj?.toAddress,
-                currentAccount: currentAccount?.address,
-                amountIcon:
-                  keywords?.queryAddress?.length > 0 &&
-                  (txObj?.fromAddress == currentAccount?.address ? (
-                    <BsArrowUpRight
-                      style={{ marginRight: "4px" }}
-                      color="#31A5FF"
-                    />
-                  ) : (
-                    <AiOutlineDownload style={{ marginRight: "4px" }} />
-                  )),
-              };
-          }
-        })
+      const { ret, status, message } = await APICall.getTransactionHistory(
+        queryBody
       );
-      setTransactions(transactionList.filter((e) => e));
-    } else {
-      toast.error(message);
-    }
-  };
+      console.log(ret?.total);
+      setTotalPage(roundUp(ret?.total / 10, 0));
+      if (status === "OK") {
+        const transactionList = await Promise.all(
+          ret?.dataArray?.map(async (txObj) => {
+            if (txObj?.data?.tokenContract) {
+              let queryResult = await execContractQuery(
+                currentAccount?.address,
+                "api",
+                psp22_contract.CONTRACT_ABI,
+                txObj?.data?.tokenContract,
+                0,
+                "psp22Metadata::tokenDecimals"
+              );
+              const decimal = queryResult?.toHuman()?.Ok;
+              let queryResult1 = await execContractQuery(
+                currentAccount?.address,
+                "api",
+                psp22_contract.CONTRACT_ABI,
+                txObj?.data?.tokenContract,
+                0,
+                "psp22Metadata::tokenName"
+              );
+              const tokenName = queryResult1?.toHuman().Ok;
+              let queryResult2 = await execContractQuery(
+                currentAccount?.address,
+                "api",
+                psp22_contract.CONTRACT_ABI,
+                txObj?.data?.tokenContract,
+                0,
+                "psp22Metadata::tokenSymbol"
+              );
+              const tokenSymbol = queryResult2?.toHuman().Ok;
+              const timeEvent = await getTimestamp(api, txObj?.blockNumber);
+
+              if (decimal && tokenName && tokenSymbol)
+                return {
+                  token: {
+                    address: txObj?.data?.tokenContract,
+                    name: tokenName,
+                    symbol: tokenSymbol,
+                    decimal: parseInt(decimal),
+                  },
+                  tokenContract: txObj?.data?.tokenContract,
+                  tokenSymbol,
+                  amount: formatNumDynDecimal(
+                    formatTokenAmount(
+                      txObj?.data?.amount?.replaceAll(",", ""),
+                      parseInt(decimal)
+                    )
+                  ),
+                  blockNumber: timeEvent,
+                  time: txObj?.createdTime,
+                  fromAddress: txObj?.fromAddress,
+                  toAddress: txObj?.toAddress,
+                  currentAccount: currentAccount?.address,
+                  amountIcon:
+                    keywords?.queryAddress?.length > 0 &&
+                    (txObj?.fromAddress == currentAccount?.address ? (
+                      <BsArrowUpRight
+                        style={{ marginRight: "4px" }}
+                        color="#31A5FF"
+                      />
+                    ) : (
+                      <AiOutlineDownload style={{ marginRight: "4px" }} />
+                    )),
+                };
+            }
+          })
+        );
+        setTransactions(transactionList.filter((e) => e));
+      } else {
+        toast.error(message);
+      }
+      resolve();
+    });
+  }, "query-token-tx");
 
   // useEffect(() => {
-  //   if (!!currentAccount?.address) getTokenTransaction();
+  //   if (!!currentAccount?.address) tokenTransactionMutation.mutate();
   // }, [currentAccount]);
 
   const tableData = {
@@ -317,7 +331,7 @@ export default function TokensPage() {
                   if (pagination?.pageIndex != 0) {
                     setPagination({ pageIndex: 0, pageSize: 10 });
                   } else {
-                    getTokenTransaction(
+                    tokenTransactionMutation.mutate(
                       selectedToken?.contractAddress,
                       keywords
                     );
@@ -414,6 +428,7 @@ export default function TokensPage() {
             pagination={pagination}
             setPagination={setPagination}
             totalData={totalPage}
+            mutation={tokenTransactionMutation}
           />
         </Stack>
       </SectionContainer>

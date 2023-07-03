@@ -2,11 +2,11 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import {
   Box,
   Circle,
+  CircularProgress,
   Flex,
   IconButton,
   Image,
   Table,
-  TableCaption,
   TableContainer,
   Tbody,
   Td,
@@ -25,21 +25,19 @@ import AddressCopier from "components/address-copier/AddressCopier";
 import IWCountDown from "components/countdown/CountDown";
 import ImageCloudFlare from "components/image-cf/ImageCF";
 import { GoStar } from "react-icons/go";
-import { addressShortener } from "utils";
-import { formatNumDynDecimal } from "utils";
+import { addressShortener, formatNumDynDecimal } from "utils";
 import { format } from "utils/datetime";
 
 const IWPaginationTable = ({
   tableHeader,
   tableBody,
-  paginationState,
   setPagination,
   totalData,
   pagination,
   mode,
-  loading,
   isDisableRowClick = false,
   customURLRowClick = "",
+  mutation,
 }) => {
   const table = useReactTable({
     data: tableBody ?? [],
@@ -52,7 +50,7 @@ const IWPaginationTable = ({
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
     // getPaginationRowModel: getPaginationRowModel(), // If only doing manual pagination, you don't need this
-    debugTable: true,
+    // debugTable: true,
   });
   return (
     <>
@@ -79,25 +77,35 @@ const IWPaginationTable = ({
             ))}
           </Thead>
           <Tbody>
-            {table.getRowModel().rows.map((row, index) => {
-              return (
-                <Tr key={row.id}>
-                  {row.getVisibleCells().map((cell) => {
-                    return (
-                      <Td key={cell.id}>
-                        {formatDataCellTable(
-                          tableBody[index],
-                          cell.getContext().column.id
-                        )}
-                      </Td>
-                    );
-                  })}
-                </Tr>
-              );
-            })}
+            {!mutation?.isLoading &&
+              table.getRowModel().rows.map((row, index) => {
+                return (
+                  <Tr key={row.id}>
+                    {row.getVisibleCells().map((cell) => {
+                      return (
+                        <Td key={cell.id}>
+                          {formatDataCellTable(
+                            tableBody[index],
+                            cell.getContext().column.id
+                          )}
+                        </Td>
+                      );
+                    })}
+                  </Tr>
+                );
+              })}
           </Tbody>
         </Table>
       </TableContainer>
+      {mutation?.isLoading && (
+        <CircularProgress
+          alignSelf={"center"}
+          isIndeterminate
+          size={"40px"}
+          color="#93F0F5"
+        />
+      )}
+
       <Box
         sx={{
           width: "full",
