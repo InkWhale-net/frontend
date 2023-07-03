@@ -8,6 +8,15 @@ import {
   Heading,
   Stack,
   Switch,
+  Table,
+  TableCaption,
+  TableContainer,
+  Tbody,
+  Td,
+  Tfoot,
+  Th,
+  Thead,
+  Tr,
 } from "@chakra-ui/react";
 import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
@@ -29,10 +38,41 @@ import {
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 
+import {
+  PaginationState,
+  useReactTable,
+  getCoreRowModel,
+  ColumnDef,
+  flexRender,
+} from "@tanstack/react-table";
+import { useQuery } from "react-query";
+import IWPaginationTable from "components/table/IWPaginationTable";
+import { roundUp } from "utils";
+
 export default function TokensPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
   const [transactions, setTransactions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(0);
+
+  const [{ pageIndex, pageSize }, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  const fetchDataOptions = {
+    pageIndex,
+    pageSize,
+  };
+
+  const pagination = useMemo(
+    () => ({
+      pageIndex,
+      pageSize,
+    }),
+    [pageIndex, pageSize]
+  );
+
   const [keywords, setKeywords] = useState({
     queryAddress: "",
     fromOnly: false,
@@ -79,6 +119,9 @@ export default function TokensPage() {
     return () => (isUnmounted = true);
   }, []);
 
+  useEffect(() => {
+    getTokenTransaction(selectedToken?.contractAddress, keywords);
+  }, [pageIndex, pageSize]);
   const getTokenTransaction = async (tokenContract, keywordData) => {
     let queryBody = {};
     if (tokenContract) queryBody.tokenContract = tokenContract;
@@ -86,13 +129,16 @@ export default function TokensPage() {
       queryBody.queryAddress = keywordData?.queryAddress;
     if (keywordData?.fromOnly) queryBody.isFromOnly = keywordData?.fromOnly;
     if (keywordData?.toOnly) queryBody.isToOnly = keywordData?.toOnly;
+    queryBody.limit = pageSize;
+    queryBody.offset = pageIndex * pageSize;
 
     const { ret, status, message } = await APICall.getTransactionHistory(
       queryBody
     );
+    setTotalPage(roundUp(ret?.total / 10, 0));
     if (status === "OK") {
       const transactionList = await Promise.all(
-        ret?.map(async (txObj) => {
+        ret?.dataArray?.map(async (txObj) => {
           if (txObj?.data?.tokenContract) {
             let queryResult = await execContractQuery(
               currentAccount?.address,
@@ -161,50 +207,38 @@ export default function TokensPage() {
     }
   };
 
-  useEffect(() => {
-    if (!!currentAccount?.address) getTokenTransaction();
-  }, [currentAccount]);
+  // useEffect(() => {
+  //   if (!!currentAccount?.address) getTokenTransaction();
+  // }, [currentAccount]);
 
   const tableData = {
     tableHeader: [
       {
-        name: "tokenSymbol",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Token",
+        accessorKey: "tokenSymbol",
+        header: "Token",
       },
       {
-        name: "tokenContract",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Contract Address",
+        accessorKey: "tokenContract",
+        header: "Contract Address",
       },
       {
-        name: "fromAddress",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "From",
+        accessorKey: "fromAddress",
+        header: "From",
       },
       {
-        name: "toAddress",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "To",
+        accessorKey: "toAddress",
+        header: "To",
       },
       {
-        name: "amount",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Amount",
+        accessorKey: "amount",
+        header: "Amount",
       },
       {
-        name: "time",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Time",
+        accessorKey: "time",
+        header: "Time",
       },
     ],
-    tableBody: transactions,
+    tableBody: transactions || [],
   };
 
   return (
@@ -383,19 +417,12 @@ export default function TokensPage() {
               </FormLabel>
             </FormControl>
           </Box>
-          {transactions?.length > 0 ? (
-            <InfiniteTable
-              {...tableData}
-              // tableBody={transactions?.slice(0, currentPage * 4) || []}
-              // getNext={() => (hasMorePage ? setCurrentPage(currentPage + 1) : "")}
-              // hasMore={hasMorePage}
-              isDisableRowClick={true}
-            />
-          ) : (
-            <Box textAlign={{ base: "center" }} w={{ base: "full" }}>
-              No transaction data
-            </Box>
-          )}
+          <IWPaginationTable
+            {...tableData}
+            pagination={pagination}
+            setPagination={setPagination}
+            totalData={totalPage}
+          />
         </Stack>
       </SectionContainer>
     </>
