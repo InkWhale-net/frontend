@@ -8,21 +8,11 @@ import {
   Heading,
   Stack,
   Switch,
-  Table,
-  TableCaption,
-  TableContainer,
-  Tbody,
-  Td,
-  Tfoot,
-  Th,
-  Thead,
-  Tr,
 } from "@chakra-ui/react";
 import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
 import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
-import { InfiniteTable } from "components/table/InfiniteTable";
 
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -38,14 +28,6 @@ import {
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 
-import {
-  PaginationState,
-  useReactTable,
-  getCoreRowModel,
-  ColumnDef,
-  flexRender,
-} from "@tanstack/react-table";
-import { useQuery } from "react-query";
 import IWPaginationTable from "components/table/IWPaginationTable";
 import { roundUp } from "utils";
 
@@ -329,7 +311,8 @@ export default function TokensPage() {
               <Button
                 isDisabled={false}
                 onClick={() => {
-                  getTokenTransaction(selectedToken?.contractAddress, keywords);
+                  // getTokenTransaction(selectedToken?.contractAddress, keywords);
+                  setPagination({ pageIndex: 0, pageSize: 10 });
                 }}
               >
                 Load
