@@ -30,9 +30,12 @@ import psp22_contract from "utils/contracts/psp22_contract";
 
 import IWPaginationTable from "components/table/IWPaginationTable";
 import { roundUp } from "utils";
+import { getTimestamp } from "utils";
+import { useAppContext } from "contexts/AppContext";
 
 export default function TokensPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
+  const { api } = useAppContext();
   const [transactions, setTransactions] = useState([]);
   const [totalPage, setTotalPage] = useState(0);
 
@@ -98,7 +101,7 @@ export default function TokensPage() {
 
   useEffect(() => {
     getTokenTransaction(selectedToken?.contractAddress, keywords);
-  }, [pageIndex, pageSize]);
+  }, [pageIndex, pageSize, api]);
   const getTokenTransaction = async (tokenContract, keywordData) => {
     let queryBody = {};
     if (tokenContract) queryBody.tokenContract = tokenContract;
@@ -112,6 +115,7 @@ export default function TokensPage() {
     const { ret, status, message } = await APICall.getTransactionHistory(
       queryBody
     );
+    console.log(ret?.dataArray);
     setTotalPage(roundUp(ret?.total / 10, 0));
     if (status === "OK") {
       const transactionList = await Promise.all(
@@ -144,6 +148,8 @@ export default function TokensPage() {
               "psp22Metadata::tokenSymbol"
             );
             const tokenSymbol = queryResult2?.toHuman().Ok;
+            const timeEvent = await getTimestamp(api, txObj?.blockNumber);
+
             if (decimal && tokenName && tokenSymbol)
               return {
                 token: {
@@ -160,6 +166,7 @@ export default function TokensPage() {
                     parseInt(decimal)
                   )
                 ),
+                blockNumber: timeEvent,
                 time: txObj?.createdTime,
                 fromAddress: txObj?.fromAddress,
                 toAddress: txObj?.toAddress,
@@ -211,7 +218,7 @@ export default function TokensPage() {
         header: "Amount",
       },
       {
-        accessorKey: "time",
+        accessorKey: "blockNumber",
         header: "Time",
       },
     ],
