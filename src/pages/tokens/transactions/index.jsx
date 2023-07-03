@@ -34,18 +34,12 @@ import { roundUp } from "utils";
 export default function TokensPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
   const [transactions, setTransactions] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
 
   const [{ pageIndex, pageSize }, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
   });
-
-  const fetchDataOptions = {
-    pageIndex,
-    pageSize,
-  };
 
   const pagination = useMemo(
     () => ({
@@ -76,7 +70,8 @@ export default function TokensPage() {
       fromOnly: false,
       toOnly: false,
     });
-    getTokenTransaction(selectedToken?.contractAddress);
+    setPagination({ pageIndex: 0, pageSize: 10 });
+    // getTokenTransaction(selectedToken?.contractAddress);
   }, [selectedToken]);
 
   useEffect(() => {
@@ -311,8 +306,15 @@ export default function TokensPage() {
               <Button
                 isDisabled={false}
                 onClick={() => {
-                  // getTokenTransaction(selectedToken?.contractAddress, keywords);
-                  setPagination({ pageIndex: 0, pageSize: 10 });
+                  //
+                  if (pagination?.pageIndex != 0) {
+                    setPagination({ pageIndex: 0, pageSize: 10 });
+                  } else {
+                    getTokenTransaction(
+                      selectedToken?.contractAddress,
+                      keywords
+                    );
+                  }
                 }}
               >
                 Load
