@@ -8,7 +8,7 @@ import Keyring from "@polkadot/keyring";
 import { toast } from "react-hot-toast";
 import { SupportedChainId, resolveAddressToDomain } from "@azns/resolver-core";
 import { formatUnits } from "ethers";
-import { format } from "./datetime";
+import moment from "moment";
 
 // "12,345" (string) or 12,345 (string) -> 12345 (number)
 export const formatChainStringToNumber = (str) => {
@@ -365,5 +365,5 @@ export const getTimestamp = async (api, blockNumber) => {
     }
   );
 
-  return format(parseInt(ret), "DD/MM/YY, H:mm");
+  return moment(parseInt(ret)).format("DD/MM/YY, H:mm");
 };
