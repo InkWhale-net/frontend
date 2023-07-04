@@ -1,33 +1,26 @@
 import {
   Box,
-  Button,
   Flex,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  useClipboard,
 } from "@chakra-ui/react";
 // import { CopyIcon } from "components/icons/Icons";
-import { useState } from "react";
-import { useEffect } from "react";
+import { CopyIcon } from "@chakra-ui/icons";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import { resolveDomain } from "utils";
-import { addressShortener } from "utils";
-import { ChevronDownIcon, CopyIcon } from "@chakra-ui/icons";
+import { addressShortener, resolveDomain } from "utils";
 
-export default function AddressCopier({ address, truncated = true }) {
-  const { onCopy } = useClipboard();
+export default function AddressCopier({
+  address,
+  truncated = true,
+  fontWeight,
+}) {
   const [azeroID, setAzeroID] = useState(null);
-  const [isOpen, setIsOpen] = useState(false);
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
 
   const handleCopy = (label, text) => {
     toast.success(`${label} copied!`);
-    // onCopy(text);
     navigator.clipboard.writeText(text);
   };
 
@@ -45,7 +38,11 @@ export default function AddressCopier({ address, truncated = true }) {
             <MenuButton
               isActive={isOpen}
               _hover={{ color: "text.2" }}
-              sx={{ display: "flex", flexDirection: "row", fontWeight: "bold" }}
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                fontWeight: fontWeight || "bold",
+              }}
             >
               {azeroID || (truncated ? addressShortener(address) : address)}{" "}
               <CopyIcon />
@@ -75,7 +72,7 @@ export default function AddressCopier({ address, truncated = true }) {
         alignItems="center"
         onClick={() => handleCopy("Address", address)}
         _hover={{ color: "text.2" }}
-        sx={{ fontWeight: "bold" }}
+        sx={{ fontWeight: fontWeight || "bold" }}
       >
         {azeroID || (truncated ? addressShortener(address) : address)}
         <Box ml="4px" mb="8px" w="20px" h="21px" color="#8C86A5">

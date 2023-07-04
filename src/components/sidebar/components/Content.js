@@ -1,4 +1,5 @@
 import { Flex, Stack, Link, Text } from "@chakra-ui/react";
+import { TokenMenuDropdown } from "components/navbar/NavbarLinks";
 import { StakeMenuDropdown } from "components/navbar/NavbarLinks";
 import { CreateMenuDropdown } from "components/navbar/NavbarLinks";
 import { menuListData } from "components/navbar/NavbarLinks";
@@ -94,7 +95,11 @@ function SidebarContent({ onClose }) {
             </Link>
           </Flex>
         )} */}
-
+        <TokenMenuDropdown
+          onClose={onClose}
+          setCurrentAnchor={setCurrentAnchor}
+          currentAnchor={currentAnchor}
+        />
         <StakeMenuDropdown
           onClose={onClose}
           setCurrentAnchor={setCurrentAnchor}
