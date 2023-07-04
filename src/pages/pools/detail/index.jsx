@@ -64,6 +64,7 @@ export default function PoolDetailPage({ api }) {
     const poolData = allStakingPoolsList?.find(
       (p) => p?.poolContract === params?.contractAddress
     );
+
     return {
       ...poolData,
       maxStakingAmount:
@@ -75,9 +76,9 @@ export default function PoolDetailPage({ api }) {
               )
             )
           : poolData?.maxStakingAmount,
-      totalStaked: parseFloat(
-        formatTokenAmount(poolData?.totalStaked, poolData?.tokenDecimal)
-      ),
+      // totalStaked: parseFloat(
+      //   formatTokenAmount(poolData?.totalStaked, poolData?.tokenDecimal)
+      // ),
     };
   }, [allStakingPoolsList, params?.contractAddress]);
 
@@ -102,14 +103,12 @@ export default function PoolDetailPage({ api }) {
             : `Total Value Locked: Total tokens staked into this pool`,
         tooltipIcon: roundUp(
           currentPool?.maxStakingAmount -
-            parseFloat(
-              formatTokenAmount(
-                currentPool?.totalStaked,
-                currentPool?.tokenDecimal
-              )
+            formatTokenAmount(
+              currentPool?.totalStaked,
+              currentPool.tokenDecimal
             ),
           4
-        ) === 0 && <AiOutlineExclamationCircle ml="6px" color="text.1" />,
+        ) <= 0 && <AiOutlineExclamationCircle ml="6px" color="text.1" />,
         label: "TVL",
       },
       {
@@ -454,10 +453,14 @@ const MyStakeRewardInfo = ({
         toast.error(`Max Staking Amount reached`);
         return false;
       }
-      if (maxStakingAmount - totalStaked - amount < 0) {
+      const remainStaking = roundUp(
+        maxStakingAmount -
+          parseFloat(formatTokenAmount(totalStaked, tokenDecimal))
+      );
+      if (remainStaking - amount < 0) {
         toast.error(
           `You can not stake more than ${formatNumDynDecimal(
-            roundUp(maxStakingAmount - totalStaked)
+            remainStaking
           )} ${tokenSymbol}`
         );
         return false;
@@ -778,6 +781,7 @@ const PoolInfo = (props) => {
     tokenTotalSupply,
     tokenSymbol,
     maxStakingAmount,
+    tokenDecimal,
   } = props;
   const { currentAccount } = useSelector((s) => s.wallet);
   const [totalSupply, setTotalSupply] = useState(0);
@@ -842,7 +846,9 @@ const PoolInfo = (props) => {
           },
           {
             title: "Total Value Locked",
-            content: `${formatNumDynDecimal(totalStaked)} ${tokenSymbol}`,
+            content: `${formatNumDynDecimal(
+              parseFloat(formatTokenAmount(totalStaked, tokenDecimal))
+            )} ${tokenSymbol}`,
           },
         ]}
       />
