@@ -6,22 +6,22 @@ import {
   FormControl,
   FormLabel,
   HStack,
-  Select,
   Stack,
   Switch,
+  Tooltip,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { delay } from "utils";
 import SectionContainer from "components/container/SectionContainer";
+import { delay } from "utils";
 
-import { IWTable } from "components/table/IWTable";
-import { useEffect } from "react";
-import { useState, useMemo, useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
-import { isPoolEnded } from "utils";
 import IWInput from "components/input/Input";
 import { IWMobileList } from "components/table/IWMobileList";
+import { IWTable } from "components/table/IWTable";
+import { useEffect, useMemo, useState } from "react";
+import { AiOutlineExclamationCircle } from "react-icons/ai";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
+import { formatTokenAmount, isPoolEnded, roundUp } from "utils";
 
 export default function PoolsPage({ api }) {
   const dispatch = useDispatch();
@@ -46,7 +46,32 @@ export default function PoolsPage({ api }) {
       setResultList();
       return;
     }
-    setResultList(result);
+
+    setResultList(
+      result
+        ?.filter((e) => !(e?.totalStaked > 0 && e?.totalStaked < 1))
+        .map((e, index) => {
+          // setRemainStaking(roundUp(maxStakingAmount - totalStaked, 4));
+          const maxObjStakingAmount = parseFloat(
+            formatTokenAmount(e?.maxStakingAmount, e?.tokenDecimal)
+          );
+          const totalStaked = parseFloat(
+            formatTokenAmount(e?.totalStaked, e?.tokenDecimal)
+          );
+          const remainStaking = roundUp(maxObjStakingAmount - totalStaked, 4);
+          return {
+            ...e,
+            maxStakingAmount: maxObjStakingAmount,
+            hasTooltip: remainStaking === 0 && (
+              <Tooltip fontSize="md" label="Max Staking Amount reached">
+                <span style={{ marginLeft: "6px" }}>
+                  <AiOutlineExclamationCircle ml="6px" color="text.1" />
+                </span>
+              </Tooltip>
+            ),
+          };
+        })
+    );
   };
 
   useEffect(() => {

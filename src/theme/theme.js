@@ -18,6 +18,7 @@ import { fontSizes } from "./foundations/fontSizes";
 
 import { globalStyles } from "./styles";
 import { tabsStyles } from "./components/tabs";
+import { radioStyles } from "./components/Radio";
 
 export default extendTheme(
   CardComponent, // card component
@@ -32,7 +33,7 @@ export default extendTheme(
   linkStyles, // link styles
   headingStyles,
   tabsStyles,
-
+  radioStyles,
   { breakpoints, fonts, fontSizes }, // Breakpoints
 
   globalStyles

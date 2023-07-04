@@ -83,8 +83,6 @@ export default function CreateNFTLPPage({ api }) {
       currentAccount?.address
     );
 
-    const bal = formatQueryResultToNumber(queryResult);
-    setTokenBalance(bal);
     const foundItem = faucetTokensList.find(
       (item) => item.contractAddress === selectedContractAddr
     );
@@ -114,8 +112,15 @@ export default function CreateNFTLPPage({ api }) {
       );
       const tokenDec = queryResult1.toHuman().Ok;
       setSelectedTokenDecimal(tokenDec);
+      const bal = formatQueryResultToNumber(queryResult, parseInt(tokenDec));
+      setTokenBalance(bal);
     } else {
       setSelectedTokenDecimal(foundItem?.decimal);
+      const bal = formatQueryResultToNumber(
+        queryResult,
+        parseInt(foundItem?.decimal)
+      );
+      setTokenBalance(bal);
     }
   }, [currentAccount, selectedContractAddr, faucetTokensList]);
 
@@ -281,9 +286,11 @@ export default function CreateNFTLPPage({ api }) {
       nft_pool_generator_contract.CONTRACT_ADDRESS
     );
     const allowanceToken = formatQueryResultToNumber(
-      allowanceTokenQr
+      allowanceTokenQr,
+      selectedTokenDecimal
     ).replaceAll(",", "");
     let step = 1;
+
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
       toast.success(`Step ${step}: Approving INW token...`);

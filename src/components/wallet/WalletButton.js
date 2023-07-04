@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -40,6 +40,7 @@ import WalletModal from "./WalletModal";
 import { disconnectCurrentAccount } from "redux/slices/walletSlice";
 import AddressCopier from "components/address-copier/AddressCopier";
 import { logOutMyPools } from "redux/slices/myPoolsSlice";
+import { resolveDomain } from "utils";
 
 export default function WalletButton({
   currentAccountAddress,
@@ -224,6 +225,7 @@ export const WalletConnect = ({ onClose }) => {
   const history = useHistory();
   const location = useLocation();
   const dispatch = useDispatch();
+  const [domain, setDomain] = useState(null);
   const { currentAccount } = useSelector((state) => state.wallet);
 
   const walletImage =
@@ -232,7 +234,11 @@ export const WalletConnect = ({ onClose }) => {
       : currentAccount?.meta?.source === "subwallet-js"
       ? SubWalletLogo
       : "";
-
+  useEffect(() => {
+    resolveDomain(currentAccount?.address).then((domainValue) =>
+      setDomain(domainValue)
+    );
+  }, [currentAccount?.address]);
   return (
     <Menu placement="bottom-end">
       <MenuButton p="0px">
@@ -252,7 +258,7 @@ export const WalletConnect = ({ onClose }) => {
             />
           </Circle>
           <Heading w="full" as="h5" size="h5" ml="10px">
-            {addressShortener(currentAccount?.address)}
+            {domain || addressShortener(currentAccount?.address)}
           </Heading>
         </Flex>
       </MenuButton>
@@ -467,7 +473,7 @@ const myMenuList = [
     iconColor: "#6CE5ED",
     iconColorHover: "#57527E",
     icon: <MyPoolsIcon />,
-    title: "My Token Pools",
+    title: "My Pools",
     href: "/my-pools",
     id: "pools",
   },
@@ -479,8 +485,20 @@ const myMenuList = [
     iconColor: "#6CE5ED",
     iconColorHover: "#57527E",
     icon: <MyNFTFarmsIcon />,
-    title: "My NFT Pools",
-    href: "/my-pool",
-    id: "farms",
+    title: "My Balances",
+    href: "/my-pools",
+    id: "balance",
   },
+  // {
+  //   borderColor: "#93F0F5",
+  //   borderColorHover: "#0000",
+  //   bgColor: "#E8FDFF",
+  //   bgColorHover: "#93F0F5",
+  //   iconColor: "#6CE5ED",
+  //   iconColorHover: "#57527E",
+  //   icon: <MyNFTFarmsIcon />,
+  //   title: "My NFT Pools",
+  //   href: "/my-pool",
+  //   id: "farms",
+  // },
 ];

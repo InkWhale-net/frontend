@@ -70,7 +70,7 @@ const TokensTabTransferToken = ({
       0, //-> value
       "psp22::transfer",
       transferAddress,
-      formatNumToBN(transferAmount),
+      formatNumToBN(transferAmount, tokenInfo?.decimals),
       []
     );
 

@@ -6,6 +6,9 @@ import BN from "bn.js";
 import numeral from "numeral";
 import Keyring from "@polkadot/keyring";
 import { toast } from "react-hot-toast";
+import { SupportedChainId, resolveAddressToDomain } from "@azns/resolver-core";
+import { formatUnits } from "ethers";
+import moment from "moment";
 
 // "12,345" (string) or 12,345 (string) -> 12345 (number)
 export const formatChainStringToNumber = (str) => {
@@ -321,3 +324,51 @@ export async function getEstimatedGasBatchTx(
 
   return ret;
 }
+
+export const resolveDomain = async (address) => {
+  // if (
+  //   process.env.REACT_APP_NETWORK === "alephzero-testnet" ||
+  //   process.env.REACT_APP_NETWORK === "alephzero"
+  // ) {
+  // }
+  try {
+    const domains = await resolveAddressToDomain(address, {
+      chainId: SupportedChainId.AlephZeroTestnet,
+    });
+    return domains[0];
+  } catch (error) {
+    console.log("resolveDomain error", error);
+  }
+};
+
+export const formatTokenAmount = (value, decimal = 12) => {
+  try {
+    return formatUnits(
+      (typeof value == "string" ? value : value.toLocaleString())
+        ?.toString()
+        ?.replace(/,/g, ""),
+      decimal
+    );
+  } catch (error) {
+    // console.log(error);
+    return;
+  }
+};
+
+export const getTimestamp = async (api, blockNumber) => {
+  const blockHash = await api.rpc.chain.getBlockHash(blockNumber);
+
+  let ret = null;
+
+  const signedBlock = await api.rpc.chain.getBlock(blockHash);
+
+  signedBlock?.block?.extrinsics?.forEach(
+    ({ method: { args, section, method: extrinsicsMethod } }) => {
+      if (section === "timestamp" && extrinsicsMethod === "set") {
+        ret = args[0].toString();
+      }
+    }
+  );
+
+  return moment(parseInt(ret)).format("DD/MM/YY, H:mm");
+};

@@ -51,6 +51,7 @@ import { execContractQuery, execContractTx } from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
 import pool_contract from "utils/contracts/pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
+import { formatTokenAmount } from "utils";
 
 export default function PoolDetailPage({ api }) {
   const params = useParams();
@@ -60,10 +61,21 @@ export default function PoolDetailPage({ api }) {
   const [remainStaking, setRemainStaking] = useState(null);
 
   const currentPool = useMemo(() => {
-    return allStakingPoolsList?.find(
+    const poolData = allStakingPoolsList?.find(
       (p) => p?.poolContract === params?.contractAddress
     );
+
+    return {
+      ...poolData,
+      maxStakingAmount: parseFloat(
+        formatTokenAmount(poolData?.maxStakingAmount, poolData?.tokenDecimal)
+      ),
+      // totalStaked: parseFloat(
+      //   formatTokenAmount(poolData?.totalStaked, poolData?.tokenDecimal)
+      // ),
+    };
   }, [allStakingPoolsList, params?.contractAddress]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -83,9 +95,14 @@ export default function PoolDetailPage({ api }) {
           remainStaking === 0
             ? "Max Staking Amount reached"
             : `Total Value Locked: Total tokens staked into this pool`,
-        tooltipIcon: remainStaking === 0 && (
-          <AiOutlineExclamationCircle ml="6px" color="text.1" />
-        ),
+        tooltipIcon: roundUp(
+          currentPool?.maxStakingAmount -
+            formatTokenAmount(
+              currentPool?.totalStaked,
+              currentPool.tokenDecimal
+            ),
+          4
+        ) <= 0 && <AiOutlineExclamationCircle ml="6px" color="text.1" />,
         label: "TVL",
       },
       {
@@ -123,6 +140,17 @@ export default function PoolDetailPage({ api }) {
 
   const tabsData = [
     {
+      label: <span>Pool Information</span>,
+      component: (
+        <PoolInfo
+          {...currentPool}
+          rewardPool={currentPool?.rewardPool}
+          totalStaked={currentPool?.totalStaked}
+        />
+      ),
+      isDisabled: false,
+    },
+    {
       label: "My Stakes & Rewards",
       component: (
         <MyStakeRewardInfo
@@ -130,17 +158,6 @@ export default function PoolDetailPage({ api }) {
           {...currentAccount}
           remainStaking={remainStaking}
           setRemainStaking={setRemainStaking}
-        />
-      ),
-      isDisabled: false,
-    },
-    {
-      label: <span>Pool Information</span>,
-      component: (
-        <PoolInfo
-          {...currentPool}
-          rewardPool={currentPool?.rewardPool}
-          totalStaked={currentPool?.totalStaked}
         />
       ),
       isDisabled: false,
@@ -314,10 +331,16 @@ const MyStakeRewardInfo = ({
         "psp22::balanceOf",
         currentAccount?.address
       );
-
-      const balance = formatQueryResultToNumber(result);
+      const balance = formatQueryResultToNumber(result, tokenDecimal);
       setTokenBalance(balance);
-      setRemainStaking(roundUp(maxStakingAmount - totalStaked, 4));
+
+      setRemainStaking(
+        roundUp(
+          maxStakingAmount -
+            parseFloat(formatTokenAmount(totalStaked, tokenDecimal)),
+          4
+        )
+      );
     } catch (error) {
       console.log(error);
     }
@@ -424,10 +447,14 @@ const MyStakeRewardInfo = ({
         toast.error(`Max Staking Amount reached`);
         return false;
       }
-      if (maxStakingAmount - totalStaked - amount < 0) {
+      const remainStaking = roundUp(
+        maxStakingAmount -
+          parseFloat(formatTokenAmount(totalStaked, tokenDecimal))
+      );
+      if (remainStaking - amount < 0) {
         toast.error(
           `You can not stake more than ${formatNumDynDecimal(
-            roundUp(maxStakingAmount - totalStaked)
+            remainStaking
           )} ${tokenSymbol}`
         );
         return false;
@@ -452,7 +479,7 @@ const MyStakeRewardInfo = ({
         0, //-> value
         "psp22::approve",
         poolContract,
-        formatNumToBN(amount)
+        formatNumToBN(amount, tokenDecimal)
       );
       if (!approve) return;
 
@@ -466,7 +493,7 @@ const MyStakeRewardInfo = ({
         poolContract,
         0, //-> value
         "stake",
-        formatNumToBN(amount)
+        formatNumToBN(amount, tokenDecimal)
       );
 
       await APICall.askBEupdate({ type: "pool", poolContract });
@@ -499,7 +526,7 @@ const MyStakeRewardInfo = ({
       let info = queryResult?.toHuman().Ok;
 
       const userCurrentStake =
-        info?.stakedValue?.replaceAll(",", "") / 10 ** 12 || 0;
+        info?.stakedValue?.replaceAll(",", "") / 10 ** tokenDecimal || 0;
       if (userCurrentStake === 0) {
         toast.error(`You musk stake first`);
         return false;
@@ -536,7 +563,7 @@ const MyStakeRewardInfo = ({
       return;
     }
 
-    if (stakeInfo?.stakedValue / 10 ** 12 < amount) {
+    if (stakeInfo?.stakedValue / 10 ** tokenDecimal < amount) {
       toast.error("Not enough tokens!");
       return;
     }
@@ -568,7 +595,7 @@ const MyStakeRewardInfo = ({
       poolContract,
       0, //-> value
       "unstake",
-      formatNumToBN(amount)
+      formatNumToBN(amount, tokenDecimal)
     );
 
     await APICall.askBEupdate({ type: "pool", poolContract });
@@ -638,7 +665,7 @@ const MyStakeRewardInfo = ({
           {
             title: "My Stakes ",
             content: `${formatNumDynDecimal(
-              stakeInfo?.stakedValue / 10 ** 12
+              stakeInfo?.stakedValue / 10 ** tokenDecimal
             )} ${tokenSymbol}`,
           },
           {
@@ -678,7 +705,7 @@ const MyStakeRewardInfo = ({
               onChange={({ target }) => setAmount(target.value)}
               type="number"
               placeholder="Enter amount to stake or unstake"
-              isDisabled={!(remainStaking > 0)}
+              // isDisabled={!(remainStaking > 0)}
             />
 
             <HStack
@@ -748,6 +775,7 @@ const PoolInfo = (props) => {
     tokenTotalSupply,
     tokenSymbol,
     maxStakingAmount,
+    tokenDecimal,
   } = props;
   const { currentAccount } = useSelector((s) => s.wallet);
   const [totalSupply, setTotalSupply] = useState(0);
@@ -771,9 +799,9 @@ const PoolInfo = (props) => {
       "psp22Metadata::tokenDecimals"
     );
     const decimals = queryResult1.toHuman().Ok;
+
     const totalSupply = roundUp(
-      rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
-      0
+      formatTokenAmount(rawTotalSupply?.replaceAll(",", ""), parseInt(decimals))
     );
     setTotalSupply(totalSupply);
   };
@@ -812,7 +840,9 @@ const PoolInfo = (props) => {
           },
           {
             title: "Total Value Locked",
-            content: `${formatNumDynDecimal(totalStaked)} ${tokenSymbol}`,
+            content: `${formatNumDynDecimal(
+              parseFloat(formatTokenAmount(totalStaked, tokenDecimal))
+            )} ${tokenSymbol}`,
           },
         ]}
       />

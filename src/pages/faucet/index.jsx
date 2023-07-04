@@ -40,6 +40,7 @@ import {
   roundUp,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
+import { parseUnits } from "ethers";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
 
@@ -476,13 +477,12 @@ export default function FaucetPage({ api }) {
       toast.error(toastMessages.NO_WALLET);
       return;
     }
-
     await execContractTx(
       currentAccount,
       api,
       public_sale.CONTRACT_ABI,
       public_sale.CONTRACT_ADDRESS,
-      roundUp(inwPrice * inwBuyAmount) * 10 ** 12, //-> value
+      parseUnits((inwPrice * inwBuyAmount).toString(), 12), //-> value
       "genericTokenSaleTrait::purchase",
       formatNumToBN(inwBuyAmount) // -> token_amount, <...args>
     );
@@ -521,7 +521,7 @@ export default function FaucetPage({ api }) {
       api,
       private_sale.CONTRACT_ABI,
       private_sale.CONTRACT_ADDRESS,
-      roundUp(inwPrice * inwBuyAmount) * 10 ** 12, //-> value
+      parseUnits((inwPrice * inwBuyAmount).toString(), 12), //-> value
       "genericTokenSaleTrait::purchase",
       formatNumToBN(inwBuyAmount) // -> token_amount, <...args>
     );
@@ -678,7 +678,7 @@ export default function FaucetPage({ api }) {
                   justifyContent="space-between"
                 >
                   <Text textAlign="left" fontSize="md" lineHeight="28px">
-                    Price: {inwPrice} Azero / INW 
+                    Price: {inwPrice} Azero / INW
                   </Text>
                   <Text textAlign="left" fontSize="md" lineHeight="28px">
                     INW Available to acquire: {availableMint}

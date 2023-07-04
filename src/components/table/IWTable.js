@@ -1,5 +1,6 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Circle,
   Flex,
   Image,
@@ -24,6 +25,7 @@ import { addressShortener } from "utils";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import TokenIcon from "components/TokenIcon";
 import AddressCopier from "components/address-copier/AddressCopier";
+import { formatTokenAmount } from "utils";
 
 const getStatusPool = (startTime, duration) => {
   if (startTime + duration * 1000 < new Date()) {
@@ -155,19 +157,29 @@ export const formatDataCellTable = (itemObj, header, mode) => {
     case "totalStaked":
       const extPart = `NFT${itemObj[header] > 1 ? "s" : ""}`;
       return (
-        <>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
           <Text>
-            {formatNumDynDecimal(itemObj[header])}{" "}
+            {mode == "NFT_FARM"
+              ? itemObj[header]
+              : formatNumDynDecimal(
+                  formatTokenAmount(itemObj[header], itemObj?.tokenDecimal)
+                )}{" "}
             {itemObj["NFTtokenContract"] && extPart}
           </Text>
-        </>
+          {itemObj?.hasTooltip}
+        </Box>
       );
 
     case "multiplier":
       return mode === "TOKEN_FARM" ? (
         <Text>{(itemObj[header] / 10 ** 6).toFixed(2)}</Text>
       ) : mode === "NFT_FARM" ? (
-        <Text>{(itemObj[header] / 10 ** 12).toFixed(2)}</Text>
+        // <Text>{(itemObj[header] / 10 ** 12).toFixed(2)}</Text>
+        <Text>
+          {formatNumDynDecimal(
+            formatTokenAmount(itemObj[header], itemObj?.tokenDecimal)
+          )}
+        </Text>
       ) : (
         <></>
       );
@@ -267,7 +279,9 @@ export const formatDataCellTable = (itemObj, header, mode) => {
     case "stakeInfo":
       const numberStakeInfo =
         itemObj[header] &&
-        formatNumDynDecimal(itemObj[header].stakedValue / 10 ** 12);
+        formatNumDynDecimal(
+          formatTokenAmount(itemObj[header].stakedValue, itemObj?.tokenDecimal)
+        );
 
       const numberNFTStakeInfo =
         itemObj[header] && formatNumDynDecimal(itemObj[header].stakedValue);
@@ -281,10 +295,12 @@ export const formatDataCellTable = (itemObj, header, mode) => {
                 <GoStar color="#FFB800" />
               </Flex>
             ) : (
-              <Flex alignItems="center">
-                <Text mr="8px">{numberStakeInfo}</Text>
-                <GoStar color="#FFB800" />
-              </Flex>
+              numberStakeInfo > 0 && (
+                <Flex alignItems="center">
+                  <Text mr="8px">{numberStakeInfo}</Text>
+                  <GoStar color="#FFB800" />
+                </Flex>
+              )
             )
           ) : (
             ""
@@ -326,6 +342,29 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       ) : (
         ""
       );
+    case "name":
+      if (itemObj?.showIcon)
+        return (
+          <>
+            <Flex
+              w="full"
+              justify={{ base: "start" }}
+              alignItems={{ base: "center" }}
+            >
+              <Circle w="30px" h="30px" bg="white">
+                <Image
+                  w="38px"
+                  borderRadius={"10px"}
+                  src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${itemObj["tokenIconUrl"]}`}
+                  alt="logo"
+                />
+              </Circle>
+
+              <Text ml="8px">{itemObj[header]}</Text>
+            </Flex>
+          </>
+        );
+      else return itemObj[header];
     case "tokenTotalSupply":
       const tokenTotalSupply = itemObj[header].replaceAll(",", "");
       return (
