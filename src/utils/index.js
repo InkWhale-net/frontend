@@ -343,7 +343,12 @@ export const resolveDomain = async (address) => {
 
 export const formatTokenAmount = (value, decimal = 12) => {
   try {
-    return formatUnits(value?.toString()?.replace(/,/g, ""), decimal);
+    return formatUnits(
+      (typeof value == "string" ? value : value.toLocaleString())
+        ?.toString()
+        ?.replace(/,/g, ""),
+      decimal
+    );
   } catch (error) {
     // console.log(error);
     return;
