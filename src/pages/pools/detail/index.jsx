@@ -67,15 +67,9 @@ export default function PoolDetailPage({ api }) {
 
     return {
       ...poolData,
-      maxStakingAmount:
-        typeof poolData?.maxStakingAmount == "string"
-          ? parseFloat(
-              formatTokenAmount(
-                poolData?.maxStakingAmount,
-                poolData?.tokenDecimal
-              )
-            )
-          : poolData?.maxStakingAmount,
+      maxStakingAmount: parseFloat(
+        formatTokenAmount(poolData?.maxStakingAmount, poolData?.tokenDecimal)
+      ),
       // totalStaked: parseFloat(
       //   formatTokenAmount(poolData?.totalStaked, poolData?.tokenDecimal)
       // ),
