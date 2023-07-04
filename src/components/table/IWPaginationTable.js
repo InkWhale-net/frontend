@@ -342,25 +342,25 @@ export const formatDataCellTable = (itemObj, header, mode) => {
     case "contractAddress":
       return (
         <>
-          <AddressCopier address={itemObj[header]} />
+          <AddressCopier address={itemObj[header]} fontWeight="none" />
         </>
       );
     case "tokenContract":
       return (
         <>
-          <AddressCopier address={itemObj[header]} />
+          <AddressCopier address={itemObj[header]} fontWeight="none" />
         </>
       );
     case "fromAddress":
       return (
         <>
-          <AddressCopier address={itemObj[header]} />
+          <AddressCopier address={itemObj[header]} fontWeight="none" />
         </>
       );
     case "toAddress":
       return (
         <>
-          <AddressCopier address={itemObj[header]} />
+          <AddressCopier address={itemObj[header]} fontWeight="none" />
         </>
       );
     case "amount":

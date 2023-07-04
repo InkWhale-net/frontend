@@ -273,9 +273,12 @@ export const CreateMenuDropdown = ({
             {
               label: "Launchpad",
               onClick: () => {
-                if (onClose) onClose();
+                if (onClose) {
+                  onClose();
+                }
+                toast.success("Coming soon!");
               },
-              href: "/create/launchpad",
+              // href: "/create/launchpad",
             },
             // { label: "Token Yield Farm", href: "/create/token-lp" },
           ].map((item, idx) => (
@@ -426,7 +429,7 @@ export const TokenMenuDropdown = ({
       >
         <Flex w="full" p="6px 10px" borderRadius="5px">
           <Link color={"text.1"} fontWeight="600" textDecoration="none">
-            <Text fontSize="md">Tokens</Text>
+            <Text fontSize="md">Token</Text>
           </Link>
         </Flex>
       </MenuButton>
@@ -448,10 +451,11 @@ export const TokenMenuDropdown = ({
               href: "/tokens/interaction",
             },
             {
-              label: "Transaction",
-              href: "/tokens/transaction",
+              label: "Transactions",
+              // href: "/tokens/transaction",
               onClick: () => {
                 if (onClose) onClose();
+                toast.success("Coming soon!");
               },
             },
           ].map((item, idx) => (
