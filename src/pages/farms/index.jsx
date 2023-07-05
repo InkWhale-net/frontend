@@ -24,6 +24,7 @@ import {
   fetchAllNFTPools,
   fetchAllTokenPools,
 } from "redux/slices/allPoolsSlice";
+import { formatTokenAmount } from "utils";
 import { delay, isPoolEnded } from "utils";
 
 export default function FarmsPage() {
@@ -59,16 +60,23 @@ export default function FarmsPage() {
       return;
     }
     setResultList(
-      result.map((e) => ({
-        ...e,
-        hasTooltip: !(parseFloat(e?.maxStakingAmount) - e?.totalStaked > 0) && (
-          <Tooltip fontSize="md" label="Max Staking Amount reached">
-            <span style={{ marginLeft: "6px" }}>
-              <AiOutlineExclamationCircle ml="6px" color="text.1" />
-            </span>
-          </Tooltip>
-        ),
-      }))
+      result.map((e) => {
+        return {
+          ...e,
+          maxStakingAmount: parseFloat(formatTokenAmount(e?.maxStakingAmount, 0)),
+          hasTooltip: !(
+            parseFloat(formatTokenAmount(e?.maxStakingAmount, 0)) -
+              e?.totalStaked >
+            0
+          ) && (
+            <Tooltip fontSize="md" label="Max Staking Amount reached">
+              <span style={{ marginLeft: "6px" }}>
+                <AiOutlineExclamationCircle ml="6px" color="text.1" />
+              </span>
+            </Tooltip>
+          ),
+        };
+      })
     );
   };
 
