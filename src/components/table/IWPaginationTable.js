@@ -1,11 +1,13 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import {
   Box,
+  Button,
   Circle,
   CircularProgress,
   Flex,
   IconButton,
   Image,
+  Input,
   Table,
   TableContainer,
   Tbody,
@@ -24,6 +26,9 @@ import TokenIcon from "components/TokenIcon";
 import AddressCopier from "components/address-copier/AddressCopier";
 import IWCountDown from "components/countdown/CountDown";
 import ImageCloudFlare from "components/image-cf/ImageCF";
+import IWInput from "components/input/Input";
+import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import { GoStar } from "react-icons/go";
 import { addressShortener, formatNumDynDecimal } from "utils";
 import { format } from "utils/datetime";
@@ -52,6 +57,15 @@ const IWPaginationTable = ({
     // getPaginationRowModel: getPaginationRowModel(), // If only doing manual pagination, you don't need this
     // debugTable: true,
   });
+
+  const [pageIndexInput, setPageIndexInput] = useState(
+    table.getState().pagination.pageIndex + 1
+  );
+
+  useEffect(() => {
+    setPageIndexInput(table.getState().pagination.pageIndex + 1);
+  }, [table.getState().pagination.pageIndex]);
+
   return (
     <>
       <TableContainer width="full">
@@ -114,9 +128,6 @@ const IWPaginationTable = ({
           alignItems: "center",
         }}
       >
-        <Text sx={{ mr: "20px" }}>
-          {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-        </Text>
         <IconButton
           aria-label="previousPage"
           width={"42px"}
@@ -128,7 +139,6 @@ const IWPaginationTable = ({
           onClick={() => table.previousPage()}
           isDisabled={!table.getCanPreviousPage()}
         />
-
         <IconButton
           ml={"4px"}
           aria-label="previousPage"
@@ -141,6 +151,34 @@ const IWPaginationTable = ({
           onClick={() => table.nextPage()}
           isDisabled={!table.getCanNextPage()}
         />
+        <Box sx={{ width: "64px", ml: "8px" }}>
+          <IWInput
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center",
+            }}
+            type="number"
+            value={pageIndexInput}
+            onChange={(event) => {
+              setPageIndexInput(parseInt(event.target.value));
+            }}
+          />
+        </Box>{" "}
+        <Text sx={{ mr: "20px", ml: "8px" }}>of {table.getPageCount()}</Text>
+        <Button
+          disabled={
+            pageIndexInput === table.getState().pagination.pageIndex + 1
+          }
+          onClick={() => {
+            if (pageIndexInput > 0 && pageIndexInput <= table.getPageCount())
+              table.setPageIndex(pageIndexInput - 1);
+            else toast.error("invalid page number");
+          }}
+        >
+          Go
+        </Button>
         {/* 
         <span className="flex items-center gap-1">
           <div>Page</div>
@@ -149,7 +187,6 @@ const IWPaginationTable = ({
             {table.getPageCount()}
           </strong>
         </span> */}
-
         {/* <select
           value={table.getState().pagination.pageSize}
           onChange={(e) => {
@@ -321,7 +358,17 @@ export const formatDataCellTable = (itemObj, header, mode) => {
     case "tokenSymbol":
       return (
         <Flex alignItems={"center"} mr={{ base: "20px" }}>
-          <TokenIcon tokenContract={itemObj["tokenContract"]} />
+          <Box
+            sx={{
+              w: "42px",
+              h: "42px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <TokenIcon tokenContract={itemObj["tokenContract"]} />
+          </Box>
           <Text textAlign="left">{itemObj[header]} </Text>
         </Flex>
       );
