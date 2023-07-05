@@ -1,9 +1,5 @@
-import { ChevronRightIcon, QuestionOutlineIcon } from "@chakra-ui/icons";
+import { ChevronRightIcon } from "@chakra-ui/icons";
 
-import {
-  AiOutlineQuestionCircle,
-  AiOutlineExclamationCircle,
-} from "react-icons/ai";
 import {
   Box,
   Breadcrumb,
@@ -19,6 +15,10 @@ import {
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
+import {
+  AiOutlineExclamationCircle,
+  AiOutlineQuestionCircle,
+} from "react-icons/ai";
 
 import { APICall } from "api/client";
 import AddressCopier from "components/address-copier/AddressCopier";
@@ -43,6 +43,7 @@ import {
   formatNumDynDecimal,
   formatNumToBN,
   formatQueryResultToNumber,
+  formatTokenAmount,
   isPoolEnded,
   isPoolNotStart,
   roundUp,
@@ -51,7 +52,7 @@ import { execContractQuery, execContractTx } from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
 import pool_contract from "utils/contracts/pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
-import { formatTokenAmount } from "utils";
+import { useAppContext } from "contexts/AppContext";
 
 export default function PoolDetailPage({ api }) {
   const params = useParams();
@@ -70,9 +71,6 @@ export default function PoolDetailPage({ api }) {
       maxStakingAmount: parseFloat(
         formatTokenAmount(poolData?.maxStakingAmount, poolData?.tokenDecimal)
       ),
-      // totalStaked: parseFloat(
-      //   formatTokenAmount(poolData?.totalStaked, poolData?.tokenDecimal)
-      // ),
     };
   }, [allStakingPoolsList, params?.contractAddress]);
 
@@ -146,6 +144,7 @@ export default function PoolDetailPage({ api }) {
           {...currentPool}
           rewardPool={currentPool?.rewardPool}
           totalStaked={currentPool?.totalStaked}
+          api={api}
         />
       ),
       isDisabled: false,
@@ -286,7 +285,8 @@ const MyStakeRewardInfo = ({
 }) => {
   const dispatch = useDispatch();
 
-  const { currentAccount, api } = useSelector((s) => s.wallet);
+  const { currentAccount } = useSelector((s) => s.wallet);
+  const { api } = useAppContext();
 
   const [unstakeFee, setUnstakeFee] = useState(0);
   const [stakeInfo, setStakeInfo] = useState(null);
@@ -295,7 +295,10 @@ const MyStakeRewardInfo = ({
   const [amount, setAmount] = useState("");
 
   const fetchUserStakeInfo = useCallback(async () => {
-    if (!currentAccount?.balance) return;
+    if (!currentAccount?.balance) {
+      dispatch(fetchUserBalance({ currentAccount, api }));
+      return;
+    }
 
     let queryResult = await execContractQuery(
       currentAccount?.address,
@@ -776,39 +779,45 @@ const PoolInfo = (props) => {
     tokenSymbol,
     maxStakingAmount,
     tokenDecimal,
+    api,
   } = props;
   const { currentAccount } = useSelector((s) => s.wallet);
   const [totalSupply, setTotalSupply] = useState(0);
 
   const getPoolInfo = async () => {
-    let queryResult = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      tokenContract,
-      0,
-      "psp22::totalSupply"
-    );
-    const rawTotalSupply = queryResult.toHuman().Ok;
-    let queryResult1 = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      tokenContract,
-      0,
-      "psp22Metadata::tokenDecimals"
-    );
-    const decimals = queryResult1.toHuman().Ok;
+    if (currentAccount?.address) {
+      let queryResult = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenContract,
+        0,
+        "psp22::totalSupply"
+      );
+      const rawTotalSupply = queryResult?.toHuman()?.Ok;
+      let queryResult1 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenContract,
+        0,
+        "psp22Metadata::tokenDecimals"
+      );
+      const decimals = queryResult1?.toHuman()?.Ok;
 
-    const totalSupply = roundUp(
-      formatTokenAmount(rawTotalSupply?.replaceAll(",", ""), parseInt(decimals))
-    );
-    setTotalSupply(totalSupply);
+      const totalSupply = roundUp(
+        formatTokenAmount(
+          rawTotalSupply?.replaceAll(",", ""),
+          parseInt(decimals)
+        )
+      );
+      setTotalSupply(totalSupply);
+    }
   };
 
   useEffect(() => {
     getPoolInfo();
-  }, [currentAccount]);
+  }, [currentAccount?.address, api, tokenContract]);
 
   return (
     <Stack

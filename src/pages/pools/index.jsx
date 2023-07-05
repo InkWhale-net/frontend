@@ -22,11 +22,14 @@ import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
 import { formatTokenAmount, isPoolEnded, roundUp } from "utils";
+import { fetchUserBalance } from "redux/slices/walletSlice";
+import { useAppContext } from "contexts/AppContext";
 
-export default function PoolsPage({ api }) {
+export default function PoolsPage() {
   const dispatch = useDispatch();
 
   const { currentAccount } = useSelector((s) => s.wallet);
+  const { api } = useAppContext();
   const { allStakingPoolsList } = useSelector((s) => s.allPools);
 
   const [showMyStakedPools, setShowMyStakedPools] = useState(false);
@@ -85,6 +88,10 @@ export default function PoolsPage({ api }) {
     );
   }, [currentAccount, dispatch, endedPools, sortPools]);
 
+  useEffect(() => {
+    if (!currentAccount?.balance)
+      dispatch(fetchUserBalance({ currentAccount, api }));
+  }, [currentAccount, api]);
   const poolsListDataFiltered = useMemo(() => {
     let ret = allStakingPoolsList;
 
