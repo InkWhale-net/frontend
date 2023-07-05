@@ -89,6 +89,7 @@ export default function PoolsPage() {
   }, [currentAccount, dispatch, endedPools, sortPools]);
 
   useEffect(() => {
+    console.log('currentAccount?.balance', currentAccount?.balance)
     if (!currentAccount?.balance)
       dispatch(fetchUserBalance({ currentAccount, api }));
   }, [currentAccount, api]);
