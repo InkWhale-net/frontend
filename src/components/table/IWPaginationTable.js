@@ -1,10 +1,15 @@
-import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  QuestionOutlineIcon,
+} from "@chakra-ui/icons";
 import {
   Box,
   Button,
   Circle,
   CircularProgress,
   Flex,
+  Grid,
   IconButton,
   Image,
   Input,
@@ -15,7 +20,9 @@ import {
   Text,
   Th,
   Thead,
+  Tooltip,
   Tr,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import {
   flexRender,
@@ -27,11 +34,56 @@ import AddressCopier from "components/address-copier/AddressCopier";
 import IWCountDown from "components/countdown/CountDown";
 import ImageCloudFlare from "components/image-cf/ImageCF";
 import IWInput from "components/input/Input";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import FadeIn from "react-fade-in/lib/FadeIn";
 import { toast } from "react-hot-toast";
 import { GoStar } from "react-icons/go";
 import { addressShortener, formatNumDynDecimal } from "utils";
 import { format } from "utils/datetime";
+
+const ElementCard = ({ tableHeader, itemObj, mode, onClickItemHandler }) => {
+  return (
+    <Box
+      w={{ base: "full" }}
+      minH={{ base: "20px" }}
+      mb={{ base: "14px" }}
+      borderWidth={{ base: "2px" }}
+      borderRadius={{ base: "10px" }}
+      padding={{ base: "14px" }}
+      _hover={{
+        borderColor: "#93F0F5",
+        backgroundColor: "#E8FDFF",
+      }}
+      onClick={() => onClickItemHandler && onClickItemHandler(itemObj)}
+    >
+      <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+        {tableHeader.map(
+          ({ name, label, hasTooltip, tooltipContent }, index) => {
+            return (
+              <React.Fragment key={index}>
+                <Flex alignItems="center">
+                  {label}
+                  {hasTooltip && (
+                    <Tooltip fontSize="md" label={tooltipContent}>
+                      <QuestionOutlineIcon ml="6px" color="text.2" />
+                    </Tooltip>
+                  )}
+                </Flex>
+                <Box
+                  p={{ base: "4px" }}
+                  color={{ base: "#57527E" }}
+                  fontWeight={{ base: "bold" }}
+                >
+                  <FadeIn>{formatDataCellTable(itemObj, name)}</FadeIn>
+                </Box>
+              </React.Fragment>
+            );
+          }
+        )}
+      </Grid>
+    </Box>
+  );
+};
 
 const IWPaginationTable = ({
   tableHeader,
@@ -61,6 +113,7 @@ const IWPaginationTable = ({
   const [pageIndexInput, setPageIndexInput] = useState(
     table.getState().pagination.pageIndex + 1
   );
+  const isSmallerThanMd = useBreakpointValue({ base: true, md: false });
 
   useEffect(() => {
     setPageIndexInput(table.getState().pagination.pageIndex + 1);
@@ -70,43 +123,61 @@ const IWPaginationTable = ({
     <>
       <TableContainer width="full">
         <Table variant="striped">
-          <Thead>
-            {table?.getHeaderGroups().map((headerGroup) => (
-              <Tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <Th key={header.id} colSpan={header.colSpan}>
-                      {
-                        <div>
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                        </div>
-                      }
-                    </Th>
-                  );
-                })}
-              </Tr>
-            ))}
-          </Thead>
+          {!isSmallerThanMd && (
+            <Thead>
+              {table?.getHeaderGroups().map((headerGroup) => (
+                <Tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <Th key={header.id} colSpan={header.colSpan}>
+                        {
+                          <div>
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                          </div>
+                        }
+                      </Th>
+                    );
+                  })}
+                </Tr>
+              ))}
+            </Thead>
+          )}
+
           <Tbody>
             {!mutation?.isLoading &&
               table.getRowModel().rows.map((row, index) => {
-                return (
-                  <Tr key={row.id}>
-                    {row.getVisibleCells().map((cell) => {
-                      return (
-                        <Td key={cell.id}>
-                          {formatDataCellTable(
-                            tableBody[index],
-                            cell.getContext().column.id
-                          )}
-                        </Td>
-                      );
-                    })}
-                  </Tr>
-                );
+                if (isSmallerThanMd)
+                  return (
+                    <ElementCard
+                      itemObj={tableBody[index]}
+                      tableHeader={table
+                        ?.getHeaderGroups()[0]
+                        .headers.map((e) => {
+                          return {
+                            label: e.id,
+                            name: e.id,
+                          };
+                        })}
+                    />
+                  );
+                else
+                  return (
+                    <Tr key={row.id}>
+                      {row.getVisibleCells().map((cell) => {
+                        return (
+                          <Td key={cell.id}>
+                            {formatDataCellTable(
+                              tableBody[index],
+                              cell.getContext().column.id
+                            )}
+                          </Td>
+                        );
+                      })}
+                    </Tr>
+                  );
               })}
           </Tbody>
         </Table>
@@ -359,8 +430,8 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       return (
         <Flex alignItems={"center"} mr={{ base: "20px" }}>
           <Box
+            w={{ base: null, lg: "42px" }}
             sx={{
-              w: "42px",
               h: "42px",
               display: "flex",
               alignItems: "center",

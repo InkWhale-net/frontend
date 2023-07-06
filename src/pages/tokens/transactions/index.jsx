@@ -8,6 +8,7 @@ import {
   Heading,
   Stack,
   Switch,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
@@ -39,7 +40,7 @@ export default function TokensPage() {
   const { api } = useAppContext();
   const [transactions, setTransactions] = useState([]);
   const [totalPage, setTotalPage] = useState(0);
-
+  const isSmallerThanMd = useBreakpointValue({ base: true, md: false });
   const [{ pageIndex, pageSize }, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -113,6 +114,18 @@ export default function TokensPage() {
   }, [pageIndex, pageSize, api]);
 
   const [cacheTokenMetadata, setCacheTokenMetadata] = useState([]);
+
+  const filterTokenCache = (list) => {
+    return Object.values(
+      list.reduce((acc, obj) => {
+        const tokenContract = obj.tokenContract;
+        if (!acc[tokenContract]) {
+          acc[tokenContract] = obj;
+        }
+        return acc;
+      }, {})
+    );
+  };
 
   const tokenTransactionMutation = useMutation(async () => {
     await new Promise(async (resolve) => {
@@ -242,8 +255,7 @@ export default function TokensPage() {
             }
           })
         );
-        console.log(tokenMetadata)
-        setCacheTokenMetadata(tokenMetadata);
+        setCacheTokenMetadata(filterTokenCache(tokenMetadata));
         setTransactions(transactionList.filter((e) => e));
       } else {
         toast.error(message);
@@ -371,24 +383,27 @@ export default function TokensPage() {
                   // inputRightElementIcon={<SearchIcon color="#57527E" />}
                 />
               </Flex>
-              <Button
-                isDisabled={false}
-                onClick={() => {
-                  //
-                  if (pagination?.pageIndex != 0) {
-                    setPagination({ pageIndex: 0, pageSize: 10 });
-                  } else {
-                    tokenTransactionMutation.mutate(
-                      selectedToken?.contractAddress,
-                      keywords
-                    );
-                  }
-                }}
-              >
-                Load
-              </Button>
+              {!isSmallerThanMd && (
+                <Button
+                  isDisabled={false}
+                  onClick={() => {
+                    //
+                    if (pagination?.pageIndex != 0) {
+                      setPagination({ pageIndex: 0, pageSize: 10 });
+                    } else {
+                      tokenTransactionMutation.mutate(
+                        selectedToken?.contractAddress,
+                        keywords
+                      );
+                    }
+                  }}
+                >
+                  Load
+                </Button>
+              )}
             </HStack>
           </Stack>
+
           <Box
             display="flex"
             justifyContent={{ base: "flex-start", lg: "flex-end" }}
@@ -396,7 +411,7 @@ export default function TokensPage() {
           >
             <FormControl
               maxW={{
-                base: "160px",
+                base: "200px",
                 lg: "205px",
               }}
               display="flex"
@@ -470,6 +485,25 @@ export default function TokensPage() {
               </FormLabel>
             </FormControl>
           </Box>
+          {isSmallerThanMd && (
+            <Button
+              width={"full"}
+              isDisabled={false}
+              onClick={() => {
+                //
+                if (pagination?.pageIndex != 0) {
+                  setPagination({ pageIndex: 0, pageSize: 10 });
+                } else {
+                  tokenTransactionMutation.mutate(
+                    selectedToken?.contractAddress,
+                    keywords
+                  );
+                }
+              }}
+            >
+              Load
+            </Button>
+          )}
           <IWPaginationTable
             {...tableData}
             pagination={pagination}
