@@ -131,7 +131,6 @@ export default function TokensPage() {
     await new Promise(async (resolve) => {
       let queryBody = {};
       const tokenMetadata = [...cacheTokenMetadata];
-      console.log(tokenMetadata)
       if (selectedToken?.contractAddress)
         queryBody.tokenContract = selectedToken?.contractAddress;
       if (keywords?.queryAddress)
@@ -154,7 +153,6 @@ export default function TokensPage() {
               );
               const timeEvent = await getTimestamp(api, txObj?.blockNumber);
               if (findTokenInCache?.length > 0) {
-                console.log("found cache");
                 return {
                   token: {
                     address: txObj?.data?.tokenContract,
@@ -187,7 +185,6 @@ export default function TokensPage() {
                     )),
                 };
               } else {
-                console.log("not found cache");
                 let queryResult = await execContractQuery(
                   currentAccount?.address,
                   "api",
