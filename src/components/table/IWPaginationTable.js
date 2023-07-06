@@ -157,7 +157,7 @@ const IWPaginationTable = ({
                         ?.getHeaderGroups()[0]
                         .headers.map((e) => {
                           return {
-                            label: e.id,
+                            label: e.column.columnDef.header,
                             name: e.id,
                           };
                         })}
