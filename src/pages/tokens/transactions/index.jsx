@@ -112,9 +112,12 @@ export default function TokensPage() {
     tokenTransactionMutation.mutate(selectedToken?.contractAddress, keywords);
   }, [pageIndex, pageSize, api]);
 
+  const [cacheTokenMetadata, setCacheTokenMetadata] = useState([]);
+
   const tokenTransactionMutation = useMutation(async () => {
     await new Promise(async (resolve) => {
       let queryBody = {};
+      const tokenMetadata = [...cacheTokenMetadata];
       if (selectedToken?.contractAddress)
         queryBody.tokenContract = selectedToken?.contractAddress;
       if (keywords?.queryAddress)
@@ -127,42 +130,83 @@ export default function TokensPage() {
       const { ret, status, message } = await APICall.getTransactionHistory(
         queryBody
       );
-      console.log(ret?.total);
       setTotalPage(roundUp(ret?.total / 10, 0));
       if (status === "OK") {
         const transactionList = await Promise.all(
           ret?.dataArray?.map(async (txObj) => {
             if (txObj?.data?.tokenContract) {
-              let queryResult = await execContractQuery(
-                currentAccount?.address,
-                "api",
-                psp22_contract.CONTRACT_ABI,
-                txObj?.data?.tokenContract,
-                0,
-                "psp22Metadata::tokenDecimals"
+              const findTokenInCache = tokenMetadata.filter(
+                (e) => e?.tokenContract == txObj?.data?.tokenContract
               );
-              const decimal = queryResult?.toHuman()?.Ok;
-              let queryResult1 = await execContractQuery(
-                currentAccount?.address,
-                "api",
-                psp22_contract.CONTRACT_ABI,
-                txObj?.data?.tokenContract,
-                0,
-                "psp22Metadata::tokenName"
-              );
-              const tokenName = queryResult1?.toHuman().Ok;
-              let queryResult2 = await execContractQuery(
-                currentAccount?.address,
-                "api",
-                psp22_contract.CONTRACT_ABI,
-                txObj?.data?.tokenContract,
-                0,
-                "psp22Metadata::tokenSymbol"
-              );
-              const tokenSymbol = queryResult2?.toHuman().Ok;
               const timeEvent = await getTimestamp(api, txObj?.blockNumber);
+              if (findTokenInCache?.length > 0) {
+                return {
+                  token: {
+                    address: txObj?.data?.tokenContract,
+                    name: findTokenInCache[0].tokenName,
+                    symbol: findTokenInCache[0].tokenSymbol,
+                    decimal: parseInt(findTokenInCache[0].decimal),
+                  },
+                  tokenContract: txObj?.data?.tokenContract,
+                  tokenSymbol: findTokenInCache[0].tokenSymbol,
+                  amount: formatNumDynDecimal(
+                    formatTokenAmount(
+                      txObj?.data?.amount?.replaceAll(",", ""),
+                      parseInt(findTokenInCache[0].decimal)
+                    )
+                  ),
+                  blockNumber: timeEvent,
+                  time: txObj?.createdTime,
+                  fromAddress: txObj?.fromAddress,
+                  toAddress: txObj?.toAddress,
+                  currentAccount: currentAccount?.address,
+                  amountIcon:
+                    keywords?.queryAddress?.length > 0 &&
+                    (txObj?.fromAddress == keywords?.queryAddress ? (
+                      <BsArrowUpRight
+                        style={{ marginRight: "4px" }}
+                        color="#31A5FF"
+                      />
+                    ) : (
+                      <AiOutlineDownload style={{ marginRight: "4px" }} />
+                    )),
+                };
+              } else {
+                let queryResult = await execContractQuery(
+                  currentAccount?.address,
+                  "api",
+                  psp22_contract.CONTRACT_ABI,
+                  txObj?.data?.tokenContract,
+                  0,
+                  "psp22Metadata::tokenDecimals"
+                );
+                const decimal = queryResult?.toHuman()?.Ok;
+                let queryResult1 = await execContractQuery(
+                  currentAccount?.address,
+                  "api",
+                  psp22_contract.CONTRACT_ABI,
+                  txObj?.data?.tokenContract,
+                  0,
+                  "psp22Metadata::tokenName"
+                );
+                const tokenName = queryResult1?.toHuman().Ok;
+                let queryResult2 = await execContractQuery(
+                  currentAccount?.address,
+                  "api",
+                  psp22_contract.CONTRACT_ABI,
+                  txObj?.data?.tokenContract,
+                  0,
+                  "psp22Metadata::tokenSymbol"
+                );
+                const tokenSymbol = queryResult2?.toHuman().Ok;
 
-              if (decimal && tokenName && tokenSymbol)
+                if (decimal && tokenName && tokenSymbol)
+                  tokenMetadata.push({
+                    tokenName,
+                    tokenSymbol,
+                    decimal,
+                    tokenContract: txObj?.data?.tokenContract,
+                  });
                 return {
                   token: {
                     address: txObj?.data?.tokenContract,
@@ -194,9 +238,12 @@ export default function TokensPage() {
                       <AiOutlineDownload style={{ marginRight: "4px" }} />
                     )),
                 };
+              }
             }
           })
         );
+        console.log(tokenMetadata)
+        setCacheTokenMetadata(tokenMetadata);
         setTransactions(transactionList.filter((e) => e));
       } else {
         toast.error(message);
