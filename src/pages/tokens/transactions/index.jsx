@@ -303,7 +303,7 @@ export default function TokensPage() {
       <SectionContainer
         mt={{ base: "0px", xl: "20px" }}
         title="Token Transaction History"
-        description={<span>Token Transaction History</span>}
+        description={<span>Sync in progress</span>}
       >
         <Stack
           w="full"
