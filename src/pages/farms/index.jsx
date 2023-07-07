@@ -128,7 +128,7 @@ export default function FarmsPage() {
     return () => clearTimeout(delayDebounceFn);
   }, [keywords, nftLPListFiltered]);
   useEffect(() => {
-    if (!currentAccount?.balance)
+    if (!currentAccount?.balance && currentAccount && api)
       dispatch(fetchUserBalance({ currentAccount, api }));
   }, [currentAccount, api]);
 
