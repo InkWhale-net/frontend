@@ -49,7 +49,6 @@ export default function PoolsPage() {
       setResultList();
       return;
     }
-
     setResultList(
       result
         ?.filter((e) => !(e?.totalStaked > 0 && e?.totalStaked < 1))
@@ -89,7 +88,7 @@ export default function PoolsPage() {
   }, [currentAccount, dispatch, endedPools, sortPools]);
 
   useEffect(() => {
-    if (!currentAccount?.balance)
+    if (!currentAccount?.balance && currentAccount && api)
       dispatch(fetchUserBalance({ currentAccount, api }));
   }, [currentAccount, api]);
   const poolsListDataFiltered = useMemo(() => {

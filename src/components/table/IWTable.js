@@ -285,7 +285,6 @@ export const formatDataCellTable = (itemObj, header, mode) => {
 
       const numberNFTStakeInfo =
         itemObj[header] && formatNumDynDecimal(itemObj[header].stakedValue);
-
       return (
         <>
           {itemObj[header] ? (
@@ -295,7 +294,7 @@ export const formatDataCellTable = (itemObj, header, mode) => {
                 <GoStar color="#FFB800" />
               </Flex>
             ) : (
-              numberStakeInfo > 0 && (
+              parseFloat(numberStakeInfo) > 0 && (
                 <Flex alignItems="center">
                   <Text mr="8px">{numberStakeInfo}</Text>
                   <GoStar color="#FFB800" />
