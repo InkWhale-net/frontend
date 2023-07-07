@@ -295,7 +295,7 @@ const MyStakeRewardInfo = ({
   const [amount, setAmount] = useState("");
 
   const fetchUserStakeInfo = useCallback(async () => {
-    if (!currentAccount?.balance) {
+    if (!currentAccount?.balance && currentAccount && api) {
       dispatch(fetchUserBalance({ currentAccount, api }));
       return;
     }
