@@ -727,7 +727,12 @@ const MyStakeRewardInfo = ({
                 disableBtn={
                   !Number(amount) ||
                   isPoolEnded(startTime, duration) ||
-                  isPoolNotStart(startTime)
+                  isPoolNotStart(startTime) ||
+                  !(
+                    maxStakingAmount -
+                      parseFloat(formatTokenAmount(totalStaked, tokenDecimal)) >
+                    0
+                  )
                 }
                 onClick={handleStake}
                 message={formatMessageStakingPool(
@@ -742,7 +747,7 @@ const MyStakeRewardInfo = ({
                 action="unstake"
                 buttonVariant="primary"
                 buttonLabel="Unstake"
-                disableBtn={!Number(amount)}
+                disableBtn={!Number(amount) || !(totalStaked > 0)}
                 onClick={handleUnstake}
                 onValidate={onValidateUnstake}
                 message={formatMessageStakingPool(
