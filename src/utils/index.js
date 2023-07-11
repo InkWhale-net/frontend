@@ -343,6 +343,7 @@ export const formatTokenAmount = (value, decimal = 12) => {
     return formatUnits(
       (typeof value == "string" ? value : value.toLocaleString())
         ?.toString()
+        ?.replace(/\./g, "")
         ?.replace(/,/g, ""),
       decimal
     );
