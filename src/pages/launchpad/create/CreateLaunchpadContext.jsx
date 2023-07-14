@@ -1,13 +1,14 @@
 import { CheckIcon } from "@chakra-ui/icons";
 import { Box, Circle } from "@chakra-ui/react";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import VerifyToken from "./components/VerifyToken";
 import ProjectInfor from "./components/ProjectInfor";
 import ProjectRoadmap from "./components/ProjectRoadmap";
 import Team from "./components/Team";
 import Phase from "./components/Phase";
+import { useMemo } from "react";
 
-export const CreateLaunchpadContext = createContext({});
+export const CreateLaunchpadContext = createContext();
 
 const CheckedIcon = () => {
   return (
@@ -23,27 +24,27 @@ const CreateLaunchpadContextProvider = (props) => {
     {
       title: "Verify Token",
       description: "Enter the token address and verify",
-      content: <VerifyToken {...props} />,
+      content: <VerifyToken />,
     },
     {
       title: "Project Info",
       description: "Enter the project information ",
-      content: <ProjectInfor {...props} />,
+      content: <ProjectInfor />,
     },
     {
       title: "Project Roadmap",
       description: "Enter the project roadmap",
-      content: <ProjectRoadmap {...props} />,
+      content: <ProjectRoadmap />,
     },
     {
       title: "Team",
       description: "Enter the project phase",
-      content: <Team {...props} />,
+      content: <Team />,
     },
     {
       title: "Phase",
       description: "Phase information",
-      content: <Phase {...props} />,
+      content: <Phase />,
     },
     // {
     //   title: "Finish",
@@ -51,6 +52,32 @@ const CreateLaunchpadContextProvider = (props) => {
     //   content: <Phase />,
     // },
   ]);
+
+  const [launchpadData, updateLaunchpadData] = useState({
+    token: null,
+    projectInfor: null,
+    roadmap: null,
+    team: null,
+    phase: null,
+  });
+  const updateToken = (value) => {
+    if (value)
+      updateLaunchpadData((prevState) => ({ ...prevState, token: value }));
+  };
+
+  const updateProjectInfor = (value) => {
+    if (value) updateLaunchpadData({ ...launchpadData, projectInfor: value });
+  };
+
+  const updateRoadmap = (value) => {
+    if (value) updateLaunchpadData({ ...launchpadData, roadmap: value });
+  };
+  const updateMember = (value) => {
+    if (value) updateLaunchpadData({ ...launchpadData, team: value });
+  };
+  const updatePhase = (value) => {
+    if (value) updateLaunchpadData({ ...launchpadData, phase: value });
+  };
 
   const nextStep = () => {
     const nextStep = Math.min(current + 1, itemStep?.length - 1);
@@ -72,6 +99,19 @@ const CreateLaunchpadContextProvider = (props) => {
     });
     setCurrent(prefStep);
   };
+  const isNextButtonActive = useMemo(() => {
+    switch (current) {
+      case 0:
+        return !!launchpadData?.token;
+      case 1:
+        return !!launchpadData?.projectInfor;
+      default:
+        return true;
+    }
+  }, [current, launchpadData]);
+  useEffect(() => {
+    console.log(launchpadData);
+  }, [launchpadData]);
   return (
     <CreateLaunchpadContext.Provider
       value={{
@@ -79,11 +119,20 @@ const CreateLaunchpadContextProvider = (props) => {
         prevStep,
         itemStep,
         current,
+        updateToken,
+        updateProjectInfor,
+        updateRoadmap,
+        updateMember,
+        updatePhase,
+        launchpadData,
+        updateLaunchpadData,
+        isNextButtonActive,
       }}
     >
       {props.children}
     </CreateLaunchpadContext.Provider>
   );
 };
+export const useCreateLaunchpad = () => useContext(CreateLaunchpadContext);
 
 export default CreateLaunchpadContextProvider;

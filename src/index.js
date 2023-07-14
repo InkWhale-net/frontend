@@ -47,10 +47,11 @@ import { fetchAllNFTPools } from "redux/slices/allPoolsSlice";
 import { fetchAllTokenPools } from "redux/slices/allPoolsSlice";
 import { web3Enable } from "@polkadot/extension-dapp";
 import AdminPage from "pages/admin";
-import CreateLaunchpadPage from "pages/create-launchpad";
+import CreateLaunchpadPage from "pages/launchpad/create";
 import { AppContextProvider } from "contexts/AppContext";
 import { useAppContext } from "contexts/AppContext";
 import { QueryClient, QueryClientProvider } from "react-query";
+import Launchpad from "pages/launchpad";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -198,6 +199,7 @@ const App = () => {
             path={`/create/launchpad`}
             component={CreateLaunchpadPage}
           />
+          <Route exact path={`/launchpad`} component={Launchpad} />
           <Route
             exact
             path={`/create/token-lp`}

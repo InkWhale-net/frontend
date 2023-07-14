@@ -55,6 +55,7 @@ function IWTextArea(props) {
         <Textarea
           {...rest}
           onChange={onChangeInput}
+          background="#FFF"
           type={type}
           id={id}
           onWheel={(e) => e.target.blur()}

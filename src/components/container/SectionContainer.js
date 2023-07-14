@@ -6,6 +6,7 @@ function SectionContainer({
   title,
   description,
   scrollRef,
+  right,
   ...rest
 }) {
   return (
@@ -37,9 +38,12 @@ function SectionContainer({
           </Text>
         )}
       </Box> */}
-
       {title && (
-        <Box textAlign={{ base: "center", lg: "left" }}>
+        <Box
+          display={{ base: "flex" }}
+          justifyContent={{ base: "space-between" }}
+          textAlign={{ base: "center", lg: "left" }}
+        >
           <Heading
             as="h1"
             size="h1"
@@ -48,6 +52,7 @@ function SectionContainer({
           >
             {title}
           </Heading>
+          {right}
         </Box>
       )}
 

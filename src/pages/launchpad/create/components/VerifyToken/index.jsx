@@ -1,33 +1,30 @@
 import {
   Box,
+  CircularProgress,
   Flex,
   Heading,
-  Link,
-  Radio,
-  RadioGroup,
   SimpleGrid,
-  Stack,
   Text,
 } from "@chakra-ui/react";
-import { current } from "@reduxjs/toolkit";
 import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
-import IWInput from "components/input/Input";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
+import { useQuery } from "react-query";
 import { useSelector } from "react-redux";
-import { Link as RouterLink } from "react-router-dom";
-import { formatQueryResultToNumber } from "utils";
-import { formatNumDynDecimal } from "utils";
-import { addressShortener } from "utils";
-import { moveINWToBegin } from "utils";
-import { roundUp } from "utils";
-import { isAddressValid } from "utils";
+import {
+  addressShortener,
+  formatNumDynDecimal,
+  formatQueryResultToNumber,
+  isAddressValid,
+  roundUp,
+} from "utils";
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
-import SectionContainer from "../sectionContainer";
+import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 
-export default function VerifyToken({ updateToken }) {
+export default function VerifyToken() {
+  const { launchpadData, updateLaunchpadData } = useCreateLaunchpad();
   const [tokenInfo, setTokenInfo] = useState(null);
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allTokensList } = useSelector((s) => s.allPools);
@@ -40,16 +37,6 @@ export default function VerifyToken({ updateToken }) {
       ) || []
     );
   }, [currentAccount?.address, allTokensList]);
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (tokenAddress) {
-        loadTokenInfo();
-      }
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [tokenAddress]);
 
   const loadTokenInfo = async () => {
     if (!currentAccount) {
@@ -149,30 +136,40 @@ export default function VerifyToken({ updateToken }) {
       console.log(error);
     }
 
-    setTokenInfo((prev) => {
-      return {
-        ...prev,
-        symbol: tokenSymbol,
-        balance: balance,
-        name: tokenName,
-        totalSupply: formatNumDynDecimal(totalSupply, 4),
-        decimals,
-        owner,
-        tokenIconUrl,
-      };
+    setTokenInfo({
+      symbol: tokenSymbol,
+      balance: balance,
+      name: tokenName,
+      totalSupply: formatNumDynDecimal(totalSupply, 4),
+      decimals,
+      owner,
+      tokenIconUrl,
     });
   };
+  const { isLoading } = useQuery(["query-token-infor", tokenAddress], () => {
+    return new Promise(async (resolve) => {
+      if (tokenAddress) {
+        await loadTokenInfo();
+      }
+      resolve();
+    });
+    // const delayDebounceFn = setTimeout(() => {
+    //
+    // }, 200);
+    // return () => clearTimeout(delayDebounceFn);
+  });
 
-  // const currencyOptions = ["BNB", "BUSD", "USDC", "USDT"];
-  // const feeOptions = ["5% BNB raised only", "Other"];
-  // const listingOptions = ["Auto Listing", "Manual Listing"];
   useEffect(() => {
-    updateToken(tokenInfo);
+    if (tokenInfo) updateLaunchpadData({ ...launchpadData, token: tokenInfo });
   }, [tokenInfo]);
 
   return (
     <>
-      <Box w={{ base: "full" }}>
+      <Box
+        w={{ base: "full" }}
+        display={{ base: "flex" }}
+        flexDirection={{ base: "column" }}
+      >
         <SimpleGrid
           w="full"
           columns={{ base: 1, lg: 2 }}
@@ -201,16 +198,24 @@ export default function VerifyToken({ updateToken }) {
               }))}
             ></SelectSearch>
           </Box>
-          <Box w="full">
+          {/* <Box w="full">
             <IWInput
               onChange={({ target }) => setTokenAddress(target.value)}
               value={tokenAddress}
               placeholder="Contract Address"
               label="or enter token contract address"
             />
-          </Box>
+          </Box> */}
         </SimpleGrid>
-        {tokenInfo && (
+        {isLoading && (
+          <CircularProgress
+            alignSelf={"center"}
+            isIndeterminate
+            size={"40px"}
+            color="#93F0F5"
+          />
+        )}
+        {tokenInfo && !isLoading && (
           <Box
             borderWidth={"1px"}
             padding={{ base: "8px" }}
