@@ -7,6 +7,10 @@ import ProjectRoadmap from "./components/ProjectRoadmap";
 import Team from "./components/Team";
 import Phase from "./components/Phase";
 import { useMemo } from "react";
+import { useAppContext } from "contexts/AppContext";
+import { useSelector } from "react-redux";
+import { toast } from "react-hot-toast";
+import { ipfsClient } from "api/client";
 
 export const CreateLaunchpadContext = createContext();
 
@@ -19,6 +23,9 @@ const CheckedIcon = () => {
 };
 
 const CreateLaunchpadContextProvider = (props) => {
+  const { currentAccount } = useSelector((s) => s.wallet);
+  const { api } = useAppContext();
+
   const [current, setCurrent] = useState(0);
   const [itemStep, setItemStep] = useState([
     {
@@ -109,9 +116,76 @@ const CreateLaunchpadContextProvider = (props) => {
         return true;
     }
   }, [current, launchpadData]);
-  useEffect(() => {
-    console.log(launchpadData);
-  }, [launchpadData]);
+  const handleAddNewLaunchpad = async () => {
+    try {
+      // check wallet connect?
+      if (!currentAccount) {
+        return toast.error("Please connect wallet first!");
+      }
+      // ADD MODE CHECKING
+      // if (!values.isEditMode) {
+      //   // check Total Mint Amount của Phase vs total Supply (FE)
+      //   const totalSupply = parseInt(values.totalSupply);
+      //   const phases = values.phases;
+
+      //   const allPhasesMintAmount = phases.reduce((acc, cur) => {
+      //     return cur?.isPublic
+      //       ? acc + parseInt(cur?.publicAmount)
+      //       : acc;
+      //   }, 0);
+
+      //   if (totalSupply < allPhasesMintAmount) {
+      //     return toast.error(
+      //       "Total mint of phases must less than Total supply!"
+      //     );
+      //   }
+      // }
+
+      // check all image uploaded?
+
+      // if (!values.isEditMode) {
+      //   // check prj time-frame is picked?
+      //   const prjStartTime = values?.startTime;
+      //   const prjEndTime = values?.endTime;
+      //   if (!values.isEditMode && (!prjStartTime || !prjEndTime)) {
+      //     return toast.error("Please pick time frame for project!");
+      //   }
+
+      //   // check all phase time-frame is picked?
+      //   const phasesArray = values?.phases;
+
+      //   const startPhasesAr = phasesArray?.map((i) => i.start);
+
+      //   const isPhaseTimePicked = startPhasesAr?.every((e) => e);
+
+      //   if (phasesArray && !isPhaseTimePicked) {
+      //     return toast.error("Please pick time frame for all phases!");
+      //   }
+
+      //   // check time is overlap?
+      //   const allPhaseTime = [...values.phases];
+
+      //   const isOverlap = isPhaseTimeOverlap(allPhaseTime);
+
+      //   if (isOverlap) {
+      //     return toast.error("Sub phase time is not valid or overlap.");
+      //   }
+      // }
+
+      // //check low balance?
+      // if (userBalance < 1) {
+      //   return toast.error(`Your balance too low!`);
+      // }
+      const project_info_ipfs = await ipfsClient.add(
+        JSON.stringify(launchpadData)
+      );
+      console.log(
+        `${process.env.REACT_APP_IPFS_PUBLIC_URL}/${project_info_ipfs.path}`
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <CreateLaunchpadContext.Provider
       value={{
@@ -127,6 +201,7 @@ const CreateLaunchpadContextProvider = (props) => {
         launchpadData,
         updateLaunchpadData,
         isNextButtonActive,
+        handleAddNewLaunchpad,
       }}
     >
       {props.children}

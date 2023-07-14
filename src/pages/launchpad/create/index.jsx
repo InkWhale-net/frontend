@@ -8,8 +8,14 @@ import styles from "./style.module.scss";
 import { useEffect, useMemo } from "react";
 
 function CreateLaunchpadLayout() {
-  const { nextStep, prevStep, itemStep, current, isNextButtonActive } =
-    useCreateLaunchpad();
+  const {
+    nextStep,
+    prevStep,
+    itemStep,
+    current,
+    isNextButtonActive,
+    handleAddNewLaunchpad,
+  } = useCreateLaunchpad();
 
   return (
     <SectionContainer
@@ -40,7 +46,9 @@ function CreateLaunchpadLayout() {
           <Button
             w={"101px"}
             type="button"
-            onClick={nextStep}
+            onClick={
+              current < itemStep?.length - 1 ? nextStep : handleAddNewLaunchpad
+            }
             disabled={!isNextButtonActive}
           >
             {current < itemStep?.length - 1 ? "Next" : "Finish"}
