@@ -1,21 +1,70 @@
 import { Box, Flex, SimpleGrid } from "@chakra-ui/react";
 import SectionContainer from "../sectionContainer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
 import DateTimePicker from "react-datetime-picker";
+import UploadImage from "pages/launchpad/UploadImage";
+import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 
 const ProjectInfor = () => {
+  const { updateProjectInfor } = useCreateLaunchpad();
   const [projectInfor, setProjectInfor] = useState(null);
+  useEffect(() => {
+    updateProjectInfor(projectInfor);
+  }, [projectInfor]);
   return (
     <>
       <SimpleGrid
         w="full"
-        columns={{ base: 1, lg: 2 }}
+        columns={{ base: 1, lg: 3 }}
         spacingX={{ lg: "20px" }}
         spacingY={{ base: "20px", lg: "32px" }}
         mb={{ base: "30px" }}
-      ></SimpleGrid>
+      >
+        <UploadImage
+          // isDisabled={!!!tokenInfo}
+          label="Upload Avatar Image"
+          keyInput={`project-infor-1`}
+          previewSize={{ width: "120px", height: "120px" }}
+          limitedSize={{
+            width: "500",
+            height: "500",
+          }}
+          iconUrl={projectInfor?.avatarImage}
+          setImageIPFSUrl={(value) =>
+            setProjectInfor({ ...projectInfor, avatarImage: value })
+          }
+        />
+        <UploadImage
+          // isDisabled={!!!tokenInfo}
+          label="Upload Featured Image"
+          keyInput={`project-infor-2`}
+          previewSize={{ width: "180px", height: "120px" }}
+          limitedSize={{
+            width: "400",
+            height: "260",
+          }}
+          iconUrl={projectInfor?.featureImage}
+          setImageIPFSUrl={(value) =>
+            setProjectInfor({ ...projectInfor, featureImage: value })
+          }
+        />
+        <UploadImage
+          // isDisabled={!!!tokenInfo}
+          label="Upload Header Image"
+          keyInput={`project-infor-3`}
+          previewSize={{ width: "180px", height: "120px" }}
+          limitedSize={{
+            width: "1920",
+            height: "600",
+          }}
+          iconUrl={projectInfor?.headerImage}
+          setImageIPFSUrl={(value) =>
+            setProjectInfor({ ...projectInfor, headerImage: value })
+          }
+        />
+      </SimpleGrid>
       <Box w={{ base: "full" }}>
         <SectionContainer title="Project Name">
           <IWInput
@@ -46,7 +95,9 @@ const ProjectInfor = () => {
               <DateTimePicker
                 locale="en-EN"
                 value={projectInfor?.startTime || new Date()}
-                onChange={(value) => console.log(value)}
+                onChange={(value) =>
+                  setProjectInfor({ ...projectInfor, startTime: value })
+                }
               />
             </Flex>
           </SectionContainer>
@@ -60,7 +111,9 @@ const ProjectInfor = () => {
               <DateTimePicker
                 locale="en-EN"
                 value={projectInfor?.endTime || new Date()}
-                onChange={(value) => console.log(value)}
+                onChange={(value) =>
+                  setProjectInfor({ ...projectInfor, endTime: value })
+                }
               />
             </Flex>
           </SectionContainer>
