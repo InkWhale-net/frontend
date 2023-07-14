@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   CircularProgress,
   Flex,
   Heading,
@@ -22,6 +23,7 @@ import {
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
+import { useHistory } from "react-router-dom";
 
 export default function VerifyToken() {
   const { launchpadData, updateLaunchpadData } = useCreateLaunchpad();
@@ -29,6 +31,7 @@ export default function VerifyToken() {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allTokensList } = useSelector((s) => s.allPools);
   const [tokenAddress, setTokenAddress] = useState("");
+  const history = useHistory();
 
   const tokenList = useMemo(() => {
     return (
@@ -170,17 +173,11 @@ export default function VerifyToken() {
         display={{ base: "flex" }}
         flexDirection={{ base: "column" }}
       >
-        <SimpleGrid
-          w="full"
-          columns={{ base: 1, lg: 2 }}
-          spacingX={{ lg: "20px" }}
-          spacingY={{ base: "20px", lg: "32px" }}
-          mb={{ base: "30px" }}
-        >
-          <Box w="full">
-            <Heading as="h4" size="h4" mb="12px">
-              Select Token
-            </Heading>
+        <Heading as="h4" size="h4" mb="12px">
+          Token Address
+        </Heading>
+        <Box w="full" display={{ base: "flex" }}>
+          <Box sx={{ flex: 1, paddingRight: "8px" }}>
             <SelectSearch
               name="token"
               placeholder="Select Token..."
@@ -196,17 +193,11 @@ export default function VerifyToken() {
                   token?.contractAddress
                 )}`,
               }))}
-            ></SelectSearch>
-          </Box>
-          {/* <Box w="full">
-            <IWInput
-              onChange={({ target }) => setTokenAddress(target.value)}
-              value={tokenAddress}
-              placeholder="Contract Address"
-              label="or enter token contract address"
             />
-          </Box> */}
-        </SimpleGrid>
+          </Box>
+          <Button onClick={() => history.push('/create/token')}>Create</Button>
+        </Box>
+
         {isLoading && (
           <CircularProgress
             alignSelf={"center"}
