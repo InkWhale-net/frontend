@@ -26,9 +26,12 @@ const Phase = () => {
       allowPublicSale: false,
       vestingLength: null,
       vestingPeriod: null,
-      initialPayout: null,
+      immediateReleaseRate: null,
+      phasePublicAmount: null,
+      phasePublicPrice: null,
     },
   ]);
+  const [totalSupply, setTotalSupply] = useState(0);
   const addPhase = () => {
     try {
       setPhaseList([
@@ -40,7 +43,9 @@ const Phase = () => {
           allowPublicSale: false,
           vestingLength: null,
           vestingPeriod: null,
-          initialPayout: null,
+          immediateReleaseRate: null,
+          phasePublicAmount: null,
+          phasePublicPrice: null,
         },
       ]);
     } catch (error) {
@@ -51,10 +56,18 @@ const Phase = () => {
     setPhaseList([...phaseList.slice(0, index), ...phaseList.slice(index + 1)]);
   };
   useEffect(() => {
+    console.log(phaseList);
     updatePhase(phaseList);
   }, [phaseList]);
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
+      <SectionContainer title={"Phase Public Price"}>
+        <IWInput
+          value={totalSupply}
+          onChange={({ target }) => setTotalSupply(target.value)}
+          placeholder="Phase Public Price"
+        />
+      </SectionContainer>
       <Heading
         as="h2"
         size="h2"
@@ -155,6 +168,71 @@ const Phase = () => {
                   />
                 </Flex>
               </SectionContainer>
+            </SimpleGrid>
+            <Heading
+              as="h2"
+              size="h2"
+              mb="16px"
+              lineHeight={{ base: "1.25", lg: "30px" }}
+            >
+              Vesting Plan
+            </Heading>
+            <SimpleGrid columns={3} spacing={4}>
+              <SectionContainer title={"Immediate Release Rate"}>
+                <IWInput
+                  value={obj?.immediateReleaseRate}
+                  onChange={({ target }) =>
+                    setPhaseList((prevState) => {
+                      const updatedArray = [...prevState];
+                      if (index >= 0 && index < updatedArray.length) {
+                        updatedArray[index] = {
+                          ...updatedArray[index],
+                          immediateReleaseRate: target.value,
+                        };
+                      }
+                      return updatedArray;
+                    })
+                  }
+                  placeholder="Immediate Release Rate"
+                />
+              </SectionContainer>
+              <SectionContainer title={"Length"}>
+                <IWInput
+                  value={obj?.vestingLength}
+                  onChange={({ target }) =>
+                    setPhaseList((prevState) => {
+                      const updatedArray = [...prevState];
+                      if (index >= 0 && index < updatedArray.length) {
+                        updatedArray[index] = {
+                          ...updatedArray[index],
+                          vestingLength: target.value,
+                        };
+                      }
+                      return updatedArray;
+                    })
+                  }
+                  placeholder="Length"
+                />
+              </SectionContainer>
+              <SectionContainer title={"Vesting Unit"}>
+                <IWInput
+                  value={obj?.vestingUnit}
+                  onChange={({ target }) =>
+                    setPhaseList((prevState) => {
+                      const updatedArray = [...prevState];
+                      if (index >= 0 && index < updatedArray.length) {
+                        updatedArray[index] = {
+                          ...updatedArray[index],
+                          vestingUnit: target.value,
+                        };
+                      }
+                      return updatedArray;
+                    })
+                  }
+                  placeholder="Vesting Unit"
+                />
+              </SectionContainer>
+
               <Box sx={{ display: "flex" }}>
                 <Heading
                   as="h3"
@@ -183,67 +261,41 @@ const Phase = () => {
                 />
               </Box>
             </SimpleGrid>
-            <Heading
-              as="h2"
-              size="h2"
-              mb="16px"
-              lineHeight={{ base: "1.25", lg: "30px" }}
-            >
-              Vesting Plan
-            </Heading>
             <SimpleGrid columns={3} spacing={4}>
-              <SectionContainer title={"Length"}>
+              <SectionContainer title={"Public Amount"}>
                 <IWInput
-                  value={obj?.vestingLength}
+                  value={obj?.phasePublicAmount}
                   onChange={({ target }) =>
                     setPhaseList((prevState) => {
                       const updatedArray = [...prevState];
                       if (index >= 0 && index < updatedArray.length) {
                         updatedArray[index] = {
                           ...updatedArray[index],
-                          vestingLength: target.value,
+                          phasePublicAmount: target.value,
                         };
                       }
                       return updatedArray;
                     })
                   }
-                  placeholder="Length"
+                  placeholder="Public Amount"
                 />
               </SectionContainer>
-              <SectionContainer title={"Vesting Period"}>
+              <SectionContainer title={"Phase Public Price"}>
                 <IWInput
-                  value={obj?.vestingPeriod}
+                  value={obj?.phasePublicPrice}
                   onChange={({ target }) =>
                     setPhaseList((prevState) => {
                       const updatedArray = [...prevState];
                       if (index >= 0 && index < updatedArray.length) {
                         updatedArray[index] = {
                           ...updatedArray[index],
-                          vestingPeriod: target.value,
+                          phasePublicPrice: target.value,
                         };
                       }
                       return updatedArray;
                     })
                   }
-                  placeholder="Vesting Period"
-                />
-              </SectionContainer>
-              <SectionContainer title={"Initial Payout"}>
-                <IWInput
-                  value={obj?.initialPayout}
-                  onChange={({ target }) =>
-                    setPhaseList((prevState) => {
-                      const updatedArray = [...prevState];
-                      if (index >= 0 && index < updatedArray.length) {
-                        updatedArray[index] = {
-                          ...updatedArray[index],
-                          initialPayout: target.value,
-                        };
-                      }
-                      return updatedArray;
-                    })
-                  }
-                  placeholder="Initial Payout"
+                  placeholder="Phase Public Price"
                 />
               </SectionContainer>
             </SimpleGrid>
