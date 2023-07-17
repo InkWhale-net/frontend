@@ -11,6 +11,15 @@ import { useAppContext } from "contexts/AppContext";
 import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
 import { ipfsClient } from "api/client";
+import { execContractQuery } from "utils/contracts";
+import psp22_contract from "utils/contracts/psp22_contract";
+import { web3FromSource } from "@polkadot/extension-dapp";
+import launchpad_generator from "utils/contracts/launchpad_generator";
+import { execContractTx } from "utils/contracts";
+import { formatQueryResultToNumber } from "utils";
+import { formatNumToBN } from "utils";
+import azt_contract from "utils/contracts/azt_contract";
+import { delay } from "utils";
 
 export const CreateLaunchpadContext = createContext();
 
@@ -59,6 +68,7 @@ const CreateLaunchpadContextProvider = (props) => {
     //   content: <Phase />,
     // },
   ]);
+  const [createTokenFee, setCreateTokenFee] = useState(0);
 
   const [launchpadData, updateLaunchpadData] = useState({
     token: null,
@@ -86,16 +96,36 @@ const CreateLaunchpadContextProvider = (props) => {
     if (value) updateLaunchpadData({ ...launchpadData, phase: value });
   };
 
-  const nextStep = () => {
-    const nextStep = Math.min(current + 1, itemStep?.length - 1);
-    setItemStep((prevState) => {
-      prevState[current] = { ...prevState[current], icon: <CheckedIcon /> };
-      return prevState;
-    });
-    setCurrent(nextStep);
+  const verifyStep = async () => {
+    switch (current) {
+      case 0:
+        return VerifyTokenValid();
+      default:
+        return true;
+    }
+    return false;
   };
 
-  const prevStep = () => {
+  const VerifyTokenValid = async () => {
+    const owner = launchpadData?.token?.owner;
+    if (owner == currentAccount?.address) return true;
+    else {
+      toast.error("You must be the token owner");
+    }
+  };
+
+  const nextStep = async () => {
+    const nextStep = Math.min(current + 1, itemStep?.length - 1);
+    if (await verifyStep()) {
+      setItemStep((prevState) => {
+        prevState[current] = { ...prevState[current], icon: <CheckedIcon /> };
+        return prevState;
+      });
+      setCurrent(nextStep);
+    }
+  };
+
+  const prevStep = async () => {
     const prefStep = Math.max(current - 1, 0);
     setItemStep((prevState) => {
       const { icon, ...step } = prevState[prefStep];
@@ -116,8 +146,32 @@ const CreateLaunchpadContextProvider = (props) => {
         return true;
     }
   }, [current, launchpadData]);
+
+  useEffect(() => {
+    const fetchCreateTokenFee = async () => {
+      const result = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        launchpad_generator.CONTRACT_ABI,
+        launchpad_generator.CONTRACT_ADDRESS,
+        0,
+        "launchpadGeneratorTrait::getCreationFee"
+      );
+
+      const fee = formatQueryResultToNumber(result);
+      console.log(fee);
+      setCreateTokenFee(fee);
+    };
+
+    fetchCreateTokenFee();
+  }, [currentAccount]);
   const handleAddNewLaunchpad = async () => {
     try {
+      let step = 1;
+      const minReward = launchpadData?.phase?.reduce(
+        (acc, e) => acc + (e?.phasePublicAmount || 0),
+        0
+      );
       // check wallet connect?
       if (!currentAccount) {
         return toast.error("Please connect wallet first!");
@@ -179,9 +233,103 @@ const CreateLaunchpadContextProvider = (props) => {
       const project_info_ipfs = await ipfsClient.add(
         JSON.stringify(launchpadData)
       );
-      console.log(
-        `${process.env.REACT_APP_IPFS_PUBLIC_URL}/${project_info_ipfs.path}`
+
+      // const { signer } = await web3FromSource(currentAccount?.meta?.source);
+
+      const allowanceINWQr = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        azt_contract.CONTRACT_ABI,
+        azt_contract.CONTRACT_ADDRESS,
+        0, //-> value
+        "psp22::allowance",
+        currentAccount?.address,
+        launchpadData?.token?.tokenAddress
       );
+      const allowanceINW = formatQueryResultToNumber(allowanceINWQr).replaceAll(
+        ",",
+        ""
+      );
+      const allowanceTokenQr = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        launchpadData?.token?.tokenAddress,
+        0, //-> value
+        "psp22::allowance",
+        currentAccount?.address,
+        launchpad_generator.CONTRACT_ADDRESS
+      );
+      const allowanceToken = formatQueryResultToNumber(
+        allowanceTokenQr,
+        launchpadData?.token?.decimals
+      ).replaceAll(",", "");
+
+      //Approve
+      if (allowanceINW < createTokenFee.replaceAll(",", "")) {
+        toast.success(`Step ${step}: Approving INW token...`);
+        step++;
+        let approve = await execContractTx(
+          currentAccount,
+          "api",
+          psp22_contract.CONTRACT_ABI,
+          azt_contract.CONTRACT_ADDRESS,
+          0, //-> value
+          "psp22::approve",
+          launchpad_generator.CONTRACT_ADDRESS,
+          formatNumToBN(Number.MAX_SAFE_INTEGER)
+        );
+        if (!approve) return;
+      }
+      if (allowanceToken < minReward.replaceAll(",", "")) {
+        toast.success(
+          `Step ${step}: Approving ${launchpadData?.token?.symbol} token...`
+        );
+        step++;
+        let approve = await execContractTx(
+          currentAccount,
+          "api",
+          psp22_contract.CONTRACT_ABI,
+          launchpadData?.token?.tokenAddress,
+          0, //-> value
+          "psp22::approve",
+          launchpad_generator.CONTRACT_ADDRESS,
+          formatNumToBN(Number.MAX_SAFE_INTEGER)
+        );
+        if (!approve) return;
+      }
+      await delay(3000);
+      toast.success(`Step 1: Process...`);
+      // console.log(launchpadData?.phase?.map((e) => e?.name),
+      // launchpadData?.phase?.map((e) => e?.startDate?.getTime()),
+      // launchpadData?.phase?.map((e) => e?.endDate?.getTime()),
+      // launchpadData?.phase?.map((e) => e?.immediateReleaseRate),
+      // launchpadData?.phase?.map((e) => e?.vestingLength),
+      // launchpadData?.phase?.map((e) => e?.vestingUnit),
+      // launchpadData?.phase?.map((e) => e?.allowPublicSale),
+      // launchpadData?.phase?.map((e) => e?.phasePublicAmount),
+      // launchpadData?.phase?.map((e) => e?.phasePublicPrice));
+      // await execContractTx(
+      //   currentAccount,
+      //   "api",
+      //   launchpad_generator.CONTRACT_ABI,
+      //   launchpad_generator.CONTRACT_ADDRESS,
+      //   0, //-> value
+      //   "newLaunchpad",
+      //   project_info_ipfs.path,
+      //   launchpadData?.token?.tokenAddress,
+      //   // launchpadData?.token?.totalSupply,
+      //   "10000000000000000",
+      //   launchpadData?.phase?.map((e) => e?.name),
+      //   launchpadData?.phase?.map((e) => e?.startDate?.getTime()),
+      //   launchpadData?.phase?.map((e) => e?.endDate?.getTime()),
+      //   launchpadData?.phase?.map((e) => e?.immediateReleaseRate),
+      //   launchpadData?.phase?.map((e) => e?.vestingLength),
+      //   launchpadData?.phase?.map((e) => e?.vestingUnit),
+      //   launchpadData?.phase?.map((e) => e?.allowPublicSale),
+      //   launchpadData?.phase?.map((e) => e?.phasePublicAmount),
+      //   launchpadData?.phase?.map((e) => e?.phasePublicPrice)
+      // );
     } catch (error) {
       console.log(error);
     }

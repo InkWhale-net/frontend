@@ -156,14 +156,14 @@ export default function VerifyToken() {
       }
       resolve();
     });
-    // const delayDebounceFn = setTimeout(() => {
-    //
-    // }, 200);
-    // return () => clearTimeout(delayDebounceFn);
   });
 
   useEffect(() => {
-    if (tokenInfo) updateLaunchpadData({ ...launchpadData, token: tokenInfo });
+    if (tokenInfo)
+      updateLaunchpadData({
+        ...launchpadData,
+        token: { ...tokenInfo, tokenAddress },
+      });
   }, [tokenInfo]);
 
   return (
@@ -195,7 +195,7 @@ export default function VerifyToken() {
               }))}
             />
           </Box>
-          <Button onClick={() => history.push('/create/token')}>Create</Button>
+          <Button onClick={() => history.push("/create/token")}>Create</Button>
         </Box>
 
         {isLoading && (
@@ -211,6 +211,7 @@ export default function VerifyToken() {
             borderWidth={"1px"}
             padding={{ base: "8px" }}
             borderRadius={{ base: "4px" }}
+            marginTop={"8px"}
           >
             <Flex
               py="12px"
@@ -255,42 +256,6 @@ export default function VerifyToken() {
           </Box>
         )}
       </Box>
-      {/* <SectionContainer
-        title="Currency"
-        description="User will pay with BNB for your token"
-      >
-        <RadioGroup onChange={setCurrencyOption} value={currencyOption}>
-          <Stack direction="column">
-            {currencyOptions.map((option) => (
-              <Radio key={option} value={option}>
-                {option}
-              </Radio>
-            ))}
-          </Stack>
-        </RadioGroup>
-      </SectionContainer>
-      <SectionContainer title="Fee Options">
-        <RadioGroup onChange={setFeeOption} value={feeOption}>
-          <Stack direction="column">
-            {feeOptions.map((option) => (
-              <Radio key={option} value={option}>
-                {option}
-              </Radio>
-            ))}
-          </Stack>
-        </RadioGroup>
-      </SectionContainer>
-      <SectionContainer title="Currency">
-        <RadioGroup onChange={setListingOption} value={listingOption}>
-          <Stack direction="column">
-            {listingOptions.map((option) => (
-              <Radio key={option} value={option}>
-                {option}
-              </Radio>
-            ))}
-          </Stack>
-        </RadioGroup>
-      </SectionContainer> */}
     </>
   );
 }
