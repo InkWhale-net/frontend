@@ -112,6 +112,15 @@ export const APICall = {
       isToOnly,
     });
   },
+  getLaunchpad: async ({ keyword, status, sortBy, limit = 10, offset = 0 }) => {
+    return await client("POST", "/getLaunchpads", {
+      keyword,
+      status,
+      sortBy,
+      limit,
+      offset,
+    });
+  },
 
   // Get list of staking pools
   getStakingPoolsList: async ({

@@ -23,8 +23,7 @@ const ProjectInfor = () => {
         mb={{ base: "30px" }}
       >
         <UploadImage
-          // isDisabled={!!!tokenInfo}
-          label="Upload Avatar Image"
+          label="Avatar Image"
           keyInput={`project-infor-1`}
           previewSize={{ width: "120px", height: "120px" }}
           limitedSize={{
@@ -37,8 +36,8 @@ const ProjectInfor = () => {
           }
         />
         <UploadImage
-          // isDisabled={!!!tokenInfo}
-          label="Upload Featured Image"
+          isDisabled={!projectInfor?.avatarImage}
+          label="Featured Image"
           keyInput={`project-infor-2`}
           previewSize={{ width: "180px", height: "120px" }}
           limitedSize={{
@@ -51,8 +50,10 @@ const ProjectInfor = () => {
           }
         />
         <UploadImage
-          // isDisabled={!!!tokenInfo}
-          label="Upload Header Image"
+          isDisabled={
+            !(projectInfor?.avatarImage && projectInfor?.featureImage)
+          }
+          label="Header Image"
           keyInput={`project-infor-3`}
           previewSize={{ width: "180px", height: "120px" }}
           limitedSize={{

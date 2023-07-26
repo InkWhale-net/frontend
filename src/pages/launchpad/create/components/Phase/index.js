@@ -17,18 +17,19 @@ import { useEffect } from "react";
 import { BsTrashFill } from "react-icons/bs";
 
 const Phase = () => {
-  const { updatePhase } = useCreateLaunchpad();
+  const { updatePhase, updateTotalSupply } = useCreateLaunchpad();
   const [phaseList, setPhaseList] = useState([
     {
       name: null,
-      startDate: null,
-      endDate: null,
+      startDate: new Date(),
+      endDate: new Date(),
       allowPublicSale: false,
       vestingLength: null,
       vestingPeriod: null,
       immediateReleaseRate: null,
       phasePublicAmount: null,
       phasePublicPrice: null,
+      whiteList: null,
     },
   ]);
   const [totalSupply, setTotalSupply] = useState(0);
@@ -38,14 +39,15 @@ const Phase = () => {
         ...phaseList,
         {
           name: null,
-          startDate: null,
-          endDate: null,
+          startDate: new Date(),
+          endDate: new Date(),
           allowPublicSale: false,
           vestingLength: null,
           vestingPeriod: null,
           immediateReleaseRate: null,
           phasePublicAmount: null,
           phasePublicPrice: null,
+          whiteList: null,
         },
       ]);
     } catch (error) {
@@ -56,22 +58,25 @@ const Phase = () => {
     setPhaseList([...phaseList.slice(0, index), ...phaseList.slice(index + 1)]);
   };
   useEffect(() => {
-    console.log(phaseList);
     updatePhase(phaseList);
   }, [phaseList]);
+  useEffect(() => {
+    updateTotalSupply(totalSupply);
+  }, [totalSupply]);
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <SectionContainer title={"Phase Public Price"}>
+      <SectionContainer title={"Total supply"}>
         <IWInput
           value={totalSupply}
           onChange={({ target }) => setTotalSupply(target.value)}
-          placeholder="Phase Public Price"
+          placeholder="Total supply"
         />
       </SectionContainer>
       <Heading
+        sx={{ marginTop: "16px" }}
         as="h2"
         size="h2"
-        mb="16px"
+        // mb="8px"
         lineHeight={{ base: "1.25", lg: "30px" }}
       >
         Add Phase
@@ -172,7 +177,8 @@ const Phase = () => {
             <Heading
               as="h2"
               size="h2"
-              mb="16px"
+              // mb="16px"
+              mt="16px"
               lineHeight={{ base: "1.25", lg: "30px" }}
             >
               Vesting Plan
@@ -196,7 +202,7 @@ const Phase = () => {
                   placeholder="Immediate Release Rate"
                 />
               </SectionContainer>
-              <SectionContainer title={"Length"}>
+              <SectionContainer title={"Duration"}>
                 <IWInput
                   value={obj?.vestingLength}
                   onChange={({ target }) =>
@@ -211,7 +217,7 @@ const Phase = () => {
                       return updatedArray;
                     })
                   }
-                  placeholder="Length"
+                  placeholder="duration"
                 />
               </SectionContainer>
               <SectionContainer title={"Vesting Unit"}>
@@ -261,44 +267,70 @@ const Phase = () => {
                 />
               </Box>
             </SimpleGrid>
-            <SimpleGrid columns={3} spacing={4}>
-              <SectionContainer title={"Public Amount"}>
-                <IWInput
-                  value={obj?.phasePublicAmount}
-                  onChange={({ target }) =>
-                    setPhaseList((prevState) => {
-                      const updatedArray = [...prevState];
-                      if (index >= 0 && index < updatedArray.length) {
-                        updatedArray[index] = {
-                          ...updatedArray[index],
-                          phasePublicAmount: target.value,
-                        };
-                      }
-                      return updatedArray;
-                    })
-                  }
-                  placeholder="Public Amount"
-                />
-              </SectionContainer>
-              <SectionContainer title={"Phase Public Price"}>
-                <IWInput
-                  value={obj?.phasePublicPrice}
-                  onChange={({ target }) =>
-                    setPhaseList((prevState) => {
-                      const updatedArray = [...prevState];
-                      if (index >= 0 && index < updatedArray.length) {
-                        updatedArray[index] = {
-                          ...updatedArray[index],
-                          phasePublicPrice: target.value,
-                        };
-                      }
-                      return updatedArray;
-                    })
-                  }
-                  placeholder="Phase Public Price"
-                />
-              </SectionContainer>
-            </SimpleGrid>
+            {obj?.allowPublicSale && (
+              <SimpleGrid columns={3} spacing={4}>
+                <SectionContainer title={"Public Amount"}>
+                  <IWInput
+                    value={obj?.phasePublicAmount}
+                    onChange={({ target }) =>
+                      setPhaseList((prevState) => {
+                        const updatedArray = [...prevState];
+                        if (index >= 0 && index < updatedArray.length) {
+                          updatedArray[index] = {
+                            ...updatedArray[index],
+                            phasePublicAmount: target.value,
+                          };
+                        }
+                        return updatedArray;
+                      })
+                    }
+                    placeholder="Public Amount"
+                  />
+                </SectionContainer>
+                <SectionContainer title={"Phase Public Price"}>
+                  <IWInput
+                    value={obj?.phasePublicPrice}
+                    onChange={({ target }) =>
+                      setPhaseList((prevState) => {
+                        const updatedArray = [...prevState];
+                        if (index >= 0 && index < updatedArray.length) {
+                          updatedArray[index] = {
+                            ...updatedArray[index],
+                            phasePublicPrice: target.value,
+                          };
+                        }
+                        return updatedArray;
+                      })
+                    }
+                    placeholder="Phase Public Price"
+                  />
+                </SectionContainer>
+              </SimpleGrid>
+            )}
+            <SectionContainer title="White list">
+              <IWTextArea
+                sx={{
+                  height: "80px",
+                }}
+                value={obj?.whiteList}
+                onChange={({ target }) =>
+                  setPhaseList((prevState) => {
+                    const updatedArray = [...prevState];
+                    if (index >= 0 && index < updatedArray.length) {
+                      updatedArray[index] = {
+                        ...updatedArray[index],
+                        whiteList: target.value,
+                      };
+                    }
+                    return updatedArray;
+                  })
+                }
+                placeholder="Enter one address, whitelist amount and price on each line.
+                A decimal separator of amount must use dot (.)
+                Example: for WL amount 50 and price 2.99 Azero 
+                5GRdmMkKeKaV94qU3JjDr2ZwRAgn3xwzd2FEJYKjjSFipiAe,50,2.99"
+              />
+            </SectionContainer>
           </Box>
         );
       })}

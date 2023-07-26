@@ -54,7 +54,10 @@ const ProjectRoadmap = () => {
           <Box
             bg={{ base: "#F6F6FC" }}
             borderRadius={{ base: "10px" }}
-            padding={{ base: "30px" }}
+            paddingLeft={{ base: "20px" }}
+            paddingRight={{ base: "20px" }}
+            paddingTop={{ base: "8px" }}
+            paddingBottom={{ base: "32px" }}
             sx={{ display: "flex", flexDirection: "column" }}
             mt="16px"
           >
@@ -88,7 +91,7 @@ const ProjectRoadmap = () => {
                 placeholder="Milestone Name"
               />
             </SectionContainer>
-            <SectionContainer title="Project Description">
+            <SectionContainer title="Milestone Description">
               <IWTextArea
                 value={obj?.description || ""}
                 onChange={({ target }) => {
