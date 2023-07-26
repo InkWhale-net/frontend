@@ -4,6 +4,7 @@ import {
   CircularProgress,
   Flex,
   Heading,
+  Image,
   SimpleGrid,
   Text,
 } from "@chakra-ui/react";
@@ -149,7 +150,7 @@ export default function VerifyToken() {
       tokenIconUrl,
     });
   };
-  const { isLoading } = useQuery(["query-token-infor", tokenAddress], () => {
+  const { isFetching } = useQuery(["query-token-infor", tokenAddress], () => {
     return new Promise(async (resolve) => {
       if (tokenAddress) {
         await loadTokenInfo();
@@ -198,15 +199,16 @@ export default function VerifyToken() {
           <Button onClick={() => history.push("/create/token")}>Create</Button>
         </Box>
 
-        {isLoading && (
+        {isFetching && (
           <CircularProgress
             alignSelf={"center"}
             isIndeterminate
             size={"40px"}
             color="#93F0F5"
+            sx={{ marginTop: "8px" }}
           />
         )}
-        {tokenInfo && !isLoading && (
+        {tokenInfo && !isFetching && (
           <Box
             borderWidth={"1px"}
             padding={{ base: "8px" }}
@@ -219,7 +221,19 @@ export default function VerifyToken() {
               justifyContent={"space-between"}
             >
               <Text>Name:</Text>
-              <Text>{tokenInfo?.symbol}</Text>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                {tokenInfo?.tokenIconUrl && (
+                  <Image
+                    mr="8px"
+                    h="42px"
+                    w="42px"
+                    borderRadius={"10px"}
+                    src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${tokenInfo?.tokenIconUrl}`}
+                    alt="logo"
+                  />
+                )}
+                <Text>{tokenInfo?.name}</Text>
+              </Box>
             </Flex>
             <Flex
               py="12px"
@@ -227,7 +241,7 @@ export default function VerifyToken() {
               justifyContent={"space-between"}
             >
               <Text>Symbol:</Text>
-              <Text>{tokenInfo?.name}</Text>
+              <Text>{tokenInfo?.symbol}</Text>
             </Flex>
             <Flex
               py="12px"

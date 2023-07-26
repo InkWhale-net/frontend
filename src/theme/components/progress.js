@@ -9,6 +9,10 @@ export const progressStyles = {
           borderRadius: "20px",
           _checked: { transform: "translate(20px, 0px)" },
         },
+        filledTrack: {
+          bg: "brand.500", // Use the custom color here
+        },
+
         track: {
           w: "40px",
           h: "20px",

@@ -44,7 +44,7 @@ function IWTextArea(props) {
           </Heading>
         </FormLabel>
       )}
-      <InputGroup {...rest}>
+      <InputGroup>
         {inputRightElementIcon && (
           <InputRightElement
             right="16px"

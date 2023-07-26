@@ -127,7 +127,6 @@ export default function TokensPage() {
       const { ret, status, message } = await APICall.getTransactionHistory(
         queryBody
       );
-      console.log(ret?.total);
       setTotalPage(roundUp(ret?.total / 10, 0));
       if (status === "OK") {
         const transactionList = await Promise.all(

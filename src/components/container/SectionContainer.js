@@ -63,7 +63,13 @@ function SectionContainer({
           </Text>
         </Box>
       )}
-      <Flex w="full">{children}</Flex>
+      <Flex
+        w="full"
+        display={{ base: "flex" }}
+        flexDirection={{ base: "column" }}
+      >
+        {children}
+      </Flex>
     </Flex>
   );
 }

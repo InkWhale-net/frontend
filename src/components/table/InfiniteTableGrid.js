@@ -1,11 +1,10 @@
-import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import {
   Box,
   Circle,
-  CircularProgress,
   Flex,
-  IconButton,
   Image,
+  Skeleton,
   Table,
   TableContainer,
   Tbody,
@@ -13,138 +12,163 @@ import {
   Text,
   Th,
   Thead,
+  Tooltip,
   Tr,
 } from "@chakra-ui/react";
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
 import TokenIcon from "components/TokenIcon";
 import AddressCopier from "components/address-copier/AddressCopier";
 import IWCountDown from "components/countdown/CountDown";
 import ImageCloudFlare from "components/image-cf/ImageCF";
+import { Fragment } from "react";
+import FadeIn from "react-fade-in/lib/FadeIn";
 import { GoStar } from "react-icons/go";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { useHistory, useLocation } from "react-router-dom";
 import { addressShortener, formatNumDynDecimal } from "utils";
 import { format } from "utils/datetime";
 
-const IWPaginationTable = ({
+export function InfiniteTable({
   tableHeader,
   tableBody,
-  setPagination,
-  totalData,
-  pagination,
   mode,
+  loading,
+  getNext,
+  hasMore,
   isDisableRowClick = false,
   customURLRowClick = "",
-  mutation,
-}) => {
-  const table = useReactTable({
-    data: tableBody ?? [],
-    columns: tableHeader,
-    pageCount: totalData || 0,
-    state: {
-      pagination,
-    },
-    onPaginationChange: setPagination,
-    getCoreRowModel: getCoreRowModel(),
-    manualPagination: true,
-    // getPaginationRowModel: getPaginationRowModel(), // If only doing manual pagination, you don't need this
-    // debugTable: true,
-  });
+}) {
+  const history = useHistory();
+  const location = useLocation();
+
+  function onClickRowHandler(itemObj) {
+    if (isDisableRowClick) return;
+
+    if (customURLRowClick) {
+      history.push({
+        state: { ...itemObj, mode },
+        pathname: `${customURLRowClick}/${itemObj?.poolContract}`,
+      });
+
+      return;
+    }
+
+    history.push({
+      state: { ...itemObj, mode },
+      pathname: `${location.pathname}/${itemObj?.poolContract}`,
+    });
+  }
   return (
-    <>
-      <TableContainer width="full">
-        <Table variant="striped">
+    <TableContainer
+      w="full"
+      color="text.1"
+      fontSize="md"
+      fontWeight="600"
+      lineHeight="20px"
+      borderRadius="10px"
+      border="1px solid #E3DFF3"
+    >
+      <InfiniteScroll
+        dataLength={tableBody?.length}
+        next={getNext}
+        hasMore={hasMore}
+        loader={<h4>Loading</h4>}
+      >
+        <Table variant="simple">
           <Thead>
-            {table?.getHeaderGroups().map((headerGroup) => (
-              <Tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <Th key={header.id} colSpan={header.colSpan}>
-                      {
-                        <div>
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                        </div>
-                      }
-                    </Th>
-                  );
-                })}
-              </Tr>
-            ))}
+            <Tr>
+              {tableHeader?.map(
+                ({ name, label, hasTooltip, tooltipContent }) => (
+                  <Th
+                    key={name}
+                    h="60px"
+                    bg="bg.5"
+                    color="text.2"
+                    fontWeight="400"
+                    fontSize="16px"
+                    lineHeight="28px"
+                    textTransform="none"
+                  >
+                    <Flex alignItems="center">
+                      {label}
+                      {hasTooltip && (
+                        <Tooltip fontSize="md" label={tooltipContent}>
+                          <QuestionOutlineIcon ml="6px" color="text.2" />
+                        </Tooltip>
+                      )}
+                    </Flex>
+                  </Th>
+                )
+              )}
+            </Tr>
           </Thead>
+
           <Tbody>
-            {!mutation?.isLoading &&
-              table.getRowModel().rows.map((row, index) => {
-                return (
-                  <Tr key={row.id}>
-                    {row.getVisibleCells().map((cell) => {
-                      return (
-                        <Td key={cell.id}>
-                          {formatDataCellTable(
-                            tableBody[index],
-                            cell.getContext().column.id
-                          )}
-                        </Td>
-                      );
-                    })}
+            {loading ? (
+              <>
+                <Tr>
+                  {tableHeader?.map((_, idx) => (
+                    <Td p="0" key={idx}>
+                      <Skeleton height="60px" />
+                    </Td>
+                  ))}
+                </Tr>
+                <Tr>
+                  {tableHeader?.map((_, idx) => (
+                    <Td p="0" key={idx}>
+                      <Skeleton height="60px" />
+                    </Td>
+                  ))}
+                </Tr>
+                <Tr>
+                  {tableHeader?.map((_, idx) => (
+                    <Td p="0" key={idx}>
+                      <Skeleton height="60px" />
+                    </Td>
+                  ))}
+                </Tr>
+              </>
+            ) : (
+              <>
+                {tableBody?.length === 0 ? (
+                  <Tr>
+                    <Td colSpan={tableHeader?.length} textAlign="center">
+                      <Text textAlign="center" w="full">
+                        No data found!
+                      </Text>
+                    </Td>
                   </Tr>
-                );
-              })}
+                ) : (
+                  tableBody?.map((itemObj, idx) => {
+                    return (
+                      <Fragment key={idx}>
+                        <Tr
+                          h="60px"
+                          cursor="pointer"
+                          _hover={{ bg: "bg.1" }}
+                          onClick={() => onClickRowHandler(itemObj)}
+                        >
+                          {tableHeader?.map((i, idx) => {
+                            return (
+                              <Td key={idx}>
+                                <FadeIn>
+                                  {formatDataCellTable(itemObj, i?.name, mode)}
+                                </FadeIn>
+                              </Td>
+                            );
+                          })}
+                        </Tr>
+                      </Fragment>
+                    );
+                  })
+                )}
+              </>
+            )}
           </Tbody>
         </Table>
-      </TableContainer>
-      {mutation?.isLoading && (
-        <CircularProgress
-          alignSelf={"center"}
-          isIndeterminate
-          size={"40px"}
-          color="#93F0F5"
-        />
-      )}
-
-      <Box
-        sx={{
-          width: "full",
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-        }}
-      >
-        <Text sx={{ mr: "20px" }}>
-          {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-        </Text>
-        <IconButton
-          aria-label="previousPage"
-          width={"42px"}
-          height={"42px"}
-          variant={"solid"}
-          bg={"#93F0F5"}
-          borderRadius={"42px"}
-          icon={<ChevronLeftIcon size={"80px"} color="#FFF" />}
-          onClick={() => table.previousPage()}
-          isDisabled={!table.getCanPreviousPage()}
-        />
-
-        <IconButton
-          ml={"4px"}
-          aria-label="previousPage"
-          width={"42px"}
-          height={"42px"}
-          variant={"solid"}
-          bg={"#93F0F5"}
-          borderRadius={"42px"}
-          icon={<ChevronRightIcon size={"80px"} color="#FFF" />}
-          onClick={() => table.nextPage()}
-          isDisabled={!table.getCanNextPage()}
-        />
-      </Box>
-    </>
+      </InfiniteScroll>
+    </TableContainer>
   );
-};
+}
 
 export const formatDataCellTable = (itemObj, header, mode) => {
   switch (header) {
@@ -320,25 +344,25 @@ export const formatDataCellTable = (itemObj, header, mode) => {
     case "contractAddress":
       return (
         <>
-          <AddressCopier address={itemObj[header]} fontWeight="none" />
+          <AddressCopier address={itemObj[header]} />
         </>
       );
     case "tokenContract":
       return (
         <>
-          <AddressCopier address={itemObj[header]} fontWeight="none" />
+          <AddressCopier address={itemObj[header]} />
         </>
       );
     case "fromAddress":
       return (
         <>
-          <AddressCopier address={itemObj[header]} fontWeight="none" />
+          <AddressCopier address={itemObj[header]} />
         </>
       );
     case "toAddress":
       return (
         <>
-          <AddressCopier address={itemObj[header]} fontWeight="none" />
+          <AddressCopier address={itemObj[header]} />
         </>
       );
     case "amount":
@@ -397,5 +421,3 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       );
   }
 };
-
-export default IWPaginationTable;

@@ -372,3 +372,14 @@ export const getTimestamp = async (api, blockNumber) => {
 
   return moment(parseInt(ret)).format("DD/MM/YY, H:mm");
 };
+
+export const getIPFSData = async (uri) => {
+  const ret = `${process.env.REACT_APP_IPFS_PUBLIC_URL}/${uri}`;
+
+  try {
+    const response = await axios.get(ret);
+    return response?.data;
+  } catch (error) {
+    console.error("get ipfs data error", error.message);
+  }
+};
