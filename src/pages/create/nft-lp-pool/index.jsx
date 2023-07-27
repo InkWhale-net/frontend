@@ -502,7 +502,7 @@ export default function CreateNFTLPPage({ api }) {
                   setSelectedCollectionAddr(target.value)
                 }
                 value={selectedCollectionAddr}
-                isDisabled
+                // isDisabled
                 placeholder="Contract Address"
                 label="Collection contract address"
               />
