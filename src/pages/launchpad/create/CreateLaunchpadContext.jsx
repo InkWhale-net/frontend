@@ -1,13 +1,29 @@
 import { CheckIcon } from "@chakra-ui/icons";
 import { Circle } from "@chakra-ui/react";
-import { ipfsClient } from "api/client";
+import { ContractPromise } from "@polkadot/api-contract";
+import { web3FromSource } from "@polkadot/extension-dapp";
+import { APICall, ipfsClient } from "api/client";
 import { useAppContext } from "contexts/AppContext";
+import { parseUnits } from "ethers";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { delay, formatNumToBN, formatQueryResultToNumber } from "utils";
-import { execContractQuery, execContractTx } from "utils/contracts";
+import { useHistory } from "react-router-dom";
+import { fetchUserBalance } from "redux/slices/walletSlice";
+import {
+  dayToMilisecond,
+  delay,
+  formatNumToBN,
+  formatQueryResultToNumber,
+  getEstimatedGasBatchTx,
+} from "utils";
+import {
+  execContractQuery,
+  execContractTx,
+  execContractTxAndCallAPI,
+} from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
+import launchpad from "utils/contracts/launchpad";
 import launchpad_generator from "utils/contracts/launchpad_generator";
 import psp22_contract from "utils/contracts/psp22_contract";
 import Phase from "./components/Phase";
@@ -16,6 +32,7 @@ import ProjectRoadmap from "./components/ProjectRoadmap";
 import Team from "./components/Team";
 import VerifyToken from "./components/VerifyToken";
 import {
+  validatePhase,
   validateProjectInfor,
   validateRoadmap,
   validateTeam,
@@ -23,10 +40,6 @@ import {
   verifyTeam,
   verifyTokenValid,
 } from "./utils";
-import { APICall } from "api/client";
-import { fetchUserBalance } from "redux/slices/walletSlice";
-import { fetchMyStakingPools } from "redux/slices/myPoolsSlice";
-import { useHistory } from "react-router-dom";
 
 export const CreateLaunchpadContext = createContext();
 
@@ -106,10 +119,11 @@ const CreateLaunchpadContextProvider = (props) => {
     if (value) updateLaunchpadData({ ...launchpadData, phase: value });
   };
   const updateTotalSupply = (value) => {
-    if (value) updateLaunchpadData({ ...launchpadData, totalSupply: value });
+    updateLaunchpadData({ ...launchpadData, totalSupply: value });
   };
 
   const verifyStep = async () => {
+    console.log(current);
     switch (current) {
       case 0:
         return verifyTokenValid(launchpadData, currentAccount);
@@ -118,7 +132,7 @@ const CreateLaunchpadContextProvider = (props) => {
       case 3:
         return verifyTeam(launchpadData);
       default:
-        return true
+        return true;
     }
   };
 
@@ -154,6 +168,8 @@ const CreateLaunchpadContextProvider = (props) => {
         return validateRoadmap(launchpadData);
       case 3:
         return validateTeam(launchpadData);
+      case 4:
+        return validatePhase(launchpadData);
       default:
         return true;
     }
@@ -171,15 +187,137 @@ const CreateLaunchpadContextProvider = (props) => {
       );
 
       const fee = formatQueryResultToNumber(result);
-      console.log(fee);
+      // console.log(fee);
       setCreateTokenFee(fee);
     };
 
     fetchCreateTokenFee();
   }, [currentAccount]);
+
+  const verifyWhitelist = async () => {
+    const arrayOfObjects = processStringToArray(
+      launchpadData?.phase[0]?.whiteList
+    );
+    console.log(arrayOfObjects);
+  };
+
+  function processStringToArray(input) {
+    const lines = input.trim().split("\n");
+    const result = [];
+
+    lines.forEach((line) => {
+      const [address, amount, price] = line.trim().split(", ");
+      result.push({ address, amount: Number(amount), price: Number(price) });
+    });
+
+    return result;
+  }
+
+  const bulkAddingWhitelist = async (launchpadContractAddress) => {
+    return new Promise(async (resolve, reject) => {
+      const phaseQuery = await execContractQuery(
+        currentAccount?.address,
+        api,
+        launchpad.CONTRACT_ABI,
+        // createdLaunchpadContract,
+        launchpadContractAddress,
+        0, //-> value
+        "launchpadContractTrait::getTotalPhase"
+      );
+      const totalPhase = phaseQuery.toHuman()?.Ok;
+      const whitelist = launchpadData?.phase?.map((e) =>
+        processStringToArray(e?.whiteList)
+      );
+
+      // DO batch add whitelist
+      let addWhitelistTxAll;
+      const value = 0;
+      const launchpadContract = new ContractPromise(
+        api,
+        launchpad.CONTRACT_ABI,
+        launchpadContractAddress
+      );
+      const { signer } = await web3FromSource(currentAccount?.meta?.source);
+      const gasLimit = await getEstimatedGasBatchTx(
+        currentAccount?.address,
+        launchpadContract,
+        value,
+        "launchpadContractTrait::addMultiWhitelists",
+        0,
+        whitelist[0].map((e) => e?.address),
+        whitelist[0].map((e) =>
+          parseUnits(e?.amount.toString(), parseInt(launchpadData?.token.decimals))
+        ),
+        whitelist[0].map((e) => parseUnits(e?.price.toString(), 12))
+      );
+      await Promise.all(
+        whitelist.map(async (info, index) => {
+          const ret = launchpadContract.tx[
+            "launchpadContractTrait::addMultiWhitelists"
+          ](
+            { gasLimit, value },
+            index,
+            whitelist[index].map((e) => e?.address),
+            whitelist[index].map((e) =>
+              parseInt(launchpadData?.token.decimals)
+            ),
+            whitelist[index].map((e) => e?.price)
+          );
+
+          return ret;
+        })
+      ).then((res) => (addWhitelistTxAll = res));
+
+      await api.tx.utility
+        .batch(addWhitelistTxAll)
+        .signAndSend(
+          currentAccount?.address,
+          { signer },
+          async ({ events, status, dispatchError }) => {
+            if (status?.isFinalized) {
+              let totalSuccessTxCount = null;
+
+              events.forEach(
+                async ({
+                  event,
+                  event: { data, method, section, ...rest },
+                }) => {
+                  if (api.events.utility?.BatchInterrupted.is(event)) {
+                    totalSuccessTxCount = data[0]?.toString();
+                  }
+
+                  if (api.events.utility?.BatchCompleted.is(event)) {
+                    toast.success(
+                      whitelist?.length === 1
+                        ? "Added whitelist successfully"
+                        : "All whitelist have been Added successfully"
+                    );
+                  }
+                }
+              );
+
+              // eslint-disable-next-line no-extra-boolean-cast
+              if (!!totalSuccessTxCount) {
+                toast.error(
+                  whitelist?.length === 1
+                    ? "Adding whitelist not successfully!                "
+                    : `Bulk adding are not fully successful! ${totalSuccessTxCount} adding completed successfully.`
+                );
+              }
+              // updateData();
+            }
+          }
+        )
+        .then((unsub) => resolve(unsub))
+        .catch((error) => {
+          toast.error("The staking fail", error?.message);
+          reject(error);
+        });
+    });
+  };
+
   const handleAddNewLaunchpad = async () => {
     try {
-      let step = 1;
       const minReward = launchpadData?.phase?.reduce(
         (acc, e) => acc + (e?.phasePublicAmount || 0),
         0
@@ -242,12 +380,10 @@ const CreateLaunchpadContextProvider = (props) => {
       // if (userBalance < 1) {
       //   return toast.error(`Your balance too low!`);
       // }
+
       const project_info_ipfs = await ipfsClient.add(
         JSON.stringify(launchpadData)
       );
-      console.log(project_info_ipfs);
-
-      // const { signer } = await web3FromSource(currentAccount?.meta?.source);
 
       const allowanceINWQr = await execContractQuery(
         currentAccount?.address,
@@ -280,8 +416,7 @@ const CreateLaunchpadContextProvider = (props) => {
 
       //Approve
       if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-        toast.success(`Step ${step}: Approving INW token...`);
-        step++;
+        toast.success(`Approving INW token...`);
         let approve = await execContractTx(
           currentAccount,
           "api",
@@ -295,10 +430,7 @@ const CreateLaunchpadContextProvider = (props) => {
         if (!approve) return;
       }
       if (allowanceToken < minReward.replaceAll(",", "")) {
-        toast.success(
-          `Step ${step}: Approving ${launchpadData?.token?.symbol} token...`
-        );
-        step++;
+        toast.success(`${launchpadData?.token?.symbol} token...`);
         let approve = await execContractTx(
           currentAccount,
           "api",
@@ -312,44 +444,57 @@ const CreateLaunchpadContextProvider = (props) => {
         if (!approve) return;
       }
       await delay(3000);
-      toast.success(`Step 1: Process...`);
-      await execContractTx(
+      toast.success(`Process creating...`);
+      await execContractTxAndCallAPI(
         currentAccount,
         "api",
         launchpad_generator.CONTRACT_ABI,
         launchpad_generator.CONTRACT_ADDRESS,
         0, //-> value
         "newLaunchpad",
+        async (newContractAddress) => {
+          await delay(100);
+          await new Promise(async (resolve) => {
+            resolve(bulkAddingWhitelist(newContractAddress));
+          }).then(() => {
+            dispatch(fetchUserBalance({ currentAccount, api }));
+            history.push("/launchpad");
+          });
+        },
         project_info_ipfs.path,
         launchpadData?.token?.tokenAddress,
-        launchpadData?.totalSupply,
+        parseUnits(
+          launchpadData?.totalSupply.toString(),
+          parseInt(launchpadData?.token.decimals)
+        ),
         launchpadData?.phase?.map((e) => e?.name),
         launchpadData?.phase?.map((e) => e?.startDate?.getTime()),
         launchpadData?.phase?.map((e) => e?.endDate?.getTime()),
-        launchpadData?.phase?.map((e) => e?.immediateReleaseRate),
-        launchpadData?.phase?.map((e) => e?.vestingLength),
-        launchpadData?.phase?.map((e) => e?.vestingUnit),
+        launchpadData?.phase?.map((e) =>
+          (parseFloat(e?.immediateReleaseRate) * 100).toFixed()
+        ),
+        launchpadData?.phase?.map((e) =>
+          dayToMilisecond(parseFloat(e?.vestingLength))
+        ),
+        launchpadData?.phase?.map((e) =>
+          dayToMilisecond(parseFloat(e?.vestingUnit))
+        ),
         launchpadData?.phase?.map((e) => e?.allowPublicSale),
-        launchpadData?.phase?.map((e) => e?.phasePublicAmount),
-        launchpadData?.phase?.map((e) => formatNumToBN(e?.phasePublicPrice, 12))
+        launchpadData?.phase?.map((e) =>
+          parseUnits(
+            e?.phasePublicAmount.toString(),
+            parseInt(launchpadData?.token.decimals)
+          )
+        ),
+        launchpadData?.phase?.map((e) => parseUnits(e?.phasePublicPrice.toString(), 12))
       );
       await APICall.askBEupdate({ type: "launchpad", poolContract: "new" });
-      updateLaunchpadData(null);
-      setCurrent(0);
-      toast.promise(
-        delay(10000).then(() => {
-          if (currentAccount) {
-            dispatch(fetchUserBalance({ currentAccount, api }));
-            history.push("/create/launchpad");
-            // dispatch(fetchMyStakingPools({ currentAccount }));
-          }
-        }),
-        {
-          loading: "Please wait 10s for the data to be updated! ",
-          success: "Done !",
-          error: "Could not fetch data!!!",
-        }
-      );
+
+      // console.log(project_info_ipfs);
+
+      // return;
+      // updateLaunchpadData(null);
+      // setCurrent(0);
     } catch (error) {
       console.log(error);
     }

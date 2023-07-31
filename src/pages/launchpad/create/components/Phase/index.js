@@ -1,11 +1,13 @@
 import {
   Box,
   Button,
+  Divider,
   Flex,
   Heading,
   IconButton,
   SimpleGrid,
   Switch,
+  Tooltip,
 } from "@chakra-ui/react";
 import SectionContainer from "../sectionContainer";
 import { useState } from "react";
@@ -15,9 +17,12 @@ import DateTimePicker from "react-datetime-picker";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import { useEffect } from "react";
 import { BsTrashFill } from "react-icons/bs";
+import { QuestionOutlineIcon } from "@chakra-ui/icons";
+import { AzeroLogo } from "components/icons/Icons";
 
 const Phase = () => {
-  const { updatePhase, updateTotalSupply } = useCreateLaunchpad();
+  const { updatePhase, updateTotalSupply, launchpadData } =
+    useCreateLaunchpad();
   const [phaseList, setPhaseList] = useState([
     {
       name: null,
@@ -25,14 +30,14 @@ const Phase = () => {
       endDate: new Date(),
       allowPublicSale: false,
       vestingLength: null,
-      vestingPeriod: null,
+      vestingUnit: null,
       immediateReleaseRate: null,
       phasePublicAmount: null,
       phasePublicPrice: null,
       whiteList: null,
     },
   ]);
-  const [totalSupply, setTotalSupply] = useState(0);
+  const [totalSupply, setTotalSupply] = useState(null);
   const addPhase = () => {
     try {
       setPhaseList([
@@ -43,7 +48,7 @@ const Phase = () => {
           endDate: new Date(),
           allowPublicSale: false,
           vestingLength: null,
-          vestingPeriod: null,
+          vestingUnit: null,
           immediateReleaseRate: null,
           phasePublicAmount: null,
           phasePublicPrice: null,
@@ -69,7 +74,8 @@ const Phase = () => {
         <IWInput
           value={totalSupply}
           onChange={({ target }) => setTotalSupply(target.value)}
-          placeholder="Total supply"
+          placeholder="0"
+          inputRightElementIcon={launchpadData?.token?.symbol}
         />
       </SectionContainer>
       <Heading
@@ -109,7 +115,7 @@ const Phase = () => {
                   placeholder="Name"
                 />
               </SectionContainer>
-              <SectionContainer title={"Start Date & Time"}>
+              <SectionContainer title={"Start sale Date & Time"}>
                 <Flex
                   h="52px"
                   borderWidth="1px"
@@ -136,7 +142,7 @@ const Phase = () => {
               </SectionContainer>
 
               <SectionContainer
-                title={"End Date & Time"}
+                title={"End sale Date & Time"}
                 right={
                   phaseList?.length > 1 && (
                     <IconButton
@@ -186,6 +192,17 @@ const Phase = () => {
             <SimpleGrid columns={3} spacing={4}>
               <SectionContainer title={"Immediate Release Rate"}>
                 <IWInput
+                  inputRightElementIcon={
+                    <Tooltip
+                      fontSize="md"
+                      label={
+                        "percentage or portion of tokens that are immediately released to token holders upon the token launch or distribution event"
+                      }
+                    >
+                      <b>%</b>
+                    </Tooltip>
+                  }
+                  type="number"
                   value={obj?.immediateReleaseRate}
                   onChange={({ target }) =>
                     setPhaseList((prevState) => {
@@ -199,11 +216,22 @@ const Phase = () => {
                       return updatedArray;
                     })
                   }
-                  placeholder="Immediate Release Rate"
+                  placeholder="0.00"
                 />
               </SectionContainer>
-              <SectionContainer title={"Duration"}>
+              <SectionContainer title={"Vesting Duration"}>
                 <IWInput
+                  inputRightElementIcon={
+                    <Tooltip
+                      fontSize="md"
+                      label={
+                        "The Vesting Duration refers to the length of time over which tokens are gradually released to token holders according to a predetermined schedule"
+                      }
+                    >
+                      <b>day(s)</b>
+                    </Tooltip>
+                  }
+                  type="number"
                   value={obj?.vestingLength}
                   onChange={({ target }) =>
                     setPhaseList((prevState) => {
@@ -217,11 +245,22 @@ const Phase = () => {
                       return updatedArray;
                     })
                   }
-                  placeholder="duration"
+                  placeholder="0"
                 />
               </SectionContainer>
-              <SectionContainer title={"Vesting Unit"}>
+              <SectionContainer title={"Vesting Release Period"}>
                 <IWInput
+                  inputRightElementIcon={
+                    <Tooltip
+                      fontSize="md"
+                      label={
+                        "The Vesting Release Period is the interval or frequency at which vested tokens become accessible to the token holder according to the predetermined vesting schedule"
+                      }
+                    >
+                      <b>day(s)</b>
+                    </Tooltip>
+                  }
+                  type="number"
                   value={obj?.vestingUnit}
                   onChange={({ target }) =>
                     setPhaseList((prevState) => {
@@ -235,7 +274,7 @@ const Phase = () => {
                       return updatedArray;
                     })
                   }
-                  placeholder="Vesting Unit"
+                  placeholder="0"
                 />
               </SectionContainer>
 
@@ -271,6 +310,8 @@ const Phase = () => {
               <SimpleGrid columns={3} spacing={4}>
                 <SectionContainer title={"Public Amount"}>
                   <IWInput
+                    type="number"
+                    inputRightElementIcon={launchpadData?.token?.symbol}
                     value={obj?.phasePublicAmount}
                     onChange={({ target }) =>
                       setPhaseList((prevState) => {
@@ -284,11 +325,13 @@ const Phase = () => {
                         return updatedArray;
                       })
                     }
-                    placeholder="Public Amount"
+                    placeholder="0"
                   />
                 </SectionContainer>
                 <SectionContainer title={"Phase Public Price"}>
                   <IWInput
+                    type="number"
+                    inputRightElementIcon={<AzeroLogo />}
                     value={obj?.phasePublicPrice}
                     onChange={({ target }) =>
                       setPhaseList((prevState) => {
@@ -302,12 +345,26 @@ const Phase = () => {
                         return updatedArray;
                       })
                     }
-                    placeholder="Phase Public Price"
+                    placeholder="0.0000"
                   />
                 </SectionContainer>
               </SimpleGrid>
             )}
-            <SectionContainer title="White list">
+            <Divider sx={{ marginTop: "8px" }} />
+            <SectionContainer
+              title={
+                <a>
+                  White list
+                  <Tooltip
+                    fontSize="md"
+                    label={`Enter one address, whitelist amount and price on each line.
+                A decimal separator of amount must use dot (.)`}
+                  >
+                    <QuestionOutlineIcon ml="6px" color="text.2" />
+                  </Tooltip>
+                </a>
+              }
+            >
               <IWTextArea
                 sx={{
                   height: "80px",
@@ -325,10 +382,7 @@ const Phase = () => {
                     return updatedArray;
                   })
                 }
-                placeholder="Enter one address, whitelist amount and price on each line.
-                A decimal separator of amount must use dot (.)
-                Example: for WL amount 50 and price 2.99 Azero 
-                5GRdmMkKeKaV94qU3JjDr2ZwRAgn3xwzd2FEJYKjjSFipiAe,50,2.99"
+                placeholder={`Sample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL, 20, 2`}
               />
             </SectionContainer>
           </Box>

@@ -416,7 +416,9 @@ export const formatDataCellTable = (itemObj, header, mode) => {
     case "totalSupply":
       return (
         <>
-          <Text>{formatNumDynDecimal(itemObj[header])}</Text>
+          <Text>
+            {formatNumDynDecimal(itemObj[header])} {itemObj?.tokenSymbol}
+          </Text>
         </>
       );
 

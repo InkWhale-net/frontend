@@ -1,30 +1,17 @@
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  IconButton,
-  Select,
-  SimpleGrid,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
-import { useEffect, useMemo, useState } from "react";
-import LaunchpadTag from "../components/LaunchpadTag";
-import { useMutation, useQuery } from "react-query";
-import { APICall } from "api/client";
-import IWInput from "components/input/Input";
-import SectionContainer from "components/container/SectionContainer";
 import { SearchIcon } from "@chakra-ui/icons";
-import IWSelect from "components/select/IWSelect";
-import { useSelector } from "react-redux";
+import { Box, Select, SimpleGrid, Text } from "@chakra-ui/react";
+import IWInput from "components/input/Input";
 import { useAppContext } from "contexts/AppContext";
-import { getIPFSData } from "utils";
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import LaunchpadTag from "../components/LaunchpadTag";
+import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 
 const AllLaunchpads = ({}) => {
   const { currentAccount } = useSelector((s) => s.wallet);
+  const { launchpads } = useSelector((s) => s.launchpad);
   const { api } = useAppContext();
-  const [launchpads, setLaunchpads] = useState([]);
+  const dispatch = useDispatch();
   const [totalPage, setTotalPage] = useState(0);
   // status:
   // 0: all
@@ -41,7 +28,7 @@ const AllLaunchpads = ({}) => {
   const [sortby, setSortby] = useState(null);
   const [{ pageIndex, pageSize }, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 20,
   });
   const pagination = useMemo(
     () => ({
@@ -51,39 +38,13 @@ const AllLaunchpads = ({}) => {
     [pageIndex, pageSize]
   );
 
-  const { isLoading, mutate } = useMutation(async () => {
-    await new Promise(async (resolve) => {
-      try {
-        let queryBody = {};
-        const { ret, status, message } = await APICall.getLaunchpad(queryBody);
-        if (status === "OK") {
-          setLaunchpads(
-            ret.map((e) => ({ ...e, launchpadInfo: JSON.parse(e?.projectInfo) }))
-          );
-          //   const launchpadList = await Promise.all(
-          //     ret.map(async (e) => {
-          //       const projectInfor = await getIPFSData(e?.projectInfoUri);
-          //       if (projectInfor)
-          //         return {
-          //           projectInfor,
-          //           launchpadContract: e?.launchpadContract,
-          //           tokenContract: e?.tokenContract,
-          //         };
-          //     })
-          //   );
-          //   setLaunchpads(launchpadList.filter((e) => !!e));
-        }
-        resolve();
-      } catch (error) {
-        console.log(error);
-        resolve();
-      }
-    });
-  }, "get-pagination-launchpads");
-
+  const queryLaunchpads = async () => {
+    let queryBody = {};
+    dispatch(fetchLaunchpads(queryBody));
+  };
   useEffect(() => {
-    mutate();
-  }, [queries, currentAccount, api]);
+    if (currentAccount) queryLaunchpads();
+  }, [queries, currentAccount]);
 
   return (
     <div>
@@ -137,7 +98,7 @@ const AllLaunchpads = ({}) => {
           </Select> */}
         </Box>
       </Box>
-      <SimpleGrid columns={3} spacing={4}>
+      <SimpleGrid columns={3} spacing={4} sx={{ marginTop: "8px" }}>
         {launchpads?.map((obj, index) => {
           return (
             <LaunchpadTag LaunchpadData={obj} key={`launchpad-tag-${index}`} />

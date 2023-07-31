@@ -3,18 +3,15 @@ import {
   Button,
   Divider,
   Heading,
-  IconButton,
   Image,
   Progress,
 } from "@chakra-ui/react";
-import IWCountDown from "components/countdown/CountDown";
-import { useEffect } from "react";
-import { AiOutlineBell, AiOutlineHeart, AiOutlineLock } from "react-icons/ai";
-import { getIPFSData } from "utils";
+import { AiOutlineLock } from "react-icons/ai";
+import { useHistory } from "react-router-dom";
 
 const LaunchpadTag = ({ LaunchpadData }) => {
-  const { launchpadContract, launchpadInfo, projectInfoUri, tokenContract } =
-    LaunchpadData;
+  const history = useHistory();
+  const { launchpadContract, projectInfo } = LaunchpadData;
   return (
     <Box
       _hover={{
@@ -29,6 +26,12 @@ const LaunchpadTag = ({ LaunchpadData }) => {
         padding: "20px",
         transition: "border 300ms ease-in-out",
       }}
+      onClick={() => {
+        history.push({
+          state: LaunchpadData,
+          pathname: `/launchpad/${launchpadContract}`,
+        });
+      }}
     >
       <div style={{ position: "relative" }}>
         <Image
@@ -41,7 +44,7 @@ const LaunchpadTag = ({ LaunchpadData }) => {
           objectPosition="center"
           filter="brightness(0.4)"
           borderRadius="4px"
-          src={`${process.env.REACT_APP_IPFS_BASE_URL}/${launchpadInfo?.projectInfor?.headerImage}`}
+          src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}/${projectInfo?.projectInfor?.headerImage}`}
         />
         <div
           style={{
@@ -81,13 +84,13 @@ const LaunchpadTag = ({ LaunchpadData }) => {
             boxShadow="base"
             objectFit="cover"
             objectPosition="center"
-            src={`${process.env.REACT_APP_IPFS_BASE_URL}/${launchpadInfo?.projectInfor?.avatarImage}`}
+            src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}/${projectInfo?.projectInfor?.avatarImage}`}
           />
         </div>
       </div>
 
       <div style={{ marginTop: "8px" }}>
-        <Heading size="h3">{launchpadInfo?.projectInfor?.name}</Heading>
+        <Heading size="h3">{projectInfo?.projectInfor?.name}</Heading>
         <div
           style={{
             display: "flex",
@@ -104,9 +107,9 @@ const LaunchpadTag = ({ LaunchpadData }) => {
             boxShadow="base"
             objectFit="cover"
             objectPosition="center"
-            src={`${process.env.REACT_APP_IPFS_BASE_URL}/${launchpadInfo?.token?.tokenIconUrl}`}
+            src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${projectInfo?.token?.tokenIconUrl}`}
           />
-          <div>{`${launchpadInfo?.token?.name}(${launchpadInfo?.token?.symbol})`}</div>
+          <div>{`${projectInfo?.token?.name}(${projectInfo?.token?.symbol})`}</div>
         </div>
       </div>
       <div style={{ marginBottom: "8px" }}>
@@ -122,13 +125,13 @@ const LaunchpadTag = ({ LaunchpadData }) => {
         }}
       >
         <div>
-          {/* {launchpadInfo.projectInfor.startTime < new Date() ? (
+          {/* {projectInfo.projectInfor.startTime < new Date() ? (
             <div>Sale start in</div>
           ) : (
             <div>Sale end in</div>
           )} */}
           {/* <div>Sale start in</div> */}
-          {/* <IWCountDown date={launchpadInfo.projectInfor.startTime} /> */}
+          {/* <IWCountDown date={projectInfo.projectInfor.startTime} /> */}
         </div>
         <Button>View</Button>
       </div>

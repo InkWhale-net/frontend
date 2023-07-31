@@ -1,5 +1,5 @@
-const launchpad_generator = {
-    CONTRACT_ADDRESS: "5Do8ukWfsHW5krbFqLFjvLZmTUdCswqis8BggHH7g1YV4S4F",
+const launchpad = {
+    CONTRACT_ADDRESS: "5CrKNdvAaGdkVBtr6vX9QJxXfAQL4XT1Uw2MZkMa38DW94Sc",
     CONTRACT_ABI: {
         "source": {
           "hash": "0x4c62e7a19cffbed4d18106d20128f097d204f9ec79f6aa662d7ae37e7e21c275",
@@ -5870,4 +5870,4 @@ const launchpad_generator = {
       }
   };
   
-  export default launchpad_generator;
+  export default launchpad;

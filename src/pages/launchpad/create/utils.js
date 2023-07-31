@@ -47,6 +47,35 @@ export const validateRoadmap = (launchpadData) => {
   return true;
 };
 
+export const validatePhase = (launchpadData) => {
+  const phaseData = launchpadData?.phase;
+  if (!(parseFloat(launchpadData?.totalSupply || 0) > 0)) return false;
+  if (
+    phaseData?.filter((e) => e?.name?.length > 0)?.length != phaseData?.length
+  )
+    return false;
+  if (phaseData?.filter((e) => e?.startDate > 0)?.length != phaseData?.length)
+    return false;
+  if (phaseData?.filter((e) => e?.endDate > 0)?.length != phaseData?.length)
+    return false;
+  if (
+    phaseData?.filter((e) => e?.immediateReleaseRate?.length > 0)?.length !=
+    phaseData?.length
+  )
+    return false;
+  if (
+    phaseData?.filter((e) => e?.vestingLength?.length > 0)?.length !=
+    phaseData?.length
+  )
+    return false;
+  if (
+    phaseData?.filter((e) => e?.vestingUnit?.length > 0)?.length !=
+    phaseData?.length
+  )
+    return false;
+  return true;
+};
+
 export const validateTeam = (launchpadData) => {
   const teamData = launchpadData?.team;
   if (

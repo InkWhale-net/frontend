@@ -47,7 +47,7 @@ function IWInput(props) {
       <InputGroup {...rest}>
         {inputRightElementIcon && (
           <InputRightElement
-            right="16px"
+            right="10px"
             justifyContent="end"
             children={inputRightElementIcon}
           />
