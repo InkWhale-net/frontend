@@ -1,7 +1,7 @@
 import { BsDot } from "react-icons/bs";
 import { AiOutlineLock } from "react-icons/ai";
 
-export const UpcomingStatus = () => {
+export const UpcomingStatusTag = () => {
   return (
     <div
       style={{
@@ -25,7 +25,7 @@ export const UpcomingStatus = () => {
   );
 };
 
-export const LiveStatus = () => {
+export const LiveStatusTag = () => {
   return (
     <div
       style={{
@@ -44,7 +44,30 @@ export const LiveStatus = () => {
       }}
     >
       <BsDot size={"20px"} color="#9CDE85" />
-      Live
+      Sale Live
+    </div>
+  );
+};
+export const EndStatusTag = () => {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        right: "4px",
+        top: "8px",
+        background: "#FFE1E1",
+        paddingLeft: "8px",
+        paddingRight: "12px",
+        borderRadius: "20px",
+        display: "flex",
+        alignItems: "center",
+        fontWeight: "bold",
+        fontSize: "14px",
+        color: "#57527E",
+      }}
+    >
+      <BsDot size={"20px"} color="#FF9595" />
+      Sale Ended
     </div>
   );
 };

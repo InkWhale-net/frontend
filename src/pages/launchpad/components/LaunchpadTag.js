@@ -6,13 +6,18 @@ import {
   Image,
   Progress,
 } from "@chakra-ui/react";
-import { AiOutlineLock } from "react-icons/ai";
+import {
+  IWStatus,
+  IWStatusWithCountDown,
+} from "components/countdown/StatusWithCountDown";
 import { useHistory } from "react-router-dom";
-import { LiveStatus, UpcomingStatus } from "./StatusTag";
+import { EndStatusTag, LiveStatusTag, UpcomingStatusTag } from "./StatusTag";
 
 const LaunchpadTag = ({ LaunchpadData }) => {
   const history = useHistory();
   const { launchpadContract, projectInfo } = LaunchpadData;
+  const { projectInfor } = projectInfo || {};
+
   return (
     <Box
       _hover={{
@@ -47,7 +52,19 @@ const LaunchpadTag = ({ LaunchpadData }) => {
           borderRadius="4px"
           src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}/${projectInfo?.projectInfor?.headerImage}`}
         />
-        <LiveStatus />
+        <IWStatus
+          startDate={
+            projectInfor?.startTime &&
+            new Date(projectInfor?.startTime).getTime()
+          }
+          endDate={
+            projectInfor?.endTime && new Date(projectInfor?.endTime).getTime()
+          }
+          liveRender={<LiveStatusTag />}
+          upcomingRender={<UpcomingStatusTag />}
+          endRender={<EndStatusTag />}
+        />
+
         <div
           style={{
             position: "absolute",
@@ -108,13 +125,15 @@ const LaunchpadTag = ({ LaunchpadData }) => {
         }}
       >
         <div>
-          {/* {projectInfo.projectInfor.startTime < new Date() ? (
-            <div>Sale start in</div>
-          ) : (
-            <div>Sale end in</div>
-          )} */}
-          {/* <div>Sale start in</div> */}
-          {/* <IWCountDown date={projectInfo.projectInfor.startTime} /> */}
+          <IWStatusWithCountDown
+            startDate={
+              projectInfor?.startTime &&
+              new Date(projectInfor?.startTime).getTime()
+            }
+            endDate={
+              projectInfor?.endTime && new Date(projectInfor?.endTime).getTime()
+            }
+          />
         </div>
         <Button>View</Button>
       </div>
