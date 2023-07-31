@@ -134,3 +134,44 @@ export const verifyTeam = (launchpadData) => {
 
   return true;
 };
+
+export const processStringToArray = (input) => {
+  try {
+    const lines = input.trim().split("\n");
+    const result = [];
+
+    lines.forEach((line) => {
+      const [address, amount, price] = line.trim().split(", ");
+      result.push({ address, amount: Number(amount), price: Number(price) });
+    });
+
+    return result;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const regexTestNum = /^-?\d+(\.\d+(e\d+)?)?$/;
+
+export const verifyWhitelist = (wlArray) => {
+  const arrayVerify = wlArray.map((wlobj) => {
+    const whitelistphase = processStringToArray(wlobj);
+    if (
+      whitelistphase?.filter((e) => e?.address?.length > 0)?.length !=
+      whitelistphase?.length
+    )
+      return false;
+    if (
+      whitelistphase?.filter((e) => e?.amount > 0)?.length !=
+      whitelistphase?.length
+    )
+      return false;
+    if (
+      whitelistphase?.filter((e) => e?.price > 0 && regexTestNum.test(e?.price))
+        ?.length != whitelistphase?.length
+    )
+      return false;
+    return true;
+  });
+  return arrayVerify?.filter((e) => e == true)?.length == arrayVerify?.length;
+};
