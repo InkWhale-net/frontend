@@ -86,38 +86,6 @@ const ProjectInfor = () => {
           />
         </SectionContainer>
         <SimpleGrid columns={2} spacing={4}>
-          <SectionContainer title="Start Date & Time">
-            <Flex
-              h="52px"
-              borderWidth="1px"
-              justifyContent="start"
-              borderRadius="5px"
-            >
-              <DateTimePicker
-                locale="en-EN"
-                value={projectInfor?.startTime || new Date()}
-                onChange={(value) =>
-                  setProjectInfor({ ...projectInfor, startTime: value })
-                }
-              />
-            </Flex>
-          </SectionContainer>
-          <SectionContainer title="End Date & Time">
-            <Flex
-              h="52px"
-              borderWidth="1px"
-              justifyContent="start"
-              borderRadius="5px"
-            >
-              <DateTimePicker
-                locale="en-EN"
-                value={projectInfor?.endTime || new Date()}
-                onChange={(value) =>
-                  setProjectInfor({ ...projectInfor, endTime: value })
-                }
-              />
-            </Flex>
-          </SectionContainer>
           <SectionContainer title="Website">
             <IWInput
               value={projectInfor?.website}

@@ -14,20 +14,14 @@ export const validateProjectInfor = (launchpadData) => {
     const infor = launchpadData?.projectInfor;
     if (!infor?.avatarImage || !infor?.featureImage || !infor?.headerImage)
       return false;
-    if (
-      !infor?.name ||
-      !infor?.description ||
-      !infor?.startTime ||
-      !infor?.endTime
-    )
-      return false;
-    if (
-      !infor?.website ||
-      !infor?.twitter ||
-      !infor?.discord ||
-      !infor?.telegram
-    )
-      return false;
+    if (!infor?.name || !infor?.description) return false;
+    // if (
+    //   !infor?.website ||
+    //   !infor?.twitter ||
+    //   !infor?.discord ||
+    //   !infor?.telegram
+    // )
+    //   return false;
   }
   return true;
 };
