@@ -28,6 +28,8 @@ const UploadImage = ({
   iconUrl,
   limitedSize = { width: "300", height: "300" },
   setIsUploadIconIPFSUrl,
+  updatePreviewImage,
+  previewUrl,
   keyInput,
   direction = "vertical",
 }) => {
@@ -109,6 +111,7 @@ const UploadImage = ({
       const src = URL.createObjectURL(e.target.files[0]);
 
       setImagePreviewUrl(src);
+      if (src) updatePreviewImage(src);
     }
   };
 
@@ -125,7 +128,7 @@ const UploadImage = ({
         }}
       >
         <Box>
-          {imagePreviewUrl ? (
+          {imagePreviewUrl || previewUrl ? (
             <Box width={previewSize?.width} height={previewSize?.height}>
               <Image
                 h="full"
@@ -134,7 +137,7 @@ const UploadImage = ({
                 boxShadow="base"
                 objectFit="cover"
                 objectPosition="center"
-                src={imagePreviewUrl}
+                src={previewUrl || imagePreviewUrl}
                 borderRadius="4px"
               />
             </Box>
