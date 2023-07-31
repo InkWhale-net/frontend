@@ -116,7 +116,7 @@ const Phase = () => {
                   placeholder="Name"
                 />
               </SectionContainer>
-              <SectionContainer title={"Start sale Date & Time"}>
+              <SectionContainer title={"Start Date & Time"}>
                 <Flex
                   h="52px"
                   borderWidth="1px"
@@ -143,7 +143,7 @@ const Phase = () => {
               </SectionContainer>
 
               <SectionContainer
-                title={"End sale Date & Time"}
+                title={"End Date & Time"}
                 right={
                   phaseList?.length > 1 && (
                     <IconButton
