@@ -53,6 +53,7 @@ import { useAppContext } from "contexts/AppContext";
 import { QueryClient, QueryClientProvider } from "react-query";
 import Launchpad from "pages/launchpad";
 import PublicDetailLaunchpad from "pages/launchpad/detail/PublicDetailLaunchpad";
+import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -158,6 +159,9 @@ const App = () => {
 
     if (!currentAccount?.balance) {
       dispatch(fetchUserBalance({ currentAccount, api }));
+    }
+    if (!currentAccount?.balance) {
+      dispatch(fetchLaunchpads({}));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, currentAccount?.address]);

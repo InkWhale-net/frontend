@@ -26,7 +26,7 @@ const SaleCard = () => {
       >
         {["00", "00", "00", "00"].map((e, index) => {
           return (
-            <>
+            <Box key={index} display="flex" alignItems="center">
               <Box
                 sx={{
                   background: "#FEEEBD",
@@ -52,7 +52,7 @@ const SaleCard = () => {
                   :
                 </Box>
               )}
-            </>
+            </Box>
           );
         })}
       </Box>
