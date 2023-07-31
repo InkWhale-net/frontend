@@ -32,6 +32,7 @@ import ProjectRoadmap from "./components/ProjectRoadmap";
 import Team from "./components/Team";
 import VerifyToken from "./components/VerifyToken";
 import {
+  processStringToArray,
   validatePhase,
   validateProjectInfor,
   validateRoadmap,
@@ -39,6 +40,7 @@ import {
   verifyProjectInfo,
   verifyTeam,
   verifyTokenValid,
+  verifyWhitelist,
 } from "./utils";
 
 export const CreateLaunchpadContext = createContext();
@@ -123,7 +125,6 @@ const CreateLaunchpadContextProvider = (props) => {
   };
 
   const verifyStep = async () => {
-    console.log(current);
     switch (current) {
       case 0:
         return verifyTokenValid(launchpadData, currentAccount);
@@ -194,25 +195,6 @@ const CreateLaunchpadContextProvider = (props) => {
     fetchCreateTokenFee();
   }, [currentAccount]);
 
-  const verifyWhitelist = async () => {
-    const arrayOfObjects = processStringToArray(
-      launchpadData?.phase[0]?.whiteList
-    );
-    console.log(arrayOfObjects);
-  };
-
-  function processStringToArray(input) {
-    const lines = input.trim().split("\n");
-    const result = [];
-
-    lines.forEach((line) => {
-      const [address, amount, price] = line.trim().split(", ");
-      result.push({ address, amount: Number(amount), price: Number(price) });
-    });
-
-    return result;
-  }
-
   const bulkAddingWhitelist = async (launchpadContractAddress) => {
     return new Promise(async (resolve, reject) => {
       const phaseQuery = await execContractQuery(
@@ -246,7 +228,10 @@ const CreateLaunchpadContextProvider = (props) => {
         0,
         whitelist[0].map((e) => e?.address),
         whitelist[0].map((e) =>
-          parseUnits(e?.amount.toString(), parseInt(launchpadData?.token.decimals))
+          parseUnits(
+            e?.amount.toString(),
+            parseInt(launchpadData?.token.decimals)
+          )
         ),
         whitelist[0].map((e) => parseUnits(e?.price.toString(), 12))
       );
@@ -325,6 +310,11 @@ const CreateLaunchpadContextProvider = (props) => {
       // check wallet connect?
       if (!currentAccount) {
         return toast.error("Please connect wallet first!");
+      }
+      if (
+        verifyWhitelist(launchpadData?.phase?.map((e) => e?.whiteList)) == false
+      ) {
+        return toast.error("Invalid whitelist format");
       }
       // ADD MODE CHECKING
       // if (!values.isEditMode) {
@@ -486,7 +476,9 @@ const CreateLaunchpadContextProvider = (props) => {
             parseInt(launchpadData?.token.decimals)
           )
         ),
-        launchpadData?.phase?.map((e) => parseUnits(e?.phasePublicPrice.toString(), 12))
+        launchpadData?.phase?.map((e) =>
+          parseUnits(e?.phasePublicPrice.toString(), 12)
+        )
       );
       await APICall.askBEupdate({ type: "launchpad", poolContract: "new" });
 

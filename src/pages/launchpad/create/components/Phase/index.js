@@ -95,6 +95,7 @@ const Phase = () => {
             padding={{ base: "30px" }}
             sx={{ display: "flex", flexDirection: "column" }}
             mt="16px"
+            key={`phase-${index}`}
           >
             <SimpleGrid columns={3} spacing={4}>
               <SectionContainer title={"Name"}>

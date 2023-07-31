@@ -276,9 +276,9 @@ export const CreateMenuDropdown = ({
                 if (onClose) {
                   onClose();
                 }
-                // toast.success("Coming soon!");
+                toast.success("Coming soon!");
               },
-              href: "/launchpad",
+              // href: "/launchpad",
             },
             // { label: "Token Yield Farm", href: "/create/token-lp" },
           ].map((item, idx) => (
