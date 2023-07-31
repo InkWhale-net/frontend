@@ -477,6 +477,7 @@ export default function FaucetPage({ api }) {
       toast.error(toastMessages.NO_WALLET);
       return;
     }
+
     await execContractTx(
       currentAccount,
       api,
@@ -507,6 +508,7 @@ export default function FaucetPage({ api }) {
   };
 
   const inwPrivateMintHandler = async () => {
+    console.log(inwPrice, inwBuyAmount);
     if (!api) {
       toast.error(toastMessages.ERR_API_CONN);
       return;

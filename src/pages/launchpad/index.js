@@ -3,12 +3,13 @@ import SectionContainer from "components/container/SectionContainer";
 import IWTabs from "components/tabs/IWTabs";
 import { useHistory } from "react-router-dom";
 import AllLaunchpads from "./tabs/AllLaunchpads";
+import { APICall } from "api/client";
 
 const Launchpad = () => {
   const history = useHistory();
   const tabsData = [
     {
-      label: <>All Launchpads</>,
+      label: <>All Projects</>,
       component: <AllLaunchpads />,
       isDisabled: false,
     },
@@ -41,9 +42,6 @@ const Launchpad = () => {
       }
     >
       <IWTabs tabsData={tabsData} />
-      {/* <div style={{ width: "full" }}>
-        
-      </div> */}
     </SectionContainer>
   );
 };

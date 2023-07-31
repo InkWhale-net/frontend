@@ -80,7 +80,7 @@ export const formatNumDynDecimal = (num = 0, dec = 4) => {
 // new func to getImage source from CloudFlare
 export async function getCloudFlareImage(imageHash = "", size = 500) {
   const fallbackURL = `${
-    process.env.REACT_APP_IPFS_BASE_URL
+    process.env.REACT_APP_IPFS_PUBLIC_URL
   }/${imageHash.replace("ipfs://", "")}`;
 
   const ret = `${process.env.REACT_APP_ARTZERO_API_BASE_URL}/getImage?input=${imageHash}&size=${size}&url=${fallbackURL}`;
@@ -381,5 +381,13 @@ export const getIPFSData = async (uri) => {
     return response?.data;
   } catch (error) {
     console.error("get ipfs data error", error.message);
+  }
+};
+
+export const dayToMilisecond = (amount) => {
+  try {
+    return (amount * 24 * 60 * 60 * 1000).toFixed();
+  } catch (error) {
+    console.log(error);
   }
 };

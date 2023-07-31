@@ -52,6 +52,7 @@ import { AppContextProvider } from "contexts/AppContext";
 import { useAppContext } from "contexts/AppContext";
 import { QueryClient, QueryClientProvider } from "react-query";
 import Launchpad from "pages/launchpad";
+import PublicDetailLaunchpad from "pages/launchpad/detail/PublicDetailLaunchpad";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -200,6 +201,11 @@ const App = () => {
             component={CreateLaunchpadPage}
           />
           <Route exact path={`/launchpad`} component={Launchpad} />
+          <Route
+            exact
+            path={`/launchpad/:launchpadContract`}
+            component={PublicDetailLaunchpad}
+          />
           <Route
             exact
             path={`/create/token-lp`}
