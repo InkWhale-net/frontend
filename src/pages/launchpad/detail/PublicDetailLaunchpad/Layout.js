@@ -9,7 +9,11 @@ const TabLayout = ({ children }) => {
       alignItems="start"
       direction={{ base: "column", lg: "row" }}
     >
-      <Box w={{ base: "full" }} paddingTop={{ base: "4px" }}>
+      <Box
+        sx={{ display: "flex", flexDirection: "column" }}
+        w={{ base: "full" }}
+        paddingTop={{ base: "4px" }}
+      >
         {children}
       </Box>
       <Box
