@@ -8,6 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { AiOutlineLock } from "react-icons/ai";
 import { useHistory } from "react-router-dom";
+import { LiveStatus, UpcomingStatus } from "./StatusTag";
 
 const LaunchpadTag = ({ LaunchpadData }) => {
   const history = useHistory();
@@ -46,25 +47,7 @@ const LaunchpadTag = ({ LaunchpadData }) => {
           borderRadius="4px"
           src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}/${projectInfo?.projectInfor?.headerImage}`}
         />
-        <div
-          style={{
-            position: "absolute",
-            right: "8px",
-            top: "8px",
-            background: "#E3DFF3",
-            paddingTop: "4px",
-            paddingBottom: "4px",
-            paddingLeft: "12px",
-            paddingRight: "12px",
-            borderRadius: "20px",
-            display: "flex",
-            alignItems: "center",
-            fontWeight: "bold",
-          }}
-        >
-          <AiOutlineLock style={{ marginRight: "8px" }} color="#57527E" />
-          Upcoming
-        </div>
+        <LiveStatus />
         <div
           style={{
             position: "absolute",

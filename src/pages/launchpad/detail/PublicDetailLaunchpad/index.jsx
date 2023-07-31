@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import GeneralInformation from "./tabs/GeneralInformation";
 import TokenInformation from "./tabs/TokenInformation";
+import PhaseInformation from "./tabs/Phase";
 
 const PublicDetailLaunchpad = () => {
   const { launchpads } = useSelector((s) => s.launchpad);
@@ -27,8 +28,19 @@ const PublicDetailLaunchpad = () => {
       ),
       isDisabled: false,
     },
+
     {
-      label: <>Token</>,
+      label: <>Phase Information</>,
+      component: (
+        <PhaseInformation
+          launchpadContract={launchpadContract}
+          launchpadData={launchpadData}
+        />
+      ),
+      isDisabled: false,
+    },
+    {
+      label: <>Token Information</>,
       component: (
         <TokenInformation
           launchpadContract={launchpadContract}
