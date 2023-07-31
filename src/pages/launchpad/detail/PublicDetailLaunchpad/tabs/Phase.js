@@ -15,17 +15,19 @@ import { format } from "utils/datetime";
 import TabLayout from "../Layout";
 
 const PhaseInformation = ({ launchpadContract, launchpadData }) => {
-  const { phase } = launchpadData?.projectInfo || {};
+  const { phaseList } = launchpadData || {};
+
+  console.log(phaseList);
 
   return (
     <TabLayout>
       <div style={{}}></div>
-      <CircularProgress
+      {/* <CircularProgress
         alignSelf={"center"}
         isIndeterminate
         size={"40px"}
         color="#93F0F5"
-      />
+      /> */}
     </TabLayout>
   );
 };
