@@ -12,11 +12,21 @@ import {
 } from "components/countdown/StatusWithCountDown";
 import { useHistory } from "react-router-dom";
 import { EndStatusTag, LiveStatusTag, UpcomingStatusTag } from "./StatusTag";
+import { useMemo } from "react";
 
 const LaunchpadTag = ({ LaunchpadData }) => {
   const history = useHistory();
   const { launchpadContract, projectInfo } = LaunchpadData;
   const { projectInfor } = projectInfo || {};
+
+  const projectTime = useMemo(() => {
+    return {
+      startTime: new Date(
+        parseInt(LaunchpadData?.startTime?.replace(/,/g, ""))
+      ),
+      endTime: new Date(parseInt(LaunchpadData?.endTime?.replace(/,/g, ""))),
+    };
+  }, [LaunchpadData]);
 
   return (
     <Box
@@ -53,13 +63,8 @@ const LaunchpadTag = ({ LaunchpadData }) => {
           src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}/${projectInfo?.projectInfor?.headerImage}`}
         />
         <IWStatus
-          startDate={
-            projectInfor?.startTime &&
-            new Date(projectInfor?.startTime).getTime()
-          }
-          endDate={
-            projectInfor?.endTime && new Date(projectInfor?.endTime).getTime()
-          }
+          startDate={projectTime?.startTime}
+          endDate={projectTime?.endTime}
           liveRender={<LiveStatusTag />}
           upcomingRender={<UpcomingStatusTag />}
           endRender={<EndStatusTag />}
@@ -126,13 +131,8 @@ const LaunchpadTag = ({ LaunchpadData }) => {
       >
         <div>
           <IWStatusWithCountDown
-            startDate={
-              projectInfor?.startTime &&
-              new Date(projectInfor?.startTime).getTime()
-            }
-            endDate={
-              projectInfor?.endTime && new Date(projectInfor?.endTime).getTime()
-            }
+            startDate={projectTime?.startTime}
+            endDate={projectTime?.endTime}
           />
         </div>
         <Button>View</Button>

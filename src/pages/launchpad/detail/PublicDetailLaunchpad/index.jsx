@@ -13,7 +13,13 @@ const PublicDetailLaunchpad = () => {
   const params = useParams();
   const launchpadContract = params?.launchpadContract;
   const launchpadData = useMemo(() => {
-    return launchpads?.find((e) => e?.launchpadContract == launchpadContract);
+    const foundNode = launchpads?.find(
+      (e) => e?.launchpadContract == launchpadContract
+    );
+    return {
+      ...foundNode,
+      phaseList: JSON.parse(foundNode?.phaseList),
+    };
   }, [launchpadContract, launchpads]);
   const { projectInfor, token } = launchpadData?.projectInfo || {};
 
