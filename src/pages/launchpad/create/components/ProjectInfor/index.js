@@ -8,11 +8,15 @@ import UploadImage from "pages/launchpad/UploadImage";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 
 const ProjectInfor = () => {
-  const { updateProjectInfor } = useCreateLaunchpad();
+  const { updateProjectInfor, current, launchpadData } = useCreateLaunchpad();
   const [projectInfor, setProjectInfor] = useState(null);
   useEffect(() => {
     updateProjectInfor(projectInfor);
   }, [projectInfor]);
+  useEffect(() => {
+    if (current == 1 && launchpadData?.projectInfor)
+      setProjectInfor(launchpadData?.projectInfor);
+  }, [current]);
   return (
     <>
       <SimpleGrid
@@ -30,9 +34,13 @@ const ProjectInfor = () => {
             width: "500",
             height: "500",
           }}
+          previewUrl={projectInfor?.previewAvatar}
+          updatePreviewImage={(value) =>
+            setProjectInfor((prev) => ({ ...prev, previewAvatar: value }))
+          }
           iconUrl={projectInfor?.avatarImage}
           setImageIPFSUrl={(value) =>
-            setProjectInfor({ ...projectInfor, avatarImage: value })
+            setProjectInfor((prev) => ({ ...prev, avatarImage: value }))
           }
         />
         <UploadImage
@@ -44,9 +52,13 @@ const ProjectInfor = () => {
             width: "400",
             height: "260",
           }}
+          previewUrl={projectInfor?.previewFeatureImage}
+          updatePreviewImage={(value) =>
+            setProjectInfor((prev) => ({ ...prev, previewFeatureImage: value }))
+          }
           iconUrl={projectInfor?.featureImage}
           setImageIPFSUrl={(value) =>
-            setProjectInfor({ ...projectInfor, featureImage: value })
+            setProjectInfor((prev) => ({ ...prev, featureImage: value }))
           }
         />
         <UploadImage
@@ -60,9 +72,13 @@ const ProjectInfor = () => {
             width: "1920",
             height: "600",
           }}
+          previewUrl={projectInfor?.previewHeaderImage}
+          updatePreviewImage={(value) =>
+            setProjectInfor((prev) => ({ ...prev, previewHeaderImage: value }))
+          }
           iconUrl={projectInfor?.headerImage}
           setImageIPFSUrl={(value) =>
-            setProjectInfor({ ...projectInfor, headerImage: value })
+            setProjectInfor((prev) => ({ ...prev, headerImage: value }))
           }
         />
       </SimpleGrid>

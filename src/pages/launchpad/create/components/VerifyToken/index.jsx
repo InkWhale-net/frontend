@@ -27,7 +27,7 @@ import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import { useHistory } from "react-router-dom";
 
 export default function VerifyToken() {
-  const { launchpadData, updateLaunchpadData } = useCreateLaunchpad();
+  const { launchpadData, updateLaunchpadData, current } = useCreateLaunchpad();
   const [tokenInfo, setTokenInfo] = useState(null);
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allTokensList } = useSelector((s) => s.allPools);
@@ -166,6 +166,10 @@ export default function VerifyToken() {
         token: { ...tokenInfo, tokenAddress },
       });
   }, [tokenInfo]);
+  useEffect(() => {
+    if (current == 0 && launchpadData?.token)
+      setTokenInfo(launchpadData?.token);
+  }, [current]);
 
   return (
     <>

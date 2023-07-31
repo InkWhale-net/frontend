@@ -21,7 +21,7 @@ import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import { AzeroLogo } from "components/icons/Icons";
 
 const Phase = () => {
-  const { updatePhase, updateTotalSupply, launchpadData } =
+  const { updatePhase, updateTotalSupply, launchpadData, current } =
     useCreateLaunchpad();
   const [phaseList, setPhaseList] = useState([
     {
@@ -68,6 +68,13 @@ const Phase = () => {
   useEffect(() => {
     updateTotalSupply(totalSupply);
   }, [totalSupply]);
+  useEffect(() => {
+    if (current == 4) {
+      if (launchpadData?.phase) setPhaseList(launchpadData?.phase);
+      if (launchpadData?.totalSupply)
+        setTotalSupply(launchpadData?.totalSupply);
+    }
+  }, [current]);
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <SectionContainer title={"Total supply"}>
@@ -122,6 +129,11 @@ const Phase = () => {
                   borderWidth="1px"
                   justifyContent="start"
                   borderRadius="5px"
+                  sx={{
+                    "& .react-datetime-picker__calendar": {
+                      zIndex: 9999,
+                    },
+                  }}
                 >
                   <DateTimePicker
                     locale="en-EN"
@@ -161,6 +173,11 @@ const Phase = () => {
                   borderWidth="1px"
                   justifyContent="start"
                   borderRadius="5px"
+                  sx={{
+                    "& .react-datetime-picker__calendar": {
+                      zIndex: 9999,
+                    },
+                  }}
                 >
                   <DateTimePicker
                     locale="en-EN"
@@ -191,18 +208,21 @@ const Phase = () => {
               Vesting Plan
             </Heading>
             <SimpleGrid columns={3} spacing={4}>
-              <SectionContainer title={"Immediate Release Rate"}>
-                <IWInput
-                  inputRightElementIcon={
+              <SectionContainer
+                title={
+                  <a>
+                    Immediate Release Rate
                     <Tooltip
                       fontSize="md"
-                      label={
-                        "percentage or portion of tokens that are immediately released to token holders upon the token launch or distribution event"
-                      }
+                      label={`Percentage or portion of tokens that are immediately released to token holders upon the token launch or distribution event`}
                     >
-                      <b>%</b>
+                      <QuestionOutlineIcon ml="6px" color="text.2" />
                     </Tooltip>
-                  }
+                  </a>
+                }
+              >
+                <IWInput
+                  inputRightElementIcon={<b>%</b>}
                   type="number"
                   value={obj?.immediateReleaseRate}
                   onChange={({ target }) =>
@@ -220,17 +240,22 @@ const Phase = () => {
                   placeholder="0.00"
                 />
               </SectionContainer>
-              <SectionContainer title={"Vesting Duration"}>
-                <IWInput
-                  inputRightElementIcon={
+              <SectionContainer
+                title={
+                  <a>
+                    Vesting Duration
                     <Tooltip
                       fontSize="md"
-                      label={
-                        "The Vesting Duration refers to the length of time over which tokens are gradually released to token holders according to a predetermined schedule"
-                      }
+                      label={`The Vesting Duration refers to the length of time over which tokens are gradually released to token holders according to a predetermined schedule`}
                     >
-                      <b>day(s)</b>
+                      <QuestionOutlineIcon ml="6px" color="text.2" />
                     </Tooltip>
+                  </a>
+                }
+              >
+                <IWInput
+                  inputRightElementIcon={
+                    <a style={{ pointerEvents: "none" }}>{`day(s)`}</a>
                   }
                   type="number"
                   value={obj?.vestingLength}

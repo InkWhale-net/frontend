@@ -8,7 +8,7 @@ import SectionContainer from "../sectionContainer";
 import { useEffect } from "react";
 
 const Team = () => {
-  const { updateMember } = useCreateLaunchpad();
+  const { updateMember, current, launchpadData } = useCreateLaunchpad();
   const [teamList, setTeamList] = useState([
     {
       iconIPFSUrl: null,
@@ -38,6 +38,9 @@ const Team = () => {
   useEffect(() => {
     updateMember(teamList);
   }, [teamList]);
+  useEffect(() => {
+    if (current == 3 && launchpadData?.team) setTeamList(launchpadData?.team);
+  }, [current]);
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <Heading
@@ -74,6 +77,19 @@ const Team = () => {
                   width: "512",
                   height: "512",
                 }}
+                previewUrl={teamList[index]?.previewAvatar}
+                updatePreviewImage={(value) =>
+                  setTeamList((prevState) => {
+                    const updatedArray = [...prevState];
+                    if (index >= 0 && index < updatedArray.length) {
+                      updatedArray[index] = {
+                        ...updatedArray[index],
+                        previewAvatar: value,
+                      };
+                    }
+                    return updatedArray;
+                  })
+                }
                 iconUrl={obj?.iconIPFSUrl}
                 setImageIPFSUrl={(value) =>
                   setTeamList((prevState) => {

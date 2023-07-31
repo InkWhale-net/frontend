@@ -17,7 +17,7 @@ import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import { useEffect } from "react";
 
 const ProjectRoadmap = () => {
-  const { updateRoadmap } = useCreateLaunchpad();
+  const { updateRoadmap, current, launchpadData } = useCreateLaunchpad();
   const [projectRoadmap, setProjectRoadmap] = useState([
     {
       name: null,
@@ -47,6 +47,9 @@ const ProjectRoadmap = () => {
     updateRoadmap(projectRoadmap);
   }, [projectRoadmap]);
 
+  useEffect(() => {
+    if (current == 2 && launchpadData?.roadmap) setProjectRoadmap(launchpadData?.roadmap);
+  }, [current]);
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <Box w={{ base: "full" }}>

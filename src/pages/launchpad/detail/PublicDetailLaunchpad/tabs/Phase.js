@@ -304,8 +304,6 @@ const PhaseTag = ({ data }) => {
 const PhaseInformation = ({ launchpadContract, launchpadData }) => {
   const { phaseList } = launchpadData || {};
 
-  console.log(phaseList);
-
   return (
     <TabLayout>
       <div style={{}}></div>
@@ -315,9 +313,9 @@ const PhaseInformation = ({ launchpadContract, launchpadData }) => {
         size={"40px"}
         color="#93F0F5"
       /> */}
-      {phaseList?.map((phaseObj, index) => (
+      {/* {phaseList?.map((phaseObj, index) => (
         <PhaseTag key={`phase-${index}`} data={phaseObj} />
-      ))}
+      ))} */}
     </TabLayout>
   );
 };
