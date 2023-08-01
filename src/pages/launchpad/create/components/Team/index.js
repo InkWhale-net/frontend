@@ -49,7 +49,7 @@ const Team = () => {
         mb="16px"
         lineHeight={{ base: "1.25", lg: "30px" }}
       >
-        Add team member
+        Add team member 
       </Heading>
       {teamList.map((obj, index) => {
         return (
@@ -115,7 +115,7 @@ const Team = () => {
               )}
             </Box>
             <SimpleGrid columns={3} spacing={4}>
-              <SectionContainer title={"Name"}>
+              <SectionContainer title={"Name"} isRequiredLabel>
                 <IWInput
                   value={obj?.name}
                   onChange={({ target }) =>
@@ -133,7 +133,7 @@ const Team = () => {
                   placeholder="Name"
                 />
               </SectionContainer>
-              <SectionContainer title={"Title"}>
+              <SectionContainer title={"Title"} isRequiredLabel>
                 <IWInput
                   value={obj?.title}
                   onChange={({ target }) =>

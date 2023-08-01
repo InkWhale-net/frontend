@@ -17,7 +17,7 @@ import { ipfsClient } from "api/client";
 import { Buffer } from "buffer";
 import { BsImage } from "react-icons/bs";
 // import { APICall } from "../../api/client";
-
+import RequiredMark from "../../components/RequiredMark";
 const supportedFormat = ["image/png", "image/jpg", "image/jpeg", "image/gif"];
 
 const UploadImage = ({
@@ -119,12 +119,13 @@ const UploadImage = ({
     <VStack h="full" justifyContent="flex-start" alignItems="start">
       <Heading size="md" mb={{ base: "12px" }}>
         {label}
+        <RequiredMark ml="4px" isRequired />
       </Heading>
       <Box
         sx={{
           display: "flex",
-          flexDirection: direction == "vertical" ? "column" : "row",
-          alignItems: direction == "horizontal" ? "flex-end" : null,
+          flexDirection: direction === "vertical" ? "column" : "row",
+          alignItems: direction === "horizontal" ? "flex-end" : null,
         }}
       >
         <Box>
@@ -181,7 +182,7 @@ const UploadImage = ({
                 px={["16px", "32px"]}
                 height="40px"
                 mt={"4px"}
-                ml={direction == "horizontal" ? "4px" : null}
+                ml={direction === "horizontal" ? "4px" : null}
               >
                 {!imagePreviewUrl ? "Select image" : "Pick another"}
               </Button>
