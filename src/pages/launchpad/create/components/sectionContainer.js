@@ -1,6 +1,14 @@
+import RequiredMark from "components/RequiredMark";
+
 const { Box, Heading, Text } = require("@chakra-ui/react");
 
-const SectionContainer = ({ title, description, children, right }) => {
+const SectionContainer = ({
+  title,
+  description,
+  children,
+  right,
+  isRequiredLabel,
+}) => {
   return (
     <Box direction="column" w="full" mt={{ base: "16px" }}>
       <Box textAlign={{ base: "center", lg: "left" }}>
@@ -15,7 +23,7 @@ const SectionContainer = ({ title, description, children, right }) => {
             mb="16px"
             lineHeight={{ base: "1.25", lg: "30px" }}
           >
-            {title}
+            {title} <RequiredMark isRequired={isRequiredLabel} />
           </Heading>
           {right}
         </Box>

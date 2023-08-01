@@ -26,7 +26,7 @@ const ProjectInfor = () => {
         spacingY={{ base: "20px", lg: "32px" }}
         mb={{ base: "30px" }}
       >
-        <UploadImage
+        <UploadImage 
           label="Avatar Image"
           keyInput={`project-infor-1`}
           previewSize={{ width: "120px", height: "120px" }}
@@ -83,7 +83,7 @@ const ProjectInfor = () => {
         />
       </SimpleGrid>
       <Box w={{ base: "full" }}>
-        <SectionContainer title="Project Name">
+        <SectionContainer title="Project Name" isRequiredLabel>
           <IWInput
             value={projectInfor?.name}
             onChange={({ target }) =>
@@ -92,7 +92,7 @@ const ProjectInfor = () => {
             placeholder="Project Name"
           />
         </SectionContainer>
-        <SectionContainer title="Project Description">
+        <SectionContainer title="Project Description" isRequiredLabel>
           <IWTextArea
             value={projectInfor?.description}
             onChange={({ target }) =>
