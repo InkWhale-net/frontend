@@ -41,7 +41,7 @@ const TokenInformation = ({ launchpadContract, launchpadData }) => {
     };
   }, [launchpadContract, launchpadData]);
   return (
-    <TabLayout>
+    <TabLayout launchpadData={launchpadData}>
       {mainTableHeader.map((e, index) => {
         return (
           <Box key={`token-${index}`}>

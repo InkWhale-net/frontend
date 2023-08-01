@@ -16,10 +16,11 @@ const PublicDetailLaunchpad = () => {
     const foundNode = launchpads?.find(
       (e) => e?.launchpadContract == launchpadContract
     );
-    return {
-      ...foundNode,
-      phaseList: JSON.parse(foundNode?.phaseList),
-    };
+    if (foundNode)
+      return {
+        ...foundNode,
+        phaseList: JSON.parse(foundNode?.phaseList || {}),
+      };
   }, [launchpadContract, launchpads]);
   const { projectInfor, token } = launchpadData?.projectInfo || {};
 

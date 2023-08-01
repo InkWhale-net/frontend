@@ -77,7 +77,7 @@ const Phase = () => {
   }, [current]);
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <SectionContainer title={"Total supply"}>
+      <SectionContainer title={"Total For Sale"}>
         <IWInput
           value={totalSupply}
           onChange={({ target }) => setTotalSupply(target.value)}
@@ -123,7 +123,7 @@ const Phase = () => {
                   placeholder="Name"
                 />
               </SectionContainer>
-              <SectionContainer title={"Start Date & Time"}>
+              <SectionContainer title={"Start"}>
                 <Flex
                   h="52px"
                   borderWidth="1px"
@@ -155,7 +155,7 @@ const Phase = () => {
               </SectionContainer>
 
               <SectionContainer
-                title={"End Date & Time"}
+                title={"End"}
                 right={
                   phaseList?.length > 1 && (
                     <IconButton

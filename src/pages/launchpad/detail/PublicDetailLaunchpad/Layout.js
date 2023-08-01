@@ -1,7 +1,7 @@
 import { Box, Stack } from "@chakra-ui/react";
 import SaleCard from "./SaleCard";
 
-const TabLayout = ({ children }) => {
+const TabLayout = ({ children, ...rest }) => {
   return (
     <Stack
       w="full"
@@ -20,7 +20,7 @@ const TabLayout = ({ children }) => {
         minW={{ base: "full", md: "280px", xl: "370px" }}
         w={{ base: "full", lg: "30%" }}
       >
-        <SaleCard />
+        <SaleCard {...rest} />
         {/* <StatusCard /> */}
       </Box>
     </Stack>

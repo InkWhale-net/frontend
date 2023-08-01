@@ -48,7 +48,8 @@ const ProjectRoadmap = () => {
   }, [projectRoadmap]);
 
   useEffect(() => {
-    if (current == 2 && launchpadData?.roadmap) setProjectRoadmap(launchpadData?.roadmap);
+    if (current === 2 && launchpadData?.roadmap)
+      setProjectRoadmap(launchpadData?.roadmap);
   }, [current]);
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
@@ -76,6 +77,7 @@ const ProjectRoadmap = () => {
                 )
               }
               title={"Milestone Name"}
+              isRequiredLabel
             >
               <IWInput
                 value={obj?.name || ""}
@@ -94,7 +96,7 @@ const ProjectRoadmap = () => {
                 placeholder="Milestone Name"
               />
             </SectionContainer>
-            <SectionContainer title="Milestone Description">
+            <SectionContainer title="Milestone Description" isRequiredLabel>
               <IWTextArea
                 value={obj?.description || ""}
                 onChange={({ target }) => {
