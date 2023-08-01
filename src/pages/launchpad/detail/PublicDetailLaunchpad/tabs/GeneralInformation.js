@@ -57,7 +57,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
     };
   }, [launchpadContract, launchpadData]);
   return (
-    <TabLayout>
+    <TabLayout launchpadData={launchpadData}>
       <Heading size="lg">General</Heading>
       <Divider sx={{ marginBottom: "16px" }} />
       {mainTableHeader.map((e, index) => {
@@ -155,7 +155,11 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
               </Text>
               <Box sx={{ display: "flex" }}>
                 <Text sx={{ marginRight: "8px" }}>Social link:</Text>
-                <AddressCopier truncated={false} address={obj?.socialLink} />
+                {obj?.socialLink ? (
+                  <AddressCopier truncated={false} address={obj?.socialLink} />
+                ) : (
+                  "---"
+                )}
               </Box>
             </Box>
           </Box>
