@@ -11,6 +11,7 @@ import Countdown, { zeroPad } from "react-countdown";
 import { toast } from "react-hot-toast";
 import { useMutation, useQuery } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
+import { BeatLoader } from "react-spinners";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { roundUp } from "utils";
 import { delay } from "utils";
@@ -77,12 +78,26 @@ const SaleCount = ({ label, time, direction }) => {
   return (
     <Box>
       <Heading sx={{ textAlign: "center" }} size="md">
-        Sale end in
+        {label}
       </Heading>
       {time ? (
         <Countdown date={time} renderer={renderer} />
       ) : (
-        <Text sx={{ fontWeight: "bold", color: "#57527E" }}>00:00:00:00</Text>
+        <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
+          <Box
+            display="flex"
+            sx={{
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: "10px",
+            }}
+          >
+            <TimeBox value={"00"} />
+            <TimeBox value={"00"} />
+            <TimeBox value={"00"} />
+            <TimeBox value={"00"} isLast />
+          </Box>
+        </Text>
       )}
     </Box>
   );
@@ -94,8 +109,28 @@ const IWCountDown = ({ saleTime, launchpadData }) => {
     const livePhase = saleTime?.find((e) => {
       return now > e.startTime && now < e.endTime;
     });
+    const nearestPhase = saleTime?.reduce((acc, object) => {
+      if (!acc && object?.startTime > now) return object;
+      else {
+        if (acc?.startTime > object?.startTime && object?.startTime > now)
+          return object;
+        else return acc;
+      }
+    }, null);
     if (completed) {
-      return <SaleCount label="Sale ended!" />;
+      return (
+        <Box>
+          <SaleCount label="Sale ended" time={null} />
+          <Box sx={{ display: "flex", marginTop: "20px" }}>
+            <Text>Upcoming phase: </Text>
+            <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
+              {" "}
+              {nearestPhase?.name}
+            </Text>
+          </Box>
+          <SaleLayout launchpadData={launchpadData} livePhase={null} />
+        </Box>
+      );
     } else if (livePhase) {
       return (
         <Box>
@@ -107,37 +142,46 @@ const IWCountDown = ({ saleTime, launchpadData }) => {
               {livePhase?.name}
             </Text>
           </Box>
-          <SaleLayout launchpadData={launchpadData} livePhase={livePhase} />
+          <SaleLayout
+            launchpadData={launchpadData}
+            livePhase={livePhase}
+            allowBuy
+          />
         </Box>
       );
-    }
-    // else if (now < startDate) {
-    //   return (
-    //     <SaleCount
-    //       label="Sale start in"
-    //       time={startDate}
-    //       direction={direction}
-    //     />
-    //   );
-    // } else if (now >= startDate && now < endDate) {
-    //   return (
-    //     <SaleCount label="Sale end in" time={endDate} direction={direction} />
-    //   );
-    // }
-    else return null;
+    } else if (nearestPhase) {
+      return (
+        <Box>
+          <SaleCount label="Sale start in" time={nearestPhase?.startTime} />
+          <Box sx={{ display: "flex", marginTop: "20px" }}>
+            <Text>Upcoming phase: </Text>
+            <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
+              {" "}
+              {nearestPhase?.name}
+            </Text>
+          </Box>
+          <SaleLayout launchpadData={launchpadData} livePhase={nearestPhase} />
+        </Box>
+      );
+    } else return null;
   };
   const endTime = saleTime[saleTime?.length - 1]?.endTime;
   if (saleTime?.length > 0)
     return <Countdown date={endTime} renderer={renderer} />;
   else return null;
 };
-const SaleLayout = ({ launchpadData, livePhase }) => {
+const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { api } = useAppContext();
   const [amount, setAmount] = useState(null);
   const [tokenPrice, setTokenPrice] = useState(0);
   const [azeroBuyAmount, setAzeroBuyAmount] = useState(0);
   const [txRate, setTxRate] = useState(null);
+  const [publicSaleAmount, setPublicSale] = useState({
+    purchased: 0,
+    total: 0,
+  });
+
   const dispatch = useDispatch();
 
   const saleQuery = useQuery("query-public-sale", async () => {
@@ -157,43 +201,46 @@ const SaleLayout = ({ launchpadData, livePhase }) => {
         toast.error(toastMessages.NO_WALLET);
         return;
       }
-
+      if (
+        parseFloat(amount) + parseFloat(publicSaleAmount?.purchased) >
+        parseFloat(publicSaleAmount?.total)
+      ) {
+        toast.error(
+          `Current max public sale available is ${
+            publicSaleAmount?.total - publicSaleAmount?.purchased
+          }`
+        );
+        return;
+      }
       await execContractTx(
         currentAccount,
         api,
         launchpad.CONTRACT_ABI,
         launchpadData?.launchpadContract,
-        parseUnits(
-          (
-            tokenPrice *
-            formatNumToBN(
-              amount,
-              parseInt(launchpadData.projectInfo.token.decimals)
-            )
-          ).toString(),
-          12
-        ), //-> value
+        parseUnits(azeroBuyAmount.toString(), 12), //-> value
         "launchpadContractTrait::publicPurchase",
         livePhase?.id,
         formatNumToBN(
-          amount,
+          parseFloat(amount),
           parseInt(launchpadData.projectInfo.token.decimals)
         )
       );
-      // await delay(5000);
-      // saleQuery.refetch();
-      // toast.promise(
-      //   delay(1000).then(() => {
-      //     if (currentAccount) {
-      //       dispatch(fetchUserBalance({ currentAccount, api }));
-      //     }
-      //   }),
-      //   {
-      //     loading: "Fetching new data ... ",
-      //     success: "Done !",
-      //     error: "Could not fetch data!!!",
-      //   }
-      // );
+      await delay(2000);
+      setAmount(0);
+      setAzeroBuyAmount(0);
+      saleQuery.refetch();
+      toast.promise(
+        delay(1000).then(() => {
+          if (currentAccount) {
+            dispatch(fetchUserBalance({ currentAccount, api }));
+          }
+        }),
+        {
+          loading: "Fetching new data ... ",
+          success: "Done !",
+          error: "Could not fetch data!!!",
+        }
+      );
     } catch (error) {
       console.log(error);
     }
@@ -206,7 +253,7 @@ const SaleLayout = ({ launchpadData, livePhase }) => {
   }, "public_purchase");
   const getPublicSaleInfo = async () => {
     try {
-      const result = await execContractQuery(
+      const result0 = await execContractQuery(
         currentAccount?.address,
         "api",
         launchpad.CONTRACT_ABI,
@@ -215,18 +262,31 @@ const SaleLayout = ({ launchpadData, livePhase }) => {
         "launchpadContractTrait::getPublicSaleTotalAmount",
         livePhase?.id
       );
+      const publicSaleTotalAmount = result0.toHuman()?.Ok;
+      const result = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        launchpad.CONTRACT_ABI,
+        launchpadData?.launchpadContract,
+        0,
+        "launchpadContractTrait::getPublicSaleTotalPurchasedAmount",
+        livePhase?.id
+      );
       const publicSaleTotalBuyedAmount = result.toHuman()?.Ok;
-      console.log(publicSaleTotalBuyedAmount);
-      // const result = await execContractQuery(
-      //   currentAccount?.address,
-      //   "api",
-      //   launchpad.CONTRACT_ABI,
-      //   launchpadData?.launchpadContract,
-      //   0,
-      //   "launchpadContractTrait::getPublicSaleTotalPurchasedAmount",
-      //   livePhase?.id
-      // );
-      // const publicSaleTotalBuyedAmount = result.toHuman()?.Ok;
+      setPublicSale({
+        total: parseFloat(
+          formatTokenAmount(
+            publicSaleTotalAmount,
+            parseInt(launchpadData.projectInfo.token.decimals)
+          )
+        ),
+        purchased: parseFloat(
+          formatTokenAmount(
+            publicSaleTotalBuyedAmount,
+            parseInt(launchpadData.projectInfo.token.decimals)
+          )
+        ),
+      });
       const result1 = await execContractQuery(
         currentAccount?.address,
         "api",
@@ -253,26 +313,63 @@ const SaleLayout = ({ launchpadData, livePhase }) => {
     }
   };
 
+  const progressPublicSaleRatio = useMemo(
+    () =>
+      publicSaleAmount?.total != 0
+        ? roundUp(
+            ((publicSaleAmount?.purchased || 0) /
+              (publicSaleAmount?.total || 0)) *
+              100
+          )
+        : 0,
+    [publicSaleAmount]
+  );
+
   return (
     <>
       <Box sx={{ marginTop: "12px" }}>
-        <Heading size="md">Progress {`(00.00%)`}</Heading>
-        <Progress sx={{ marginTop: "4px" }} w="full" value={0} size="sm" />
+        <Heading size="md">Progress {`(${progressPublicSaleRatio}%)`}</Heading>
+        <Progress
+          sx={{ marginTop: "4px" }}
+          w="full"
+          value={progressPublicSaleRatio}
+          size="sm"
+        />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            paddingLeft: "2px",
+            paddingRight: "2px",
+          }}
+        >
+          <div>{publicSaleAmount?.purchased}</div>
+          <div>{publicSaleAmount?.total}</div>
+        </Box>
       </Box>
-      <Box sx={{ marginTop: "12px", marginBottom: "8px" }}>
+      <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
         <IWInput
+          isDisabled={!allowBuy}
           onChange={({ target }) => {
             setAmount(target.value);
-            setAzeroBuyAmount(roundUp(target.value * parseFloat(tokenPrice)));
+            setAzeroBuyAmount(
+              roundUp(
+                (target.value * parseFloat(tokenPrice) * (txRate + 100)) / 100,
+                4
+              )
+            );
           }}
           type="number"
           value={amount}
-          // label={`Amount (max)`}
+          label={`Amount (max ${
+            publicSaleAmount?.total - publicSaleAmount?.purchased
+          })`}
           placeholder="0"
           inputRightElementIcon={launchpadData?.projectInfo?.token?.symbol}
         />
       </Box>
       <IWInput
+        isDisabled={!allowBuy}
         onChange={({ target }) => {
           setAmount(target.value);
         }}
@@ -291,8 +388,11 @@ const SaleLayout = ({ launchpadData, livePhase }) => {
       <div style={{ fontSize: "14px" }}>Transaction fee is {txRate}%</div>
       <Box sx={{ display: "flex" }}>
         <Button
+          isLoading={publicBuyMutation.isLoading}
+          isDisabled={!allowBuy || !(parseFloat(amount) > 0)}
           sx={{ flex: 1, height: "40px", marginTop: "8px" }}
           onClick={() => publicBuyMutation.mutate()}
+          spinner={<BeatLoader size={8} color="white" />}
         >
           Public Buy
         </Button>
@@ -337,37 +437,6 @@ const SaleCard = ({ launchpadData }) => {
       {saleTime?.length > 0 && (
         <IWCountDown launchpadData={launchpadData} saleTime={saleTime} />
       )}
-      {/* <Heading sx={{ textAlign: "center" }} size="md">
-        Sale end in
-      </Heading> */}
-
-      {/* <Box sx={{ marginTop: "12px" }}>
-        <Heading size="md">Progress {`(00.00%)`}</Heading>
-        <Progress sx={{ marginTop: "4px" }} w="full" value={0} size="sm" />
-      </Box>
-      <Box sx={{ marginTop: "12px" }}>
-        <IWInput
-          onChange={({ target }) => {
-            // setSelectedContractAddr(target.value)
-          }}
-          value={"0.0"}
-          label={`Amount (max)`}
-        />
-      </Box>
-      <Box sx={{ display: "flex" }}>
-        <Button
-          sx={{ flex: 1, height: "40px", marginTop: "8px" }}
-          onClick={() => {}}
-        >
-          Public Buy
-        </Button>
-        <Button
-          sx={{ flex: 1, marginLeft: "8px", height: "40px", marginTop: "8px" }}
-          onClick={() => {}}
-        >
-          Whitelist Buy
-        </Button>
-      </Box> */}
     </Box>
   );
 };

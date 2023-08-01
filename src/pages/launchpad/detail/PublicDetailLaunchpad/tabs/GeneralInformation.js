@@ -64,8 +64,12 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
         return (
           <>
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <Text>{e?.label}</Text>
-              <Text>{formatDataCellTable(mainTabData, e?.header)}</Text>
+              <Text sx={{ flex: 1 }}>{e?.label}</Text>
+              <Box
+                sx={{ flex: 2, display: "flex", justifyContent: "flex-end" }}
+              >
+                <Text>{formatDataCellTable(mainTabData, e?.header)}</Text>
+              </Box>
             </Box>
             <Divider sx={{ marginBottom: "8px", marginTop: "8px" }} />
           </>
@@ -92,18 +96,22 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
                 justifyContent: "space-between",
               }}
             >
-              <Text>Name</Text>
-              <Heading size="md">{obj?.name}</Heading>
+              <Text sx={{ flex: 1 }}>Name</Text>
+              <Heading size="md" sx={{ flex: 2, textAlign: "right" }}>
+                {obj?.name}
+              </Heading>
             </div>
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
+                alignItems: "flex-start",
                 justifyContent: "space-between",
               }}
             >
-              <Text>Description</Text>
-              <Text>{obj?.description}</Text>
+              <Text sx={{ flex: 1 }}>Description</Text>
+              <Text sx={{ flex: 2, textAlign: "right" }}>
+                {obj?.description}
+              </Text>
             </div>
           </Box>
         );
