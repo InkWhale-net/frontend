@@ -116,7 +116,7 @@ const Launchpad = () => {
     >
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <Box>
-          Contract Owner: <AddressCopier address={currentAccount.address} />
+          Contract Owner: <AddressCopier address={currentAccount?.address} />
         </Box>
         <Box>
           Your Role <Heading size="md">Admin</Heading>

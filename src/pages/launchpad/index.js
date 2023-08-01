@@ -33,7 +33,7 @@ const Launchpad = () => {
             history.push("/create/launchpad");
             // await APICall.askBEupdate({
             //   type: "launchpad",
-            //   poolContract: "new",
+            //   poolContract: "5GLdjbjBATgVCdBgmw8zr4goZGSqxrTm8MacqKMXFkzFevY7",
             // });
           }}
         >
