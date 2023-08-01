@@ -133,11 +133,11 @@ export const verifyTeam = (launchpadData) => {
 
 export const processStringToArray = (input) => {
   try {
-    const lines = input.trim().split("\n");
+    const lines = input?.trim().split("\n");
     const result = [];
 
     lines.forEach((line) => {
-      const [address, amount, price] = line.trim().split(", ");
+      const [address, amount, price] = line?.trim().split(", ");
       result.push({ address, amount: Number(amount), price: Number(price) });
     });
 
