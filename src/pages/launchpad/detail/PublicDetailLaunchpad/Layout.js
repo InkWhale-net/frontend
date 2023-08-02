@@ -3,6 +3,7 @@ import SaleCard from "./SaleCard";
 import OwnerZoneCard from "./OwnerZoneCard";
 import { useSelector } from "react-redux";
 import { useMemo } from "react";
+import WhitelistSaleCard from "./WhitelistSaleCard";
 
 const TabLayout = ({ children, ...rest }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -33,6 +34,7 @@ const TabLayout = ({ children, ...rest }) => {
       >
         <SaleCard {...rest} />
         {/* <StatusCard /> */}
+        <WhitelistSaleCard {...rest} />
         {isLaunchpadOwner && <OwnerZoneCard {...rest} />}
       </Box>
     </Stack>

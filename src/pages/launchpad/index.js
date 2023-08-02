@@ -30,10 +30,10 @@ const Launchpad = () => {
       right={
         <Button
           onClick={async () => {
-            history.push("/create/launchpad");
+            history.push("/launchpad/create");
             // await APICall.askBEupdate({
             //   type: "launchpad",
-            //   poolContract: "5GLdjbjBATgVCdBgmw8zr4goZGSqxrTm8MacqKMXFkzFevY7",
+            //   poolContract: "new",
             // });
           }}
         >

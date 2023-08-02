@@ -112,9 +112,17 @@ export const APICall = {
       isToOnly,
     });
   },
-  getLaunchpad: async ({ keyword, status, sortBy, limit = 1000, offset = 0 }) => {
+  getLaunchpad: async ({
+    keyword,
+    isActive = 1,
+    status,
+    sortBy,
+    limit = 1000,
+    offset = 0,
+  }) => {
     return await client("POST", "/getLaunchpads", {
       keyword,
+      isActive,
       status,
       sortBy,
       limit,

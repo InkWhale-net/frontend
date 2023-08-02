@@ -39,8 +39,7 @@ const AllLaunchpads = ({}) => {
   );
 
   const queryLaunchpads = async () => {
-    let queryBody = {};
-    dispatch(fetchLaunchpads(queryBody));
+    dispatch(fetchLaunchpads({ isActive: 0 }));
   };
   useEffect(() => {
     if (currentAccount) queryLaunchpads();

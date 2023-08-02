@@ -29,7 +29,7 @@ import launchpad_generator from "utils/contracts/launchpad_generator";
 
 const Launchpad = () => {
   const { currentAccount } = useSelector((s) => s.wallet);
-  const { launchpads } = useSelector((s) => s.launchpad);
+  const [launchpads, setLaunchpads] = useState([]);
   const { api } = useAppContext();
   const dispatch = useDispatch();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -53,8 +53,15 @@ const Launchpad = () => {
   };
   const fetchLP = async () => {
     try {
-      let queryBody = {};
-      dispatch(fetchLaunchpads(queryBody));
+      const { ret, status, message } = await APICall.getLaunchpad({});
+      if (status === "OK") {
+        setLaunchpads(
+          ret?.dataArray.map((e) => ({
+            ...e,
+            projectInfo: JSON.parse(e?.projectInfo),
+          }))
+        );
+      }
     } catch (error) {
       console.log(error);
     }
@@ -82,7 +89,7 @@ const Launchpad = () => {
       });
       await toast.promise(
         delay(10000).then(() => {
-          if (currentAccount) fetchLP();
+          if (currentAccount) dispatch(fetchLaunchpads({ isActive: 0 }));
         }),
         {
           loading: "Please wait up to 10s for the data to be updated! ",
