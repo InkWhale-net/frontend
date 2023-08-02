@@ -112,7 +112,8 @@ export async function execContractTx(
   queryName,
   ...args
 ) {
-  console.log("execContractTx ", queryName);
+  // console.log("execContractTx queryName", queryName);
+  // console.log("execContractTx args", args);
 
   const azeroBalance = await getAzeroBalanceOfAddress({
     wsApi,
@@ -255,7 +256,7 @@ export async function execContractTxAndCallAPI(
             console.log("newContractAddress", newContractAddress);
           }
           if (method === "ExtrinsicSuccess" && status.type === "Finalized") {
-            await delay(3000)
+            await delay(3000);
             const res = await APIUpdate(newContractAddress);
             console.log(
               "method",

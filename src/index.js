@@ -161,7 +161,7 @@ const App = () => {
       dispatch(fetchUserBalance({ currentAccount, api }));
     }
     if (!currentAccount?.balance) {
-      dispatch(fetchLaunchpads({}));
+      dispatch(fetchLaunchpads({ isActive: 0 }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, currentAccount?.address]);
@@ -201,7 +201,7 @@ const App = () => {
           <Route exact path={`/create/nft-lp`} component={CreateNFTLPPage} />
           <Route
             exact
-            path={`/create/launchpad`}
+            path={`/launchpad/create`}
             component={CreateLaunchpadPage}
           />
           <Route exact path={`/launchpad`} component={Launchpad} />

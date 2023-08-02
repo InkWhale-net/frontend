@@ -117,11 +117,11 @@ const LaunchpadTag = ({ LaunchpadData }) => {
           <div>{`${projectInfo?.token?.name}(${projectInfo?.token?.symbol})`}</div>
         </div>
       </div>
-      <div style={{ marginBottom: "8px" }}>
+      {/* <div style={{ marginBottom: "8px" }}>
         <Heading size="h4">Progress {`(0.00%)`}</Heading>
         <Progress w="full" value={0} size="xs" />
-      </div>
-      <Divider />
+      </div> */}
+      <Divider sx={{ marginTop: "20px" }} />
       <div
         style={{
           display: "flex",

@@ -457,7 +457,7 @@ const CreateLaunchpadContextProvider = (props) => {
           await APICall.askBEupdate({ type: "launchpad", poolContract: "new" });
           toast.promise(
             delay(10000).then(() => {
-              dispatch(fetchLaunchpads({}));
+              dispatch(fetchLaunchpads({ isActive: 0 }));
               history.push("/launchpad");
               toast.success("good");
             }),

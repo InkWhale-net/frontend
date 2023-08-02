@@ -1,7 +1,19 @@
 import { Box, Stack } from "@chakra-ui/react";
 import SaleCard from "./SaleCard";
+import OwnerZoneCard from "./OwnerZoneCard";
+import { useSelector } from "react-redux";
+import { useMemo } from "react";
+import WhitelistSaleCard from "./WhitelistSaleCard";
 
 const TabLayout = ({ children, ...rest }) => {
+  const { currentAccount } = useSelector((s) => s.wallet);
+
+  const isLaunchpadOwner = useMemo(
+    () => currentAccount?.address === rest?.launchpadData?.owner,
+
+    [currentAccount?.address, rest?.launchpadData?.owner]
+  );
+
   return (
     <Stack
       w="full"
@@ -22,6 +34,8 @@ const TabLayout = ({ children, ...rest }) => {
       >
         <SaleCard {...rest} />
         {/* <StatusCard /> */}
+        <WhitelistSaleCard {...rest} />
+        {isLaunchpadOwner && <OwnerZoneCard {...rest} />}
       </Box>
     </Stack>
   );

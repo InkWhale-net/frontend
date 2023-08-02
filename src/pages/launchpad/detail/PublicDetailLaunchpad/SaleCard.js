@@ -184,12 +184,16 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
 
   const dispatch = useDispatch();
 
-  const saleQuery = useQuery("query-public-sale", async () => {
-    await new Promise(async (resolve) => {
-      await getPublicSaleInfo();
-      resolve();
-    });
-  });
+  const saleQuery = useQuery(
+    ["query-public-sale", currentAccount, launchpadData],
+    async () => {
+      if (currentAccount)
+        await new Promise(async (resolve) => {
+          await getPublicSaleInfo();
+          resolve();
+        });
+    }
+  );
   const purchasePublicHandler = async () => {
     try {
       if (!api) {
@@ -369,7 +373,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         />
       </Box>
       <IWInput
-        isDisabled={!allowBuy}
+        isDisabled
         onChange={({ target }) => {
           setAmount(target.value);
         }}
@@ -394,7 +398,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
           onClick={() => publicBuyMutation.mutate()}
           spinner={<BeatLoader size={8} color="white" />}
         >
-          Public Buy
+          Public Purchase
         </Button>
         {/* <Button
           sx={{
