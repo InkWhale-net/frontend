@@ -202,6 +202,11 @@ export default function VerifyToken() {
           </Box>
           <Button onClick={() => history.push("/create/token")}>Create</Button>
         </Box>
+        {!(tokenList?.length > 0) && (
+          <Text sx={{ textAlign: "center", marginTop: "20px" }}>
+            No owned token. You need to Create or Import first
+          </Text>
+        )}
 
         {isFetching && (
           <CircularProgress
