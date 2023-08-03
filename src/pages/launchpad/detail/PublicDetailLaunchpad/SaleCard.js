@@ -20,7 +20,10 @@ import { formatTokenAmount } from "utils";
 import { execContractTx } from "utils/contracts";
 import { execContractQuery } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
-
+const headerSX = {
+  fontWeight: "700",
+  color: "#57527E",
+};
 const TimeBox = ({ value, isLast = false }) => {
   return (
     <Box display="flex" alignItems="center">
@@ -123,7 +126,7 @@ const IWCountDown = ({ saleTime, launchpadData }) => {
           <SaleCount label="Sale ended" time={null} />
           <Box sx={{ display: "flex", marginTop: "20px" }}>
             <Text>Upcoming phase: </Text>
-            <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
+            <Text sx={{ fontWeight: "700", color: "#57527E" }}>
               {" "}
               {nearestPhase?.name}
             </Text>
@@ -137,7 +140,7 @@ const IWCountDown = ({ saleTime, launchpadData }) => {
           <SaleCount label="Sale end in" time={livePhase?.endTime} />
           <Box sx={{ display: "flex", marginTop: "20px" }}>
             <Text>Active phase: </Text>
-            <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
+            <Text sx={{ fontWeight: "600", color: "#57527E" }}>
               {" "}
               {livePhase?.name}
             </Text>
@@ -332,7 +335,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
   return (
     <>
       <Box sx={{ marginTop: "12px" }}>
-        <Heading size="md">Progress {`(${progressPublicSaleRatio}%)`}</Heading>
+        <Text sx={headerSX}>Progress {`(${progressPublicSaleRatio}%)`}</Text>
         <Progress
           sx={{ marginTop: "4px" }}
           w="full"
@@ -352,6 +355,9 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         </Box>
       </Box>
       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
+        <Text sx={headerSX}>{`Amount (max ${
+          publicSaleAmount?.total - publicSaleAmount?.purchased
+        })`}</Text>
         <IWInput
           isDisabled={!allowBuy}
           onChange={({ target }) => {
@@ -365,9 +371,6 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
           }}
           type="number"
           value={amount}
-          label={`Amount (max ${
-            publicSaleAmount?.total - publicSaleAmount?.purchased
-          })`}
           placeholder="0"
           inputRightElementIcon={launchpadData?.projectInfo?.token?.symbol}
         />
@@ -433,8 +436,8 @@ const SaleCard = ({ launchpadData }) => {
         border: "2.8px solid #93F0F5",
         borderRadius: "8px",
         paddingTop: "16px",
-        paddingLeft: "8px",
-        paddingRight: "8px",
+        paddingLeft: "20px",
+        paddingRight: "20px",
         paddingBottom: "12px",
       }}
     >
