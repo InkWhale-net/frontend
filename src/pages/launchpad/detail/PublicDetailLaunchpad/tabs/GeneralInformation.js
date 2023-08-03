@@ -1,14 +1,4 @@
-import {
-  Box,
-  Circle,
-  Divider,
-  Heading,
-  Image,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
-import SaleCard from "../SaleCard";
-import StatusCard from "../StatusCard";
+import { Box, Circle, Divider, Heading, Image, Text } from "@chakra-ui/react";
 import { formatDataCellTable } from "components/table/IWPaginationTable";
 import { useMemo } from "react";
 import { roundUp } from "utils";
@@ -55,7 +45,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
       ),
       presaleEndTime: format(projectInfor?.endTime, "MMMM Do YYYY, h:mm:ss a"),
     };
-  }, [launchpadContract, launchpadData]);
+  }, [launchpadContract, projectInfor?.description, projectInfor?.endTime, projectInfor?.startTime, token?.symbol, totalSupply]);
   return (
     <TabLayout launchpadData={launchpadData}>
       <Heading size="lg">General</Heading>
@@ -63,7 +53,11 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
       {mainTableHeader.map((e, index) => {
         return (
           <>
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between" }}
+              flexDirection={["column", "row"]}
+              alignItems={["start"]}
+            >
               <Text sx={{ flex: 1 }}>{e?.label}</Text>
               <Box
                 sx={{ flex: 2, display: "flex", justifyContent: "flex-end" }}
@@ -86,33 +80,29 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
       <Divider sx={{ marginBottom: "16px" }} />
       {roadmap?.map((obj, index) => {
         return (
-          <Box sx={{ paddingTop: index != 0 ? "20px" : 0 }}>
+          <Box sx={{ paddingTop: index !== 0 ? "20px" : 0 }}>
             <Heading size="md">Milestone {index + 1}</Heading>
             <Divider />
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
+            <Box
+              display="flex"
+              flexDirection={["column", "row"]}
+              alignItems={["start", "center"]}
             >
               <Text sx={{ flex: 1 }}>Name</Text>
-              <Heading size="md" sx={{ flex: 2, textAlign: "right" }}>
+              <Text size="md" sx={{ flex: 2, textAlign: "right" }}>
                 {obj?.name}
-              </Heading>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                justifyContent: "space-between",
-              }}
+              </Text>
+            </Box>
+            <Box
+              display="flex"
+              flexDirection={["column", "row"]}
+              alignItems={["start", "center"]}
             >
               <Text sx={{ flex: 1 }}>Description</Text>
               <Text sx={{ flex: 2, textAlign: "right" }}>
                 {obj?.description}
               </Text>
-            </div>
+            </Box>
           </Box>
         );
       })}

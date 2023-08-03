@@ -11,23 +11,23 @@ const TokenInformation = ({ launchpadContract, launchpadData }) => {
   const { token } = launchpadData?.projectInfo || {};
   const mainTableHeader = [
     {
-      label: "Token Name",
+      label: "Name",
       header: "tokenName",
     },
     {
-      label: "Token Symbol",
+      label: "Symbol",
       header: "tokenSymbol",
     },
     {
-      label: "Token Decimal",
+      label: "Decimal",
       header: "tokenDecimal",
     },
     {
-      label: "Token Address",
+      label: "Address",
       header: "tokenContract",
     },
     {
-      label: "Token total supply",
+      label: "Total supply",
       header: "totalSupply",
     },
   ];
@@ -39,7 +39,7 @@ const TokenInformation = ({ launchpadContract, launchpadData }) => {
       tokenContract: token?.tokenAddress,
       totalSupply: roundUp(token?.totalSupply?.replaceAll(",", "")),
     };
-  }, [launchpadContract, launchpadData]);
+  }, [token?.decimals, token?.name, token?.symbol, token?.tokenAddress, token?.totalSupply]);
   return (
     <TabLayout launchpadData={launchpadData}>
       {mainTableHeader.map((e, index) => {
