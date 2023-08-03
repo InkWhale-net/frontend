@@ -75,6 +75,47 @@ const Phase = () => {
         setTotalSupply(launchpadData?.totalSupply);
     }
   }, [current]);
+
+  const onChangeImmediateReleaseRate = (value, index) => {
+    setPhaseList((prevState) => {
+      const updatedArray = [...prevState];
+      if (index >= 0 && index < updatedArray.length) {
+        updatedArray[index] = {
+          ...updatedArray[index],
+          immediateReleaseRate: value,
+        };
+      }
+      return updatedArray;
+    });
+    if (parseFloat(value) == 100) {
+      onChangeVestingDuration(0, index);
+      onChangeVestingReleasePeriod(0, index);
+    }
+  };
+  const onChangeVestingDuration = (value, index) => {
+    setPhaseList((prevState) => {
+      const updatedArray = [...prevState];
+      if (index >= 0 && index < updatedArray.length) {
+        updatedArray[index] = {
+          ...updatedArray[index],
+          vestingLength: value,
+        };
+      }
+      return updatedArray;
+    });
+  };
+  const onChangeVestingReleasePeriod = (value, index) => {
+    setPhaseList((prevState) => {
+      const updatedArray = [...prevState];
+      if (index >= 0 && index < updatedArray.length) {
+        updatedArray[index] = {
+          ...updatedArray[index],
+          vestingUnit: value,
+        };
+      }
+      return updatedArray;
+    });
+  };
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <SectionContainer title={"Total For Sale"}>
@@ -226,16 +267,7 @@ const Phase = () => {
                   type="number"
                   value={obj?.immediateReleaseRate}
                   onChange={({ target }) =>
-                    setPhaseList((prevState) => {
-                      const updatedArray = [...prevState];
-                      if (index >= 0 && index < updatedArray.length) {
-                        updatedArray[index] = {
-                          ...updatedArray[index],
-                          immediateReleaseRate: target.value,
-                        };
-                      }
-                      return updatedArray;
-                    })
+                    onChangeImmediateReleaseRate(target.value, index)
                   }
                   placeholder="0.00"
                 />
@@ -255,21 +287,20 @@ const Phase = () => {
               >
                 <IWInput
                   inputRightElementIcon={
-                    <a style={{ pointerEvents: "none" }}>{`day(s)`}</a>
+                    <Tooltip
+                      fontSize="md"
+                      label={
+                        "The vesting duration refers to the length of time over which a vesting schedule is applied"
+                      }
+                    >
+                      <b>day(s)</b>
+                    </Tooltip>
                   }
+                  isDisabled={parseFloat(obj?.immediateReleaseRate) == 100}
                   type="number"
                   value={obj?.vestingLength}
                   onChange={({ target }) =>
-                    setPhaseList((prevState) => {
-                      const updatedArray = [...prevState];
-                      if (index >= 0 && index < updatedArray.length) {
-                        updatedArray[index] = {
-                          ...updatedArray[index],
-                          vestingLength: target.value,
-                        };
-                      }
-                      return updatedArray;
-                    })
+                    onChangeVestingDuration(target.value, index)
                   }
                   placeholder="0"
                 />
@@ -286,19 +317,11 @@ const Phase = () => {
                       <b>day(s)</b>
                     </Tooltip>
                   }
+                  isDisabled={parseFloat(obj?.immediateReleaseRate) == 100}
                   type="number"
                   value={obj?.vestingUnit}
                   onChange={({ target }) =>
-                    setPhaseList((prevState) => {
-                      const updatedArray = [...prevState];
-                      if (index >= 0 && index < updatedArray.length) {
-                        updatedArray[index] = {
-                          ...updatedArray[index],
-                          vestingUnit: target.value,
-                        };
-                      }
-                      return updatedArray;
-                    })
+                    onChangeVestingReleasePeriod(target.value, index)
                   }
                   placeholder="0"
                 />

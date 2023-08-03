@@ -34,8 +34,6 @@ export const launchpadsSlice = createSlice({
 export const fetchLaunchpads = createAsyncThunk(
   "launchpad/fetchLaunchpads",
   async (params, thunkAPI) => {
-    let data = [];
-
     const { ret, status, message } = await APICall.getLaunchpad(params);
 
     if (status === "OK") {

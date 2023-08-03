@@ -6,6 +6,13 @@ import CreateLaunchpadContextProvider, {
 } from "./CreateLaunchpadContext";
 import styles from "./style.module.scss";
 import { useEffect, useMemo } from "react";
+import { useState } from "react";
+import { useSelector } from "react-redux";
+import { execContractQuery } from "utils/contracts";
+import { useAppContext } from "contexts/AppContext";
+import launchpad_generator from "utils/contracts/launchpad_generator";
+import { formatTokenAmount } from "utils";
+import { formatNumDynDecimal } from "utils";
 
 function CreateLaunchpadLayout() {
   const {
@@ -16,6 +23,26 @@ function CreateLaunchpadLayout() {
     isNextButtonActive,
     handleAddNewLaunchpad,
   } = useCreateLaunchpad();
+  const [createFee, setCreateFee] = useState(null);
+  const { currentAccount } = useSelector((s) => s.wallet);
+  const { api } = useAppContext();
+
+  const getCreateFee = async () => {
+    const result = await execContractQuery(
+      currentAccount?.address,
+      api,
+      launchpad_generator.CONTRACT_ABI,
+      launchpad_generator.CONTRACT_ADDRESS,
+      0,
+      "launchpadGeneratorTrait::getCreationFee"
+    );
+    const fee = result.toHuman().Ok;
+    setCreateFee(formatNumDynDecimal(formatTokenAmount(fee, 12)));
+  };
+
+  useEffect(() => {
+    if (currentAccount) getCreateFee();
+  }, [currentAccount, api]);
 
   return (
     <SectionContainer
@@ -23,8 +50,8 @@ function CreateLaunchpadLayout() {
       title="Lauchpad"
       description={
         <>
-          The premier destination to launch your NFT Collection on Aleph Zero
-          Network.
+          The premier destination to launch your PSP22 token on Aleph Zero
+          Network. This action requires {createFee} INW.
         </>
       }
     >

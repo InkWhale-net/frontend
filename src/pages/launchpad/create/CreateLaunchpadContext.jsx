@@ -34,6 +34,7 @@ import VerifyToken from "./components/VerifyToken";
 import {
   processStringToArray,
   validatePhase,
+  validatePhaseData,
   validateProjectInfor,
   validateRoadmap,
   validateTeam,
@@ -65,27 +66,27 @@ const CreateLaunchpadContextProvider = (props) => {
   const [itemStep, setItemStep] = useState([
     {
       title: "Verify Token",
-      description: "Enter the token address and verify",
+      description: "Fill the token address you want to fundraise",
       content: <VerifyToken />,
     },
     {
       title: "Project Info",
-      description: "Enter the project information ",
+      description: "What your project is about?",
       content: <ProjectInfor />,
     },
     {
       title: "Project Roadmap",
-      description: "Enter the project roadmap",
+      description: "Provide high-level goals and deliverables on your project's timeline",
       content: <ProjectRoadmap />,
     },
     {
       title: "Team",
-      description: "Enter the project phase",
+      description: "What are your team members?",
       content: <Team />,
     },
     {
       title: "Phase",
-      description: "Phase information",
+      description: "Create phases with price & other details",
       content: <Phase />,
     },
     // {
@@ -321,6 +322,8 @@ const CreateLaunchpadContextProvider = (props) => {
       if (!currentAccount) {
         return toast.error("Please connect wallet first!");
       }
+      if (!validatePhaseData(launchpadData?.phase, launchpadData?.totalSupply))
+        return;
       // ADD MODE CHECKING
       // if (!values.isEditMode) {
       //   // check Total Mint Amount của Phase vs total Supply (FE)

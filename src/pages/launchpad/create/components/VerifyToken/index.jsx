@@ -200,7 +200,7 @@ export default function VerifyToken() {
               }))}
             />
           </Box>
-          <Button onClick={() => history.push("/create/token")}>Create</Button>
+          <Button onClick={() => history.push("/create/token")}>Create & Import</Button>
         </Box>
         {!(tokenList?.length > 0) && (
           <Text sx={{ textAlign: "center", marginTop: "20px" }}>
