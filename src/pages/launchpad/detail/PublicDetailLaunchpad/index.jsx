@@ -26,7 +26,7 @@ const PublicDetailLaunchpad = () => {
 
   const tabsData = [
     {
-      label: <>General Information</>,
+      label: <>General</>,
       component: (
         <GeneralInformation
           launchpadContract={launchpadContract}
@@ -37,7 +37,7 @@ const PublicDetailLaunchpad = () => {
     },
 
     {
-      label: <>Phase Information</>,
+      label: <>Phase</>,
       component: (
         <PhaseInformation
           launchpadContract={launchpadContract}
@@ -47,7 +47,7 @@ const PublicDetailLaunchpad = () => {
       isDisabled: false,
     },
     {
-      label: <>Token Information</>,
+      label: <>Token</>,
       component: (
         <TokenInformation
           launchpadContract={launchpadContract}

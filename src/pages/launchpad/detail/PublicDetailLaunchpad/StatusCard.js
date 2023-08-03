@@ -40,11 +40,11 @@ const StatusCard = ({ launchpadData }) => {
   const [publicBalance, setPublicBalance] = useState([]);
   // const {whitelist, setWhitelist}
   const dispatch = useDispatch();
-  const phases = launchpadData.phaseList;
+  const phases = launchpadData?.phaseList;
   const getBalance = async () => {
     try {
       const publicBuyerList = await Promise.all(
-        phases.map(async (e, index) => {
+        phases?.map(async (e, index) => {
           const query = await execContractQuery(
             currentAccount?.address,
             api,
@@ -176,34 +176,33 @@ const StatusCard = ({ launchpadData }) => {
         Public balance
       </Heading>
 
-      {phases.map((e, index) => {
+      {phases?.map((e, index) => {
         const publicBuyer = publicBalance.find((e) => e?.phaseID == index);
-        if (publicBuyer)
-          return (
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
-              <Heading size="md" sx={{ marginBottom: "4px" }}>
-                {e?.name}
-              </Heading>
-              <Divider sx={{ marginBottom: "8px" }} />
-              <Row
-                sx={{ marginTop: "100px" }}
-                label="Public purchased"
-                value={publicBuyer?.purchasedAmount}
-              />
-              <Row label="Claimed" value={publicBuyer?.claimedAmount} />
-              <Button
-                my="8px"
-                w="full"
-                height="40px"
-                variant="outline"
-                onClick={() =>
-                  publicClaimHandler({ ...e, phaseID: publicBuyer?.phaseID })
-                }
-              >
-                Claim
-              </Button>
-            </Box>
-          );
+        return (
+          <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Heading size="md" sx={{ marginBottom: "4px" }}>
+              {e?.name}
+            </Heading>
+            <Divider sx={{ marginBottom: "8px" }} />
+            <Row
+              sx={{ marginTop: "100px" }}
+              label="Public purchased"
+              value={publicBuyer?.purchasedAmount || 0}
+            />
+            <Row label="Claimed" value={publicBuyer?.claimedAmount || 0} />
+            <Button
+              my="8px"
+              w="full"
+              height="40px"
+              variant="outline"
+              onClick={() =>
+                publicClaimHandler({ ...e, phaseID: publicBuyer?.phaseID })
+              }
+            >
+              Claim
+            </Button>
+          </Box>
+        );
       })}
     </Box>
   );

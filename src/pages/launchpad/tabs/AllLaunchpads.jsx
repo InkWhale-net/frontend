@@ -48,7 +48,7 @@ const AllLaunchpads = ({}) => {
   return (
     <div>
       <Box sx={{ display: "flex" }}>
-        <IWInput
+        {/* <IWInput
           value={queries?.keyword}
           width={{ base: "full" }}
           onChange={
@@ -57,11 +57,11 @@ const AllLaunchpads = ({}) => {
           }
           placeholder="Search with From/To"
           inputRightElementIcon={<SearchIcon color="#57527E" />}
-        />
+        /> */}
         <Box
           sx={{ display: "flex", alignItems: "center", paddingLeft: "12px" }}
         >
-          <Text sx={{ whiteSpace: "nowrap" }}>Filter by:</Text>
+          {/*  <Text sx={{ whiteSpace: "nowrap" }}>Filter by:</Text>
           <Select
             variant="flushed"
             sx={{ border: "none", fontWeight: "bold" }}
@@ -78,7 +78,7 @@ const AllLaunchpads = ({}) => {
               <option value={index}>{label}</option>
             ))}
           </Select>
-          {/* <Text sx={{ whiteSpace: "nowrap" }}>Sort by:</Text>
+          <Text sx={{ whiteSpace: "nowrap" }}>Sort by:</Text>
           <Select
             variant="flushed"
             sx={{ border: "none", fontWeight: "bold" }}
