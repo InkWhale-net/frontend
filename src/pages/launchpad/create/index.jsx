@@ -13,6 +13,7 @@ import { useAppContext } from "contexts/AppContext";
 import launchpad_generator from "utils/contracts/launchpad_generator";
 import { formatTokenAmount } from "utils";
 import { formatNumDynDecimal } from "utils";
+import { isMobile } from "react-device-detect";
 
 function CreateLaunchpadLayout() {
   const {
@@ -58,6 +59,7 @@ function CreateLaunchpadLayout() {
       <Box w={"full"}>
         <div className={styles.step_block}>
           <Steps
+            direction={isMobile ? "vertical" : "horizontal"}
             className={styles.step_create}
             current={current}
             items={itemStep}

@@ -26,7 +26,7 @@ const ProjectInfor = () => {
         spacingY={{ base: "20px", lg: "32px" }}
         mb={{ base: "30px" }}
       >
-        <UploadImage 
+        <UploadImage
           label="Avatar Image"
           keyInput={`project-infor-1`}
           previewSize={{ width: "120px", height: "120px" }}
@@ -101,7 +101,7 @@ const ProjectInfor = () => {
             placeholder="Project Description"
           />
         </SectionContainer>
-        <SimpleGrid columns={2} spacing={4}>
+        <SimpleGrid columns={[1, 2]} spacing={4}>
           <SectionContainer title="Website">
             <IWInput
               value={projectInfor?.website}
