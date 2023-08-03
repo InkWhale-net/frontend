@@ -76,7 +76,8 @@ const CreateLaunchpadContextProvider = (props) => {
     },
     {
       title: "Project Roadmap",
-      description: "Provide high-level goals and deliverables on your project's timeline",
+      description:
+        "Provide high-level goals and deliverables on your project's timeline",
       content: <ProjectRoadmap />,
     },
     {
@@ -210,100 +211,106 @@ const CreateLaunchpadContextProvider = (props) => {
       //   "launchpadContractTrait::getTotalPhase"
       // );
       // const totalPhase = phaseQuery.toHuman()?.Ok;
-      const whitelist = launchpadData?.phase?.map((e) =>
-        processStringToArray(e?.whiteList)
-      );
-
-      // DO batch add whitelist
-      let addWhitelistTxAll;
-      const value = 0;
-      const launchpadContract = new ContractPromise(
-        api,
-        launchpad.CONTRACT_ABI,
-        launchpadContractAddress
-      );
-      const { signer } = await web3FromSource(currentAccount?.meta?.source);
-      const gasLimit = await getEstimatedGasBatchTx(
-        currentAccount?.address,
-        launchpadContract,
-        value,
-        "launchpadContractTrait::addMultiWhitelists",
-        0,
-        whitelist[0].map((e) => e?.address),
-        whitelist[0].map((e) =>
-          parseUnits(
-            e?.amount.toString(),
-            parseInt(launchpadData?.token.decimals)
-          )
-        ),
-        whitelist[0].map((e) => parseUnits(e?.price.toString(), 12))
-      );
-      await Promise.all(
-        whitelist.map(async (info, index) => {
-          const ret = launchpadContract.tx[
-            "launchpadContractTrait::addMultiWhitelists"
-          ](
-            { gasLimit, value },
-            index,
-            info.map((e) => e?.address),
-            info.map((e) =>
-              parseUnits(
-                e?.amount?.toString(),
-                parseInt(launchpadData?.token.decimals)
-              )
-            ),
-            info.map((e) => parseUnits(e?.price?.toString(), 12))
-          );
-
-          return ret;
+      const whitelist = launchpadData?.phase
+        ?.map((e) => {
+          if (e?.whitelist) return processStringToArray(e?.whiteList);
         })
-      ).then((res) => (addWhitelistTxAll = res));
-
-      await api.tx.utility
-        .batch(addWhitelistTxAll)
-        .signAndSend(
+        .filter((e) => e);
+      if (whitelist?.length > 0) {
+        // DO batch add whitelist
+        let addWhitelistTxAll;
+        const value = 0;
+        const launchpadContract = new ContractPromise(
+          api,
+          launchpad.CONTRACT_ABI,
+          launchpadContractAddress
+        );
+        const { signer } = await web3FromSource(currentAccount?.meta?.source);
+        const gasLimit = await getEstimatedGasBatchTx(
           currentAccount?.address,
-          { signer },
-          async ({ events, status, dispatchError }) => {
-            if (status?.isFinalized) {
-              let totalSuccessTxCount = null;
+          launchpadContract,
+          value,
+          "launchpadContractTrait::addMultiWhitelists",
+          0,
+          whitelist[0].map((e) => e?.address),
+          whitelist[0].map((e) =>
+            parseUnits(
+              e?.amount.toString(),
+              parseInt(launchpadData?.token.decimals)
+            )
+          ),
+          whitelist[0].map((e) => parseUnits(e?.price.toString(), 12))
+        );
+        await Promise.all(
+          whitelist.map(async (info, index) => {
+            const ret = launchpadContract.tx[
+              "launchpadContractTrait::addMultiWhitelists"
+            ](
+              { gasLimit, value },
+              index,
+              info.map((e) => e?.address),
+              info.map((e) =>
+                parseUnits(
+                  e?.amount?.toString(),
+                  parseInt(launchpadData?.token.decimals)
+                )
+              ),
+              info.map((e) => parseUnits(e?.price?.toString(), 12))
+            );
 
-              events.forEach(
-                async ({
-                  event,
-                  event: { data, method, section, ...rest },
-                }) => {
-                  if (api.events.utility?.BatchInterrupted.is(event)) {
-                    totalSuccessTxCount = data[0]?.toString();
+            return ret;
+          })
+        ).then((res) => (addWhitelistTxAll = res));
+
+        await api.tx.utility
+          .batch(addWhitelistTxAll)
+          .signAndSend(
+            currentAccount?.address,
+            { signer },
+            async ({ events, status, dispatchError }) => {
+              if (status?.isFinalized) {
+                let totalSuccessTxCount = null;
+
+                events.forEach(
+                  async ({
+                    event,
+                    event: { data, method, section, ...rest },
+                  }) => {
+                    if (api.events.utility?.BatchInterrupted.is(event)) {
+                      totalSuccessTxCount = data[0]?.toString();
+                    }
+
+                    if (api.events.utility?.BatchCompleted.is(event)) {
+                      toast.success(
+                        whitelist?.length === 1
+                          ? "Added whitelist successfully"
+                          : "All whitelist have been Added successfully"
+                      );
+                    }
                   }
-
-                  if (api.events.utility?.BatchCompleted.is(event)) {
-                    toast.success(
-                      whitelist?.length === 1
-                        ? "Added whitelist successfully"
-                        : "All whitelist have been Added successfully"
-                    );
-                  }
-                }
-              );
-
-              // eslint-disable-next-line no-extra-boolean-cast
-              if (!!totalSuccessTxCount) {
-                toast.error(
-                  whitelist?.length === 1
-                    ? "Adding whitelist not successfully!                "
-                    : `Bulk adding are not fully successful! ${totalSuccessTxCount} adding completed successfully.`
                 );
+
+                // eslint-disable-next-line no-extra-boolean-cast
+                if (!!totalSuccessTxCount) {
+                  toast.error(
+                    whitelist?.length === 1
+                      ? "Adding whitelist not successfully!                "
+                      : `Bulk adding are not fully successful! ${totalSuccessTxCount} adding completed successfully.`
+                  );
+                }
+                // updateData();
               }
-              // updateData();
             }
-          }
-        )
-        .then((unsub) => resolve(unsub))
-        .catch((error) => {
-          toast.error("The staking fail", error?.message);
-          reject(error);
-        });
+          )
+          .then((unsub) => resolve(unsub))
+          .catch((error) => {
+            toast.error("The staking fail", error?.message);
+            reject(error);
+          });
+      } else {
+        toast.success("No whitelist found");
+        resolve();
+      }
     });
   };
 
@@ -411,7 +418,6 @@ const CreateLaunchpadContextProvider = (props) => {
         allowanceTokenQr,
         launchpadData?.token?.decimals
       ).replaceAll(",", "");
-
       //Approve
       if (allowanceINW < createTokenFee.replaceAll(",", "")) {
         toast.success(`Approving INW token...`);
@@ -427,7 +433,7 @@ const CreateLaunchpadContextProvider = (props) => {
         );
         if (!approve) return;
       }
-      if (allowanceToken < minReward.replaceAll(",", "")) {
+      if (allowanceToken < minReward.toString().replaceAll(",", "")) {
         toast.success(`${launchpadData?.token?.symbol} token...`);
         let approve = await execContractTx(
           currentAccount,
@@ -496,12 +502,12 @@ const CreateLaunchpadContextProvider = (props) => {
                 e?.phasePublicAmount.toString(),
                 parseInt(launchpadData?.token.decimals)
               )
-            : "";
+            : null;
         }),
         launchpadData?.phase?.map((e) => {
           return e?.allowPublicSale
             ? parseUnits(e?.phasePublicPrice.toString(), 12)
-            : "";
+            : null;
         })
       );
     } catch (error) {
