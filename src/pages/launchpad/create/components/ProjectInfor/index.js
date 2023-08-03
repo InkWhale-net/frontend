@@ -85,15 +85,17 @@ const ProjectInfor = () => {
       <Box w={{ base: "full" }}>
         <SectionContainer title="Project Name" isRequiredLabel>
           <IWInput
+            maxLength={60}
             value={projectInfor?.name}
-            onChange={({ target }) =>
-              setProjectInfor({ ...projectInfor, name: target.value })
-            }
+            onChange={({ target }) => {
+              setProjectInfor({ ...projectInfor, name: target.value });
+            }}
             placeholder="Project Name"
           />
         </SectionContainer>
         <SectionContainer title="Project Description" isRequiredLabel>
           <IWTextArea
+            maxLength={300}
             value={projectInfor?.description}
             onChange={({ target }) =>
               setProjectInfor({ ...projectInfor, description: target.value })

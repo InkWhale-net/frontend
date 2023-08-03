@@ -41,7 +41,7 @@ export const IWStatusWithCountDown = ({ startDate, endDate, direction }) => {
   const renderer = ({ completed }) => {
     const now = Date.now();
     if (completed) {
-      return <SaleCount label="Sale ended!" direction={direction} />;
+      return <SaleCount label="Ended" direction={direction} />;
     } else if (now < startDate) {
       return (
         <SaleCount

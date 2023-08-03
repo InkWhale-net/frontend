@@ -1,20 +1,10 @@
-import {
-  Box,
-  Button,
-  Flex,
-  IconButton,
-  SimpleGrid,
-  Text,
-} from "@chakra-ui/react";
-import SectionContainer from "../sectionContainer";
-import { useState } from "react";
+import { Box, Button, IconButton } from "@chakra-ui/react";
 import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
-import DateTimePicker from "react-datetime-picker";
-import FlatContainer from "./FlatContainer";
+import { useEffect, useState } from "react";
 import { BsTrashFill } from "react-icons/bs";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
-import { useEffect } from "react";
+import SectionContainer from "../sectionContainer";
 
 const ProjectRoadmap = () => {
   const { updateRoadmap, current, launchpadData } = useCreateLaunchpad();
@@ -80,6 +70,7 @@ const ProjectRoadmap = () => {
               isRequiredLabel
             >
               <IWInput
+                maxLength={60}
                 value={obj?.name || ""}
                 onChange={({ target }) => {
                   setProjectRoadmap((prevState) => {
@@ -98,6 +89,7 @@ const ProjectRoadmap = () => {
             </SectionContainer>
             <SectionContainer title="Milestone Description" isRequiredLabel>
               <IWTextArea
+                maxLength={150}
                 value={obj?.description || ""}
                 onChange={({ target }) => {
                   setProjectRoadmap((prevState) => {
