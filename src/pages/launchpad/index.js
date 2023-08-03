@@ -3,7 +3,7 @@ import SectionContainer from "components/container/SectionContainer";
 import IWTabs from "components/tabs/IWTabs";
 import { useHistory } from "react-router-dom";
 import AllLaunchpads from "./tabs/AllLaunchpads";
-import { APICall } from "api/client";
+import { isMobile } from "react-device-detect";
 
 const Launchpad = () => {
   const history = useHistory();
@@ -28,6 +28,22 @@ const Launchpad = () => {
     <SectionContainer
       title="Current Presales"
       right={
+        isMobile ? null : (
+          <Button
+            onClick={async () => {
+              history.push("/launchpad/create");
+              // await APICall.askBEupdate({
+              //   type: "launchpad",
+              //   poolContract: "new",
+              // });
+            }}
+          >
+            Create
+          </Button>
+        )
+      }
+    >
+      {isMobile ? (
         <Button
           onClick={async () => {
             history.push("/launchpad/create");
@@ -39,8 +55,7 @@ const Launchpad = () => {
         >
           Create
         </Button>
-      }
-    >
+      ) : null}
       <IWTabs tabsData={tabsData} />
     </SectionContainer>
   );

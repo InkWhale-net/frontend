@@ -41,7 +41,7 @@ function SectionContainer({
       {title && (
         <Box
           display={{ base: "flex" }}
-          justifyContent={{ base: "space-between" }}
+          justifyContent={{ base: "center", lg: "space-between" }}
           textAlign={{ base: "center", lg: "left" }}
         >
           <Heading
