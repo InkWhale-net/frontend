@@ -45,6 +45,8 @@ import {
   verifyWhitelist,
 } from "./utils";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import { formatTokenAmount } from "utils";
+import { formatNumDynDecimal } from "utils";
 
 export const CreateLaunchpadContext = createContext();
 
@@ -321,10 +323,37 @@ const CreateLaunchpadContextProvider = (props) => {
         0
       );
       if (
-        !validateTotalSupply(launchpadData?.phase, launchpadData?.totalSupply)
+        !(launchpadData?.phase?.length > 0) ||
+        !validateTotalSupply(
+          launchpadData?.phase,
+          parseFloat(launchpadData?.totalSupply),
+          parseFloat(launchpadData.token.balance.replaceAll(",", ""))
+        )
       )
         return;
+      const result = await execContractQuery(
+        currentAccount?.address,
+        api,
+        launchpad_generator.CONTRACT_ABI,
+        launchpad_generator.CONTRACT_ADDRESS,
+        0,
+        "launchpadGeneratorTrait::getCreationFee"
+      );
+      const fee = result.toHuman().Ok;
 
+      if (
+        !(
+          parseFloat(currentAccount.balance.inw.replaceAll(",", "")) >
+          parseFloat(formatTokenAmount(fee, 12))
+        )
+      ) {
+        toast.error(
+          `Your INW balance must higher than ${formatNumDynDecimal(
+            formatTokenAmount(fee, 12)
+          )}`
+        );
+        return;
+      }
       // check wallet connect?
       if (!currentAccount) {
         return toast.error("Please connect wallet first!");
