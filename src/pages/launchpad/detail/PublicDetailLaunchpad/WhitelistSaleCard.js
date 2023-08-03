@@ -192,142 +192,161 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
   };
 
   return (
-    <Box>
-      {saleTime?.map((obj, index) => {
-        const buyerInformation = obj?.whitelist?.find(
-          (e) => e?.account == currentAccount?.address
-        );
-        const allowBuy = index == livePhase?.id;
-        const wlTokenPrice = parseFloat(
-          formatTokenAmount(buyerInformation?.price, 12)
-        );
-        const wlMaxAmount = parseFloat(
-          formatTokenAmount(
-            buyerInformation?.amount,
-            parseInt(launchpadData.projectInfo.token.decimals)
-          )
-        );
-        const wlPurchasedAmount = parseFloat(
-          formatTokenAmount(buyerInformation?.purchasedAmount, 12)
-        );
-        if (allowBuy)
-          return (
-            <>
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                BUY PHASES
-                <Heading
-                  key={index}
-                  size="md"
-                  sx={{
-                    marginTop: index > 0 && "16px",
-                    // color: !allowBuy ? "#D7D5E5" : null,
-                  }}
-                >
-                  {`${obj?.name}${`${!allowBuy ? "(Not available yet)" : ""}`}`}
-                </Heading>
-              </Box>
+    <Box
+      sx={{
+        marginTop: "12px",
+        border: "2.8px solid #E3DFF3",
+        borderRadius: "8px",
+        paddingTop: "16px",
+        paddingLeft: "8px",
+        paddingRight: "8px",
+        paddingBottom: "12px",
+      }}
+    >
+      <Heading as="h4" size="md">
+        You are in whitelist
+      </Heading>
 
-              <Divider />
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: "10px",
-                }}
-              >
-                Price
-                <Heading size="md">
-                  {wlTokenPrice}
-                  <AzeroLogo fontSize="14px" />
-                </Heading>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: "10px",
-                }}
-              >
-                Max amount
-                <Heading size="md">{wlMaxAmount}</Heading>
-              </Box>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: "10px",
-                }}
-              >
-                Purchased
-                <Heading size="md">{wlPurchasedAmount}</Heading>
-              </Box>
-              {allowBuy && (
-                <>
-                  <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
-                    <IWInput
-                      onChange={({ target }) => {
-                        setAmount(target.value);
-                        setAzeroBuyAmount(
-                          roundUp(
-                            (parseFloat(target.value) *
-                              wlTokenPrice *
-                              (txRate + 100)) /
-                              100,
-                            4
-                          )
-                        );
-                      }}
-                      type="number"
-                      value={amount}
-                      label={`Amount (max ${wlMaxAmount - wlPurchasedAmount})`}
-                      placeholder="0"
-                      inputRightElementIcon={
-                        launchpadData?.projectInfo?.token?.symbol
-                      }
-                    />
-                  </Box>
-                  <IWInput
-                    isDisabled
-                    onChange={({ target }) => {
-                      setAmount(target.value);
-                    }}
-                    type="number"
-                    value={azeroBuyAmount}
-                    // label={`Amount (max)`}
-                    placeholder="0"
-                    inputRightElementIcon={<AzeroLogo />}
-                  />
-                  <div
-                    style={{
-                      fontSize: "14px",
-                      display: "flex",
-                      alignItems: "center",
+      <Box sx={{ mt: "20px" }}>
+        {saleTime?.map((obj, index) => {
+          const buyerInformation = obj?.whitelist?.find(
+            (e) => e?.account == currentAccount?.address
+          );
+          const allowBuy = index == livePhase?.id;
+          const wlTokenPrice = parseFloat(
+            formatTokenAmount(buyerInformation?.price, 12)
+          );
+          const wlMaxAmount = parseFloat(
+            formatTokenAmount(
+              buyerInformation?.amount,
+              parseInt(launchpadData.projectInfo.token.decimals)
+            )
+          );
+          const wlPurchasedAmount = parseFloat(
+            formatTokenAmount(buyerInformation?.purchasedAmount, 12)
+          );
+          if (allowBuy)
+            return (
+              <>
+                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  BUY PHASES
+                  <Heading
+                    key={index}
+                    size="md"
+                    sx={{
+                      marginTop: index > 0 && "16px",
+                      // color: !allowBuy ? "#D7D5E5" : null,
                     }}
                   >
-                    Token price: {wlTokenPrice}
-                    <div style={{ marginLeft: "4px" }}>
-                      <AzeroLogo />
-                    </div>
-                  </div>
-                  <div style={{ fontSize: "14px" }}>
-                    Transaction fee is {txRate}%
-                  </div>
-                  <Box sx={{ display: "flex" }}>
-                    <Button
-                      isLoading={publicBuyMutation.isLoading}
-                      isDisabled={!allowBuy || !(parseFloat(amount) > 0)}
-                      sx={{ flex: 1, height: "40px", marginTop: "8px" }}
-                      onClick={() =>
-                        publicBuyMutation.mutate(
+                    {`${obj?.name}${`${
+                      !allowBuy ? "(Not available yet)" : ""
+                    }`}`}
+                  </Heading>
+                </Box>
+
+                <Divider />
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginTop: "10px",
+                  }}
+                >
+                  Price
+                  <Heading size="md">
+                    {wlTokenPrice}
+                    <AzeroLogo fontSize="14px" />
+                  </Heading>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginTop: "10px",
+                  }}
+                >
+                  Max amount
+                  <Heading size="md">{wlMaxAmount}</Heading>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginTop: "10px",
+                  }}
+                >
+                  Purchased
+                  <Heading size="md">{wlPurchasedAmount}</Heading>
+                </Box>
+                {allowBuy && (
+                  <>
+                    <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
+                      <IWInput
+                        onChange={({ target }) => {
+                          setAmount(target.value);
+                          setAzeroBuyAmount(
+                            roundUp(
+                              (parseFloat(target.value) *
+                                wlTokenPrice *
+                                (txRate + 100)) /
+                                100,
+                              4
+                            )
+                          );
+                        }}
+                        type="number"
+                        value={amount}
+                        label={`Amount (max ${
                           wlMaxAmount - wlPurchasedAmount
-                        )
-                      }
-                      spinner={<BeatLoader size={8} color="white" />}
+                        })`}
+                        placeholder="0"
+                        inputRightElementIcon={
+                          launchpadData?.projectInfo?.token?.symbol
+                        }
+                      />
+                    </Box>
+                    <IWInput
+                      isDisabled
+                      onChange={({ target }) => {
+                        setAmount(target.value);
+                      }}
+                      type="number"
+                      value={azeroBuyAmount}
+                      // label={`Amount (max)`}
+                      placeholder="0"
+                      inputRightElementIcon={<AzeroLogo />}
+                    />
+                    <div
+                      style={{
+                        fontSize: "14px",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
                     >
-                      Whitelist Purchase
-                    </Button>
-                    {/* <Button
+                      Token price: {wlTokenPrice}
+                      <div style={{ marginLeft: "4px" }}>
+                        <AzeroLogo />
+                      </div>
+                    </div>
+                    <div style={{ fontSize: "14px" }}>
+                      Transaction fee is {txRate}%
+                    </div>
+                    <Box sx={{ display: "flex" }}>
+                      <Button
+                        isLoading={publicBuyMutation.isLoading}
+                        isDisabled={!allowBuy || !(parseFloat(amount) > 0)}
+                        sx={{ flex: 1, height: "40px", marginTop: "8px" }}
+                        onClick={() =>
+                          publicBuyMutation.mutate(
+                            wlMaxAmount - wlPurchasedAmount
+                          )
+                        }
+                        spinner={<BeatLoader size={8} color="white" />}
+                      >
+                        Whitelist Purchase
+                      </Button>
+                      {/* <Button
             sx={{
               flex: 1,
               marginLeft: "8px",
@@ -338,12 +357,13 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
           >
             Whitelist Buy
           </Button> */}
-                  </Box>
-                </>
-              )}
-            </>
-          );
-      })}
+                    </Box>
+                  </>
+                )}
+              </>
+            );
+        })}
+      </Box>
     </Box>
   );
 };
@@ -373,27 +393,7 @@ const WhitelistSaleCard = ({ launchpadData }) => {
     [containerPhases]
   );
   if (!(containerPhases?.length > 0)) return null;
-  return (
-    <Box
-      sx={{
-        marginTop: "12px",
-        border: "2.8px solid #E3DFF3",
-        borderRadius: "8px",
-        paddingTop: "16px",
-        paddingLeft: "8px",
-        paddingRight: "8px",
-        paddingBottom: "12px",
-      }}
-    >
-      <Heading as="h4" size="md">
-        You are in whitelist
-      </Heading>
-
-      <Box sx={{ mt: "20px" }}>
-        <IWCountDown launchpadData={launchpadData} saleTime={saleTime} />
-      </Box>
-    </Box>
-  );
+  return <IWCountDown launchpadData={launchpadData} saleTime={saleTime} />;
 };
 
 export default WhitelistSaleCard;
