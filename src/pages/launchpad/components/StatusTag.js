@@ -44,7 +44,7 @@ export const LiveStatusTag = () => {
       }}
     >
       <BsDot size={"20px"} color="#9CDE85" />
-      Sale Live
+      On-going
     </div>
   );
 };
@@ -67,7 +67,7 @@ export const EndStatusTag = () => {
       }}
     >
       <BsDot size={"20px"} color="#FF9595" />
-      Sale Ended
+      Ended
     </div>
   );
 };

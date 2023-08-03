@@ -58,12 +58,22 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
       description: projectInfor?.description,
       totalSupply: roundUp(totalSupply?.replaceAll(",", "")),
       presaleStartTime: format(
-        projectInfor?.startTime,
+        parseInt(launchpadData?.startTime?.replace(/,/g, "")),
         "MMMM Do YYYY, h:mm:ss a"
       ),
-      presaleEndTime: format(projectInfor?.endTime, "MMMM Do YYYY, h:mm:ss a"),
+      presaleEndTime: format(
+        parseInt(launchpadData?.endTime?.replace(/,/g, "")),
+        "MMMM Do YYYY, h:mm:ss a"
+      ),
     };
-  }, [launchpadContract, projectInfor?.description, projectInfor?.endTime, projectInfor?.startTime, token?.symbol, totalSupply]);
+  }, [
+    launchpadContract,
+    projectInfor?.description,
+    projectInfor?.endTime,
+    projectInfor?.startTime,
+    token?.symbol,
+    totalSupply,
+  ]);
   return (
     <TabLayout launchpadData={launchpadData}>
       <Heading size="lg">General</Heading>

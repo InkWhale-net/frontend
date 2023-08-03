@@ -72,8 +72,8 @@ const PhaseTag = ({ data, sx, isOwner }) => {
           endDate={new Date(tagData?.endTime)}
           label={{
             upcoming: "Upcoming",
-            live: "Sale live",
-            end: "Sale ended",
+            live: "On-going",
+            end: "Ended",
           }}
         />
       </Box>

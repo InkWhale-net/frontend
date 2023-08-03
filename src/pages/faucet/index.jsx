@@ -637,7 +637,7 @@ export default function FaucetPage({ api }) {
                       </Text>{" "}
                     </>
                   ) : (
-                    <>Sale Ended!</>
+                    <>Ended</>
                   )
                 ) : (
                   ""
@@ -794,7 +794,7 @@ export default function FaucetPage({ api }) {
                       </Text>{" "}
                     </>
                   ) : (
-                    <>Sale Ended!</>
+                    <>Ended</>
                   )
                 ) : (
                   ""

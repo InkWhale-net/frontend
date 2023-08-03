@@ -123,7 +123,7 @@ const IWCountDown = ({ saleTime, launchpadData }) => {
     if (completed) {
       return (
         <Box>
-          <SaleCount label="Sale ended" time={null} />
+          <SaleCount label="Ended" time={null} />
           <Box sx={{ display: "flex", marginTop: "20px" }}>
             <Text>Upcoming phase: </Text>
             <Text sx={{ fontWeight: "700", color: "#57527E" }}>
