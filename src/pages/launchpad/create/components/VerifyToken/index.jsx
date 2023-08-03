@@ -181,7 +181,11 @@ export default function VerifyToken() {
         <Heading as="h4" size="h4" mb="12px">
           Token Address
         </Heading>
-        <Box w="full" display={{ base: "flex" }}>
+        <Box
+          w="full"
+          display={{ base: "flex" }}
+          flexDirection={["column-reverse", "row"]}
+        >
           <Box sx={{ flex: 1, paddingRight: "8px" }}>
             <SelectSearch
               name="token"
@@ -200,7 +204,12 @@ export default function VerifyToken() {
               }))}
             />
           </Box>
-          <Button onClick={() => history.push("/create/token")}>Create & Import</Button>
+          <Button
+            onClick={() => history.push("/create/token")}
+            mb={["16px", "0px"]}
+          >
+            Create & Import
+          </Button>
         </Box>
         {!(tokenList?.length > 0) && (
           <Text sx={{ textAlign: "center", marginTop: "20px" }}>

@@ -49,7 +49,7 @@ const Team = () => {
         mb="16px"
         lineHeight={{ base: "1.25", lg: "30px" }}
       >
-        Add team member 
+        Add team member
       </Heading>
       {teamList.map((obj, index) => {
         return (
@@ -69,7 +69,7 @@ const Team = () => {
             >
               <UploadImage
                 // isDisabled={!!!tokenInfo}
-                direction="horizontal"
+                // direction="horizontal"
                 label="Upload member avatar"
                 keyInput={`team-member-avatar-${index}`}
                 previewSize={{ width: "120px", height: "120px" }}
@@ -114,7 +114,7 @@ const Team = () => {
                 />
               )}
             </Box>
-            <SimpleGrid columns={3} spacing={4}>
+            <SimpleGrid columns={[1, 3]} spacing={4}>
               <SectionContainer title={"Name"} isRequiredLabel>
                 <IWInput
                   value={obj?.name}

@@ -145,7 +145,7 @@ const Phase = () => {
             mt="16px"
             key={`phase-${index}`}
           >
-            <SimpleGrid columns={3} spacing={4}>
+            <SimpleGrid columns={[1, 3]} spacing={4}>
               <SectionContainer title={"Name"}>
                 <IWInput
                   value={obj?.name}
@@ -248,10 +248,10 @@ const Phase = () => {
             >
               Vesting Plan
             </Heading>
-            <SimpleGrid columns={3} spacing={4}>
+            <SimpleGrid columns={[1, 3]} spacing={4}>
               <SectionContainer
                 title={
-                  <a>
+                  <>
                     Immediate Release Rate
                     <Tooltip
                       fontSize="md"
@@ -259,7 +259,7 @@ const Phase = () => {
                     >
                       <QuestionOutlineIcon ml="6px" color="text.2" />
                     </Tooltip>
-                  </a>
+                  </>
                 }
               >
                 <IWInput
@@ -274,7 +274,7 @@ const Phase = () => {
               </SectionContainer>
               <SectionContainer
                 title={
-                  <a>
+                  <>
                     Vesting Duration
                     <Tooltip
                       fontSize="md"
@@ -282,7 +282,7 @@ const Phase = () => {
                     >
                       <QuestionOutlineIcon ml="6px" color="text.2" />
                     </Tooltip>
-                  </a>
+                  </>
                 }
               >
                 <IWInput
@@ -296,7 +296,7 @@ const Phase = () => {
                       <b>day(s)</b>
                     </Tooltip>
                   }
-                  isDisabled={parseFloat(obj?.immediateReleaseRate) == 100}
+                  isDisabled={parseFloat(obj?.immediateReleaseRate) === 100}
                   type="number"
                   value={obj?.vestingLength}
                   onChange={({ target }) =>
@@ -317,7 +317,7 @@ const Phase = () => {
                       <b>day(s)</b>
                     </Tooltip>
                   }
-                  isDisabled={parseFloat(obj?.immediateReleaseRate) == 100}
+                  isDisabled={parseFloat(obj?.immediateReleaseRate) === 100}
                   type="number"
                   value={obj?.vestingUnit}
                   onChange={({ target }) =>
@@ -356,7 +356,7 @@ const Phase = () => {
               </Box>
             </SimpleGrid>
             {obj?.allowPublicSale && (
-              <SimpleGrid columns={3} spacing={4}>
+              <SimpleGrid columns={[1, 3]} spacing={4}>
                 <SectionContainer title={"Public Amount"}>
                   <IWInput
                     type="number"
@@ -402,7 +402,7 @@ const Phase = () => {
             <Divider sx={{ marginTop: "8px" }} />
             <SectionContainer
               title={
-                <a>
+                <>
                   White list
                   <Tooltip
                     fontSize="md"
@@ -411,7 +411,7 @@ const Phase = () => {
                   >
                     <QuestionOutlineIcon ml="6px" color="text.2" />
                   </Tooltip>
-                </a>
+                </>
               }
             >
               <IWTextArea
