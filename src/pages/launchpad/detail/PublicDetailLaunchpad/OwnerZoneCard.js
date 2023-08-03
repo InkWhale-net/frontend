@@ -50,7 +50,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
     }
 
     toast.success(`Withdrawing ${ownerBalance.toFixed(4)} AZERO...`);
-    
+
     await execContractTxAndCallAPI(
       currentAccount,
       "api",
@@ -77,7 +77,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
       }}
     >
       <Heading as="h4" size="md">
-        OwnerZoneCard
+        Owner Zone
       </Heading>
       <Box my="16px">
         <Text>Balance: {ownerBalance.toFixed(4)} AZERO</Text>

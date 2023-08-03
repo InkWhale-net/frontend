@@ -59,7 +59,7 @@ const PublicDetailLaunchpad = () => {
   ];
   return (
     <SectionContainer mt={{ base: "0px", xl: "20px" }} right={<div></div>}>
-      <Box sx={{ display: "flex" }}>
+      <Box sx={{ display: "flex", paddingBottom: "32px" }}>
         <Circle w="80px" h="80px" bg="white">
           <Image
             sx={{
@@ -73,7 +73,7 @@ const PublicDetailLaunchpad = () => {
             alt="logo-launchpad"
           />
         </Circle>
-        <Box sx={{ marginLeft: "8px" }}>
+        <Box sx={{ marginLeft: "16px" }}>
           <Heading>{projectInfor?.name}</Heading>
           <Box sx={{ display: "flex" }}>
             <Image
@@ -83,6 +83,7 @@ const PublicDetailLaunchpad = () => {
                 borderRadius: "80px",
                 objectFit: "cover",
                 objectPosition: "center",
+                marginRight: '8px'
               }}
               src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${token?.tokenIconUrl}`}
               alt="logo-launchpad"

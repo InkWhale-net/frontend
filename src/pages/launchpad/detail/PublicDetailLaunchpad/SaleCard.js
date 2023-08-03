@@ -438,7 +438,7 @@ const SaleCard = ({ launchpadData }) => {
         paddingTop: "16px",
         paddingLeft: "20px",
         paddingRight: "20px",
-        paddingBottom: "12px",
+        paddingBottom: "16px",
       }}
     >
       {saleTime?.length > 0 && (
