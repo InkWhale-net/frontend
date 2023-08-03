@@ -16,6 +16,24 @@ import { format } from "utils/datetime";
 import TabLayout from "../Layout";
 import AddressCopier from "components/address-copier/AddressCopier";
 
+const LabelField = ({ label, value, divider = true }) => {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginTop: "8px",
+      }}
+    >
+      <Text sx={{ flex: 1 }}>{label}</Text>
+      <Heading size="md" sx={{ flex: 2, textAlign: "right" }}>
+        {value}
+      </Heading>
+    </div>
+  );
+};
+
 const GeneralInformation = ({ launchpadContract, launchpadData }) => {
   const avatarSize = "120px";
   const { phase, projectInfor, roadmap, team, token, totalSupply } =
@@ -56,6 +74,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
       presaleEndTime: format(projectInfor?.endTime, "MMMM Do YYYY, h:mm:ss a"),
     };
   }, [launchpadContract, launchpadData]);
+
   return (
     <TabLayout launchpadData={launchpadData}>
       <Heading size="lg">General</Heading>
@@ -83,7 +102,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
       >
         Roadmaps
       </Heading>
-      <Divider sx={{ marginBottom: "16px" }} />
+      <Divider sx={{ marginBottom: "20px" }} />
       {roadmap?.map((obj, index) => {
         return (
           <Box sx={{ paddingTop: index != 0 ? "20px" : 0 }}>
@@ -94,6 +113,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
+                marginTop: "8px",
               }}
             >
               <Text sx={{ flex: 1 }}>Name</Text>
@@ -106,6 +126,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
                 display: "flex",
                 alignItems: "flex-start",
                 justifyContent: "space-between",
+                marginTop: "8px",
               }}
             >
               <Text sx={{ flex: 1 }}>Description</Text>

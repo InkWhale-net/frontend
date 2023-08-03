@@ -308,7 +308,7 @@ const CreateLaunchpadContextProvider = (props) => {
             reject(error);
           });
       } else {
-        toast.success("No whitelist found");
+        toast("No whitelist found");
         resolve();
       }
     });
@@ -420,7 +420,7 @@ const CreateLaunchpadContextProvider = (props) => {
       ).replaceAll(",", "");
       //Approve
       if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-        toast.success(`Approving INW token...`);
+        toast(`Approving INW token...`);
         let approve = await execContractTx(
           currentAccount,
           "api",
@@ -434,7 +434,7 @@ const CreateLaunchpadContextProvider = (props) => {
         if (!approve) return;
       }
       if (allowanceToken < minReward.toString().replaceAll(",", "")) {
-        toast.success(`${launchpadData?.token?.symbol} token...`);
+        toast(`${launchpadData?.token?.symbol} token...`);
         let approve = await execContractTx(
           currentAccount,
           "api",
@@ -448,7 +448,9 @@ const CreateLaunchpadContextProvider = (props) => {
         if (!approve) return;
       }
       await delay(3000);
-      toast.success(`Process creating...`);
+      toast.loading(`Process creating...`, {
+        duration: 4000,
+      });
 
       await execContractTxAndCallAPI(
         currentAccount,
@@ -458,7 +460,7 @@ const CreateLaunchpadContextProvider = (props) => {
         0, //-> value
         "newLaunchpad",
         async (newContractAddress) => {
-          toast.success("Please wait for adding whitelist...");
+          toast("Please wait for adding whitelist...");
           await delay(100);
           await new Promise(async (resolve) => {
             resolve(bulkAddingWhitelist(newContractAddress));
@@ -468,7 +470,6 @@ const CreateLaunchpadContextProvider = (props) => {
             delay(10000).then(() => {
               dispatch(fetchLaunchpads({ isActive: 0 }));
               history.push("/launchpad");
-              toast.success("good");
             }),
             {
               loading: "Please wait up to 10s for the data to be updated! ",
