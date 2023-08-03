@@ -97,7 +97,14 @@ const AllLaunchpads = ({}) => {
           </Select> */}
         </Box>
       </Box>
-      <SimpleGrid columns={3} spacing={4} sx={{ marginTop: "8px" }}>
+      <SimpleGrid
+        columns={{
+          base: 1,
+          lg: 3,
+        }}
+        spacing={4}
+        sx={{ marginTop: "8px" }}
+      >
         {launchpads?.map((obj, index) => {
           return (
             <LaunchpadTag LaunchpadData={obj} key={`launchpad-tag-${index}`} />
