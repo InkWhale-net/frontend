@@ -1,59 +1,62 @@
-import React, { useEffect, useState } from "react";
-import ReactDOM from "react-dom";
+import { ChakraProvider } from "@chakra-ui/react";
+import { ApiPromise, WsProvider } from "@polkadot/api";
 import "assets/css/App.css";
-import "react-datetime-picker/dist/DateTimePicker.css";
+import { toastMessages } from "constants";
+import DefaultLayout from "layouts/default";
+import "rc-steps/assets/index.css";
+import React, { useEffect, useState } from "react";
 import "react-calendar/dist/Calendar.css";
 import "react-clock/dist/Clock.css";
-import "rc-steps/assets/index.css";
-import { HashRouter, Redirect, Route, Switch } from "react-router-dom";
-import DefaultLayout from "layouts/default";
-import { ChakraProvider } from "@chakra-ui/react";
-import theme from "theme/theme";
-import { toast, Toaster } from "react-hot-toast";
+import "react-datetime-picker/dist/DateTimePicker.css";
+import ReactDOM from "react-dom";
+import { Toaster, toast } from "react-hot-toast";
 import {
   Provider as ReduxProvider,
   useDispatch,
   useSelector,
 } from "react-redux";
-import store from "./redux/store";
-import { ApiPromise, WsProvider } from "@polkadot/api";
+import { HashRouter, Redirect, Route, Switch } from "react-router-dom";
+import theme from "theme/theme";
 import { formatChainStringToNumber } from "utils";
-import { toastMessages } from "constants";
+import store from "./redux/store";
 
-import FaucetPage from "pages/faucet";
-import PoolsPage from "pages/pools";
-import PoolDetailPage from "pages/pools/detail";
-import FarmsPage from "pages/farms";
-import FarmDetailPage from "pages/farms/detail";
-import TokensPage from "pages/tokens";
-import CreateTokenPage from "pages/create/token";
-import CreateStakePoolPage from "pages/create/stake-pool";
-import MyBalancePage from "pages/account/my-balance";
-import TokensTransactionPage from "pages/tokens/transactions";
+import { web3Enable } from "@polkadot/extension-dapp";
 import jsonrpc from "@polkadot/types/interfaces/jsonrpc";
-import { fetchUserBalance } from "redux/slices/walletSlice";
-import { initialApi } from "utils/contracts";
-import CreateNFTLPPage from "pages/create/nft-lp-pool";
-import CreateTokenLPPage from "pages/create/token-lp-pool";
+import { AppContextProvider, useAppContext } from "contexts/AppContext";
+import MyBalancePage from "pages/account/my-balance";
 import MyPoolsPage from "pages/account/my-pools";
 import MyPoolDetailPage from "pages/account/my-pools/detail";
-import { delay } from "utils";
-import { fetchMyStakingPools } from "redux/slices/myPoolsSlice";
-import { fetchMyTokenPools } from "redux/slices/myPoolsSlice";
-import { fetchMyNFTPools } from "redux/slices/myPoolsSlice";
-import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
-import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
-import { fetchAllNFTPools } from "redux/slices/allPoolsSlice";
-import { fetchAllTokenPools } from "redux/slices/allPoolsSlice";
-import { web3Enable } from "@polkadot/extension-dapp";
 import AdminPage from "pages/admin";
-import CreateLaunchpadPage from "pages/launchpad/create";
-import { AppContextProvider } from "contexts/AppContext";
-import { useAppContext } from "contexts/AppContext";
-import { QueryClient, QueryClientProvider } from "react-query";
+import CreateNFTLPPage from "pages/create/nft-lp-pool";
+import CreateStakePoolPage from "pages/create/stake-pool";
+import CreateTokenPage from "pages/create/token";
+import CreateTokenLPPage from "pages/create/token-lp-pool";
+import FarmsPage from "pages/farms";
+import FarmDetailPage from "pages/farms/detail";
+import FaucetPage from "pages/faucet";
 import Launchpad from "pages/launchpad";
+import CreateLaunchpadPage from "pages/launchpad/create";
 import PublicDetailLaunchpad from "pages/launchpad/detail/PublicDetailLaunchpad";
+import PoolsPage from "pages/pools";
+import PoolDetailPage from "pages/pools/detail";
+import TokensPage from "pages/tokens";
+import TokensTransactionPage from "pages/tokens/transactions";
+import { QueryClient, QueryClientProvider } from "react-query";
+import {
+  fetchAllNFTPools,
+  fetchAllStakingPools,
+  fetchAllTokenPools,
+  fetchAllTokensList,
+} from "redux/slices/allPoolsSlice";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import {
+  fetchMyNFTPools,
+  fetchMyStakingPools,
+  fetchMyTokenPools,
+} from "redux/slices/myPoolsSlice";
+import { fetchUserBalance } from "redux/slices/walletSlice";
+import { delay } from "utils";
+import { initialApi } from "utils/contracts";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -72,11 +75,8 @@ const App = () => {
     allTokenPoolsList,
   } = useSelector((s) => s.allPools);
   const { setCurrentApi } = useAppContext();
-
+  const { launchpads } = useSelector((s) => s.launchpad);
   const [api, setApi] = useState(null);
-  // const [, setLastChainBlock] = useState(null);
-  // const [, setLastBlockParent] = useState(null);
-
   const uiColorMode = localStorage.getItem("chakra-ui-color-mode");
 
   if (!uiColorMode || uiColorMode === "dark") {
@@ -160,9 +160,10 @@ const App = () => {
     if (!currentAccount?.balance) {
       dispatch(fetchUserBalance({ currentAccount, api }));
     }
-    if (!currentAccount?.balance) {
+    if (!launchpads) {
       dispatch(fetchLaunchpads({ isActive: 0 }));
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, currentAccount?.address]);
 
