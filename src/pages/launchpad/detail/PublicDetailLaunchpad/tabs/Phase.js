@@ -29,11 +29,14 @@ import { LiveStatusTag } from "pages/launchpad/components/StatusTag";
 import { UpcomingStatusTag } from "pages/launchpad/components/StatusTag";
 import { EndStatusTag } from "pages/launchpad/components/StatusTag";
 import { IWStatusWithCountDown } from "components/countdown/StatusWithCountDown";
+import { formatTokenAmount } from "utils";
+import { formatNumDynDecimal } from "utils";
 
 const millisecondsInADay = 24 * 60 * 60 * 1000;
 
-const PhaseTag = ({ data, sx, isOwner }) => {
+const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
   const [editatble, setEditable] = useState(false);
+  const tokenDecimal = parseInt(launchpadData.projectInfo.token.decimals);
   const tagData = useMemo(() => {
     return {
       ...data,
@@ -48,6 +51,15 @@ const PhaseTag = ({ data, sx, isOwner }) => {
         parseFloat(data?.vestingUnit?.replace(/,/g, "")) / millisecondsInADay,
     };
   }, [data]);
+  const publicSaleInfo = useMemo(() => {
+    return {
+      totalAmount: formatTokenAmount(
+        tagData?.publicSaleInfor?.totalAmount,
+        tokenDecimal
+      ),
+      price: formatTokenAmount(tagData?.publicSaleInfor?.price, 12),
+    };
+  }, [tagData]);
   return (
     <Box
       sx={{
@@ -88,43 +100,94 @@ const PhaseTag = ({ data, sx, isOwner }) => {
           <Text>{format(tagData?.endTime, "MMMM Do YYYY, h:mm:ss a")}</Text>
         </Box>
       </SimpleGrid>
-      <Heading size="md" mt="16px" lineHeight={{ base: "1.25", lg: "30px" }}>
-        Vesting Plan
-      </Heading>
-      <Divider sx={{ mb: "4px" }} />
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginTop: "12px",
-        }}
-      >
-        <Text>Immediate Release Rate</Text>
-        <Heading size="md">{tagData?.immediateReleaseRate}%</Heading>
-      </Box>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginTop: "12px",
-        }}
-      >
-        <Text>Vesting Duration</Text>
-        <Heading size="md">{tagData?.vestingDuration}day(s)</Heading>
-      </Box>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginTop: "12px",
-        }}
-      >
-        <Text>Vesting Release Period</Text>
-        <Heading size="md">{tagData?.vestingUnit}day(s)</Heading>
-      </Box>
+      {tagData?.immediateReleaseRate == 100 ? (
+        <Heading size="md" mt="16px" lineHeight={{ base: "1.25", lg: "30px" }}>
+          Non Vesting
+        </Heading>
+      ) : (
+        <>
+          <Heading
+            size="md"
+            mt="16px"
+            lineHeight={{ base: "1.25", lg: "30px" }}
+          >
+            Vesting Plan
+          </Heading>
+          <Divider sx={{ mb: "4px" }} />
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: "12px",
+            }}
+          >
+            <Text>Immediate Release Rate</Text>
+            <Heading size="md">{tagData?.immediateReleaseRate}%</Heading>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: "12px",
+            }}
+          >
+            <Text>Vesting Duration</Text>
+            <Heading size="md">{tagData?.vestingDuration}day(s)</Heading>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: "12px",
+            }}
+          >
+            <Text>Vesting Release Period</Text>
+            <Heading size="md">{tagData?.vestingUnit}day(s)</Heading>
+          </Box>
+        </>
+      )}
+      {tagData?.publicSaleInfor?.isPublic && (
+        <>
+          <Heading
+            size="md"
+            mt="16px"
+            lineHeight={{ base: "1.25", lg: "30px" }}
+          >
+            Public Sale Information
+          </Heading>
+          <Divider sx={{ mb: "4px" }} />
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: "12px",
+            }}
+          >
+            <Text>Total sale amount</Text>
+            <Heading size="md">
+              {formatNumDynDecimal(publicSaleInfo?.totalAmount)}
+            </Heading>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: "12px",
+            }}
+          >
+            <Text>Price</Text>
+            <Heading size="md">
+              {formatNumDynDecimal(publicSaleInfo?.price)}
+              <AzeroLogo />
+            </Heading>
+          </Box>
+        </>
+      )}
       {/* <Heading size="md" mt="16px" lineHeight={{ base: "1.25", lg: "30px" }}>
         Public sale
       </Heading>
@@ -237,6 +300,7 @@ const PhaseInformation = ({ launchpadContract, launchpadData }) => {
       /> */}
       {phaseList?.map((phaseObj, index) => (
         <PhaseTag
+          launchpadData={launchpadData}
           isOwner={owner == currentAccount?.address}
           key={`phase-${index}`}
           sx={{ marginTop: index != 0 && "40px" }}

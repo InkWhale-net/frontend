@@ -122,16 +122,20 @@ const IWCountDown = ({ saleTime, launchpadData }) => {
     }, null);
     if (completed) {
       return (
-        <Box>
+        <Box sx={{ paddingBottom: "10px" }}>
           <SaleCount label="Ended" time={null} />
-          <Box sx={{ display: "flex", marginTop: "20px" }}>
-            <Text>Upcoming phase: </Text>
-            <Text sx={{ fontWeight: "700", color: "#57527E" }}>
-              {" "}
-              {nearestPhase?.name}
-            </Text>
-          </Box>
-          <SaleLayout launchpadData={launchpadData} livePhase={null} />
+          {nearestPhase?.name && (
+            <>
+              <Box sx={{ display: "flex", marginTop: "20px" }}>
+                <Text>Upcoming phase: </Text>
+                <Text sx={{ fontWeight: "700", color: "#57527E" }}>
+                  {" "}
+                  {nearestPhase?.name}
+                </Text>
+              </Box>
+              <SaleLayout launchpadData={launchpadData} livePhase={null} />
+            </>
+          )}
         </Box>
       );
     } else if (livePhase) {
@@ -145,11 +149,13 @@ const IWCountDown = ({ saleTime, launchpadData }) => {
               {livePhase?.name}
             </Text>
           </Box>
-          <SaleLayout
-            launchpadData={launchpadData}
-            livePhase={livePhase}
-            allowBuy
-          />
+          {livePhase?.publicSaleInfor?.isPublic && (
+            <SaleLayout
+              launchpadData={launchpadData}
+              livePhase={livePhase}
+              allowBuy
+            />
+          )}
         </Box>
       );
     } else if (nearestPhase) {
