@@ -130,7 +130,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
         );
         return;
       }
-      await execContractTx(
+      const buyResult = await execContractTx(
         currentAccount,
         api,
         launchpad.CONTRACT_ABI,
@@ -143,7 +143,8 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
           parseInt(launchpadData.projectInfo.token.decimals)
         )
       );
-      await delay(1000);
+      if (!buyResult) return;
+      await delay(400);
       await APICall.askBEupdate({
         type: "launchpad",
         poolContract: launchpadData?.launchpadContract,
@@ -152,14 +153,14 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
       setAzeroBuyAmount(0);
       saleQuery.refetch();
       toast.promise(
-        delay(10000).then(() => {
+        delay(8000).then(() => {
           if (currentAccount) {
             dispatch(fetchUserBalance({ currentAccount, api }));
             dispatch(fetchLaunchpads({ isActive: 0 }));
           }
         }),
         {
-          loading: "Please wait up to 10s for the data to be updated...",
+          loading: "Please wait up to 8s for the data to be updated...",
           success: "Done !",
           error: "Could not fetch data!!!",
         }

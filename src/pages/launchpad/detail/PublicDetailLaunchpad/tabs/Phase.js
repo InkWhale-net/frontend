@@ -57,9 +57,18 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
         tagData?.publicSaleInfor?.totalAmount,
         tokenDecimal
       ),
+      totalPurchasedAmount: formatTokenAmount(
+        tagData?.publicSaleInfor?.totalPurchasedAmount,
+        tokenDecimal
+      ),
+      totalClaimedAmount: formatTokenAmount(
+        tagData?.publicSaleInfor?.totalClaimedAmount,
+        tokenDecimal
+      ),
       price: formatTokenAmount(tagData?.publicSaleInfor?.price, 12),
     };
   }, [tagData]);
+
   return (
     <Box
       sx={{
@@ -172,6 +181,20 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
               {formatNumDynDecimal(publicSaleInfo?.totalAmount)}
             </Heading>
           </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: "12px",
+            }}
+          >
+            <Text>Total purchased amount</Text>
+            <Heading size="md">
+              {formatNumDynDecimal(publicSaleInfo?.totalPurchasedAmount)}
+            </Heading>
+          </Box>
+
           <Box
             sx={{
               display: "flex",
