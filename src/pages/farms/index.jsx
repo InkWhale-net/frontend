@@ -17,6 +17,7 @@ import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 import { IWMobileList } from "components/table/IWMobileList";
 import { IWTable } from "components/table/IWTable";
+import { useAppContext } from "contexts/AppContext";
 import { useEffect, useMemo, useState } from "react";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,10 +25,13 @@ import {
   fetchAllNFTPools,
   fetchAllTokenPools,
 } from "redux/slices/allPoolsSlice";
+import { fetchUserBalance } from "redux/slices/walletSlice";
+import { formatTokenAmount } from "utils";
 import { delay, isPoolEnded } from "utils";
 
 export default function FarmsPage() {
   const dispatch = useDispatch();
+  const { api } = useAppContext();
 
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allNFTPoolsList, allTokenPoolsList, loading } = useSelector(
@@ -59,16 +63,25 @@ export default function FarmsPage() {
       return;
     }
     setResultList(
-      result.map((e) => ({
-        ...e,
-        hasTooltip: !(parseFloat(e?.maxStakingAmount) - e?.totalStaked > 0) && (
-          <Tooltip fontSize="md" label="Max Staking Amount reached">
-            <span style={{ marginLeft: "6px" }}>
-              <AiOutlineExclamationCircle ml="6px" color="text.1" />
-            </span>
-          </Tooltip>
-        ),
-      }))
+      result.map((e) => {
+        return {
+          ...e,
+          maxStakingAmount: parseFloat(
+            formatTokenAmount(e?.maxStakingAmount, 0)
+          ),
+          hasTooltip: !(
+            parseFloat(formatTokenAmount(e?.maxStakingAmount, 0)) -
+              e?.totalStaked >
+            0
+          ) && (
+            <Tooltip fontSize="md" label="Max Staking Amount reached">
+              <span style={{ marginLeft: "6px" }}>
+                <AiOutlineExclamationCircle ml="6px" color="text.1" />
+              </span>
+            </Tooltip>
+          ),
+        };
+      })
     );
   };
 
@@ -114,6 +127,10 @@ export default function FarmsPage() {
 
     return () => clearTimeout(delayDebounceFn);
   }, [keywords, nftLPListFiltered]);
+  useEffect(() => {
+    if (!currentAccount?.balance && currentAccount && api)
+      dispatch(fetchUserBalance({ currentAccount, api }));
+  }, [currentAccount, api]);
 
   const tokenLPListFiltered = useMemo(() => {
     let ret = allTokenPoolsList;

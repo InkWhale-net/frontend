@@ -452,10 +452,10 @@ export const TokenMenuDropdown = ({
             },
             {
               label: "Transactions",
-              // href: "/tokens/transaction",
+              href: "/tokens/transaction",
               onClick: () => {
                 if (onClose) onClose();
-                toast.success("Coming soon!");
+                // toast.success("Coming soon!");
               },
             },
           ].map((item, idx) => (

@@ -23,6 +23,11 @@ export const supportWallets = [
     extensionName: "polkadot-js",
   },
   {
+    name: "Azero Signer",
+    title: "Azero Signer",
+    extensionName: "aleph-zero-signer",
+  },
+  {
     name: "Nova Wallet",
     title: "nova",
     isMobile: true, 

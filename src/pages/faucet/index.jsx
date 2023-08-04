@@ -249,8 +249,8 @@ export default function FaucetPage({ api }) {
       query10,
     ]);
     const leftAmount =
-      +balanceTotalInwQr.toHuman().Ok?.replaceAll(",", "") -
-      +balancePurchaseInwQr.toHuman().Ok?.replaceAll(",", "");
+      +balanceTotalInwQr?.toHuman().Ok?.replaceAll(",", "") -
+      +balancePurchaseInwQr?.toHuman().Ok?.replaceAll(",", "");
     const result = endTime?.toHuman()?.Ok?.replaceAll(",", "");
     const startTime = startTimeQr?.toHuman()?.Ok?.replaceAll(",", "");
     const result2 = buyInfoQr?.toHuman()?.Ok;
@@ -483,7 +483,7 @@ export default function FaucetPage({ api }) {
       api,
       public_sale.CONTRACT_ABI,
       public_sale.CONTRACT_ADDRESS,
-      parseUnits((inwPrice * inwBuyAmount).toString(), 12), //-> value
+      parseUnits(roundUp(inwPrice * inwBuyAmount, 4).toString(), 12), //-> value
       "genericTokenSaleTrait::purchase",
       formatNumToBN(inwBuyAmount) // -> token_amount, <...args>
     );
@@ -523,7 +523,7 @@ export default function FaucetPage({ api }) {
       api,
       private_sale.CONTRACT_ABI,
       private_sale.CONTRACT_ADDRESS,
-      parseUnits((inwPrice * inwBuyAmount).toString(), 12), //-> value
+      parseUnits(roundUp(inwPrice * inwBuyAmount, 4).toString(), 12), //-> value
       "genericTokenSaleTrait::purchase",
       formatNumToBN(inwBuyAmount) // -> token_amount, <...args>
     );

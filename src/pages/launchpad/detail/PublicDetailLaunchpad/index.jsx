@@ -75,7 +75,7 @@ const PublicDetailLaunchpad = () => {
         </Circle>
         <Box sx={{ marginLeft: "16px" }}>
           <Heading>{projectInfor?.name}</Heading>
-          <Box sx={{ display: "flex" }}>
+          <Box sx={{ display: "flex", marginTop: '4px' }}>
             <Image
               sx={{
                 w: "32px",

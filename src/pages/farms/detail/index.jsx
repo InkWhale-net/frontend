@@ -74,8 +74,12 @@ export default function FarmDetailPage() {
     const nftPool = allNFTPoolsList?.find(
       (p) => p?.poolContract === params?.contractAddress
     );
-
-    return nftPool;
+    return {
+      ...nftPool,
+      maxStakingAmount: parseFloat(
+        formatTokenAmount(nftPool?.maxStakingAmount, 0)
+      ),
+    };
   }, [allNFTPoolsList, params?.contractAddress]);
 
   const currentTokenPool = useMemo(() => {
@@ -99,7 +103,7 @@ export default function FarmDetailPage() {
         currentNFTPool?.totalStaked >
       0
     );
-  }, [currentNFTPool]);
+  }, []);
   const updateTokenData = async () => {
     let queryResult = await execContractQuery(
       currentAccount?.address,
@@ -201,6 +205,7 @@ export default function FarmDetailPage() {
             maxStaked={maxStaked}
             mode={currMode}
             refetchData={refetchData}
+            currentNFTPool={currentNFTPool}
             {...currentNFTPool}
             {...currentAccount}
           />
@@ -435,7 +440,7 @@ const MyStakeRewardInfoNFT = ({
   useEffect(() => {
     fetchUserStakeInfo();
     fetchTokenBalance();
-  }, [fetchTokenBalance, fetchUserStakeInfo]);
+  }, [fetchTokenBalance, fetchUserStakeInfo, poolContract]);
 
   const fetchAvailableNFT = useCallback(async () => {
     const { status, ret } =

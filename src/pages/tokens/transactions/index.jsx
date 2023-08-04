@@ -8,6 +8,7 @@ import {
   Heading,
   Stack,
   Switch,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
@@ -39,7 +40,7 @@ export default function TokensPage() {
   const { api } = useAppContext();
   const [transactions, setTransactions] = useState([]);
   const [totalPage, setTotalPage] = useState(0);
-
+  const isSmallerThanMd = useBreakpointValue({ base: true, md: false });
   const [{ pageIndex, pageSize }, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -112,9 +113,24 @@ export default function TokensPage() {
     tokenTransactionMutation.mutate(selectedToken?.contractAddress, keywords);
   }, [pageIndex, pageSize, api]);
 
+  const [cacheTokenMetadata, setCacheTokenMetadata] = useState([]);
+
+  const filterTokenCache = (list) => {
+    return Object.values(
+      list.reduce((acc, obj) => {
+        const tokenContract = obj.tokenContract;
+        if (!acc[tokenContract]) {
+          acc[tokenContract] = obj;
+        }
+        return acc;
+      }, {})
+    );
+  };
+
   const tokenTransactionMutation = useMutation(async () => {
     await new Promise(async (resolve) => {
       let queryBody = {};
+      const tokenMetadata = [...cacheTokenMetadata];
       if (selectedToken?.contractAddress)
         queryBody.tokenContract = selectedToken?.contractAddress;
       if (keywords?.queryAddress)
@@ -132,36 +148,78 @@ export default function TokensPage() {
         const transactionList = await Promise.all(
           ret?.dataArray?.map(async (txObj) => {
             if (txObj?.data?.tokenContract) {
-              let queryResult = await execContractQuery(
-                currentAccount?.address,
-                "api",
-                psp22_contract.CONTRACT_ABI,
-                txObj?.data?.tokenContract,
-                0,
-                "psp22Metadata::tokenDecimals"
+              const findTokenInCache = tokenMetadata.filter(
+                (e) => e?.tokenContract == txObj?.data?.tokenContract
               );
-              const decimal = queryResult?.toHuman()?.Ok;
-              let queryResult1 = await execContractQuery(
-                currentAccount?.address,
-                "api",
-                psp22_contract.CONTRACT_ABI,
-                txObj?.data?.tokenContract,
-                0,
-                "psp22Metadata::tokenName"
-              );
-              const tokenName = queryResult1?.toHuman().Ok;
-              let queryResult2 = await execContractQuery(
-                currentAccount?.address,
-                "api",
-                psp22_contract.CONTRACT_ABI,
-                txObj?.data?.tokenContract,
-                0,
-                "psp22Metadata::tokenSymbol"
-              );
-              const tokenSymbol = queryResult2?.toHuman().Ok;
               const timeEvent = await getTimestamp(api, txObj?.blockNumber);
+              if (findTokenInCache?.length > 0) {
+                return {
+                  token: {
+                    address: txObj?.data?.tokenContract,
+                    name: findTokenInCache[0].tokenName,
+                    symbol: findTokenInCache[0].tokenSymbol,
+                    decimal: parseInt(findTokenInCache[0].decimal),
+                  },
+                  tokenContract: txObj?.data?.tokenContract,
+                  tokenSymbol: findTokenInCache[0].tokenSymbol,
+                  amount: formatNumDynDecimal(
+                    formatTokenAmount(
+                      txObj?.data?.amount?.replaceAll(",", ""),
+                      parseInt(findTokenInCache[0].decimal)
+                    )
+                  ),
+                  blockNumber: timeEvent,
+                  time: txObj?.createdTime,
+                  fromAddress: txObj?.fromAddress,
+                  toAddress: txObj?.toAddress,
+                  currentAccount: currentAccount?.address,
+                  amountIcon:
+                    keywords?.queryAddress?.length > 0 &&
+                    (txObj?.fromAddress == keywords?.queryAddress ? (
+                      <BsArrowUpRight
+                        style={{ marginRight: "4px" }}
+                        color="#31A5FF"
+                      />
+                    ) : (
+                      <AiOutlineDownload style={{ marginRight: "4px" }} />
+                    )),
+                };
+              } else {
+                let queryResult = await execContractQuery(
+                  currentAccount?.address,
+                  "api",
+                  psp22_contract.CONTRACT_ABI,
+                  txObj?.data?.tokenContract,
+                  0,
+                  "psp22Metadata::tokenDecimals"
+                );
+                const decimal = queryResult?.toHuman()?.Ok;
+                let queryResult1 = await execContractQuery(
+                  currentAccount?.address,
+                  "api",
+                  psp22_contract.CONTRACT_ABI,
+                  txObj?.data?.tokenContract,
+                  0,
+                  "psp22Metadata::tokenName"
+                );
+                const tokenName = queryResult1?.toHuman().Ok;
+                let queryResult2 = await execContractQuery(
+                  currentAccount?.address,
+                  "api",
+                  psp22_contract.CONTRACT_ABI,
+                  txObj?.data?.tokenContract,
+                  0,
+                  "psp22Metadata::tokenSymbol"
+                );
+                const tokenSymbol = queryResult2?.toHuman().Ok;
 
-              if (decimal && tokenName && tokenSymbol)
+                if (decimal && tokenName && tokenSymbol)
+                  tokenMetadata.push({
+                    tokenName,
+                    tokenSymbol,
+                    decimal,
+                    tokenContract: txObj?.data?.tokenContract,
+                  });
                 return {
                   token: {
                     address: txObj?.data?.tokenContract,
@@ -193,9 +251,11 @@ export default function TokensPage() {
                       <AiOutlineDownload style={{ marginRight: "4px" }} />
                     )),
                 };
+              }
             }
           })
         );
+        setCacheTokenMetadata(filterTokenCache(tokenMetadata));
         setTransactions(transactionList.filter((e) => e));
       } else {
         toast.error(message);
@@ -243,7 +303,7 @@ export default function TokensPage() {
       <SectionContainer
         mt={{ base: "0px", xl: "20px" }}
         title="Token Transaction History"
-        description={<span>Token Transaction History</span>}
+        description={<span>Sync in progress</span>}
       >
         <Stack
           w="full"
@@ -323,24 +383,27 @@ export default function TokensPage() {
                   // inputRightElementIcon={<SearchIcon color="#57527E" />}
                 />
               </Flex>
-              <Button
-                isDisabled={false}
-                onClick={() => {
-                  //
-                  if (pagination?.pageIndex != 0) {
-                    setPagination({ pageIndex: 0, pageSize: 10 });
-                  } else {
-                    tokenTransactionMutation.mutate(
-                      selectedToken?.contractAddress,
-                      keywords
-                    );
-                  }
-                }}
-              >
-                Load
-              </Button>
+              {!isSmallerThanMd && (
+                <Button
+                  isDisabled={false}
+                  onClick={() => {
+                    //
+                    if (pagination?.pageIndex != 0) {
+                      setPagination({ pageIndex: 0, pageSize: 10 });
+                    } else {
+                      tokenTransactionMutation.mutate(
+                        selectedToken?.contractAddress,
+                        keywords
+                      );
+                    }
+                  }}
+                >
+                  Load
+                </Button>
+              )}
             </HStack>
           </Stack>
+
           <Box
             display="flex"
             justifyContent={{ base: "flex-start", lg: "flex-end" }}
@@ -348,7 +411,7 @@ export default function TokensPage() {
           >
             <FormControl
               maxW={{
-                base: "160px",
+                base: "200px",
                 lg: "205px",
               }}
               display="flex"
@@ -422,6 +485,25 @@ export default function TokensPage() {
               </FormLabel>
             </FormControl>
           </Box>
+          {isSmallerThanMd && (
+            <Button
+              width={"full"}
+              isDisabled={false}
+              onClick={() => {
+                //
+                if (pagination?.pageIndex != 0) {
+                  setPagination({ pageIndex: 0, pageSize: 10 });
+                } else {
+                  tokenTransactionMutation.mutate(
+                    selectedToken?.contractAddress,
+                    keywords
+                  );
+                }
+              }}
+            >
+              Load
+            </Button>
+          )}
           <IWPaginationTable
             {...tableData}
             pagination={pagination}

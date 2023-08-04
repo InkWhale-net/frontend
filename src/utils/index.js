@@ -326,16 +326,13 @@ export async function getEstimatedGasBatchTx(
 }
 
 export const resolveDomain = async (address) => {
-  // if (
-  //   process.env.REACT_APP_NETWORK === "alephzero-testnet" ||
-  //   process.env.REACT_APP_NETWORK === "alephzero"
-  // ) {
-  // }
   try {
-    const domains = await resolveAddressToDomain(address, {
-      chainId: SupportedChainId.AlephZeroTestnet,
-    });
-    return domains[0];
+    if (process.env.REACT_APP_NETWORK === "inkwhale-testnet") {
+      const domains = await resolveAddressToDomain(address, {
+        chainId: SupportedChainId.AlephZeroTestnet,
+      });
+      return domains[0];
+    }
   } catch (error) {
     console.log("resolveDomain error", error);
   }
@@ -346,6 +343,7 @@ export const formatTokenAmount = (value, decimal = 12) => {
     return formatUnits(
       (typeof value == "string" ? value : value.toLocaleString())
         ?.toString()
+        ?.replace(/\./g, "")
         ?.replace(/,/g, ""),
       decimal
     );

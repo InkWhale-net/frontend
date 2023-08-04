@@ -36,6 +36,7 @@ import { addressShortener } from "utils";
 import PolkadotjsLogo from "assets/img/wallet/PolkadotjsLogo.svg";
 import SubWalletLogo from "assets/img/wallet/SubWalletLogo.svg";
 import NovaLogo from "assets/img/wallet/nova.jpg";
+import AzeroSignerLogo from "assets/img/wallet/AzeroSigner.jpg";
 import WalletModal from "./WalletModal";
 import { disconnectCurrentAccount } from "redux/slices/walletSlice";
 import AddressCopier from "components/address-copier/AddressCopier";
@@ -140,6 +141,8 @@ const getWallet = (key) => {
       return NovaLogo;
     case "subwallet":
       return SubWalletLogo;
+    case "Azero Signer":
+      return AzeroSignerLogo;
     default:
       break;
   }
@@ -233,6 +236,8 @@ export const WalletConnect = ({ onClose }) => {
       ? PolkadotjsLogo
       : currentAccount?.meta?.source === "subwallet-js"
       ? SubWalletLogo
+      : currentAccount?.meta?.source === "aleph-zero-signer"
+      ? AzeroSignerLogo
       : "";
   useEffect(() => {
     resolveDomain(currentAccount?.address).then((domainValue) =>
