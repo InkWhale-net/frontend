@@ -102,11 +102,15 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
       <SimpleGrid w="full" columns={{ base: 1, lg: 2 }} spacing={2}>
         <Box>
           <Heading size="md">Start Date & Time</Heading>
-          <Text>{format(tagData?.startTime, "MMMM Do YYYY, h:mm:ss a")}</Text>
+          <Text sx={{ marginTop: "8px" }}>
+            {format(tagData?.startTime, "MMMM Do YYYY, h:mm:ss a")}
+          </Text>
         </Box>
         <Box>
           <Heading size="md">End Date & Time</Heading>
-          <Text>{format(tagData?.endTime, "MMMM Do YYYY, h:mm:ss a")}</Text>
+          <Text sx={{ marginTop: "8px" }}>
+            {format(tagData?.endTime, "MMMM Do YYYY, h:mm:ss a")}
+          </Text>
         </Box>
       </SimpleGrid>
       {tagData?.immediateReleaseRate == 100 ? (
