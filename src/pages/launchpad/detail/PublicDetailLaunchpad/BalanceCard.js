@@ -53,7 +53,6 @@ const BalanceCard = ({ launchpadData }) => {
         currentAccount?.address
       );
       const tokenBalance = queryResult.toHuman().Ok;
-      console.log(tokenBalance);
 
       setTokenBalance(
         formatNumDynDecimal(

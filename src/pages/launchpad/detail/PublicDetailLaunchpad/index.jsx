@@ -83,7 +83,7 @@ const PublicDetailLaunchpad = () => {
                 borderRadius: "80px",
                 objectFit: "cover",
                 objectPosition: "center",
-                marginRight: '8px'
+                marginRight: "8px",
               }}
               src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${token?.tokenIconUrl}`}
               alt="logo-launchpad"
