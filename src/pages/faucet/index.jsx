@@ -483,7 +483,7 @@ export default function FaucetPage({ api }) {
       api,
       public_sale.CONTRACT_ABI,
       public_sale.CONTRACT_ADDRESS,
-      parseUnits((inwPrice * inwBuyAmount).toString(), 12), //-> value
+      parseUnits(roundUp(inwPrice * inwBuyAmount, 4).toString(), 12), //-> value
       "genericTokenSaleTrait::purchase",
       formatNumToBN(inwBuyAmount) // -> token_amount, <...args>
     );
@@ -523,7 +523,7 @@ export default function FaucetPage({ api }) {
       api,
       private_sale.CONTRACT_ABI,
       private_sale.CONTRACT_ADDRESS,
-      parseUnits((inwPrice * inwBuyAmount).toString(), 12), //-> value
+      parseUnits(roundUp(inwPrice * inwBuyAmount, 4).toString(), 12), //-> value
       "genericTokenSaleTrait::purchase",
       formatNumToBN(inwBuyAmount) // -> token_amount, <...args>
     );
