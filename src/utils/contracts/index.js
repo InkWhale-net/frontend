@@ -325,7 +325,7 @@ export const txResponseErrorHandler = async ({
   txType,
   api,
 }) => {
-  const url = process.env.REACT_APP_EXPLORER_URL;
+  const url = `https://test.azero.dev/#/explorer/query/`;
   const statusToHuman = Object.entries(status.toHuman());
 
   if (dispatchError) {
