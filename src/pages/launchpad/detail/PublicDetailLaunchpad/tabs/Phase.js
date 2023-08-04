@@ -91,10 +91,12 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
           {data?.name}
           {`  `}
           {tagData?.publicSaleInfor?.isPublic && tagData?.whitelist?.length > 0
-            ? `(Public/Whitelist)`
+            ? `(Public sale/Whitelist sale)`
+            : tagData?.publicSaleInfor?.isPublic
+            ? `(Public sale)`
+            : tagData?.whitelist?.length > 0
+            ? `(Whitelist Only)`
             : null}
-          {tagData?.publicSaleInfor?.isPublic ? `(Public sale)` : null}
-          {tagData?.whitelist?.length > 0 ? `(Whitelist Only)` : null}
         </Heading>
         <IWStatus
           startDate={new Date(tagData?.startTime)}
