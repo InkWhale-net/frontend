@@ -37,7 +37,7 @@ const TabLayout = ({ children, ...rest }) => {
         <SaleCard {...rest} />
         <WhitelistSaleCard {...rest} />
         <BalanceCard {...rest} />
-        <StatusCard {...rest} />
+        {/* <StatusCard {...rest} /> */}
         {isLaunchpadOwner && <OwnerZoneCard {...rest} />}
       </Box>
     </Stack>
