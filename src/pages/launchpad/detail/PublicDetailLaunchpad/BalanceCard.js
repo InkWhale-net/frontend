@@ -20,18 +20,12 @@ const Row = ({ label, value, divider = false, ...rest }) => {
         style={{
           display: "flex",
           justifyContent: "space-between",
+          marginTop: "4px",
           ...rest,
         }}
       >
         <Text>{label}</Text>
-        <Text
-          sx={{
-            fontWeight: "512",
-            color: "#57527E",
-          }}
-        >
-          {value}
-        </Text>
+        <Text>{value}</Text>
       </Box>
       {divider && <Divider />}
     </>
@@ -78,27 +72,23 @@ const BalanceCard = ({ launchpadData }) => {
         marginTop: "12px",
         border: "2.8px solid #E3DFF3",
         borderRadius: "8px",
-        paddingTop: "20px",
+        paddingTop: "16px",
         paddingLeft: "8px",
         paddingRight: "8px",
         paddingBottom: "12px",
       }}
     >
-      <Heading size="md" sx={{ marginBottom: "16px" }}>
+      <Heading size="md" sx={{ marginBottom: "4px" }}>
         Your balance
       </Heading>
-      <Row
-        sx={{ marginTop: "100px" }}
-        label="INW"
-        value={currentAccount?.balance?.inw}
+      <Divider
+        sx={{
+          marginBottom: "8px",
+        }}
       />
+      <Row label="INW" value={currentAccount?.balance?.inw} />
+      <Row label="AZERO" value={currentAccount?.balance?.azero} />
       <Row
-        sx={{ marginTop: "100px" }}
-        label="AZERO"
-        value={currentAccount?.balance?.azero}
-      />
-      <Row
-        sx={{ marginTop: "100px" }}
         label={launchpadData?.projectInfo?.token?.name}
         value={tokenBalance || 0}
       />
