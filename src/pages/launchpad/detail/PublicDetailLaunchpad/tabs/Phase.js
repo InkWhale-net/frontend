@@ -87,7 +87,15 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
           paddingTop: "8px",
         }}
       >
-        <Heading size="lg">{data?.name}</Heading>
+        <Heading size="md">
+          {data?.name}
+          {`  `}
+          {tagData?.publicSaleInfor?.isPublic && tagData?.whitelist?.length > 0
+            ? `(Public/Whitelist)`
+            : null}
+          {tagData?.publicSaleInfor?.isPublic ? `(Public sale)` : null}
+          {tagData?.whitelist?.length > 0 ? `(Whitelist Only)` : null}
+        </Heading>
         <IWStatus
           startDate={new Date(tagData?.startTime)}
           endDate={new Date(tagData?.endTime)}
@@ -101,13 +109,29 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
       <Divider sx={{ mb: "16px" }} />
       <SimpleGrid w="full" columns={{ base: 1, lg: 2 }} spacing={2}>
         <Box>
-          <Heading size="md">Start Date & Time</Heading>
+          <Text
+            sx={{
+              fontWeight: "700",
+              color: "#57527E",
+            }}
+            size="md"
+          >
+            Start Date & Time
+          </Text>
           <Text sx={{ marginTop: "8px" }}>
             {format(tagData?.startTime, "MMMM Do YYYY, h:mm:ss a")}
           </Text>
         </Box>
         <Box>
-          <Heading size="md">End Date & Time</Heading>
+          <Text
+            sx={{
+              fontWeight: "700",
+              color: "#57527E",
+            }}
+            size="md"
+          >
+            End Date & Time
+          </Text>
           <Text sx={{ marginTop: "8px" }}>
             {format(tagData?.endTime, "MMMM Do YYYY, h:mm:ss a")}
           </Text>
