@@ -184,7 +184,7 @@ export default function VerifyToken() {
         <Box
           w="full"
           display={{ base: "flex" }}
-          flexDirection={["column-reverse", "row"]}
+          flexDirection={["column-reverse", "column-reverse", "row"]}
         >
           <Box sx={{ flex: 1, paddingRight: "8px" }}>
             <SelectSearch
@@ -206,7 +206,7 @@ export default function VerifyToken() {
           </Box>
           <Button
             onClick={() => history.push("/create/token")}
-            mb={["16px", "0px"]}
+            mb={["16px", "16px", "0px"]}
           >
             Create & Import
           </Button>

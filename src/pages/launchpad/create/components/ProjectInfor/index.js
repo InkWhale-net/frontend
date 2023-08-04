@@ -103,7 +103,7 @@ const ProjectInfor = () => {
             placeholder="Project Description"
           />
         </SectionContainer>
-        <SimpleGrid columns={[1, 2]} spacing={4}>
+        <SimpleGrid columns={[1, 1, 2]} spacing={4}>
           <SectionContainer title="Website">
             <IWInput
               value={projectInfor?.website}

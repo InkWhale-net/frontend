@@ -83,7 +83,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
           <>
             <Box
               sx={{ display: "flex", justifyContent: "space-between" }}
-              flexDirection={["column", "row"]}
+              flexDirection={["column", "column", "row"]}
               alignItems={["start"]}
             >
               <Text sx={{ flex: 1 }}>{e?.label}</Text>
@@ -113,8 +113,8 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
             <Divider />
             <Box
               display="flex"
-              flexDirection={["column", "row"]}
-              alignItems={["start", "center"]}
+              flexDirection={["column", "column", "row"]}
+              alignItems={["start", "start", "center"]}
             >
               <Text sx={{ flex: 1 }}>Name</Text>
               <Text size="md" sx={{ flex: 2, textAlign: "right" }}>
@@ -123,8 +123,8 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
             </Box>
             <Box
               display="flex"
-              flexDirection={["column", "row"]}
-              alignItems={["start", "center"]}
+              flexDirection={["column", "column", "row"]}
+              alignItems={["start", "start", "center"]}
             >
               <Text sx={{ flex: 1 }}>Description</Text>
               <Text sx={{ flex: 2, textAlign: "right" }}>
