@@ -249,8 +249,8 @@ export default function FaucetPage({ api }) {
       query10,
     ]);
     const leftAmount =
-      +balanceTotalInwQr.toHuman().Ok?.replaceAll(",", "") -
-      +balancePurchaseInwQr.toHuman().Ok?.replaceAll(",", "");
+      +balanceTotalInwQr?.toHuman().Ok?.replaceAll(",", "") -
+      +balancePurchaseInwQr?.toHuman().Ok?.replaceAll(",", "");
     const result = endTime?.toHuman()?.Ok?.replaceAll(",", "");
     const startTime = startTimeQr?.toHuman()?.Ok?.replaceAll(",", "");
     const result2 = buyInfoQr?.toHuman()?.Ok;

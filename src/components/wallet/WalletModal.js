@@ -19,6 +19,7 @@ import { useDispatch } from "react-redux";
 import { addressShortener } from "utils";
 import { setCurrentAccount } from "redux/slices/walletSlice";
 import { SCROLLBAR } from "constants";
+import AzeroSignerLogo from "assets/img/wallet/AzeroSigner.jpg";
 
 export default function WalletModal({ isOpen, onClose, accounts }) {
   const dispatch = useDispatch();
@@ -77,6 +78,8 @@ export default function WalletModal({ isOpen, onClose, accounts }) {
                             ? PolkadotjsLogo
                             : acct?.meta?.source === "subwallet-js"
                             ? SubWalletLogo
+                            : acct?.meta?.source === "aleph-zero-signer"
+                            ? AzeroSignerLogo
                             : ""
                         }
                         alt={acct?.meta?.source}
