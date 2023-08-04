@@ -114,7 +114,7 @@ const Team = () => {
                 />
               )}
             </Box>
-            <SimpleGrid columns={[1, 3]} spacing={4}>
+            <SimpleGrid columns={[1, 1, 3]} spacing={4}>
               <SectionContainer title={"Name"} isRequiredLabel>
                 <IWInput
                   value={obj?.name}
