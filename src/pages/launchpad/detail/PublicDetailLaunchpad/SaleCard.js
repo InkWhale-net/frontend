@@ -1,4 +1,5 @@
 import { Box, Button, Flex, Heading, Progress, Text } from "@chakra-ui/react";
+import { APICall } from "api/client";
 import { AzeroLogo } from "components/icons/Icons";
 import IWInput from "components/input/Input";
 import { toastMessages } from "constants";
@@ -12,6 +13,7 @@ import { toast } from "react-hot-toast";
 import { useMutation, useQuery } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { BeatLoader } from "react-spinners";
+import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { roundUp } from "utils";
 import { delay } from "utils";
@@ -225,7 +227,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         );
         return;
       }
-      await execContractTx(
+      const buyResult = await execContractTx(
         currentAccount,
         api,
         launchpad.CONTRACT_ABI,
@@ -238,18 +240,24 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
           parseInt(launchpadData.projectInfo.token.decimals)
         )
       );
-      await delay(2000);
+      if (!buyResult) return;
+      await delay(400);
+      await APICall.askBEupdate({
+        type: "launchpad",
+        poolContract: launchpadData?.launchpadContract,
+      });
       setAmount(0);
       setAzeroBuyAmount(0);
       saleQuery.refetch();
       toast.promise(
-        delay(1000).then(() => {
+        delay(8000).then(() => {
           if (currentAccount) {
             dispatch(fetchUserBalance({ currentAccount, api }));
+            dispatch(fetchLaunchpads({ isActive: 0 }));
           }
         }),
         {
-          loading: "Fetching new data ... ",
+          loading: "Please wait up to 8s for the data to be updated...",
           success: "Done !",
           error: "Could not fetch data!!!",
         }
