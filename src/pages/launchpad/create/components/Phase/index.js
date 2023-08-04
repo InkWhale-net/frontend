@@ -146,7 +146,7 @@ const Phase = () => {
             mt="16px"
             key={`phase-${index}`}
           >
-            <SimpleGrid columns={[1, 3]} spacing={4}>
+            <SimpleGrid columns={[1, 1, 3]} spacing={4}>
               <SectionContainer title={"Name"}>
                 <IWInput
                   value={obj?.name}
@@ -249,7 +249,7 @@ const Phase = () => {
             >
               Vesting Plan
             </Heading>
-            <SimpleGrid columns={[1, 3]} spacing={4}>
+            <SimpleGrid columns={[1, 1, 3]} spacing={4}>
               <SectionContainer
                 title={
                   <>
@@ -357,7 +357,7 @@ const Phase = () => {
               </Box>
             </SimpleGrid>
             {obj?.allowPublicSale && (
-              <SimpleGrid columns={[1, 3]} spacing={4}>
+              <SimpleGrid columns={[1, 1, 3]} spacing={4}>
                 <SectionContainer title={"Public Amount"}>
                   <IWInput
                     type="number"
