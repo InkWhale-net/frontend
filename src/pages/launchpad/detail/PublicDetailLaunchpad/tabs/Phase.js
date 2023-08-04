@@ -119,13 +119,14 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
         </Heading>
       ) : (
         <>
-          <Heading
+          <Text
             size="md"
-            mt="16px"
+            mt="20px"
             lineHeight={{ base: "1.25", lg: "30px" }}
+            sx={{ color: "#57527E", fontWeight: "700" }}
           >
             Vesting Plan
-          </Heading>
+          </Text>
           <Divider sx={{ mb: "4px" }} />
           <Box
             sx={{
@@ -136,7 +137,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             }}
           >
             <Text>Immediate Release Rate</Text>
-            <Heading size="md">{tagData?.immediateReleaseRate}%</Heading>
+            <Text size="md">{tagData?.immediateReleaseRate}%</Text>
           </Box>
           <Box
             sx={{
@@ -147,7 +148,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             }}
           >
             <Text>Vesting Duration</Text>
-            <Heading size="md">{tagData?.vestingDuration}day(s)</Heading>
+            <Text size="md">{tagData?.vestingDuration} day(s)</Text>
           </Box>
           <Box
             sx={{
@@ -158,7 +159,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             }}
           >
             <Text>Vesting Release Period</Text>
-            <Heading size="md">{tagData?.vestingUnit}day(s)</Heading>
+            <Text size="md">{tagData?.vestingUnit} day(s)</Text>
           </Box>
         </>
       )}
@@ -166,7 +167,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
         <>
           <Heading
             size="md"
-            mt="16px"
+            mt="20px"
             lineHeight={{ base: "1.25", lg: "30px" }}
           >
             Public Sale Information
@@ -181,9 +182,9 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             }}
           >
             <Text>Total sale amount</Text>
-            <Heading size="md">
+            <Text size="md">
               {formatNumDynDecimal(publicSaleInfo?.totalAmount)}
-            </Heading>
+            </Text>
           </Box>
           <Box
             sx={{
@@ -194,9 +195,9 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             }}
           >
             <Text>Total purchased amount</Text>
-            <Heading size="md">
+            <Text size="md">
               {formatNumDynDecimal(publicSaleInfo?.totalPurchasedAmount)}
-            </Heading>
+            </Text>
           </Box>
 
           <Box
@@ -208,16 +209,21 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             }}
           >
             <Text>Price</Text>
-            <Heading size="md">
+            <Text size="md">
               {formatNumDynDecimal(publicSaleInfo?.price)}
-              <AzeroLogo />
-            </Heading>
+              <AzeroLogo
+                sx={{
+                  marginLeft: "4px",
+                  fontSize: "16px",
+                }}
+              />
+            </Text>
           </Box>
         </>
       )}
-      {/* <Heading size="md" mt="16px" lineHeight={{ base: "1.25", lg: "30px" }}>
+      {/* <Text size="md" mt="16px" lineHeight={{ base: "1.25", lg: "30px" }}>
         Public sale
-      </Heading>
+      </Text>
       <Divider sx={{ mb: "4px" }} />
       <Box
         sx={{

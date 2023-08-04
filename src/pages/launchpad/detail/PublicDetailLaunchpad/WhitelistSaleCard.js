@@ -202,7 +202,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
         paddingLeft: "16px",
         paddingRight: "16px",
         paddingBottom: "12px",
-        color: '#57527E'
+        color: "#57527E",
       }}
     >
       <Text fontWeight="600" size="md">
@@ -254,14 +254,20 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
                   }}
                 >
                   Price
-                  <Text size="md" sx={{
-                    display: "flex",
-                    alignItems: "center",
-                  }}>
+                  <Text
+                    size="md"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
                     {wlTokenPrice}
-                    <AzeroLogo sx={{
-                      marginLeft: '4px'
-                    }} fontSize="14px" />
+                    <AzeroLogo
+                      sx={{
+                        marginLeft: "4px",
+                      }}
+                      fontSize="14px"
+                    />
                   </Text>
                 </Box>
                 <Box
@@ -303,9 +309,11 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
                         }}
                         type="number"
                         value={amount}
-                        label={ <Text fontSize={'16px'}>Amount (max: {
-                          wlMaxAmount - wlPurchasedAmount
-                        })</Text>}
+                        label={
+                          <Text fontSize={"16px"}>
+                            Amount (max: {wlMaxAmount - wlPurchasedAmount})
+                          </Text>
+                        }
                         placeholder="0"
                         inputRightElementIcon={
                           launchpadData?.projectInfo?.token?.symbol
@@ -331,9 +339,12 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
                       }}
                     >
                       Token price: {wlTokenPrice}
-                      <div style={{ marginLeft: "4px" }}>
-                        <AzeroLogo />
-                      </div>
+                      <AzeroLogo
+                        sx={{
+                          display: "flex",
+                          marginLeft: "4px",
+                        }}
+                      />
                     </div>
                     <div style={{ fontSize: "14px" }}>
                       Transaction fee is {txRate}%
