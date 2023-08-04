@@ -2,9 +2,9 @@ import {
   Box,
   Button,
   Divider,
-  Heading,
-  Progress,
   Text,
+  Progress,
+  Heading,
 } from "@chakra-ui/react";
 import { AzeroLogo } from "components/icons/Icons";
 import { useAppContext } from "contexts/AppContext";
@@ -199,14 +199,15 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
         border: "2.8px solid #E3DFF3",
         borderRadius: "8px",
         paddingTop: "16px",
-        paddingLeft: "8px",
-        paddingRight: "8px",
+        paddingLeft: "16px",
+        paddingRight: "16px",
         paddingBottom: "12px",
+        color: '#57527E'
       }}
     >
-      <Heading as="h4" size="md">
+      <Text fontWeight="600" size="md">
         You are in whitelist
-      </Heading>
+      </Text>
 
       <Box sx={{ mt: "20px" }}>
         {saleTime?.map((obj, index) => {
@@ -230,8 +231,8 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
             return (
               <>
                 <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  BUY PHASES
-                  <Heading
+                  Buy Phase
+                  <Text
                     key={index}
                     size="md"
                     sx={{
@@ -242,10 +243,9 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
                     {`${obj?.name}${`${
                       !allowBuy ? "(Not available yet)" : ""
                     }`}`}
-                  </Heading>
+                  </Text>
                 </Box>
 
-                <Divider />
                 <Box
                   sx={{
                     display: "flex",
@@ -254,10 +254,15 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
                   }}
                 >
                   Price
-                  <Heading size="md">
+                  <Text size="md" sx={{
+                    display: "flex",
+                    alignItems: "center",
+                  }}>
                     {wlTokenPrice}
-                    <AzeroLogo fontSize="14px" />
-                  </Heading>
+                    <AzeroLogo sx={{
+                      marginLeft: '4px'
+                    }} fontSize="14px" />
+                  </Text>
                 </Box>
                 <Box
                   sx={{
@@ -267,7 +272,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
                   }}
                 >
                   Max amount
-                  <Heading size="md">{wlMaxAmount}</Heading>
+                  <Text size="md">{wlMaxAmount}</Text>
                 </Box>
 
                 <Box
@@ -278,7 +283,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
                   }}
                 >
                   Purchased
-                  <Heading size="md">{wlPurchasedAmount}</Heading>
+                  <Text size="md">{wlPurchasedAmount}</Text>
                 </Box>
                 {allowBuy && (
                   <>
@@ -298,9 +303,9 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
                         }}
                         type="number"
                         value={amount}
-                        label={`Amount (max ${
+                        label={ <Text fontSize={'16px'}>Amount (max: {
                           wlMaxAmount - wlPurchasedAmount
-                        })`}
+                        })</Text>}
                         placeholder="0"
                         inputRightElementIcon={
                           launchpadData?.projectInfo?.token?.symbol

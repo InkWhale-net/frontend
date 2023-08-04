@@ -167,8 +167,8 @@ const StatusCard = ({ launchpadData }) => {
         border: "2.8px solid #E3DFF3",
         borderRadius: "8px",
         paddingTop: "20px",
-        paddingLeft: "8px",
-        paddingRight: "8px",
+        paddingLeft: "16px",
+        paddingRight: "16px",
         paddingBottom: "12px",
       }}
     >

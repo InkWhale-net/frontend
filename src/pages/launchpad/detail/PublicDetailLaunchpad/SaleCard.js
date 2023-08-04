@@ -349,7 +349,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
   return (
     <>
       <Box sx={{ marginTop: "12px" }}>
-        <Text sx={headerSX}>Progress {`(${progressPublicSaleRatio}%)`}</Text>
+        <Text>Progress {`(${progressPublicSaleRatio}%)`}</Text>
         <Progress
           sx={{ marginTop: "4px" }}
           w="full"
@@ -369,7 +369,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         </Box>
       </Box>
       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
-        <Text sx={headerSX}>{`Amount (max ${
+        <Text sx={headerSX}>{`Amount (max: ${
           publicSaleAmount?.total - publicSaleAmount?.purchased
         })`}</Text>
         <IWInput

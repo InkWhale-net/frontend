@@ -20,7 +20,7 @@ const Row = ({ label, value, divider = false, ...rest }) => {
         style={{
           display: "flex",
           justifyContent: "space-between",
-          marginTop: "4px",
+          marginTop: "8px",
           ...rest,
         }}
       >
@@ -72,9 +72,9 @@ const BalanceCard = ({ launchpadData }) => {
         marginTop: "12px",
         border: "2.8px solid #E3DFF3",
         borderRadius: "8px",
-        paddingTop: "16px",
-        paddingLeft: "8px",
-        paddingRight: "8px",
+        paddingTop: "20px",
+        paddingLeft: "16px",
+        paddingRight: "16px",
         paddingBottom: "12px",
       }}
     >

@@ -76,7 +76,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
   ]);
   return (
     <TabLayout launchpadData={launchpadData}>
-      <Heading size="lg">General</Heading>
+      <Heading sx={{fontSize: "24px"}} size="lg">General Information</Heading>
       <Divider sx={{ marginBottom: "16px" }} />
       {mainTableHeader.map((e, index) => {
         return (
@@ -100,6 +100,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
       <Heading
         sx={{
           marginTop: "40px",
+          fontSize: "24px"
         }}
         size="lg"
       >
@@ -110,11 +111,12 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
         return (
           <Box sx={{ paddingTop: index !== 0 ? "20px" : 0 }}>
             <Heading size="md">Milestone {index + 1}</Heading>
-            <Divider />
             <Box
               display="flex"
               flexDirection={["column", "column", "row"]}
               alignItems={["start", "start", "center"]}
+              marginBottom={'10px'}
+              marginTop={'10px'}
             >
               <Text sx={{ flex: 1 }}>Name</Text>
               <Text size="md" sx={{ flex: 2, textAlign: "right" }}>
@@ -125,6 +127,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
               display="flex"
               flexDirection={["column", "column", "row"]}
               alignItems={["start", "start", "center"]}
+              marginBottom={'10px'}
             >
               <Text sx={{ flex: 1 }}>Description</Text>
               <Text sx={{ flex: 2, textAlign: "right" }}>
@@ -137,6 +140,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
       <Heading
         sx={{
           marginTop: "40px",
+          fontSize: "24px"
         }}
         size="lg"
       >
@@ -172,12 +176,12 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
-                paddingLeft: "20px",
+                paddingLeft: "24px",
               }}
             >
-              <Heading size="md">{obj?.name?.toUpperCase()}</Heading>
+              <Text  size="md">{obj?.name?.toUpperCase()}</Text>
               <Text>
-                Role: <b>{obj?.title}</b>
+                Role: <span>{obj?.title}</span>
               </Text>
               <Box sx={{ display: "flex" }}>
                 <Text sx={{ marginRight: "8px" }}>Social link:</Text>
