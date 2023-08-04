@@ -215,7 +215,7 @@ const CreateLaunchpadContextProvider = (props) => {
       // const totalPhase = phaseQuery.toHuman()?.Ok;
       const whitelist = launchpadData?.phase
         ?.map((e) => {
-          if (e?.whitelist) return processStringToArray(e?.whiteList);
+          if (e?.whiteList) return processStringToArray(e?.whiteList);
         })
         .filter((e) => e);
       if (whitelist?.length > 0) {
@@ -318,6 +318,9 @@ const CreateLaunchpadContextProvider = (props) => {
 
   const handleAddNewLaunchpad = async () => {
     try {
+      if (!currentAccount) {
+        return toast.error("Please connect wallet first!");
+      }
       const minReward = launchpadData?.phase?.reduce(
         (acc, e) => acc + (e?.phasePublicAmount || 0),
         0
@@ -331,6 +334,7 @@ const CreateLaunchpadContextProvider = (props) => {
         )
       )
         return;
+
       const result = await execContractQuery(
         currentAccount?.address,
         api,
@@ -355,70 +359,13 @@ const CreateLaunchpadContextProvider = (props) => {
         return;
       }
       // check wallet connect?
-      if (!currentAccount) {
-        return toast.error("Please connect wallet first!");
-      }
+
       if (!validatePhaseData(launchpadData?.phase, launchpadData?.totalSupply))
         return;
-      // ADD MODE CHECKING
-      // if (!values.isEditMode) {
-      //   // check Total Mint Amount của Phase vs total Supply (FE)
-      //   const totalSupply = parseInt(values.totalSupply);
-      //   const phases = values.phases;
-
-      //   const allPhasesMintAmount = phases.reduce((acc, cur) => {
-      //     return cur?.isPublic
-      //       ? acc + parseInt(cur?.publicAmount)
-      //       : acc;
-      //   }, 0);
-
-      //   if (totalSupply < allPhasesMintAmount) {
-      //     return toast.error(
-      //       "Total mint of phases must less than Total supply!"
-      //     );
-      //   }
-      // }
-
-      // check all image uploaded?
-
-      // if (!values.isEditMode) {
-      //   // check prj time-frame is picked?
-      //   const prjStartTime = values?.startTime;
-      //   const prjEndTime = values?.endTime;
-      //   if (!values.isEditMode && (!prjStartTime || !prjEndTime)) {
-      //     return toast.error("Please pick time frame for project!");
-      //   }
-
-      //   // check all phase time-frame is picked?
-      //   const phasesArray = values?.phases;
-
-      //   const startPhasesAr = phasesArray?.map((i) => i.start);
-
-      //   const isPhaseTimePicked = startPhasesAr?.every((e) => e);
-
-      //   if (phasesArray && !isPhaseTimePicked) {
-      //     return toast.error("Please pick time frame for all phases!");
-      //   }
-
-      //   // check time is overlap?
-      //   const allPhaseTime = [...values.phases];
-
-      //   const isOverlap = isPhaseTimeOverlap(allPhaseTime);
-
-      //   if (isOverlap) {
-      //     return toast.error("Sub phase time is not valid or overlap.");
-      //   }
-      // }
-
-      // //check low balance?
-      // if (userBalance < 1) {
-      //   return toast.error(`Your balance too low!`);
-      // }
-
+      
       const project_info_ipfs = await ipfsClient.add(
         JSON.stringify(launchpadData)
       );
-
       const allowanceINWQr = await execContractQuery(
         currentAccount?.address,
         "api",
@@ -448,7 +395,7 @@ const CreateLaunchpadContextProvider = (props) => {
         launchpadData?.token?.decimals
       ).replaceAll(",", "");
       //Approve
-      if (allowanceINW < createTokenFee.replaceAll(",", "")) {
+      if (allowanceINW < parseFloat(createTokenFee.replaceAll(",", ""))) {
         toast(`Approving INW token...`);
         let approve = await execContractTx(
           currentAccount,
@@ -480,7 +427,6 @@ const CreateLaunchpadContextProvider = (props) => {
       toast.loading(`Process creating...`, {
         duration: 4000,
       });
-
       await execContractTxAndCallAPI(
         currentAccount,
         "api",

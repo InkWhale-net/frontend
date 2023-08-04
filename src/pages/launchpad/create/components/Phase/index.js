@@ -120,6 +120,7 @@ const Phase = () => {
     <div style={{ display: "flex", flexDirection: "column" }}>
       <SectionContainer title={"Total For Sale"}>
         <IWInput
+          type="number"
           value={totalSupply}
           onChange={({ target }) => setTotalSupply(target.value)}
           placeholder="0"
