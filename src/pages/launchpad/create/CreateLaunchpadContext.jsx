@@ -362,7 +362,18 @@ const CreateLaunchpadContextProvider = (props) => {
 
       if (!validatePhaseData(launchpadData?.phase, launchpadData?.totalSupply))
         return;
-      
+
+      console.log(
+        launchpadData?.phase?.map((e) =>
+          (parseFloat(e?.immediateReleaseRate) * 100).toFixed()
+        ),
+        launchpadData?.phase?.map((e) =>
+          dayToMilisecond(parseFloat(e?.vestingLength))
+        ),
+        launchpadData?.phase?.map((e) =>
+          dayToMilisecond(parseFloat(e?.vestingUnit))
+        )
+      );
       const project_info_ipfs = await ipfsClient.add(
         JSON.stringify(launchpadData)
       );
@@ -427,6 +438,7 @@ const CreateLaunchpadContextProvider = (props) => {
       toast.loading(`Process creating...`, {
         duration: 4000,
       });
+
       await execContractTxAndCallAPI(
         currentAccount,
         "api",
@@ -463,14 +475,16 @@ const CreateLaunchpadContextProvider = (props) => {
         launchpadData?.phase?.map((e) => e?.startDate?.getTime()),
         launchpadData?.phase?.map((e) => e?.endDate?.getTime()),
         launchpadData?.phase?.map((e) =>
-          (parseFloat(e?.immediateReleaseRate) * 100).toFixed()
+          parseInt((parseFloat(e?.immediateReleaseRate) * 100).toFixed())
         ),
-        launchpadData?.phase?.map((e) =>
-          dayToMilisecond(parseFloat(e?.vestingLength))
-        ),
-        launchpadData?.phase?.map((e) =>
-          dayToMilisecond(parseFloat(e?.vestingUnit))
-        ),
+        launchpadData?.phase?.map((e) => {
+          if (parseFloat(e?.immediateReleaseRate) == 100) return 0;
+          else return dayToMilisecond(parseFloat(e?.vestingLength));
+        }),
+        launchpadData?.phase?.map((e) => {
+          if (parseFloat(e?.immediateReleaseRate) == 100) return 1;
+          else return dayToMilisecond(parseFloat(e?.vestingUnit));
+        }),
         launchpadData?.phase?.map((e) => e?.allowPublicSale),
         launchpadData?.phase?.map((e) => {
           return e?.allowPublicSale
@@ -478,12 +492,12 @@ const CreateLaunchpadContextProvider = (props) => {
                 e?.phasePublicAmount.toString(),
                 parseInt(launchpadData?.token.decimals)
               )
-            : null;
+            : 0;
         }),
         launchpadData?.phase?.map((e) => {
           return e?.allowPublicSale
             ? parseUnits(e?.phasePublicPrice.toString(), 12)
-            : null;
+            : 0;
         })
       );
     } catch (error) {
