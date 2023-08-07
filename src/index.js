@@ -57,6 +57,7 @@ import {
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { delay } from "utils";
 import { initialApi } from "utils/contracts";
+import EditLaunchpad from "pages/launchpad/edit";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -210,6 +211,11 @@ const App = () => {
             exact
             path={`/launchpad/:launchpadContract`}
             component={PublicDetailLaunchpad}
+          />
+          <Route
+            exact
+            path={`/launchpad/:launchpadContract/edit`}
+            component={EditLaunchpad}
           />
           <Route
             exact

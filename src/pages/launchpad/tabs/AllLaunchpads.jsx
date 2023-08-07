@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import LaunchpadTag from "../components/LaunchpadTag";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import { fetchUserBalance } from "redux/slices/walletSlice";
 
 const AllLaunchpads = ({}) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -22,8 +23,6 @@ const AllLaunchpads = ({}) => {
     keyword: null,
     status: 0,
   });
-
-  const statusOption = ["All status", "Upcoming", "Live", "Ended"];
 
   const [sortby, setSortby] = useState(null);
   const [{ pageIndex, pageSize }, setPagination] = useState({
@@ -43,7 +42,12 @@ const AllLaunchpads = ({}) => {
   };
   useEffect(() => {
     if (currentAccount) queryLaunchpads();
-  }, [queries, currentAccount]);
+  }, [queries, currentAccount, api]);
+  useEffect(() => {
+    if (!currentAccount?.balance) {
+      dispatch(fetchUserBalance({ currentAccount, api }));
+    }
+  }, [currentAccount, api]);
 
   return (
     <div>
@@ -109,7 +113,13 @@ const AllLaunchpads = ({}) => {
       >
         {launchpads?.map((obj, index) => {
           return (
-            <LaunchpadTag LaunchpadData={obj} key={`launchpad-tag-${index}`} />
+            <LaunchpadTag
+              launchpadData={{
+                ...obj,
+                phaseList: JSON.parse(obj?.phaseList),
+              }}
+              key={`launchpad-tag-${index}`}
+            />
           );
         })}
       </SimpleGrid>

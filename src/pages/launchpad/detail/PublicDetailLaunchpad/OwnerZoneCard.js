@@ -99,7 +99,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         w="full"
         height="40px"
         variant="outline"
-        onClick={() => toast("Comming soon ...")}
+        onClick={() => toast("Coming soon ...")}
       >
         Whitelist Manager
       </Button>
@@ -109,7 +109,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         w="full"
         height="40px"
         variant="outline"
-        onClick={() => toast("Comming soon ...")}
+        onClick={() => toast("Coming soon ...")}
       >
         Update Project Info
       </Button>
@@ -119,7 +119,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         w="full"
         height="40px"
         variant="outline"
-        onClick={() => toast("Comming soon ...")}
+        onClick={() => toast("Coming soon ...")}
       >
         Update Phase
       </Button>
@@ -129,7 +129,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         w="full"
         height="40px"
         variant="outline"
-        onClick={() => toast("Comming soon ...")}
+        onClick={() => toast("Coming soon ...")}
       >
         Minting History
       </Button>

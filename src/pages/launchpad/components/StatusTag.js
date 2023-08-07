@@ -19,7 +19,7 @@ export const UpcomingStatusTag = () => {
         color: "#57527E",
       }}
     >
-      <AiOutlineLock style={{ marginRight: "4px" }} color="#57527E" />
+      <BsDot size={"20px"} color="#57527E" />
       Upcoming
     </div>
   );
