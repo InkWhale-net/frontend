@@ -29,6 +29,7 @@ import { roundUp } from "utils";
 import IWInput from "components/input/Input";
 import { APICall } from "api/client";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import { roundDown } from "utils";
 
 const IWCountDown = ({ saleTime, launchpadData }) => {
   const renderer = ({ completed }) => {
@@ -224,8 +225,8 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
               parseInt(launchpadData.projectInfo.token.decimals)
             )
           );
-          const wlPurchasedAmount = parseFloat(
-            formatTokenAmount(buyerInformation?.purchasedAmount, 12)
+          const wlPurchasedAmount = roundUp(
+            parseFloat(formatTokenAmount(buyerInformation?.purchasedAmount, 12))
           );
           if (allowBuy)
             return (
@@ -321,9 +322,15 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
                       />
                     </Box>
                     <IWInput
-                      isDisabled
                       onChange={({ target }) => {
-                        setAmount(target.value);
+                        setAzeroBuyAmount(target.value);
+                        setAmount(
+                          roundDown(
+                            (parseFloat(target.value) * 100) /
+                              (txRate + 100) /
+                              parseFloat(wlTokenPrice)
+                          )
+                        );
                       }}
                       type="number"
                       value={azeroBuyAmount}
