@@ -1,4 +1,15 @@
-import { Box, Circle, Heading, Image, Text , Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button, Show} from "@chakra-ui/react";
+import {
+  Box,
+  Circle,
+  Heading,
+  Image,
+  Text,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  Button,
+  Show,
+} from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 import IWTabs from "components/tabs/IWTabs";
 import { useMemo } from "react";
@@ -75,58 +86,60 @@ const PublicDetailLaunchpad = () => {
   ];
   return (
     <>
-    <Show above="md">
-    <SectionContainer mt={{ xl: "-48px" }} mb={{ xl: "-32px" }}>
-      <Breadcrumb
-        spacing="4px"
-        separator={<ChevronRightIcon color="gray.500" />}
-      >
-        <BreadcrumbItem color="text.1">
-          <BreadcrumbLink href="/launchpad">All Launchpads</BreadcrumbLink>
-        </BreadcrumbItem>
+      <Show above="md">
+        <SectionContainer mt={{ xl: "-48px" }} mb={{ xl: "-32px" }}>
+          <Breadcrumb
+            spacing="4px"
+            separator={<ChevronRightIcon color="gray.500" />}
+          >
+            <BreadcrumbItem color="text.1">
+              <BreadcrumbLink onClick={() => history.push("/launchpad")}>
+                All Launchpads
+              </BreadcrumbLink>
+            </BreadcrumbItem>
 
-        <BreadcrumbItem color="text.2">
-          <BreadcrumbLink>Detail</BreadcrumbLink>
-        </BreadcrumbItem>
-      </Breadcrumb>
-    </SectionContainer>
-  </Show>
-    <SectionContainer mt={{ base: "0px", xl: "20px" }} right={<div></div>}>
-      <Box sx={{ display: "flex", paddingBottom: "32px" }}>
-        <Circle w="80px" h="80px" bg="white">
-          <Image
-            sx={{
-              w: "80px",
-              h: "80px",
-              borderRadius: "80px",
-              objectFit: "cover",
-              objectPosition: "center",
-            }}
-            src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${projectInfor?.avatarImage}`}
-            alt="logo-launchpad"
-          />
-        </Circle>
-        <Box sx={{ marginLeft: "16px", flex: 1 }}>
-          <Heading>{projectInfor?.name}</Heading>
-          <Box sx={{ display: "flex", marginTop: "4px" }}>
+            <BreadcrumbItem color="text.2">
+              <BreadcrumbLink>Detail</BreadcrumbLink>
+            </BreadcrumbItem>
+          </Breadcrumb>
+        </SectionContainer>
+      </Show>
+      <SectionContainer mt={{ base: "0px", xl: "20px" }} right={<div></div>}>
+        <Box sx={{ display: "flex", paddingBottom: "32px" }}>
+          <Circle w="80px" h="80px" bg="white">
             <Image
               sx={{
-                w: "32px",
-                h: "32px",
+                w: "80px",
+                h: "80px",
                 borderRadius: "80px",
                 objectFit: "cover",
                 objectPosition: "center",
-                marginRight: "8px",
               }}
-              src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${token?.tokenIconUrl}`}
+              src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${projectInfor?.avatarImage}`}
               alt="logo-launchpad"
             />
-            <Text>{`${token?.name}(${token?.symbol})`}</Text>
+          </Circle>
+          <Box sx={{ marginLeft: "16px", flex: 1 }}>
+            <Heading>{projectInfor?.name}</Heading>
+            <Box sx={{ display: "flex", marginTop: "4px" }}>
+              <Image
+                sx={{
+                  w: "32px",
+                  h: "32px",
+                  borderRadius: "80px",
+                  objectFit: "cover",
+                  objectPosition: "center",
+                  marginRight: "8px",
+                }}
+                src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${token?.tokenIconUrl}`}
+                alt="logo-launchpad"
+              />
+              <Text>{`${token?.name}(${token?.symbol})`}</Text>
+            </Box>
           </Box>
         </Box>
-      </Box>
-      <IWTabs tabsData={tabsData} />
-    </SectionContainer>
+        <IWTabs tabsData={tabsData} />
+      </SectionContainer>
     </>
   );
 };
