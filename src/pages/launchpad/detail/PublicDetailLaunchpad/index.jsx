@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import GeneralInformation from "./tabs/GeneralInformation";
 import TokenInformation from "./tabs/TokenInformation";
 import PhaseInformation from "./tabs/Phase";
+import BalanceTab from "./tabs/Balance";
 
 const PublicDetailLaunchpad = () => {
   const { launchpads } = useSelector((s) => s.launchpad);
@@ -56,6 +57,11 @@ const PublicDetailLaunchpad = () => {
       ),
       isDisabled: false,
     },
+    {
+      label: <>Balance</>,
+      component: <BalanceTab launchpadData={launchpadData} />,
+      isDisabled: false,
+    },
   ];
   return (
     <SectionContainer mt={{ base: "0px", xl: "20px" }} right={<div></div>}>
@@ -75,7 +81,7 @@ const PublicDetailLaunchpad = () => {
         </Circle>
         <Box sx={{ marginLeft: "16px" }}>
           <Heading>{projectInfor?.name}</Heading>
-          <Box sx={{ display: "flex", marginTop: '4px' }}>
+          <Box sx={{ display: "flex", marginTop: "4px" }}>
             <Image
               sx={{
                 w: "32px",

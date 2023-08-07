@@ -363,17 +363,6 @@ const CreateLaunchpadContextProvider = (props) => {
       if (!validatePhaseData(launchpadData?.phase, launchpadData?.totalSupply))
         return;
 
-      console.log(
-        launchpadData?.phase?.map((e) =>
-          (parseFloat(e?.immediateReleaseRate) * 100).toFixed()
-        ),
-        launchpadData?.phase?.map((e) =>
-          dayToMilisecond(parseFloat(e?.vestingLength))
-        ),
-        launchpadData?.phase?.map((e) =>
-          dayToMilisecond(parseFloat(e?.vestingUnit))
-        )
-      );
       const project_info_ipfs = await ipfsClient.add(
         JSON.stringify(launchpadData)
       );
