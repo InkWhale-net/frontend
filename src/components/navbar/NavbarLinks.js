@@ -211,10 +211,10 @@ export const menuListData = [
     title: "Acquire INW",
     href: "/acquire-inw",
   },
-  // {
-  //   title: "Tokens",
-  //   href: "/tokens",
-  // },
+  {
+    title: "Launchpads",
+    href: "/launchpad",
+  },
 ];
 
 export const CreateMenuDropdown = ({

@@ -1,4 +1,4 @@
-import { Box, Button, Circle, Heading, Image, Text } from "@chakra-ui/react";
+import { Box, Circle, Heading, Image, Text , Breadcrumb, BreadcrumbItem, BreadcrumbLink, Button, Show} from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 import IWTabs from "components/tabs/IWTabs";
 import { useMemo } from "react";
@@ -9,6 +9,7 @@ import TokenInformation from "./tabs/TokenInformation";
 import PhaseInformation from "./tabs/Phase";
 import BalanceTab from "./tabs/Balance";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { ChevronRightIcon } from "@chakra-ui/icons";
 
 const PublicDetailLaunchpad = () => {
   const { launchpads } = useSelector((s) => s.launchpad);
@@ -73,7 +74,24 @@ const PublicDetailLaunchpad = () => {
     },
   ];
   return (
-    <SectionContainer mt={{ base: "0px", xl: "20px" }}>
+    <>
+    <Show above="md">
+    <SectionContainer mt={{ xl: "-48px" }} mb={{ xl: "-32px" }}>
+      <Breadcrumb
+        spacing="4px"
+        separator={<ChevronRightIcon color="gray.500" />}
+      >
+        <BreadcrumbItem color="text.1">
+          <BreadcrumbLink href="/launchpad">All Launchpads</BreadcrumbLink>
+        </BreadcrumbItem>
+
+        <BreadcrumbItem color="text.2">
+          <BreadcrumbLink>Detail</BreadcrumbLink>
+        </BreadcrumbItem>
+      </Breadcrumb>
+    </SectionContainer>
+  </Show>
+    <SectionContainer mt={{ base: "0px", xl: "20px" }} right={<div></div>}>
       <Box sx={{ display: "flex", paddingBottom: "32px" }}>
         <Circle w="80px" h="80px" bg="white">
           <Image
@@ -109,6 +127,7 @@ const PublicDetailLaunchpad = () => {
       </Box>
       <IWTabs tabsData={tabsData} />
     </SectionContainer>
+    </>
   );
 };
 

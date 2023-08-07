@@ -84,7 +84,6 @@ const LaunchpadTag = ({ launchpadData }) => {
   const history = useHistory();
   const { launchpadContract, projectInfo } = launchpadData;
   const { projectInfor } = projectInfo || {};
-
   const projectTime = useMemo(() => {
     return {
       startTime: new Date(
@@ -115,6 +114,7 @@ const LaunchpadTag = ({ launchpadData }) => {
         border: "4px solid #E3DFF3",
         borderRadius: "8px",
         padding: "20px",
+        paddingBottom: '16px',
         transition: "border 300ms ease-in-out",
       }}
       onClick={() => {
@@ -137,6 +137,7 @@ const LaunchpadTag = ({ launchpadData }) => {
           src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}/${projectInfo?.projectInfor?.headerImage}`}
         />
         <IWStatus
+          isActive={launchpadData.isActive}
           startDate={projectTime?.startTime}
           endDate={projectTime?.endTime}
           liveRender={<LiveStatusTag />}
@@ -200,7 +201,7 @@ const LaunchpadTag = ({ launchpadData }) => {
         style={{
           display: "flex",
           justifyContent: "space-between",
-          marginTop: "8px",
+          marginTop: "16px",
         }}
       >
         <IWCountDown launchpadData={launchpadData} saleTime={saleTime} />
@@ -210,7 +211,7 @@ const LaunchpadTag = ({ launchpadData }) => {
             endDate={projectTime?.endTime}
           />
         </div> */}
-        <Button>View</Button>
+        <Button width={'92px'} height={'42px'}>View</Button>
       </div>
     </Box>
   );
