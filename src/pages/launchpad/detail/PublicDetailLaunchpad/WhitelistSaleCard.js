@@ -263,9 +263,8 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
                         onChange={({ target }) => {
                           setAmount(target.value);
                           setAzeroBuyAmount(
-                            roundUp(
-                              (parseFloat(target.value) * wlTokenPrice, 4)
-                            )
+                            roundUp(parseFloat(target.value) * wlTokenPrice),
+                            4
                           );
                         }}
                         type="number"
@@ -286,8 +285,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
                         setAzeroBuyAmount(target.value);
                         setAmount(
                           roundDown(
-                            (parseFloat(target.value) * 100) /
-                              parseFloat(wlTokenPrice)
+                            parseFloat(target.value) / parseFloat(wlTokenPrice)
                           )
                         );
                       }}
