@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { BeatLoader } from "react-spinners";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
+import { roundDown } from "utils";
 import { roundUp } from "utils";
 import { delay } from "utils";
 import { formatNumToBN } from "utils";
@@ -390,9 +391,15 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         />
       </Box>
       <IWInput
-        isDisabled
         onChange={({ target }) => {
-          setAmount(target.value);
+          setAzeroBuyAmount(target.value);
+          setAmount(
+            roundDown(
+              (parseFloat(target.value) * 100) /
+                (txRate + 100) /
+                parseFloat(tokenPrice)
+            )
+          );
         }}
         type="number"
         value={azeroBuyAmount}
