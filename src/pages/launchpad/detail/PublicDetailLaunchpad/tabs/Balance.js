@@ -301,6 +301,7 @@ const PhaseTag = ({ data, launchpadData }) => {
             value={`${publicBalance?.claimedAmount || 0} ${token?.symbol}` || 0}
           />
           <Button
+            isDisabled={!(parseFloat(publicBalance?.purchasedAmount) > 0)}
             my="8px"
             w="full"
             height="40px"
@@ -329,6 +330,7 @@ const PhaseTag = ({ data, launchpadData }) => {
             value={`${WLBalance?.claimedAmount || 0} ${token?.symbol}` || 0}
           />
           <Button
+            isDisabled={!(parseFloat(WLBalance?.purchasedAmount) > 0)}
             my="8px"
             w="full"
             height="40px"
