@@ -1,4 +1,4 @@
-import { Box, Circle, Heading, Image, Text } from "@chakra-ui/react";
+import { Box, Button, Circle, Heading, Image, Text } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 import IWTabs from "components/tabs/IWTabs";
 import { useMemo } from "react";
@@ -8,11 +8,15 @@ import GeneralInformation from "./tabs/GeneralInformation";
 import TokenInformation from "./tabs/TokenInformation";
 import PhaseInformation from "./tabs/Phase";
 import BalanceTab from "./tabs/Balance";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const PublicDetailLaunchpad = () => {
   const { launchpads } = useSelector((s) => s.launchpad);
+  const { currentAccount } = useSelector((s) => s.wallet);
   const params = useParams();
   const launchpadContract = params?.launchpadContract;
+  const history = useHistory();
+
   const launchpadData = useMemo(() => {
     const foundNode = launchpads?.find(
       (e) => e?.launchpadContract == launchpadContract
@@ -23,6 +27,11 @@ const PublicDetailLaunchpad = () => {
         phaseList: JSON.parse(foundNode?.phaseList || {}),
       };
   }, [launchpadContract, launchpads]);
+  const isLaunchpadOwner = useMemo(
+    () => currentAccount?.address === launchpadData?.owner,
+
+    [currentAccount?.address, launchpadData?.owner]
+  );
   const { projectInfor, token } = launchpadData?.projectInfo || {};
 
   const tabsData = [
@@ -64,7 +73,7 @@ const PublicDetailLaunchpad = () => {
     },
   ];
   return (
-    <SectionContainer mt={{ base: "0px", xl: "20px" }} right={<div></div>}>
+    <SectionContainer mt={{ base: "0px", xl: "20px" }}>
       <Box sx={{ display: "flex", paddingBottom: "32px" }}>
         <Circle w="80px" h="80px" bg="white">
           <Image
@@ -79,7 +88,7 @@ const PublicDetailLaunchpad = () => {
             alt="logo-launchpad"
           />
         </Circle>
-        <Box sx={{ marginLeft: "16px" }}>
+        <Box sx={{ marginLeft: "16px", flex: 1 }}>
           <Heading>{projectInfor?.name}</Heading>
           <Box sx={{ display: "flex", marginTop: "4px" }}>
             <Image
@@ -97,6 +106,11 @@ const PublicDetailLaunchpad = () => {
             <Text>{`${token?.name}(${token?.symbol})`}</Text>
           </Box>
         </Box>
+        <Button
+          onClick={() => history.push(`/launchpad/${launchpadContract}/edit`)}
+        >
+          Edit
+        </Button>
       </Box>
       <IWTabs tabsData={tabsData} />
     </SectionContainer>
