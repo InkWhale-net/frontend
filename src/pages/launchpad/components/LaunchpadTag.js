@@ -5,6 +5,7 @@ import {
   Heading,
   Image,
   Progress,
+  Text,
 } from "@chakra-ui/react";
 import {
   IWStatus,
@@ -13,21 +14,95 @@ import {
 import { useHistory } from "react-router-dom";
 import { EndStatusTag, LiveStatusTag, UpcomingStatusTag } from "./StatusTag";
 import { useMemo } from "react";
+import Countdown, { zeroPad } from "react-countdown";
+const SaleCount = ({ label, time, direction }) => {
+  const renderer = ({ days, hours, minutes, seconds, completed }) => {
+    if (completed) {
+      return <></>;
+    } else {
+      return (
+        <Box display="flex">
+          <Text sx={{ fontWeight: "bold", color: "#57527E" }}>{`${zeroPad(
+            days
+          )}:${zeroPad(hours)}:${zeroPad(minutes)}:${zeroPad(seconds)}`}</Text>
+        </Box>
+      );
+    }
+  };
+  return (
+    <Box>
+      <Text>{label}</Text>
+      {time ? (
+        <Countdown date={time} renderer={renderer} />
+      ) : (
+        <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
+          {`00:00:00:00`}
+        </Text>
+      )}
+    </Box>
+  );
+};
+const IWCountDown = ({ saleTime, launchpadData }) => {
+  const renderer = ({ completed }) => {
+    const now = Date.now();
+    const livePhase = saleTime?.find((e) => {
+      return now > e.startTime && now < e.endTime;
+    });
+    const nearestPhase = saleTime?.reduce((acc, object) => {
+      if (!acc && object?.startTime > now) return object;
+      else {
+        if (acc?.startTime > object?.startTime && object?.startTime > now)
+          return object;
+        else return acc;
+      }
+    }, null);
+    if (completed) {
+      return <SaleCount label="Project ended" />;
+    } else if (livePhase) {
+      return (
+        <SaleCount label="Current phase ends in" time={livePhase?.endTime} />
+      );
+    } else if (nearestPhase) {
+      return (
+        <SaleCount
+          label={
+            nearestPhase?.id == 0 ? "Project starts in" : "Next phase starts in"
+          }
+          time={nearestPhase?.startTime}
+        />
+      );
+    }
+    return null;
+  };
+  const endTime = saleTime[saleTime?.length - 1]?.endTime;
+  if (saleTime?.length > 0)
+    return <Countdown date={endTime} renderer={renderer} />;
+  else return null;
+};
 
-const LaunchpadTag = ({ LaunchpadData }) => {
+const LaunchpadTag = ({ launchpadData }) => {
   const history = useHistory();
-  const { launchpadContract, projectInfo } = LaunchpadData;
+  const { launchpadContract, projectInfo } = launchpadData;
   const { projectInfor } = projectInfo || {};
 
   const projectTime = useMemo(() => {
     return {
       startTime: new Date(
-        parseInt(LaunchpadData?.startTime?.replace(/,/g, ""))
+        parseInt(launchpadData?.startTime?.replace(/,/g, ""))
       ),
-      endTime: new Date(parseInt(LaunchpadData?.endTime?.replace(/,/g, ""))),
+      endTime: new Date(parseInt(launchpadData?.endTime?.replace(/,/g, ""))),
     };
-  }, [LaunchpadData]);
-
+  }, [launchpadData]);
+  const saleTime = useMemo(
+    () =>
+      launchpadData?.phaseList.map((e, index) => ({
+        ...e,
+        id: index,
+        startTime: new Date(parseInt(e?.startTime?.replace(/,/g, ""))),
+        endTime: new Date(parseInt(e?.endTime?.replace(/,/g, ""))),
+      })),
+    [launchpadData]
+  );
   return (
     <Box
       _hover={{
@@ -44,7 +119,6 @@ const LaunchpadTag = ({ LaunchpadData }) => {
       }}
       onClick={() => {
         history.push({
-          state: LaunchpadData,
           pathname: `/launchpad/${launchpadContract}`,
         });
       }}
@@ -129,12 +203,13 @@ const LaunchpadTag = ({ LaunchpadData }) => {
           marginTop: "8px",
         }}
       >
-        <div>
+        <IWCountDown launchpadData={launchpadData} saleTime={saleTime} />
+        {/* <div>
           <IWStatusWithCountDown
             startDate={projectTime?.startTime}
             endDate={projectTime?.endTime}
           />
-        </div>
+        </div> */}
         <Button>View</Button>
       </div>
     </Box>

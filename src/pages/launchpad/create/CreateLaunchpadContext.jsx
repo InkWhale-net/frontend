@@ -344,10 +344,10 @@ const CreateLaunchpadContextProvider = (props) => {
         "launchpadGeneratorTrait::getCreationFee"
       );
       const fee = result.toHuman().Ok;
-
+      
       if (
         !(
-          parseFloat(currentAccount.balance.inw.replaceAll(",", "")) >
+          parseFloat(currentAccount?.balance?.inw.replaceAll(",", "")) >
           parseFloat(formatTokenAmount(fee, 12))
         )
       ) {

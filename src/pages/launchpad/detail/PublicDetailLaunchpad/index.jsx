@@ -106,11 +106,6 @@ const PublicDetailLaunchpad = () => {
             <Text>{`${token?.name}(${token?.symbol})`}</Text>
           </Box>
         </Box>
-        <Button
-          onClick={() => history.push(`/launchpad/${launchpadContract}/edit`)}
-        >
-          Edit
-        </Button>
       </Box>
       <IWTabs tabsData={tabsData} />
     </SectionContainer>
