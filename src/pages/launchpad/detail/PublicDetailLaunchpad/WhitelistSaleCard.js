@@ -100,20 +100,9 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
   const { api } = useAppContext();
   const [amount, setAmount] = useState(null);
   const [azeroBuyAmount, setAzeroBuyAmount] = useState(0);
-  const [txRate, setTxRate] = useState(null);
 
   const dispatch = useDispatch();
 
-  const saleQuery = useQuery("query-public-sale", async () => {
-    if (currentAccount)
-      await new Promise(async (resolve) => {
-        await getPublicSaleInfo();
-        resolve();
-      });
-  });
-  useEffect(() => {
-    saleQuery.refetch();
-  }, [currentAccount, launchpadData]);
   const wlPublicHandler = async (maxAllowWlPurchase) => {
     try {
       if (!api) {
@@ -152,20 +141,11 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
       });
       setAmount(0);
       setAzeroBuyAmount(0);
-      saleQuery.refetch();
-      toast.promise(
-        delay(8000).then(() => {
-          if (currentAccount) {
-            dispatch(fetchUserBalance({ currentAccount, api }));
-            dispatch(fetchLaunchpads({ isActive: 0 }));
-          }
-        }),
-        {
-          loading: "Please wait up to 8s for the data to be updated...",
-          success: "Done !",
-          error: "Could not fetch data!!!",
-        }
-      );
+      await delay(4000);
+      if (currentAccount) {
+        dispatch(fetchUserBalance({ currentAccount, api }));
+        dispatch(fetchLaunchpads({ isActive: 0 }));
+      }
     } catch (error) {
       console.log(error);
     }
@@ -176,22 +156,6 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
       resolve();
     });
   }, "public_purchase");
-  const getPublicSaleInfo = async () => {
-    try {
-      const result2 = await execContractQuery(
-        currentAccount?.address,
-        "api",
-        launchpad.CONTRACT_ABI,
-        launchpadData?.launchpadContract,
-        0,
-        "launchpadContractTrait::getTxRate"
-      );
-      const txRateCT = result2.toHuman()?.Ok;
-      setTxRate(parseFloat(txRateCT) / 100);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   return (
     <Box
@@ -300,11 +264,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
                           setAmount(target.value);
                           setAzeroBuyAmount(
                             roundUp(
-                              (parseFloat(target.value) *
-                                wlTokenPrice *
-                                (txRate + 100)) /
-                                100,
-                              4
+                              (parseFloat(target.value) * wlTokenPrice, 4)
                             )
                           );
                         }}
@@ -327,7 +287,6 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
                         setAmount(
                           roundDown(
                             (parseFloat(target.value) * 100) /
-                              (txRate + 100) /
                               parseFloat(wlTokenPrice)
                           )
                         );
@@ -352,9 +311,6 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
                           marginLeft: "4px",
                         }}
                       />
-                    </div>
-                    <div style={{ fontSize: "14px" }}>
-                      Transaction fee is {txRate}%
                     </div>
                     <Box sx={{ display: "flex" }}>
                       <Button

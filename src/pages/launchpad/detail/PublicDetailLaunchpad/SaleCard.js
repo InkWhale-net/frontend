@@ -188,7 +188,6 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
   const [amount, setAmount] = useState(null);
   const [tokenPrice, setTokenPrice] = useState(0);
   const [azeroBuyAmount, setAzeroBuyAmount] = useState(0);
-  const [txRate, setTxRate] = useState(null);
   const [publicSaleAmount, setPublicSale] = useState({
     purchased: 0,
     total: 0,
@@ -250,19 +249,11 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
       setAmount(0);
       setAzeroBuyAmount(0);
       saleQuery.refetch();
-      toast.promise(
-        delay(8000).then(() => {
-          if (currentAccount) {
-            dispatch(fetchUserBalance({ currentAccount, api }));
-            dispatch(fetchLaunchpads({ isActive: 0 }));
-          }
-        }),
-        {
-          loading: "Please wait up to 8s for the data to be updated...",
-          success: "Done !",
-          error: "Could not fetch data!!!",
-        }
-      );
+      await delay(4000);
+      if (currentAccount) {
+        dispatch(fetchUserBalance({ currentAccount, api }));
+        dispatch(fetchLaunchpads({ isActive: 0 }));
+      }
     } catch (error) {
       console.log(error);
     }
@@ -320,16 +311,6 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
       );
       const publicSalePrice = result1.toHuman()?.Ok;
       setTokenPrice(parseFloat(formatTokenAmount(publicSalePrice, 12)));
-      const result2 = await execContractQuery(
-        currentAccount?.address,
-        "api",
-        launchpad.CONTRACT_ABI,
-        launchpadData?.launchpadContract,
-        0,
-        "launchpadContractTrait::getTxRate"
-      );
-      const txRateCT = result2.toHuman()?.Ok;
-      setTxRate(parseFloat(txRateCT) / 100);
     } catch (error) {
       console.log(error);
     }
@@ -378,10 +359,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
           onChange={({ target }) => {
             setAmount(target.value);
             setAzeroBuyAmount(
-              roundUp(
-                (target.value * parseFloat(tokenPrice) * (txRate + 100)) / 100,
-                4
-              )
+              roundUp(target.value * parseFloat(tokenPrice), 4)
             );
           }}
           type="number"
@@ -394,11 +372,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         onChange={({ target }) => {
           setAzeroBuyAmount(target.value);
           setAmount(
-            roundDown(
-              (parseFloat(target.value) * 100) /
-                (txRate + 100) /
-                parseFloat(tokenPrice)
-            )
+            roundDown(parseFloat(target.value) / parseFloat(tokenPrice))
           );
         }}
         type="number"
@@ -413,7 +387,6 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
           <AzeroLogo />
         </div>
       </div>
-      <div style={{ fontSize: "14px" }}>Transaction fee is {txRate}%</div>
       <Box sx={{ display: "flex" }}>
         <Button
           isLoading={publicBuyMutation.isLoading}
