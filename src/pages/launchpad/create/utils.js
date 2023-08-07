@@ -192,7 +192,7 @@ export const verifyWhitelist = (wlString) => {
 export const validateTotalSupply = (phaseData, totalSupply, tokenBalance) => {
   try {
     if (totalSupply > tokenBalance) {
-      toast.error("Token balance is not high enough");
+      toast.error("Total for sale is not higher you balance");
       return false;
     }
     if (!(totalSupply > 0)) {

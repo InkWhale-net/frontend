@@ -190,7 +190,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
             )
           );
           const wlPurchasedAmount = roundUp(
-            parseFloat(formatTokenAmount(buyerInformation?.purchasedAmount, 12))
+            parseFloat(formatTokenAmount(buyerInformation?.purchasedAmount, parseInt(launchpadData.projectInfo.token.decimals)))
           );
           if (allowBuy)
             return (
@@ -261,6 +261,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime }) => {
                     <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
                       <IWInput
                         onChange={({ target }) => {
+                          console.log(target.value, 'target.value');
                           setAmount(target.value);
                           setAzeroBuyAmount(
                             roundUp(parseFloat(target.value) * wlTokenPrice),

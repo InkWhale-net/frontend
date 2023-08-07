@@ -8,11 +8,10 @@ import LaunchpadTag from "../components/LaunchpadTag";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 
-const AllLaunchpads = ({}) => {
+const AllLaunchpads = ({isOwner}) => {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { launchpads } = useSelector((s) => s.launchpad);
   const { api } = useAppContext();
-  const dispatch = useDispatch();
   const [totalPage, setTotalPage] = useState(0);
   // status:
   // 0: all
@@ -23,6 +22,10 @@ const AllLaunchpads = ({}) => {
     keyword: null,
     status: 0,
   });
+
+  const dispatch = useDispatch();
+
+  const statusOption = ["All status", "Upcoming", "Live", "Ended"];
 
   const [sortby, setSortby] = useState(null);
   const [{ pageIndex, pageSize }, setPagination] = useState({
@@ -40,13 +43,24 @@ const AllLaunchpads = ({}) => {
   const queryLaunchpads = async () => {
     dispatch(fetchLaunchpads({ isActive: 0 }));
   };
-  useEffect(() => {
-    if (currentAccount) queryLaunchpads();
-  }, [queries, currentAccount, api]);
+
   useEffect(() => {
     if (!currentAccount?.balance && currentAccount && api)
       dispatch(fetchUserBalance({ currentAccount, api }));
+    queryLaunchpads()
   }, [currentAccount, api]);
+
+  const launchpadList = useMemo(() => {
+    if(isOwner) {
+      return launchpads?.filter( el => 
+        el.owner === currentAccount?.address
+      )
+    } else {
+      return launchpads?.filter( el => 
+        el.isActive === true
+      )
+    }
+  }, [isOwner, launchpads, currentAccount])
 
   return (
     <div>
@@ -110,7 +124,7 @@ const AllLaunchpads = ({}) => {
         spacing={4}
         sx={{ marginTop: "8px" }}
       >
-        {launchpads?.map((obj, index) => {
+        {launchpadList?.map((obj, index) => {
           return (
             <LaunchpadTag
               launchpadData={{

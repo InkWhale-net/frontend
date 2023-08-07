@@ -147,11 +147,11 @@ const PhaseTag = ({ data, launchpadData }) => {
           <Divider sx={{ marginBottom: "8px" }} />
           <Row
             label="Total purchased"
-            value={`${publicBalance?.purchasedAmount} ${token?.symbol}` || 0}
+            value={`${publicBalance?.purchasedAmount || 0} ${token?.symbol}` || 0}
           />
           <Row
             label="Claimed"
-            value={`${publicBalance?.claimedAmount} ${token?.symbol}` || 0}
+            value={`${publicBalance?.claimedAmount || 0} ${token?.symbol}` || 0}
           />
           <Button
             isDisabled
@@ -179,11 +179,11 @@ const PhaseTag = ({ data, launchpadData }) => {
           <Divider sx={{ marginBottom: "8px" }} />
           <Row
             label="Total purchased"
-            value={`${WLBalance?.purchasedAmount} ${token?.symbol}` || 0}
+            value={`${WLBalance?.purchasedAmount || 0} ${token?.symbol}` || 0}
           />
           <Row
             label="Claimed"
-            value={`${WLBalance?.claimedAmount} ${token?.symbol}` || 0}
+            value={`${WLBalance?.claimedAmount || 0} ${token?.symbol}` || 0}
           />
           <Button
             isDisabled

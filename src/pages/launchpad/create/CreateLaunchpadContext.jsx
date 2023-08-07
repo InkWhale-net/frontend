@@ -449,7 +449,7 @@ const CreateLaunchpadContextProvider = (props) => {
             }),
             {
               loading: "Please wait up to 10s for the data to be updated! ",
-              success: "Done !",
+              success: "Thank you for submitting. Your Prroject has been created successfully. It will need enabling by our team. We will get in touch with you within the next 48 hours. In the meantime, you can navigate to My Project page to check status of your project.",
               error: "Could not fetch data!!!",
             }
           );
