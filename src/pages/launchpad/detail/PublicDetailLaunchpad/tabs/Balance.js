@@ -17,6 +17,7 @@ import { delay } from "utils";
 import { toast } from "react-hot-toast";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { useEffect } from "react";
+import { roundDown } from "utils";
 const Row = ({ label, value, divider = false, ...rest }) => {
   return (
     <>
@@ -48,6 +49,7 @@ const PhaseTag = ({ data, launchpadData }) => {
   const { api } = useAppContext();
   const [publicBalance, setPublicBalance] = useState(null);
   const [WLBalance, setWLBalance] = useState(null);
+  const dispatch = useDispatch();
 
   const getPublicBalance = async () => {
     try {
@@ -116,6 +118,141 @@ const PhaseTag = ({ data, launchpadData }) => {
       console.log(error);
     }
   };
+
+  const publicClaimHandler = async () => {
+    try {
+      const startTime = new Date(parseInt(data?.startTime?.replace(/,/g, "")));
+      const endTime = new Date(parseInt(data?.endTime?.replace(/,/g, "")));
+      const now = new Date();
+      if (now > endTime) {
+        const query = await execContractQuery(
+          currentAccount?.address,
+          api,
+          launchpad.CONTRACT_ABI,
+          launchpadData?.launchpadContract,
+          0,
+          "launchpadContractTrait::getPublicBuyer",
+          data?.id,
+          currentAccount?.address
+        );
+        const publicBuyer = query.toHuman().Ok;
+        const decimalToken = parseInt(token.decimals);
+
+        const vestingDuration = parseInt(
+          data?.vestingDuration?.replace(/,/g, "")
+        );
+        // const endVestingTime = parseInt(endTime.getTime()) + vestingDuration;
+        //   console.log(endVestingTime)
+
+        const vestingUnit = parseInt(data?.vestingUnit?.replace(/,/g, ""));
+        const claimNumberOfTime = roundUp(vestingDuration / vestingUnit, 0);
+
+        const purchasedAmount = parseFloat(publicBalance?.purchasedAmount);
+        const vestingAmount = parseFloat(publicBalance?.vestingAmount);
+        const claimUnit = roundDown(vestingAmount / claimNumberOfTime);
+
+        const claimedAmount =
+          parseFloat(publicBalance?.claimedAmount) -
+          (purchasedAmount - vestingAmount);
+        const claimedNumberOfTime = roundDown(claimedAmount / claimUnit, 0);
+        const claimableNumberOfTime = Math.floor(
+          (now.getTime() - endTime.getTime()) / vestingUnit
+        );
+
+        if (claimableNumberOfTime > claimedNumberOfTime) {
+          await execContractTx(
+            currentAccount,
+            api,
+            launchpad.CONTRACT_ABI,
+            launchpadData?.launchpadContract,
+            0, //-> value
+            "launchpadContractTrait::publicClaim",
+            data?.id
+          );
+          await delay(1000);
+          await toast.promise(
+            delay(2000).then(() => {
+              if (currentAccount) {
+                dispatch(fetchUserBalance({ currentAccount, api }));
+              }
+            }),
+            {
+              loading: "Fetching new data ... ",
+              success: "Done !",
+              error: "Could not fetch data!!!",
+            }
+          );
+        } else {
+          toast.error("Wait until next claimable time");
+        }
+      } else {
+        toast.error("Phase sale time not ended");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const WLClaimHandler = async () => {
+    try {
+      const startTime = new Date(parseInt(data?.startTime?.replace(/,/g, "")));
+      const endTime = new Date(parseInt(data?.endTime?.replace(/,/g, "")));
+      const now = new Date();
+      if (now > endTime) {
+        const vestingDuration = parseInt(
+          data?.vestingDuration?.replace(/,/g, "")
+        );
+        // const endVestingTime = parseInt(endTime.getTime()) + vestingDuration;
+        //   console.log(endVestingTime)
+
+        const vestingUnit = parseInt(data?.vestingUnit?.replace(/,/g, ""));
+        const claimNumberOfTime = roundUp(vestingDuration / vestingUnit, 0);
+
+        const purchasedAmount = parseFloat(WLBalance?.purchasedAmount);
+        const vestingAmount = parseFloat(WLBalance?.vestingAmount);
+        const claimUnit = roundDown(vestingAmount / claimNumberOfTime);
+
+        const claimedAmount =
+          parseFloat(WLBalance?.claimedAmount) -
+          (purchasedAmount - vestingAmount);
+        const claimedNumberOfTime = roundDown(claimedAmount / claimUnit, 0);
+        const claimableNumberOfTime = Math.floor(
+          (now.getTime() - endTime.getTime()) / vestingUnit
+        );
+
+        if (claimableNumberOfTime > claimedNumberOfTime) {
+          await execContractTx(
+            currentAccount,
+            api,
+            launchpad.CONTRACT_ABI,
+            launchpadData?.launchpadContract,
+            0, //-> value
+            "launchpadContractTrait::whitelistClaim",
+            data?.id
+          );
+          await delay(1000);
+          await toast.promise(
+            delay(2000).then(() => {
+              if (currentAccount) {
+                dispatch(fetchUserBalance({ currentAccount, api }));
+              }
+            }),
+            {
+              loading: "Fetching new data ... ",
+              success: "Done !",
+              error: "Could not fetch data!!!",
+            }
+          );
+        } else {
+          toast.error("Wait until next claimable time");
+        }
+      } else {
+        toast.error("Phase sale time not ended");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (data?.publicSaleInfor?.isPublic) getPublicBalance();
     if (data?.whitelist?.length) getWLBalance();
@@ -147,22 +284,20 @@ const PhaseTag = ({ data, launchpadData }) => {
           <Divider sx={{ marginBottom: "8px" }} />
           <Row
             label="Total purchased"
-            value={`${publicBalance?.purchasedAmount || 0} ${token?.symbol}` || 0}
+            value={
+              `${publicBalance?.purchasedAmount || 0} ${token?.symbol}` || 0
+            }
           />
           <Row
             label="Claimed"
             value={`${publicBalance?.claimedAmount || 0} ${token?.symbol}` || 0}
           />
           <Button
-            isDisabled
             my="8px"
             w="full"
             height="40px"
             variant="outline"
-            onClick={
-              () => {}
-              //   publicClaimHandler({ ...e, phaseID: publicBuyer?.phaseID })
-            }
+            onClick={() => publicClaimHandler()}
           >
             Claim
           </Button>
@@ -191,10 +326,7 @@ const PhaseTag = ({ data, launchpadData }) => {
             w="full"
             height="40px"
             variant="outline"
-            onClick={
-              () => {}
-              //   publicClaimHandler({ ...e, phaseID: publicBuyer?.phaseID })
-            }
+            onClick={() => WLClaimHandler()}
           >
             Claim
           </Button>
@@ -210,41 +342,6 @@ const BalanceTab = ({ launchpadContract, launchpadData }) => {
   const [publicBalance, setPublicBalance] = useState([]);
   const dispatch = useDispatch();
   const phases = launchpadData?.phaseList;
-
-  const publicClaimHandler = async (phase) => {
-    try {
-      const endTime = new Date(parseInt(phase?.endTime?.replace(/,/g, "")));
-      const now = new Date();
-      if (now > endTime) {
-        await execContractTx(
-          currentAccount,
-          api,
-          launchpad.CONTRACT_ABI,
-          launchpadData?.launchpadContract,
-          0, //-> value
-          "launchpadContractTrait::publicClaim",
-          phase?.phaseID
-        );
-        await delay(1000);
-        await toast.promise(
-          delay(2000).then(() => {
-            if (currentAccount) {
-              dispatch(fetchUserBalance({ currentAccount, api }));
-            }
-          }),
-          {
-            loading: "Fetching new data ... ",
-            success: "Done !",
-            error: "Could not fetch data!!!",
-          }
-        );
-      } else {
-        toast.error("Phase sale time not ended");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   //   useEffect(() => {
   //     if (currentAccount) getBalance();
