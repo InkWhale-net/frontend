@@ -276,9 +276,8 @@ export const CreateMenuDropdown = ({
                 if (onClose) {
                   onClose();
                 }
-                toast.success("Coming soon!");
               },
-              // href: "/launchpad",
+              href: "/launchpad/create",
             },
             // { label: "Token Yield Farm", href: "/create/token-lp" },
           ].map((item, idx) => (
@@ -455,7 +454,6 @@ export const TokenMenuDropdown = ({
               href: "/tokens/transaction",
               onClick: () => {
                 if (onClose) onClose();
-                // toast.success("Coming soon!");
               },
             },
           ].map((item, idx) => (
