@@ -144,11 +144,15 @@ const PhaseTag = ({ data, launchpadData }) => {
         // const endVestingTime = parseInt(endTime.getTime()) + vestingDuration;
         //   console.log(endVestingTime)
 
-        const vestingUnit = parseInt(data?.vestingUnit?.replace(/,/g, ""));
+        const vestingUnit = parseInt(data?.vestingUnit?.replaceAll(/,/g, ""));
         const claimNumberOfTime = roundUp(vestingDuration / vestingUnit, 0);
 
         const purchasedAmount = parseFloat(publicBalance?.purchasedAmount);
-        const vestingAmount = parseFloat(publicBalance?.vestingAmount);
+        const vestingAmount =
+          purchasedAmount *
+          (1 -
+            parseFloat(data?.immediateReleaseRate?.replaceAll(/,/g, "")) /
+              10000);
         const claimUnit = roundDown(vestingAmount / claimNumberOfTime);
 
         const claimedAmount =
@@ -208,7 +212,12 @@ const PhaseTag = ({ data, launchpadData }) => {
         const claimNumberOfTime = roundUp(vestingDuration / vestingUnit, 0);
 
         const purchasedAmount = parseFloat(WLBalance?.purchasedAmount);
-        const vestingAmount = parseFloat(WLBalance?.vestingAmount);
+
+        const vestingAmount =
+          purchasedAmount *
+          (1 -
+            parseFloat(data?.immediateReleaseRate.replaceAll(/,/g, "")) /
+              10000);
         const claimUnit = roundDown(vestingAmount / claimNumberOfTime);
 
         const claimedAmount =
@@ -218,7 +227,6 @@ const PhaseTag = ({ data, launchpadData }) => {
         const claimableNumberOfTime = Math.floor(
           (now.getTime() - endTime.getTime()) / vestingUnit
         );
-
         if (claimableNumberOfTime > claimedNumberOfTime) {
           await execContractTx(
             currentAccount,
@@ -321,7 +329,6 @@ const PhaseTag = ({ data, launchpadData }) => {
             value={`${WLBalance?.claimedAmount || 0} ${token?.symbol}` || 0}
           />
           <Button
-            isDisabled
             my="8px"
             w="full"
             height="40px"
