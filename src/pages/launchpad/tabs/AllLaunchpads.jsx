@@ -44,9 +44,8 @@ const AllLaunchpads = ({}) => {
     if (currentAccount) queryLaunchpads();
   }, [queries, currentAccount, api]);
   useEffect(() => {
-    if (!currentAccount?.balance) {
+    if (!currentAccount?.balance && currentAccount && api)
       dispatch(fetchUserBalance({ currentAccount, api }));
-    }
   }, [currentAccount, api]);
 
   return (
