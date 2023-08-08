@@ -48,7 +48,7 @@ function CreateLaunchpadLayout() {
   return (
     <SectionContainer
       mt={{ base: "0px", xl: "8px" }}
-      title="Lauchpad"
+      title="Launchpad"
       description={
         <>
           The premier destination to launch your PSP22 token on Aleph Zero
