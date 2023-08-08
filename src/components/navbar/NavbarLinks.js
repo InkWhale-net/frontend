@@ -212,7 +212,7 @@ export const menuListData = [
     href: "/acquire-inw",
   },
   {
-    title: "Launchpads",
+    title: "Launchpad",
     href: "/launchpad",
   },
 ];

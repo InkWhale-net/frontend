@@ -32,7 +32,7 @@ export default function WalletModal({ isOpen, onClose, accounts }) {
   }
   return (
     <>
-      <Modal size={"sm"} onClose={onClose} isOpen={isOpen} isCentered>
+      <Modal size={"md"} onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
         <ModalContent
           borderWidth="0px"
@@ -86,7 +86,7 @@ export default function WalletModal({ isOpen, onClose, accounts }) {
                       />
                     </Circle>
 
-                    <Heading isTruncated w="full" as="h5" size="h5" ml="10px">
+                    <Heading w="full" as="h5" size="h5" ml="10px">
                       {acct?.meta?.name}
                     </Heading>
 
