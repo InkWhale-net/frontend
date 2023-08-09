@@ -75,8 +75,7 @@ export default function SaleInfoTab() {
       public_sale_contract.CONTRACT_ABI,
       public_sale_contract.CONTRACT_ADDRESS,
       0, //-> value
-      "genericTokenSaleTrait::setEndTime",
-      startTime.getTime()
+      "genericTokenSaleTrait::burn",
     );
   };
 
@@ -88,8 +87,7 @@ export default function SaleInfoTab() {
       private_sale_contract.CONTRACT_ABI,
       private_sale_contract.CONTRACT_ADDRESS,
       0, //-> value
-      "genericTokenSaleTrait::setEndTime",
-      startTime.getTime()
+      "genericTokenSaleTrait::burn",
     );
   };
 
