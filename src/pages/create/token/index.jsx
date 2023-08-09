@@ -36,6 +36,7 @@ import ImageUploadIcon from "./UploadIcon";
 import SaleTab from "components/tabs/SaleTab";
 import { roundUp } from "utils";
 import { useAppContext } from "contexts/AppContext";
+import { moveINWToBegin } from "utils";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
@@ -105,7 +106,7 @@ export default function CreateTokenPage() {
         };
       })
     );
-    setListToken(processedTokenList);
+    setListToken(moveINWToBegin(processedTokenList));
   };
   useEffect(() => {
     // setListToken([...listToken, allTokensList.slice(x)])
