@@ -34,12 +34,11 @@ export default function IWCountDownClaim({
   const renderer = ({ days, hours, minutes, seconds, completed }) => {
     const currentDate = new Date();
     const claimTimeToday = new Date();
-    const targetHour = startDate.getUTCHours();
-    const targetMinute = startDate.getUTCMinutes();
-    const targetSecond = startDate.getUTCSeconds();
-    claimTimeToday.setUTCHours(targetHour);
-    claimTimeToday.setUTCMinutes(targetMinute);
-    claimTimeToday.setUTCSeconds(targetSecond);
+    claimTimeToday.setUTCHours(
+      startDate.getUTCHours(),
+      startDate.getUTCMinutes(),
+      startDate.getUTCSeconds()
+    );
     const nextClaimTime =
       currentDate > claimTimeToday
         ? claimTimeToday.setDate(claimTimeToday.getDate() + 1)
