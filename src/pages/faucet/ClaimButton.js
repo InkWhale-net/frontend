@@ -29,7 +29,7 @@ export default function IWCountDownClaim({ endDate, onClick, disabled }) {
   const renderer = ({ days, hours, minutes, seconds, completed }) => {
     const currentDate = new Date();
     const claimTimeToday = new Date();
-    claimTimeToday.setHours(10, 23, 0, 0);
+    claimTimeToday.setHours(7, 0, 0, 0);
     const nextClaimTime =
       currentDate > claimTimeToday
         ? claimTimeToday.setDate(claimTimeToday.getDate() + 1)
