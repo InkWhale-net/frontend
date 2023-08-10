@@ -8,9 +8,10 @@ const SectionContainer = ({
   children,
   right,
   isRequiredLabel,
+  ...rest
 }) => {
   return (
-    <Box direction="column" w="full" mt={{ base: "16px" }}>
+    <Box direction="column" w="full" mt={{ base: "16px" }} sx={{...rest?.sx}}>
       <Box textAlign={{ base: "center", lg: "left" }}>
         <Box
           display={{ base: "flex" }}

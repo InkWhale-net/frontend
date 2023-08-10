@@ -1,15 +1,19 @@
-import { Box, Flex, SimpleGrid } from "@chakra-ui/react";
-import SectionContainer from "../sectionContainer";
-import { useEffect, useState } from "react";
+import { Box, SimpleGrid } from "@chakra-ui/react";
 import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
-import DateTimePicker from "react-datetime-picker";
 import UploadImage from "pages/launchpad/UploadImage";
+import { useEffect, useState } from "react";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
+import SectionContainer from "../sectionContainer";
+import Tokenomic from "./Tokenomic";
 
 const ProjectInfor = () => {
   const { updateProjectInfor, current, launchpadData } = useCreateLaunchpad();
   const [projectInfor, setProjectInfor] = useState(null);
+
+  const updateTokenomic = (value) =>
+    setProjectInfor((prev) => ({ ...prev, tokenomic: value }));
+
   useEffect(() => {
     updateProjectInfor(projectInfor);
   }, [projectInfor]);
@@ -103,6 +107,7 @@ const ProjectInfor = () => {
             placeholder="Project Description"
           />
         </SectionContainer>
+        <Tokenomic updateTokenomic={updateTokenomic} />
         <SimpleGrid columns={[1, 1, 2]} spacing={4}>
           <SectionContainer title="Website">
             <IWInput

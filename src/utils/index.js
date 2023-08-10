@@ -225,7 +225,7 @@ export const getPublicCurrentAccount = () => {
 };
 
 export const moveINWToBegin = (tokensList) => {
-  const INWIndex = tokensList.findIndex((element) => element?.symbol === "INW");
+  const INWIndex = tokensList.findIndex((element) => element?.contractAddress === process.env.REACT_APP_INW_TOKEN_ADDRESS);
   if (INWIndex > -1) {
     const element = tokensList.splice(INWIndex, 1)[0];
     tokensList.unshift(element);
