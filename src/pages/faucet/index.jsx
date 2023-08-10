@@ -210,7 +210,7 @@ export default function FaucetPage({ api }) {
       "genericTokenSaleTrait::isBurned"
     );
     const query9 = execContractQuery(
-      publicCurrentAccount?.address,
+      currentAccount?.address,
       api,
       token.CONTRACT_ABI,
       token.CONTRACT_ADDRESS,
