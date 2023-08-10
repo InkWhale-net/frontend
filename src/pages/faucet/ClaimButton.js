@@ -10,9 +10,9 @@ const NextClaimCountdown = ({ endDate, disabled }) => {
       return (
         <Text>
           {disabled
-            ? `Next claim time ${`${zeroPad(hours)}h${zeroPad(
+            ? `Next claim in ${`${zeroPad(hours)}h ${zeroPad(
                 minutes
-              )}m${zeroPad(seconds)}s`}`
+              )}m ${zeroPad(seconds)}s`}`
             : "Claim INW"}
         </Text>
       );
@@ -25,11 +25,21 @@ const NextClaimCountdown = ({ endDate, disabled }) => {
   );
 };
 
-export default function IWCountDownClaim({ endDate, onClick, disabled }) {
+export default function IWCountDownClaim({
+  startDate,
+  endDate,
+  onClick,
+  disabled,
+}) {
   const renderer = ({ days, hours, minutes, seconds, completed }) => {
     const currentDate = new Date();
     const claimTimeToday = new Date();
-    claimTimeToday.setHours(7, 0, 0, 0);
+    const targetHour = startDate.getUTCHours();
+    const targetMinute = startDate.getUTCMinutes();
+    const targetSecond = startDate.getUTCSeconds();
+    claimTimeToday.setUTCHours(targetHour);
+    claimTimeToday.setUTCMinutes(targetMinute);
+    claimTimeToday.setUTCSeconds(targetSecond);
     const nextClaimTime =
       currentDate > claimTimeToday
         ? claimTimeToday.setDate(claimTimeToday.getDate() + 1)

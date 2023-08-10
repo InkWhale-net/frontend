@@ -739,6 +739,7 @@ export default function FaucetPage({ api }) {
           <IWCountDownClaim
             onClick={claimPrivateInw}
             disabled={!(+saleInfo?.unclaimAmount > 0)}
+            startDate={new Date(+saleInfo?.endTimeSale)}
             endDate={
               new Date(+saleInfo?.endTimeSale + +saleInfo?.vestingDuration)
             }
