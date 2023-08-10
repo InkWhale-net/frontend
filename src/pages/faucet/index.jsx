@@ -41,6 +41,7 @@ import {
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
 import { parseUnits } from "ethers";
+import { formatTokenAmount } from "utils";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
 
@@ -338,8 +339,8 @@ export default function FaucetPage({ api }) {
         setInwTotalSupply(
           formatNumDynDecimal(
             roundUp(
-              INWTotalSupplyResponse?.ret?.totalSupply?.replaceAll(",", "") /
-                10 ** 12 || 0,
+              formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12) ||
+                0,
               4
             )
           )
@@ -354,11 +355,9 @@ export default function FaucetPage({ api }) {
         );
         const inwTotalSupplyCap = formatQueryResultToNumber(result1);
         setInwBurn(
-          roundUp(inwTotalSupplyCap?.replaceAll(",", "") || 0, 2) -
-            roundDown(
-              INWTotalSupplyResponse?.ret?.totalSupply?.replaceAll(",", "") /
-                10 ** 12,
-              2
+          parseFloat(inwTotalSupplyCap?.replaceAll(",", "")) -
+            parseFloat(
+              formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
             )
         );
       } else {
