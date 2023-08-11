@@ -323,7 +323,7 @@ const MyStakeRewardInfo = ({
   }, [api, currentAccount?.address, currentAccount?.balance, poolContract]);
 
   const fetchTokenBalance = useCallback(async () => {
-    if (!currentAccount?.balance) return;
+    // if (!currentAccount?.balance) return;
     try {
       const result = await execContractQuery(
         currentAccount?.address,
