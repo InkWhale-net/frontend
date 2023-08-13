@@ -54,12 +54,14 @@ import pool_contract from "utils/contracts/pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { useAppContext } from "contexts/AppContext";
 
-export default function PoolDetailPage({ api }) {
+export default function PoolDetailPage() {
   const params = useParams();
 
   const { currentAccount } = useSelector((s) => s.wallet);
+  const { api } = useAppContext();
   const { allStakingPoolsList } = useSelector((s) => s.allPools);
   const [remainStaking, setRemainStaking] = useState(null);
+  const dispatch = useDispatch();
 
   const currentPool = useMemo(() => {
     const poolData = allStakingPoolsList?.find(
@@ -77,6 +79,12 @@ export default function PoolDetailPage({ api }) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    if (currentAccount && !currentAccount?.balance) {
+      dispatch(fetchUserBalance({ currentAccount, api }));
+    }
+  }, [currentAccount]);
 
   const cardData = {
     cardHeaderList: [
