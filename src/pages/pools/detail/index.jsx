@@ -768,9 +768,10 @@ const MyStakeRewardInfo = ({
             </HStack>
           </Flex>
           <Box fontSize={14} ml="2px">
-            {!(remainStaking > 0)
-              ? "Max Staking Amount reached"
-              : `Max Staking Amount: ${formatNumDynDecimal(remainStaking)}`}
+            {currentAccount?.balance &&
+              (!(remainStaking > 0)
+                ? "Max Staking Amount reached"
+                : `Max Staking Amount: ${formatNumDynDecimal(remainStaking)}`)}
           </Box>
         </IWCard>
       </CardThreeColumn>
