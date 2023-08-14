@@ -41,6 +41,8 @@ import {
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
 import { parseUnits } from "ethers";
+import { formatTokenAmount } from "utils";
+import IWCountDownClaim from "./ClaimButton";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
 
@@ -210,7 +212,7 @@ export default function FaucetPage({ api }) {
       "genericTokenSaleTrait::isBurned"
     );
     const query9 = execContractQuery(
-      publicCurrentAccount?.address,
+      currentAccount?.address,
       api,
       token.CONTRACT_ABI,
       token.CONTRACT_ADDRESS,
@@ -303,30 +305,6 @@ export default function FaucetPage({ api }) {
     );
   };
 
-  // const getINWIncur = async (totalSupply) => {
-  //   let balanceQrs = await Promise.all([
-  //     getBalanceINWOfAddress(ADDRESSES_INW.INW_TREASURY),
-  //     getBalanceINWOfAddress(ADDRESSES_INW.INT_GROWTH),
-  //     getBalanceINWOfAddress(ADDRESSES_INW.INW_REWARD_POOL),
-  //     getBalanceINWOfAddress(ADDRESSES_INW.INW_TEAM),
-  //     getBalanceINWOfAddress(public_sale.CONTRACT_ADDRESS),
-  //     getBalanceINWOfAddress(private_sale.CONTRACT_ADDRESS),
-  //   ]);
-  //   const sumBalance = balanceQrs.reduce(
-  //     (accumulator, currentValue) =>
-  //       accumulator + +(currentValue?.toHuman()?.Ok?.replaceAll(",", "") || 0),
-  //     0
-  //   );
-  //   setInwInCur(
-  //     formatNumDynDecimal(
-  //       roundUp(
-  //         (totalSupply?.replaceAll(",", "") || 0) - sumBalance / 10 ** 12
-  //       ),
-  //       2
-  //     )
-  //   );
-  // };
-
   const getInwMintingCapAndTotalSupply = useCallback(async () => {
     if (!api) {
       setInwTotalSupply(0);
@@ -338,8 +316,8 @@ export default function FaucetPage({ api }) {
         setInwTotalSupply(
           formatNumDynDecimal(
             roundUp(
-              INWTotalSupplyResponse?.ret?.totalSupply?.replaceAll(",", "") /
-                10 ** 12 || 0,
+              formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12) ||
+                0,
               4
             )
           )
@@ -354,11 +332,9 @@ export default function FaucetPage({ api }) {
         );
         const inwTotalSupplyCap = formatQueryResultToNumber(result1);
         setInwBurn(
-          roundUp(inwTotalSupplyCap?.replaceAll(",", "") || 0, 2) -
-            roundDown(
-              INWTotalSupplyResponse?.ret?.totalSupply?.replaceAll(",", "") /
-                10 ** 12,
-              2
+          parseFloat(inwTotalSupplyCap?.replaceAll(",", "")) -
+            parseFloat(
+              formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
             )
         );
       } else {
@@ -754,14 +730,22 @@ export default function FaucetPage({ api }) {
               },
             ]}
           />
-          <Button
+          {/* <Button
             w="full"
             mt="20px"
             onClick={claimPrivateInw}
             disabled={!(+saleInfo?.unclaimAmount > 0)}
           >
             Claim INW
-          </Button>
+          </Button> */}
+          <IWCountDownClaim
+            onClick={claimPrivateInw}
+            disabled={!(+saleInfo?.unclaimAmount > 0)}
+            startDate={new Date(+saleInfo?.endTimeSale)}
+            endDate={
+              new Date(+saleInfo?.endTimeSale + +saleInfo?.vestingDuration)
+            }
+          />
         </>
       ),
       isDisabled: false,

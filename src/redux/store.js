@@ -5,6 +5,7 @@ import myPoolsReducer from "./slices/myPoolsSlice";
 import allPoolsReducer from "./slices/allPoolsSlice";
 import bulkStakeReducer from "./slices/bulkStakeSlide";
 import launchpadReducer from "./slices/launchpadSlice";
+import statsReducer from "./slices/statSlice";
 
 const rootReducer = combineReducers({
   wallet: walletReducer,
@@ -12,6 +13,7 @@ const rootReducer = combineReducers({
   allPools: allPoolsReducer,
   bulkStake: bulkStakeReducer,
   launchpad: launchpadReducer,
+  stats: statsReducer
 });
 
 const store = configureStore({

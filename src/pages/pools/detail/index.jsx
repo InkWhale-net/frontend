@@ -54,12 +54,14 @@ import pool_contract from "utils/contracts/pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { useAppContext } from "contexts/AppContext";
 
-export default function PoolDetailPage({ api }) {
+export default function PoolDetailPage() {
   const params = useParams();
 
   const { currentAccount } = useSelector((s) => s.wallet);
+  const { api } = useAppContext();
   const { allStakingPoolsList } = useSelector((s) => s.allPools);
   const [remainStaking, setRemainStaking] = useState(null);
+  const dispatch = useDispatch();
 
   const currentPool = useMemo(() => {
     const poolData = allStakingPoolsList?.find(
@@ -77,6 +79,12 @@ export default function PoolDetailPage({ api }) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    if (currentAccount && !currentAccount?.balance) {
+      dispatch(fetchUserBalance({ currentAccount, api }));
+    }
+  }, [currentAccount]);
 
   const cardData = {
     cardHeaderList: [
@@ -323,7 +331,7 @@ const MyStakeRewardInfo = ({
   }, [api, currentAccount?.address, currentAccount?.balance, poolContract]);
 
   const fetchTokenBalance = useCallback(async () => {
-    if (!currentAccount?.balance) return;
+    // if (!currentAccount?.balance) return;
     try {
       const result = await execContractQuery(
         currentAccount?.address,
@@ -760,9 +768,10 @@ const MyStakeRewardInfo = ({
             </HStack>
           </Flex>
           <Box fontSize={14} ml="2px">
-            {remainStaking > 0
-              ? `Max Staking Amount: ${formatNumDynDecimal(remainStaking)}`
-              : "Max Staking Amount reached"}
+            {currentAccount?.balance &&
+              (!(remainStaking > 0)
+                ? "Max Staking Amount reached"
+                : `Max Staking Amount: ${formatNumDynDecimal(remainStaking)}`)}
           </Box>
         </IWCard>
       </CardThreeColumn>
@@ -790,34 +799,29 @@ const PoolInfo = (props) => {
   const [totalSupply, setTotalSupply] = useState(0);
 
   const getPoolInfo = async () => {
-    if (currentAccount?.address) {
-      let queryResult = await execContractQuery(
-        currentAccount?.address,
-        "api",
-        psp22_contract.CONTRACT_ABI,
-        tokenContract,
-        0,
-        "psp22::totalSupply"
-      );
-      const rawTotalSupply = queryResult?.toHuman()?.Ok;
-      let queryResult1 = await execContractQuery(
-        currentAccount?.address,
-        "api",
-        psp22_contract.CONTRACT_ABI,
-        tokenContract,
-        0,
-        "psp22Metadata::tokenDecimals"
-      );
-      const decimals = queryResult1?.toHuman()?.Ok;
+    let queryResult = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      tokenContract,
+      0,
+      "psp22::totalSupply"
+    );
+    const rawTotalSupply = queryResult?.toHuman()?.Ok;
+    let queryResult1 = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      tokenContract,
+      0,
+      "psp22Metadata::tokenDecimals"
+    );
+    const decimals = queryResult1?.toHuman()?.Ok;
 
-      const totalSupply = roundUp(
-        formatTokenAmount(
-          rawTotalSupply?.replaceAll(",", ""),
-          parseInt(decimals)
-        )
-      );
-      setTotalSupply(totalSupply);
-    }
+    const totalSupply = roundUp(
+      formatTokenAmount(rawTotalSupply?.replaceAll(",", ""), parseInt(decimals))
+    );
+    setTotalSupply(totalSupply);
   };
 
   useEffect(() => {

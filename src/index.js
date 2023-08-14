@@ -58,6 +58,7 @@ import { fetchUserBalance } from "redux/slices/walletSlice";
 import { delay } from "utils";
 import { initialApi } from "utils/contracts";
 import EditLaunchpad from "pages/launchpad/edit";
+import { fetchTotalValueLocked } from "redux/slices/statSlice";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -165,6 +166,7 @@ const App = () => {
       dispatch(fetchLaunchpads({}));
     }
 
+    dispatch(fetchTotalValueLocked())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, currentAccount?.address]);
 
