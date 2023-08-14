@@ -51,6 +51,7 @@ import CreateLaunchpadPage from "pages/create-launchpad";
 import { AppContextProvider } from "contexts/AppContext";
 import { useAppContext } from "contexts/AppContext";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { fetchTotalValueLocked } from "redux/slices/statSlice";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -157,6 +158,7 @@ const App = () => {
     if (!currentAccount?.balance) {
       dispatch(fetchUserBalance({ currentAccount, api }));
     }
+    dispatch(fetchTotalValueLocked())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, currentAccount?.address]);
 

@@ -1,12 +1,15 @@
-import { Portal, Box, useDisclosure } from "@chakra-ui/react";
+import { Portal, Box, useDisclosure, Text } from "@chakra-ui/react";
 import Footer from "components/footer/FooterLandingPage.js";
 
 import Navbar from "components/navbar/Navbar.js";
 import { SidebarContext } from "contexts/SidebarContext";
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 
 export default function Default(props) {
   const { children, ...rest } = props;
+
+  const { TVL } = useSelector((s) => s.stats);
 
   const [fixed] = useState(false);
   const [toggleSidebar, setToggleSidebar] = useState(false);
@@ -38,6 +41,22 @@ export default function Default(props) {
         >
           <Portal>
             <Box>
+              <Box
+                position={"fixed"}
+                top={0}
+                width={"100%"}
+                background={"#EDC1F5"}
+              >
+                <Text
+                  color="#57527E"
+                  fontWeight={"700"}
+                  fontSize={"15px"}
+                  textAlign={"center"}
+                >
+                  {" "}
+                  Platform TVL: {TVL?.tvlInAzero} AZERO (${TVL?.tvlInUSD})
+                </Text>
+              </Box>
               <Navbar
                 {...rest}
                 fixed={fixed}
