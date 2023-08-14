@@ -54,7 +54,7 @@ export default function Default(props) {
                   textAlign={"center"}
                 >
                   {" "}
-                  Platform TVL: {TVL?.tvlInAzero} AZERO (${TVL?.tvlInUSD})
+                  Platform TVL: {TVL?.tvlInAzero?.toFixed(2)} AZERO (${TVL?.tvlInUSD.toFixed(2)})
                 </Text>
               </Box>
               <Navbar
