@@ -1,20 +1,12 @@
-import {
-  Box,
-  Circle,
-  Divider,
-  Heading,
-  Image,
-  SimpleGrid,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Circle, Divider, Heading, Image, Text } from "@chakra-ui/react";
+import AddressCopier from "components/address-copier/AddressCopier";
 import { formatDataCellTable } from "components/table/IWPaginationTable";
 import { useMemo } from "react";
+import ReactApexChart from "react-apexcharts";
+import { isMobile } from "react-device-detect";
 import { roundUp } from "utils";
 import { format } from "utils/datetime";
 import TabLayout from "../Layout";
-import AddressCopier from "components/address-copier/AddressCopier";
-import ReactApexChart from "react-apexcharts";
-import { isMobile } from "react-device-detect";
 
 const LabelField = ({ label, value, divider = true }) => {
   return (
@@ -119,7 +111,11 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
             >
               <Text sx={{ flex: 1 }}>{e?.label}</Text>
               <Box
-                sx={{ flex: 2, display: "flex", justifyContent: "flex-end" }}
+                sx={{
+                  flex: 2,
+                  display: "flex",
+                  justifyContent: "flex-end",
+                }}
               >
                 <Text>{formatDataCellTable(mainTabData, e?.header)}</Text>
               </Box>

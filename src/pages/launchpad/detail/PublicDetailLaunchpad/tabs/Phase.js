@@ -1,36 +1,14 @@
+import { Box, Divider, Heading, SimpleGrid, Text } from "@chakra-ui/react";
 import {
-  Box,
-  CircularProgress,
-  Divider,
-  Flex,
-  Heading,
-  IconButton,
-  Progress,
-  SimpleGrid,
-  Stack,
-  Switch,
-  Text,
-  Tooltip,
-} from "@chakra-ui/react";
-import SaleCard from "../SaleCard";
-import StatusCard from "../StatusCard";
-import { formatDataCellTable } from "components/table/IWPaginationTable";
+  IWStatus,
+  IWStatusWithCountDown,
+} from "components/countdown/StatusWithCountDown";
+import { AzeroLogo } from "components/icons/Icons";
 import { useMemo, useState } from "react";
-import { roundUp } from "utils";
+import { useSelector } from "react-redux";
+import { formatNumDynDecimal, formatTokenAmount } from "utils";
 import { format } from "utils/datetime";
 import TabLayout from "../Layout";
-import SectionContainer from "pages/launchpad/create/components/sectionContainer";
-import DateTimePicker from "react-datetime-picker";
-import IWInput from "components/input/Input";
-import { AzeroLogo } from "components/icons/Icons";
-import { useSelector } from "react-redux";
-import { IWStatus } from "components/countdown/StatusWithCountDown";
-import { LiveStatusTag } from "pages/launchpad/components/StatusTag";
-import { UpcomingStatusTag } from "pages/launchpad/components/StatusTag";
-import { EndStatusTag } from "pages/launchpad/components/StatusTag";
-import { IWStatusWithCountDown } from "components/countdown/StatusWithCountDown";
-import { formatTokenAmount } from "utils";
-import { formatNumDynDecimal } from "utils";
 
 const millisecondsInADay = 24 * 60 * 60 * 1000;
 

@@ -21,6 +21,7 @@ import PhaseInformation from "./tabs/Phase";
 import BalanceTab from "./tabs/Balance";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { ChevronRightIcon } from "@chakra-ui/icons";
+import ModalDetailContextProvider from "./modal/ModelContext";
 
 const PublicDetailLaunchpad = () => {
   const { launchpads } = useSelector((s) => s.launchpad);
@@ -85,7 +86,7 @@ const PublicDetailLaunchpad = () => {
     },
   ];
   return (
-    <>
+    <ModalDetailContextProvider launchpadData={launchpadData}>
       <Show above="md">
         <SectionContainer mt={{ xl: "-48px" }} mb={{ xl: "-32px" }}>
           <Breadcrumb
@@ -140,7 +141,7 @@ const PublicDetailLaunchpad = () => {
         </Box>
         <IWTabs tabsData={tabsData} />
       </SectionContainer>
-    </>
+    </ModalDetailContextProvider>
   );
 };
 

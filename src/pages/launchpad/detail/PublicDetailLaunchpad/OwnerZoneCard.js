@@ -1,17 +1,17 @@
 import { Box, Button, Heading, Text } from "@chakra-ui/react";
 import { useAppContext } from "contexts/AppContext";
-import { useCallback } from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { formatNumToBN } from "utils";
-import { execContractTxAndCallAPI } from "utils/contracts";
-import { execContractQuery } from "utils/contracts";
+import { execContractQuery, execContractTxAndCallAPI } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
+import { useModalLPDetail } from "./modal/ModelContext";
 
 const OwnerZoneCard = ({ launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { api } = useAppContext();
+  const { showWLModal, showPhaseModal } = useModalLPDetail();
 
   const [ownerBalance, setOwnerBalance] = useState(0);
 
@@ -99,7 +99,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         w="full"
         height="40px"
         variant="outline"
-        onClick={() => toast("Coming soon ...")}
+        onClick={() => showWLModal()}
       >
         Whitelist Manager
       </Button>
@@ -119,9 +119,9 @@ const OwnerZoneCard = ({ launchpadData }) => {
         w="full"
         height="40px"
         variant="outline"
-        onClick={() => toast("Coming soon ...")}
+        onClick={() => showPhaseModal()}
       >
-        Update Phase
+        Add new Phase
       </Button>
 
       <Button

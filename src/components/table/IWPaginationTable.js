@@ -465,6 +465,12 @@ export const formatDataCellTable = (itemObj, header, mode) => {
           <AddressCopier address={itemObj[header]} fontWeight="none" />
         </>
       );
+    case "account":
+      return (
+        <>
+          <AddressCopier address={itemObj[header]} fontWeight="none" />
+        </>
+      );
     case "tokenContract":
       return (
         <>
