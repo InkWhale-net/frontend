@@ -4,15 +4,17 @@ import {
   IWStatusWithCountDown,
 } from "components/countdown/StatusWithCountDown";
 import { AzeroLogo } from "components/icons/Icons";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { formatNumDynDecimal, formatTokenAmount } from "utils";
+import {
+  formatNumDynDecimal,
+  formatTokenAmount,
+  millisecondsInADay,
+} from "utils";
 import { format } from "utils/datetime";
 import TabLayout from "../Layout";
-import { millisecondsInADay } from "utils";
 
 const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
-  const [editatble, setEditable] = useState(false);
   const tokenDecimal = parseInt(launchpadData.projectInfo.token.decimals);
   const tagData = useMemo(() => {
     return {
@@ -116,7 +118,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
           </Text>
         </Box>
       </SimpleGrid>
-      {tagData?.immediateReleaseRate == 100 ? (
+      {tagData?.immediateReleaseRate === 100 ? (
         <Heading size="md" mt="16px" lineHeight={{ base: "1.25", lg: "30px" }}>
           Non Vesting
         </Heading>
@@ -337,9 +339,9 @@ const PhaseInformation = ({ launchpadContract, launchpadData }) => {
       {phaseList?.map((phaseObj, index) => (
         <PhaseTag
           launchpadData={launchpadData}
-          isOwner={owner == currentAccount?.address}
+          isOwner={owner === currentAccount?.address}
           key={`phase-${index}`}
-          sx={{ marginTop: index != 0 && "40px" }}
+          sx={{ marginTop: index !== 0 && "40px" }}
           data={phaseObj}
         />
       ))}

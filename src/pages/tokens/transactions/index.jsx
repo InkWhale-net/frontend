@@ -1,11 +1,10 @@
 import {
   Box,
   Button,
-  Flex,
   FormControl,
   FormLabel,
-  HStack,
   Heading,
+  SimpleGrid,
   Stack,
   Switch,
   useBreakpointValue,
@@ -30,10 +29,9 @@ import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 
 import IWPaginationTable from "components/table/IWPaginationTable";
-import { roundUp } from "utils";
-import { getTimestamp } from "utils";
 import { useAppContext } from "contexts/AppContext";
 import { useMutation } from "react-query";
+import { getTimestamp, roundUp } from "utils";
 
 export default function TokensPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -75,7 +73,7 @@ export default function TokensPage() {
       fromOnly: false,
       toOnly: false,
     });
-    if (pagination?.pageIndex != 0) {
+    if (pagination?.pageIndex !== 0) {
       setPagination({ pageIndex: 0, pageSize: 10 });
     } else {
       if (selectedToken)
@@ -129,6 +127,7 @@ export default function TokensPage() {
 
   const tokenTransactionMutation = useMutation(async () => {
     await new Promise(async (resolve) => {
+      if (!api) return;
       let queryBody = {};
       const tokenMetadata = [...cacheTokenMetadata];
       if (selectedToken?.contractAddress)
@@ -149,7 +148,7 @@ export default function TokensPage() {
           ret?.dataArray?.map(async (txObj) => {
             if (txObj?.data?.tokenContract) {
               const findTokenInCache = tokenMetadata.filter(
-                (e) => e?.tokenContract == txObj?.data?.tokenContract
+                (e) => e?.tokenContract === txObj?.data?.tokenContract
               );
               const timeEvent = await getTimestamp(api, txObj?.blockNumber);
               if (findTokenInCache?.length > 0) {
@@ -175,7 +174,7 @@ export default function TokensPage() {
                   currentAccount: currentAccount?.address,
                   amountIcon:
                     keywords?.queryAddress?.length > 0 &&
-                    (txObj?.fromAddress == keywords?.queryAddress ? (
+                    (txObj?.fromAddress === keywords?.queryAddress ? (
                       <BsArrowUpRight
                         style={{ marginRight: "4px" }}
                         color="#31A5FF"
@@ -242,7 +241,7 @@ export default function TokensPage() {
                   currentAccount: currentAccount?.address,
                   amountIcon:
                     keywords?.queryAddress?.length > 0 &&
-                    (txObj?.fromAddress == keywords?.queryAddress ? (
+                    (txObj?.fromAddress === keywords?.queryAddress ? (
                       <BsArrowUpRight
                         style={{ marginRight: "4px" }}
                         color="#31A5FF"
@@ -305,105 +304,87 @@ export default function TokensPage() {
         title="Token Transaction History"
         description={<span>Sync in progress</span>}
       >
+        <SimpleGrid
+          w="full"
+          columns={{ base: 1, lg: 2 }}
+          spacingX={{ lg: "20px" }}
+          spacingY={{ base: "20px", lg: "32px" }}
+          mb={{ base: "30px" }}
+          alignItems="flex-end"
+        >
+          <Box w="full" pr={{ lg: "10px" }}>
+            <Heading as="h4" size="h4" mb="12px">
+              Token Contract Address
+            </Heading>
+            <SelectSearch
+              name="token"
+              placeholder="All token"
+              closeMenuOnSelect={true}
+              // filterOption={filterOptions}
+              value={
+                selectedToken
+                  ? {
+                      value: selectedToken?.contractAddress,
+                      label: `${selectedToken?.symbol} (${
+                        selectedToken?.name
+                      }) - ${addressShortener(selectedToken?.contractAddress)}`,
+                    }
+                  : ""
+              }
+              isSearchable
+              onChange={({ value }) => {
+                setSelectedContractAddr(value);
+              }}
+              options={[
+                {
+                  label: "All token",
+                },
+                ...faucetTokensList?.map((token, idx) => ({
+                  value: token?.contractAddress,
+                  label: `${token?.symbol} (${
+                    token?.name
+                  }) - ${addressShortener(token?.contractAddress)}`,
+                })),
+              ]}
+            ></SelectSearch>
+          </Box>
+          <Box sx={{ display: "flex" }}>
+            <IWInput
+              value={keywords?.queryAddress}
+              width={{ base: "full" }}
+              onChange={({ target }) =>
+                setKeywords({ ...keywords, queryAddress: target.value })
+              }
+              placeholder="Search with From/To"
+              // inputRightElementIcon={<SearchIcon color="#57527E" />}
+            />
+            {!isSmallerThanMd && (
+              <Button
+                sx={{ ml: "10px" }}
+                isDisabled={false}
+                onClick={() => {
+                  //
+                  if (pagination?.pageIndex !== 0) {
+                    setPagination({ pageIndex: 0, pageSize: 10 });
+                  } else {
+                    tokenTransactionMutation.mutate(
+                      selectedToken?.contractAddress,
+                      keywords
+                    );
+                  }
+                }}
+              >
+                Load
+              </Button>
+            )}
+          </Box>
+        </SimpleGrid>
         <Stack
           w="full"
           spacing="30px"
           alignItems="start"
           direction={{ base: "column" }}
         >
-          <Stack
-            w="full"
-            spacing="20px"
-            alignItems={{ base: "end" }}
-            flexDirection={{ base: "column", lg: "row" }}
-          >
-            <Box w="full" pr={{ lg: "10px" }}>
-              <Heading as="h4" size="h4" mb="12px">
-                Token Contract Address
-              </Heading>
-              <SelectSearch
-                name="token"
-                placeholder="All token"
-                closeMenuOnSelect={true}
-                // filterOption={filterOptions}
-                value={
-                  selectedToken
-                    ? {
-                        value: selectedToken?.contractAddress,
-                        label: `${selectedToken?.symbol} (${
-                          selectedToken?.name
-                        }) - ${addressShortener(
-                          selectedToken?.contractAddress
-                        )}`,
-                      }
-                    : ""
-                }
-                isSearchable
-                onChange={({ value }) => {
-                  setSelectedContractAddr(value);
-                }}
-                options={[
-                  {
-                    label: "All token",
-                  },
-                  ...faucetTokensList?.map((token, idx) => ({
-                    value: token?.contractAddress,
-                    label: `${token?.symbol} (${
-                      token?.name
-                    }) - ${addressShortener(token?.contractAddress)}`,
-                  })),
-                ]}
-              ></SelectSearch>
-            </Box>
-            <HStack
-              color="text.1"
-              fontSize="md"
-              w="full"
-              spacing={{ base: "0px", lg: "20px" }}
-              justifyContent={{ base: "end" }}
-              flexDirection={{ base: "column", lg: "row" }}
-              align={{ base: "column", xl: "center" }}
-              pt={{ base: "0px", lg: "10px" }}
-            >
-              <Flex
-                w="full"
-                mb={{ base: "4px", lg: "0px" }}
-                align={{ base: "left", lg: "center" }}
-                justifyContent={{ base: "end" }}
-                spacing={{ base: "0px", lg: "20px" }}
-                flexDirection={{ base: "column", lg: "row" }}
-              >
-                <IWInput
-                  value={keywords?.queryAddress}
-                  width={{ base: "full" }}
-                  onChange={({ target }) =>
-                    setKeywords({ ...keywords, queryAddress: target.value })
-                  }
-                  placeholder="Search with From/To"
-                  // inputRightElementIcon={<SearchIcon color="#57527E" />}
-                />
-              </Flex>
-              {!isSmallerThanMd && (
-                <Button
-                  isDisabled={false}
-                  onClick={() => {
-                    //
-                    if (pagination?.pageIndex != 0) {
-                      setPagination({ pageIndex: 0, pageSize: 10 });
-                    } else {
-                      tokenTransactionMutation.mutate(
-                        selectedToken?.contractAddress,
-                        keywords
-                      );
-                    }
-                  }}
-                >
-                  Load
-                </Button>
-              )}
-            </HStack>
-          </Stack>
-
           <Box
             display="flex"
             justifyContent={{ base: "flex-start", lg: "flex-end" }}
@@ -424,7 +405,7 @@ export default function TokensPage() {
                 }
                 isChecked={keywords?.fromOnly}
                 onChange={() => {
-                  if (keywords?.fromOnly == false)
+                  if (keywords?.fromOnly === false)
                     setKeywords({
                       ...keywords,
                       fromOnly: true,
@@ -461,7 +442,7 @@ export default function TokensPage() {
                 }
                 isChecked={keywords?.toOnly}
                 onChange={() => {
-                  if (keywords?.toOnly == false)
+                  if (keywords?.toOnly === false)
                     setKeywords({
                       ...keywords,
                       fromOnly: false,
@@ -491,7 +472,7 @@ export default function TokensPage() {
               isDisabled={false}
               onClick={() => {
                 //
-                if (pagination?.pageIndex != 0) {
+                if (pagination?.pageIndex !== 0) {
                   setPagination({ pageIndex: 0, pageSize: 10 });
                 } else {
                   tokenTransactionMutation.mutate(

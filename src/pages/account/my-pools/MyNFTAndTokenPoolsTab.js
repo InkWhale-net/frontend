@@ -1,10 +1,19 @@
 import SectionContainer from "components/container/SectionContainer";
 
 import { IWTable } from "components/table/IWTable";
-import { useSelector } from "react-redux";
+import { useAppContext } from "contexts/AppContext";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMyNFTPools } from "redux/slices/myPoolsSlice";
 
 const MyNFTAndTokenPoolsTab = () => {
   const { myNFTPoolsList, myTokenPoolsList } = useSelector((s) => s.myPools);
+  const { currentAccount } = useSelector((state) => state.wallet);
+  const { api } = useAppContext();
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(fetchMyNFTPools({ currentAccount }));
+  }, [currentAccount, api]);
 
   const tableDataNFT = {
     tableHeader: [

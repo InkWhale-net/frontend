@@ -25,9 +25,7 @@ import {
   fetchAllNFTPools,
   fetchAllTokenPools,
 } from "redux/slices/allPoolsSlice";
-import { fetchUserBalance } from "redux/slices/walletSlice";
-import { formatTokenAmount } from "utils";
-import { delay, isPoolEnded } from "utils";
+import { delay, formatTokenAmount, isPoolEnded } from "utils";
 
 export default function FarmsPage() {
   const dispatch = useDispatch();
@@ -127,10 +125,6 @@ export default function FarmsPage() {
 
     return () => clearTimeout(delayDebounceFn);
   }, [keywords, nftLPListFiltered]);
-  useEffect(() => {
-    if (!currentAccount?.balance && currentAccount && api)
-      dispatch(fetchUserBalance({ currentAccount, api }));
-  }, [currentAccount, api]);
 
   const tokenLPListFiltered = useMemo(() => {
     let ret = allTokenPoolsList;
