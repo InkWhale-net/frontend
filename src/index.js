@@ -141,6 +141,8 @@ const App = () => {
       dispatch(fetchAllTokenPools({ currentAccount }));
     }
 
+    dispatch(fetchTotalValueLocked())
+
     if (!currentAccount?.address) return;
 
     if (!myNFTPoolsList) {
@@ -158,7 +160,6 @@ const App = () => {
     if (!currentAccount?.balance) {
       dispatch(fetchUserBalance({ currentAccount, api }));
     }
-    dispatch(fetchTotalValueLocked())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, currentAccount?.address]);
 

@@ -5,6 +5,7 @@ import Navbar from "components/navbar/Navbar.js";
 import { SidebarContext } from "contexts/SidebarContext";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import { formatNumDynDecimal } from "utils";
 
 export default function Default(props) {
   const { children, ...rest } = props;
@@ -54,7 +55,7 @@ export default function Default(props) {
                   textAlign={"center"}
                 >
                   {" "}
-                  Platform TVL: {TVL?.tvlInAzero?.toFixed(2)} AZERO (${TVL?.tvlInUSD.toFixed(2)})
+                  Platform TVL: {formatNumDynDecimal(TVL?.tvlInAzero, 2)} AZERO (${formatNumDynDecimal(TVL?.tvlInUSD, 2)})
                 </Text>
               </Box>
               <Navbar
