@@ -82,6 +82,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
       setNewData(null);
       setSelectedPhaseIndex(-1);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPhaseIndex]);
   const fetchPhaseData = async () => {
     const result = await execContractQuery(
@@ -103,6 +104,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
     } else {
       if (launchpadData) fetchPhaseData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, launchpadData]);
 
   const onChangeImmediateReleaseRate = (value) => {

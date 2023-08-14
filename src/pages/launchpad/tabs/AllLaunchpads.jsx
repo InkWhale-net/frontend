@@ -1,14 +1,11 @@
-import { SearchIcon } from "@chakra-ui/icons";
-import { Box, Select, SimpleGrid, Text } from "@chakra-ui/react";
-import IWInput from "components/input/Input";
+import { Box, SimpleGrid } from "@chakra-ui/react";
 import { useAppContext } from "contexts/AppContext";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import LaunchpadTag from "../components/LaunchpadTag";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
-import { fetchUserBalance } from "redux/slices/walletSlice";
+import LaunchpadTag from "../components/LaunchpadTag";
 
-const AllLaunchpads = ({isOwner}) => {
+const AllLaunchpads = ({ isOwner }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { launchpads } = useSelector((s) => s.launchpad);
   const { api } = useAppContext();
@@ -44,23 +41,13 @@ const AllLaunchpads = ({isOwner}) => {
     dispatch(fetchLaunchpads({ isActive: 0 }));
   };
 
-  useEffect(() => {
-    if (!currentAccount?.balance && currentAccount && api)
-      dispatch(fetchUserBalance({ currentAccount, api }));
-    queryLaunchpads()
-  }, [currentAccount, api]);
-
   const launchpadList = useMemo(() => {
-    if(isOwner) {
-      return launchpads?.filter( el => 
-        el.owner === currentAccount?.address
-      )
+    if (isOwner) {
+      return launchpads?.filter((el) => el.owner === currentAccount?.address);
     } else {
-      return launchpads?.filter( el => 
-        el.isActive === true
-      )
+      return launchpads?.filter((el) => el.isActive === true);
     }
-  }, [isOwner, launchpads, currentAccount])
+  }, [isOwner, launchpads, currentAccount]);
 
   return (
     <div>

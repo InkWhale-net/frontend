@@ -231,14 +231,14 @@ export const moveINWToBegin = (tokensList) => {
     tokensList.unshift(element);
   }
   return tokensList.filter(
-    (e) => !!e?.contractAddress && e?.contractAddress != "undefined"
+    (e) => !!e?.contractAddress && e?.contractAddress !== "undefined"
   );
 };
 
 export const excludeNFT = (tokensList) =>
   tokensList.filter(
     (element) =>
-      element?.nftContractAddress != process.env.REACT_APP_EXCLUDE_TOKEN_ADDRESS
+      element?.nftContractAddress !== process.env.REACT_APP_EXCLUDE_TOKEN_ADDRESS
   );
 
 const toContractAbiMessage = (contractPromise, message) => {

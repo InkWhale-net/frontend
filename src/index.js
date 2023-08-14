@@ -129,9 +129,9 @@ const App = () => {
   useEffect(() => {
     delay(100);
 
-    if (!allNFTPoolsList) {
-      dispatch(fetchAllNFTPools({ currentAccount }));
-    }
+    // if (!allNFTPoolsList) {
+    //   dispatch(fetchAllNFTPools({ currentAccount }));
+    // }
 
     if (!allTokensList) {
       dispatch(fetchAllTokensList({}));
@@ -147,9 +147,9 @@ const App = () => {
 
     if (!currentAccount?.address) return;
 
-    if (!myNFTPoolsList) {
-      dispatch(fetchMyNFTPools({ currentAccount }));
-    }
+    // if (!myNFTPoolsList) {
+    // dispatch(fetchMyNFTPools({ currentAccount }));
+    // }
 
     if (!myStakingPoolsList) {
       dispatch(fetchMyStakingPools({ currentAccount }));
@@ -246,8 +246,8 @@ ReactDOM.render(
   <ChakraProvider theme={theme}>
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        <AppContextProvider>
-          <ReduxProvider store={store}>
+        <ReduxProvider store={store}>
+          <AppContextProvider>
             <Toaster
               position="bottom-right"
               reverseOrder={true}
@@ -261,10 +261,9 @@ ReactDOM.render(
                 },
               }}
             />
-
             <App />
-          </ReduxProvider>
-        </AppContextProvider>
+          </AppContextProvider>
+        </ReduxProvider>
       </QueryClientProvider>
     </React.StrictMode>
   </ChakraProvider>,
