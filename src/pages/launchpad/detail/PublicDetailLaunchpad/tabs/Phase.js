@@ -9,8 +9,7 @@ import { useSelector } from "react-redux";
 import { formatNumDynDecimal, formatTokenAmount } from "utils";
 import { format } from "utils/datetime";
 import TabLayout from "../Layout";
-
-const millisecondsInADay = 24 * 60 * 60 * 1000;
+import { millisecondsInADay } from "utils";
 
 const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
   const [editatble, setEditable] = useState(false);
