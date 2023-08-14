@@ -60,6 +60,8 @@ import nft_pool_contract from "utils/contracts/nft_pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import psp34_standard from "utils/contracts/psp34_standard";
 import PoolInfo from "./PoolInfor";
+import { useAppContext } from "contexts/AppContext";
+import { fetchMyNFTPools } from "redux/slices/myPoolsSlice";
 
 export default function FarmDetailPage() {
   const params = useParams();
@@ -67,6 +69,8 @@ export default function FarmDetailPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allNFTPoolsList, allTokenPoolsList } = useSelector((s) => s.allPools);
   const [refetchData, setRefetchData] = useState();
+  const { api } = useAppContext();
+  const dispatch = useDispatch();
 
   const [currentNFTPoolData, setCurrentNFTPoolData] = useState(null);
 
@@ -130,6 +134,12 @@ export default function FarmDetailPage() {
       updateTokenData();
     }
   }, [currentNFTPool]);
+
+  useEffect(() => {
+    if (currentAccount && api) {
+      dispatch(fetchAllNFTPools({ currentAccount }));
+    }
+  }, [currentAccount, api]);
 
   const cardData = {
     cardHeaderList: [

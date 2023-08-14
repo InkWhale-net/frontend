@@ -490,6 +490,11 @@ const MyPoolInfo = ({
     mode === "TOKEN_FARM" && fetchLPTokenBalance();
   }, [fetchLPTokenBalance, mode]);
 
+  useEffect(() => {
+    if (currentAccount && api) {
+      dispatch(fetchAllNFTPools({ currentAccount }));
+    }
+  }, [currentAccount, api]);
   const cardData = useMemo(() => {
     let ret = [
       {
