@@ -4,6 +4,7 @@ import {
   FormControl,
   FormLabel,
   Heading,
+  IconButton,
   SimpleGrid,
   Stack,
   Switch,
@@ -16,7 +17,7 @@ import IWInput from "components/input/Input";
 
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
-import { AiOutlineDownload } from "react-icons/ai";
+import { AiOutlineClear, AiOutlineDownload } from "react-icons/ai";
 import { BsArrowUpRight } from "react-icons/bs";
 import { useSelector } from "react-redux";
 import {
@@ -39,6 +40,7 @@ export default function TokensPage() {
   const [transactions, setTransactions] = useState([]);
   const [totalPage, setTotalPage] = useState(0);
   const isSmallerThanMd = useBreakpointValue({ base: true, md: false });
+  const [tokenAddressSearch, setTokenAddressSearch] = useState("");
   const [{ pageIndex, pageSize }, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -84,6 +86,20 @@ export default function TokensPage() {
       else tokenTransactionMutation.mutate();
     }
   }, [selectedToken]);
+  useEffect(() => {
+    if (!(tokenAddressSearch?.length > 0)) {
+      setKeywords({
+        queryAddress: "",
+        fromOnly: false,
+        toOnly: false,
+      });
+      if (pagination?.pageIndex !== 0) {
+        setPagination({ pageIndex: 0, pageSize: 10 });
+      } else {
+        tokenTransactionMutation.mutate();
+      }
+    }
+  }, [tokenAddressSearch]);
 
   useEffect(() => {
     if (!(keywords?.queryAddress?.length > 0))
@@ -130,8 +146,9 @@ export default function TokensPage() {
       if (!api) return;
       let queryBody = {};
       const tokenMetadata = [...cacheTokenMetadata];
-      if (selectedToken?.contractAddress)
-        queryBody.tokenContract = selectedToken?.contractAddress;
+      if (tokenAddressSearch || selectedToken?.contractAddress)
+        queryBody.tokenContract =
+          tokenAddressSearch || selectedToken?.contractAddress;
       if (keywords?.queryAddress)
         queryBody.queryAddress = keywords?.queryAddress;
       if (keywords?.fromOnly) queryBody.isFromOnly = keywords?.fromOnly;
@@ -316,39 +333,76 @@ export default function TokensPage() {
             <Heading as="h4" size="h4" mb="12px">
               Token Contract Address
             </Heading>
-            <SelectSearch
-              name="token"
-              placeholder="All token"
-              closeMenuOnSelect={true}
-              // filterOption={filterOptions}
-              value={
-                selectedToken
-                  ? {
-                      value: selectedToken?.contractAddress,
-                      label: `${selectedToken?.symbol} (${
-                        selectedToken?.name
-                      }) - ${addressShortener(selectedToken?.contractAddress)}`,
-                    }
-                  : ""
-              }
-              isSearchable
-              onChange={({ value }) => {
-                setSelectedContractAddr(value);
-              }}
-              options={[
-                {
-                  label: "All token",
-                },
-                ...faucetTokensList?.map((token, idx) => ({
-                  value: token?.contractAddress,
-                  label: `${token?.symbol} (${
-                    token?.name
-                  }) - ${addressShortener(token?.contractAddress)}`,
-                })),
-              ]}
-            ></SelectSearch>
+            <Box display={{ base: "flex" }} alignItems={{ base: "flex-end" }}>
+              <Box display="flex" flex={1} flexDirection="column">
+                <SelectSearch
+                  inputValue={tokenAddressSearch}
+                  onInputChange={(value) => {
+                    if (value?.length > 0) setTokenAddressSearch(value);
+                  }}
+                  noOptionsMessage={() => (
+                    <div
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        if (pagination?.pageIndex !== 0) {
+                          setPagination({ pageIndex: 0, pageSize: 10 });
+                        } else {
+                          tokenTransactionMutation.mutate(
+                            selectedToken?.contractAddress,
+                            keywords
+                          );
+                        }
+                      }}
+                    >{`Search token "${tokenAddressSearch}"`}</div>
+                  )}
+                  name="token"
+                  placeholder={tokenAddressSearch?.length > 0 || "All token"}
+                  closeMenuOnSelect={true}
+                  // filterOption={filterOptions}
+                  value={
+                    selectedToken
+                      ? {
+                          value: selectedToken?.contractAddress,
+                          label: `${selectedToken?.symbol} (${
+                            selectedToken?.name
+                          }) - ${addressShortener(
+                            selectedToken?.contractAddress
+                          )}`,
+                        }
+                      : ""
+                  }
+                  isSearchable
+                  onChange={({ value }) => {
+                    setSelectedContractAddr(value);
+                  }}
+                  options={[
+                    {
+                      label: "All token",
+                    },
+                    ...faucetTokensList?.map((token, idx) => ({
+                      value: token?.contractAddress,
+                      label: `${token?.symbol} (${
+                        token?.name
+                      }) - ${addressShortener(token?.contractAddress)}`,
+                    })),
+                  ]}
+                />
+              </Box>
+              {tokenAddressSearch?.length > 0 && (
+                <IconButton
+                  aria-label="Clear"
+                  variant="link"
+                  width={"42px"}
+                  height={"42px"}
+                  marginTop={"16px"}
+                  // variant={isSelected ? "solid" : "outline"}
+                  icon={<AiOutlineClear />}
+                  onClick={() => setTokenAddressSearch("")}
+                />
+              )}
+            </Box>
           </Box>
-          <Box sx={{ display: "flex" }}>
+          <Box sx={{ display: "flex", pl: "10px" }}>
             <IWInput
               value={keywords?.queryAddress}
               width={{ base: "full" }}
@@ -368,7 +422,7 @@ export default function TokensPage() {
                     setPagination({ pageIndex: 0, pageSize: 10 });
                   } else {
                     tokenTransactionMutation.mutate(
-                      selectedToken?.contractAddress,
+                      tokenAddressSearch || selectedToken?.contractAddress,
                       keywords
                     );
                   }
