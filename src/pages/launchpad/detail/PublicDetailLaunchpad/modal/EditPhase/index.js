@@ -9,6 +9,7 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
+  ModalFooter,
   ModalHeader,
   ModalOverlay,
   Select,
@@ -54,6 +55,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
     if (phaseData) {
       setOnCreateNew(true);
       setNewData({
+        ...phaseData,
         immediateReleaseRate:
           parseFloat(phaseData?.immediateReleaseRate?.replace(/,/g, "")) / 100,
         name: phaseData?.name,
@@ -65,7 +67,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
         vestingUnit:
           parseFloat(phaseData?.vestingUnit?.replace(/,/g, "")) /
           millisecondsInADay,
-        allowPublicSale: phaseData?.isPublic,
+        allowPublicSale: phaseData?.publicSaleInfor?.isPublic,
         phasePublicAmount: formatTokenAmount(
           phaseData?.publicSaleInfor?.totalAmount,
           tokenDecimal
@@ -207,30 +209,32 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
         launchpad.CONTRACT_ABI,
         launchpadData?.launchpadContract,
         0, //-> value
-        "LaunchpadContractTrait::set_phase",
-        // newData?.name,
-        // newData?.startDate?.getTime(),
-        // newData?.endDate?.getTime(),
-        // newData?.immediateReleaseRate === 100
-        //   ? parseInt(
-        //       (parseFloat(newData?.immediateReleaseRate) * 100).toFixed()
-        //     )
-        //   : parseInt(
-        //       (parseFloat(newData?.immediateReleaseRate) * 100).toFixed()
-        //     ),
-        // newData?.immediateReleaseRate === 100
-        //   ? 0
-        //   : dayToMilisecond(parseFloat(newData?.vestingLength)),
-        // newData?.immediateReleaseRate === 100
-        //   ? 1
-        //   : dayToMilisecond(parseFloat(newData?.vestingUnit)),
-        // newData?.allowPublicSale,
-        // newData?.allowPublicSale
-        //   ? parseUnits(newData?.phasePublicAmount.toString(), tokenDecimal)
-        //   : null,
-        // newData?.allowPublicSale
-        //   ? parseUnits(newData?.phasePublicPrice.toString(), 12)
-        //   : null
+        "launchpadContractTrait::setPhase",
+        selectedPhaseIndex,
+        newData?.isActive,
+        newData?.name,
+        newData?.startDate?.getTime(),
+        newData?.endDate?.getTime(),
+        newData?.immediateReleaseRate === 100
+          ? parseInt(
+              (parseFloat(newData?.immediateReleaseRate) * 100).toFixed()
+            )
+          : parseInt(
+              (parseFloat(newData?.immediateReleaseRate) * 100).toFixed()
+            ),
+        newData?.immediateReleaseRate === 100
+          ? 0
+          : dayToMilisecond(parseFloat(newData?.vestingLength)),
+        newData?.immediateReleaseRate === 100
+          ? 1
+          : dayToMilisecond(parseFloat(newData?.vestingUnit)),
+        newData?.allowPublicSale,
+        newData?.allowPublicSale
+          ? parseUnits(newData?.phasePublicAmount.toString(), tokenDecimal)
+          : null,
+        newData?.allowPublicSale
+          ? parseUnits(newData?.phasePublicPrice.toString(), 12)
+          : null
       );
       await delay(2000);
       await APICall.askBEupdate({
@@ -263,14 +267,9 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Update phases</ModalHeader>
-        <ModalCloseButton onClick={() => setVisible(false)} />
-        <ModalBody sx={{ pb: "28px" }}>
-          <Text>
-            Available token amount:{" "}
-            {`${formatNumDynDecimal(availableTokenAmount)} 
-            ${launchpadData?.projectInfo?.token?.symbol}`}
-          </Text>
 
+        <ModalCloseButton onClick={() => setVisible(false)} />
+        <ModalBody sx={{ pb: "28px", maxHeight: "80vh", overflow: "auto" }}>
           {onCreateNew ? (
             <>
               {selectedPhaseIndex >= 0 && (
@@ -604,6 +603,11 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
             </>
           )}
         </ModalBody>
+        <ModalFooter>
+          Available token amount:{" "}
+          {`${formatNumDynDecimal(availableTokenAmount)} 
+            ${launchpadData?.projectInfo?.token?.symbol}`}
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );
