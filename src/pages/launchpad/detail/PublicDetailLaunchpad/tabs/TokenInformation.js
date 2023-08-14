@@ -1,10 +1,7 @@
-import { Box, Divider, Stack, Text } from "@chakra-ui/react";
-import SaleCard from "../SaleCard";
-import StatusCard from "../StatusCard";
+import { Box, Divider, Text } from "@chakra-ui/react";
 import { formatDataCellTable } from "components/table/IWPaginationTable";
 import { useMemo } from "react";
 import { roundUp } from "utils";
-import { format } from "utils/datetime";
 import TabLayout from "../Layout";
 
 const TokenInformation = ({ launchpadContract, launchpadData }) => {
@@ -39,7 +36,13 @@ const TokenInformation = ({ launchpadContract, launchpadData }) => {
       tokenContract: token?.tokenAddress,
       totalSupply: roundUp(token?.totalSupply?.replaceAll(",", "")),
     };
-  }, [token?.decimals, token?.name, token?.symbol, token?.tokenAddress, token?.totalSupply]);
+  }, [
+    token?.decimals,
+    token?.name,
+    token?.symbol,
+    token?.tokenAddress,
+    token?.totalSupply,
+  ]);
   return (
     <TabLayout launchpadData={launchpadData}>
       {mainTableHeader.map((e, index) => {

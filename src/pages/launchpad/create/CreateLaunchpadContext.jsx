@@ -344,7 +344,7 @@ const CreateLaunchpadContextProvider = (props) => {
         "launchpadGeneratorTrait::getCreationFee"
       );
       const fee = result.toHuman().Ok;
-      
+
       if (
         !(
           parseFloat(currentAccount?.balance?.inw.replaceAll(",", "")) >
@@ -394,6 +394,7 @@ const CreateLaunchpadContextProvider = (props) => {
         allowanceTokenQr,
         launchpadData?.token?.decimals
       ).replaceAll(",", "");
+
       //Approve
       if (allowanceINW < parseFloat(createTokenFee.replaceAll(",", ""))) {
         toast(`Approving INW token...`);
@@ -449,7 +450,8 @@ const CreateLaunchpadContextProvider = (props) => {
             }),
             {
               loading: "Please wait up to 10s for the data to be updated! ",
-              success: "Thank you for submitting. Your Prroject has been created successfully. It will need enabling by our team. We will get in touch with you within the next 48 hours. In the meantime, you can navigate to My Project page to check status of your project.",
+              success:
+                "Thank you for submitting. Your Prroject has been created successfully. It will need enabling by our team. We will get in touch with you within the next 48 hours. In the meantime, you can navigate to My Project page to check status of your project.",
               error: "Could not fetch data!!!",
             }
           );
@@ -463,11 +465,15 @@ const CreateLaunchpadContextProvider = (props) => {
         launchpadData?.phase?.map((e) => e?.name),
         launchpadData?.phase?.map((e) => e?.startDate?.getTime()),
         launchpadData?.phase?.map((e) => e?.endDate?.getTime()),
-        launchpadData?.phase?.map((e) =>
-          parseInt((parseFloat(e?.immediateReleaseRate) * 100).toFixed())
-        ),
         launchpadData?.phase?.map((e) => {
-          if (parseFloat(e?.immediateReleaseRate) == 100) return 0;
+          if (e?.immediateReleaseRate === 100)
+            return parseInt(
+              (parseFloat(e?.immediateReleaseRate) * 100).toFixed()
+            );
+          else return parseInt((parseFloat(e?.immediateReleaseRate) * 100).toFixed());
+        }),
+        launchpadData?.phase?.map((e) => {
+          if (parseFloat(e?.immediateReleaseRate) === 100) return 0;
           else return dayToMilisecond(parseFloat(e?.vestingLength));
         }),
         launchpadData?.phase?.map((e) => {
@@ -481,12 +487,12 @@ const CreateLaunchpadContextProvider = (props) => {
                 e?.phasePublicAmount.toString(),
                 parseInt(launchpadData?.token.decimals)
               )
-            : 0;
+            : null;
         }),
         launchpadData?.phase?.map((e) => {
           return e?.allowPublicSale
             ? parseUnits(e?.phasePublicPrice.toString(), 12)
-            : 0;
+            : null;
         })
       );
     } catch (error) {

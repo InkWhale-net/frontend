@@ -1,10 +1,12 @@
 import { Box, Circle, Divider, Heading, Image, Text } from "@chakra-ui/react";
+import AddressCopier from "components/address-copier/AddressCopier";
 import { formatDataCellTable } from "components/table/IWPaginationTable";
 import { useMemo } from "react";
+import ReactApexChart from "react-apexcharts";
+import { isMobile } from "react-device-detect";
 import { roundUp } from "utils";
 import { format } from "utils/datetime";
 import TabLayout from "../Layout";
-import AddressCopier from "components/address-copier/AddressCopier";
 
 const LabelField = ({ label, value, divider = true }) => {
   return (
@@ -28,6 +30,25 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
   const avatarSize = "120px";
   const { phase, projectInfor, roadmap, team, token, totalSupply } =
     launchpadData?.projectInfo || {};
+  const distributions = useMemo(() => {
+    try {
+      const totalDistribution = projectInfor?.tokenomic.reduce((acc, obj) => {
+        return acc + obj?.value;
+      }, 0);
+      if (totalDistribution) {
+        if (totalDistribution > 100) return [];
+        else if (totalDistribution == 100) return projectInfor?.tokenomic;
+        else
+          return [
+            ...projectInfor?.tokenomic,
+            { label: "Others", value: 100 - totalDistribution },
+          ];
+      }
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  }, [launchpadData]);
   const mainTableHeader = [
     {
       label: "Launchpad contract",
@@ -38,7 +59,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
       header: "description",
     },
     {
-      label: "Token total supply",
+      label: "Token total for sale",
       header: "totalSupply",
     },
 
@@ -76,7 +97,9 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
   ]);
   return (
     <TabLayout launchpadData={launchpadData}>
-      <Heading sx={{fontSize: "24px"}} size="lg">General Information</Heading>
+      <Heading sx={{ fontSize: "24px" }} size="lg">
+        General Information
+      </Heading>
       <Divider sx={{ marginBottom: "16px" }} />
       {mainTableHeader.map((e, index) => {
         return (
@@ -88,7 +111,11 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
             >
               <Text sx={{ flex: 1 }}>{e?.label}</Text>
               <Box
-                sx={{ flex: 2, display: "flex", justifyContent: "flex-end" }}
+                sx={{
+                  flex: 2,
+                  display: "flex",
+                  justifyContent: "flex-end",
+                }}
               >
                 <Text>{formatDataCellTable(mainTabData, e?.header)}</Text>
               </Box>
@@ -97,10 +124,57 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
           </>
         );
       })}
+      {distributions?.length > 0 && (
+        <>
+          <Heading
+            sx={{
+              marginTop: "40px",
+              fontSize: "24px",
+            }}
+            size="lg"
+          >
+            Tokenomic
+          </Heading>
+          <Box
+            sx={{
+              display: "flex",
+              // justifyContent: "center",
+            }}
+          >
+            <Box display={{ base: "flex" }} justifyContent={{ base: "center" }}>
+              <ReactApexChart
+                width={isMobile ? window.innerWidth : "400px"}
+                height={isMobile ? window.innerWidth : "400px"}
+                options={{
+                  chart: {
+                    type: "donut",
+                  },
+                  labels: distributions.map((e) => e.label),
+                  responsive: [
+                    {
+                      breakpoint: 480,
+                      options: {
+                        chart: {
+                          width: 200,
+                        },
+                        legend: {
+                          position: "bottom",
+                        },
+                      },
+                    },
+                  ],
+                }}
+                series={distributions.map((e) => e.value)}
+                type="donut"
+              />
+            </Box>
+          </Box>
+        </>
+      )}
       <Heading
         sx={{
           marginTop: "40px",
-          fontSize: "24px"
+          fontSize: "24px",
         }}
         size="lg"
       >
@@ -115,8 +189,8 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
               display="flex"
               flexDirection={["column", "column", "row"]}
               alignItems={["start", "start", "center"]}
-              marginBottom={'10px'}
-              marginTop={'10px'}
+              marginBottom={"10px"}
+              marginTop={"10px"}
             >
               <Text sx={{ flex: 1 }}>Name</Text>
               <Text size="md" sx={{ flex: 2, textAlign: "right" }}>
@@ -127,7 +201,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
               display="flex"
               flexDirection={["column", "column", "row"]}
               alignItems={["start", "start", "center"]}
-              marginBottom={'10px'}
+              marginBottom={"10px"}
             >
               <Text sx={{ flex: 1 }}>Description</Text>
               <Text sx={{ flex: 2, textAlign: "right" }}>
@@ -140,7 +214,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
       <Heading
         sx={{
           marginTop: "40px",
-          fontSize: "24px"
+          fontSize: "24px",
         }}
         size="lg"
       >
@@ -179,7 +253,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
                 paddingLeft: "24px",
               }}
             >
-              <Text  size="md">{obj?.name?.toUpperCase()}</Text>
+              <Text size="md">{obj?.name?.toUpperCase()}</Text>
               <Text>
                 Role: <span>{obj?.title}</span>
               </Text>

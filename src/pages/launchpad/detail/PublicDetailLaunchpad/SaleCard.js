@@ -1,13 +1,11 @@
-import { Box, Button, Flex, Heading, Progress, Text } from "@chakra-ui/react";
+import { Box, Button, Heading, Progress, Text } from "@chakra-ui/react";
 import { APICall } from "api/client";
 import { AzeroLogo } from "components/icons/Icons";
 import IWInput from "components/input/Input";
 import { toastMessages } from "constants";
 import { useAppContext } from "contexts/AppContext";
 import { parseUnits } from "ethers";
-import { useEffect } from "react";
-import { useState } from "react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Countdown, { zeroPad } from "react-countdown";
 import { toast } from "react-hot-toast";
 import { useMutation, useQuery } from "react-query";
@@ -15,13 +13,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { BeatLoader } from "react-spinners";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import { roundDown } from "utils";
-import { roundUp } from "utils";
-import { delay } from "utils";
-import { formatNumToBN } from "utils";
-import { formatTokenAmount } from "utils";
-import { execContractTx } from "utils/contracts";
-import { execContractQuery } from "utils/contracts";
+import {
+  delay,
+  formatNumToBN,
+  formatTokenAmount,
+  roundDown,
+  roundUp,
+} from "utils";
+import { execContractQuery, execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 const headerSX = {
   fontWeight: "700",
@@ -369,6 +368,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         />
       </Box>
       <IWInput
+        isDisabled={!allowBuy}
         onChange={({ target }) => {
           setAzeroBuyAmount(target.value);
           setAmount(
