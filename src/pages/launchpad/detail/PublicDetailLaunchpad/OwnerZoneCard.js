@@ -121,7 +121,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         variant="outline"
         onClick={() => showPhaseModal()}
       >
-        Add new Phase
+        Update Phase
       </Button>
 
       <Button
