@@ -290,6 +290,13 @@ export const APICall = {
 
     return ret;
   },
+  getTotalValueLocked: async () => {
+    const ret = await client(
+      "POST",
+      "/getTotalValueLocked",
+    );
+    return ret;
+  },
 };
 
 const projectId = process.env.REACT_APP_IPFS_PROJECT_ID;
