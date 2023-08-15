@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 
@@ -9,11 +8,11 @@ export const AppContextProvider = ({ children }) => {
   const { currentAccount } = useSelector((state) => state.wallet);
   const [api, setApi] = useState(null);
   const dispatch = useDispatch();
+
   useEffect(() => {
-    if (!currentAccount?.balance && api) {
+    if (!currentAccount?.balance && api && currentAccount) {
       dispatch(fetchUserBalance({ currentAccount, api }));
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, currentAccount]);
   return (
