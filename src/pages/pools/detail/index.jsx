@@ -836,7 +836,7 @@ const PoolInfo = (props) => {
       direction={{ base: "column", lg: "row" }}
     >
       <CardTwoColumn
-        title="Staking Token Information"
+        title="General Information"
         data={[
           {
             title: "Pool Contract Address",
@@ -866,7 +866,7 @@ const PoolInfo = (props) => {
       />
 
       <CardTwoColumn
-        title="General Information"
+        title="Staking Token Information"
         data={[
           { title: "Token Name", content: tokenName },
           {
