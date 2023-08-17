@@ -23,6 +23,7 @@ import TokenInformation from "./TokenInformation";
 import TokensTabBurnToken from "./TokensTabBurnToken";
 import TokensTabCheckBalance from "./TokensTabCheckBalance";
 import TokensTabTransferToken from "./TokensTabTransferToken";
+import psp22_contract_old from "utils/contracts/psp22_contract_old";
 
 export default function TokensPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -128,10 +129,15 @@ export default function TokensPage() {
       rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
       0
     );
+    const isTokenOnNewOP = faucetTokensList.find(
+      (e) => e?.contractAddress === selectedContractAddr
+    )?.isNew;
     let queryResult5 = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      isTokenOnNewOP === true
+        ? psp22_contract.CONTRACT_ABI
+        : psp22_contract_old.CONTRACT_ABI,
       selectedContractAddr,
       0,
       "ownable::owner"

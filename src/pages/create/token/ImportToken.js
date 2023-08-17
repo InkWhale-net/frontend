@@ -1,5 +1,4 @@
 import { Box, Button, Heading, SimpleGrid, VStack } from "@chakra-ui/react";
-import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 
 import { web3FromSource } from "@polkadot/extension-dapp";
@@ -10,13 +9,18 @@ import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import { delay, formatQueryResultToNumber, isAddressValid } from "utils";
+import {
+  delay,
+  formatNumDynDecimal,
+  formatQueryResultToNumber,
+  isAddressValid,
+  roundUp,
+} from "utils";
 import { execContractQuery } from "utils/contracts";
 import core_contract from "utils/contracts/core_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract_old from "utils/contracts/psp22_contract_old";
 import ImageUploadIcon from "./UploadIcon";
-import { roundUp } from "utils";
-import { formatNumDynDecimal } from "utils";
 
 const ImportTokenForm = ({ api }) => {
   const dispatch = useDispatch();
@@ -92,7 +96,7 @@ const ImportTokenForm = ({ api }) => {
       let queryResult5 = await execContractQuery(
         currentAccount?.address,
         "api",
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_old.CONTRACT_ABI,
         tokenAddress,
         0,
         "ownable::owner"
@@ -138,7 +142,7 @@ const ImportTokenForm = ({ api }) => {
       let queryResult = await execContractQuery(
         currentAccount?.address,
         "api",
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_old.CONTRACT_ABI,
         tokenAddress,
         0,
         "ownable::owner"
@@ -178,6 +182,8 @@ const ImportTokenForm = ({ api }) => {
         if (status === "OK") {
           setTokenInfo(null);
           setTokenAddress("");
+          await APICall.askBEupdate({ type: "token", poolContract: "new" });
+          
           toast.promise(
             delay(10000).then(() => {
               setImportIconIPFSUrl();

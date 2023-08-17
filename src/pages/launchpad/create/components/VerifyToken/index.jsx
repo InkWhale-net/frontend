@@ -25,6 +25,7 @@ import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import { useHistory } from "react-router-dom";
+import psp22_contract_old from "utils/contracts/psp22_contract_old";
 
 export default function VerifyToken() {
   const { launchpadData, updateLaunchpadData, current } = useCreateLaunchpad();
@@ -52,11 +53,15 @@ export default function VerifyToken() {
       toast.error("Invalid address!");
       return;
     }
-
+    const isTokenOnNewOP = tokenList.find(
+      (e) => e?.contractAddress === tokenList
+    )?.isNew;
     let queryResultOwner = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      isTokenOnNewOP === true
+        ? psp22_contract.CONTRACT_ABI
+        : psp22_contract_old.CONTRACT_ABI,
       tokenAddress,
       0,
       "ownable::owner"
@@ -119,15 +124,7 @@ export default function VerifyToken() {
       rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
       0
     );
-    let queryResult5 = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      tokenAddress,
-      0,
-      "ownable::owner"
-    );
-    const owner = queryResult5?.toHuman()?.Ok;
+
     let tokenIconUrl = null;
     try {
       const { status, ret } = await APICall.getTokenInfor({
@@ -146,7 +143,7 @@ export default function VerifyToken() {
       name: tokenName,
       totalSupply: formatNumDynDecimal(totalSupply, 4),
       decimals,
-      owner,
+      ownerToken,
       tokenIconUrl,
     });
   };

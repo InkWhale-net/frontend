@@ -225,7 +225,10 @@ export const getPublicCurrentAccount = () => {
 };
 
 export const moveINWToBegin = (tokensList) => {
-  const INWIndex = tokensList.findIndex((element) => element?.contractAddress === process.env.REACT_APP_INW_TOKEN_ADDRESS);
+  const INWIndex = tokensList.findIndex(
+    (element) =>
+      element?.contractAddress === process.env.REACT_APP_INW_TOKEN_ADDRESS
+  );
   if (INWIndex > -1) {
     const element = tokensList.splice(INWIndex, 1)[0];
     tokensList.unshift(element);
@@ -238,7 +241,8 @@ export const moveINWToBegin = (tokensList) => {
 export const excludeNFT = (tokensList) =>
   tokensList.filter(
     (element) =>
-      element?.nftContractAddress !== process.env.REACT_APP_EXCLUDE_TOKEN_ADDRESS
+      element?.nftContractAddress !==
+      process.env.REACT_APP_EXCLUDE_TOKEN_ADDRESS
   );
 
 const toContractAbiMessage = (contractPromise, message) => {
@@ -341,10 +345,7 @@ export const resolveDomain = async (address) => {
 export const formatTokenAmount = (value, decimal = 12) => {
   try {
     return formatUnits(
-      (typeof value == "string" ? value : value.toLocaleString())
-        ?.toString()
-        ?.replace(/\./g, "")
-        ?.replace(/,/g, ""),
+      value?.toString()?.replace(/\./g, "")?.replace(/,/g, ""),
       decimal
     );
   } catch (error) {
