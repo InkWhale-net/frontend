@@ -1,5 +1,5 @@
 const azt_contract = {
-  CONTRACT_ADDRESS: "5ECCC35Zd3h9rt4vzjUm6KYfggpr5BMfYR8t2d1BZUB1LMqw",
+  CONTRACT_ADDRESS: "5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX",
   CONTRACT_ABI: {
     source: {
       hash: "0xba199e2311c6a70c84c43b4de1c947bbbc7695eb6038bd1b295d1380e04ff023",
