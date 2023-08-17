@@ -182,8 +182,7 @@ const ImportTokenForm = ({ api }) => {
         if (status === "OK") {
           setTokenInfo(null);
           setTokenAddress("");
-          await APICall.askBEupdate({ type: "token", poolContract: "new" });
-          
+
           toast.promise(
             delay(10000).then(() => {
               setImportIconIPFSUrl();
