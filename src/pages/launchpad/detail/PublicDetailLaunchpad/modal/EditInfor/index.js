@@ -1,45 +1,28 @@
-import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
-  Divider,
-  Flex,
-  Heading,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Select,
   SimpleGrid,
-  Switch,
-  Text,
-  Tooltip,
 } from "@chakra-ui/react";
 import { APICall } from "api/client";
-import { AzeroLogo } from "components/icons/Icons";
+import { ipfsClient } from "api/client";
 import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
 import { useAppContext } from "contexts/AppContext";
-import { parseUnits } from "ethers";
 import UploadImage from "pages/launchpad/UploadImage";
-import Tokenomic from "pages/launchpad/create/components/ProjectInfor/Tokenomic";
 import SectionContainer from "pages/launchpad/create/components/sectionContainer";
-import { verifyWhitelist } from "pages/launchpad/create/utils";
 import { useEffect, useState } from "react";
-import DateTimePicker from "react-datetime-picker";
 import { toast } from "react-hot-toast";
+import { useMutation } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
-import { dayToMilisecond } from "utils";
-import { millisecondsInADay } from "utils";
 import { delay } from "utils";
-import { formatNumDynDecimal } from "utils";
-import { formatTokenAmount } from "utils";
 import { execContractTx } from "utils/contracts";
-import { execContractQuery } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 
 const EditInfor = ({ visible, setVisible, launchpadData }) => {
@@ -52,20 +35,59 @@ const EditInfor = ({ visible, setVisible, launchpadData }) => {
   const [newData, setNewData] = useState(null);
   const dispatch = useDispatch();
   const [projectInfor, setProjectInfor] = useState(null);
-  // useEffect(() => {
-  //   if (!visible) {
-  //     setOnCreateNew(false);
-  //     setNewData(null);
-  //     setSelectedPhaseIndex(-1);
-  //   } else {
-  //     if (launchpadData) fetchPhaseData();
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [visible, launchpadData]);
+
   useEffect(() => {
     if (visible === true)
-      setProjectInfor(launchpadData?.projectInfo?.projectInfor);
+      setProjectInfor({
+        ...launchpadData?.projectInfo?.projectInfor,
+        previewAvatar: null,
+        previewFeatureImage: null,
+        previewHeaderImage: null,
+      });
   }, [visible]);
+  const updateProjectInforHandler = async () => {
+    const project_info_ipfs = await ipfsClient.add(
+      JSON.stringify({
+        ...launchpadData?.projectInfo,
+        projectInfor: projectInfor,
+      })
+    );
+    await execContractTx(
+      currentAccount,
+      api,
+      launchpad.CONTRACT_ABI,
+      launchpadData?.launchpadContract,
+      0, //-> value
+      "launchpadContractTrait::setProjectInfoUri",
+      project_info_ipfs?.path
+    );
+    await delay(2000);
+    await APICall.askBEupdate({
+      type: "launchpad",
+      poolContract: launchpadData?.launchpadContract,
+    });
+    toast.promise(
+      delay(5000).then(() => {
+        dispatch(fetchLaunchpads({ isActive: 0 }));
+        setVisible(false);
+      }),
+      {
+        loading: "Please wait up to 5s for the data to be updated! ",
+        success: "Success",
+        error: "Could not fetch data!!!",
+      }
+    );
+  };
+  const updateInforMutation = useMutation(async () => {
+    await new Promise(async (resolve) => {
+      try {
+        await updateProjectInforHandler();
+        resolve();
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  });
   return (
     <Modal
       onClose={() => setVisible(false)}
@@ -94,7 +116,10 @@ const EditInfor = ({ visible, setVisible, launchpadData }) => {
                 width: "500",
                 height: "500",
               }}
-              previewUrl={projectInfor?.previewAvatar}
+              previewUrl={
+                projectInfor?.previewAvatar ||
+                `${process.env.REACT_APP_IPFS_PUBLIC_URL}/${projectInfor?.avatarImage}`
+              }
               updatePreviewImage={(value) =>
                 setProjectInfor((prev) => ({ ...prev, previewAvatar: value }))
               }
@@ -112,7 +137,10 @@ const EditInfor = ({ visible, setVisible, launchpadData }) => {
                 width: "400",
                 height: "260",
               }}
-              previewUrl={projectInfor?.previewFeatureImage}
+              previewUrl={
+                projectInfor?.previewFeatureImage ||
+                `${process.env.REACT_APP_IPFS_PUBLIC_URL}/${projectInfor?.featureImage}`
+              }
               updatePreviewImage={(value) =>
                 setProjectInfor((prev) => ({
                   ...prev,
@@ -135,7 +163,10 @@ const EditInfor = ({ visible, setVisible, launchpadData }) => {
                 width: "1920",
                 height: "600",
               }}
-              previewUrl={projectInfor?.previewHeaderImage}
+              previewUrl={
+                projectInfor?.previewHeaderImage ||
+                `${process.env.REACT_APP_IPFS_PUBLIC_URL}/${projectInfor?.headerImage}`
+              }
               updatePreviewImage={(value) =>
                 setProjectInfor((prev) => ({
                   ...prev,
@@ -213,7 +244,12 @@ const EditInfor = ({ visible, setVisible, launchpadData }) => {
             </SimpleGrid>
           </Box>
           <Box sx={{ display: "flex", justifyContent: "center", mt: "20px" }}>
-            <Button>Update information</Button>
+            <Button
+              isLoading={updateInforMutation.isLoading}
+              onClick={() => updateInforMutation.mutate()}
+            >
+              Update information
+            </Button>
           </Box>
         </ModalBody>
         {/* <ModalFooter>
