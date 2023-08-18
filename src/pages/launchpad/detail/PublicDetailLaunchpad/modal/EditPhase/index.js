@@ -25,6 +25,7 @@ import IWTextArea from "components/input/TextArea";
 import { useAppContext } from "contexts/AppContext";
 import { parseUnits } from "ethers";
 import SectionContainer from "pages/launchpad/create/components/sectionContainer";
+import { validatePhaseData } from "pages/launchpad/create/utils";
 import { verifyWhitelist } from "pages/launchpad/create/utils";
 import { useEffect, useState } from "react";
 import DateTimePicker from "react-datetime-picker";
@@ -82,7 +83,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
       setNewData(null);
       setSelectedPhaseIndex(-1);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPhaseIndex]);
   const fetchPhaseData = async () => {
     const result = await execContractQuery(
@@ -104,7 +105,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
     } else {
       if (launchpadData) fetchPhaseData();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, launchpadData]);
 
   const onChangeImmediateReleaseRate = (value) => {
@@ -141,6 +142,29 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
           toast.error("Invalid whitelist format");
           return false;
         }
+      const phaseList = [
+        ...launchpadData?.phaseList.map((e) => ({
+          ...e,
+          immediateReleaseRate:
+            parseFloat(e?.immediateReleaseRate?.replace(/,/g, "")) / 100,
+          name: e?.name,
+          startDate: new Date(parseInt(e?.startTime?.replace(/,/g, ""))),
+          endDate: new Date(parseInt(e?.endTime?.replace(/,/g, ""))),
+          vestingLength:
+            parseFloat(e?.vestingDuration?.replace(/,/g, "")) /
+            millisecondsInADay,
+          vestingUnit:
+            parseFloat(e?.vestingUnit?.replace(/,/g, "")) / millisecondsInADay,
+          allowPublicSale: e?.publicSaleInfor?.isPublic,
+          phasePublicAmount: formatTokenAmount(
+            e?.publicSaleInfor?.totalAmount,
+            tokenDecimal
+          ),
+          phasePublicPrice: formatTokenAmount(e?.publicSaleInfor?.price, 12),
+        })),
+        newData,
+      ];
+      if (!validatePhaseData(phaseList)) return;
 
       await execContractTx(
         currentAccount,

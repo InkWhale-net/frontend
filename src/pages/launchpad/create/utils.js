@@ -280,6 +280,13 @@ const checkTimeRangeOverlap = (arr) => {
 
 export const validatePhaseData = (phaseData, totalSupply) => {
   if (
+    phaseData?.filter((e) => e?.endDate && e?.startDate)?.length !=
+    phaseData?.length
+  ) {
+    toast.error("Please enter phase time range");
+    return false;
+  }
+  if (
     phaseData?.filter((e) => e?.endDate > e?.startDate)?.length !=
     phaseData?.length
   ) {

@@ -28,11 +28,6 @@ import launchpad from "utils/contracts/launchpad";
 const EditInfor = ({ visible, setVisible, launchpadData }) => {
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
   const { api } = useAppContext();
-  const [selectedPhaseIndex, setSelectedPhaseIndex] = useState(-1);
-  const [availableTokenAmount, setAvailableTokenAmount] = useState(0);
-  const tokenDecimal = parseInt(launchpadData?.projectInfo?.token?.decimals);
-  const [onCreateNew, setOnCreateNew] = useState(true);
-  const [newData, setNewData] = useState(null);
   const dispatch = useDispatch();
   const [projectInfor, setProjectInfor] = useState(null);
 
@@ -44,6 +39,7 @@ const EditInfor = ({ visible, setVisible, launchpadData }) => {
         previewFeatureImage: null,
         previewHeaderImage: null,
       });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
   const updateProjectInforHandler = async () => {
     const project_info_ipfs = await ipfsClient.add(
