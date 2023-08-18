@@ -54,7 +54,7 @@ export default function VerifyToken() {
       return;
     }
     const isTokenOnNewOP = tokenList.find(
-      (e) => e?.contractAddress === tokenList
+      (e) => e?.contractAddress === tokenAddress
     )?.isNew;
     let queryResultOwner = await execContractQuery(
       currentAccount?.address,
@@ -67,6 +67,7 @@ export default function VerifyToken() {
       "ownable::owner"
     );
     const ownerToken = queryResultOwner.toHuman().Ok;
+
     if (currentAccount?.address !== ownerToken) {
       toast.error("You are not token owner!");
       return;
@@ -136,14 +137,13 @@ export default function VerifyToken() {
     } catch (error) {
       console.log(error);
     }
-
     setTokenInfo({
       symbol: tokenSymbol,
       balance: balance,
       name: tokenName,
       totalSupply: formatNumDynDecimal(totalSupply, 4),
       decimals,
-      ownerToken,
+      owner: ownerToken,
       tokenIconUrl,
     });
   };

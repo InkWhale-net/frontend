@@ -4,7 +4,7 @@ import { toast } from "react-hot-toast";
 
 export const verifyTokenValid = async (launchpadData, currentAccount) => {
   const owner = launchpadData?.token?.owner;
-  if (owner == currentAccount?.address) return true;
+  if (owner === currentAccount?.address) return true;
   else {
     toast.error("You must be the token owner");
   }

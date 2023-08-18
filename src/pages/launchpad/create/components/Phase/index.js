@@ -69,7 +69,7 @@ const Phase = () => {
     updateTotalSupply(totalSupply);
   }, [totalSupply]);
   useEffect(() => {
-    if (current == 4) {
+    if (current === 4) {
       if (launchpadData?.phase) setPhaseList(launchpadData?.phase);
       if (launchpadData?.totalSupply)
         setTotalSupply(launchpadData?.totalSupply);
@@ -87,7 +87,7 @@ const Phase = () => {
       }
       return updatedArray;
     });
-    if (parseFloat(value) == 100) {
+    if (parseFloat(value) === 100) {
       onChangeVestingDuration(0, index);
       onChangeVestingReleasePeriod(0, index);
     }

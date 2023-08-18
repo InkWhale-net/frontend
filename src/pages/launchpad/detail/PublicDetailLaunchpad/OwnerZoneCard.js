@@ -11,7 +11,8 @@ import { useModalLPDetail } from "./modal/ModelContext";
 const OwnerZoneCard = ({ launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { api } = useAppContext();
-  const { showWLModal, showPhaseModal } = useModalLPDetail();
+  const { showWLModal, showPhaseModal, showEditInforModal } =
+    useModalLPDetail();
 
   const [ownerBalance, setOwnerBalance] = useState(0);
 
@@ -109,7 +110,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         w="full"
         height="40px"
         variant="outline"
-        onClick={() => toast("Coming soon ...")}
+        onClick={() => showEditInforModal()}
       >
         Update Project Info
       </Button>

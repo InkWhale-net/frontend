@@ -9,8 +9,6 @@ import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { useEffect } from "react";
 
 const Launchpad = () => {
-
-
   const history = useHistory();
   const tabsData = [
     {
@@ -20,7 +18,7 @@ const Launchpad = () => {
     },
     {
       label: <>My Projects</>,
-      component: <AllLaunchpads isOwner/>,
+      component: <AllLaunchpads isOwner />,
       isDisabled: false,
     },
     // {
@@ -34,6 +32,7 @@ const Launchpad = () => {
     //   isDisabled: false,
     // },
   ];
+
   return (
     <SectionContainer
       title="Launchpads"

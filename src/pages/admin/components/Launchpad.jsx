@@ -89,7 +89,10 @@ const Launchpad = () => {
       });
       await toast.promise(
         delay(10000).then(() => {
-          if (currentAccount) dispatch(fetchLaunchpads({ isActive: 0 }));
+          if (currentAccount) {
+            dispatch(fetchLaunchpads({ isActive: 0 }));
+            fetchLP();
+          }
         }),
         {
           loading: "Please wait up to 10s for the data to be updated! ",
