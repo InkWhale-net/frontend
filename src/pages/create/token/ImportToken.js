@@ -93,7 +93,7 @@ const ImportTokenForm = ({ api }) => {
         rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
         0
       );
-      let queryResult5 = await execContractQuery(
+      const queryOwnerOld = await execContractQuery(
         currentAccount?.address,
         "api",
         psp22_contract_old.CONTRACT_ABI,
@@ -101,7 +101,17 @@ const ImportTokenForm = ({ api }) => {
         0,
         "ownable::owner"
       );
-      const owner = queryResult5?.toHuman()?.Ok;
+      const queryOwnerNew = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenAddress,
+        0,
+        "ownable::owner"
+      );
+
+      const owner =
+        queryOwnerOld?.toHuman()?.Ok || queryOwnerNew?.toHuman()?.Ok;
       const balance = formatQueryResultToNumber(
         queryResult,
         parseInt(decimals)
@@ -139,7 +149,7 @@ const ImportTokenForm = ({ api }) => {
       if (!currentAccount) {
         toast.error("Please connect wallet for full-function using!");
       }
-      let queryResult = await execContractQuery(
+      const queryOwnerOld = await execContractQuery(
         currentAccount?.address,
         "api",
         psp22_contract_old.CONTRACT_ABI,
@@ -147,7 +157,18 @@ const ImportTokenForm = ({ api }) => {
         0,
         "ownable::owner"
       );
-      const tokenOwnerAddress = queryResult.toHuman().Ok;
+      const queryOwnerNew = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenAddress,
+        0,
+        "ownable::owner"
+      );
+
+      const tokenOwnerAddress =
+        queryOwnerOld?.toHuman()?.Ok || queryOwnerNew?.toHuman()?.Ok;
+
       if (tokenOwnerAddress != currentAccount?.address) {
         toast.error("You must be the owner of the token contract to continue");
         return;
@@ -178,6 +199,11 @@ const ImportTokenForm = ({ api }) => {
           decimal: tokenDecimal,
           creator: tokenOwnerAddress,
           signature,
+          isNew: queryOwnerNew?.toHuman()?.Ok
+            ? true
+            : queryOwnerOld?.toHuman()?.Ok
+            ? false
+            : null,
         });
         if (status === "OK") {
           setTokenInfo(null);

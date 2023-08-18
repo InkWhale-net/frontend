@@ -69,6 +69,7 @@ export const APICall = {
     decimal,
     creator,
     signature,
+    isNew,
   }) => {
     return await client("POST", "/importToken", {
       tokenAddress,
@@ -79,6 +80,7 @@ export const APICall = {
       decimal,
       creator,
       signature,
+      isNew,
     });
   },
   getTokenInfor: async ({ tokenAddress }) => {
@@ -308,10 +310,7 @@ export const APICall = {
     return ret;
   },
   getTotalValueLocked: async () => {
-    const ret = await client(
-      "POST",
-      "/getTotalValueLocked",
-    );
+    const ret = await client("POST", "/getTotalValueLocked");
     return ret;
   },
 };
