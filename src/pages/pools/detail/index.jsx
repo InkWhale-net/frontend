@@ -174,7 +174,7 @@ export default function PoolDetailPage() {
   return (
     <>
       <Show above="md">
-        <SectionContainer mt={{ xl: "-48px" }} mb={{ xl: "-32px" }}>
+        <SectionContainer>
           <Breadcrumb
             spacing="4px"
             separator={<ChevronRightIcon color="gray.500" />}
@@ -190,10 +190,7 @@ export default function PoolDetailPage() {
         </SectionContainer>
       </Show>
 
-      <SectionContainer
-        mt={{ base: "0px", xl: "20px" }}
-        title="Staking Pool Detail"
-      >
+      <SectionContainer title="Staking Pool Detail">
         <Stack
           w="full"
           spacing="30px"
