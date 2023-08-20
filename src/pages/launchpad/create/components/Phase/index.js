@@ -7,6 +7,7 @@ import {
   IconButton,
   SimpleGrid,
   Switch,
+  Text,
   Tooltip,
 } from "@chakra-ui/react";
 import SectionContainer from "../sectionContainer";
@@ -70,6 +71,7 @@ const Phase = () => {
   }, [totalSupply]);
   useEffect(() => {
     if (current === 4) {
+      window.scrollTo(0, 0);
       if (launchpadData?.phase) setPhaseList(launchpadData?.phase);
       if (launchpadData?.totalSupply)
         setTotalSupply(launchpadData?.totalSupply);
@@ -126,6 +128,9 @@ const Phase = () => {
           placeholder="0"
           inputRightElementIcon={launchpadData?.token?.symbol}
         />
+        <Text
+          sx={{ mt: "8px" }}
+        >{`Token balance: ${launchpadData?.token?.balance} ${launchpadData?.token?.symbol}`}</Text>
       </SectionContainer>
       <Heading
         sx={{ marginTop: "16px" }}

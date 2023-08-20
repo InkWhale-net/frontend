@@ -428,7 +428,7 @@ const CreateLaunchpadContextProvider = (props) => {
       toast.loading(`Process creating...`, {
         duration: 4000,
       });
-
+      
       await execContractTxAndCallAPI(
         currentAccount,
         "api",
@@ -466,11 +466,17 @@ const CreateLaunchpadContextProvider = (props) => {
         launchpadData?.phase?.map((e) => e?.startDate?.getTime()),
         launchpadData?.phase?.map((e) => e?.endDate?.getTime()),
         launchpadData?.phase?.map((e) => {
-          if (e?.immediateReleaseRate === 100)
-            return parseInt(
-              (parseFloat(e?.immediateReleaseRate) * 100).toFixed()
-            );
-          else return parseInt((parseFloat(e?.immediateReleaseRate) * 100).toFixed());
+          return parseInt(
+            (parseFloat(e?.immediateReleaseRate) * 100).toFixed()
+          ).toString();
+          // if (e?.immediateReleaseRate === 100)
+          //   return parseInt(
+          //     (parseFloat(e?.immediateReleaseRate) * 100).toFixed()
+          //   );
+          // else
+          //   return parseInt(
+          //     (parseFloat(e?.immediateReleaseRate) * 100).toFixed()
+          //   );
         }),
         launchpadData?.phase?.map((e) => {
           if (parseFloat(e?.immediateReleaseRate) === 100) return 0;
@@ -487,12 +493,12 @@ const CreateLaunchpadContextProvider = (props) => {
                 e?.phasePublicAmount.toString(),
                 parseInt(launchpadData?.token.decimals)
               )
-            : null;
+            : 0;
         }),
         launchpadData?.phase?.map((e) => {
           return e?.allowPublicSale
             ? parseUnits(e?.phasePublicPrice.toString(), 12)
-            : null;
+            : 0;
         })
       );
     } catch (error) {
