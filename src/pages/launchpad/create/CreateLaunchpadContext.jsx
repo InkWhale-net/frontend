@@ -325,6 +325,7 @@ const CreateLaunchpadContextProvider = (props) => {
         (acc, e) => acc + (e?.phasePublicAmount || 0),
         0
       );
+
       if (
         !(launchpadData?.phase?.length > 0) ||
         !validateTotalSupply(
@@ -428,7 +429,6 @@ const CreateLaunchpadContextProvider = (props) => {
       toast.loading(`Process creating...`, {
         duration: 4000,
       });
-      
       await execContractTxAndCallAPI(
         currentAccount,
         "api",

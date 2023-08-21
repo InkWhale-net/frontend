@@ -214,7 +214,7 @@ export const validateTotalSupply = (phaseData, totalSupply, tokenBalance) => {
     }
     if (
       phaseData?.filter((e) => {
-        if (e?.allowPublicSale == false) return true;
+        if (e?.allowPublicSale === false) return true;
         else {
           return (
             e?.phasePublicAmount > 0 && regexTestNum.test(e?.phasePublicPrice)
@@ -235,7 +235,7 @@ export const validateTotalSupply = (phaseData, totalSupply, tokenBalance) => {
     }
     if (
       phaseData.filter((e) => {
-        return !checkDuplicatedWL(e?.whiteList);
+        return e?.whiteList?.length > 0 ? !checkDuplicatedWL(e?.whiteList) : true;
       })?.length !== phaseData?.length
     ) {
       toast.error("Duplicated Whitelist Address");

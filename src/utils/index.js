@@ -336,6 +336,11 @@ export const resolveDomain = async (address) => {
         chainId: SupportedChainId.AlephZeroTestnet,
       });
       return domains[0];
+    } else {
+      const domains = await resolveAddressToDomain(address, {
+        chainId: SupportedChainId.AlephZero,
+      });
+      return domains[0];
     }
   } catch (error) {
     console.log("resolveDomain error", error);
