@@ -143,6 +143,8 @@ const App = () => {
       dispatch(fetchAllTokenPools({ currentAccount }));
     }
 
+    dispatch(fetchTotalValueLocked())
+
     if (!currentAccount?.address) return;
 
     // if (!myNFTPoolsList) {
