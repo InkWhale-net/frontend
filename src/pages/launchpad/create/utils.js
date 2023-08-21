@@ -189,6 +189,19 @@ export const verifyWhitelist = (wlString) => {
   return true;
 };
 
+const checkDuplicatedWL = (wlString) => {
+  const whitelistphase = processStringToArray(wlString);
+  const addressSet = new Set();
+
+  for (const obj of whitelistphase) {
+    if (addressSet.has(obj.address)) {
+      return true;
+    }
+    addressSet.add(obj.address);
+  }
+
+  return false;
+};
 export const validateTotalSupply = (phaseData, totalSupply, tokenBalance) => {
   try {
     if (totalSupply > tokenBalance) {
@@ -215,9 +228,17 @@ export const validateTotalSupply = (phaseData, totalSupply, tokenBalance) => {
     if (
       phaseData.filter((e) => {
         return e?.whiteList?.length > 0 ? verifyWhitelist(e?.whiteList) : true;
-      })?.length != phaseData?.length
+      })?.length !== phaseData?.length
     ) {
       toast.error("Invalid whitelist format");
+      return false;
+    }
+    if (
+      phaseData.filter((e) => {
+        return !checkDuplicatedWL(e?.whiteList);
+      })?.length !== phaseData?.length
+    ) {
+      toast.error("Duplicated Whitelist Address");
       return false;
     }
     const totalValue = phaseData.reduce((accumulator, currentValue) => {
@@ -280,14 +301,14 @@ const checkTimeRangeOverlap = (arr) => {
 
 export const validatePhaseData = (phaseData, totalSupply) => {
   if (
-    phaseData?.filter((e) => e?.endDate && e?.startDate)?.length !=
+    phaseData?.filter((e) => e?.endDate && e?.startDate)?.length !==
     phaseData?.length
   ) {
     toast.error("Please enter phase time range");
     return false;
   }
   if (
-    phaseData?.filter((e) => e?.endDate > e?.startDate)?.length !=
+    phaseData?.filter((e) => e?.endDate > e?.startDate)?.length !==
     phaseData?.length
   ) {
     toast.error("Phase can not end before it start");
@@ -299,7 +320,7 @@ export const validatePhaseData = (phaseData, totalSupply) => {
         parseFloat(e?.immediateReleaseRate) <= 100 &&
         parseFloat(e?.immediateReleaseRate) > 0
       );
-    })?.length != phaseData?.length
+    })?.length !== phaseData?.length
   ) {
     toast.error("Invalid immediate Release Rate value");
     return false;

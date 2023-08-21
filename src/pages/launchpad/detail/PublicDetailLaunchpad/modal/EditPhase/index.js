@@ -30,6 +30,7 @@ import { verifyWhitelist } from "pages/launchpad/create/utils";
 import { useEffect, useState } from "react";
 import DateTimePicker from "react-datetime-picker";
 import { toast } from "react-hot-toast";
+import { AiFillExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { dayToMilisecond } from "utils";
@@ -228,7 +229,36 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
           toast.error("Invalid whitelist format");
           return false;
         }
-
+      const phaseList = [
+        ...launchpadData?.phaseList.map((e, index) => {
+          if (index === selectedPhaseIndex) return newData;
+          else
+            return {
+              ...e,
+              immediateReleaseRate:
+                parseFloat(e?.immediateReleaseRate?.replace(/,/g, "")) / 100,
+              name: e?.name,
+              startDate: new Date(parseInt(e?.startTime?.replace(/,/g, ""))),
+              endDate: new Date(parseInt(e?.endTime?.replace(/,/g, ""))),
+              vestingLength:
+                parseFloat(e?.vestingDuration?.replace(/,/g, "")) /
+                millisecondsInADay,
+              vestingUnit:
+                parseFloat(e?.vestingUnit?.replace(/,/g, "")) /
+                millisecondsInADay,
+              allowPublicSale: e?.publicSaleInfor?.isPublic,
+              phasePublicAmount: formatTokenAmount(
+                e?.publicSaleInfor?.totalAmount,
+                tokenDecimal
+              ),
+              phasePublicPrice: formatTokenAmount(
+                e?.publicSaleInfor?.price,
+                12
+              ),
+            };
+        }),
+      ];
+      if (!validatePhaseData(phaseList)) return;
       await execContractTx(
         currentAccount,
         api,
@@ -283,6 +313,24 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
       console.log(error);
     }
   };
+  const isPhaseEditable = () => {
+    if (selectedPhaseIndex >= 0) {
+      const phaseData = launchpadData?.phaseList[selectedPhaseIndex];
+      const phaseDataParse = {
+        ...phaseData,
+        startDate: new Date(parseInt(phaseData?.startTime?.replace(/,/g, ""))),
+        endDate: new Date(parseInt(phaseData?.endTime?.replace(/,/g, ""))),
+      };
+
+      if (
+        phaseDataParse?.endDate < new Date() ||
+        phaseDataParse?.startDate < new Date()
+      )
+        return false;
+    } else {
+      return true;
+    }
+  };
   return (
     <Modal
       onClose={() => setVisible(false)}
@@ -322,6 +370,20 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                   </Box>
                 </>
               )}
+              <Box
+                sx={{
+                  bg: "#FED1CA",
+                  display: "flex",
+                  alignItems: "center",
+                  px: "10px",
+                  py: "8px",
+                  mt: "10px",
+                  borderRadius: "4px",
+                }}
+              >
+                <AiFillExclamationCircle />
+                <Text sx={{ ml: "8px" }}>You can not edit this phase!</Text>
+              </Box>
               <Box
                 bg={{ base: "#F6F6FC" }}
                 borderRadius={{ base: "10px" }}
@@ -539,34 +601,36 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                   </SimpleGrid>
                 )}
                 <Divider sx={{ marginTop: "8px" }} />
-                <SectionContainer
-                  title={
-                    <>
-                      White list
-                      <Tooltip
-                        fontSize="md"
-                        label={`Enter one address, whitelist amount and price on each line.
+                {selectedPhaseIndex === -1 && (
+                  <SectionContainer
+                    title={
+                      <>
+                        White list
+                        <Tooltip
+                          fontSize="md"
+                          label={`Enter one address, whitelist amount and price on each line.
                 A decimal separator of amount must use dot (.)`}
-                      >
-                        <QuestionOutlineIcon ml="6px" color="text.2" />
-                      </Tooltip>
-                    </>
-                  }
-                >
-                  <IWTextArea
-                    sx={{
-                      height: "80px",
-                    }}
-                    value={newData?.whiteList}
-                    onChange={({ target }) =>
-                      setNewData((prevState) => ({
-                        ...prevState,
-                        whiteList: target.value,
-                      }))
+                        >
+                          <QuestionOutlineIcon ml="6px" color="text.2" />
+                        </Tooltip>
+                      </>
                     }
-                    placeholder={`Sample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL, 20, 2`}
-                  />
-                </SectionContainer>
+                  >
+                    <IWTextArea
+                      sx={{
+                        height: "80px",
+                      }}
+                      value={newData?.whiteList}
+                      onChange={({ target }) =>
+                        setNewData((prevState) => ({
+                          ...prevState,
+                          whiteList: target.value,
+                        }))
+                      }
+                      placeholder={`Sample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL, 20, 2`}
+                    />
+                  </SectionContainer>
+                )}
                 <Flex sx={{ justifyContent: "center" }}>
                   <Button
                     sx={{ mt: "20px", bg: "#F6F6FC" }}
@@ -581,6 +645,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                   </Button>
                   <Button
                     sx={{ mt: "20px", ml: "20px" }}
+                    isDisabled={!isPhaseEditable()}
                     onClick={() => {
                       if (selectedPhaseIndex >= 0) {
                         handleUpdatePhase();

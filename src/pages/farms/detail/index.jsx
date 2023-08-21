@@ -254,7 +254,7 @@ export default function FarmDetailPage() {
   return (
     <>
       <Show above="md">
-        <SectionContainer mt={{ xl: "-48px" }} mb={{ xl: "-32px" }}>
+        <SectionContainer>
           <Breadcrumb
             spacing="4px"
             separator={<ChevronRightIcon color="gray.500" />}
@@ -273,7 +273,6 @@ export default function FarmDetailPage() {
       </Show>
 
       <SectionContainer
-        mt={{ base: "0px", xl: "20px" }}
         title={`${
           currMode === "NFT_FARM"
             ? "NFT"

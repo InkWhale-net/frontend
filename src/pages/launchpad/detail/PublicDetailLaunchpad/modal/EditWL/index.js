@@ -5,20 +5,14 @@ import {
 } from "@chakra-ui/icons";
 import {
   Box,
-  Button,
-  Divider,
-  Grid,
-  GridItem,
   IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
   Select,
-  SimpleGrid,
   Stack,
   Table,
   TableContainer,
@@ -30,24 +24,22 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
-import IWInput from "components/input/Input";
-import { useAppContext } from "contexts/AppContext";
-import { useEffect, useState } from "react";
-import { useMemo } from "react";
-import { useSelector } from "react-redux";
-import { formatNumDynDecimal } from "utils";
-import { formatTokenAmount } from "utils";
-import { execContractQuery } from "utils/contracts";
-import launchpad from "utils/contracts/launchpad";
-import AddSingleWL from "./AddSingle";
 import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import IWInput from "components/input/Input";
 import { formatDataCellTable } from "components/table/IWPaginationTable";
-import { toast } from "react-hot-toast";
+import { useAppContext } from "contexts/AppContext";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { formatNumDynDecimal, formatTokenAmount } from "utils";
+import { execContractQuery } from "utils/contracts";
+import launchpad from "utils/contracts/launchpad";
+import AddSingleWL from "./AddSingle";
+import { AiFillExclamationCircle } from "react-icons/ai";
 
 const WLEditMode = [
   "Single add Whitelist",
@@ -113,6 +105,24 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     ],
     data: whitelist || [],
   };
+  const isPhaseEditable = () => {
+    if (selectedPhase >= 0) {
+      const phaseData = launchpadData?.phaseList[selectedPhase];
+      const phaseDataParse = {
+        ...phaseData,
+        startDate: new Date(parseInt(phaseData?.startTime?.replace(/,/g, ""))),
+        endDate: new Date(parseInt(phaseData?.endTime?.replace(/,/g, ""))),
+      };
+
+      if (
+        phaseDataParse?.endDate < new Date() ||
+        phaseDataParse?.startDate < new Date()
+      )
+        return false;
+    } else {
+      return true;
+    }
+  };
   const table = useReactTable({
     ...tableData,
     // Pipeline
@@ -146,9 +156,24 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
               <Text>
                 Available token amount:{" "}
                 {`${formatNumDynDecimal(availableTokenAmount)} 
-            ${launchpadData?.projectInfo?.token?.symbol}`}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
               </Text>
-
+              {!isPhaseEditable() && (
+                <Box
+                  sx={{
+                    bg: "#FED1CA",
+                    display: "flex",
+                    alignItems: "center",
+                    px: "10px",
+                    py: "8px",
+                    mt: "10px",
+                    borderRadius: "4px",
+                  }}
+                >
+                  <AiFillExclamationCircle />
+                  <Text sx={{ ml: "8px" }}>You can not edit this phase!</Text>
+                </Box>
+              )}
               <Stack spacing={1}>
                 <Text sx={{ fontWeight: "700", color: "#57527E" }}>
                   Choose Phase
@@ -167,25 +192,30 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                     </option>
                   ))}
                 </Select>
-                <Text sx={{ fontWeight: "700", color: "#57527E" }}>
-                  Choose Mode
-                </Text>
-                <Select
-                  variant="filled"
-                  size="md"
-                  onChange={({ target }) => {
-                    setSelectedMode(target.value);
-                  }}
-                  value={selectedMode}
-                >
-                  {WLEditMode.map((item, index) => (
-                    <option key={index} value={index}>
-                      {item}
-                    </option>
-                  ))}
-                </Select>
+                {isPhaseEditable() && (
+                  <>
+                    <Text sx={{ fontWeight: "700", color: "#57527E" }}>
+                      Choose Mode
+                    </Text>
+                    <Select
+                      variant="filled"
+                      size="md"
+                      onChange={({ target }) => {
+                        setSelectedMode(target.value);
+                      }}
+                      value={selectedMode}
+                    >
+                      {WLEditMode.map((item, index) => (
+                        <option key={index} value={index}>
+                          {item}
+                        </option>
+                      ))}
+                    </Select>
+                  </>
+                )}
               </Stack>
-              {selectedMode == 0 ? (
+
+              {isPhaseEditable() && selectedMode == 0 ? (
                 <AddSingleWL
                   launchpadData={launchpadData}
                   selectedPhase={selectedPhase}
