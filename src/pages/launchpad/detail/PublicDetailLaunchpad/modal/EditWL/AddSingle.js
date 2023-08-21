@@ -20,8 +20,14 @@ const AddSingleWL = ({ launchpadData, selectedPhase }) => {
     price: "",
   });
   const dispatch = useDispatch();
+
   const addSingleWLHandler = async () => {
     try {
+      const currentWl = launchpadData?.phaseList[selectedPhase]?.whitelist;
+      if (currentWl.some((obj) => obj.address === wlData?.address)) {
+        toast.error("Whitelist address existed");
+        return;
+      }
       await execContractTx(
         currentAccount,
         api,

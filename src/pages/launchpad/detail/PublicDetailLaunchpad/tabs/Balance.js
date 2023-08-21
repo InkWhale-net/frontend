@@ -291,7 +291,10 @@ const PhaseTag = ({ data, launchpadData }) => {
             value={`${publicBalance?.claimedAmount || 0} ${token?.symbol}` || 0}
           />
           <Button
-            isDisabled={!(parseFloat(publicBalance?.purchasedAmount) > 0)}
+            isDisabled={
+              !(parseFloat(publicBalance?.purchasedAmount) > 0) &&
+              publicBalance?.purchasedAmount === publicBalance?.claimedAmount
+            }
             my="8px"
             w="full"
             height="40px"
