@@ -59,6 +59,7 @@ import { delay } from "utils";
 import { initialApi } from "utils/contracts";
 import EditLaunchpad from "pages/launchpad/edit";
 import { fetchTotalValueLocked } from "redux/slices/statSlice";
+import LPPoolsPage from "pages/lpPools";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -166,7 +167,7 @@ const App = () => {
       dispatch(fetchLaunchpads({}));
     }
 
-    dispatch(fetchTotalValueLocked())
+    dispatch(fetchTotalValueLocked());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, currentAccount?.address]);
 
@@ -189,7 +190,7 @@ const App = () => {
             path={`/farms/:contractAddress`}
             component={FarmDetailPage}
           />
-          <Route exact path={`/farms`} component={FarmsPage} />{" "}
+          <Route exact path={`/farms`} component={FarmsPage} />
           <Route exact path={`/tokens/interaction`} component={TokensPage} />
           <Route
             exact
@@ -224,6 +225,7 @@ const App = () => {
             path={`/create/token-lp`}
             component={CreateTokenLPPage}
           />
+          <Route exact path={`/token-lp`} component={LPPoolsPage} />
           <Route exact path={`/account`} component={MyBalancePage} />
           <Route exact path={`/account/my-balance`} component={MyBalancePage} />
           <Route exact path={`/my-pools`} component={MyPoolsPage} />

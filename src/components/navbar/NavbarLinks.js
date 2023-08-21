@@ -264,6 +264,13 @@ export const CreateMenuDropdown = ({
               },
             },
             {
+              label: "Token LP Pool",
+              href: "/create/token-lp",
+              onClick: () => {
+                if (onClose) onClose();
+              },
+            },
+            {
               label: "NFT Staking Pool",
               onClick: () => {
                 if (onClose) onClose();
@@ -360,6 +367,7 @@ export const StakeMenuDropdown = ({
               label: "Token Pools",
               href: "/pools",
             },
+            { label: "LP Pools", href: "/token-lp" },
             { label: "NFT Pools", href: "/farms" },
             // { label: "NFT Yield Farm", href: "/create/nft-lp" },
             // { label: "Token Yield Farm", href: "/create/token-lp" },

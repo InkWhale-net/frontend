@@ -13,24 +13,25 @@ import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 import { IWTable } from "components/table/IWTable";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import DateTimePicker from "react-datetime-picker";
-import { useDispatch, useSelector } from "react-redux";
-import { addressShortener } from "utils";
-import { toast } from "react-hot-toast";
-import { isAddressValid } from "utils";
-import { execContractQuery } from "utils/contracts";
-import { formatQueryResultToNumber } from "utils";
-import psp22_contract from "utils/contracts/psp22_contract";
 import { APICall } from "api/client";
 import { toastMessages } from "constants";
-import { execContractTx } from "utils/contracts";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import DateTimePicker from "react-datetime-picker";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMyTokenPools } from "redux/slices/myPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import { delay } from "utils";
-import { formatNumToBN } from "utils";
+import {
+  addressShortener,
+  delay,
+  formatNumToBN,
+  formatQueryResultToNumber,
+  isAddressValid,
+} from "utils";
+import { execContractQuery, execContractTx } from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
 import lp_pool_generator_contract from "utils/contracts/lp_pool_generator_contract";
-import { fetchMyTokenPools } from "redux/slices/myPoolsSlice";
+import psp22_contract from "utils/contracts/psp22_contract";
 
 export default function CreateTokenLPPage({ api }) {
   const dispatch = useDispatch();
@@ -310,7 +311,7 @@ export default function CreateTokenLPPage({ api }) {
     <>
       <SectionContainer
         mt={{ base: "0px", xl: "20px" }}
-        title="Create Token Staking Pool"
+        title="Create Token LP Pool"
         description={
           <span>
             Stakers get rewards in selected token. The creation costs

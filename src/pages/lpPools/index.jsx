@@ -17,6 +17,7 @@ import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 import { IWMobileList } from "components/table/IWMobileList";
 import { IWTable } from "components/table/IWTable";
+import IWTabs from "components/tabs/IWTabs";
 import { useAppContext } from "contexts/AppContext";
 import { useEffect, useMemo, useState } from "react";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
@@ -27,7 +28,7 @@ import {
 } from "redux/slices/allPoolsSlice";
 import { delay, formatTokenAmount, isPoolEnded } from "utils";
 
-export default function FarmsPage() {
+export default function LPPoolsPage() {
   const dispatch = useDispatch();
   const { api } = useAppContext();
 
@@ -136,61 +137,6 @@ export default function FarmsPage() {
     return ret;
   }, [allTokenPoolsList, showMyStakedPools]);
 
-  const tableDataNFT = {
-    tableHeader: [
-      {
-        name: "nftInfo",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Stake",
-      },
-      {
-        name: "tokenSymbol",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Earn",
-      },
-      {
-        name: "totalStaked",
-        hasTooltip: true,
-        tooltipContent: `Total Value Locked: Total tokens staked into this pool`,
-        label: "TVL",
-      },
-      {
-        name: "rewardPool",
-        hasTooltip: true,
-        tooltipContent: `Available tokens to pay for stakers`,
-        label: "Reward Pool",
-      },
-      {
-        name: "multiplier",
-        hasTooltip: true,
-        tooltipContent: `Multiplier determines how many reward tokens will the staker receive per 1 NFTs in 24 hours.`,
-        label: "Multiplier",
-      },
-      {
-        name: "status",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Status",
-      },
-      {
-        name: "startTime",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Countdown",
-      },
-      {
-        name: "stakeInfo",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "My Stake",
-      },
-    ],
-
-    tableBody: resultList || nftLPListFiltered,
-  };
-
   const tableDataToken = {
     tableHeader: [
       {
@@ -246,28 +192,11 @@ export default function FarmsPage() {
     tableBody: tokenLPListFiltered,
   };
 
-  const tabsData = [
-    {
-      label: <>NFT Staking Pool</>,
-      component: isSmallerThanMd ? (
-        <IWMobileList {...tableDataNFT} mode="NFT_FARM" />
-      ) : (
-        <IWTable {...tableDataNFT} mode="NFT_FARM" />
-      ),
-      isDisabled: false,
-    },
-    {
-      label: <>Token Yield Farms</>,
-      component: <IWTable {...tableDataToken} mode="TOKEN_FARM" />,
-      isDisabled: false,
-    },
-  ];
-
   return (
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
-      title="NFT Staking Pools"
-      description={<span>Stake NFT to earn tokens</span>}
+      title="LP Pools"
+      description={<span>Stake tokens to earn tokens</span>}
     >
       <Stack
         w="full"
@@ -386,11 +315,9 @@ export default function FarmsPage() {
             </Select>
           </Box> */}
         </HStack>
-        {isSmallerThanMd ? (
-          <IWMobileList {...tableDataNFT} mode="NFT_FARM" />
-        ) : (
-          <IWTable {...tableDataNFT} mode="NFT_FARM" />
-        )}
+
+        {/* <IWTabs tabsData={tabsData} loading={loading} /> */}
+        <IWTable {...tableDataToken} mode="TOKEN_FARM" />
       </Stack>
     </SectionContainer>
   );
