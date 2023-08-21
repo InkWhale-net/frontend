@@ -17,6 +17,7 @@ import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 import { IWMobileList } from "components/table/IWMobileList";
 import { IWTable } from "components/table/IWTable";
+import IWTabs from "components/tabs/IWTabs";
 import { useAppContext } from "contexts/AppContext";
 import { useEffect, useMemo, useState } from "react";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
@@ -246,18 +247,22 @@ export default function FarmsPage() {
     tableBody: tokenLPListFiltered,
   };
 
-  // const tabsData = [
-  //   {
-  //     label: <>NFT Staking Pool</>,
-  //     component: ,
-  //     isDisabled: false,
-  //   },
-  //   // {
-  //   //   label: <>Token Yield Farms</>,
-  //   //   component: <IWTable {...tableDataToken} mode="TOKEN_FARM" />,
-  //   //   isDisabled: false,
-  //   // },
-  // ];
+  const tabsData = [
+    {
+      label: <>NFT Staking Pool</>,
+      component: (isSmallerThanMd ? (
+        <IWMobileList {...tableDataNFT} mode="NFT_FARM" />
+      ) : (
+        <IWTable {...tableDataNFT} mode="NFT_FARM" />
+      )),
+      isDisabled: false,
+    },
+    {
+      label: <>Token Yield Farms</>,
+      component: <IWTable {...tableDataToken} mode="TOKEN_FARM" />,
+      isDisabled: false,
+    },
+  ];
 
   return (
     <SectionContainer
@@ -383,13 +388,8 @@ export default function FarmsPage() {
           </Box> */}
         </HStack>
 
-        {/* <IWTabs tabsData={tabsData} loading={loading} /> */}
-        {!loading &&
-          (isSmallerThanMd ? (
-            <IWMobileList {...tableDataNFT} mode="NFT_FARM" />
-          ) : (
-            <IWTable {...tableDataNFT} mode="NFT_FARM" />
-          ))}
+        <IWTabs tabsData={tabsData} loading={loading} />
+       
       </Stack>
     </SectionContainer>
   );
