@@ -89,7 +89,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
 
   const dispatch = useDispatch();
 
-  const wlPublicHandler = async (maxAllowWlPurchase) => {
+  const wlBuyHandler = async (maxAllowWlPurchase) => {
     try {
       if (!api) {
         toast.error(toastMessages.ERR_API_CONN);
@@ -102,7 +102,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
       }
       if (parseFloat(amount) > maxAllowWlPurchase) {
         toast.error(
-          `Current max public sale available is ${maxAllowWlPurchase}`
+          `Current max whitelist sale available is ${maxAllowWlPurchase}`
         );
         return;
       }
@@ -136,12 +136,12 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
       console.log(error);
     }
   };
-  const publicBuyMutation = useMutation(async (maxAllowWlPurchase) => {
+  const wlBuyMutation = useMutation(async (maxAllowWlPurchase) => {
     await new Promise(async (resolve) => {
-      await wlPublicHandler(maxAllowWlPurchase);
+      await wlBuyHandler(maxAllowWlPurchase);
       resolve();
     });
-  }, "public_purchase");
+  }, "wl_purchase");
 
   return (
     <Box
@@ -163,9 +163,9 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
       <Box sx={{ mt: "20px" }}>
         {saleTime?.map((obj, index) => {
           const buyerInformation = obj?.whitelist?.find(
-            (e) => e?.account == currentAccount?.address
+            (e) => e?.account === currentAccount?.address
           );
-          const allowBuy = index == livePhase?.id;
+          const allowBuy = index === livePhase?.id;
           const wlTokenPrice = parseFloat(
             formatTokenAmount(buyerInformation?.price, 12)
           );
@@ -186,46 +186,6 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
           if (allowBuy)
             return (
               <>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  Buy Phase
-                  <Text
-                    key={index}
-                    size="md"
-                    sx={{
-                      marginTop: index > 0 && "16px",
-                      // color: !allowBuy ? "#D7D5E5" : null,
-                    }}
-                  >
-                    {`${obj?.name}${`${
-                      !allowBuy ? "(Not available yet)" : ""
-                    }`}`}
-                  </Text>
-                </Box>
-
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginTop: "10px",
-                  }}
-                >
-                  Price
-                  <Text
-                    size="md"
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    {wlTokenPrice}
-                    <AzeroLogo
-                      sx={{
-                        marginLeft: "4px",
-                      }}
-                      fontSize="14px"
-                    />
-                  </Text>
-                </Box>
                 <Box
                   sx={{
                     display: "flex",
@@ -305,15 +265,13 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                   </div>
                   <Box sx={{ display: "flex" }}>
                     <Button
-                      isLoading={publicBuyMutation.isLoading}
+                      isLoading={wlBuyMutation.isLoading}
                       isDisabled={
                         !allowBuy || !(parseFloat(amount) > 0) || upComing
                       }
                       sx={{ flex: 1, height: "40px", marginTop: "8px" }}
                       onClick={() =>
-                        publicBuyMutation.mutate(
-                          wlMaxAmount - wlPurchasedAmount
-                        )
+                        wlBuyMutation.mutate(wlMaxAmount - wlPurchasedAmount)
                       }
                       spinner={<BeatLoader size={8} color="white" />}
                     >

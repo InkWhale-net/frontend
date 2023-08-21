@@ -65,9 +65,12 @@ const Phase = () => {
   };
   useEffect(() => {
     updatePhase(phaseList);
+    
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phaseList]);
   useEffect(() => {
     updateTotalSupply(totalSupply);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalSupply]);
   useEffect(() => {
     if (current === 4) {
@@ -76,6 +79,7 @@ const Phase = () => {
       if (launchpadData?.totalSupply)
         setTotalSupply(launchpadData?.totalSupply);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current]);
 
   const onChangeImmediateReleaseRate = (value, index) => {

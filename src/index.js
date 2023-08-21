@@ -37,29 +37,26 @@ import FaucetPage from "pages/faucet";
 import Launchpad from "pages/launchpad";
 import CreateLaunchpadPage from "pages/launchpad/create";
 import PublicDetailLaunchpad from "pages/launchpad/detail/PublicDetailLaunchpad";
+import LPPoolsPage from "pages/lpPools";
 import PoolsPage from "pages/pools";
 import PoolDetailPage from "pages/pools/detail";
 import TokensPage from "pages/tokens";
 import TokensTransactionPage from "pages/tokens/transactions";
 import { QueryClient, QueryClientProvider } from "react-query";
 import {
-  fetchAllNFTPools,
   fetchAllStakingPools,
   fetchAllTokenPools,
   fetchAllTokensList,
 } from "redux/slices/allPoolsSlice";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import {
-  fetchMyNFTPools,
   fetchMyStakingPools,
   fetchMyTokenPools,
 } from "redux/slices/myPoolsSlice";
+import { fetchTotalValueLocked } from "redux/slices/statSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { delay } from "utils";
 import { initialApi } from "utils/contracts";
-import EditLaunchpad from "pages/launchpad/edit";
-import { fetchTotalValueLocked } from "redux/slices/statSlice";
-import LPPoolsPage from "pages/lpPools";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -214,11 +211,6 @@ const App = () => {
             exact
             path={`/launchpad/:launchpadContract`}
             component={PublicDetailLaunchpad}
-          />
-          <Route
-            exact
-            path={`/launchpad/:launchpadContract/edit`}
-            component={EditLaunchpad}
           />
           <Route
             exact

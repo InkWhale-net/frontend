@@ -188,7 +188,7 @@ const PhaseTag = ({ data, launchpadData }) => {
   };
   const WLClaimHandler = async () => {
     try {
-      const startTime = new Date(parseInt(data?.startTime?.replace(/,/g, "")));
+      // const startTime = new Date(parseInt(data?.startTime?.replace(/,/g, "")));
       const endTime = new Date(parseInt(data?.endTime?.replace(/,/g, "")));
       const now = new Date();
       if (now > endTime) {

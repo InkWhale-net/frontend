@@ -53,15 +53,7 @@ const Launchpad = () => {
       }
     >
       {isMobile ? (
-        <Button
-          onClick={async () => {
-            history.push("/launchpad/create");
-            // await APICall.askBEupdate({
-            //   type: "launchpad",
-            //   poolContract: "new",
-            // });
-          }}
-        >
+        <Button onClick={async () => history.push("/launchpad/create")}>
           Create
         </Button>
       ) : null}

@@ -27,7 +27,7 @@ import { parseUnits } from "ethers";
 import SectionContainer from "pages/launchpad/create/components/sectionContainer";
 import { validatePhaseData } from "pages/launchpad/create/utils";
 import { verifyWhitelist } from "pages/launchpad/create/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DateTimePicker from "react-datetime-picker";
 import { toast } from "react-hot-toast";
 import { AiFillExclamationCircle } from "react-icons/ai";
@@ -313,7 +313,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
       console.log(error);
     }
   };
-  const isPhaseEditable = () => {
+  const isPhaseEditable = useMemo(() => {
     if (selectedPhaseIndex >= 0) {
       const phaseData = launchpadData?.phaseList[selectedPhaseIndex];
       const phaseDataParse = {
@@ -327,10 +327,11 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
         phaseDataParse?.startDate < new Date()
       )
         return false;
+      else return true;
     } else {
       return true;
     }
-  };
+  }, [selectedPhaseIndex]);
   return (
     <Modal
       onClose={() => setVisible(false)}
@@ -370,20 +371,22 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                   </Box>
                 </>
               )}
-              <Box
-                sx={{
-                  bg: "#FED1CA",
-                  display: "flex",
-                  alignItems: "center",
-                  px: "10px",
-                  py: "8px",
-                  mt: "10px",
-                  borderRadius: "4px",
-                }}
-              >
-                <AiFillExclamationCircle />
-                <Text sx={{ ml: "8px" }}>You can not edit this phase!</Text>
-              </Box>
+              {!isPhaseEditable && (
+                <Box
+                  sx={{
+                    bg: "#FED1CA",
+                    display: "flex",
+                    alignItems: "center",
+                    px: "10px",
+                    py: "8px",
+                    mt: "10px",
+                    borderRadius: "4px",
+                  }}
+                >
+                  <AiFillExclamationCircle />
+                  <Text sx={{ ml: "8px" }}>You can not edit this phase!</Text>
+                </Box>
+              )}
               <Box
                 bg={{ base: "#F6F6FC" }}
                 borderRadius={{ base: "10px" }}
@@ -394,6 +397,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                 <SimpleGrid columns={[1, 1, 3]} spacing={4}>
                   <SectionContainer title={"Name"}>
                     <IWInput
+                      isDisabled={!isPhaseEditable}
                       value={newData?.name}
                       onChange={({ target }) =>
                         setNewData((prevState) => ({
@@ -417,6 +421,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                       }}
                     >
                       <DateTimePicker
+                        disabled={!isPhaseEditable}
                         locale="en-EN"
                         value={newData?.startDate || new Date()}
                         onChange={(value) =>
@@ -442,6 +447,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                       }}
                     >
                       <DateTimePicker
+                        disabled={!isPhaseEditable}
                         locale="en-EN"
                         value={newData?.endDate || new Date()}
                         onChange={(value) =>
@@ -478,6 +484,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                     }
                   >
                     <IWInput
+                      isDisabled={!isPhaseEditable}
                       inputRightElementIcon={<b>%</b>}
                       type="number"
                       value={newData?.immediateReleaseRate}
@@ -512,7 +519,8 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                         </Tooltip>
                       }
                       isDisabled={
-                        parseFloat(newData?.immediateReleaseRate) === 100
+                        parseFloat(newData?.immediateReleaseRate) === 100 ||
+                        !isPhaseEditable
                       }
                       type="number"
                       value={newData?.vestingLength}
@@ -535,7 +543,8 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                         </Tooltip>
                       }
                       isDisabled={
-                        parseFloat(newData?.immediateReleaseRate) === 100
+                        parseFloat(newData?.immediateReleaseRate) === 100 ||
+                        !isPhaseEditable
                       }
                       type="number"
                       value={newData?.vestingUnit}
@@ -559,6 +568,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                       sx={{ mt: "4px", ml: "16px" }}
                       id="zero-reward-pools"
                       isChecked={newData?.allowPublicSale}
+                      isDisabled={!isPhaseEditable}
                       onChange={() =>
                         setNewData((prevState) => ({
                           ...prevState,
@@ -573,6 +583,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                     <SectionContainer title={"Public Amount"}>
                       <IWInput
                         type="number"
+                        isDisabled={!isPhaseEditable}
                         inputRightElementIcon={launchpadData?.token?.symbol}
                         value={newData?.phasePublicAmount}
                         onChange={({ target }) =>
@@ -586,6 +597,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                     </SectionContainer>
                     <SectionContainer title={"Phase Public Price"}>
                       <IWInput
+                        isDisabled={!isPhaseEditable}
                         type="number"
                         inputRightElementIcon={<AzeroLogo />}
                         value={newData?.phasePublicPrice}
@@ -620,6 +632,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                       sx={{
                         height: "80px",
                       }}
+                      isDisabled={!isPhaseEditable}
                       value={newData?.whiteList}
                       onChange={({ target }) =>
                         setNewData((prevState) => ({
@@ -645,7 +658,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                   </Button>
                   <Button
                     sx={{ mt: "20px", ml: "20px" }}
-                    isDisabled={!isPhaseEditable()}
+                    isDisabled={!isPhaseEditable}
                     onClick={() => {
                       if (selectedPhaseIndex >= 0) {
                         handleUpdatePhase();

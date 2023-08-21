@@ -130,10 +130,11 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     // getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     //
-    debugTable: true,
+    // debugTable: true,
   });
   useEffect(() => {
     if (launchpadData) fetchPhaseData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [launchpadData]);
 
   useEffect(() => {
