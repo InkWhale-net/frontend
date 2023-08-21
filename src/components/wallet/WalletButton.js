@@ -91,12 +91,28 @@ export default function WalletButton({
 
     onOpen();
   };
+  const loadListAccount = async () => {
+    const accounts = await web3Accounts();
+    dispatch(updateAccountsList(accounts));
+  };
+  useEffect(() => {
+    if (currentAccount) {
+      loadListAccount();
+    } else dispatch(updateAccountsList([]));
+  }, [currentAccount]);
 
   const [selectedWalletExt, setSelectedWalletExt] = useState(null);
 
+  const accountsFiltered = useMemo(() => {
+    return allAccounts.filter((i) => i.meta?.source === selectedWalletExt);
+  }, [allAccounts, selectedWalletExt]);
+
+  const onClickSwitch = async () => {
+    if (currentAccount && allAccounts?.length > 1) onOpen();
+  };
+
   function handleClick(walletExt) {
     if (!walletExt) return toast.error("Wallet Ext error!");
-
     setSelectedWalletExt(walletExt);
 
     try {
@@ -110,10 +126,6 @@ export default function WalletButton({
     }
   }
 
-  const accountsFiltered = useMemo(() => {
-    return allAccounts.filter((i) => i.meta?.source === selectedWalletExt);
-  }, [allAccounts, selectedWalletExt]);
-
   return (
     <>
       <WalletModal
@@ -126,7 +138,7 @@ export default function WalletButton({
       {!currentAccount ? (
         <WalletNotConnect onClick={handleClick} />
       ) : (
-        <WalletConnect onClose={onCloseSidebar} />
+        <WalletConnect onClose={onCloseSidebar} onClickSwitch={onClickSwitch} />
       )}
     </>
   );
@@ -224,12 +236,12 @@ const WalletNotConnect = ({ onClick }) => {
   );
 };
 
-export const WalletConnect = ({ onClose }) => {
+export const WalletConnect = ({ onClose, onClickSwitch }) => {
   const history = useHistory();
   const location = useLocation();
   const dispatch = useDispatch();
   const [domain, setDomain] = useState(null);
-  const { currentAccount } = useSelector((state) => state.wallet);
+  const { currentAccount, allAccounts } = useSelector((state) => state.wallet);
 
   const walletImage =
     currentAccount?.meta?.source === "polkadot-js"
@@ -355,6 +367,20 @@ export const WalletConnect = ({ onClose }) => {
               </MenuItem>
             ))}
           </Flex>
+          {allAccounts?.length > 1 && (
+            <Button
+              sx={{
+                mb: "8px",
+              }}
+              w="full"
+              variant="outline"
+              onClick={() => {
+                onClickSwitch();
+              }}
+            >
+              Switch Account
+            </Button>
+          )}
 
           <Button
             w="full"
