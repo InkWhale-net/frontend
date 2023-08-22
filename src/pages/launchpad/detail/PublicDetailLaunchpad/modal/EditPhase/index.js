@@ -77,18 +77,21 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
   }, [launchpadData]);
 
   useEffect(() => {
-    const phaseData = phaseListData[selectedPhaseIndex];
-    if (phaseData) {
-      setOnCreateNew(true);
-      setNewData(phaseData);
-    } else {
-      setOnCreateNew(false);
-      setNewData({
-        startDate: new Date(),
-        endDate: new Date(),
-      });
-      setSelectedPhaseIndex(-1);
+    if (selectedPhaseIndex >= 0) {
+      const phaseData = phaseListData[selectedPhaseIndex];
+      if (phaseData) {
+        setOnCreateNew(true);
+        setNewData(phaseData);
+      } else {
+        setOnCreateNew(false);
+        setNewData({
+          startDate: new Date(),
+          endDate: new Date(),
+        });
+        setSelectedPhaseIndex(-1);
+      }
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPhaseIndex]);
   const fetchPhaseData = async () => {
@@ -157,32 +160,13 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
       )
         return;
 
-      await execContractTxAndCallAPI(
+      const result = await execContractTx(
         currentAccount,
         api,
         launchpad.CONTRACT_ABI,
         launchpadData?.launchpadContract,
         0, //-> value
         "addNewPhase",
-        async () => {
-          await delay(200);
-          await APICall.askBEupdate({
-            type: "launchpad",
-            poolContract: launchpadData?.launchpadContract,
-          });
-          toast.promise(
-            delay(5000).then(() => {
-              dispatch(fetchLaunchpads({ isActive: 0 }));
-              setOnCreateNew(false);
-              setVisible(false);
-            }),
-            {
-              loading: "Please wait up to 5s for the data to be updated! ",
-              success: "Success",
-              error: "Could not fetch data!!!",
-            }
-          );
-        },
         newData?.name,
         newData?.startDate?.getTime(),
         newData?.endDate?.getTime(),
@@ -207,6 +191,25 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
           ? parseUnits(newData?.phasePublicPrice.toString(), 12)
           : null
       );
+      if (result) {
+        await delay(200);
+        await APICall.askBEupdate({
+          type: "launchpad",
+          poolContract: launchpadData?.launchpadContract,
+        });
+        toast.promise(
+          delay(5000).then(() => {
+            dispatch(fetchLaunchpads({ isActive: 0 }));
+            setOnCreateNew(false);
+            setVisible(false);
+          }),
+          {
+            loading: "Please wait up to 5s for the data to be updated! ",
+            success: "Success",
+            error: "Could not fetch data!!!",
+          }
+        );
+      }
     } catch (error) {
       console.log(error);
     }
@@ -245,32 +248,13 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
         })
       )
         return;
-      await execContractTxAndCallAPI(
+      const result = await execContractTx(
         currentAccount,
         api,
         launchpad.CONTRACT_ABI,
         launchpadData?.launchpadContract,
         0, //-> value
         "launchpadContractTrait::setPhase",
-        async () => {
-          await delay(200);
-          await APICall.askBEupdate({
-            type: "launchpad",
-            poolContract: launchpadData?.launchpadContract,
-          });
-          toast.promise(
-            delay(5000).then(() => {
-              dispatch(fetchLaunchpads({ isActive: 0 }));
-              setOnCreateNew(false);
-              setVisible(false);
-            }),
-            {
-              loading: "Please wait up to 5s for the data to be updated! ",
-              success: "Success",
-              error: "Could not fetch data!!!",
-            }
-          );
-        },
         selectedPhaseIndex,
         newData?.isActive,
         newData?.name,
@@ -297,6 +281,25 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
           ? parseUnits(newData?.phasePublicPrice.toString(), 12)
           : null
       );
+      if (result) {
+        await delay(200);
+        await APICall.askBEupdate({
+          type: "launchpad",
+          poolContract: launchpadData?.launchpadContract,
+        });
+        toast.promise(
+          delay(5000).then(() => {
+            dispatch(fetchLaunchpads({ isActive: 0 }));
+            setOnCreateNew(false);
+            setVisible(false);
+          }),
+          {
+            loading: "Please wait up to 5s for the data to be updated! ",
+            success: "Success",
+            error: "Could not fetch data!!!",
+          }
+        );
+      }
     } catch (error) {
       console.log(error);
     }

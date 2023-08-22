@@ -23,7 +23,7 @@ import {
 import { execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 
-const IWCountDown = ({ saleTime, launchpadData }) => {
+const IWCountDown = ({ saleTime, phaseContainWL, launchpadData }) => {
   const renderer = ({ completed }) => {
     const now = Date.now();
     const livePhase = saleTime?.find((e) => {
@@ -87,6 +87,14 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
   const [amount, setAmount] = useState(null);
   const [azeroBuyAmount, setAzeroBuyAmount] = useState(0);
 
+  const isUserInWL = useMemo(() => {
+    return (
+      livePhase?.whitelist?.find(
+        (e) => e?.account === currentAccount?.address
+      ) ||
+      upComing?.whitelist?.find((e) => e?.account === currentAccount?.address)
+    );
+  }, [livePhase, upComing, currentAccount]);
   const dispatch = useDispatch();
 
   const wlBuyHandler = async (maxAllowWlPurchase) => {
@@ -157,132 +165,138 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
       }}
     >
       <Text fontWeight="600" size="md">
-        You are in whitelist
+        {isUserInWL ? "You are in whitelist" : "You are not in whitelist"}
       </Text>
-
-      <Box sx={{ mt: "20px" }}>
-        {saleTime?.map((obj, index) => {
-          const buyerInformation = obj?.whitelist?.find(
-            (e) => e?.account === currentAccount?.address
-          );
-          const allowBuy = index === livePhase?.id;
-          const wlTokenPrice = parseFloat(
-            formatTokenAmount(buyerInformation?.price, 12)
-          );
-          const wlMaxAmount = parseFloat(
-            formatTokenAmount(
-              buyerInformation?.amount,
-              parseInt(launchpadData.projectInfo.token.decimals)
-            )
-          );
-          const wlPurchasedAmount = roundUp(
-            parseFloat(
-              formatTokenAmount(
-                buyerInformation?.purchasedAmount,
-                parseInt(launchpadData.projectInfo.token.decimals)
-              )
-            )
-          );
-          if (allowBuy)
-            return (
-              <>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginTop: "10px",
-                  }}
-                >
-                  Max amount
-                  <Text size="md">{wlMaxAmount}</Text>
-                </Box>
-
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginTop: "10px",
-                  }}
-                >
-                  Purchased
-                  <Text size="md">{wlPurchasedAmount}</Text>
-                </Box>
-                <>
-                  <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
-                    <IWInput
-                      isDisabled={upComing}
-                      onChange={({ target }) => {
-                        console.log(target.value, "target.value");
-                        setAmount(target.value);
-                        setAzeroBuyAmount(
-                          roundUp(parseFloat(target.value) * wlTokenPrice),
-                          4
-                        );
-                      }}
-                      type="number"
-                      value={amount}
-                      label={
-                        <Text fontSize={"16px"}>
-                          Amount (max: {wlMaxAmount - wlPurchasedAmount})
-                        </Text>
-                      }
-                      placeholder="0"
-                      inputRightElementIcon={
-                        launchpadData?.projectInfo?.token?.symbol
-                      }
-                    />
-                  </Box>
-                  <IWInput
-                    isDisabled={upComing}
-                    onChange={({ target }) => {
-                      setAzeroBuyAmount(target.value);
-                      setAmount(
-                        roundDown(
-                          parseFloat(target.value) / parseFloat(wlTokenPrice)
-                        )
-                      );
-                    }}
-                    type="number"
-                    value={azeroBuyAmount}
-                    // label={`Amount (max)`}
-                    placeholder="0"
-                    inputRightElementIcon={<AzeroLogo />}
-                  />
-                  <div
-                    style={{
-                      fontSize: "14px",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    Token price: {wlTokenPrice}
-                    <AzeroLogo
+      {isUserInWL && (
+        <>
+          <Box sx={{ mt: "20px" }}>
+            {saleTime?.map((obj, index) => {
+              const buyerInformation = obj?.whitelist?.find(
+                (e) => e?.account === currentAccount?.address
+              );
+              const allowBuy = index === livePhase?.id;
+              const wlTokenPrice = parseFloat(
+                formatTokenAmount(buyerInformation?.price, 12)
+              );
+              const wlMaxAmount = parseFloat(
+                formatTokenAmount(
+                  buyerInformation?.amount,
+                  parseInt(launchpadData.projectInfo.token.decimals)
+                )
+              );
+              const wlPurchasedAmount = roundUp(
+                parseFloat(
+                  formatTokenAmount(
+                    buyerInformation?.purchasedAmount,
+                    parseInt(launchpadData.projectInfo.token.decimals)
+                  )
+                )
+              );
+              if (allowBuy)
+                return (
+                  <>
+                    <Box
                       sx={{
                         display: "flex",
-                        marginLeft: "4px",
+                        justifyContent: "space-between",
+                        marginTop: "10px",
                       }}
-                    />
-                  </div>
-                  <Box sx={{ display: "flex" }}>
-                    <Button
-                      isLoading={wlBuyMutation.isLoading}
-                      isDisabled={
-                        !allowBuy || !(parseFloat(amount) > 0) || upComing
-                      }
-                      sx={{ flex: 1, height: "40px", marginTop: "8px" }}
-                      onClick={() =>
-                        wlBuyMutation.mutate(wlMaxAmount - wlPurchasedAmount)
-                      }
-                      spinner={<BeatLoader size={8} color="white" />}
                     >
-                      Whitelist Purchase
-                    </Button>
-                  </Box>
-                </>
-              </>
-            );
-        })}
-      </Box>
+                      Max amount
+                      <Text size="md">{wlMaxAmount}</Text>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginTop: "10px",
+                      }}
+                    >
+                      Purchased
+                      <Text size="md">{wlPurchasedAmount}</Text>
+                    </Box>
+                    <>
+                      <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
+                        <IWInput
+                          isDisabled={upComing}
+                          onChange={({ target }) => {
+                            console.log(target.value, "target.value");
+                            setAmount(target.value);
+                            setAzeroBuyAmount(
+                              roundUp(parseFloat(target.value) * wlTokenPrice),
+                              4
+                            );
+                          }}
+                          type="number"
+                          value={amount}
+                          label={
+                            <Text fontSize={"16px"}>
+                              Amount (max: {wlMaxAmount - wlPurchasedAmount})
+                            </Text>
+                          }
+                          placeholder="0"
+                          inputRightElementIcon={
+                            launchpadData?.projectInfo?.token?.symbol
+                          }
+                        />
+                      </Box>
+                      <IWInput
+                        isDisabled={upComing}
+                        onChange={({ target }) => {
+                          setAzeroBuyAmount(target.value);
+                          setAmount(
+                            roundDown(
+                              parseFloat(target.value) /
+                                parseFloat(wlTokenPrice)
+                            )
+                          );
+                        }}
+                        type="number"
+                        value={azeroBuyAmount}
+                        // label={`Amount (max)`}
+                        placeholder="0"
+                        inputRightElementIcon={<AzeroLogo />}
+                      />
+                      <div
+                        style={{
+                          fontSize: "14px",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        Token price: {wlTokenPrice}
+                        <AzeroLogo
+                          sx={{
+                            display: "flex",
+                            marginLeft: "4px",
+                          }}
+                        />
+                      </div>
+                      <Box sx={{ display: "flex" }}>
+                        <Button
+                          isLoading={wlBuyMutation.isLoading}
+                          isDisabled={
+                            !allowBuy || !(parseFloat(amount) > 0) || upComing
+                          }
+                          sx={{ flex: 1, height: "40px", marginTop: "8px" }}
+                          onClick={() =>
+                            wlBuyMutation.mutate(
+                              wlMaxAmount - wlPurchasedAmount
+                            )
+                          }
+                          spinner={<BeatLoader size={8} color="white" />}
+                        >
+                          Whitelist Purchase
+                        </Button>
+                      </Box>
+                    </>
+                  </>
+                );
+            })}
+          </Box>
+        </>
+      )}
     </Box>
   );
 };
@@ -290,29 +304,41 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
 const WhitelistSaleCard = ({ launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
 
-  const containerPhases = useMemo(() => {
-    return launchpadData?.phaseList?.filter((phase) => {
-      for (const obj of phase?.whitelist) {
-        if (obj.account === currentAccount?.address) {
-          return phase;
-        }
-      }
-      return false;
-    });
+  const phaseContainWL = useMemo(() => {
+    return launchpadData?.phaseList?.filter(
+      (phase) => phase?.whitelist?.length > 0
+    );
   }, [launchpadData]);
+
+  // const containerPhases = useMemo(() => {
+  //   return launchpadData?.phaseList?.filter((phase) => {
+  //     for (const obj of phase?.whitelist) {
+  //       if (obj.account === currentAccount?.address) {
+  //         return phase;
+  //       }
+  //     }
+  //     return false;
+  //   });
+  // }, [launchpadData]);
 
   const saleTime = useMemo(
     () =>
-      containerPhases?.map((e, index) => ({
+      phaseContainWL?.map((e, index) => ({
         ...e,
         id: index,
         startTime: new Date(parseInt(e?.startTime?.replace(/,/g, ""))),
         endTime: new Date(parseInt(e?.endTime?.replace(/,/g, ""))),
       })),
-    [containerPhases]
+    [phaseContainWL]
   );
-  if (!(containerPhases?.length > 0)) return null;
-  return <IWCountDown launchpadData={launchpadData} saleTime={saleTime} />;
+  // if (!(containerPhases?.length > 0)) return null;
+  return (
+    <IWCountDown
+      launchpadData={launchpadData}
+      phaseContainWL={phaseContainWL}
+      saleTime={saleTime}
+    />
+  );
 };
 
 export default WhitelistSaleCard;
