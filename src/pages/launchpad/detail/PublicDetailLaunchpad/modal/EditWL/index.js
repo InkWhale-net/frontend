@@ -40,6 +40,7 @@ import { execContractQuery } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 import AddSingleWL from "./AddSingle";
 import { AiFillExclamationCircle } from "react-icons/ai";
+import { useMemo } from "react";
 
 const WLEditMode = [
   "Single add Whitelist",
@@ -105,7 +106,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     ],
     data: whitelist || [],
   };
-  const isPhaseEditable = () => {
+  const isPhaseEditable = useMemo(() => {
     if (selectedPhase >= 0) {
       const phaseData = launchpadData?.phaseList[selectedPhase];
       const phaseDataParse = {
@@ -114,15 +115,12 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
         endDate: new Date(parseInt(phaseData?.endTime?.replace(/,/g, ""))),
       };
 
-      if (
-        phaseDataParse?.endDate < new Date() ||
-        phaseDataParse?.startDate < new Date()
-      )
-        return false;
+      if (phaseDataParse?.endDate < new Date()) return false;
+      else return true;
     } else {
       return true;
     }
-  };
+  }, [selectedPhase]);
   const table = useReactTable({
     ...tableData,
     // Pipeline
@@ -134,7 +132,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   });
   useEffect(() => {
     if (launchpadData) fetchPhaseData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [launchpadData]);
 
   useEffect(() => {
@@ -159,7 +157,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                 {`${formatNumDynDecimal(availableTokenAmount)} 
                 ${launchpadData?.projectInfo?.token?.symbol}`}
               </Text>
-              {!isPhaseEditable() && (
+              {!isPhaseEditable && (
                 <Box
                   sx={{
                     bg: "#FED1CA",
@@ -193,7 +191,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                     </option>
                   ))}
                 </Select>
-                {isPhaseEditable() && (
+                {isPhaseEditable && (
                   <>
                     <Text sx={{ fontWeight: "700", color: "#57527E" }}>
                       Choose Mode
@@ -216,7 +214,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                 )}
               </Stack>
 
-              {isPhaseEditable() && selectedMode == 0 ? (
+              {isPhaseEditable && selectedMode == 0 ? (
                 <AddSingleWL
                   launchpadData={launchpadData}
                   selectedPhase={selectedPhase}

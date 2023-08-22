@@ -235,7 +235,9 @@ export const validateTotalSupply = (phaseData, totalSupply, tokenBalance) => {
     }
     if (
       phaseData.filter((e) => {
-        return e?.whiteList?.length > 0 ? !checkDuplicatedWL(e?.whiteList) : true;
+        return e?.whiteList?.length > 0
+          ? !checkDuplicatedWL(e?.whiteList)
+          : true;
       })?.length !== phaseData?.length
     ) {
       toast.error("Duplicated Whitelist Address");
@@ -299,7 +301,7 @@ const checkTimeRangeOverlap = (arr) => {
   return false;
 };
 
-export const validatePhaseData = (phaseData, totalSupply) => {
+export const validatePhaseData = (phaseData, errorMsg) => {
   if (
     phaseData?.filter((e) => e?.endDate && e?.startDate)?.length !==
     phaseData?.length
@@ -330,7 +332,9 @@ export const validatePhaseData = (phaseData, totalSupply) => {
   ];
   allPhases.sort((a, b) => a.startDate - b.startDate);
   if (checkTimeRangeOverlap(allPhases)) {
-    toast.error("Phase time range can not overlapse");
+    toast.error(
+      errorMsg?.overlapseErrorMsgL || "Phase time range can not overlapse"
+    );
     return false;
   }
   return true;

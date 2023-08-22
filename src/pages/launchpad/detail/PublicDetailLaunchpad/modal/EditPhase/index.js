@@ -39,6 +39,7 @@ import { delay } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { formatTokenAmount } from "utils";
 import { execContractTx } from "utils/contracts";
+import { execContractTxAndCallAPI } from "utils/contracts";
 import { execContractQuery } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 
@@ -49,39 +50,43 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
   const [availableTokenAmount, setAvailableTokenAmount] = useState(0);
   const tokenDecimal = parseInt(launchpadData?.projectInfo?.token?.decimals);
   const [onCreateNew, setOnCreateNew] = useState(true);
-  const [newData, setNewData] = useState(null);
+  const [newData, setNewData] = useState({
+    startDate: new Date(),
+    endDate: new Date(),
+  });
   const dispatch = useDispatch();
+  const phaseListData = useMemo(() => {
+    return launchpadData?.phaseList?.map((e) => ({
+      ...e,
+      immediateReleaseRate:
+        parseFloat(e?.immediateReleaseRate?.replace(/,/g, "")) / 100,
+      name: e?.name,
+      startDate: new Date(parseInt(e?.startTime?.replace(/,/g, ""))),
+      endDate: new Date(parseInt(e?.endTime?.replace(/,/g, ""))),
+      vestingLength:
+        parseFloat(e?.vestingDuration?.replace(/,/g, "")) / millisecondsInADay,
+      vestingUnit:
+        parseFloat(e?.vestingUnit?.replace(/,/g, "")) / millisecondsInADay,
+      allowPublicSale: e?.publicSaleInfor?.isPublic,
+      phasePublicAmount: formatTokenAmount(
+        e?.publicSaleInfor?.totalAmount,
+        tokenDecimal
+      ),
+      phasePublicPrice: formatTokenAmount(e?.publicSaleInfor?.price, 12),
+    }));
+  }, [launchpadData]);
 
   useEffect(() => {
-    const phaseData = launchpadData?.phaseList[selectedPhaseIndex];
+    const phaseData = phaseListData[selectedPhaseIndex];
     if (phaseData) {
       setOnCreateNew(true);
-      setNewData({
-        ...phaseData,
-        immediateReleaseRate:
-          parseFloat(phaseData?.immediateReleaseRate?.replace(/,/g, "")) / 100,
-        name: phaseData?.name,
-        startDate: new Date(parseInt(phaseData?.startTime?.replace(/,/g, ""))),
-        endDate: new Date(parseInt(phaseData?.endTime?.replace(/,/g, ""))),
-        vestingLength:
-          parseFloat(phaseData?.vestingDuration?.replace(/,/g, "")) /
-          millisecondsInADay,
-        vestingUnit:
-          parseFloat(phaseData?.vestingUnit?.replace(/,/g, "")) /
-          millisecondsInADay,
-        allowPublicSale: phaseData?.publicSaleInfor?.isPublic,
-        phasePublicAmount: formatTokenAmount(
-          phaseData?.publicSaleInfor?.totalAmount,
-          tokenDecimal
-        ),
-        phasePublicPrice: formatTokenAmount(
-          phaseData?.publicSaleInfor?.price,
-          12
-        ),
-      });
+      setNewData(phaseData);
     } else {
       setOnCreateNew(false);
-      setNewData(null);
+      setNewData({
+        startDate: new Date(),
+        endDate: new Date(),
+      });
       setSelectedPhaseIndex(-1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -143,37 +148,41 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
           toast.error("Invalid whitelist format");
           return false;
         }
-      const phaseList = [
-        ...launchpadData?.phaseList.map((e) => ({
-          ...e,
-          immediateReleaseRate:
-            parseFloat(e?.immediateReleaseRate?.replace(/,/g, "")) / 100,
-          name: e?.name,
-          startDate: new Date(parseInt(e?.startTime?.replace(/,/g, ""))),
-          endDate: new Date(parseInt(e?.endTime?.replace(/,/g, ""))),
-          vestingLength:
-            parseFloat(e?.vestingDuration?.replace(/,/g, "")) /
-            millisecondsInADay,
-          vestingUnit:
-            parseFloat(e?.vestingUnit?.replace(/,/g, "")) / millisecondsInADay,
-          allowPublicSale: e?.publicSaleInfor?.isPublic,
-          phasePublicAmount: formatTokenAmount(
-            e?.publicSaleInfor?.totalAmount,
-            tokenDecimal
-          ),
-          phasePublicPrice: formatTokenAmount(e?.publicSaleInfor?.price, 12),
-        })),
-        newData,
-      ];
-      if (!validatePhaseData(phaseList)) return;
+      const phaseList = [...phaseListData, newData];
+      if (
+        !validatePhaseData(phaseList, {
+          overlapseErrorMsgL:
+            "New phase duration overlaps 1 or more phases. Please choose other time range",
+        })
+      )
+        return;
 
-      await execContractTx(
+      await execContractTxAndCallAPI(
         currentAccount,
         api,
         launchpad.CONTRACT_ABI,
         launchpadData?.launchpadContract,
         0, //-> value
         "addNewPhase",
+        async () => {
+          await delay(200);
+          await APICall.askBEupdate({
+            type: "launchpad",
+            poolContract: launchpadData?.launchpadContract,
+          });
+          toast.promise(
+            delay(5000).then(() => {
+              dispatch(fetchLaunchpads({ isActive: 0 }));
+              setOnCreateNew(false);
+              setVisible(false);
+            }),
+            {
+              loading: "Please wait up to 5s for the data to be updated! ",
+              success: "Success",
+              error: "Could not fetch data!!!",
+            }
+          );
+        },
         newData?.name,
         newData?.startDate?.getTime(),
         newData?.endDate?.getTime(),
@@ -198,23 +207,6 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
           ? parseUnits(newData?.phasePublicPrice.toString(), 12)
           : null
       );
-      await delay(2000);
-      await APICall.askBEupdate({
-        type: "launchpad",
-        poolContract: launchpadData?.launchpadContract,
-      });
-      toast.promise(
-        delay(5000).then(() => {
-          dispatch(fetchLaunchpads({ isActive: 0 }));
-          setOnCreateNew(false);
-          setVisible(false);
-        }),
-        {
-          loading: "Please wait up to 5s for the data to be updated! ",
-          success: "Success",
-          error: "Could not fetch data!!!",
-        }
-      );
     } catch (error) {
       console.log(error);
     }
@@ -230,42 +222,55 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
           return false;
         }
       const phaseList = [
-        ...launchpadData?.phaseList.map((e, index) => {
-          if (index === selectedPhaseIndex) return newData;
-          else
-            return {
-              ...e,
-              immediateReleaseRate:
-                parseFloat(e?.immediateReleaseRate?.replace(/,/g, "")) / 100,
-              name: e?.name,
-              startDate: new Date(parseInt(e?.startTime?.replace(/,/g, ""))),
-              endDate: new Date(parseInt(e?.endTime?.replace(/,/g, ""))),
-              vestingLength:
-                parseFloat(e?.vestingDuration?.replace(/,/g, "")) /
-                millisecondsInADay,
-              vestingUnit:
-                parseFloat(e?.vestingUnit?.replace(/,/g, "")) /
-                millisecondsInADay,
-              allowPublicSale: e?.publicSaleInfor?.isPublic,
-              phasePublicAmount: formatTokenAmount(
-                e?.publicSaleInfor?.totalAmount,
-                tokenDecimal
-              ),
-              phasePublicPrice: formatTokenAmount(
-                e?.publicSaleInfor?.price,
-                12
-              ),
-            };
+        ...phaseListData.map((e, index) => {
+          const phaseData = index === +selectedPhaseIndex ? newData : e;
+          return {
+            ...phaseData,
+            name: phaseData?.name,
+            immediateReleaseRate: phaseData?.immediateReleaseRate,
+            startDate: phaseData?.startDate,
+            endDate: phaseData?.endDate,
+            vestingLength: phaseData?.vestingDuration,
+            vestingUnit: phaseData?.vestingUnit,
+            allowPublicSale: phaseData?.publicSaleInfor?.isPublic,
+            phasePublicAmount: phaseData?.phasePublicAmount,
+            phasePublicPrice: phaseData?.publicSaleInfor,
+          };
         }),
       ];
-      if (!validatePhaseData(phaseList)) return;
-      await execContractTx(
+      if (
+        !validatePhaseData(phaseList, {
+          overlapseErrorMsgL:
+            "Updated phase time overlaps 1 or more phases. Please choose other time range",
+        })
+      )
+        return;
+      await execContractTxAndCallAPI(
         currentAccount,
         api,
         launchpad.CONTRACT_ABI,
         launchpadData?.launchpadContract,
         0, //-> value
         "launchpadContractTrait::setPhase",
+        async () => {
+          await delay(200);
+          await APICall.askBEupdate({
+            type: "launchpad",
+            poolContract: launchpadData?.launchpadContract,
+          });
+          toast.promise(
+            delay(5000).then(() => {
+              dispatch(fetchLaunchpads({ isActive: 0 }));
+              setOnCreateNew(false);
+              setVisible(false);
+            }),
+            {
+              loading: "Please wait up to 5s for the data to be updated! ",
+              success: "Success",
+              error: "Could not fetch data!!!",
+            }
+          );
+        },
         selectedPhaseIndex,
         newData?.isActive,
         newData?.name,
@@ -292,40 +297,15 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
           ? parseUnits(newData?.phasePublicPrice.toString(), 12)
           : null
       );
-      await delay(2000);
-      await APICall.askBEupdate({
-        type: "launchpad",
-        poolContract: launchpadData?.launchpadContract,
-      });
-      toast.promise(
-        delay(5000).then(() => {
-          dispatch(fetchLaunchpads({ isActive: 0 }));
-          setOnCreateNew(false);
-          setVisible(false);
-        }),
-        {
-          loading: "Please wait up to 5s for the data to be updated! ",
-          success: "Success",
-          error: "Could not fetch data!!!",
-        }
-      );
     } catch (error) {
       console.log(error);
     }
   };
   const isPhaseEditable = useMemo(() => {
     if (selectedPhaseIndex >= 0) {
-      const phaseData = launchpadData?.phaseList[selectedPhaseIndex];
-      const phaseDataParse = {
-        ...phaseData,
-        startDate: new Date(parseInt(phaseData?.startTime?.replace(/,/g, ""))),
-        endDate: new Date(parseInt(phaseData?.endTime?.replace(/,/g, ""))),
-      };
+      const phaseData = phaseListData[selectedPhaseIndex];
 
-      if (
-        phaseDataParse?.endDate < new Date() ||
-        phaseDataParse?.startDate < new Date()
-      )
+      if (phaseData?.endDate < new Date() || phaseData?.startDate < new Date())
         return false;
       else return true;
     } else {
@@ -362,7 +342,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                       }}
                       value={selectedPhaseIndex}
                     >
-                      {launchpadData?.phaseList.map((item, index) => (
+                      {phaseListData.map((item, index) => (
                         <option key={index} value={index}>
                           {item.name}
                         </option>
@@ -654,7 +634,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                       setSelectedPhaseIndex(-1);
                     }}
                   >
-                    Cancle
+                    Cancel
                   </Button>
                   <Button
                     sx={{ mt: "20px", ml: "20px" }}
@@ -687,7 +667,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                   }}
                   value={selectedPhaseIndex}
                 >
-                  {launchpadData?.phaseList.map((item, index) => (
+                  {phaseListData.map((item, index) => (
                     <option key={index} value={index}>
                       {item.name}
                     </option>
