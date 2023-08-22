@@ -345,7 +345,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                       }}
                       value={selectedPhaseIndex}
                     >
-                      {phaseListData.map((item, index) => (
+                      {phaseListData?.map((item, index) => (
                         <option key={index} value={index}>
                           {item.name}
                         </option>
@@ -670,7 +670,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                   }}
                   value={selectedPhaseIndex}
                 >
-                  {phaseListData.map((item, index) => (
+                  {phaseListData?.map((item, index) => (
                     <option key={index} value={index}>
                       {item.name}
                     </option>

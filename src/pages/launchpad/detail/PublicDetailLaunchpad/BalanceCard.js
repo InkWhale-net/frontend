@@ -1,16 +1,8 @@
-import { Box, Button, Divider, Heading, Text } from "@chakra-ui/react";
-import { useAppContext } from "contexts/AppContext";
+import { Box, Divider, Heading, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchUserBalance } from "redux/slices/walletSlice";
-import { formatNumDynDecimal } from "utils";
-import { roundUp } from "utils";
-import { delay } from "utils";
-import { formatTokenAmount } from "utils";
-import { execContractTx } from "utils/contracts";
+import { useSelector } from "react-redux";
+import { formatNumDynDecimal, formatTokenAmount, roundUp } from "utils";
 import { execContractQuery } from "utils/contracts";
-import launchpad from "utils/contracts/launchpad";
 import psp22_contract from "utils/contracts/psp22_contract";
 
 const Row = ({ label, value, divider = false, ...rest }) => {

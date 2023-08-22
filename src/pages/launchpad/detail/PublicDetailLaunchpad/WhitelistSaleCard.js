@@ -75,7 +75,8 @@ const IWCountDown = ({ saleTime, phaseContainWL, launchpadData }) => {
       );
     } else return null;
   };
-  const endTime = saleTime[saleTime?.length - 1]?.endTime;
+  const endTime =
+    saleTime?.length > 0 ? saleTime[saleTime?.length - 1]?.endTime : null;
   if (saleTime?.length > 0)
     return <Countdown date={endTime} renderer={renderer} />;
   else return null;
