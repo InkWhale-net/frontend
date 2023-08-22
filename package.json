@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@azns/resolver-core": "^0.0.5",
+    "@azns/resolver-core": "^1.4.0",
     "@chakra-ui/icons": "^1.1.5",
     "@chakra-ui/react": "1.8.8",
     "@chakra-ui/system": "^1.12.1",
