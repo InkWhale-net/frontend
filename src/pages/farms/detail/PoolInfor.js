@@ -116,7 +116,7 @@ const PoolInfo = ({
             },
             {
               title: "Total Value Locked",
-              content: `${formatNumDynDecimal(totalStaked)} ${mode === "NFT_FARM" ? "NFT" : lptokenSymbol}${
+              content: `${formatNumDynDecimal(formatTokenAmount(totalStaked, lptokenDecimal))} ${mode === "NFT_FARM" ? "NFT" : lptokenSymbol}${
                 mode === "NFT_FARM" && totalStaked > 1 ? "s" : ""
               }`,
             },

@@ -156,6 +156,7 @@ export const calcUnclaimedRewardTokenLP = ({
   unclaimedReward = 0,
   multiplier = 1,
   tokenDecimal = 12,
+  lptokenDecimal = 12,
   startTime,
   duration,
 }) => {
@@ -167,8 +168,8 @@ export const calcUnclaimedRewardTokenLP = ({
   const multiplierPerSecond = multiplier / 24 / 60 / 60;
 
   const accumRewardTillNow =
-    accumSecondTillNow * multiplierPerSecond * stakedValue;
-
+    accumSecondTillNow * multiplierPerSecond * stakedValue / (10 ** (lptokenDecimal -tokenDecimal)) ;
+  
   const result =
     unclaimedReward / 10 ** tokenDecimal +
     accumRewardTillNow / 10 ** tokenDecimal;

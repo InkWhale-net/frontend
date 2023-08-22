@@ -1078,17 +1078,15 @@ const MyStakeRewardInfoToken = ({
 
     await APICall.askBEupdate({ type: "lp", poolContract });
 
-    await delay(3000);
-
+    await delay(2000);
+    fetchUserStakeInfo();
+    fetchTokenBalance();
     toast.promise(
       delay(10000).then(() => {
         if (currentAccount) {
           dispatch(fetchAllTokenPools({ currentAccount }));
           dispatch(fetchUserBalance({ currentAccount, api }));
         }
-
-        fetchUserStakeInfo();
-        fetchTokenBalance();
 
         setLPTokenAmount("");
       }),
@@ -1150,12 +1148,14 @@ const MyStakeRewardInfoToken = ({
       poolContract,
       0, //-> value
       "unstake",
-      formatNumToBN(LPTokenAmount)
+      formatNumToBN(LPTokenAmount, lptokenDecimal)
     );
 
     await APICall.askBEupdate({ type: "lp", poolContract });
 
     await delay(3000);
+    fetchUserStakeInfo();
+    fetchTokenBalance();
 
     toast.promise(
       delay(10000).then(() => {
@@ -1164,9 +1164,7 @@ const MyStakeRewardInfoToken = ({
           dispatch(fetchUserBalance({ currentAccount, api }));
         }
 
-        fetchUserStakeInfo();
-        fetchTokenBalance();
-
+    
         setLPTokenAmount("");
       }),
       {
@@ -1184,6 +1182,7 @@ const MyStakeRewardInfoToken = ({
       ...stakeInfo,
       multiplier,
       tokenDecimal,
+      lptokenDecimal,
       startTime,
       duration
     });

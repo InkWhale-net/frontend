@@ -161,7 +161,9 @@ export const formatDataCellTable = (itemObj, header, mode) => {
           <Text>
             {mode == "NFT_FARM"
               ? itemObj[header]
-              : formatNumDynDecimal(
+              : mode === "TOKEN_FARM" ? formatNumDynDecimal(
+                  formatTokenAmount(itemObj[header], itemObj?.lptokenDecimal)
+                ) : formatNumDynDecimal(
                   formatTokenAmount(itemObj[header], itemObj?.tokenDecimal)
                 )}{" "}
             {itemObj["NFTtokenContract"] && extPart}
@@ -280,7 +282,7 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       const numberStakeInfo =
         itemObj[header] &&
         formatNumDynDecimal(
-          formatTokenAmount(itemObj[header].stakedValue, itemObj?.tokenDecimal)
+          formatTokenAmount(itemObj[header].stakedValue, mode === "TOKEN_FARM" ? itemObj?.lptokenDecimal : itemObj?.tokenDecimal)
         );
 
       const numberNFTStakeInfo =
