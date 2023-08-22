@@ -1,4 +1,3 @@
-import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -17,31 +16,34 @@ import {
   useMediaQuery,
 } from "@chakra-ui/react";
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
-import { toast } from "react-hot-toast";
-import { toastMessages } from "constants";
-import { updateAccountsList } from "redux/slices/walletSlice";
-import { useDispatch, useSelector } from "react-redux";
 import IWCard from "components/card/Card";
-import { supportWallets } from "constants";
-import { MyPoolsIcon } from "components/icons/Icons";
-import { MyNFTFarmsIcon } from "components/icons/Icons";
-import { MyLPFarmsIcon } from "components/icons/Icons";
-import { MenuArrowRightIcon } from "components/icons/Icons";
+import {
+  MenuIconBackground,
+  MenuIconBorder,
+  MyLPFarmsIcon,
+  MyNFTFarmsIcon,
+  MyPoolsIcon,
+} from "components/icons/Icons";
+import { supportWallets, toastMessages } from "constants";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
-import { MenuIconBorder } from "components/icons/Icons";
-import { MenuIconBackground } from "components/icons/Icons";
-import { setCurrentAccount } from "redux/slices/walletSlice";
+import {
+  setCurrentAccount,
+  updateAccountsList,
+} from "redux/slices/walletSlice";
 import { addressShortener } from "utils";
 
+import AzeroSignerLogo from "assets/img/wallet/AzeroSigner.jpg";
 import PolkadotjsLogo from "assets/img/wallet/PolkadotjsLogo.svg";
 import SubWalletLogo from "assets/img/wallet/SubWalletLogo.svg";
 import NovaLogo from "assets/img/wallet/nova.jpg";
-import AzeroSignerLogo from "assets/img/wallet/AzeroSigner.jpg";
-import WalletModal from "./WalletModal";
-import { disconnectCurrentAccount } from "redux/slices/walletSlice";
 import AddressCopier from "components/address-copier/AddressCopier";
 import { logOutMyPools } from "redux/slices/myPoolsSlice";
+import { disconnectCurrentAccount } from "redux/slices/walletSlice";
 import { resolveDomain } from "utils";
+import WalletModal from "./WalletModal";
 
 export default function WalletButton({
   currentAccountAddress,
@@ -92,8 +94,12 @@ export default function WalletButton({
     onOpen();
   };
   const loadListAccount = async () => {
-    const accounts = await web3Accounts();
-    dispatch(updateAccountsList(accounts));
+    if (!(allAccounts?.length > 0)) {
+      await web3Enable(process.env.REACT_APP_NAME);
+      const accounts = await web3Accounts();
+      dispatch(updateAccountsList(accounts));
+      setSelectedWalletExt(currentAccount?.meta?.source);
+    }
   };
   useEffect(() => {
     if (currentAccount) {
