@@ -326,6 +326,13 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         : 0,
     [publicSaleAmount]
   );
+  const isBuyDisabled = useMemo(() => {
+    return (
+      !allowBuy ||
+      !(parseFloat(amount) > 0) ||
+      !(publicSaleAmount?.total - publicSaleAmount?.purchased > 0)
+    );
+  }, [allowBuy, amount, publicSaleAmount]);
 
   return (
     <>
@@ -350,9 +357,11 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         </Box>
       </Box>
       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
-        <Text sx={headerSX}>{`Amount (max: ${
-          publicSaleAmount?.total - publicSaleAmount?.purchased
-        })`}</Text>
+        <Text sx={headerSX}>
+          {`Amount (max: ${
+            publicSaleAmount?.total - publicSaleAmount?.purchased
+          })`}
+        </Text>
         <IWInput
           isDisabled={!allowBuy}
           onChange={({ target }) => {
@@ -390,7 +399,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
       <Box sx={{ display: "flex" }}>
         <Button
           isLoading={publicBuyMutation.isLoading}
-          isDisabled={!allowBuy || !(parseFloat(amount) > 0)}
+          isDisabled={isBuyDisabled}
           sx={{ flex: 1, height: "40px", marginTop: "8px" }}
           onClick={() => publicBuyMutation.mutate()}
           spinner={<BeatLoader size={8} color="white" />}
