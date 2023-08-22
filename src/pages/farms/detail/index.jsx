@@ -87,10 +87,17 @@ export default function FarmDetailPage() {
   }, [allNFTPoolsList, params?.contractAddress]);
 
   const currentTokenPool = useMemo(() => {
-    return allTokenPoolsList?.find(
+    const poolData = allTokenPoolsList?.find(
       (p) => p?.poolContract === params?.contractAddress
     );
+    return {
+      ...poolData,
+      maxStakingAmount: parseFloat(
+        formatTokenAmount(poolData?.maxStakingAmount, poolData?.lptokenDecimal)
+      ),
+    }; 
   }, [allTokenPoolsList, params?.contractAddress]);
+  console.log(currentTokenPool, 'currentTokenPool');
 
   const currMode = currentNFTPool?.NFTtokenContract
     ? "NFT_FARM"
@@ -130,7 +137,7 @@ export default function FarmDetailPage() {
   };
 
   useEffect(() => {
-    if (currentNFTPool) {
+    if (currentNFTPool && currMode === 'NFT_FARM') {
       updateTokenData();
     }
   }, [currentNFTPool]);
@@ -265,7 +272,7 @@ export default function FarmDetailPage() {
 
             <BreadcrumbItem color="text.2">
               <BreadcrumbLink>
-                {currMode === "NFT_FARM" ? "NFT " : "Token"} Staking Pool
+                {currMode === "NFT_FARM" ? "NFT " : "LP Token"} Staking Pool
               </BreadcrumbLink>
             </BreadcrumbItem>
           </Breadcrumb>
@@ -880,6 +887,7 @@ const MyStakeRewardInfoToken = ({
   rewardPool,
   nftInfo,
   tokenDecimal,
+  lptokenDecimal,
   multiplier,
   lptokenContract,
   duration,
@@ -887,7 +895,6 @@ const MyStakeRewardInfoToken = ({
   ...rest
 }) => {
   const dispatch = useDispatch();
-
   const { currentAccount, api } = useSelector((s) => s.wallet);
 
   const [unstakeFee, setUnstakeFee] = useState(0);
@@ -1051,14 +1058,14 @@ const MyStakeRewardInfoToken = ({
       0, //-> value
       "psp22::approve",
       poolContract,
-      formatNumToBN(LPTokenAmount)
+      formatNumToBN(LPTokenAmount, lptokenDecimal)
     );
     if (!approve) return;
 
     await delay(3000);
 
     toast.success("Step 2: Process...");
-
+      console.log(formatNumToBN(LPTokenAmount, lptokenDecimal), 'formatNumToBN(LPTokenAmount, lptokenDecimal)');
     await execContractTx(
       currentAccount,
       "api",
@@ -1066,7 +1073,7 @@ const MyStakeRewardInfoToken = ({
       poolContract,
       0, //-> value
       "stake",
-      formatNumToBN(LPTokenAmount)
+      formatNumToBN(LPTokenAmount, lptokenDecimal)
     );
 
     await APICall.askBEupdate({ type: "lp", poolContract });
@@ -1177,6 +1184,8 @@ const MyStakeRewardInfoToken = ({
       ...stakeInfo,
       multiplier,
       tokenDecimal,
+      startTime,
+      duration
     });
     setUnclaimedRewardToken(ret);
   };
@@ -1245,7 +1254,7 @@ const MyStakeRewardInfoToken = ({
             },
             {
               title: "My Unclaimed Rewards ",
-              content: `${unclaimedRewardToken}`,
+              content: `${unclaimedRewardToken || 0}`,
             },
           ]}
         >

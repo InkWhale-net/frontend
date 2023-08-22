@@ -164,8 +164,7 @@ export const calcUnclaimedRewardTokenLP = ({
       ? new Date().getTime()
       : startTime + duration * 1000;
   const accumSecondTillNow = (getTime - lastRewardUpdate) / 1000;
-  // WHY? / 1000000
-  const multiplierPerSecond = multiplier / 24 / 60 / 60 / 1000000;
+  const multiplierPerSecond = multiplier / 24 / 60 / 60;
 
   const accumRewardTillNow =
     accumSecondTillNow * multiplierPerSecond * stakedValue;
@@ -173,7 +172,7 @@ export const calcUnclaimedRewardTokenLP = ({
   const result =
     unclaimedReward / 10 ** tokenDecimal +
     accumRewardTillNow / 10 ** tokenDecimal;
-
+  console.log(tokenDecimal, accumSecondTillNow, multiplierPerSecond, stakedValue, getTime, startTime, duration, lastRewardUpdate, 'unclaimedReward');
   return result?.toFixed(tokenDecimal);
 };
 

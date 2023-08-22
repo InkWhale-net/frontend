@@ -89,7 +89,7 @@ export default function CreateTokenLPPage({ api }) {
       (item) => item.contractAddress === selectedContractAddr
     );
 
-    return foundItem?.symbol;
+    return foundItem;
   }, [faucetTokensList, selectedContractAddr]);
 
   useEffect(() => {
@@ -260,7 +260,7 @@ export default function CreateTokenLPPage({ api }) {
       if (!approve) return;
     }
     if (allowanceToken < minReward.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving ${tokenSymbol} token...`);
+      toast.success(`Step ${step}: Approving ${tokenSymbol?.symbol} token...`);
       step++;
       let approve = await execContractTx(
         currentAccount,
@@ -277,14 +277,8 @@ export default function CreateTokenLPPage({ api }) {
 
     await delay(1000);
 
-    toast.success("Step 2: Process...");
-      console.log( currentAccount?.address,
-        LPtokenContract,
-        selectedContractAddr,
-        formatNumToBN(maxStake, tokenLPSymbol?.tokenDecimal || 12), 
-        Number(multiplier),
-        roundUp(duration * 24 * 60 * 60 * 1000, 0),
-        startTime.getTime());
+    toast.success(`Step ${step}: Process...`);
+   
     await execContractTx(
       currentAccount,
       "api",
@@ -295,14 +289,13 @@ export default function CreateTokenLPPage({ api }) {
       currentAccount?.address,
       LPtokenContract,
       selectedContractAddr,
-      formatNumToBN(maxStake, tokenLPSymbol?.tokenDecimal || 12), 
+      formatNumToBN(maxStake, tokenSymbol?.decimal || 12), 
       Number(multiplier),
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
     );
 
     await APICall.askBEupdate({ type: "lp", poolContract: "new" });
-      return 
     setMultiplier("");
     setDuration("");
     setStartTime(new Date());
@@ -536,7 +529,7 @@ export default function CreateTokenLPPage({ api }) {
                   // label={`Your ${tokenSymbol || "Token"} Balance`}
                   inputRightElementIcon={
                     <Heading as="h5" size="h5" fontWeight="semibold">
-                      {tokenSymbol}
+                      {tokenSymbol?.symbol}
                     </Heading>
                   }
                 />
@@ -549,7 +542,7 @@ export default function CreateTokenLPPage({ api }) {
                 type="number"
                 label={
                   <>
-                    Total Staking Cap {tokenSymbol ? `(${tokenSymbol})` : ""}{" "}
+                    Total Staking Cap {tokenLPSymbol?.symbol ? `(${tokenLPSymbol?.symbol})` : ""}{" "}
                     <Tooltip
                       fontSize="smaller"
                       label={
@@ -566,7 +559,7 @@ export default function CreateTokenLPPage({ api }) {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${minReward || 0} ${tokenSymbol || ""}`}
+                value={`${minReward || 0} ${tokenSymbol?.symbol || ""}`}
                 label={
                   <>
                     Total Rewards
