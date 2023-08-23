@@ -179,15 +179,6 @@ const OwnerZoneCard = ({ launchpadData }) => {
         Edit
       </Text>
       <Divider />
-      <Button
-        my="8px"
-        w="full"
-        height="40px"
-        variant="outline"
-        onClick={() => showWLModal()}
-      >
-        Whitelist Manager
-      </Button>
 
       <Button
         my="8px"
@@ -208,7 +199,15 @@ const OwnerZoneCard = ({ launchpadData }) => {
       >
         Update Phase
       </Button>
-
+      <Button
+        my="8px"
+        w="full"
+        height="40px"
+        variant="outline"
+        onClick={() => showWLModal()}
+      >
+        Whitelist Manager
+      </Button>
       <Button
         my="8px"
         w="full"

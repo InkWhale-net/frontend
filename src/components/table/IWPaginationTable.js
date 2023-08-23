@@ -304,6 +304,30 @@ export const formatDataCellTable = (itemObj, header, mode) => {
           <Text>{formatNumDynDecimal(itemObj[header])}</Text>
         </>
       );
+    case "purchasedAmount":
+      return (
+        <>
+          <Text>{formatNumDynDecimal(itemObj[header])}</Text>
+        </>
+      );
+    case "claimedAmount":
+      return (
+        <>
+          <Text>{formatNumDynDecimal(itemObj[header])}</Text>
+        </>
+      );
+    case "amount":
+      return (
+        <>
+          <Text>{formatNumDynDecimal(itemObj[header])}</Text>
+        </>
+      );
+    case "price":
+      return (
+        <>
+          <Text>{formatNumDynDecimal(itemObj[header])}</Text>
+        </>
+      );
 
     case "startTime":
       return (

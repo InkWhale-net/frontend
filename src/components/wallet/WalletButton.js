@@ -36,6 +36,7 @@ import {
 import { addressShortener } from "utils";
 
 import AzeroSignerLogo from "assets/img/wallet/AzeroSigner.jpg";
+import NightlyLogo from "assets/img/wallet/Nightly.jpg";
 import PolkadotjsLogo from "assets/img/wallet/PolkadotjsLogo.svg";
 import SubWalletLogo from "assets/img/wallet/SubWalletLogo.svg";
 import NovaLogo from "assets/img/wallet/nova.jpg";
@@ -154,13 +155,14 @@ const getWallet = (key) => {
   switch (key) {
     case "polkadot":
       return PolkadotjsLogo;
-
     case "nova":
       return NovaLogo;
     case "subwallet":
       return SubWalletLogo;
     case "Azero Signer":
       return AzeroSignerLogo;
+    case "Nightly":
+      return NightlyLogo;
     default:
       break;
   }
@@ -248,7 +250,6 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
   const dispatch = useDispatch();
   const [domain, setDomain] = useState(null);
   const { currentAccount, allAccounts } = useSelector((state) => state.wallet);
-
   const walletImage =
     currentAccount?.meta?.source === "polkadot-js"
       ? PolkadotjsLogo
@@ -256,6 +257,8 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
       ? SubWalletLogo
       : currentAccount?.meta?.source === "aleph-zero-signer"
       ? AzeroSignerLogo
+      : currentAccount?.meta?.source === "Nightly"
+      ? NightlyLogo
       : "";
   useEffect(() => {
     resolveDomain(currentAccount?.address).then((domainValue) =>

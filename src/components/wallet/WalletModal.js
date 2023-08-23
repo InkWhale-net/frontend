@@ -20,6 +20,7 @@ import { addressShortener } from "utils";
 import { setCurrentAccount } from "redux/slices/walletSlice";
 import { SCROLLBAR } from "constants";
 import AzeroSignerLogo from "assets/img/wallet/AzeroSigner.jpg";
+import NightlyLogo from "assets/img/wallet/Nightly.jpg";
 
 export default function WalletModal({ isOpen, onClose, accounts }) {
   const dispatch = useDispatch();
@@ -80,6 +81,8 @@ export default function WalletModal({ isOpen, onClose, accounts }) {
                             ? SubWalletLogo
                             : acct?.meta?.source === "aleph-zero-signer"
                             ? AzeroSignerLogo
+                            : acct?.meta?.source === "Nightly"
+                            ? NightlyLogo
                             : ""
                         }
                         alt={acct?.meta?.source}

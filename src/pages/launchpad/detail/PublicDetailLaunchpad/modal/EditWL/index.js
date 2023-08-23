@@ -56,16 +56,14 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   const [availableTokenAmount, setAvailableTokenAmount] = useState(0);
   const [queries, setQueries] = useState(null);
   const tokenDecimal = parseInt(launchpadData?.projectInfo?.token?.decimals);
+  const [selectedWL, setSelectedWL] = useState(null);
+
   const whitelist = launchpadData?.phaseList[selectedPhase]?.whitelist?.map(
     (e) => ({
       ...e,
-      amount: formatNumDynDecimal(formatTokenAmount(e?.amount, tokenDecimal)),
-      purchasedAmount: formatNumDynDecimal(
-        formatTokenAmount(e?.purchasedAmount, tokenDecimal)
-      ),
-      claimedAmount: formatNumDynDecimal(
-        formatTokenAmount(e?.claimedAmount, tokenDecimal)
-      ),
+      amount: formatTokenAmount(e?.amount, tokenDecimal),
+      purchasedAmount: formatTokenAmount(e?.purchasedAmount, tokenDecimal),
+      claimedAmount: formatTokenAmount(e?.claimedAmount, tokenDecimal),
       price: formatTokenAmount(e?.price, 12),
     })
   );
@@ -218,6 +216,9 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                 <AddSingleWL
                   launchpadData={launchpadData}
                   selectedPhase={selectedPhase}
+                  selectedWL={selectedWL}
+                  setSelectedWL={setSelectedWL}
+                  availableTokenAmount={availableTokenAmount}
                 />
               ) : null}
             </Box>
@@ -241,7 +242,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                   borderRadius: 8,
                 }}
               >
-                <Table variant="striped">
+                <Table variant="simple">
                   <Thead>
                     {table?.getHeaderGroups().map((headerGroup) => (
                       <Tr w="full" key={headerGroup.id}>
@@ -268,7 +269,16 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                       <Tbody>
                         {table.getRowModel().rows.map((row, index) => {
                           return (
-                            <Tr key={row.id}>
+                            <Tr
+                              key={row.id}
+                              cursor="pointer"
+                              border="1px solid transparent"
+                              _hover={{
+                                border: "1px solid #93F0F5",
+                                background: "#E8FDFF",
+                              }}
+                              onClick={() => setSelectedWL(whitelist[index])}
+                            >
                               {row.getVisibleCells().map((cell) => {
                                 return (
                                   <Td key={cell.id}>

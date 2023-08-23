@@ -3,6 +3,7 @@ import { APICall } from "api/client";
 import IWInput from "components/input/Input";
 import { useAppContext } from "contexts/AppContext";
 import { parseUnits } from "ethers";
+import { useEffect } from "react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,7 +12,13 @@ import { delay } from "utils";
 import { execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 
-const AddSingleWL = ({ launchpadData, selectedPhase }) => {
+const AddSingleWL = ({
+  launchpadData,
+  selectedPhase,
+  selectedWL,
+  setSelectedWL,
+  availableTokenAmount,
+}) => {
   const { currentAccount } = useSelector((state) => state.wallet);
   const { api } = useAppContext();
   const [wlData, setWLData] = useState({
@@ -19,6 +26,21 @@ const AddSingleWL = ({ launchpadData, selectedPhase }) => {
     amount: "",
     price: "",
   });
+  useEffect(() => {
+    setWLData(
+      selectedWL
+        ? {
+            address: selectedWL?.account,
+            amount: (+selectedWL?.amount).toString(),
+            price: (+selectedWL?.price).toString(),
+          }
+        : {
+            address: "",
+            amount: "",
+            price: "",
+          }
+    );
+  }, [selectedWL]);
   const dispatch = useDispatch();
 
   const addSingleWLHandler = async () => {
@@ -70,12 +92,64 @@ const AddSingleWL = ({ launchpadData, selectedPhase }) => {
       console.log(error);
     }
   };
+
+  const updateSingleWLHandler = async () => {
+    try {
+      if (+availableTokenAmount < +wlData?.amount) {
+        toast.error("Invalid token amount");
+        return;
+      }
+
+      const result = await execContractTx(
+        currentAccount,
+        api,
+        launchpad.CONTRACT_ABI,
+        launchpadData?.launchpadContract,
+        0, //-> value
+        "launchpadContractTrait::updateMultiWhitelists",
+        selectedPhase,
+        [wlData?.address],
+        [
+          parseUnits(
+            wlData?.amount.toString(),
+            parseInt(launchpadData?.projectInfo?.token.decimals)
+          ),
+        ],
+        [parseUnits(wlData?.price.toString(), 12)]
+      );
+      await APICall.askBEupdate({
+        type: "launchpad",
+        poolContract: launchpadData?.launchpadContract,
+      });
+      if (result) {
+        setWLData({
+          address: "",
+          amount: "",
+          price: "",
+        });
+        toast.promise(
+          delay(4000).then(() => {
+            dispatch(fetchLaunchpads({ isActive: 0 }));
+          }),
+          {
+            loading: "Please wait up to 4s for the data to be updated! ",
+            success: "Whitelist updated",
+            error: "Could not fetch data!!!",
+          }
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <Box sx={{ pt: "20px" }}>
       <Text sx={{ fontWeight: "700", color: "#57527E" }}>
         Whitelist Address
       </Text>
       <IWInput
+        isDisabled={selectedWL}
         size="md"
         value={wlData?.address}
         width={{ base: "full" }}
@@ -86,6 +160,7 @@ const AddSingleWL = ({ launchpadData, selectedPhase }) => {
       />
       <Text sx={{ fontWeight: "700", color: "#57527E" }}>Price</Text>
       <IWInput
+        type="number"
         size="md"
         value={wlData?.price}
         width={{ base: "full" }}
@@ -94,6 +169,7 @@ const AddSingleWL = ({ launchpadData, selectedPhase }) => {
       />
       <Text sx={{ fontWeight: "700", color: "#57527E" }}>Amount</Text>
       <IWInput
+        type="number"
         size="md"
         value={wlData?.amount}
         width={{ base: "full" }}
@@ -102,9 +178,58 @@ const AddSingleWL = ({ launchpadData, selectedPhase }) => {
         }
         placeholder="Amount"
       />
-      <Button mt="16px" w="full" size="md" onClick={() => addSingleWLHandler()}>
-        Add Whitelist
-      </Button>
+      {selectedWL ? (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+        >
+          <Button
+            mt="16px"
+            size="md"
+            sx={{ bg: "#F6F6FC" }}
+            _hover={{ bg: "#E3E1EC" }}
+            onClick={() => setSelectedWL(null)}
+          >
+            Cancel
+          </Button>
+          <Button
+            isDisabled={
+              !(
+                wlData?.address?.length > 0 &&
+                wlData?.amount?.length > 0 &&
+                wlData?.price?.length > 0 &&
+                (wlData?.address !== selectedWL?.account ||
+                  wlData?.amount !== (+selectedWL?.amount).toString() ||
+                  wlData?.price !== (+selectedWL?.price).toString())
+              )
+            }
+            ml="4px"
+            mt="16px"
+            size="md"
+            onClick={() => updateSingleWLHandler()}
+          >
+            Update
+          </Button>
+        </Box>
+      ) : (
+        <Button
+          isDisabled={
+            !(
+              wlData?.address?.length > 0 &&
+              wlData?.amount?.length > 0 &&
+              wlData?.price?.length > 0
+            )
+          }
+          mt="16px"
+          w="full"
+          size="md"
+          onClick={() => addSingleWLHandler()}
+        >
+          Add Whitelist
+        </Button>
+      )}
     </Box>
   );
 };
