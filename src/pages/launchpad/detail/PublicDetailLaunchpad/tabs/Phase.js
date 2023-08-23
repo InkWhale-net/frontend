@@ -49,6 +49,12 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
     };
   }, [tagData]);
 
+  const userWL = useMemo(() => {
+    if (currentAccount)
+      return tagData?.whitelist?.find(
+        (e) => e?.account === currentAccount?.address
+      );
+  }, [currentAccount, tagData]);
   return (
     <Box
       sx={{
@@ -228,29 +234,46 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
           </Box>
         </>
       )}
-      {/* <Text size="md" mt="16px" lineHeight={{ base: "1.25", lg: "30px" }}>
-        Public sale
-      </Text>
-      <Divider sx={{ mb: "4px" }} />
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginTop: "12px",
-        }}
-      >
-        <Text>Public sale amount</Text>
-        <Heading size="md">{console.log(tagData)}%</Heading>
-      </Box> */}
-      {tagData?.whitelist?.find(
-        (e) => e?.account === currentAccount?.address
-      ) && (
+      {userWL && (
         <>
           <Divider sx={{ mb: "20px", mt: "8px" }} />
           <Text sx={{ fontWeight: "700", color: "#57527E", mb: "16px" }}>
             You are in whitelist
           </Text>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: "12px",
+            }}
+          >
+            <Text>Price</Text>
+            <Text size="md">
+              {formatNumDynDecimal(formatTokenAmount(userWL?.price))}
+              <AzeroLogo
+                sx={{
+                  marginLeft: "4px",
+                  fontSize: "16px",
+                }}
+              />
+            </Text>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: "12px",
+            }}
+          >
+            <Text>Amount</Text>
+            <Text size="md">
+              {`${formatNumDynDecimal(
+                formatTokenAmount(userWL?.amount, tokenDecimal)
+              )} ${launchpadData?.projectInfo?.token?.symbol}`}
+            </Text>
+          </Box>
         </>
       )}
 
@@ -261,78 +284,6 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
         startDate={new Date(tagData?.startTime)}
         endDate={new Date(tagData?.endTime)}
       />
-      {/* <Box sx={{ display: "flex" }}>
-        <Heading
-          as="h3"
-          size="h3"
-          mb="16px"
-          lineHeight={{ base: "1.25", lg: "30px" }}
-        >
-          Allow Public Sale
-        </Heading>
-        <Switch
-          disabled={!editatble}
-          sx={{ mt: "4px", ml: "16px" }}
-          id="zero-reward-pools"
-          isChecked={tagData?.allowPublicSale}
-          // onChange={() =>
-          //   setPhaseList((prevState) => {
-          //     const updatedArray = [...prevState];
-          //     if (index >= 0 && index < updatedArray.length) {
-          //       updatedArray[index] = {
-          //         ...updatedArray[index],
-          //         allowPublicSale: !obj?.allowPublicSale,
-          //       };
-          //     }
-          //     return updatedArray;
-          //   })
-          // }
-        />
-      </Box>
-      {tagData?.allowPublicSale && (
-        <SimpleGrid columns={3} spacing={4}>
-          <SectionContainer title={"Public Amount"}>
-            <IWInput
-              type="number"
-              // inputRightElementIcon={launchpadData?.token?.symbol}
-              value={tagData?.phasePublicAmount}
-              // onChange={({ target }) =>
-              //   setPhaseList((prevState) => {
-              //     const updatedArray = [...prevState];
-              //     if (index >= 0 && index < updatedArray.length) {
-              //       updatedArray[index] = {
-              //         ...updatedArray[index],
-              //         phasePublicAmount: target.value,
-              //       };
-              //     }
-              //     return updatedArray;
-              //   })
-              // }
-              placeholder="0"
-            />
-          </SectionContainer>
-          <SectionContainer title={"Phase Public Price"}>
-            <IWInput
-              type="number"
-              inputRightElementIcon={<AzeroLogo />}
-              value={tagData?.phasePublicPrice}
-              // onChange={({ target }) =>
-              //   setPhaseList((prevState) => {
-              //     const updatedArray = [...prevState];
-              //     if (index >= 0 && index < updatedArray.length) {
-              //       updatedArray[index] = {
-              //         ...updatedArray[index],
-              //         phasePublicPrice: target.value,
-              //       };
-              //     }
-              //     return updatedArray;
-              //   })
-              // }
-              placeholder="0.0000"
-            />
-          </SectionContainer>
-        </SimpleGrid>
-      )} */}
     </Box>
   );
 };
@@ -342,13 +293,6 @@ const PhaseInformation = ({ launchpadContract, launchpadData }) => {
   const { phaseList, owner } = launchpadData || {};
   return (
     <TabLayout launchpadData={launchpadData}>
-      <div style={{}}></div>
-      {/* <CircularProgress
-        alignSelf={"center"}
-        isIndeterminate
-        size={"40px"}
-        color="#93F0F5"
-      /> */}
       {phaseList?.map((phaseObj, index) => (
         <PhaseTag
           launchpadData={launchpadData}
