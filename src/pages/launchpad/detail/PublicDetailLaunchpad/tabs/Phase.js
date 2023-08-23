@@ -15,6 +15,7 @@ import { format } from "utils/datetime";
 import TabLayout from "../Layout";
 
 const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
+  const { currentAccount } = useSelector((s) => s.wallet);
   const tokenDecimal = parseInt(launchpadData.projectInfo.token.decimals);
   const tagData = useMemo(() => {
     return {
@@ -88,6 +89,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
         />
       </Box>
       <Divider sx={{ mb: "16px" }} />
+
       <SimpleGrid w="full" columns={{ base: 1, lg: 2 }} spacing={2}>
         <Box>
           <Text
@@ -241,6 +243,17 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
         <Text>Public sale amount</Text>
         <Heading size="md">{console.log(tagData)}%</Heading>
       </Box> */}
+      {tagData?.whitelist?.find(
+        (e) => e?.account === currentAccount?.address
+      ) && (
+        <>
+          <Divider sx={{ mb: "20px", mt: "8px" }} />
+          <Text sx={{ fontWeight: "700", color: "#57527E", mb: "16px" }}>
+            You are in whitelist
+          </Text>
+        </>
+      )}
+
       <Divider sx={{ mb: "20px", mt: "8px" }} />
 
       <IWStatusWithCountDown
