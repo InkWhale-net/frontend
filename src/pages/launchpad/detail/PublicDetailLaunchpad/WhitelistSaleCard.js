@@ -222,7 +222,6 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                         <IWInput
                           isDisabled={upComing}
                           onChange={({ target }) => {
-                            console.log(target.value, "target.value");
                             setAmount(target.value);
                             setAzeroBuyAmount(
                               roundUp(parseFloat(target.value) * wlTokenPrice),
