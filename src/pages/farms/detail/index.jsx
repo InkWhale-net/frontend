@@ -968,10 +968,12 @@ const MyStakeRewardInfoToken = ({
     fetchTokenBalance();
   }, [fetchTokenBalance, fetchUserStakeInfo]);
   const availableStakeAmount = useMemo(() => {
-    return (
-      maxStakingAmount -
-      +formatTokenAmount(totalStaked.toString(), tokenDecimal)
-    );
+    if (totalStaked >= 0 && tokenDecimal && maxStakingAmount > 0) {
+      return (
+        maxStakingAmount -
+        +formatTokenAmount(totalStaked?.toString(), tokenDecimal)
+      );
+    }
   }, [totalStaked, maxStakingAmount]);
   useEffect(() => {
     const fetchFee = async () => {
@@ -1021,7 +1023,6 @@ const MyStakeRewardInfoToken = ({
           dispatch(fetchAllTokenPools({ currentAccount }));
           dispatch(fetchUserBalance({ currentAccount, api }));
         }
-
       }),
       {
         loading: "Please wait up to 10s for the data to be updated! ",
