@@ -408,13 +408,16 @@ const MyStakeRewardInfo = ({
       console.log(error);
     }
 
+    await delay(2000);
+
+    fetchUserStakeInfo();
+    fetchTokenBalance();
+
     await delay(6000).then(() => {
       if (currentAccount) {
         dispatch(fetchAllStakingPools({ currentAccount }));
         dispatch(fetchUserBalance({ currentAccount, api }));
       }
-      fetchUserStakeInfo();
-      fetchTokenBalance();
     });
   }
 

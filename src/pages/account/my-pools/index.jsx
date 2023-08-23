@@ -164,7 +164,9 @@ export default function MyPoolsPage({ api }) {
         </Stack>
       </SectionContainer>
 
-      <MyNFTAndTokenPoolsTab />
+      <MyNFTAndTokenPoolsTab mode="NFT_FARM"/>
+
+      <MyNFTAndTokenPoolsTab mode="TOKEN_FARM"/>
 
       <SectionContainer
         mt={{ base: "0px", xl: "8px" }}

@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMyNFTPools } from "redux/slices/myPoolsSlice";
 
-const MyNFTAndTokenPoolsTab = () => {
+const MyNFTAndTokenPoolsTab = ({ mode }) => {
   const { myNFTPoolsList, myTokenPoolsList } = useSelector((s) => s.myPools);
   const { currentAccount } = useSelector((state) => state.wallet);
   const { api } = useAppContext();
@@ -117,10 +117,18 @@ const MyNFTAndTokenPoolsTab = () => {
   return (
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
-      title="My NFT Staking Pools"
-      description={<span>Stake NFT to earn tokens</span>}
+      title={`My ${mode === "NFT_FARM" ? "NFT Staking" : "Token Farms"} Pools`}
+      description={
+        <span>
+          Stake {`My ${mode === "NFT_FARM" ? "NFT" : "Token"}`} to earn tokens
+        </span>
+      }
     >
-      <IWTable {...tableDataNFT} mode="NFT_FARM" />
+      {mode === "NFT_FARM" ? (
+        <IWTable {...tableDataNFT} mode="NFT_FARM" />
+      ) : (
+        <IWTable {...tableDataToken} mode="TOKEN_FARM" />
+      )}
     </SectionContainer>
   );
 };
