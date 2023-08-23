@@ -590,7 +590,10 @@ const MyStakeRewardInfoNFT = ({
 
     await APICall.askBEupdate({ type: "nft", poolContract });
 
-    await delay(3000);
+    await delay(2000);
+
+    fetchUserStakeInfo();
+    fetchTokenBalance();
 
     toast.promise(
       delay(10000).then(() => {
@@ -1001,8 +1004,10 @@ const MyStakeRewardInfoToken = ({
 
     await APICall.askBEupdate({ type: "lp", poolContract });
 
-    await delay(3000);
+    await delay(2000);
 
+    fetchUserStakeInfo();
+    fetchTokenBalance();
     toast.promise(
       delay(10000).then(() => {
         if (currentAccount) {
@@ -1010,8 +1015,6 @@ const MyStakeRewardInfoToken = ({
           dispatch(fetchUserBalance({ currentAccount, api }));
         }
 
-        fetchUserStakeInfo();
-        fetchTokenBalance();
       }),
       {
         loading: "Please wait up to 10s for the data to be updated! ",

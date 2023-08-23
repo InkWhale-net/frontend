@@ -396,6 +396,7 @@ const MyPoolInfo = ({
   multiplier,
   nftInfo,
   lptokenContract,
+  lptokenDecimal,
   lptokenSymbol,
   lptokenName,
   lptokenTotalSupply,
@@ -834,7 +835,7 @@ const MyPoolInfo = ({
         formatNumToBN(amount, tokenDecimal)
       );
 
-      await APICall.askBEupdate({ type: "pool", poolContract });
+      await APICall.askBEupdate({ type: "lp", poolContract });
 
       await delay(3000);
 
@@ -911,7 +912,7 @@ const MyPoolInfo = ({
               },
               {
                 title: "Total Value Locked",
-                content: `${formatNumDynDecimal(totalStaked)} ${
+                content: `${formatNumDynDecimal(formatTokenAmount(totalStaked, mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal))} ${
                   mode === "NFT_FARM"
                     ? `NFT`
                     : mode === "TOKEN_FARM"
