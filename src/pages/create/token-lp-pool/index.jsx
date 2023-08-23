@@ -369,7 +369,7 @@ export default function CreateTokenLPPage({ api }) {
     <>
       <SectionContainer
         mt={{ base: "0px", xl: "20px" }}
-        title="Create Token Farm"
+        title="Create Token Farming"
         description={
           <span>
             Stakers get rewards in selected token. The creation costs

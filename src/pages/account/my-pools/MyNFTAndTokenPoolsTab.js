@@ -117,7 +117,7 @@ const MyNFTAndTokenPoolsTab = ({ mode }) => {
   return (
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
-      title={`My ${mode === "NFT_FARM" ? "NFT Staking" : "Token Farms"} Pools`}
+      title={`My ${mode === "NFT_FARM" ? "NFT Staking" : "Token Farmings"} Pools`}
       description={
         <span>
           Stake {`My ${mode === "NFT_FARM" ? "NFT" : "Token"}`} to earn tokens

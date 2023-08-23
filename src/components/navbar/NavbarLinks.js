@@ -264,7 +264,7 @@ export const CreateMenuDropdown = ({
               },
             },
             {
-              label: "Token Farm",
+              label: "Token Farming",
               href: "/create/token-lp",
               onClick: () => {
                 if (onClose) onClose();
