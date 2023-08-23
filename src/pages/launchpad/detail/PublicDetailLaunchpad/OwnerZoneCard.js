@@ -41,7 +41,6 @@ const OwnerZoneCard = ({ launchpadData }) => {
       "launchpadContractTrait::getAvailableTokenAmount"
     );
     const availableAmount = fetchUnsoldToken.toHuman().Ok;
-    console.log(availableAmount);
     setUnsoldToken(formatTokenAmount(availableAmount, tokenDecimal));
   }, [currentAccount?.address, launchpadData?.launchpadContract]);
 

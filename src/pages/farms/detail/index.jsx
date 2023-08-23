@@ -1,5 +1,6 @@
 import { ChevronRightIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -95,9 +96,8 @@ export default function FarmDetailPage() {
       maxStakingAmount: parseFloat(
         formatTokenAmount(poolData?.maxStakingAmount, poolData?.lptokenDecimal)
       ),
-    }; 
+    };
   }, [allTokenPoolsList, params?.contractAddress]);
-  console.log(currentTokenPool, 'currentTokenPool');
 
   const currMode = currentNFTPool?.NFTtokenContract
     ? "NFT_FARM"
@@ -137,7 +137,7 @@ export default function FarmDetailPage() {
   };
 
   useEffect(() => {
-    if (currentNFTPool && currMode === 'NFT_FARM') {
+    if (currentNFTPool && currMode === "NFT_FARM") {
       updateTokenData();
     }
   }, [currentNFTPool]);
@@ -892,6 +892,8 @@ const MyStakeRewardInfoToken = ({
   lptokenContract,
   duration,
   startTime,
+  totalStaked,
+  maxStakingAmount,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -962,7 +964,12 @@ const MyStakeRewardInfoToken = ({
     fetchUserStakeInfo();
     fetchTokenBalance();
   }, [fetchTokenBalance, fetchUserStakeInfo]);
-
+  const availableStakeAmount = useMemo(() => {
+    return (
+      maxStakingAmount -
+      +formatTokenAmount(totalStaked.toString(), tokenDecimal)
+    );
+  }, [totalStaked, maxStakingAmount]);
   useEffect(() => {
     const fetchFee = async () => {
       if (!currentAccount?.balance) return;
@@ -1020,7 +1027,37 @@ const MyStakeRewardInfoToken = ({
       }
     );
   }
+  const validateStakeTokenLP = async () => {
+    if (!currentAccount) {
+      toast.error(toastMessages.NO_WALLET);
+      return;
+    }
 
+    if (isPoolEnded(startTime, duration)) {
+      toast.error("Pool is ended!");
+      return;
+    }
+
+    if (!LPTokenAmount || LPTokenAmount < 0 || LPTokenAmount === "0") {
+      toast.error("Invalid Amount!");
+      return;
+    }
+
+    if (!rewardPool || parseInt(rewardPool) <= 0) {
+      toast.error("There is no reward balance in this pool!");
+      return;
+    }
+
+    if (formatChainStringToNumber(LPtokenBalance) < LPTokenAmount) {
+      toast.error("There is not enough balance!");
+      return;
+    }
+    if (!(availableStakeAmount > 0)) {
+      toast.error("Max staking amount reached");
+      return;
+    }
+    return true;
+  };
   async function stakeTokenLPHandler() {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
@@ -1065,7 +1102,10 @@ const MyStakeRewardInfoToken = ({
     await delay(3000);
 
     toast.success("Step 2: Process...");
-      console.log(formatNumToBN(LPTokenAmount, lptokenDecimal), 'formatNumToBN(LPTokenAmount, lptokenDecimal)');
+    console.log(
+      formatNumToBN(LPTokenAmount, lptokenDecimal),
+      "formatNumToBN(LPTokenAmount, lptokenDecimal)"
+    );
     await execContractTx(
       currentAccount,
       "api",
@@ -1164,7 +1204,6 @@ const MyStakeRewardInfoToken = ({
           dispatch(fetchUserBalance({ currentAccount, api }));
         }
 
-    
         setLPTokenAmount("");
       }),
       {
@@ -1184,7 +1223,7 @@ const MyStakeRewardInfoToken = ({
       tokenDecimal,
       lptokenDecimal,
       startTime,
-      duration
+      duration,
     });
     setUnclaimedRewardToken(ret);
   };
@@ -1270,19 +1309,26 @@ const MyStakeRewardInfoToken = ({
               w="100%"
               spacing="20px"
               flexDirection={{ base: "column", lg: "row" }}
-              alignItems={{ base: "center", lg: "center" }}
+              alignItems={{ base: "flex-start", lg: "flex-start" }}
             >
-              <IWInput
-                value={LPTokenAmount}
-                onChange={({ target }) => setLPTokenAmount(target.value)}
-                type="number"
-                placeholder="Enter amount"
-                inputRightElementIcon={
-                  <Heading as="h5" size="h5">
-                    {rest?.lptokenSymbol}
-                  </Heading>
-                }
-              />
+              <Box>
+                <IWInput
+                  value={LPTokenAmount}
+                  onChange={({ target }) => setLPTokenAmount(target.value)}
+                  type="number"
+                  placeholder="Enter amount"
+                  inputRightElementIcon={
+                    <Heading as="h5" size="h5">
+                      {rest?.lptokenSymbol}
+                    </Heading>
+                  }
+                />
+                <Text sx={{ fontSize: "14px" }}>
+                  {availableStakeAmount > 0
+                    ? `Max staking amount: ${availableStakeAmount}`
+                    : `Max staking amount reached`}
+                </Text>
+              </Box>
 
               <HStack
                 ml={{ base: "0", lg: "20px" }}
@@ -1293,9 +1339,11 @@ const MyStakeRewardInfoToken = ({
                 justifyContent="space-between"
               >
                 <ConfirmModal
+                  disableBtn={!(availableStakeAmount > 0)}
                   action="stake"
                   buttonVariant="primary"
                   buttonLabel="Stake"
+                  onValidate={validateStakeTokenLP}
                   onClick={stakeTokenLPHandler}
                   message={`Stake ${LPTokenAmount || 0} ${
                     rest?.lptokenSymbol

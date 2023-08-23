@@ -28,7 +28,7 @@ const AddSingleWL = ({ launchpadData, selectedPhase }) => {
         toast.error("Whitelist address existed");
         return;
       }
-      await execContractTx(
+      const result = await execContractTx(
         currentAccount,
         api,
         launchpad.CONTRACT_ABI,
@@ -49,21 +49,23 @@ const AddSingleWL = ({ launchpadData, selectedPhase }) => {
         type: "launchpad",
         poolContract: launchpadData?.launchpadContract,
       });
-      setWLData({
-        address: "",
-        amount: "",
-        price: "",
-      });
-      toast.promise(
-        delay(4000).then(() => {
-          dispatch(fetchLaunchpads({ isActive: 0 }));
-        }),
-        {
-          loading: "Please wait up to 4s for the data to be updated! ",
-          success: "Whitelist updated",
-          error: "Could not fetch data!!!",
-        }
-      );
+      if (result) {
+        setWLData({
+          address: "",
+          amount: "",
+          price: "",
+        });
+        toast.promise(
+          delay(4000).then(() => {
+            dispatch(fetchLaunchpads({ isActive: 0 }));
+          }),
+          {
+            loading: "Please wait up to 4s for the data to be updated! ",
+            success: "Whitelist updated",
+            error: "Could not fetch data!!!",
+          }
+        );
+      }
     } catch (error) {
       console.log(error);
     }
