@@ -41,6 +41,7 @@ import launchpad from "utils/contracts/launchpad";
 import AddSingleWL from "./AddSingle";
 import { AiFillExclamationCircle } from "react-icons/ai";
 import { useMemo } from "react";
+import AddBulk from "./AddBulk";
 
 const WLEditMode = [
   "Single add Whitelist",
@@ -134,6 +135,9 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   }, [launchpadData]);
 
   useEffect(() => {
+    if (selectedMode != 0) setSelectedWL(null);
+  }, [selectedMode]);
+  useEffect(() => {
     if (table) table.setPageSize(4);
   }, [table]);
   return (
@@ -211,177 +215,188 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                   </>
                 )}
               </Stack>
-
-              {isPhaseEditable && selectedMode == 0 ? (
-                <AddSingleWL
-                  launchpadData={launchpadData}
-                  selectedPhase={selectedPhase}
-                  selectedWL={selectedWL}
-                  setSelectedWL={setSelectedWL}
-                  availableTokenAmount={availableTokenAmount}
-                />
-              ) : null}
+              {isPhaseEditable &&
+                (selectedMode == 0 ? (
+                  <AddSingleWL
+                    launchpadData={launchpadData}
+                    selectedPhase={selectedPhase}
+                    selectedWL={selectedWL}
+                    setSelectedWL={setSelectedWL}
+                    availableTokenAmount={availableTokenAmount}
+                  />
+                ) : null)}
             </Box>
             {/* <Divider orientation="vertical" /> */}
-            <Box sx={{ flex: 1, px: "20px" }}>
-              <IWInput
-                size="md"
-                value={queries?.keyword}
-                width={{ base: "full" }}
-                onChange={({ target }) =>
-                  setQueries({ ...queries, keyword: target.value })
-                }
-                placeholder="Search with From/To"
-                inputRightElementIcon={<SearchIcon color="#57527E" />}
+            {selectedMode == 1 ? (
+              <AddBulk
+                launchpadData={launchpadData}
+                selectedPhase={selectedPhase}
+                availableTokenAmount={availableTokenAmount}
+                setSelectedMode={setSelectedMode}
               />
-              <TableContainer
-                width="full"
-                sx={{
-                  my: "18px",
-                  border: "1px solid #E3DFF3",
-                  borderRadius: 8,
-                }}
-              >
-                <Table variant="simple">
-                  <Thead>
-                    {table?.getHeaderGroups().map((headerGroup) => (
-                      <Tr w="full" key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => {
-                          return (
-                            <Th key={header.id} colSpan={header.colSpan}>
-                              {
-                                <div>
-                                  {flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                  )}
-                                </div>
-                              }
-                            </Th>
-                          );
-                        })}
-                      </Tr>
-                    ))}
-                  </Thead>
-
-                  {whitelist?.length > 0 ? (
-                    <>
-                      <Tbody>
-                        {table.getRowModel().rows.map((row, index) => {
-                          return (
-                            <Tr
-                              key={row.id}
-                              cursor="pointer"
-                              border="1px solid transparent"
-                              _hover={{
-                                border: "1px solid #93F0F5",
-                                background: "#E8FDFF",
-                              }}
-                              onClick={() => setSelectedWL(whitelist[index])}
-                            >
-                              {row.getVisibleCells().map((cell) => {
-                                return (
-                                  <Td key={cell.id}>
-                                    {formatDataCellTable(
-                                      whitelist[index],
-                                      cell.getContext().column.id
+            ) : (
+              <Box sx={{ flex: 1, px: "20px" }}>
+                <IWInput
+                  size="md"
+                  value={queries?.keyword}
+                  width={{ base: "full" }}
+                  onChange={({ target }) =>
+                    setQueries({ ...queries, keyword: target.value })
+                  }
+                  placeholder="Search"
+                  inputRightElementIcon={<SearchIcon color="#57527E" />}
+                />
+                <TableContainer
+                  width="full"
+                  sx={{
+                    my: "18px",
+                    border: "1px solid #E3DFF3",
+                    borderRadius: 8,
+                  }}
+                >
+                  <Table variant="simple">
+                    <Thead>
+                      {table?.getHeaderGroups().map((headerGroup) => (
+                        <Tr w="full" key={headerGroup.id}>
+                          {headerGroup.headers.map((header) => {
+                            return (
+                              <Th key={header.id} colSpan={header.colSpan}>
+                                {
+                                  <div>
+                                    {flexRender(
+                                      header.column.columnDef.header,
+                                      header.getContext()
                                     )}
-                                  </Td>
-                                );
-                              })}
-                            </Tr>
-                          );
-                        })}
-                      </Tbody>
-                      <Tfoot sx={{ display: "flex" }}>
-                        <Box
-                          sx={{
-                            width: "full",
-                            display: "flex",
-                            // justifyContent: "flex-end",
-                            alignItems: "center",
-                            py: "8px",
-                            pl: "8px",
-                          }}
-                        >
-                          <IconButton
-                            aria-label="previousPage"
-                            width={"40px"}
-                            height={"40px"}
-                            variant={"solid"}
-                            bg={"#93F0F5"}
-                            borderRadius={"42px"}
-                            icon={
-                              <ChevronLeftIcon size={"80px"} color="#FFF" />
-                            }
-                            onClick={() => table.previousPage()}
-                            isDisabled={!table.getCanPreviousPage()}
-                          />
-                          <IconButton
-                            ml={"4px"}
-                            aria-label="previousPage"
-                            width={"40px"}
-                            height={"40px"}
-                            variant={"solid"}
-                            bg={"#93F0F5"}
-                            borderRadius={"42px"}
-                            icon={
-                              <ChevronRightIcon size={"80px"} color="#FFF" />
-                            }
-                            onClick={() => table.nextPage()}
-                            isDisabled={!table.getCanNextPage()}
-                          />
-                          <Box sx={{ width: "64px", ml: "8px" }}>
-                            <IWInput
-                              size="md"
-                              sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                textAlign: "center",
-                              }}
-                              type="number"
-                              value={table.getState().pagination.pageIndex + 1}
-                              onChange={(e) => {
-                                const page = e.target.value
-                                  ? Number(e.target.value) - 1
-                                  : 0;
-                                table.setPageIndex(page);
-                              }}
-                            />
-                          </Box>{" "}
-                          <Text sx={{ mr: "20px", ml: "8px" }}>
-                            of {table.getPageCount()}
-                          </Text>
-                          {/* <Button
-                            disabled={
-                              pageIndexInput ===
-                              table.getState().pagination.pageIndex + 1
-                            }
-                            onClick={() => {
-                              if (
-                                pageIndexInput > 0 &&
-                                pageIndexInput <= table.getPageCount()
-                              )
-                                table.setPageIndex(pageIndexInput - 1);
-                              else toast.error("invalid page number");
+                                  </div>
+                                }
+                              </Th>
+                            );
+                          })}
+                        </Tr>
+                      ))}
+                    </Thead>
+
+                    {whitelist?.length > 0 ? (
+                      <>
+                        <Tbody>
+                          {table.getRowModel().rows.map((row, index) => {
+                            return (
+                              <Tr
+                                key={row.id}
+                                cursor="pointer"
+                                border="1px solid transparent"
+                                _hover={{
+                                  border: "1px solid #93F0F5",
+                                  background: "#E8FDFF",
+                                }}
+                                onClick={() => setSelectedWL(whitelist[index])}
+                              >
+                                {row.getVisibleCells().map((cell) => {
+                                  return (
+                                    <Td key={cell.id}>
+                                      {formatDataCellTable(
+                                        whitelist[index],
+                                        cell.getContext().column.id
+                                      )}
+                                    </Td>
+                                  );
+                                })}
+                              </Tr>
+                            );
+                          })}
+                        </Tbody>
+                        <Tfoot sx={{ display: "flex" }}>
+                          <Box
+                            sx={{
+                              width: "full",
+                              display: "flex",
+                              // justifyContent: "flex-end",
+                              alignItems: "center",
+                              py: "8px",
+                              pl: "8px",
                             }}
                           >
-                            Go
-                          </Button> */}
-                        </Box>
-                      </Tfoot>
-                    </>
-                  ) : (
-                    <Box sx={{ display: "flex", justifyContent: "center" }}>
-                      <div style={{ fontSize: 14 }}>
-                        No Whitelist added to this phase
-                      </div>
-                    </Box>
-                  )}
-                </Table>
-              </TableContainer>
-            </Box>
+                            <IconButton
+                              aria-label="previousPage"
+                              width={"40px"}
+                              height={"40px"}
+                              variant={"solid"}
+                              bg={"#93F0F5"}
+                              borderRadius={"42px"}
+                              icon={
+                                <ChevronLeftIcon size={"80px"} color="#FFF" />
+                              }
+                              onClick={() => table.previousPage()}
+                              isDisabled={!table.getCanPreviousPage()}
+                            />
+                            <IconButton
+                              ml={"4px"}
+                              aria-label="previousPage"
+                              width={"40px"}
+                              height={"40px"}
+                              variant={"solid"}
+                              bg={"#93F0F5"}
+                              borderRadius={"42px"}
+                              icon={
+                                <ChevronRightIcon size={"80px"} color="#FFF" />
+                              }
+                              onClick={() => table.nextPage()}
+                              isDisabled={!table.getCanNextPage()}
+                            />
+                            <Box sx={{ width: "64px", ml: "8px" }}>
+                              <IWInput
+                                size="md"
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                  textAlign: "center",
+                                }}
+                                type="number"
+                                value={
+                                  table.getState().pagination.pageIndex + 1
+                                }
+                                onChange={(e) => {
+                                  const page = e.target.value
+                                    ? Number(e.target.value) - 1
+                                    : 0;
+                                  table.setPageIndex(page);
+                                }}
+                              />
+                            </Box>{" "}
+                            <Text sx={{ mr: "20px", ml: "8px" }}>
+                              of {table.getPageCount()}
+                            </Text>
+                            {/* <Button
+                          disabled={
+                            pageIndexInput ===
+                            table.getState().pagination.pageIndex + 1
+                          }
+                          onClick={() => {
+                            if (
+                              pageIndexInput > 0 &&
+                              pageIndexInput <= table.getPageCount()
+                            )
+                              table.setPageIndex(pageIndexInput - 1);
+                            else toast.error("invalid page number");
+                          }}
+                        >
+                          Go
+                        </Button> */}
+                          </Box>
+                        </Tfoot>
+                      </>
+                    ) : (
+                      <Box sx={{ display: "flex", justifyContent: "center" }}>
+                        <div style={{ fontSize: 14 }}>
+                          No Whitelist added to this phase
+                        </div>
+                      </Box>
+                    )}
+                  </Table>
+                </TableContainer>
+              </Box>
+            )}
           </Box>
         </ModalBody>
       </ModalContent>

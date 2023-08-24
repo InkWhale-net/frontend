@@ -284,7 +284,7 @@ const CreateLaunchpadContextProvider = (props) => {
 
                     if (api.events.utility?.BatchCompleted.is(event)) {
                       toast.success(
-                        whitelist?.length === 1
+                        whitelist?.length == 1
                           ? "Added whitelist successfully"
                           : "All whitelist have been Added successfully"
                       );
@@ -295,7 +295,7 @@ const CreateLaunchpadContextProvider = (props) => {
                 // eslint-disable-next-line no-extra-boolean-cast
                 if (!!totalSuccessTxCount) {
                   toast.error(
-                    whitelist?.length === 1
+                    whitelist?.length == 1
                       ? "Adding whitelist not successfully!                "
                       : `Bulk adding are not fully successful! ${totalSuccessTxCount} adding completed successfully.`
                   );
@@ -469,17 +469,9 @@ const CreateLaunchpadContextProvider = (props) => {
           return parseInt(
             (parseFloat(e?.immediateReleaseRate) * 100).toFixed()
           ).toString();
-          // if (e?.immediateReleaseRate === 100)
-          //   return parseInt(
-          //     (parseFloat(e?.immediateReleaseRate) * 100).toFixed()
-          //   );
-          // else
-          //   return parseInt(
-          //     (parseFloat(e?.immediateReleaseRate) * 100).toFixed()
-          //   );
         }),
         launchpadData?.phase?.map((e) => {
-          if (parseFloat(e?.immediateReleaseRate) === 100) return 0;
+          if (parseFloat(e?.immediateReleaseRate) == 100) return 0;
           else return dayToMilisecond(parseFloat(e?.vestingLength));
         }),
         launchpadData?.phase?.map((e) => {
