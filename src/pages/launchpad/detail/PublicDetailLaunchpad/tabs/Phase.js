@@ -52,7 +52,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
   const userWL = useMemo(() => {
     if (currentAccount)
       return tagData?.whitelist?.find(
-        (e) => e?.account === currentAccount?.address
+        (e) => e?.account == currentAccount?.address
       );
   }, [currentAccount, tagData]);
   return (
@@ -126,7 +126,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
           </Text>
         </Box>
       </SimpleGrid>
-      {tagData?.immediateReleaseRate === 100 ? (
+      {tagData?.immediateReleaseRate == 100 ? (
         <Heading size="md" mt="16px" lineHeight={{ base: "1.25", lg: "30px" }}>
           Non Vesting
         </Heading>
@@ -296,7 +296,7 @@ const PhaseInformation = ({ launchpadContract, launchpadData }) => {
       {phaseList?.map((phaseObj, index) => (
         <PhaseTag
           launchpadData={launchpadData}
-          isOwner={owner === currentAccount?.address}
+          isOwner={owner == currentAccount?.address}
           key={`phase-${index}`}
           sx={{ marginTop: index !== 0 && "40px" }}
           data={phaseObj}
