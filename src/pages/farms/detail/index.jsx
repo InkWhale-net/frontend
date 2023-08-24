@@ -182,7 +182,7 @@ export default function FarmDetailPage() {
       {
         name: "multiplier",
         hasTooltip: true,
-        tooltipContent: `Multiplier determines how many reward tokens will the staker receive per 1 NFT in 24 hours.`,
+        tooltipContent: `Multiplier determines how many reward tokens will the staker receive per 1 ${currMode === "NFT_FARM" ? "NFT" : "token"} in 24 hours.`,
         label: "Multiplier",
       },
       {
