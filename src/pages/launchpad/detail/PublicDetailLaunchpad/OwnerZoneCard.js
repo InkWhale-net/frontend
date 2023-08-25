@@ -13,12 +13,17 @@ import { formatNumDynDecimal } from "utils";
 const OwnerZoneCard = ({ launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { api } = useAppContext();
-  const { showWLModal, showPhaseModal, showEditInforModal } =
-    useModalLPDetail();
+  const {
+    showWLModal,
+    showPhaseModal,
+    showEditInforModal,
+    showEditTotalSupply,
+  } = useModalLPDetail();
   const tokenDecimal = parseInt(launchpadData?.projectInfo?.token?.decimals);
 
   const [ownerBalance, setOwnerBalance] = useState(0);
   const [unsoldToken, setUnsoldToken] = useState(0);
+  const [isDisableWithdrawNBurn, setIsDisableWithdrawNBurn] = useState(true);
 
   const fetchBalance = useCallback(async () => {
     const queryResult = await execContractQuery(
@@ -30,7 +35,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
       "launchpadContractTrait::getBalance"
     );
 
-    const ret = queryResult?.toHuman().Ok.Ok;
+    const ret = queryResult?.toHuman().Ok?.Ok;
     setOwnerBalance(parseInt(ret?.replaceAll(",", ""), 10) / 10 ** 12);
     const fetchUnsoldToken = await execContractQuery(
       currentAccount?.address,
@@ -40,7 +45,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
       0,
       "launchpadContractTrait::getAvailableTokenAmount"
     );
-    const availableAmount = fetchUnsoldToken.toHuman().Ok;
+    const availableAmount = fetchUnsoldToken?.toHuman()?.Ok;
     setUnsoldToken(formatTokenAmount(availableAmount, tokenDecimal));
   }, [currentAccount?.address, launchpadData?.launchpadContract]);
 
@@ -48,9 +53,9 @@ const OwnerZoneCard = ({ launchpadData }) => {
     api && fetchBalance();
   }, [
     api,
-    currentAccount.address,
+    currentAccount?.address,
     fetchBalance,
-    launchpadData.launchpadContract,
+    launchpadData?.launchpadContract,
   ]);
   const ownerWithdrawUnsoldHandler = async () => {
     const endTime = launchpadData?.endTime?.replaceAll(",", "");
@@ -58,7 +63,22 @@ const OwnerZoneCard = ({ launchpadData }) => {
     if (endTime > Date.now()) {
       return toast.error("Launchpad not ended yet!");
     }
-
+    const totalTokenSold = launchpadData?.phaseList?.reduce(
+      async (acc, phase) => {
+        const publicSaleInfor = await execContractQuery(
+          currentAccount?.address,
+          "api",
+          launchpad.CONTRACT_ABI,
+          launchpadData?.launchpadContract,
+          0,
+          "launchpadContractTrait::getPublicSaleInfo",
+          phase?.phaseID
+        );
+        console.log(publicSaleInfor?.toHuman().Ok);
+      },
+      0
+    );
+    return;
     if (+unsoldToken < 0.0001) {
       return toast.error("Balance is zero!");
     }
@@ -114,6 +134,23 @@ const OwnerZoneCard = ({ launchpadData }) => {
       currentAccount?.address
     );
   };
+  const fetchOwnerData = useCallback(async () => {
+    // const totalTokenSold = launchpadData?.phaseList?.map(async (acc, phase) => {
+    //   const publicSaleInfor = await execContractQuery(
+    //     currentAccount?.address,
+    //     "api",
+    //     launchpad.CONTRACT_ABI,
+    //     launchpadData?.launchpadContract,
+    //     0,
+    //     "launchpadContractTrait::getPublicSaleInfo",
+    //     phase?.phaseID
+    //   );
+    //   console.log(publicSaleInfor?.toHuman().Ok);
+    // }, 0);
+  });
+  useEffect(() => {
+    fetchOwnerData();
+  }, [currentAccount, api, launchpadData]);
 
   return (
     <Box
@@ -162,7 +199,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         height="40px"
         variant="outline"
         onClick={ownerWithdrawUnsoldHandler}
-        isDisabled={+unsoldToken < 0.0001}
+        isDisabled={+unsoldToken < 0.0001 || isDisableWithdrawNBurn}
       >
         Withdraw {launchpadData?.projectInfo?.token?.symbol}
       </Button>
@@ -171,7 +208,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         height="40px"
         variant="outline"
         onClick={ownerBurnUnsoldHandler}
-        isDisabled={+unsoldToken < 0.0001}
+        isDisabled={+unsoldToken < 0.0001 || isDisableWithdrawNBurn}
       >
         Burn unsold token
       </Button>
@@ -179,6 +216,16 @@ const OwnerZoneCard = ({ launchpadData }) => {
         Edit
       </Text>
       <Divider />
+
+      <Button
+        my="8px"
+        w="full"
+        height="40px"
+        variant="outline"
+        onClick={() => showEditTotalSupply()}
+      >
+        Edit total token for sale
+      </Button>
 
       <Button
         my="8px"

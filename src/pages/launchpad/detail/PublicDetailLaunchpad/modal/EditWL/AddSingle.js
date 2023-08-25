@@ -3,9 +3,10 @@ import { APICall } from "api/client";
 import IWInput from "components/input/Input";
 import { useAppContext } from "contexts/AppContext";
 import { parseUnits } from "ethers";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { AiFillExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { delay } from "utils";
@@ -95,7 +96,7 @@ const AddSingleWL = ({
 
   const updateSingleWLHandler = async () => {
     try {
-      if (+availableTokenAmount < +wlData?.amount) {
+      if (+availableTokenAmount + +selectedWL?.account < +wlData?.amount) {
         toast.error("Invalid token amount");
         return;
       }
@@ -142,93 +143,118 @@ const AddSingleWL = ({
       console.log(error);
     }
   };
-
+  const isWhitelistEditable = useMemo(() => {
+    return +selectedWL?.claimedAmount > 0;
+  }, [selectedWL]);
   return (
     <Box sx={{ pt: "20px" }}>
       <Text sx={{ fontWeight: "700", color: "#57527E" }}>
         Whitelist Address
       </Text>
-      <IWInput
-        isDisabled={selectedWL}
-        size="md"
-        value={wlData?.address}
-        width={{ base: "full" }}
-        onChange={({ target }) =>
-          setWLData({ ...wlData, address: target.value })
-        }
-        placeholder="Address"
-      />
-      <Text sx={{ fontWeight: "700", color: "#57527E" }}>Price</Text>
-      <IWInput
-        type="number"
-        size="md"
-        value={wlData?.price}
-        width={{ base: "full" }}
-        onChange={({ target }) => setWLData({ ...wlData, price: target.value })}
-        placeholder="Price"
-      />
-      <Text sx={{ fontWeight: "700", color: "#57527E" }}>Amount</Text>
-      <IWInput
-        type="number"
-        size="md"
-        value={wlData?.amount}
-        width={{ base: "full" }}
-        onChange={({ target }) =>
-          setWLData({ ...wlData, amount: target.value })
-        }
-        placeholder="Amount"
-      />
-      {selectedWL ? (
+      {isWhitelistEditable ? (
         <Box
           sx={{
+            bg: "#FED1CA",
             display: "flex",
-            justifyContent: "flex-end",
+            alignItems: "center",
+            px: "10px",
+            py: "8px",
+            mt: "10px",
+            borderRadius: "4px",
           }}
         >
-          <Button
-            mt="16px"
-            size="md"
-            sx={{ bg: "#F6F6FC" }}
-            _hover={{ bg: "#E3E1EC" }}
-            onClick={() => setSelectedWL(null)}
-          >
-            Cancel
-          </Button>
-          <Button
-            isDisabled={
-              !(
-                wlData?.address?.length > 0 &&
-                wlData?.amount?.length > 0 &&
-                wlData?.price?.length > 0 &&
-                (wlData?.address !== selectedWL?.account ||
-                  wlData?.amount !== (+selectedWL?.amount).toString() ||
-                  wlData?.price !== (+selectedWL?.price).toString())
-              )
-            }
-            ml="4px"
-            mt="16px"
-            size="md"
-            onClick={() => updateSingleWLHandler()}
-          >
-            Update
-          </Button>
+          <AiFillExclamationCircle />
+          <Text sx={{ ml: "8px" }}>
+            You can not edit this whitelist account
+          </Text>
         </Box>
       ) : (
-        <Button
-          isDisabled={
-            !(
-              wlData?.address?.length > 0 &&
-              wlData?.amount?.length > 0 &&
-              wlData?.price?.length > 0
-            )
-          }
-          mt="16px"
-          w="full"
-          size="md"
-          onClick={() => addSingleWLHandler()}
-        >
-          Add Whitelist
-        </Button>
+        <>
+          <IWInput
+            isDisabled={selectedWL}
+            size="md"
+            value={wlData?.address}
+            width={{ base: "full" }}
+            onChange={({ target }) =>
+              setWLData({ ...wlData, address: target.value })
+            }
+            placeholder="Address"
+          />
+          <Text sx={{ fontWeight: "700", color: "#57527E" }}>Price</Text>
+          <IWInput
+            type="number"
+            size="md"
+            value={wlData?.price}
+            width={{ base: "full" }}
+            onChange={({ target }) =>
+              setWLData({ ...wlData, price: target.value })
+            }
+            placeholder="Price"
+          />
+          <Text sx={{ fontWeight: "700", color: "#57527E" }}>Amount</Text>
+          <IWInput
+            type="number"
+            size="md"
+            value={wlData?.amount}
+            width={{ base: "full" }}
+            onChange={({ target }) =>
+              setWLData({ ...wlData, amount: target.value })
+            }
+            placeholder="Amount"
+          />
+          {selectedWL ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Button
+                mt="16px"
+                size="md"
+                sx={{ bg: "#F6F6FC" }}
+                _hover={{ bg: "#E3E1EC" }}
+                onClick={() => setSelectedWL(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                isDisabled={
+                  !(
+                    wlData?.address?.length > 0 &&
+                    wlData?.amount?.length > 0 &&
+                    wlData?.price?.length > 0 &&
+                    (wlData?.address !== selectedWL?.account ||
+                      wlData?.amount !== (+selectedWL?.amount).toString() ||
+                      wlData?.price !== (+selectedWL?.price).toString())
+                  )
+                }
+                ml="4px"
+                mt="16px"
+                size="md"
+                onClick={() => updateSingleWLHandler()}
+              >
+                Update
+              </Button>
+            </Box>
+          ) : (
+            <Button
+              isDisabled={
+                !(
+                  wlData?.address?.length > 0 &&
+                  wlData?.amount?.length > 0 &&
+                  wlData?.price?.length > 0
+                )
+              }
+              mt="16px"
+              w="full"
+              size="md"
+              onClick={() => addSingleWLHandler()}
+            >
+              Add Whitelist
+            </Button>
+          )}
+        </>
       )}
     </Box>
   );

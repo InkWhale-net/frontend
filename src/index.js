@@ -20,7 +20,7 @@ import theme from "theme/theme";
 import { formatChainStringToNumber } from "utils";
 import store from "./redux/store";
 
-import { web3Enable } from "@polkadot/extension-dapp";
+import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import jsonrpc from "@polkadot/types/interfaces/jsonrpc";
 import { AppContextProvider, useAppContext } from "contexts/AppContext";
 import MyBalancePage from "pages/account/my-balance";
@@ -57,6 +57,7 @@ import { fetchTotalValueLocked } from "redux/slices/statSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { delay } from "utils";
 import { initialApi } from "utils/contracts";
+import { updateAccountsList } from "redux/slices/walletSlice";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -64,7 +65,7 @@ const queryClient = new QueryClient();
 const App = () => {
   const dispatch = useDispatch();
 
-  const { currentAccount } = useSelector((s) => s.wallet);
+  const { currentAccount, allAccounts } = useSelector((s) => s.wallet);
   const { myStakingPoolsList, myNFTPoolsList, myTokenPoolsList } = useSelector(
     (s) => s.myPools
   );
@@ -116,6 +117,10 @@ const App = () => {
       });
 
       await web3Enable(process.env.REACT_APP_NAME);
+      if (!(allAccounts?.length > 0)) {
+        const accounts = await web3Accounts();
+        dispatch(updateAccountsList(accounts));
+      }
     };
 
     setupProvider().catch((error) => {
@@ -220,7 +225,11 @@ const App = () => {
             component={CreateTokenLPPage}
           />
           <Route exact path={`/token-lp`} component={LPPoolsPage} />
-          <Route exact path={`/token-lp/:contractAddress`} component={FarmDetailPage} />
+          <Route
+            exact
+            path={`/token-lp/:contractAddress`}
+            component={FarmDetailPage}
+          />
           <Route exact path={`/account`} component={MyBalancePage} />
           <Route exact path={`/account/my-balance`} component={MyBalancePage} />
           <Route exact path={`/my-pools`} component={MyPoolsPage} />

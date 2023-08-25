@@ -1,19 +1,17 @@
-import ReactApexChart from "react-apexcharts";
-import SectionContainer from "../sectionContainer";
 import {
   Box,
   Button,
-  Collapse,
   Fade,
   IconButton,
   SimpleGrid,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useState } from "react";
-import { AiFillMinusSquare } from "react-icons/ai";
-import { BsTrashFill } from "react-icons/bs";
 import IWInput from "components/input/Input";
+import { useEffect, useMemo, useState } from "react";
+import ReactApexChart from "react-apexcharts";
+import { BsTrashFill } from "react-icons/bs";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
+import SectionContainer from "../sectionContainer";
 
 const DistributionTag = ({ data, onChange, isDisabled, isNewValueValid }) => {
   const { isOpen, onToggle } = useDisclosure();
@@ -22,12 +20,6 @@ const DistributionTag = ({ data, onChange, isDisabled, isNewValueValid }) => {
   return (
     <Fade in={isOpen} animateOpacity>
       <Box
-        // p="8px"
-        // color="white"
-        // mt="4px"
-        // border="2px solid #57527E"
-        // rounded="md"
-        // shadow="md"
         sx={{
           border: "2px solid #E3DFF3",
           py: "4px",

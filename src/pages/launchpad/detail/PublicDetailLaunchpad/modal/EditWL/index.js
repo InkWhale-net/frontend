@@ -59,15 +59,15 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   const tokenDecimal = parseInt(launchpadData?.projectInfo?.token?.decimals);
   const [selectedWL, setSelectedWL] = useState(null);
 
-  const whitelist = launchpadData?.phaseList[selectedPhase]?.whitelist?.map(
-    (e) => ({
+  const whitelist = useMemo(() => {
+    return launchpadData?.phaseList[selectedPhase]?.whitelist?.map((e) => ({
       ...e,
       amount: formatTokenAmount(e?.amount, tokenDecimal),
       purchasedAmount: formatTokenAmount(e?.purchasedAmount, tokenDecimal),
       claimedAmount: formatTokenAmount(e?.claimedAmount, tokenDecimal),
       price: formatTokenAmount(e?.price, 12),
-    })
-  );
+    }));
+  }, [launchpadData, currentAccount, selectedPhase]);
   const fetchPhaseData = async () => {
     const result = await execContractQuery(
       currentAccount?.address,

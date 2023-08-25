@@ -96,9 +96,6 @@ export default function WalletButton({
   };
   const loadListAccount = async () => {
     if (!(allAccounts?.length > 0)) {
-      await web3Enable(process.env.REACT_APP_NAME);
-      const accounts = await web3Accounts();
-      dispatch(updateAccountsList(accounts));
       setSelectedWalletExt(currentAccount?.meta?.source);
     }
   };
