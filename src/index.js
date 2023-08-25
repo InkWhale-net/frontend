@@ -148,7 +148,7 @@ const App = () => {
       dispatch(fetchAllTokenPools({ currentAccount }));
     }
 
-    // dispatch(fetchTotalValueLocked())
+    dispatch(fetchTotalValueLocked())
 
     if (!currentAccount?.address) return;
 
@@ -171,7 +171,6 @@ const App = () => {
       dispatch(fetchLaunchpads({}));
     }
 
-    dispatch(fetchTotalValueLocked());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, currentAccount?.address]);
 
