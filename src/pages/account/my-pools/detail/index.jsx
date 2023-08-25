@@ -182,7 +182,7 @@ export default function MyPoolDetailPage() {
       {
         name: "multiplier",
         hasTooltip: true,
-        tooltipContent: `Multiplier determines how many reward tokens will the staker receive per 1 NFT in 24 hours.`,
+        tooltipContent: `Multiplier determines how many reward tokens will the staker receive per 1 token in 24 hours.`,
         label: "Multiplier",
       },
       {
@@ -487,11 +487,32 @@ const MyPoolInfo = ({
 
     const balanceLP = formatQueryResultToNumber(resultLP);
     setLPTokenBalance(balanceLP);
+    if (isPoolEnded(startTime, duration)) {
+      const unclaimRwQr = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        lp_pool_contract.CONTRACT_ABI,
+        poolContract,
+        0,
+        "genericPoolContractTrait::totalUnclaimedReward"
+      );
+      const unclaimRw = formatQueryResultToNumber(
+        unclaimRwQr,
+        parseInt(tokenDecimal)
+      );
+      const withdrawableRs = roundDown(rewardPool) - roundUp(+unclaimRw.replaceAll(",", ""));
+      setWithdrawbleAm(roundDown(withdrawableRs, 3));
+    }
   }, [
-    currentAccount?.address,
     currentAccount?.balance,
-    lptokenContract,
+    currentAccount?.address,
     tokenContract,
+    lptokenContract,
+    startTime,
+    duration,
+    poolContract,
+    tokenDecimal,
+    rewardPool,
   ]);
 
   useEffect(() => {
@@ -824,7 +845,7 @@ const MyPoolInfo = ({
 
     if (mode === "TOKEN_FARM") {
       toast.success("Process...");
-
+      console.log(formatNumToBN(amount, tokenDecimal), 'tokenDecimal');
       await execContractTx(
         currentAccount,
         api,
@@ -885,7 +906,7 @@ const MyPoolInfo = ({
                     : mode === "NFT_FARM"
                     ? `${(multiplier / 10 ** 12).toFixed(2)}`
                     : mode === "TOKEN_FARM"
-                    ? `${(multiplier / 10 ** 6).toFixed(2)}`
+                    ? `${multiplier.toFixed(2)}`
                     : `${apy / 100}%`,
               },
               {
@@ -902,7 +923,7 @@ const MyPoolInfo = ({
               },
               {
                 title: "Withdrawble Amount",
-                content: `${formatNumDynDecimal(withdrawbleAm)} ${tokenSymbol}`,
+                content: `${formatNumDynDecimal(withdrawbleAm, 3)} ${tokenSymbol}`,
               },
               {
                 title: "Max Staking Amount",
@@ -912,7 +933,12 @@ const MyPoolInfo = ({
               },
               {
                 title: "Total Value Locked",
-                content: `${formatNumDynDecimal(formatTokenAmount(totalStaked, mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal))} ${
+                content: `${formatNumDynDecimal(
+                  formatTokenAmount(
+                    totalStaked,
+                    mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal
+                  )
+                )} ${
                   mode === "NFT_FARM"
                     ? `NFT`
                     : mode === "TOKEN_FARM"
