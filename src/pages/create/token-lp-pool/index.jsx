@@ -36,6 +36,7 @@ import psp22_contract from "utils/contracts/psp22_contract";
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import { formatNumDynDecimal } from "utils";
 import { roundUp } from "utils";
+import { SelectSearch } from "components/SelectSearch";
 
 export default function CreateTokenLPPage({ api }) {
   const dispatch = useDispatch();
@@ -392,21 +393,22 @@ export default function CreateTokenLPPage({ api }) {
               <Heading as="h4" size="h4" mb="12px">
                 Select Token To Stake
               </Heading>
-              <Select
-                value={LPtokenContract}
-                id="token-collection"
-                placeholder="Select token"
-                onChange={({ target }) => {
-                  setLPTokenContract(target.value);
+              <SelectSearch
+                name="token"
+                placeholder="Select Token..."
+                closeMenuOnSelect={true}
+                // filterOption={filterOptions}
+                isSearchable
+                onChange={({ value }) => {
+                  setLPTokenContract(value);
                 }}
-              >
-                {faucetTokensList?.map((token, idx) => (
-                  <option key={idx} value={token.contractAddress}>
-                    {token?.symbol} ({token?.name}) -{" "}
-                    {addressShortener(token?.contractAddress)}
-                  </option>
-                ))}
-              </Select>
+                options={faucetTokensList?.map((token, idx) => ({
+                  value: token?.contractAddress,
+                  label: `${token?.symbol} (${
+                    token?.name
+                  }) - ${addressShortener(token?.contractAddress)}`,
+                }))}
+              ></SelectSearch>
             </Box>
 
             <Box w="full">
@@ -422,21 +424,22 @@ export default function CreateTokenLPPage({ api }) {
               <Heading as="h4" size="h4" mb="12px">
                 Select Token To Reward Stakers
               </Heading>
-              <Select
-                value={selectedContractAddr}
-                id="token-collection"
-                placeholder="Select token"
-                onChange={({ target }) => {
-                  setSelectedContractAddr(target.value);
+              <SelectSearch
+                name="token"
+                placeholder="Select Token..."
+                closeMenuOnSelect={true}
+                // filterOption={filterOptions}
+                isSearchable
+                onChange={({ value }) => {
+                  setSelectedContractAddr(value);
                 }}
-              >
-                {faucetTokensList?.map((token, idx) => (
-                  <option key={idx} value={token.contractAddress}>
-                    {token?.symbol} ({token?.name}) -{" "}
-                    {addressShortener(token?.contractAddress)}
-                  </option>
-                ))}
-              </Select>
+                options={faucetTokensList?.map((token, idx) => ({
+                  value: token?.contractAddress,
+                  label: `${token?.symbol} (${
+                    token?.name
+                  }) - ${addressShortener(token?.contractAddress)}`,
+                }))}
+              ></SelectSearch>
             </Box>
 
             <Box w="full">
