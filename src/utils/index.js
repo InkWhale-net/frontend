@@ -9,6 +9,9 @@ import { toast } from "react-hot-toast";
 import { SupportedChainId, resolveAddressToDomain } from "@azns/resolver-core";
 import { formatUnits } from "ethers";
 import moment from "moment";
+import { execContractQuery } from "./contracts";
+import psp22_contract_old from "./contracts/psp22_contract_old";
+import psp22_contract from "./contracts/psp22_contract";
 
 // "12,345" (string) or 12,345 (string) -> 12345 (number)
 export const formatChainStringToNumber = (str) => {
@@ -168,8 +171,9 @@ export const calcUnclaimedRewardTokenLP = ({
   const multiplierPerSecond = multiplier / 24 / 60 / 60;
 
   const accumRewardTillNow =
-    accumSecondTillNow * multiplierPerSecond * stakedValue / (10 ** (lptokenDecimal -tokenDecimal)) ;
-  
+    (accumSecondTillNow * multiplierPerSecond * stakedValue) /
+    10 ** (lptokenDecimal - tokenDecimal);
+
   const result =
     unclaimedReward / 10 ** tokenDecimal +
     accumRewardTillNow / 10 ** tokenDecimal;
@@ -396,3 +400,31 @@ export const dayToMilisecond = (amount) => {
 };
 
 export const millisecondsInADay = 24 * 60 * 60 * 1000;
+
+export const getTokenOwner = async (tokenContract) => {
+  const queryOwnerOld = await execContractQuery(
+    process.env.REACT_APP_PUBLIC_ADDRESS,
+    "api",
+    psp22_contract_old.CONTRACT_ABI,
+    tokenContract,
+    0,
+    "ownable::owner"
+  );
+  const queryOwnerNew = await execContractQuery(
+    process.env.REACT_APP_PUBLIC_ADDRESS,
+    "api",
+    psp22_contract.CONTRACT_ABI,
+    tokenContract,
+    0,
+    "ownable::owner"
+  );
+
+  return {
+    address: queryOwnerOld?.toHuman()?.Ok || queryOwnerNew?.toHuman()?.Ok,
+    isNew: queryOwnerNew?.toHuman()?.Ok
+      ? true
+      : queryOwnerOld?.toHuman()?.Ok
+      ? false
+      : null,
+  };
+};

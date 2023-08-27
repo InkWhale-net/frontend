@@ -25,22 +25,24 @@ import IWTextArea from "components/input/TextArea";
 import { useAppContext } from "contexts/AppContext";
 import { parseUnits } from "ethers";
 import SectionContainer from "pages/launchpad/create/components/sectionContainer";
-import { validatePhaseData } from "pages/launchpad/create/utils";
-import { verifyWhitelist } from "pages/launchpad/create/utils";
+import {
+  validatePhaseData,
+  verifyWhitelist,
+} from "pages/launchpad/create/utils";
 import { useEffect, useMemo, useState } from "react";
 import DateTimePicker from "react-datetime-picker";
 import { toast } from "react-hot-toast";
 import { AiFillExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
-import { dayToMilisecond } from "utils";
-import { millisecondsInADay } from "utils";
-import { delay } from "utils";
-import { formatNumDynDecimal } from "utils";
-import { formatTokenAmount } from "utils";
-import { execContractTx } from "utils/contracts";
-import { execContractTxAndCallAPI } from "utils/contracts";
-import { execContractQuery } from "utils/contracts";
+import {
+  dayToMilisecond,
+  delay,
+  formatNumDynDecimal,
+  formatTokenAmount,
+  millisecondsInADay,
+} from "utils";
+import { execContractQuery, execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 
 const EditPhase = ({ visible, setVisible, launchpadData }) => {

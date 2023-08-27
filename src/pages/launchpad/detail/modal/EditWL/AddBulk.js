@@ -1,12 +1,12 @@
-import { Box, Button, Text } from "@chakra-ui/react";
+import { Box, Button } from "@chakra-ui/react";
 import { APICall } from "api/client";
-import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
 import { useAppContext } from "contexts/AppContext";
 import { parseUnits } from "ethers";
-import { processStringToArray } from "pages/launchpad/create/utils";
-import { verifyWhitelist } from "pages/launchpad/create/utils";
-import { useEffect } from "react";
+import {
+  processStringToArray,
+  verifyWhitelist,
+} from "pages/launchpad/create/utils";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";

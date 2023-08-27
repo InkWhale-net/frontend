@@ -103,6 +103,7 @@ const LaunchpadTag = ({ launchpadData }) => {
       })),
     [launchpadData]
   );
+  console.log(projectInfo?.token)
   return (
     <FadeIn>
       <Box

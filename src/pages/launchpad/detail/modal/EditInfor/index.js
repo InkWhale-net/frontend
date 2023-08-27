@@ -9,8 +9,7 @@ import {
   ModalOverlay,
   SimpleGrid,
 } from "@chakra-ui/react";
-import { APICall } from "api/client";
-import { ipfsClient } from "api/client";
+import { APICall, ipfsClient } from "api/client";
 import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
 import { useAppContext } from "contexts/AppContext";
@@ -39,7 +38,7 @@ const EditInfor = ({ visible, setVisible, launchpadData }) => {
         previewFeatureImage: null,
         previewHeaderImage: null,
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
   const updateProjectInforHandler = async () => {
     const project_info_ipfs = await ipfsClient.add(

@@ -42,7 +42,6 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
     startDate: new Date(),
     endDate: new Date(),
   });
-  console.log(launchpadData)
   const dispatch = useDispatch();
   const phaseListData = useMemo(() => {
     return launchpadData?.phaseList?.map((e) => ({

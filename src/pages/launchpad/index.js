@@ -1,12 +1,9 @@
 import { Button } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 import IWTabs from "components/tabs/IWTabs";
+import { isMobile } from "react-device-detect";
 import { useHistory } from "react-router-dom";
 import AllLaunchpads from "./tabs/AllLaunchpads";
-import { isMobile } from "react-device-detect";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchLaunchpads } from "redux/slices/launchpadSlice";
-import { useEffect } from "react";
 
 const Launchpad = () => {
   const history = useHistory();
@@ -21,16 +18,6 @@ const Launchpad = () => {
       component: <AllLaunchpads isOwner />,
       isDisabled: false,
     },
-    // {
-    //   label: <>Advanced Mode</>,
-    //   component: <></>,
-    //   isDisabled: false,
-    // },
-    // {
-    //   label: <>My Contributions</>,
-    //   component: <></>,
-    //   isDisabled: false,
-    // },
   ];
 
   return (

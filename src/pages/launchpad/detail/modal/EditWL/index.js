@@ -33,15 +33,14 @@ import {
 import IWInput from "components/input/Input";
 import { formatDataCellTable } from "components/table/IWPaginationTable";
 import { useAppContext } from "contexts/AppContext";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { AiFillExclamationCircle } from "react-icons/ai";
 import { useSelector } from "react-redux";
 import { formatNumDynDecimal, formatTokenAmount } from "utils";
 import { execContractQuery } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
-import AddSingleWL from "./AddSingle";
-import { AiFillExclamationCircle } from "react-icons/ai";
-import { useMemo } from "react";
 import AddBulk from "./AddBulk";
+import AddSingleWL from "./AddSingle";
 
 const WLEditMode = [
   "Single add Whitelist",

@@ -21,6 +21,7 @@ import core_contract from "utils/contracts/core_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import psp22_contract_old from "utils/contracts/psp22_contract_old";
 import ImageUploadIcon from "./UploadIcon";
+import { getTokenOwner } from "utils";
 
 const ImportTokenForm = ({ api }) => {
   const dispatch = useDispatch();
@@ -93,25 +94,8 @@ const ImportTokenForm = ({ api }) => {
         rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
         0
       );
-      const queryOwnerOld = await execContractQuery(
-        currentAccount?.address,
-        "api",
-        psp22_contract_old.CONTRACT_ABI,
-        tokenAddress,
-        0,
-        "ownable::owner"
-      );
-      const queryOwnerNew = await execContractQuery(
-        currentAccount?.address,
-        "api",
-        psp22_contract.CONTRACT_ABI,
-        tokenAddress,
-        0,
-        "ownable::owner"
-      );
 
-      const owner =
-        queryOwnerOld?.toHuman()?.Ok || queryOwnerNew?.toHuman()?.Ok;
+      const { address: tokenOwnerAddress } = await getTokenOwner(tokenAddress);
       const balance = formatQueryResultToNumber(
         queryResult,
         parseInt(decimals)
@@ -122,7 +106,7 @@ const ImportTokenForm = ({ api }) => {
         balance &&
         totalSupply &&
         decimals &&
-        owner
+        tokenOwnerAddress
       ) {
         setTokenInfo((prev) => {
           return {
@@ -132,7 +116,7 @@ const ImportTokenForm = ({ api }) => {
             content: balance,
             totalSupply: formatNumDynDecimal(totalSupply, 4),
             decimals,
-            owner,
+            owner: tokenOwnerAddress,
           };
         });
       } else {
@@ -149,25 +133,9 @@ const ImportTokenForm = ({ api }) => {
       if (!currentAccount) {
         toast.error("Please connect wallet for full-function using!");
       }
-      const queryOwnerOld = await execContractQuery(
-        currentAccount?.address,
-        "api",
-        psp22_contract_old.CONTRACT_ABI,
-        tokenAddress,
-        0,
-        "ownable::owner"
-      );
-      const queryOwnerNew = await execContractQuery(
-        currentAccount?.address,
-        "api",
-        psp22_contract.CONTRACT_ABI,
-        tokenAddress,
-        0,
-        "ownable::owner"
-      );
 
-      const tokenOwnerAddress =
-        queryOwnerOld?.toHuman()?.Ok || queryOwnerNew?.toHuman()?.Ok;
+      const { address: tokenOwnerAddress, isNew: isNewVersionOP } =
+        await getTokenOwner(tokenAddress);
 
       if (tokenOwnerAddress != currentAccount?.address) {
         toast.error("You must be the owner of the token contract to continue");
@@ -199,11 +167,7 @@ const ImportTokenForm = ({ api }) => {
           decimal: tokenDecimal,
           creator: tokenOwnerAddress,
           signature,
-          isNew: queryOwnerNew?.toHuman()?.Ok
-            ? true
-            : queryOwnerOld?.toHuman()?.Ok
-            ? false
-            : null,
+          isNew: isNewVersionOP,
         });
         if (status === "OK") {
           setTokenInfo(null);

@@ -88,14 +88,14 @@ const Launchpad = () => {
         poolContract: lpContract,
       });
       await toast.promise(
-        delay(10000).then(() => {
+        delay(4000).then(() => {
           if (currentAccount) {
             dispatch(fetchLaunchpads({ isActive: 0 }));
             fetchLP();
           }
         }),
         {
-          loading: "Please wait up to 10s for the data to be updated! ",
+          loading: "Please wait up to 4s for the data to be updated! ",
           success: "Done !",
           error: "Could not fetch data!!!",
         }

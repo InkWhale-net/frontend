@@ -36,7 +36,7 @@ import FarmDetailPage from "pages/farms/detail";
 import FaucetPage from "pages/faucet";
 import Launchpad from "pages/launchpad";
 import CreateLaunchpadPage from "pages/launchpad/create";
-import PublicDetailLaunchpad from "pages/launchpad/detail/PublicDetailLaunchpad";
+import PublicDetailLaunchpad from "pages/launchpad/detail";
 import LPPoolsPage from "pages/lpPools";
 import PoolsPage from "pages/pools";
 import PoolDetailPage from "pages/pools/detail";
@@ -148,7 +148,7 @@ const App = () => {
       dispatch(fetchAllTokenPools({ currentAccount }));
     }
 
-    dispatch(fetchTotalValueLocked())
+    dispatch(fetchTotalValueLocked());
 
     if (!currentAccount?.address) return;
 

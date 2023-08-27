@@ -321,7 +321,7 @@ const CreateLaunchpadContextProvider = (props) => {
       if (!currentAccount) {
         return toast.error("Please connect wallet first!");
       }
-      const minReward = launchpadData?.phase?.reduce(
+      const minReward = +launchpadData?.phase?.reduce(
         (acc, e) => acc + (e?.phasePublicAmount || 0),
         0
       );

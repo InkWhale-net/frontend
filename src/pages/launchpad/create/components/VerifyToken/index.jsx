@@ -26,6 +26,7 @@ import psp22_contract from "utils/contracts/psp22_contract";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import { useHistory } from "react-router-dom";
 import psp22_contract_old from "utils/contracts/psp22_contract_old";
+import { getTokenOwner } from "utils";
 
 export default function VerifyToken() {
   const { launchpadData, updateLaunchpadData, current } = useCreateLaunchpad();
@@ -37,9 +38,10 @@ export default function VerifyToken() {
 
   const tokenList = useMemo(() => {
     return (
-      allTokensList?.filter(
-        (token) => token.creator === currentAccount?.address
-      ) || []
+      allTokensList?.filter((token) => {
+        console.log(token);
+        return token.creator === currentAccount?.address;
+      }) || []
     );
   }, [currentAccount?.address, allTokensList]);
 
@@ -53,20 +55,7 @@ export default function VerifyToken() {
       toast.error("Invalid address!");
       return;
     }
-    const isTokenOnNewOP = tokenList.find(
-      (e) => e?.contractAddress === tokenAddress
-    )?.isNew;
-    let queryResultOwner = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      isTokenOnNewOP === true
-        ? psp22_contract.CONTRACT_ABI
-        : psp22_contract_old.CONTRACT_ABI,
-      tokenAddress,
-      0,
-      "ownable::owner"
-    );
-    const ownerToken = queryResultOwner.toHuman().Ok;
+    const { address: ownerToken } = await getTokenOwner(tokenAddress);
 
     if (currentAccount?.address !== ownerToken) {
       toast.error("You are not token owner!");

@@ -1,11 +1,8 @@
-import { useDisclosure } from "@chakra-ui/react";
-import { useContext } from "react";
-import { createContext } from "react";
-import EditWL from "./EditWL";
-import { useState } from "react";
-import EditPhase from "./EditPhase";
+import { createContext, useContext, useState } from "react";
 import EditInfor from "./EditInfor";
+import EditPhase from "./EditPhase";
 import EditTotalSupply from "./EditTotalSupply";
+import EditWL from "./EditWL";
 
 export const ModalDetailContext = createContext();
 

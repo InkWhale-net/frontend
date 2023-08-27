@@ -310,8 +310,10 @@ export const validatePhaseData = (phaseData, errorMsg) => {
     return false;
   }
   if (
-    phaseData?.filter((e) => e?.endDate > e?.startDate)?.length !==
-    phaseData?.length
+    phaseData?.filter((e) => {
+      console.log(e?.endDate, e?.startDate)
+      return e?.endDate > e?.startDate;
+    })?.length !== phaseData?.length
   ) {
     toast.error("Phase can not end before it start");
     return false;
