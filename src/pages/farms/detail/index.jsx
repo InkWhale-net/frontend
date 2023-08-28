@@ -973,7 +973,7 @@ const MyStakeRewardInfoToken = ({
     if (totalStaked >= 0 && tokenDecimal && maxStakingAmount > 0) {
       return (
         maxStakingAmount -
-        +formatTokenAmount(totalStaked?.toString(), tokenDecimal)
+        +formatTokenAmount(totalStaked?.toString(), mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal)
       );
     }
   }, [totalStaked, maxStakingAmount]);
@@ -1161,8 +1161,7 @@ const MyStakeRewardInfoToken = ({
       toast.error("Invalid Amount!");
       return;
     }
-
-    if (stakeInfo?.stakedValue / 10 ** 12 < LPTokenAmount) {
+    if (Number(formatTokenAmount(stakeInfo?.stakedValue?.toString(), mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal)) < LPTokenAmount) {
       toast.error("There is not enough balance!");
       return;
     }
@@ -1281,7 +1280,7 @@ const MyStakeRewardInfoToken = ({
             {
               title: `My Stakes ${nftInfo?.name ? `(${nftInfo?.name})` : ""}`,
               content: `${formatNumDynDecimal(
-                stakeInfo?.stakedValue / 10 ** 12
+                +formatTokenAmount(stakeInfo?.stakedValue?.toString(), mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal)
               )}`,
             },
             {
