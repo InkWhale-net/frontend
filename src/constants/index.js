@@ -1,6 +1,7 @@
 export const toastMessages = {
   NO_EXTENSION: "Your browser does NOT HAVE the required plugin.",
   NO_WALLET: "You haven't connected your wallet.",
+  NO_ACCOUNT: "No account connected",
 
   ERR_FETCHING_DATA: "Error during fetching data.",
   ERR_API_CONN: "Error occurred with API connection.",

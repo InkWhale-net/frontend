@@ -45,6 +45,7 @@ import { logOutMyPools } from "redux/slices/myPoolsSlice";
 import { disconnectCurrentAccount } from "redux/slices/walletSlice";
 import { resolveDomain } from "utils";
 import WalletModal from "./WalletModal";
+import { updateExtensions } from "redux/slices/walletSlice";
 
 export default function WalletButton({
   currentAccountAddress,
@@ -54,9 +55,9 @@ export default function WalletButton({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { currentAccount, allAccounts } = useSelector((state) => state.wallet);
 
-  const setWalletExtension = async function () {
+  const setWalletExtension = async function (walletExt) {
     const extension = await web3Enable(process.env.REACT_APP_NAME);
-
+    dispatch(updateExtensions(extension.map((e) => ({ name: e?.name }))));
     // no extension installed
     if (extension.length === 0) {
       toast.error(
@@ -75,24 +76,94 @@ export default function WalletButton({
       return;
     }
 
-    // if any
-    const accounts = await web3Accounts();
+    if (extension.find((e) => e?.name == walletExt)) {
+      // if any
+      const accounts = await web3Accounts();
+      const currentWalletAccounts = accounts.filter(
+        (i) => i.meta?.source === walletExt
+      );
 
-    dispatch(updateAccountsList(accounts));
+      dispatch(updateAccountsList(currentWalletAccounts));
 
-    // one account connect only
-    if (accounts.length === 1) {
-      dispatch(setCurrentAccount(accounts[0]));
-      localStorage.setItem("localCurrentAccount", JSON.stringify(accounts[0]));
-      return;
+      // one account connect only
+      if (currentWalletAccounts.length === 1) {
+        dispatch(setCurrentAccount(currentWalletAccounts[0]));
+        localStorage.setItem(
+          "localCurrentAccount",
+          JSON.stringify(currentWalletAccounts[0])
+        );
+        return;
+      }
+
+      if (!currentWalletAccounts.length) {
+        toast.error(toastMessages.NO_ACCOUNT);
+        return;
+      }
+
+      onOpen();
+    } else {
+      switch (walletExt) {
+        case "subwallet-js":
+          return toast.error(
+            <Text>
+              {toastMessages.NO_EXTENSION} You may download SubWallet &nbsp;
+              <Link
+                isExternal
+                rel="noreferrer"
+                target="_blank"
+                href="https://subwallet.app/download.html"
+              >
+                here{" "}
+              </Link>
+            </Text>
+          );
+        case "polkadot-js":
+          return toast.error(
+            <Text>
+              {toastMessages.NO_EXTENSION} You may download Polkadot JS &nbsp;
+              <Link
+                isExternal
+                rel="noreferrer"
+                target="_blank"
+                href="https://polkadot.js.org/"
+              >
+                here{" "}
+              </Link>
+            </Text>
+          );
+        case "aleph-zero-signer":
+          return toast.error(
+            <Text>
+              {toastMessages.NO_EXTENSION} You may download Azero Signer &nbsp;
+              <Link
+                isExternal
+                rel="noreferrer"
+                target="_blank"
+                href="https://alephzero.org/signer"
+              >
+                here{" "}
+              </Link>
+            </Text>
+          );
+        case "Nightly":
+          return toast.error(
+            <Text>
+              {toastMessages.NO_EXTENSION} You may download Nightly Wallet
+              &nbsp;
+              <Link
+                isExternal
+                rel="noreferrer"
+                target="_blank"
+                href="https://wallet.nightly.app/download"
+              >
+                here{" "}
+              </Link>
+            </Text>
+          );
+        default:
+          break;
+      }
     }
-
-    if (!accounts.length) {
-      toast.error(toastMessages.NO_ACCOUNT);
-      return;
-    }
-
-    onOpen();
   };
   const loadListAccount = async () => {
     if (!(allAccounts?.length > 0)) {
@@ -122,7 +193,7 @@ export default function WalletButton({
     try {
       // not log any account yet -> open window popup
       if (!currentAccountAddress) {
-        setWalletExtension();
+        setWalletExtension(walletExt);
         return;
       }
     } catch (error) {

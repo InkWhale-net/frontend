@@ -15,6 +15,7 @@ const initialState = {
   api: null,
   allAccounts: [],
   currentAccount: JSON.parse(localCurrentAccount) || null,
+  currentExt: []
 };
 
 export const walletSlice = createSlice({
@@ -40,6 +41,9 @@ export const walletSlice = createSlice({
       //   state.currentAccount = null;
       // }
     },
+    updateExtensions: (state, action) => {
+      state.currentExt = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchUserBalance.fulfilled, (state, action) => {
@@ -56,6 +60,7 @@ export const {
   setCurrentAccount,
   updateAccountsList,
   disconnectCurrentAccount,
+  updateExtensions,
 } = walletSlice.actions;
 
 export default walletSlice.reducer;
