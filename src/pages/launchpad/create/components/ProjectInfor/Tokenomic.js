@@ -13,7 +13,13 @@ import { BsTrashFill } from "react-icons/bs";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
 
-const DistributionTag = ({ data, onChange, isDisabled, isNewValueValid }) => {
+const DistributionTag = ({
+  data,
+  onChange,
+  isDisabled,
+  isNewValueValid,
+  onDelete,
+}) => {
   const { isOpen, onToggle } = useDisclosure();
 
   useEffect(() => onToggle(), []);
@@ -75,11 +81,8 @@ const DistributionTag = ({ data, onChange, isDisabled, isNewValueValid }) => {
         <IconButton
           ml="4px"
           variant="link"
-          //   width={"42px"}
-          //   height={"42px"}
-          // variant={isSelected ? "solid" : "outline"}
           icon={<BsTrashFill size={"16px"} color="#57527E" />}
-          onClick={() => console.log("delete")}
+          onClick={() => onDelete()}
         />
       </Box>
     </Fade>
@@ -153,11 +156,15 @@ const Tokenomic = ({ updateTokenomic, tokenomicValue }) => {
         )}
 
         <div style={{ display: "flex", flexDirection: "column" }}>
+          You can add token distribution below, maximum total value is 100
           {distribution.map((obj, index) => (
             <DistributionTag
               isNewValueValid={(value) => {
-                return (
-                  currentTotalValue + value - obj.value <= 100 || value > 100
+                return +currentTotalValue + +value - +obj.value <= 100;
+              }}
+              onDelete={() => {
+                setDistribution((prev) =>
+                  prev.filter((_, currentIndex) => index !== currentIndex)
                 );
               }}
               onChange={({ label, value }) => {
@@ -186,7 +193,6 @@ const Tokenomic = ({ updateTokenomic, tokenomicValue }) => {
               isDisabled
             />
           )}
-
           <Button
             size="sm"
             mt="4px"
@@ -206,15 +212,6 @@ const Tokenomic = ({ updateTokenomic, tokenomicValue }) => {
           </Button>
         </div>
       </SimpleGrid>
-
-      {/* <IWInput
-        maxLength={60}
-        value={projectInfor?.name}
-        onChange={({ target }) => {
-          setProjectInfor({ ...projectInfor, name: target.value });
-        }}
-        placeholder="Project Name"
-      /> */}
     </SectionContainer>
   );
 };

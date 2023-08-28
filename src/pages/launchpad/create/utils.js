@@ -17,13 +17,12 @@ export const validateProjectInfor = (launchpadData) => {
     if (!infor?.avatarImage || !infor?.featureImage || !infor?.headerImage)
       return false;
     if (!infor?.name || !infor?.description) return false;
-    // if (
-    //   !infor?.website ||
-    //   !infor?.twitter ||
-    //   !infor?.discord ||
-    //   !infor?.telegram
-    // )
-    //   return false;
+    if (
+      launchpadData?.projectInfor?.tokenomic?.filter(
+        (e) => e?.label?.length > 0 && e?.value > 0 && e?.value <= 100
+      )?.length != launchpadData?.projectInfor?.tokenomic?.length
+    )
+      return false;
   }
   return true;
 };
@@ -311,7 +310,6 @@ export const validatePhaseData = (phaseData, errorMsg) => {
   }
   if (
     phaseData?.filter((e) => {
-      console.log(e?.endDate, e?.startDate)
       return e?.endDate > e?.startDate;
     })?.length !== phaseData?.length
   ) {
