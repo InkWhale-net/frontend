@@ -58,6 +58,14 @@ export default function CreateTokenLPPage({ api }) {
   const [tokenBalance, setTokenBalance] = useState(0);
   const [LPtokenBalance, setLPTokenBalance] = useState(0);
 
+  const tokenSymbol = useMemo(() => {
+    const foundItem = faucetTokensList.find(
+      (item) => item.contractAddress === selectedContractAddr
+    );
+
+    return foundItem;
+  }, [faucetTokensList, selectedContractAddr]);
+
   const fetchTokenBalance = useCallback(async () => {
     if (!selectedContractAddr) return;
 
@@ -81,17 +89,17 @@ export default function CreateTokenLPPage({ api }) {
       currentAccount?.address
     );
 
-    const bal = formatQueryResultToNumber(queryResult);
+    const bal = formatQueryResultToNumber(queryResult, tokenSymbol?.decimal);
     setTokenBalance(bal);
-  }, [currentAccount, selectedContractAddr]);
+  }, [currentAccount, selectedContractAddr, tokenSymbol]);
 
-  const tokenSymbol = useMemo(() => {
+  const tokenLPSymbol = useMemo(() => {
     const foundItem = faucetTokensList.find(
-      (item) => item.contractAddress === selectedContractAddr
+      (item) => item.contractAddress === LPtokenContract
     );
 
     return foundItem;
-  }, [faucetTokensList, selectedContractAddr]);
+  }, [LPtokenContract, faucetTokensList]);
 
   useEffect(() => {
     fetchTokenBalance();
@@ -120,17 +128,10 @@ export default function CreateTokenLPPage({ api }) {
       currentAccount?.address
     );
 
-    const balLP = formatQueryResultToNumber(queryResultLP);
+    const balLP = formatQueryResultToNumber(queryResultLP, tokenLPSymbol?.decimal);
     setLPTokenBalance(balLP);
-  }, [LPtokenContract, currentAccount]);
+  }, [LPtokenContract, currentAccount, tokenLPSymbol]);
 
-  const tokenLPSymbol = useMemo(() => {
-    const foundItem = faucetTokensList.find(
-      (item) => item.contractAddress === LPtokenContract
-    );
-
-    return foundItem;
-  }, [LPtokenContract, faucetTokensList]);
 
   useEffect(() => {
     fetchLPTokenBalance();
@@ -195,6 +196,22 @@ export default function CreateTokenLPPage({ api }) {
       return;
     }
 
+    if (!(duration > 0)) {
+      toast.error(`Pool Length must be greater than 0`);
+      return;
+    }
+
+    if (!(multiplier > 0)) {
+      toast.error(`Multiplayer must be greater than 0`);
+      return;
+    }
+
+    if (!(maxStake > 0)) {
+      toast.error(`Total Staking Cap must be greater than 0`);
+      return;
+    }
+
+
     if (
       !isAddressValid(selectedContractAddr) ||
       !isAddressValid(LPtokenContract)
@@ -209,6 +226,14 @@ export default function CreateTokenLPPage({ api }) {
       toast.error(
         `You don't have enough INW. Stake costs ${createTokenFee} INW`
       );
+      return;
+    }
+
+    if (
+      parseInt(tokenBalance?.replaceAll(",", "")) <
+      minReward?.replaceAll(",", "")
+    ) {
+      toast.error(`You don't have enough ${tokenSymbol?.symbol} to topup the reward`);
       return;
     }
 
@@ -279,7 +304,6 @@ export default function CreateTokenLPPage({ api }) {
     await delay(1000);
 
     toast.success(`Step ${step}: Process...`);
-   
     await execContractTx(
       currentAccount,
       "api",
@@ -290,12 +314,11 @@ export default function CreateTokenLPPage({ api }) {
       currentAccount?.address,
       LPtokenContract,
       selectedContractAddr,
-      formatNumToBN(maxStake, tokenSymbol?.decimal || 12), 
+      formatNumToBN(maxStake, tokenLPSymbol?.decimal || 12), 
       Number(multiplier),
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
     );
-
     await APICall.askBEupdate({ type: "lp", poolContract: "new" });
     setMultiplier("");
     setDuration("");
