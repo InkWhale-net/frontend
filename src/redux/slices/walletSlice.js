@@ -36,9 +36,9 @@ export const walletSlice = createSlice({
     updateAccountsList: (state, action) => {
       state.allAccounts = action.payload;
 
-      if (!action.payload.includes(current(state).currentAccount)) {
-        state.currentAccount = null;
-      }
+      // if (!action.payload.includes(current(state).currentAccount)) {
+      //   state.currentAccount = null;
+      // }
     },
   },
   extraReducers: (builder) => {

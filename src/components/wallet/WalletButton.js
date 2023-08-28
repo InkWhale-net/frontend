@@ -1,4 +1,3 @@
-import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -17,31 +16,35 @@ import {
   useMediaQuery,
 } from "@chakra-ui/react";
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
-import { toast } from "react-hot-toast";
-import { toastMessages } from "constants";
-import { updateAccountsList } from "redux/slices/walletSlice";
-import { useDispatch, useSelector } from "react-redux";
 import IWCard from "components/card/Card";
-import { supportWallets } from "constants";
-import { MyPoolsIcon } from "components/icons/Icons";
-import { MyNFTFarmsIcon } from "components/icons/Icons";
-import { MyLPFarmsIcon } from "components/icons/Icons";
-import { MenuArrowRightIcon } from "components/icons/Icons";
+import {
+  MenuIconBackground,
+  MenuIconBorder,
+  MyLPFarmsIcon,
+  MyNFTFarmsIcon,
+  MyPoolsIcon,
+} from "components/icons/Icons";
+import { supportWallets, toastMessages } from "constants";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
-import { MenuIconBorder } from "components/icons/Icons";
-import { MenuIconBackground } from "components/icons/Icons";
-import { setCurrentAccount } from "redux/slices/walletSlice";
+import {
+  setCurrentAccount,
+  updateAccountsList,
+} from "redux/slices/walletSlice";
 import { addressShortener } from "utils";
 
+import AzeroSignerLogo from "assets/img/wallet/AzeroSigner.jpg";
+import NightlyLogo from "assets/img/wallet/Nightly.jpg";
 import PolkadotjsLogo from "assets/img/wallet/PolkadotjsLogo.svg";
 import SubWalletLogo from "assets/img/wallet/SubWalletLogo.svg";
 import NovaLogo from "assets/img/wallet/nova.jpg";
-import AzeroSignerLogo from "assets/img/wallet/AzeroSigner.jpg";
-import WalletModal from "./WalletModal";
-import { disconnectCurrentAccount } from "redux/slices/walletSlice";
 import AddressCopier from "components/address-copier/AddressCopier";
 import { logOutMyPools } from "redux/slices/myPoolsSlice";
+import { disconnectCurrentAccount } from "redux/slices/walletSlice";
 import { resolveDomain } from "utils";
+import WalletModal from "./WalletModal";
 
 export default function WalletButton({
   currentAccountAddress,
@@ -91,12 +94,29 @@ export default function WalletButton({
 
     onOpen();
   };
+  const loadListAccount = async () => {
+    if (!(allAccounts?.length > 0)) {
+      setSelectedWalletExt(currentAccount?.meta?.source);
+    }
+  };
+  useEffect(() => {
+    if (currentAccount) {
+      loadListAccount();
+    } else dispatch(updateAccountsList([]));
+  }, [currentAccount]);
 
   const [selectedWalletExt, setSelectedWalletExt] = useState(null);
 
+  const accountsFiltered = useMemo(() => {
+    return allAccounts.filter((i) => i.meta?.source === selectedWalletExt);
+  }, [allAccounts, selectedWalletExt]);
+
+  const onClickSwitch = async () => {
+    if (currentAccount && allAccounts?.length > 1) onOpen();
+  };
+
   function handleClick(walletExt) {
     if (!walletExt) return toast.error("Wallet Ext error!");
-
     setSelectedWalletExt(walletExt);
 
     try {
@@ -110,10 +130,6 @@ export default function WalletButton({
     }
   }
 
-  const accountsFiltered = useMemo(() => {
-    return allAccounts.filter((i) => i.meta?.source === selectedWalletExt);
-  }, [allAccounts, selectedWalletExt]);
-
   return (
     <>
       <WalletModal
@@ -126,7 +142,7 @@ export default function WalletButton({
       {!currentAccount ? (
         <WalletNotConnect onClick={handleClick} />
       ) : (
-        <WalletConnect onClose={onCloseSidebar} />
+        <WalletConnect onClose={onCloseSidebar} onClickSwitch={onClickSwitch} />
       )}
     </>
   );
@@ -136,13 +152,14 @@ const getWallet = (key) => {
   switch (key) {
     case "polkadot":
       return PolkadotjsLogo;
-
     case "nova":
       return NovaLogo;
     case "subwallet":
       return SubWalletLogo;
     case "Azero Signer":
       return AzeroSignerLogo;
+    case "Nightly":
+      return NightlyLogo;
     default:
       break;
   }
@@ -224,13 +241,12 @@ const WalletNotConnect = ({ onClick }) => {
   );
 };
 
-export const WalletConnect = ({ onClose }) => {
+export const WalletConnect = ({ onClose, onClickSwitch }) => {
   const history = useHistory();
   const location = useLocation();
   const dispatch = useDispatch();
   const [domain, setDomain] = useState(null);
-  const { currentAccount } = useSelector((state) => state.wallet);
-
+  const { currentAccount, allAccounts } = useSelector((state) => state.wallet);
   const walletImage =
     currentAccount?.meta?.source === "polkadot-js"
       ? PolkadotjsLogo
@@ -238,6 +254,8 @@ export const WalletConnect = ({ onClose }) => {
       ? SubWalletLogo
       : currentAccount?.meta?.source === "aleph-zero-signer"
       ? AzeroSignerLogo
+      : currentAccount?.meta?.source === "Nightly"
+      ? NightlyLogo
       : "";
   useEffect(() => {
     resolveDomain(currentAccount?.address).then((domainValue) =>
@@ -355,6 +373,20 @@ export const WalletConnect = ({ onClose }) => {
               </MenuItem>
             ))}
           </Flex>
+          {allAccounts?.length > 1 && (
+            <Button
+              sx={{
+                mb: "8px",
+              }}
+              w="full"
+              variant="outline"
+              onClick={() => {
+                onClickSwitch();
+              }}
+            >
+              Switch Account
+            </Button>
+          )}
 
           <Button
             w="full"

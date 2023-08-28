@@ -33,6 +33,11 @@ export const supportWallets = [
     isMobile: true, 
     extensionName: "polkadot-js",
   },
+  {
+    name: "Nightly Wallet",
+    title: "Nightly",
+    extensionName: "Nightly",
+  },
 ];
 
 // {
