@@ -309,7 +309,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         livePhase?.id
       );
       const publicSalePrice = result1.toHuman()?.Ok;
-      setTokenPrice(parseFloat(formatTokenAmount(publicSalePrice, 12)));
+      setTokenPrice(formatTokenAmount(publicSalePrice, 12));
     } catch (error) {
       console.log(error);
     }

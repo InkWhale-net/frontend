@@ -176,9 +176,12 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                 (e) => e?.account === currentAccount?.address
               );
               const allowBuy = index === livePhase?.id;
-              const wlTokenPrice = parseFloat(
-                formatTokenAmount(buyerInformation?.price, 12)
+              const wlTokenPriceStr = formatTokenAmount(
+                buyerInformation?.price,
+                12
               );
+              const wlTokenPrice = parseFloat(wlTokenPriceStr);
+              console.log();
               const wlMaxAmount = parseFloat(
                 formatTokenAmount(
                   buyerInformation?.amount,
@@ -265,7 +268,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                           alignItems: "center",
                         }}
                       >
-                        Token price: {wlTokenPrice}
+                        Token price: {wlTokenPriceStr}
                         <AzeroLogo
                           sx={{
                             display: "flex",
