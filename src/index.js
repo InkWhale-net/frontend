@@ -53,6 +53,9 @@ import { useAppContext } from "contexts/AppContext";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { fetchTotalValueLocked } from "redux/slices/statSlice";
 import { updateAccountsList } from "redux/slices/walletSlice";
+import { disconnectCurrentAccount } from "redux/slices/walletSlice";
+import { logOutMyPools } from "redux/slices/myPoolsSlice";
+import { updateExtensions } from "redux/slices/walletSlice";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -60,7 +63,9 @@ const queryClient = new QueryClient();
 const App = () => {
   const dispatch = useDispatch();
 
-  const { currentAccount, allAccounts } = useSelector((s) => s.wallet);
+  const { currentAccount, allAccounts, currentExt } = useSelector(
+    (s) => s.wallet
+  );
   const { myStakingPoolsList, myNFTPoolsList, myTokenPoolsList } = useSelector(
     (s) => s.myPools
   );
@@ -114,8 +119,11 @@ const App = () => {
         // setLastBlockParent(lastHeader.parentHash.toRawType);
       });
 
-      await web3Enable(process.env.REACT_APP_NAME);
-      if (!(allAccounts?.length > 0)) {
+      const currentExtensions = await web3Enable(process.env.REACT_APP_NAME);
+      dispatch(
+        updateExtensions(currentExtensions.map((e) => ({ name: e?.name })))
+      );
+      if (!(allAccounts?.length > 0) && currentAccount) {
         const accounts = await web3Accounts();
         dispatch(updateAccountsList(accounts));
       }
@@ -126,6 +134,16 @@ const App = () => {
       console.error("@_@ setupProvider error", error);
     });
   }, [dispatch]);
+
+  useEffect(() => {
+    if (currentExt?.length > 0 && currentAccount) {
+      if (!currentExt?.find((e) => e?.name == currentAccount?.meta?.source)) {
+        dispatch(disconnectCurrentAccount());
+        dispatch(logOutMyPools());
+        localStorage.removeItem("localCurrentAccount");
+      }
+    }
+  }, [currentExt, currentAccount]);
 
   useEffect(() => {
     delay(100);
