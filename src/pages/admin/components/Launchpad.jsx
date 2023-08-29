@@ -21,6 +21,7 @@ import { useEffect, useMemo } from "react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { delay } from "utils";
 import { execContractTx } from "utils/contracts";
@@ -30,10 +31,89 @@ import launchpad_generator from "utils/contracts/launchpad_generator";
 const Launchpad = () => {
   const { currentAccount } = useSelector((s) => s.wallet);
   const [launchpads, setLaunchpads] = useState([]);
+  const history = useHistory();
   const { api } = useAppContext();
   const dispatch = useDispatch();
   const [isAdmin, setIsAdmin] = useState(false);
   const [newAddress, setNewAddress] = useState("");
+  const grantNewAdmin = async () => {
+    try {
+      if (currentAccount?.address == newAddress) {
+        toast.error("Address must not current account");
+        return;
+      }
+      const haveRole = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        launchpad_generator.CONTRACT_ABI,
+        launchpad_generator.CONTRACT_ADDRESS,
+        0,
+        "accessControl::hasRole",
+        process.env.REACT_APP_LP_ADMIN_ROLE_STRING,
+        newAddress
+      );
+      if (haveRole.toHuman().Ok) {
+        toast("This address is adready admin");
+        return;
+      }
+
+      const result = await execContractTx(
+        currentAccount,
+        api,
+        launchpad_generator.CONTRACT_ABI,
+        launchpad_generator.CONTRACT_ADDRESS,
+        0, //-> value
+        "accessControl::grantRole",
+        process.env.REACT_APP_LP_ADMIN_ROLE_STRING,
+        newAddress
+      );
+      setNewAddress("");
+      if (result) toast.success("Admin granted");
+      else toast.error("Admin grant fail");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const revokeAdminRole = async () => {
+    try {
+      if (currentAccount?.address == newAddress) {
+        toast.error("Address must not current account");
+        return;
+      }
+      const haveRole = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        launchpad_generator.CONTRACT_ABI,
+        launchpad_generator.CONTRACT_ADDRESS,
+        0,
+        "accessControl::hasRole",
+        process.env.REACT_APP_LP_ADMIN_ROLE_STRING,
+        newAddress
+      );
+      if (!haveRole.toHuman().Ok) {
+        toast("This address is not admin");
+        return;
+      }
+
+      const result = await execContractTx(
+        currentAccount,
+        api,
+        launchpad_generator.CONTRACT_ABI,
+        launchpad_generator.CONTRACT_ADDRESS,
+        0, //-> value
+        "accessControl::revokeRole",
+        process.env.REACT_APP_LP_ADMIN_ROLE_STRING,
+        newAddress
+      );
+      setNewAddress("");
+      if (result) toast.success("Role revoked");
+      else toast.error("Role revoke fail");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const getIsAdmin = async () => {
     try {
       const haveRole = await execContractQuery(
@@ -132,9 +212,27 @@ const Launchpad = () => {
           Your Role <Heading size="md">Admin</Heading>
         </Box>
         <Box>
-          <IWInput type="number" placeholder="Search" value={newAddress} />
-          <Button isDisabled size="md" sx={{ marginTop: "8px" }}>
-            GRANT ADMIN
+          <IWInput
+            placeholder="New admin address"
+            value={newAddress}
+            size="sm"
+            onChange={({ target }) => setNewAddress(target.value)}
+          />
+          <Button
+            isDisabled={!(newAddress?.length > 0)}
+            size="sm"
+            sx={{ marginTop: "8px" }}
+            onClick={() => grantNewAdmin()}
+          >
+            GRANT ADMIN ROLE
+          </Button>
+          <Button
+            isDisabled={!(newAddress?.length > 0)}
+            size="sm"
+            sx={{ marginTop: "8px", ml: "4px" }}
+            onClick={() => revokeAdminRole()}
+          >
+            REVOKE ADMIN ROLE
           </Button>
         </Box>
       </Box>
@@ -148,6 +246,7 @@ const Launchpad = () => {
                 <Th>Phase</Th>
                 <Th>LP Contract</Th>
                 <Th>Active</Th>
+                <Th></Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -185,6 +284,18 @@ const Launchpad = () => {
                           Active
                         </Button>
                       )}
+                    </Td>
+                    <Td>
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          history.push({
+                            pathname: `/launchpad/${obj?.launchpadContract}`,
+                          })
+                        }
+                      >
+                        View
+                      </Button>
                     </Td>
                   </Tr>
                 );
