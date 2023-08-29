@@ -1,12 +1,14 @@
 import {
   Box,
   Button,
+  Divider,
   Heading,
   Table,
   TableCaption,
   TableContainer,
   Tbody,
   Td,
+  Text,
   Tfoot,
   Th,
   Thead,
@@ -17,7 +19,7 @@ import AddressCopier from "components/address-copier/AddressCopier";
 import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 import { useAppContext } from "contexts/AppContext";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
@@ -36,6 +38,8 @@ const Launchpad = () => {
   const dispatch = useDispatch();
   const [isAdmin, setIsAdmin] = useState(false);
   const [newAddress, setNewAddress] = useState("");
+  const [isContractOwner, setIsContractOwner] = useState(false);
+  const [lpAdminList, setLPAdminList] = useState([]);
   const grantNewAdmin = async () => {
     try {
       if (currentAccount?.address == newAddress) {
@@ -70,13 +74,17 @@ const Launchpad = () => {
       setNewAddress("");
       if (result) toast.success("Admin granted");
       else toast.error("Admin grant fail");
+      await fetchLP();
+      await fetchLPAdmin();
     } catch (error) {
       console.log(error);
     }
   };
 
-  const revokeAdminRole = async () => {
+  const revokeAdminRole = async (address) => {
     try {
+      const currentAddress = address || newAddress;
+
       if (currentAccount?.address == newAddress) {
         toast.error("Address must not current account");
         return;
@@ -89,7 +97,7 @@ const Launchpad = () => {
         0,
         "accessControl::hasRole",
         process.env.REACT_APP_LP_ADMIN_ROLE_STRING,
-        newAddress
+        currentAddress
       );
       if (!haveRole.toHuman().Ok) {
         toast("This address is not admin");
@@ -104,11 +112,13 @@ const Launchpad = () => {
         0, //-> value
         "accessControl::revokeRole",
         process.env.REACT_APP_LP_ADMIN_ROLE_STRING,
-        newAddress
+        currentAddress
       );
       setNewAddress("");
       if (result) toast.success("Role revoked");
       else toast.error("Role revoke fail");
+      await fetchLP();
+      await fetchLPAdmin();
     } catch (error) {
       console.log(error);
     }
@@ -127,6 +137,15 @@ const Launchpad = () => {
         currentAccount?.address
       );
       setIsAdmin(haveRole.toHuman().Ok);
+      const queryOwner = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        launchpad_generator.CONTRACT_ABI,
+        launchpad_generator.CONTRACT_ADDRESS,
+        0,
+        "ownable::owner"
+      );
+      setIsContractOwner(queryOwner.toHuman().Ok == currentAccount?.address);
     } catch (error) {
       console.log(error);
     }
@@ -188,9 +207,44 @@ const Launchpad = () => {
     if (currentAccount) getIsAdmin();
     else setIsAdmin(false);
   }, [currentAccount]);
+
   useEffect(() => {
     if (isAdmin) fetchLP();
   }, [isAdmin]);
+  const fetchLPAdmin = useCallback(async () => {
+    if (currentAccount?.address) {
+      const haveRoleQuery = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        launchpad_generator.CONTRACT_ABI,
+        launchpad_generator.CONTRACT_ADDRESS,
+        0,
+        "accessControlEnumerable::getRoleMemberCount",
+        process.env.REACT_APP_LP_ADMIN_ROLE_STRING
+      );
+      const adminAcount = haveRoleQuery.toHuman().Ok;
+
+      const adminList = await Promise.all(
+        Array.from({ length: adminAcount }).map(async (e, index) => {
+          const roleMemberQuery = await execContractQuery(
+            currentAccount?.address,
+            "api",
+            launchpad_generator.CONTRACT_ABI,
+            launchpad_generator.CONTRACT_ADDRESS,
+            0,
+            "accessControlEnumerable::getRoleMember",
+            process.env.REACT_APP_LP_ADMIN_ROLE_STRING,
+            index
+          );
+          return roleMemberQuery.toHuman().Ok;
+        })
+      );
+      setLPAdminList(adminList);
+    }
+  }, [currentAccount?.address]);
+  useEffect(() => {
+    fetchLPAdmin();
+  }, [currentAccount, fetchLPAdmin]);
   if (!isAdmin)
     return (
       <SectionContainer
@@ -205,37 +259,95 @@ const Launchpad = () => {
       title="LAUNCHPAD ADMINISTRATION"
     >
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-        <Box>
-          Contract Owner: <AddressCopier address={currentAccount?.address} />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: isContractOwner ? "column" : "row",
+            alignItems: isContractOwner ? "flex-start" : "center",
+          }}
+        >
+          Launchpad admin: <AddressCopier address={currentAccount?.address} />
         </Box>
-        <Box>
-          Your Role <Heading size="md">Admin</Heading>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: isContractOwner ? "column" : "row",
+            alignItems: isContractOwner ? "flex-start" : "center",
+          }}
+        >
+          Your Role: <Heading size="md">Admin</Heading>
         </Box>
-        <Box>
-          <IWInput
-            placeholder="New admin address"
-            value={newAddress}
-            size="sm"
-            onChange={({ target }) => setNewAddress(target.value)}
-          />
-          <Button
-            isDisabled={!(newAddress?.length > 0)}
-            size="sm"
-            sx={{ marginTop: "8px" }}
-            onClick={() => grantNewAdmin()}
-          >
-            GRANT ADMIN ROLE
-          </Button>
-          <Button
-            isDisabled={!(newAddress?.length > 0)}
-            size="sm"
-            sx={{ marginTop: "8px", ml: "4px" }}
-            onClick={() => revokeAdminRole()}
-          >
-            REVOKE ADMIN ROLE
-          </Button>
-        </Box>
+        {isContractOwner && (
+          <Box>
+            <IWInput
+              placeholder="New admin address"
+              value={newAddress}
+              size="sm"
+              onChange={({ target }) => setNewAddress(target.value)}
+            />
+            <Button
+              isDisabled={!(newAddress?.length > 0)}
+              size="sm"
+              sx={{ marginTop: "8px" }}
+              onClick={() => grantNewAdmin()}
+            >
+              GRANT ADMIN ROLE
+            </Button>
+            <Button
+              isDisabled={!(newAddress?.length > 0)}
+              size="sm"
+              sx={{ marginTop: "8px", ml: "4px" }}
+              onClick={() => revokeAdminRole()}
+            >
+              REVOKE ADMIN ROLE
+            </Button>
+          </Box>
+        )}
       </Box>
+      {isContractOwner && (
+        <Box>
+          <Text sx={{ fontWeight: "700", color: "#57527E", mt: "32px" }}>
+            LAUNCHPAD ADMIN LIST
+          </Text>
+          <Divider />
+          <TableContainer>
+            <Table variant="striped">
+              <Thead>
+                <Tr>
+                  <Th>No.</Th>
+                  <Th>Account address</Th>
+                  <Th>Role</Th>
+                  <Th></Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {lpAdminList.map((obj, index) => {
+                  return (
+                    <Tr>
+                      <Td>{index}</Td>
+                      <Td>{obj && <AddressCopier address={obj} />}</Td>
+                      <Td>Admin</Td>
+                      <Td>
+                        <Button
+                          isDisabled={currentAccount?.address == obj}
+                          size="sm"
+                          onClick={() => revokeAdminRole(obj)}
+                        >
+                          Revoke role
+                        </Button>
+                      </Td>
+                    </Tr>
+                  );
+                })}
+              </Tbody>
+            </Table>
+          </TableContainer>
+        </Box>
+      )}
+      <Text sx={{ fontWeight: "700", color: "#57527E", mt: "40px" }}>
+        LAUNCHPAD LIST
+      </Text>
+      <Divider />
       <Box>
         <TableContainer>
           <Table variant="striped">
