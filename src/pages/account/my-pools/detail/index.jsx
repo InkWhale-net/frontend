@@ -928,7 +928,7 @@ const MyPoolInfo = ({
               {
                 title: "Max Staking Amount",
                 content: `${formatNumDynDecimal(
-                  formatTokenAmount(maxStakingAmount, tokenDecimal)
+                  formatTokenAmount(maxStakingAmount, mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal)
                 )} ${tokenSymbol}`,
               },
               {
