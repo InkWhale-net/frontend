@@ -1,4 +1,4 @@
-import { Box, SimpleGrid } from "@chakra-ui/react";
+import { Box, SimpleGrid, Text } from "@chakra-ui/react";
 import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
 import UploadImage from "pages/launchpad/UploadImage";
@@ -6,10 +6,36 @@ import { useEffect, useState } from "react";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
 import Tokenomic from "./Tokenomic";
+import { useFormik } from "formik";
 
 const ProjectInfor = () => {
   const { updateProjectInfor, current, launchpadData } = useCreateLaunchpad();
   const [projectInfor, setProjectInfor] = useState(null);
+
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    onSubmit: (values) => {
+      console.log(values); // You can replace this with your form submission logic
+    },
+  });
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    // Mark all fields as touched to trigger validation and red border
+    formik.setTouched({
+      email: true,
+      password: true,
+    });
+
+    // Submit the form if it's valid
+    if (formik.isValid) {
+      formik.handleSubmit();
+    }
+  };
 
   const updateTokenomic = (value) =>
     setProjectInfor((prev) => ({ ...prev, tokenomic: value }));
@@ -30,23 +56,26 @@ const ProjectInfor = () => {
         spacingY={{ base: "20px", lg: "32px" }}
         mb={{ base: "30px" }}
       >
-        <UploadImage
-          label="Avatar Image"
-          keyInput={`project-infor-1`}
-          previewSize={{ width: "120px", height: "120px" }}
-          limitedSize={{
-            width: "500",
-            height: "500",
-          }}
-          previewUrl={projectInfor?.previewAvatar}
-          updatePreviewImage={(value) =>
-            setProjectInfor((prev) => ({ ...prev, previewAvatar: value }))
-          }
-          iconUrl={projectInfor?.avatarImage}
-          setImageIPFSUrl={(value) =>
-            setProjectInfor((prev) => ({ ...prev, avatarImage: value }))
-          }
-        />
+        <Box>
+          <Text sx={{ color: "red" }}>This field must not be empty</Text>
+          <UploadImage
+            label="Avatar Image"
+            keyInput={`project-infor-1`}
+            previewSize={{ width: "120px", height: "120px" }}
+            limitedSize={{
+              width: "500",
+              height: "500",
+            }}
+            previewUrl={projectInfor?.previewAvatar}
+            updatePreviewImage={(value) =>
+              setProjectInfor((prev) => ({ ...prev, previewAvatar: value }))
+            }
+            iconUrl={projectInfor?.avatarImage}
+            setImageIPFSUrl={(value) =>
+              setProjectInfor((prev) => ({ ...prev, avatarImage: value }))
+            }
+          />
+        </Box>
         <UploadImage
           isDisabled={!projectInfor?.avatarImage}
           label="Featured Image"

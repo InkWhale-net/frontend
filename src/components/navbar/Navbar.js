@@ -31,7 +31,7 @@ export default function Navbar(props) {
     <Box
       borderBottomWidth="1px"
       borderColor="#E3DFF350"
-      zIndex="overlay"
+      zIndex="100"
       right="0"
       left="0"
       top="0"

@@ -1,7 +1,6 @@
 import { CheckIcon } from "@chakra-ui/icons";
 import { Circle } from "@chakra-ui/react";
 import { ContractPromise } from "@polkadot/api-contract";
-import { web3FromSource } from "@polkadot/extension-dapp";
 import { APICall, ipfsClient } from "api/client";
 import { useAppContext } from "contexts/AppContext";
 import { parseUnits } from "ethers";
@@ -9,12 +8,14 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { fetchUserBalance } from "redux/slices/walletSlice";
+import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import {
   dayToMilisecond,
   delay,
+  formatNumDynDecimal,
   formatNumToBN,
   formatQueryResultToNumber,
+  formatTokenAmount,
   getEstimatedGasBatchTx,
 } from "utils";
 import {
@@ -42,11 +43,7 @@ import {
   verifyProjectInfo,
   verifyTeam,
   verifyTokenValid,
-  verifyWhitelist,
 } from "./utils";
-import { fetchLaunchpads } from "redux/slices/launchpadSlice";
-import { formatTokenAmount } from "utils";
-import { formatNumDynDecimal } from "utils";
 
 export const CreateLaunchpadContext = createContext();
 
@@ -227,7 +224,7 @@ const CreateLaunchpadContextProvider = (props) => {
           launchpad.CONTRACT_ABI,
           launchpadContractAddress
         );
-        const { signer } = await web3FromSource(currentAccount?.meta?.source);
+        const signer = window.nightlySigner;
         const gasLimit = await getEstimatedGasBatchTx(
           currentAccount?.address,
           launchpadContract,
