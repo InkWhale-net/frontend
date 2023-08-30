@@ -59,21 +59,12 @@ export const AppContextProvider = ({ children }) => {
   };
   const walletConnectHandler = async () => {
     try {
-      if (!currentAccount && allAccounts?.length > 0) {
-        await walletAdapter?.disconnect();
-        await delay(100);
-        await walletAdapter?.connect();
-        const accounts = await walletAdapter?.accounts.get();
-        dispatch(updateAccountsList(accounts));
-        return accounts;
-      } else {
-        await walletAdapter?.disconnect();
-        await delay(100);
-        await walletAdapter?.connect();
-        const accounts = await walletAdapter?.accounts.get();
-        dispatch(updateAccountsList(accounts));
-        return accounts;
-      }
+      await walletAdapter?.disconnect();
+      await delay(100);
+      await walletAdapter?.connect();
+      const accounts = await walletAdapter?.accounts.get();
+      dispatch(updateAccountsList(accounts));
+      return accounts;
     } catch (error) {
       walletDisconnectHandler();
       console.log(error);
