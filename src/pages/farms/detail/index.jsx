@@ -949,7 +949,7 @@ const MyStakeRewardInfoToken = ({
       currentAccount?.address
     );
 
-    const balance = formatQueryResultToNumber(result);
+    const balance = formatQueryResultToNumber(result, tokenDecimal);
     setTokenBalance(balance);
     const resultLP = await execContractQuery(
       currentAccount?.address,
