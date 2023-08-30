@@ -1,7 +1,6 @@
 import { Box, Button, Heading, SimpleGrid, VStack } from "@chakra-ui/react";
 import IWInput from "components/input/Input";
 
-import { web3FromSource } from "@polkadot/extension-dapp";
 import { stringToHex } from "@polkadot/util";
 import { APICall } from "api/client";
 import { useState } from "react";
@@ -141,7 +140,7 @@ const ImportTokenForm = ({ api }) => {
         toast.error("You must be the owner of the token contract to continue");
         return;
       }
-      const { signer } = await web3FromSource(currentAccount?.meta?.source);
+      const signer = window.nightlySigner;
       const { signature } = await signer.signRaw({
         address: currentAccount.address,
         data: stringToHex("Sign message to import token"),

@@ -259,7 +259,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
       >
         Whitelist Manager
       </Button>
-      <Button
+      {/* <Button
         my="8px"
         w="full"
         height="40px"
@@ -267,7 +267,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         onClick={() => toast("Coming soon ...")}
       >
         Minting History
-      </Button>
+      </Button> */}
     </Box>
   );
 };

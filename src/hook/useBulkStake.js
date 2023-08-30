@@ -1,5 +1,4 @@
 import { ContractPromise } from "@polkadot/api-contract";
-import { web3FromSource } from "@polkadot/extension-dapp";
 import { APICall } from "api/client";
 import { useAppContext } from "contexts/AppContext";
 import { toast } from "react-hot-toast";
@@ -57,7 +56,7 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
     let approveTxALL;
 
     const address = currentAccount?.address;
-    const { signer } = await web3FromSource(currentAccount?.meta?.source);
+    const signer = window.nightlySigner;
 
     toast("Estimated transaction fee...");
 
@@ -162,7 +161,7 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
     let stakingTxALL;
 
     const address = currentAccount?.address;
-    const { signer } = await web3FromSource(currentAccount?.meta?.source);
+    const signer = window.nightlySigner;
 
     toast.success("Estimated transaction fee...");
 
@@ -284,7 +283,7 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
     let stakingTxALL;
 
     const address = currentAccount?.address;
-    const { signer } = await web3FromSource(currentAccount?.meta?.source);
+    const signer = window.nightlySigner;
 
     toast.success("Estimated transaction fee...");
 
