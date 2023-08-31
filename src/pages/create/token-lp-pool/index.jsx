@@ -265,7 +265,7 @@ export default function CreateTokenLPPage({ api }) {
     );
     const allowanceToken = formatQueryResultToNumber(
       allowanceTokenQr,
-      tokenLPSymbol?.decimal
+      tokenSymbol?.decimal
     ).replaceAll(",", "");
     let step = 1;
 
@@ -302,7 +302,13 @@ export default function CreateTokenLPPage({ api }) {
     }
 
     await delay(1000);
-
+    console.log(currentAccount?.address,
+      LPtokenContract,
+      selectedContractAddr,
+      formatNumToBN(maxStake, tokenLPSymbol?.decimal || 12), 
+      Number(multiplier),
+      roundUp(duration * 24 * 60 * 60 * 1000, 0),
+      startTime.getTime());
     toast.success(`Step ${step}: Process...`);
     await execContractTx(
       currentAccount,
@@ -319,6 +325,7 @@ export default function CreateTokenLPPage({ api }) {
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
     );
+    return 
     await APICall.askBEupdate({ type: "lp", poolContract: "new" });
     setMultiplier("");
     setDuration("");
