@@ -83,19 +83,21 @@ const Phase = () => {
   }, [current]);
 
   const onChangeImmediateReleaseRate = (value, index) => {
-    setPhaseList((prevState) => {
-      const updatedArray = [...prevState];
-      if (index >= 0 && index < updatedArray.length) {
-        updatedArray[index] = {
-          ...updatedArray[index],
-          immediateReleaseRate: value,
-        };
+    if(+value <= 100) {
+      setPhaseList((prevState) => {
+        const updatedArray = [...prevState];
+        if (index >= 0 && index < updatedArray.length) {
+          updatedArray[index] = {
+            ...updatedArray[index],
+            immediateReleaseRate: value,
+          };
+        }
+        return updatedArray;
+      });
+      if (parseFloat(value) === 100) {
+        onChangeVestingDuration(0, index);
+        onChangeVestingReleasePeriod(0, index);
       }
-      return updatedArray;
-    });
-    if (parseFloat(value) === 100) {
-      onChangeVestingDuration(0, index);
-      onChangeVestingReleasePeriod(0, index);
     }
   };
   const onChangeVestingDuration = (value, index) => {

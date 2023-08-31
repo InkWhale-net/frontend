@@ -39,7 +39,6 @@ export default function VerifyToken() {
   const tokenList = useMemo(() => {
     return (
       allTokensList?.filter((token) => {
-        console.log(token);
         return token.creator === currentAccount?.address;
       }) || []
     );

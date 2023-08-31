@@ -57,7 +57,7 @@ const ProjectInfor = () => {
         mb={{ base: "30px" }}
       >
         <Box>
-          <Text sx={{ color: "red" }}>This field must not be empty</Text>
+          {/* <Text sx={{ color: "red" }}>This field must not be empty</Text> */}
           <UploadImage
             label="Avatar Image"
             keyInput={`project-infor-1`}
