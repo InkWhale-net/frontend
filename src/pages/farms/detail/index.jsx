@@ -961,7 +961,7 @@ const MyStakeRewardInfoToken = ({
       currentAccount?.address
     );
 
-    const balanceLP = formatQueryResultToNumber(resultLP);
+    const balanceLP = formatQueryResultToNumber(resultLP, lptokenDecimal);
     setLPTokenBalance(balanceLP);
   }, [currentAccount?.address, lptokenContract, tokenContract]);
 
