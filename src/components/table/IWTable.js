@@ -174,7 +174,7 @@ export const formatDataCellTable = (itemObj, header, mode) => {
 
     case "multiplier":
       return mode === "TOKEN_FARM" ? (
-        <Text>{itemObj[header].toFixed(2)}</Text>
+        <Text>{itemObj[header]?.toFixed(2)}</Text>
       ) : mode === "NFT_FARM" ? (
         // <Text>{(itemObj[header] / 10 ** 12).toFixed(2)}</Text>
         <Text>

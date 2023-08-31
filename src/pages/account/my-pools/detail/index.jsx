@@ -425,7 +425,6 @@ const MyPoolInfo = ({
       "psp22::balanceOf",
       currentAccount?.address
     );
-
     const balance = formatQueryResultToNumber(result, parseInt(tokenDecimal));
     setTokenBalance(balance);
     if (isPoolEnded(startTime, duration)) {
@@ -473,7 +472,7 @@ const MyPoolInfo = ({
       "psp22::balanceOf",
       currentAccount?.address
     );
-    const balance = formatQueryResultToNumber(result);
+    const balance = formatQueryResultToNumber(result, parseInt(tokenDecimal));
     setTokenBalance(balance);
     const resultLP = await execContractQuery(
       currentAccount?.address,
@@ -485,7 +484,7 @@ const MyPoolInfo = ({
       currentAccount?.address
     );
 
-    const balanceLP = formatQueryResultToNumber(resultLP);
+    const balanceLP = formatQueryResultToNumber(resultLP, lptokenDecimal);
     setLPTokenBalance(balanceLP);
     if (isPoolEnded(startTime, duration)) {
       const unclaimRwQr = await execContractQuery(
