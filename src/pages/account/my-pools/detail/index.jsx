@@ -327,7 +327,7 @@ export default function MyPoolDetailPage() {
             : state?.mode === "NFT_FARM"
             ? "NFT Staking Pools"
             : state?.mode === "TOKEN_FARM"
-            ? "Token Staking Pool"
+            ? "Token Farming Pool"
             : "Pools"
         }`}
       >
