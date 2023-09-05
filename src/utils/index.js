@@ -17,7 +17,7 @@ import psp22_contract from "./contracts/psp22_contract";
 export const formatChainStringToNumber = (str) => {
   if (typeof str !== "string") return str;
 
-  return parseFloat(str.replace(/,/g, "").replace(/"/g, ""));
+  return str.replace(/,/g, "").replace(/"/g, "");
 };
 export const formatQueryResultToNumber = (result, chainDecimals = 12) => {
   const ret = result?.toHuman()?.Ok?.replaceAll(",", "");

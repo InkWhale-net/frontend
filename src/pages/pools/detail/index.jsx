@@ -312,7 +312,7 @@ const MyStakeRewardInfo = ({
     if (info) {
       info = {
         ...info,
-        lastRewardUpdate: formatChainStringToNumber(info.lastRewardUpdate),
+        lastRewardUpdate: Number(formatChainStringToNumber(info.lastRewardUpdate)),
         stakedValue: formatChainStringToNumber(info.stakedValue),
         unclaimedReward: formatChainStringToNumber(info.unclaimedReward),
       };

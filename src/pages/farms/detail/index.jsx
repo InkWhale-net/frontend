@@ -274,7 +274,7 @@ export default function FarmDetailPage() {
 
             <BreadcrumbItem color="text.2">
               <BreadcrumbLink>
-                {currMode === "NFT_FARM" ? "NFT " : "LP Token"} Staking Pool
+                {currMode === "NFT_FARM" ? "NFT Staking" : "LP Token Farming"}  Pool
               </BreadcrumbLink>
             </BreadcrumbItem>
           </Breadcrumb>
@@ -284,11 +284,11 @@ export default function FarmDetailPage() {
       <SectionContainer
         title={`${
           currMode === "NFT_FARM"
-            ? "NFT"
+            ? "NFT Staking"
             : currMode === "TOKEN_FARM"
-            ? "Token"
+            ? "LP Token Farming"
             : null
-        } Staking Pool`}
+        }  Pool`}
       >
         <Stack
           w="full"
@@ -429,7 +429,7 @@ const MyStakeRewardInfoNFT = ({
     if (info) {
       info = {
         ...info,
-        lastRewardUpdate: formatChainStringToNumber(info.lastRewardUpdate),
+        lastRewardUpdate: Number(formatChainStringToNumber(info.lastRewardUpdate)),
         stakedValue: formatChainStringToNumber(info.stakedValue),
         unclaimedReward: formatChainStringToNumber(info.unclaimedReward),
       };
@@ -917,7 +917,7 @@ const MyStakeRewardInfoToken = ({
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      nft_pool_contract.CONTRACT_ABI,
+      lp_pool_contract.CONTRACT_ABI,
       poolContract,
       0,
       "genericPoolContractTrait::getStakeInfo",
@@ -925,16 +925,16 @@ const MyStakeRewardInfoToken = ({
     );
 
     let info = queryResult?.toHuman().Ok;
+    console.log(queryResult?.toHuman(), 'infoinfo');
 
     if (info) {
       info = {
         ...info,
-        lastRewardUpdate: formatChainStringToNumber(info.lastRewardUpdate),
+        lastRewardUpdate: Number(formatChainStringToNumber(info.lastRewardUpdate)),
         stakedValue: formatChainStringToNumber(info.stakedValue),
         unclaimedReward: formatChainStringToNumber(info.unclaimedReward),
       };
     }
-
     setStakeInfo(info);
   }, [currentAccount, poolContract]);
 
@@ -970,16 +970,15 @@ const MyStakeRewardInfoToken = ({
     fetchTokenBalance();
   }, [fetchTokenBalance, fetchUserStakeInfo]);
   const availableStakeAmount = useMemo(() => {
-    if (totalStaked >= 0 && tokenDecimal && maxStakingAmount > 0) {
+    if (totalStaked >= 0 && lptokenDecimal && maxStakingAmount > 0) {
       return (
         maxStakingAmount -
-        +formatTokenAmount(totalStaked?.toString(), mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal)
+        +formatTokenAmount(totalStaked?.toString(), lptokenDecimal)
       );
     }
-  }, [totalStaked, maxStakingAmount]);
+  }, [totalStaked, maxStakingAmount, lptokenDecimal]);
   useEffect(() => {
     const fetchFee = async () => {
-      if (!currentAccount?.balance) return;
 
       const result = await execContractQuery(
         currentAccount?.address,
@@ -991,7 +990,6 @@ const MyStakeRewardInfoToken = ({
       );
 
       const fee = formatQueryResultToNumber(result);
-
       setUnstakeFee(fee);
     };
 
@@ -1143,7 +1141,7 @@ const MyStakeRewardInfoToken = ({
       }
     );
   }
-
+  console.log(stakeInfo?.stakedValue?.toString(), 'stakeInfo?.stakedValue?.toString()');
   async function unstakeTokenLPHandler(tokenID) {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
@@ -1161,7 +1159,7 @@ const MyStakeRewardInfoToken = ({
       toast.error("Invalid Amount!");
       return;
     }
-    if (Number(formatTokenAmount(stakeInfo?.stakedValue?.toString(), mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal)) < LPTokenAmount) {
+    if (Number(formatTokenAmount(stakeInfo?.stakedValue?.toString(), lptokenDecimal)) < LPTokenAmount) {
       toast.error("There is not enough balance!");
       return;
     }
@@ -1280,7 +1278,7 @@ const MyStakeRewardInfoToken = ({
             {
               title: `My Stakes ${nftInfo?.name ? `(${nftInfo?.name})` : ""}`,
               content: `${formatNumDynDecimal(
-                +formatTokenAmount(stakeInfo?.stakedValue?.toString(), mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal)
+                +formatTokenAmount(stakeInfo?.stakedValue?.toString(), lptokenDecimal)
               )}`,
             },
             {
