@@ -325,7 +325,6 @@ export default function CreateTokenLPPage({ api }) {
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
     );
-    return 
     await APICall.askBEupdate({ type: "lp", poolContract: "new" });
     setMultiplier("");
     setDuration("");
@@ -622,7 +621,7 @@ export default function CreateTokenLPPage({ api }) {
 
       <SectionContainer
         mt={{ base: "0px", xl: "8px" }}
-        title="My NFT Staking Pools"
+        title="My Token Farming Pools"
         description=""
       >
         <IWTable
