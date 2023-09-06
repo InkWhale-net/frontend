@@ -134,7 +134,6 @@ export default function LPPoolsPage() {
 
     return ret;
   }, [allTokenPoolsList, showMyStakedPools]);
-
   const tableDataToken = {
     tableHeader: [
       {
@@ -193,7 +192,7 @@ export default function LPPoolsPage() {
   return (
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
-      title="LP Pools"
+      title="Token Farming"
       description={<span>Stake tokens to earn tokens</span>}
     >
       <Stack

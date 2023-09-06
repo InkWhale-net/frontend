@@ -40,7 +40,12 @@ import { toast } from "react-hot-toast";
 import { GoStar } from "react-icons/go";
 import { addressShortener, formatNumDynDecimal } from "utils";
 import { format } from "utils/datetime";
-
+const getStatusPool = (startTime, duration) => {
+  if (startTime + duration * 1000 < new Date()) {
+    return "Pool ended!";
+  }
+  return startTime < new Date() ? "Pool live!" : "Upcoming";
+};
 const ElementCard = ({ tableHeader, itemObj, mode, onClickItemHandler }) => {
   return (
     <Box
@@ -297,7 +302,14 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       ) : (
         <></>
       );
-
+    case "status":
+      return (
+        <>
+          <Text>
+            {getStatusPool(itemObj["startTime"], itemObj["duration"])}
+          </Text>
+        </>
+      );
     case "rewardPool":
       return (
         <>
@@ -330,6 +342,7 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       );
 
     case "startTime":
+      console.log(itemObj[header] + itemObj["duration"] * 1000)
       return (
         <>
           <IWCountDown date={itemObj[header] + itemObj["duration"] * 1000} />
@@ -465,6 +478,40 @@ export const formatDataCellTable = (itemObj, header, mode) => {
             }}
           >
             <TokenIcon tokenContract={itemObj["tokenContract"]} />
+          </Box>
+          <Text textAlign="left">{itemObj[header]} </Text>
+        </Flex>
+      );
+    case "tokenName":
+      return (
+        <Flex alignItems={"center"} mr={{ base: "20px" }}>
+          <Box
+            w={{ base: null, lg: "42px" }}
+            sx={{
+              h: "42px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <TokenIcon tokenContract={itemObj["tokenContract"]} />
+          </Box>
+          <Text textAlign="left">{itemObj[header]} </Text>
+        </Flex>
+      );
+    case "lptokenName":
+      return (
+        <Flex alignItems={"center"} mr={{ base: "20px" }}>
+          <Box
+            w={{ base: null, lg: "42px" }}
+            sx={{
+              h: "42px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <TokenIcon tokenContract={itemObj["lptokenContract"]} />
           </Box>
           <Text textAlign="left">{itemObj[header]} </Text>
         </Flex>

@@ -139,6 +139,13 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   useEffect(() => {
     if (table) table.setPageSize(4);
   }, [table]);
+  useEffect(() => {
+    if (!visible) {
+      setSelectedWL(null);
+      setSelectedPhase(0);
+      setSelectedMode(0);
+    }
+  }, [visible]);
   return (
     <Modal
       onClose={() => setVisible(false)}

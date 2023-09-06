@@ -42,10 +42,10 @@ export default function CreateTokenLPPage({ api }) {
   const dispatch = useDispatch();
   const { currentAccount } = useSelector((s) => s.wallet);
   const { myTokenPoolsList, loading } = useSelector((s) => s.myPools);
+  const { allTokensList } = useSelector((s) => s.allPools);
 
   const [createTokenFee, setCreateTokenFee] = useState(0);
 
-  const [faucetTokensList, setFaucetTokensList] = useState([]);
   const [selectedContractAddr, setSelectedContractAddr] = useState("");
 
   const [LPtokenContract, setLPTokenContract] = useState("");
@@ -57,6 +57,17 @@ export default function CreateTokenLPPage({ api }) {
 
   const [tokenBalance, setTokenBalance] = useState(0);
   const [LPtokenBalance, setLPTokenBalance] = useState(0);
+
+  const faucetTokensList = useMemo(() => {
+    return allTokensList?.length > 0
+      ? allTokensList.filter((e) => e?.contractAddress != selectedContractAddr)
+      : [];
+  }, [allTokensList, selectedContractAddr]);
+  const pairTokenList = useMemo(() => {
+    return allTokensList?.length > 0
+      ? allTokensList.filter((e) => e?.contractAddress != LPtokenContract)
+      : [];
+  }, [allTokensList, LPtokenContract]);
 
   const tokenSymbol = useMemo(() => {
     const foundItem = faucetTokensList.find(
@@ -128,32 +139,16 @@ export default function CreateTokenLPPage({ api }) {
       currentAccount?.address
     );
 
-    const balLP = formatQueryResultToNumber(queryResultLP, tokenLPSymbol?.decimal);
+    const balLP = formatQueryResultToNumber(
+      queryResultLP,
+      tokenLPSymbol?.decimal
+    );
     setLPTokenBalance(balLP);
   }, [LPtokenContract, currentAccount, tokenLPSymbol]);
-
 
   useEffect(() => {
     fetchLPTokenBalance();
   }, [fetchLPTokenBalance]);
-
-  useEffect(() => {
-    let isUnmounted = false;
-    const getFaucetTokensListData = async () => {
-      let { ret, status, message } = await APICall.getTokensList({});
-
-      if (status === "OK") {
-        if (isUnmounted) return;
-
-        return setFaucetTokensList(ret);
-      }
-
-      toast.error(`Get faucet tokens list failed. ${message}`);
-    };
-    getFaucetTokensListData();
-
-    return () => (isUnmounted = true);
-  }, []);
 
   useEffect(() => {
     const fetchCreateTokenFee = async () => {
@@ -175,7 +170,7 @@ export default function CreateTokenLPPage({ api }) {
   }, [currentAccount]);
 
   const minReward = useMemo(
-    () => formatNumDynDecimal((maxStake * duration * multiplier)),
+    () => formatNumDynDecimal(maxStake * duration * multiplier),
     [maxStake, duration, multiplier]
   );
 
@@ -211,7 +206,6 @@ export default function CreateTokenLPPage({ api }) {
       return;
     }
 
-
     if (
       !isAddressValid(selectedContractAddr) ||
       !isAddressValid(LPtokenContract)
@@ -233,7 +227,9 @@ export default function CreateTokenLPPage({ api }) {
       parseInt(tokenBalance?.replaceAll(",", "")) <
       minReward?.replaceAll(",", "")
     ) {
-      toast.error(`You don't have enough ${tokenSymbol?.symbol} to topup the reward`);
+      toast.error(
+        `You don't have enough ${tokenSymbol?.symbol} to topup the reward`
+      );
       return;
     }
 
@@ -302,13 +298,6 @@ export default function CreateTokenLPPage({ api }) {
     }
 
     await delay(1000);
-    console.log(currentAccount?.address,
-      LPtokenContract,
-      selectedContractAddr,
-      formatNumToBN(maxStake, tokenLPSymbol?.decimal || 12), 
-      Number(multiplier),
-      roundUp(duration * 24 * 60 * 60 * 1000, 0),
-      startTime.getTime());
     toast.success(`Step ${step}: Process...`);
     await execContractTx(
       currentAccount,
@@ -320,7 +309,7 @@ export default function CreateTokenLPPage({ api }) {
       currentAccount?.address,
       LPtokenContract,
       selectedContractAddr,
-      formatNumToBN(maxStake, tokenLPSymbol?.decimal || 12), 
+      formatNumToBN(maxStake, tokenLPSymbol?.decimal || 12),
       Number(multiplier),
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
@@ -462,7 +451,7 @@ export default function CreateTokenLPPage({ api }) {
                 onChange={({ value }) => {
                   setSelectedContractAddr(value);
                 }}
-                options={faucetTokensList?.map((token, idx) => ({
+                options={pairTokenList?.map((token, idx) => ({
                   value: token?.contractAddress,
                   label: `${token?.symbol} (${
                     token?.name
@@ -529,7 +518,17 @@ export default function CreateTokenLPPage({ api }) {
               <IWInput
                 type="number"
                 placeholder="0"
-                label="Multiplier "
+                label={
+                  <>
+                    Multiplier
+                    <Tooltip
+                      fontSize="md"
+                      label="Multiplier determines how many reward tokens will the staker receive per 1 token in 24 hours"
+                    >
+                      <QuestionOutlineIcon ml="6px" color="text.2" />
+                    </Tooltip>
+                  </>
+                }
                 value={multiplier}
                 onChange={({ target }) => setMultiplier(target.value)}
               />
@@ -574,7 +573,8 @@ export default function CreateTokenLPPage({ api }) {
                 type="number"
                 label={
                   <>
-                    Total Staking Cap {tokenLPSymbol?.symbol ? `(${tokenLPSymbol?.symbol})` : ""}{" "}
+                    Total Staking Cap{" "}
+                    {tokenLPSymbol?.symbol ? `(${tokenLPSymbol?.symbol})` : ""}{" "}
                     <Tooltip
                       fontSize="smaller"
                       label={

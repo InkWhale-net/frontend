@@ -367,7 +367,7 @@ export const StakeMenuDropdown = ({
               label: "Token Pools",
               href: "/pools",
             },
-            { label: "Farms", href: "/token-lp" },
+            { label: "Farming", href: "/token-lp" },
             { label: "NFT Pools", href: "/farms" },
             // { label: "NFT Yield Farm", href: "/create/nft-lp" },
             // { label: "Token Yield Farm", href: "/create/token-lp" },

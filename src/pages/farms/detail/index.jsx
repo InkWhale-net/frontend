@@ -24,7 +24,7 @@ import CardThreeColumn from "components/card/CardThreeColumn";
 import NFTGroup from "components/card/NFTGroup";
 import IWInput from "components/input/Input";
 import ConfirmModal from "components/modal/ConfirmModal";
-import { formatDataCellTable } from "components/table/IWTable";
+import { formatDataCellTable } from "components/table/IWPaginationTable";
 import IWTabs from "components/tabs/IWTabs";
 import { toastMessages } from "constants";
 import useInterval from "hook/useInterval";
@@ -108,13 +108,32 @@ export default function FarmDetailPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const availableStakeAmount = useMemo(() => {
+    if (
+      currentTokenPool?.totalStaked >= 0 &&
+      currentTokenPool?.lptokenDecimal &&
+      currentTokenPool?.maxStakingAmount > 0
+    ) {
+      return (
+        currentTokenPool?.maxStakingAmount -
+        +formatTokenAmount(
+          currentTokenPool?.totalStaked?.toString(),
+          currentTokenPool?.lptokenDecimal
+        )
+      );
+    }
+  }, [currentTokenPool]);
+
   const maxStaked = useMemo(() => {
-    return !(
-      parseFloat(currentNFTPool?.maxStakingAmount) -
-        currentNFTPool?.totalStaked >
-      0
-    );
-  }, []);
+    return currMode === "NFT_FARM"
+      ? !(
+          parseFloat(currentNFTPool?.maxStakingAmount) -
+            currentNFTPool?.totalStaked >
+          0
+        )
+      : !(availableStakeAmount > 0);
+  }, [availableStakeAmount, currentNFTPool]);
   const updateTokenData = async () => {
     let queryResult = await execContractQuery(
       currentAccount?.address,
@@ -147,7 +166,7 @@ export default function FarmDetailPage() {
       dispatch(fetchAllNFTPools({ currentAccount }));
     }
   }, [currentAccount, api]);
-
+  console.log(currentTokenPool);
   const cardData = {
     cardHeaderList: [
       {
@@ -207,7 +226,10 @@ export default function FarmDetailPage() {
       totalStaked:
         currMode === "NFT_FARM"
           ? currentNFTPool?.totalStaked
-          : currentTokenPool?.totalStaked,
+          : formatTokenAmount(
+              currentTokenPool?.totalStaked,
+              currentTokenPool?.lptokenDecimal
+            ),
       rewardPool:
         currMode === "NFT_FARM"
           ? currentNFTPool?.rewardPool
@@ -233,12 +255,13 @@ export default function FarmDetailPage() {
             mode={currMode}
             {...currentTokenPool}
             {...currentAccount}
+            availableStakeAmount={availableStakeAmount}
           />
         ),
       isDisabled: false,
     },
     {
-      label: <>Pool Information</>,
+      label: <>Pool Infor</>,
       component: (
         <PoolInfo
           mode={currMode}
@@ -274,7 +297,8 @@ export default function FarmDetailPage() {
 
             <BreadcrumbItem color="text.2">
               <BreadcrumbLink>
-                {currMode === "NFT_FARM" ? "NFT Staking" : "LP Token Farming"}  Pool
+                {currMode === "NFT_FARM" ? "NFT Staking" : "LP Token Farming"}{" "}
+                Pool
               </BreadcrumbLink>
             </BreadcrumbItem>
           </Breadcrumb>
@@ -429,7 +453,9 @@ const MyStakeRewardInfoNFT = ({
     if (info) {
       info = {
         ...info,
-        lastRewardUpdate: Number(formatChainStringToNumber(info.lastRewardUpdate)),
+        lastRewardUpdate: Number(
+          formatChainStringToNumber(info.lastRewardUpdate)
+        ),
         stakedValue: formatChainStringToNumber(info.stakedValue),
         unclaimedReward: formatChainStringToNumber(info.unclaimedReward),
       };
@@ -899,6 +925,7 @@ const MyStakeRewardInfoToken = ({
   startTime,
   totalStaked,
   maxStakingAmount,
+  availableStakeAmount,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -925,12 +952,13 @@ const MyStakeRewardInfoToken = ({
     );
 
     let info = queryResult?.toHuman().Ok;
-    console.log(queryResult?.toHuman(), 'infoinfo');
 
     if (info) {
       info = {
         ...info,
-        lastRewardUpdate: Number(formatChainStringToNumber(info.lastRewardUpdate)),
+        lastRewardUpdate: Number(
+          formatChainStringToNumber(info.lastRewardUpdate)
+        ),
         stakedValue: formatChainStringToNumber(info.stakedValue),
         unclaimedReward: formatChainStringToNumber(info.unclaimedReward),
       };
@@ -969,17 +997,9 @@ const MyStakeRewardInfoToken = ({
     fetchUserStakeInfo();
     fetchTokenBalance();
   }, [fetchTokenBalance, fetchUserStakeInfo]);
-  const availableStakeAmount = useMemo(() => {
-    if (totalStaked >= 0 && lptokenDecimal && maxStakingAmount > 0) {
-      return (
-        maxStakingAmount -
-        +formatTokenAmount(totalStaked?.toString(), lptokenDecimal)
-      );
-    }
-  }, [totalStaked, maxStakingAmount, lptokenDecimal]);
+
   useEffect(() => {
     const fetchFee = async () => {
-
       const result = await execContractQuery(
         currentAccount?.address,
         "api",
@@ -1141,7 +1161,7 @@ const MyStakeRewardInfoToken = ({
       }
     );
   }
-  console.log(stakeInfo?.stakedValue?.toString(), 'stakeInfo?.stakedValue?.toString()');
+
   async function unstakeTokenLPHandler(tokenID) {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
@@ -1159,7 +1179,11 @@ const MyStakeRewardInfoToken = ({
       toast.error("Invalid Amount!");
       return;
     }
-    if (Number(formatTokenAmount(stakeInfo?.stakedValue?.toString(), lptokenDecimal)) < LPTokenAmount) {
+    if (
+      Number(
+        formatTokenAmount(stakeInfo?.stakedValue?.toString(), lptokenDecimal)
+      ) < LPTokenAmount
+    ) {
       toast.error("There is not enough balance!");
       return;
     }
@@ -1278,7 +1302,10 @@ const MyStakeRewardInfoToken = ({
             {
               title: `My Stakes ${nftInfo?.name ? `(${nftInfo?.name})` : ""}`,
               content: `${formatNumDynDecimal(
-                +formatTokenAmount(stakeInfo?.stakedValue?.toString(), lptokenDecimal)
+                +formatTokenAmount(
+                  stakeInfo?.stakedValue?.toString(),
+                  lptokenDecimal
+                )
               )}`,
             },
             {
