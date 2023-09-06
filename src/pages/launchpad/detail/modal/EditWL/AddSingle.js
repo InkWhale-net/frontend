@@ -50,6 +50,10 @@ const AddSingleWL = ({
         toast.error("Whitelist address existed");
         return;
       }
+      if (+wlData?.amount > +availableTokenAmount) {
+        toast.error(`Maximum amount is ${availableTokenAmount}`);
+        return;
+      }
       const result = await execContractTx(
         currentAccount,
         api,
@@ -95,7 +99,10 @@ const AddSingleWL = ({
 
   const updateSingleWLHandler = async () => {
     try {
-      if (+availableTokenAmount + +selectedWL?.account < +wlData?.amount) {
+      if (
+        wlData?.amount < 0 ||
+        +wlData?.amount - +selectedWL?.amount > +availableTokenAmount
+      ) {
         toast.error("Invalid token amount");
         return;
       }
