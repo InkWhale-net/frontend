@@ -38,6 +38,7 @@ import React, { useEffect, useState } from "react";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import { toast } from "react-hot-toast";
 import { GoStar } from "react-icons/go";
+import { formatTokenAmount } from "utils";
 import { addressShortener, formatNumDynDecimal } from "utils";
 import { format } from "utils/datetime";
 const getStatusPool = (startTime, duration) => {
@@ -342,7 +343,6 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       );
 
     case "startTime":
-      console.log(itemObj[header] + itemObj["duration"] * 1000);
       return (
         <>
           <IWCountDown date={itemObj[header] + itemObj["duration"] * 1000} />
@@ -415,8 +415,12 @@ export const formatDataCellTable = (itemObj, header, mode) => {
     case "stakeInfo":
       const numberStakeInfo =
         itemObj[header] &&
-        formatNumDynDecimal(itemObj[header].stakedValue / 10 ** 12);
-
+        formatNumDynDecimal(
+          formatTokenAmount(
+            itemObj[header].stakedValue,
+            parseInt(itemObj?.lptokenDecimal)
+          )
+        );
       const numberNFTStakeInfo =
         itemObj[header] && formatNumDynDecimal(itemObj[header].stakedValue);
 
@@ -429,10 +433,12 @@ export const formatDataCellTable = (itemObj, header, mode) => {
                 <GoStar color="#FFB800" />
               </Flex>
             ) : (
-              <Flex alignItems="center">
-                <Text mr="8px">{numberStakeInfo}</Text>
-                <GoStar color="#FFB800" />
-              </Flex>
+              numberStakeInfo > 0 && (
+                <Flex alignItems="center">
+                  <Text mr="8px">{numberStakeInfo}</Text>
+                  <GoStar color="#FFB800" />
+                </Flex>
+              )
             )
           ) : (
             ""

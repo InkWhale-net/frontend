@@ -129,11 +129,15 @@ export default function LPPoolsPage() {
     let ret = allTokenPoolsList;
 
     if (showMyStakedPools) {
-      ret = allTokenPoolsList.filter((p) => p.stakeInfo);
+      ret = allTokenPoolsList.filter((p) => p?.stakeInfo?.stakedValue > 0);
+    }
+
+    if (endedPools) {
+      ret = ret.filter((p) => isPoolEnded(p?.startTime, p?.duration));
     }
 
     return ret;
-  }, [allTokenPoolsList, showMyStakedPools]);
+  }, [allTokenPoolsList, showMyStakedPools, endedPools]);
   const tableDataToken = {
     tableHeader: [
       {

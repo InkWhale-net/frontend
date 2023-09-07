@@ -27,7 +27,7 @@ import IWCardOneColumn from "components/card/CardOneColumn";
 import CardThreeColumn from "components/card/CardThreeColumn";
 import CardTwoColumn from "components/card/CardTwoColumn";
 import ConfirmModal from "components/modal/ConfirmModal";
-import { formatDataCellTable } from "components/table/IWTable";
+import { formatDataCellTable } from "components/table/IWPaginationTable";
 import IWTabs from "components/tabs/IWTabs";
 import { toastMessages } from "constants";
 import { useAppContext } from "contexts/AppContext";
@@ -132,11 +132,13 @@ export default function PoolDetailPage() {
 
     cardValue: {
       ...currentPool,
-      totalStaked: currentPool?.totalStaked,
+      totalStaked: formatTokenAmount(
+        currentPool?.totalStaked,
+        currentPool?.tokenDecimal
+      ),
       rewardPool: currentPool?.rewardPool,
     },
   };
-
   const tabsData = [
     {
       label: "My Stakes & Rewards",
@@ -312,7 +314,9 @@ const MyStakeRewardInfo = ({
     if (info) {
       info = {
         ...info,
-        lastRewardUpdate: Number(formatChainStringToNumber(info.lastRewardUpdate)),
+        lastRewardUpdate: Number(
+          formatChainStringToNumber(info.lastRewardUpdate)
+        ),
         stakedValue: formatChainStringToNumber(info.stakedValue),
         unclaimedReward: formatChainStringToNumber(info.unclaimedReward),
       };
@@ -443,7 +447,7 @@ const MyStakeRewardInfo = ({
         return false;
       }
 
-      if (formatChainStringToNumber(tokenBalance) < amount) {
+      if (+formatChainStringToNumber(tokenBalance) < +amount) {
         toast.error("Not enough tokens!");
         return false;
       }
@@ -566,12 +570,11 @@ const MyStakeRewardInfo = ({
       toast.error("Invalid Amount!");
       return;
     }
-
-    if (stakeInfo?.stakedValue / 10 ** tokenDecimal < amount) {
-      toast.error("Not enough tokens!");
-      return;
-    }
-
+    // if (stakeInfo?.stakedValue / 10 ** tokenDecimal < amount) {
+    //   toast.error("Not enough tokens!");
+    //   return;
+    // }
+    return;
     //Approve
     toast.success("Step 1: Approving...");
 
