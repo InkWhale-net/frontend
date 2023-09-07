@@ -15,6 +15,7 @@ import {
 import SectionContainer from "components/container/SectionContainer";
 
 import IWInput from "components/input/Input";
+import { IWMobileList } from "components/table/IWMobileList";
 import { IWTable } from "components/table/IWTable";
 import { useEffect, useMemo, useState } from "react";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
@@ -312,8 +313,11 @@ export default function LPPoolsPage() {
           </Box> */}
         </HStack>
 
-        {/* <IWTabs tabsData={tabsData} loading={loading} /> */}
-        <IWTable {...tableDataToken} mode="TOKEN_FARM" />
+        {isSmallerThanMd ? (
+          <IWMobileList {...tableDataToken} mode="TOKEN_FARM" />
+        ) : (
+          <IWTable {...tableDataToken} mode="TOKEN_FARM" />
+        )}
       </Stack>
     </SectionContainer>
   );

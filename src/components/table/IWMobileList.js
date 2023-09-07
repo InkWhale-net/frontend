@@ -3,7 +3,7 @@ import { Box, Flex, Grid, Text, Tooltip } from "@chakra-ui/react";
 import React from "react";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import { useHistory, useLocation } from "react-router-dom";
-import { formatDataCellTable } from "./IWTable";
+import { formatDataCellTable } from "./IWPaginationTable";
 
 const getStatusPool = (startTime, duration) => {
   if (startTime + duration * 1000 < new Date()) {
