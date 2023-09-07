@@ -296,7 +296,7 @@ export const formatDataCellTable = (itemObj, header, mode) => {
 
     case "multiplier":
       return mode === "TOKEN_FARM" ? (
-        <Text>{(itemObj[header] / 10 ** 6).toFixed(2)}</Text>
+        <Text>{itemObj[header].toFixed(2)}</Text>
       ) : mode === "NFT_FARM" ? (
         <Text>{(itemObj[header] / 10 ** 12).toFixed(2)}</Text>
       ) : (
@@ -342,7 +342,7 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       );
 
     case "startTime":
-      console.log(itemObj[header] + itemObj["duration"] * 1000)
+      console.log(itemObj[header] + itemObj["duration"] * 1000);
       return (
         <>
           <IWCountDown date={itemObj[header] + itemObj["duration"] * 1000} />
@@ -495,6 +495,23 @@ export const formatDataCellTable = (itemObj, header, mode) => {
             }}
           >
             <TokenIcon tokenContract={itemObj["tokenContract"]} />
+          </Box>
+          <Text textAlign="left">{itemObj[header]} </Text>
+        </Flex>
+      );
+    case "lptokenSymbol":
+      return (
+        <Flex alignItems={"center"} mr={{ base: "20px" }}>
+          <Box
+            w={{ base: null, lg: "42px" }}
+            sx={{
+              h: "42px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <TokenIcon tokenContract={itemObj["lptokenContract"]} />
           </Box>
           <Text textAlign="left">{itemObj[header]} </Text>
         </Flex>

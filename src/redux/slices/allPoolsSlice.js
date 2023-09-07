@@ -7,6 +7,7 @@ import { execContractQuery } from "utils/contracts";
 import lp_pool_contract from "utils/contracts/lp_pool_contract";
 import nft_pool_contract from "utils/contracts/nft_pool_contract";
 import pool_contract from "utils/contracts/pool_contract";
+import { compare } from "utils/datetime";
 
 const initialState = {
   loading: false,
@@ -102,9 +103,9 @@ export const fetchAllStakingPools = createAsyncThunk(
           if (stakeInfo) {
             stakeInfo = {
               ...stakeInfo,
-              lastRewardUpdate: Number(formatChainStringToNumber(
-                stakeInfo.lastRewardUpdate
-              )),
+              lastRewardUpdate: Number(
+                formatChainStringToNumber(stakeInfo.lastRewardUpdate)
+              ),
               stakedValue: formatChainStringToNumber(stakeInfo.stakedValue),
               unclaimedReward: formatChainStringToNumber(
                 stakeInfo.unclaimedReward
@@ -161,9 +162,9 @@ export const fetchAllNFTPools = createAsyncThunk(
           if (stakeInfo) {
             stakeInfo = {
               ...stakeInfo,
-              lastRewardUpdate: Number(formatChainStringToNumber(
-                stakeInfo.lastRewardUpdate
-              )),
+              lastRewardUpdate: Number(
+                formatChainStringToNumber(stakeInfo.lastRewardUpdate)
+              ),
               stakedValue: formatChainStringToNumber(stakeInfo.stakedValue),
               unclaimedReward: formatChainStringToNumber(
                 stakeInfo.unclaimedReward
@@ -194,35 +195,42 @@ export const fetchAllTokenPools = createAsyncThunk(
 
     if (status === "OK") {
       const tokenLPListAddNftInfo = await Promise.all(
-        ret?.map(async (tokenLP) => {
-          // get stake info
-          let queryResult = await execContractQuery(
-            params?.currentAccount?.address,
-            "api",
-            lp_pool_contract.CONTRACT_ABI,
-            tokenLP?.poolContract,
-            0,
-            "genericPoolContractTrait::getStakeInfo",
-            params?.currentAccount?.address
-          );
+        ret
+          ?.sort((a, b) => {
+            const createdTimeA = a.createdTime ? new Date(a.createdTime) : 0;
+            const createdTimeB = b.createdTime ? new Date(b.createdTime) : 0;
+            return compare(createdTimeB, createdTimeA);
+          })
+          ?.map(async (tokenLP) => {
+            // console.log(tokenLP?.createdTime);
+            // get stake info
+            let queryResult = await execContractQuery(
+              params?.currentAccount?.address,
+              "api",
+              lp_pool_contract.CONTRACT_ABI,
+              tokenLP?.poolContract,
+              0,
+              "genericPoolContractTrait::getStakeInfo",
+              params?.currentAccount?.address
+            );
 
-          let stakeInfo = queryResult?.toHuman().Ok;
+            let stakeInfo = queryResult?.toHuman().Ok;
 
-          if (stakeInfo) {
-            stakeInfo = {
-              ...stakeInfo,
-              lastRewardUpdate: Number(formatChainStringToNumber(
-                stakeInfo.lastRewardUpdate
-              )),
-              stakedValue: formatChainStringToNumber(stakeInfo.stakedValue),
-              unclaimedReward: formatChainStringToNumber(
-                stakeInfo.unclaimedReward
-              ),
-            };
-          }
+            if (stakeInfo) {
+              stakeInfo = {
+                ...stakeInfo,
+                lastRewardUpdate: Number(
+                  formatChainStringToNumber(stakeInfo.lastRewardUpdate)
+                ),
+                stakedValue: formatChainStringToNumber(stakeInfo.stakedValue),
+                unclaimedReward: formatChainStringToNumber(
+                  stakeInfo.unclaimedReward
+                ),
+              };
+            }
 
-          return { ...tokenLP, stakeInfo };
-        })
+            return { ...tokenLP, stakeInfo };
+          })
       );
       data = tokenLPListAddNftInfo;
     } else {

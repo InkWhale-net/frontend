@@ -42,6 +42,7 @@ export default function CreateTokenLPPage({ api }) {
   const dispatch = useDispatch();
   const { currentAccount } = useSelector((s) => s.wallet);
   const { myTokenPoolsList, loading } = useSelector((s) => s.myPools);
+  console.log(myTokenPoolsList)
   const { allTokensList } = useSelector((s) => s.allPools);
 
   const [createTokenFee, setCreateTokenFee] = useState(0);

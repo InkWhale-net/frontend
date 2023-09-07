@@ -26,6 +26,7 @@ import FadeIn from "react-fade-in/lib/FadeIn";
 import TokenIcon from "components/TokenIcon";
 import AddressCopier from "components/address-copier/AddressCopier";
 import { formatTokenAmount } from "utils";
+import { formatDataCellTable as formatDataCellTableNew } from "./IWPaginationTable";
 
 const getStatusPool = (startTime, duration) => {
   if (startTime + duration * 1000 < new Date()) {
@@ -134,7 +135,7 @@ export function IWTable({
                           return (
                             <Td key={idx}>
                               <FadeIn>
-                                {formatDataCellTable(itemObj, i?.name, mode)}
+                                {formatDataCellTableNew(itemObj, i?.name, mode)}
                               </FadeIn>
                             </Td>
                           );
@@ -161,9 +162,11 @@ export const formatDataCellTable = (itemObj, header, mode) => {
           <Text>
             {mode == "NFT_FARM"
               ? itemObj[header]
-              : mode === "TOKEN_FARM" ? formatNumDynDecimal(
+              : mode === "TOKEN_FARM"
+              ? formatNumDynDecimal(
                   formatTokenAmount(itemObj[header], itemObj?.lptokenDecimal)
-                ) : formatNumDynDecimal(
+                )
+              : formatNumDynDecimal(
                   formatTokenAmount(itemObj[header], itemObj?.tokenDecimal)
                 )}{" "}
             {itemObj["NFTtokenContract"] && extPart}
@@ -282,7 +285,12 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       const numberStakeInfo =
         itemObj[header] &&
         formatNumDynDecimal(
-          formatTokenAmount(itemObj[header].stakedValue, mode === "TOKEN_FARM" ? itemObj?.lptokenDecimal : itemObj?.tokenDecimal)
+          formatTokenAmount(
+            itemObj[header].stakedValue,
+            mode === "TOKEN_FARM"
+              ? itemObj?.lptokenDecimal
+              : itemObj?.tokenDecimal
+          )
         );
 
       const numberNFTStakeInfo =

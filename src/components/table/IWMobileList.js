@@ -1,22 +1,8 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Circle,
-  Flex,
-  Grid,
-  Image,
-  Text,
-  Tooltip,
-} from "@chakra-ui/react";
-import TokenIcon from "components/TokenIcon";
-import AddressCopier from "components/address-copier/AddressCopier";
-import IWCountDown from "components/countdown/CountDown";
-import ImageCloudFlare from "components/image-cf/ImageCF";
-import React, { useEffect } from "react";
+import { Box, Flex, Grid, Text, Tooltip } from "@chakra-ui/react";
+import React from "react";
 import FadeIn from "react-fade-in/lib/FadeIn";
-import { GoStar } from "react-icons/go";
 import { useHistory, useLocation } from "react-router-dom";
-import { formatNumDynDecimal } from "utils";
 import { formatDataCellTable } from "./IWTable";
 
 const getStatusPool = (startTime, duration) => {
