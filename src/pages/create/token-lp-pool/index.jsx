@@ -42,7 +42,6 @@ export default function CreateTokenLPPage({ api }) {
   const dispatch = useDispatch();
   const { currentAccount } = useSelector((s) => s.wallet);
   const { myTokenPoolsList, loading } = useSelector((s) => s.myPools);
-  console.log(myTokenPoolsList)
   const { allTokensList } = useSelector((s) => s.allPools);
 
   const [createTokenFee, setCreateTokenFee] = useState(0);
@@ -70,13 +69,13 @@ export default function CreateTokenLPPage({ api }) {
       : [];
   }, [allTokensList, LPtokenContract]);
 
-  const tokenSymbol = useMemo(() => {
-    const foundItem = faucetTokensList.find(
-      (item) => item.contractAddress === selectedContractAddr
-    );
-
-    return foundItem;
-  }, [faucetTokensList, selectedContractAddr]);
+  const tokenSymbol = useMemo(
+    () =>
+      pairTokenList.find(
+        (item) => item.contractAddress === selectedContractAddr
+      ),
+    [pairTokenList, selectedContractAddr]
+  );
 
   const fetchTokenBalance = useCallback(async () => {
     if (!selectedContractAddr) return;
@@ -544,7 +543,7 @@ export default function CreateTokenLPPage({ api }) {
                 w="full"
               >
                 <IWInput
-                  isDisabled={true}
+                  isDisabled
                   value={`${LPtokenBalance || 0}`}
                   // label={`Your ${tokenLPSymbol || "Token"} Balance`}
                   label={`Your Token Balance`}
@@ -556,7 +555,7 @@ export default function CreateTokenLPPage({ api }) {
                 />
                 <IWInput
                   ml={{ lg: "10px" }}
-                  isDisabled={true}
+                  isDisabled
                   value={`${tokenBalance || 0}`}
                   // label={`Your ${tokenSymbol || "Token"} Balance`}
                   inputRightElementIcon={

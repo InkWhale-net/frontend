@@ -166,7 +166,7 @@ export default function FarmDetailPage() {
       dispatch(fetchAllNFTPools({ currentAccount }));
     }
   }, [currentAccount, api]);
-  console.log(currentTokenPool);
+
   const cardData = {
     cardHeaderList: [
       {
@@ -1381,13 +1381,13 @@ const MyStakeRewardInfoToken = ({
                 />
 
                 <ConfirmModal
+                  disableBtn={!(stakeInfo?.stakedValue > 0)}
                   action="unstake"
                   buttonVariant="primary"
                   buttonLabel="Unstake"
                   onClick={unstakeTokenLPHandler}
                   message={`Unstake costs ${unstakeFee} INW. Continue?`}
                 />
-                {}
               </HStack>
             </Flex>
           </IWCard>
