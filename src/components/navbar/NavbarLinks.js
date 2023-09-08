@@ -211,10 +211,10 @@ export const menuListData = [
     title: "Acquire INW",
     href: "/acquire-inw",
   },
-  {
-    title: "Launchpad",
-    href: "/launchpad",
-  },
+  // {
+  //   title: "Launchpad",
+  //   href: "/launchpad",
+  // },
 ];
 
 export const CreateMenuDropdown = ({
@@ -277,15 +277,15 @@ export const CreateMenuDropdown = ({
               },
               href: "/create/nft-lp",
             },
-            {
-              label: "Launchpad",
-              onClick: () => {
-                if (onClose) {
-                  onClose();
-                }
-              },
-              href: "/launchpad/create",
-            },
+            // {
+            //   label: "Launchpad",
+            //   onClick: () => {
+            //     if (onClose) {
+            //       onClose();
+            //     }
+            //   },
+            //   href: "/launchpad/create",
+            // },
             // { label: "Token Yield Farm", href: "/create/token-lp" },
           ].map((item, idx) => (
             <IWCard
