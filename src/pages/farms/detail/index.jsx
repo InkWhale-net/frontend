@@ -1072,7 +1072,7 @@ const MyStakeRewardInfoToken = ({
       return;
     }
 
-    if (formatChainStringToNumber(LPtokenBalance) < LPTokenAmount) {
+    if (+formatChainStringToNumber(LPtokenBalance) < +LPTokenAmount) {
       toast.error("There is not enough balance!");
       return;
     }

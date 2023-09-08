@@ -314,7 +314,7 @@ export const formatDataCellTable = (itemObj, header, mode) => {
     case "rewardPool":
       return (
         <>
-          <Text>{formatNumDynDecimal(itemObj[header])}</Text>
+          <Text>{formatNumDynDecimal(itemObj[header], 2)}</Text>
         </>
       );
     case "purchasedAmount":
