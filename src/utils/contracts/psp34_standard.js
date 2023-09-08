@@ -1,12 +1,12 @@
 const psp34_standard = {
-  	CONTRACT_ABI: {
+	CONTRACT_ABI: {
 	  "source": {
-		"hash": "0x2f64f82f62a48b477c86b73a8d70ad0f632682acd9fc49bbac87edf91e9dbde9",
+		"hash": "0x50bdecd99513974cd70cbe3969059992ed155ae05c6f7c2a5db007cad7aea032",
 		"language": "ink! 4.0.1",
 		"compiler": "rustc 1.70.0-nightly",
 		"build_info": {
 		  "build_mode": "Release",
-		  "cargo_contract_version": "2.0.2",
+		  "cargo_contract_version": "2.1.0",
 		  "rust_toolchain": "nightly-x86_64-unknown-linux-gnu",
 		  "wasm_opt_settings": {
 			"keep_debug_symbols": false,
@@ -78,7 +78,7 @@ const psp34_standard = {
 				  "displayName": [
 					"Option"
 				  ],
-				  "type": 34
+				  "type": 30
 				}
 			  },
 			  {
@@ -89,7 +89,7 @@ const psp34_standard = {
 				  "displayName": [
 					"Option"
 				  ],
-				  "type": 34
+				  "type": 30
 				}
 			  },
 			  {
@@ -100,7 +100,7 @@ const psp34_standard = {
 				  "displayName": [
 					"Id"
 				  ],
-				  "type": 27
+				  "type": 25
 				}
 			  }
 			],
@@ -119,7 +119,7 @@ const psp34_standard = {
 				  "displayName": [
 					"Option"
 				  ],
-				  "type": 34
+				  "type": 30
 				}
 			  },
 			  {
@@ -130,7 +130,7 @@ const psp34_standard = {
 				  "displayName": [
 					"Option"
 				  ],
-				  "type": 34
+				  "type": 30
 				}
 			  },
 			  {
@@ -141,7 +141,7 @@ const psp34_standard = {
 				  "displayName": [
 					"Id"
 				  ],
-				  "type": 27
+				  "type": 25
 				}
 			  },
 			  {
@@ -217,23 +217,6 @@ const psp34_standard = {
 		  {
 			"args": [],
 			"docs": [
-			  " Returns the address of the current owner."
-			],
-			"label": "Ownable::owner",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 22
-			},
-			"selector": "0x4fa43c8c"
-		  },
-		  {
-			"args": [],
-			"docs": [
 			  " Leaves the contract without owner. It will not be possible to call",
 			  " owner's functions anymore. Can only be called by the current owner.",
 			  "",
@@ -254,9 +237,26 @@ const psp34_standard = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 23
+			  "type": 22
 			},
 			"selector": "0x5e228753"
+		  },
+		  {
+			"args": [],
+			"docs": [
+			  " Returns the address of the current owner."
+			],
+			"label": "Ownable::owner",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 24
+			},
+			"selector": "0x4fa43c8c"
 		  },
 		  {
 			"args": [
@@ -291,132 +291,9 @@ const psp34_standard = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 23
+			  "type": 22
 			},
 			"selector": "0x11f43efd"
-		  },
-		  {
-			"args": [
-			  {
-				"label": "owner",
-				"type": {
-				  "displayName": [
-					"psp34_external",
-					"BalanceOfInput1"
-				  ],
-				  "type": 0
-				}
-			  }
-			],
-			"docs": [
-			  " Returns the balance of the owner.",
-			  "",
-			  " This represents the amount of unique tokens the owner has."
-			],
-			"label": "PSP34::balance_of",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 25
-			},
-			"selector": "0xcde7e55f"
-		  },
-		  {
-			"args": [],
-			"docs": [
-			  " Returns the collection `Id` of the NFT token.",
-			  "",
-			  " This can represents the relationship between tokens/contracts/pallets."
-			],
-			"label": "PSP34::collection_id",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 26
-			},
-			"selector": "0xffa27a5f"
-		  },
-		  {
-			"args": [
-			  {
-				"label": "operator",
-				"type": {
-				  "displayName": [
-					"psp34_external",
-					"ApproveInput1"
-				  ],
-				  "type": 0
-				}
-			  },
-			  {
-				"label": "id",
-				"type": {
-				  "displayName": [
-					"psp34_external",
-					"ApproveInput2"
-				  ],
-				  "type": 28
-				}
-			  },
-			  {
-				"label": "approved",
-				"type": {
-				  "displayName": [
-					"psp34_external",
-					"ApproveInput3"
-				  ],
-				  "type": 9
-				}
-			  }
-			],
-			"docs": [
-			  " Approves `operator` to withdraw the `id` token from the caller's account.",
-			  " If `id` is `None` approves or disapproves the operator for all tokens of the caller.",
-			  "",
-			  " On success a `Approval` event is emitted.",
-			  "",
-			  " # Errors",
-			  "",
-			  " Returns `SelfApprove` error if it is self approve.",
-			  "",
-			  " Returns `NotApproved` error if caller is not owner of `id`."
-			],
-			"label": "PSP34::approve",
-			"mutates": true,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 29
-			},
-			"selector": "0x1932a8b0"
-		  },
-		  {
-			"args": [],
-			"docs": [
-			  " Returns current NFT total supply."
-			],
-			"label": "PSP34::total_supply",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 31
-			},
-			"selector": "0x628413fe"
 		  },
 		  {
 			"args": [
@@ -437,7 +314,7 @@ const psp34_standard = {
 					"psp34_external",
 					"TransferInput2"
 				  ],
-				  "type": 27
+				  "type": 25
 				}
 			  },
 			  {
@@ -472,9 +349,54 @@ const psp34_standard = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 29
+			  "type": 26
 			},
 			"selector": "0x3128d61b"
+		  },
+		  {
+			"args": [],
+			"docs": [
+			  " Returns current NFT total supply."
+			],
+			"label": "PSP34::total_supply",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 28
+			},
+			"selector": "0x628413fe"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "id",
+				"type": {
+				  "displayName": [
+					"psp34_external",
+					"OwnerOfInput1"
+				  ],
+				  "type": 25
+				}
+			  }
+			],
+			"docs": [
+			  " Returns the owner of the token if any."
+			],
+			"label": "PSP34::owner_of",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 29
+			},
+			"selector": "0x1168624d"
 		  },
 		  {
 			"args": [
@@ -505,7 +427,7 @@ const psp34_standard = {
 					"psp34_external",
 					"AllowanceInput3"
 				  ],
-				  "type": 28
+				  "type": 31
 				}
 			  }
 			],
@@ -526,22 +448,13 @@ const psp34_standard = {
 			"selector": "0x4790f55a"
 		  },
 		  {
-			"args": [
-			  {
-				"label": "id",
-				"type": {
-				  "displayName": [
-					"psp34_external",
-					"OwnerOfInput1"
-				  ],
-				  "type": 27
-				}
-			  }
-			],
+			"args": [],
 			"docs": [
-			  " Returns the owner of the token if any."
+			  " Returns the collection `Id` of the NFT token.",
+			  "",
+			  " This can represents the relationship between tokens/contracts/pallets."
 			],
-			"label": "PSP34::owner_of",
+			"label": "PSP34::collection_id",
 			"mutates": false,
 			"payable": false,
 			"returnType": {
@@ -551,7 +464,94 @@ const psp34_standard = {
 			  ],
 			  "type": 33
 			},
-			"selector": "0x1168624d"
+			"selector": "0xffa27a5f"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "owner",
+				"type": {
+				  "displayName": [
+					"psp34_external",
+					"BalanceOfInput1"
+				  ],
+				  "type": 0
+				}
+			  }
+			],
+			"docs": [
+			  " Returns the balance of the owner.",
+			  "",
+			  " This represents the amount of unique tokens the owner has."
+			],
+			"label": "PSP34::balance_of",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 34
+			},
+			"selector": "0xcde7e55f"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "operator",
+				"type": {
+				  "displayName": [
+					"psp34_external",
+					"ApproveInput1"
+				  ],
+				  "type": 0
+				}
+			  },
+			  {
+				"label": "id",
+				"type": {
+				  "displayName": [
+					"psp34_external",
+					"ApproveInput2"
+				  ],
+				  "type": 31
+				}
+			  },
+			  {
+				"label": "approved",
+				"type": {
+				  "displayName": [
+					"psp34_external",
+					"ApproveInput3"
+				  ],
+				  "type": 9
+				}
+			  }
+			],
+			"docs": [
+			  " Approves `operator` to withdraw the `id` token from the caller's account.",
+			  " If `id` is `None` approves or disapproves the operator for all tokens of the caller.",
+			  "",
+			  " On success a `Approval` event is emitted.",
+			  "",
+			  " # Errors",
+			  "",
+			  " Returns `SelfApprove` error if it is self approve.",
+			  "",
+			  " Returns `NotApproved` error if caller is not owner of `id`."
+			],
+			"label": "PSP34::approve",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 26
+			},
+			"selector": "0x1932a8b0"
 		  },
 		  {
 			"args": [
@@ -562,7 +562,7 @@ const psp34_standard = {
 					"psp34metadata_external",
 					"GetAttributeInput1"
 				  ],
-				  "type": 27
+				  "type": 25
 				}
 			  },
 			  {
@@ -668,9 +668,9 @@ const psp34_standard = {
 		  {
 			"args": [],
 			"docs": [
-			  " This function return the latest token ID, everytime new NFT is mint, last_token_id is increased by 1 in mint function. Note: This is not the same as the total supply return by the psp34 function as NFT can be burnt."
+			  " This function return the owner of the NFT Contract"
 			],
-			"label": "Psp34Traits::get_last_token_id",
+			"label": "Psp34Traits::get_owner",
 			"mutates": false,
 			"payable": false,
 			"returnType": {
@@ -678,9 +678,9 @@ const psp34_standard = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 39
+			  "type": 24
 			},
-			"selector": "0x6f315836"
+			"selector": "0x8e1d8d71"
 		  },
 		  {
 			"args": [
@@ -717,9 +717,37 @@ const psp34_standard = {
 				"type": {
 				  "displayName": [
 					"psp34traits_external",
+					"TokenUriInput1"
+				  ],
+				  "type": 6
+				}
+			  }
+			],
+			"docs": [
+			  " This function return the metadata location of an NFT. The format is baseURI/<token_id>.json"
+			],
+			"label": "Psp34Traits::token_uri",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 39
+			},
+			"selector": "0x249dfd4f"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "token_id",
+				"type": {
+				  "displayName": [
+					"psp34traits_external",
 					"GetAttributesInput1"
 				  ],
-				  "type": 27
+				  "type": 25
 				}
 			  },
 			  {
@@ -757,7 +785,7 @@ const psp34_standard = {
 					"psp34traits_external",
 					"LockInput1"
 				  ],
-				  "type": 27
+				  "type": 25
 				}
 			  }
 			],
@@ -789,27 +817,44 @@ const psp34_standard = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 39
+			  "type": 42
 			},
 			"selector": "0x8fe2ce73"
 		  },
 		  {
 			"args": [
 			  {
-				"label": "token_id",
+				"label": "index",
 				"type": {
 				  "displayName": [
 					"psp34traits_external",
-					"TokenUriInput1"
+					"GetAttributeNameInput1"
 				  ],
-				  "type": 6
+				  "type": 5
 				}
 			  }
 			],
 			"docs": [
-			  " This function return the metadata location of an NFT. The format is baseURI/<token_id>.json"
+			  " This function return the attribute name using attribute index. Beacause attributes of an NFT can be set to anything by Contract Owner, AztZero uses this function to get all attributes of an NFT"
 			],
-			"label": "Psp34Traits::token_uri",
+			"label": "Psp34Traits::get_attribute_name",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 39
+			},
+			"selector": "0xfcfe34de"
+		  },
+		  {
+			"args": [],
+			"docs": [
+			  " This function return the latest token ID, everytime new NFT is mint, last_token_id is increased by 1 in mint function. Note: This is not the same as the total supply return by the psp34 function as NFT can be burnt."
+			],
+			"label": "Psp34Traits::get_last_token_id",
 			"mutates": false,
 			"payable": false,
 			"returnType": {
@@ -819,7 +864,7 @@ const psp34_standard = {
 			  ],
 			  "type": 42
 			},
-			"selector": "0x249dfd4f"
+			"selector": "0x6f315836"
 		  },
 		  {
 			"args": [
@@ -830,7 +875,7 @@ const psp34_standard = {
 					"psp34traits_external",
 					"IsLockedNftInput1"
 				  ],
-				  "type": 27
+				  "type": 25
 				}
 			  }
 			],
@@ -858,7 +903,7 @@ const psp34_standard = {
 					"psp34traits_external",
 					"SetMultipleAttributesInput1"
 				  ],
-				  "type": 27
+				  "type": 25
 				}
 			  },
 			  {
@@ -900,54 +945,9 @@ const psp34_standard = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 25
+			  "type": 34
 			},
 			"selector": "0x61c50d69"
-		  },
-		  {
-			"args": [
-			  {
-				"label": "index",
-				"type": {
-				  "displayName": [
-					"psp34traits_external",
-					"GetAttributeNameInput1"
-				  ],
-				  "type": 5
-				}
-			  }
-			],
-			"docs": [
-			  " This function return the attribute name using attribute index. Beacause attributes of an NFT can be set to anything by Contract Owner, AztZero uses this function to get all attributes of an NFT"
-			],
-			"label": "Psp34Traits::get_attribute_name",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 42
-			},
-			"selector": "0xfcfe34de"
-		  },
-		  {
-			"args": [],
-			"docs": [
-			  " This function return the owner of the NFT Contract"
-			],
-			"label": "Psp34Traits::get_owner",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 22
-			},
-			"selector": "0x8e1d8d71"
 		  },
 		  {
 			"args": [
@@ -968,7 +968,7 @@ const psp34_standard = {
 					"admintrait_external",
 					"TranferNftInput2"
 				  ],
-				  "type": 27
+				  "type": 25
 				}
 			  },
 			  {
@@ -1102,7 +1102,7 @@ const psp34_standard = {
 					"psp34burnable_external",
 					"BurnInput2"
 				  ],
-				  "type": 27
+				  "type": 25
 				}
 			  }
 			],
@@ -1115,7 +1115,7 @@ const psp34_standard = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 29
+			  "type": 26
 			},
 			"selector": "0x63c9877a"
 		  }
@@ -2291,7 +2291,7 @@ const psp34_standard = {
 				  {
 					"fields": [
 					  {
-						"type": 0
+						"type": 23
 					  }
 					],
 					"index": 0,
@@ -2312,7 +2312,7 @@ const psp34_standard = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 0
+				"type": 23
 			  },
 			  {
 				"name": "E",
@@ -2326,48 +2326,6 @@ const psp34_standard = {
 		},
 		{
 		  "id": 23,
-		  "type": {
-			"def": {
-			  "variant": {
-				"variants": [
-				  {
-					"fields": [
-					  {
-						"type": 24
-					  }
-					],
-					"index": 0,
-					"name": "Ok"
-				  },
-				  {
-					"fields": [
-					  {
-						"type": 12
-					  }
-					],
-					"index": 1,
-					"name": "Err"
-				  }
-				]
-			  }
-			},
-			"params": [
-			  {
-				"name": "T",
-				"type": 24
-			  },
-			  {
-				"name": "E",
-				"type": 12
-			  }
-			],
-			"path": [
-			  "Result"
-			]
-		  }
-		},
-		{
-		  "id": 24,
 		  "type": {
 			"def": {
 			  "variant": {
@@ -2409,91 +2367,49 @@ const psp34_standard = {
 		  }
 		},
 		{
+		  "id": 24,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"fields": [
+					  {
+						"type": 0
+					  }
+					],
+					"index": 0,
+					"name": "Ok"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 12
+					  }
+					],
+					"index": 1,
+					"name": "Err"
+				  }
+				]
+			  }
+			},
+			"params": [
+			  {
+				"name": "T",
+				"type": 0
+			  },
+			  {
+				"name": "E",
+				"type": 12
+			  }
+			],
+			"path": [
+			  "Result"
+			]
+		  }
+		},
+		{
 		  "id": 25,
-		  "type": {
-			"def": {
-			  "variant": {
-				"variants": [
-				  {
-					"fields": [
-					  {
-						"type": 5
-					  }
-					],
-					"index": 0,
-					"name": "Ok"
-				  },
-				  {
-					"fields": [
-					  {
-						"type": 12
-					  }
-					],
-					"index": 1,
-					"name": "Err"
-				  }
-				]
-			  }
-			},
-			"params": [
-			  {
-				"name": "T",
-				"type": 5
-			  },
-			  {
-				"name": "E",
-				"type": 12
-			  }
-			],
-			"path": [
-			  "Result"
-			]
-		  }
-		},
-		{
-		  "id": 26,
-		  "type": {
-			"def": {
-			  "variant": {
-				"variants": [
-				  {
-					"fields": [
-					  {
-						"type": 27
-					  }
-					],
-					"index": 0,
-					"name": "Ok"
-				  },
-				  {
-					"fields": [
-					  {
-						"type": 12
-					  }
-					],
-					"index": 1,
-					"name": "Err"
-				  }
-				]
-			  }
-			},
-			"params": [
-			  {
-				"name": "T",
-				"type": 27
-			  },
-			  {
-				"name": "E",
-				"type": 12
-			  }
-			],
-			"path": [
-			  "Result"
-			]
-		  }
-		},
-		{
-		  "id": 27,
 		  "type": {
 			"def": {
 			  "variant": {
@@ -2570,23 +2486,28 @@ const psp34_standard = {
 		  }
 		},
 		{
-		  "id": 28,
+		  "id": 26,
 		  "type": {
 			"def": {
 			  "variant": {
 				"variants": [
-				  {
-					"index": 0,
-					"name": "None"
-				  },
 				  {
 					"fields": [
 					  {
 						"type": 27
 					  }
 					],
+					"index": 0,
+					"name": "Ok"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 12
+					  }
+					],
 					"index": 1,
-					"name": "Some"
+					"name": "Err"
 				  }
 				]
 			  }
@@ -2595,10 +2516,98 @@ const psp34_standard = {
 			  {
 				"name": "T",
 				"type": 27
+			  },
+			  {
+				"name": "E",
+				"type": 12
 			  }
 			],
 			"path": [
-			  "Option"
+			  "Result"
+			]
+		  }
+		},
+		{
+		  "id": 27,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"fields": [
+					  {
+						"type": 3
+					  }
+					],
+					"index": 0,
+					"name": "Ok"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 19
+					  }
+					],
+					"index": 1,
+					"name": "Err"
+				  }
+				]
+			  }
+			},
+			"params": [
+			  {
+				"name": "T",
+				"type": 3
+			  },
+			  {
+				"name": "E",
+				"type": 19
+			  }
+			],
+			"path": [
+			  "Result"
+			]
+		  }
+		},
+		{
+		  "id": 28,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"fields": [
+					  {
+						"type": 7
+					  }
+					],
+					"index": 0,
+					"name": "Ok"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 12
+					  }
+					],
+					"index": 1,
+					"name": "Err"
+				  }
+				]
+			  }
+			},
+			"params": [
+			  {
+				"name": "T",
+				"type": 7
+			  },
+			  {
+				"name": "E",
+				"type": 12
+			  }
+			],
+			"path": [
+			  "Result"
 			]
 		  }
 		},
@@ -2651,22 +2660,17 @@ const psp34_standard = {
 			  "variant": {
 				"variants": [
 				  {
-					"fields": [
-					  {
-						"type": 3
-					  }
-					],
 					"index": 0,
-					"name": "Ok"
+					"name": "None"
 				  },
 				  {
 					"fields": [
 					  {
-						"type": 19
+						"type": 0
 					  }
 					],
 					"index": 1,
-					"name": "Err"
+					"name": "Some"
 				  }
 				]
 			  }
@@ -2674,15 +2678,11 @@ const psp34_standard = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 3
-			  },
-			  {
-				"name": "E",
-				"type": 19
+				"type": 0
 			  }
 			],
 			"path": [
-			  "Result"
+			  "Option"
 			]
 		  }
 		},
@@ -2693,22 +2693,17 @@ const psp34_standard = {
 			  "variant": {
 				"variants": [
 				  {
-					"fields": [
-					  {
-						"type": 7
-					  }
-					],
 					"index": 0,
-					"name": "Ok"
+					"name": "None"
 				  },
 				  {
 					"fields": [
 					  {
-						"type": 12
+						"type": 25
 					  }
 					],
 					"index": 1,
-					"name": "Err"
+					"name": "Some"
 				  }
 				]
 			  }
@@ -2716,15 +2711,11 @@ const psp34_standard = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 7
-			  },
-			  {
-				"name": "E",
-				"type": 12
+				"type": 25
 			  }
 			],
 			"path": [
-			  "Result"
+			  "Option"
 			]
 		  }
 		},
@@ -2779,7 +2770,7 @@ const psp34_standard = {
 				  {
 					"fields": [
 					  {
-						"type": 34
+						"type": 25
 					  }
 					],
 					"index": 0,
@@ -2800,7 +2791,7 @@ const psp34_standard = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 34
+				"type": 25
 			  },
 			  {
 				"name": "E",
@@ -2819,17 +2810,22 @@ const psp34_standard = {
 			  "variant": {
 				"variants": [
 				  {
+					"fields": [
+					  {
+						"type": 5
+					  }
+					],
 					"index": 0,
-					"name": "None"
+					"name": "Ok"
 				  },
 				  {
 					"fields": [
 					  {
-						"type": 0
+						"type": 12
 					  }
 					],
 					"index": 1,
-					"name": "Some"
+					"name": "Err"
 				  }
 				]
 			  }
@@ -2837,11 +2833,15 @@ const psp34_standard = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 0
+				"type": 5
+			  },
+			  {
+				"name": "E",
+				"type": 12
 			  }
 			],
 			"path": [
-			  "Option"
+			  "Result"
 			]
 		  }
 		},
@@ -2971,7 +2971,7 @@ const psp34_standard = {
 				  {
 					"fields": [
 					  {
-						"type": 27
+						"type": 25
 					  }
 					],
 					"index": 0,
@@ -2992,7 +2992,7 @@ const psp34_standard = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 27
+				"type": 25
 			  },
 			  {
 				"name": "E",
@@ -3013,7 +3013,7 @@ const psp34_standard = {
 				  {
 					"fields": [
 					  {
-						"type": 6
+						"type": 10
 					  }
 					],
 					"index": 0,
@@ -3034,7 +3034,7 @@ const psp34_standard = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 6
+				"type": 10
 			  },
 			  {
 				"name": "E",
@@ -3107,7 +3107,7 @@ const psp34_standard = {
 				  {
 					"fields": [
 					  {
-						"type": 10
+						"type": 6
 					  }
 					],
 					"index": 0,
@@ -3128,7 +3128,7 @@ const psp34_standard = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 10
+				"type": 6
 			  },
 			  {
 				"name": "E",
