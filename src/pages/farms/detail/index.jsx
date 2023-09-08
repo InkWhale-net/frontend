@@ -1369,7 +1369,11 @@ const MyStakeRewardInfoToken = ({
                 justifyContent="space-between"
               >
                 <ConfirmModal
-                  disableBtn={!(availableStakeAmount > 0) || isPoolEnded(startTime, duration)}
+                  disableBtn={
+                    !(availableStakeAmount > 0) ||
+                    isPoolEnded(startTime, duration) ||
+                    !(LPTokenAmount?.length > 0)
+                  }
                   action="stake"
                   buttonVariant="primary"
                   buttonLabel="Stake"
@@ -1381,7 +1385,10 @@ const MyStakeRewardInfoToken = ({
                 />
 
                 <ConfirmModal
-                  disableBtn={!(stakeInfo?.stakedValue > 0)}
+                  disableBtn={
+                    !(stakeInfo?.stakedValue > 0) ||
+                    !(LPTokenAmount?.length > 0)
+                  }
                   action="unstake"
                   buttonVariant="primary"
                   buttonLabel="Unstake"
