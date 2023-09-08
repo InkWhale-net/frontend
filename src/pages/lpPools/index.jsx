@@ -136,7 +136,7 @@ export default function LPPoolsPage() {
       ret = ret.filter((p) => isPoolEnded(p?.startTime, p?.duration));
     }
 
-    return ret.map((e) => {
+    return ret?.map((e) => {
       return {
         ...e,
         totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
