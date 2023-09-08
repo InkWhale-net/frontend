@@ -944,7 +944,7 @@ const MyPoolInfo = ({
                 content: `${formatNumDynDecimal(
                   formatTokenAmount(
                     totalStaked,
-                    mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal
+                    mode === "TOKEN_FARM" ? 1 : tokenDecimal
                   )
                 )} ${
                   mode === "NFT_FARM"
