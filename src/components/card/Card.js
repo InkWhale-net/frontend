@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import AddressCopier from "components/address-copier/AddressCopier";
 import ImageCloudFlare from "components/image-cf/ImageCF";
-import { formatDataCellTable } from "components/table/IWTable";
+import { formatDataCellTable } from "components/table/IWPaginationTable";
 import CardSocial from "./CardSocial";
 
 export default function IWCard(props) {

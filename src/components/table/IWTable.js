@@ -26,6 +26,7 @@ import FadeIn from "react-fade-in/lib/FadeIn";
 import TokenIcon from "components/TokenIcon";
 import AddressCopier from "components/address-copier/AddressCopier";
 import { formatTokenAmount } from "utils";
+import { formatDataCellTable as formatDataCellTableNew } from "./IWPaginationTable";
 
 const getStatusPool = (startTime, duration) => {
   if (startTime + duration * 1000 < new Date()) {
@@ -134,7 +135,7 @@ export function IWTable({
                           return (
                             <Td key={idx}>
                               <FadeIn>
-                                {formatDataCellTable(itemObj, i?.name, mode)}
+                                {formatDataCellTableNew(itemObj, i?.name, mode)}
                               </FadeIn>
                             </Td>
                           );
@@ -152,279 +153,288 @@ export function IWTable({
   );
 }
 
-export const formatDataCellTable = (itemObj, header, mode) => {
-  switch (header) {
-    case "totalStaked":
-      const extPart = `NFT${itemObj[header] > 1 ? "s" : ""}`;
-      return (
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Text>
-            {mode == "NFT_FARM"
-              ? itemObj[header]
-              : formatNumDynDecimal(
-                  formatTokenAmount(itemObj[header], itemObj?.tokenDecimal)
-                )}{" "}
-            {itemObj["NFTtokenContract"] && extPart}
-          </Text>
-          {itemObj?.hasTooltip}
-        </Box>
-      );
+// export const formatDataCellTable = (itemObj, header, mode) => {
+//   switch (header) {
+//     case "totalStaked":
+//       const extPart = `NFT${itemObj[header] > 1 ? "s" : ""}`;
+//       return (
+//         <Box sx={{ display: "flex", alignItems: "center" }}>
+//           <Text>
+//             {mode == "NFT_FARM"
+//               ? itemObj[header]
+//               : mode === "TOKEN_FARM"
+//               ? formatNumDynDecimal(
+//                   formatTokenAmount(itemObj[header], itemObj?.lptokenDecimal)
+//                 )
+//               : formatNumDynDecimal(
+//                   formatTokenAmount(itemObj[header], itemObj?.tokenDecimal)
+//                 )}{" "}
+//             {itemObj["NFTtokenContract"] && extPart}
+//           </Text>
+//           {itemObj?.hasTooltip}
+//         </Box>
+//       );
 
-    case "multiplier":
-      return mode === "TOKEN_FARM" ? (
-        <Text>{(itemObj[header] / 10 ** 6).toFixed(2)}</Text>
-      ) : mode === "NFT_FARM" ? (
-        // <Text>{(itemObj[header] / 10 ** 12).toFixed(2)}</Text>
-        <Text>
-          {formatNumDynDecimal(
-            formatTokenAmount(itemObj[header], itemObj?.tokenDecimal)
-          )}
-        </Text>
-      ) : (
-        <></>
-      );
+//     case "multiplier":
+//       return mode === "TOKEN_FARM" ? (
+//         <Text>{itemObj[header]?.toFixed(2)}</Text>
+//       ) : mode === "NFT_FARM" ? (
+//         // <Text>{(itemObj[header] / 10 ** 12).toFixed(2)}</Text>
+//         <Text>
+//           {formatNumDynDecimal(
+//             formatTokenAmount(itemObj[header], itemObj?.tokenDecimal)
+//           )}
+//         </Text>
+//       ) : (
+//         <></>
+//       );
 
-    case "rewardPool":
-      return (
-        <>
-          <Text>{formatNumDynDecimal(itemObj[header])}</Text>
-        </>
-      );
+//     case "rewardPool":
+//       return (
+//         <>
+//           <Text>{formatNumDynDecimal(itemObj[header])}</Text>
+//         </>
+//       );
 
-    case "startTime":
-      return (
-        <>
-          <IWCountDown
-            date={
-              itemObj[header] < new Date()
-                ? itemObj[header] + itemObj["duration"] * 1000
-                : itemObj[header]
-            }
-          />
-        </>
-      );
+//     case "startTime":
+//       return (
+//         <>
+//           <IWCountDown
+//             date={
+//               itemObj[header] < new Date()
+//                 ? itemObj[header] + itemObj["duration"] * 1000
+//                 : itemObj[header]
+//             }
+//           />
+//         </>
+//       );
 
-    case "status":
-      return (
-        <>
-          <Text>
-            {getStatusPool(itemObj["startTime"], itemObj["duration"])}
-          </Text>
-        </>
-      );
+//     case "status":
+//       return (
+//         <>
+//           <Text>
+//             {getStatusPool(itemObj["startTime"], itemObj["duration"])}
+//           </Text>
+//         </>
+//       );
 
-    case "apy":
-      return (
-        <>
-          <Text>{itemObj[header] / 100}%</Text>
-        </>
-      );
+//     case "apy":
+//       return (
+//         <>
+//           <Text>{itemObj[header] / 100}%</Text>
+//         </>
+//       );
 
-    case "poolName":
-      return (
-        <>
-          <Flex
-            w="full"
-            justify={{ base: "start" }}
-            alignItems={{ base: "center" }}
-          >
-            <Circle w="30px" h="30px" bg="white">
-              <Image src={itemObj["poolLogo"]} alt="logo-subwallet" />
-            </Circle>
+//     case "poolName":
+//       return (
+//         <>
+//           <Flex
+//             w="full"
+//             justify={{ base: "start" }}
+//             alignItems={{ base: "center" }}
+//           >
+//             <Circle w="30px" h="30px" bg="white">
+//               <Image src={itemObj["poolLogo"]} alt="logo-subwallet" />
+//             </Circle>
 
-            <Text ml="8px">{itemObj[header]}</Text>
-          </Flex>
-        </>
-      );
+//             <Text ml="8px">{itemObj[header]}</Text>
+//           </Flex>
+//         </>
+//       );
 
-    case "nftInfo":
-      return (
-        <>
-          <Flex
-            w="full"
-            justify={{ base: "start" }}
-            alignItems={{ base: "center" }}
-          >
-            <ImageCloudFlare
-              borderWidth="1px"
-              w="40px"
-              h="40px"
-              size="500"
-              alt={header}
-              borderRadius="5px"
-              src={itemObj[header]?.avatarImage}
-            />
-            <Text ml="8px">{itemObj[header]?.name}</Text>
-          </Flex>
-        </>
-      );
+//     case "nftInfo":
+//       return (
+//         <>
+//           <Flex
+//             w="full"
+//             justify={{ base: "start" }}
+//             alignItems={{ base: "center" }}
+//           >
+//             <ImageCloudFlare
+//               borderWidth="1px"
+//               w="40px"
+//               h="40px"
+//               size="500"
+//               alt={header}
+//               borderRadius="5px"
+//               src={itemObj[header]?.avatarImage}
+//             />
+//             <Text ml="8px">{itemObj[header]?.name}</Text>
+//           </Flex>
+//         </>
+//       );
 
-    case "poolNameNFT":
-      return (
-        <>
-          <Flex
-            w="full"
-            justify={{ base: "start" }}
-            alignItems={{ base: "center" }}
-          >
-            <Circle w="30px" h="30px" bg="white">
-              <Image src={itemObj["poolLogo"]} alt="logo-subwallet" />
-            </Circle>
+//     case "poolNameNFT":
+//       return (
+//         <>
+//           <Flex
+//             w="full"
+//             justify={{ base: "start" }}
+//             alignItems={{ base: "center" }}
+//           >
+//             <Circle w="30px" h="30px" bg="white">
+//               <Image src={itemObj["poolLogo"]} alt="logo-subwallet" />
+//             </Circle>
 
-            <Text ml="8px">{itemObj[header]}</Text>
-          </Flex>
-        </>
-      );
+//             <Text ml="8px">{itemObj[header]}</Text>
+//           </Flex>
+//         </>
+//       );
 
-    case "stakeInfo":
-      const numberStakeInfo =
-        itemObj[header] &&
-        formatNumDynDecimal(
-          formatTokenAmount(itemObj[header].stakedValue, itemObj?.tokenDecimal)
-        );
+//     case "stakeInfo":
+//       const numberStakeInfo =
+//         itemObj[header] &&
+//         formatNumDynDecimal(
+//           formatTokenAmount(
+//             itemObj[header].stakedValue,
+//             mode === "TOKEN_FARM"
+//               ? itemObj?.lptokenDecimal
+//               : itemObj?.tokenDecimal
+//           )
+//         );
 
-      const numberNFTStakeInfo =
-        itemObj[header] && formatNumDynDecimal(itemObj[header].stakedValue);
-      return (
-        <>
-          {itemObj[header] ? (
-            itemObj["NFTtokenContract"] ? (
-              <Flex alignItems="center">
-                <Text mr="8px">{numberNFTStakeInfo}</Text>
-                <GoStar color="#FFB800" />
-              </Flex>
-            ) : (
-              parseFloat(numberStakeInfo) > 0 && (
-                <Flex alignItems="center">
-                  <Text mr="8px">{numberStakeInfo}</Text>
-                  <GoStar color="#FFB800" />
-                </Flex>
-              )
-            )
-          ) : (
-            ""
-          )}
-        </>
-      );
+//       const numberNFTStakeInfo =
+//         itemObj[header] && formatNumDynDecimal(itemObj[header].stakedValue);
+//       return (
+//         <>
+//           {itemObj[header] ? (
+//             itemObj["NFTtokenContract"] ? (
+//               <Flex alignItems="center">
+//                 <Text mr="8px">{numberNFTStakeInfo}</Text>
+//                 <GoStar color="#FFB800" />
+//               </Flex>
+//             ) : (
+//               parseFloat(numberStakeInfo) > 0 && (
+//                 <Flex alignItems="center">
+//                   <Text mr="8px">{numberStakeInfo}</Text>
+//                   <GoStar color="#FFB800" />
+//                 </Flex>
+//               )
+//             )
+//           ) : (
+//             ""
+//           )}
+//         </>
+//       );
 
-    case "myStake":
-      return (
-        <>
-          <Flex alignItems="center">
-            <Text mr="8px">{itemObj[header]}</Text>
-            {itemObj["isMyStake"] && <GoStar color="#FFB800" />}
-          </Flex>
-        </>
-      );
+//     case "myStake":
+//       return (
+//         <>
+//           <Flex alignItems="center">
+//             <Text mr="8px">{itemObj[header]}</Text>
+//             {itemObj["isMyStake"] && <GoStar color="#FFB800" />}
+//           </Flex>
+//         </>
+//       );
 
-    case "totalSupply":
-      return (
-        <>
-          <Text>{formatNumDynDecimal(itemObj[header])}</Text>
-        </>
-      );
+//     case "totalSupply":
+//       return (
+//         <>
+//           <Text>{formatNumDynDecimal(itemObj[header])}</Text>
+//         </>
+//       );
 
-    case "duration":
-      return (
-        <>
-          <Text>{itemObj[header] / 86400} days</Text>
-        </>
-      );
-    case "tokenIconUrl":
-      return itemObj[header] ? (
-        <Image
-          w="38px"
-          borderRadius={"10px"}
-          src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${itemObj[header]}`}
-          alt="logo"
-        />
-      ) : (
-        ""
-      );
-    case "name":
-      if (itemObj?.showIcon)
-        return (
-          <>
-            <Flex
-              w="full"
-              justify={{ base: "start" }}
-              alignItems={{ base: "center" }}
-            >
-              <Circle w="30px" h="30px" bg="white">
-                <Image
-                  w="38px"
-                  borderRadius={"10px"}
-                  src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${itemObj["tokenIconUrl"]}`}
-                  alt="logo"
-                />
-              </Circle>
+//     case "duration":
+//       return (
+//         <>
+//           <Text>{itemObj[header] / 86400} days</Text>
+//         </>
+//       );
+//     case "tokenIconUrl":
+//       return itemObj[header] ? (
+//         <Image
+//           w="38px"
+//           borderRadius={"10px"}
+//           src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${itemObj[header]}`}
+//           alt="logo"
+//         />
+//       ) : (
+//         ""
+//       );
+//     case "name":
+//       if (itemObj?.showIcon)
+//         return (
+//           <>
+//             <Flex
+//               w="full"
+//               justify={{ base: "start" }}
+//               alignItems={{ base: "center" }}
+//             >
+//               <Circle w="30px" h="30px" bg="white">
+//                 <Image
+//                   w="38px"
+//                   borderRadius={"10px"}
+//                   src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${itemObj["tokenIconUrl"]}`}
+//                   alt="logo"
+//                 />
+//               </Circle>
 
-              <Text ml="8px">{itemObj[header]}</Text>
-            </Flex>
-          </>
-        );
-      else return itemObj[header];
-    case "tokenTotalSupply":
-      const tokenTotalSupply = itemObj[header].replaceAll(",", "");
-      return (
-        <>
-          <Text>{formatNumDynDecimal(tokenTotalSupply / 10 ** 12)}</Text>
-        </>
-      );
+//               <Text ml="8px">{itemObj[header]}</Text>
+//             </Flex>
+//           </>
+//         );
+//       else return itemObj[header];
+//     case "tokenTotalSupply":
+//       const tokenTotalSupply = itemObj[header].replaceAll(",", "");
+//       return (
+//         <>
+//           <Text>{formatNumDynDecimal(tokenTotalSupply / 10 ** 12)}</Text>
+//         </>
+//       );
 
-    case "contractAddress":
-      return (
-        <>
-          <AddressCopier address={itemObj[header]} />
-        </>
-      );
-    case "tokenSymbol":
-      return (
-        <Flex alignItems={"center"} mr={{ base: "20px" }}>
-          <TokenIcon tokenContract={itemObj["tokenContract"]} />
-          <Text textAlign="left">{itemObj[header]} </Text>
-        </Flex>
-      );
-    case "Earn":
-      return (
-        <Flex alignItems={"center"}>
-          <TokenIcon tokenContract={itemObj["tokenContract"]} />
-          <Text textAlign="left">{itemObj[header]} </Text>
-        </Flex>
-      );
-    case "owner":
-      return (
-        <>
-          <AddressCopier address={itemObj[header]} />
-        </>
-      );
+//     case "contractAddress":
+//       return (
+//         <>
+//           <AddressCopier address={itemObj[header]} />
+//         </>
+//       );
+//     case "tokenSymbol":
+//       return (
+//         <Flex alignItems={"center"} mr={{ base: "20px" }}>
+//           <TokenIcon tokenContract={itemObj["tokenContract"]} />
+//           <Text textAlign="left">{itemObj[header]} </Text>
+//         </Flex>
+//       );
+//     case "Earn":
+//       return (
+//         <Flex alignItems={"center"}>
+//           <TokenIcon tokenContract={itemObj["tokenContract"]} />
+//           <Text textAlign="left">{itemObj[header]} </Text>
+//         </Flex>
+//       );
+//     case "owner":
+//       return (
+//         <>
+//           <AddressCopier address={itemObj[header]} />
+//         </>
+//       );
 
-    case "poolContract":
-      return (
-        <>
-          <AddressCopier address={itemObj[header]} />
-        </>
-      );
+//     case "poolContract":
+//       return (
+//         <>
+//           <AddressCopier address={itemObj[header]} />
+//         </>
+//       );
 
-    case "creator":
-      return (
-        <>
-          <AddressCopier address={itemObj[header]} />
-        </>
-      );
+//     case "creator":
+//       return (
+//         <>
+//           <AddressCopier address={itemObj[header]} />
+//         </>
+//       );
 
-    case "mintTo":
-      return (
-        <>
-          <AddressCopier address={itemObj[header]} />
-        </>
-      );
+//     case "mintTo":
+//       return (
+//         <>
+//           <AddressCopier address={itemObj[header]} />
+//         </>
+//       );
 
-    default:
-      return (
-        <>
-          <Text textAlign="left">{itemObj[header]} </Text>
-        </>
-      );
-  }
-};
+//     default:
+//       return (
+//         <>
+//           <Text textAlign="left">{itemObj[header]} </Text>
+//         </>
+//       );
+//   }
+// };

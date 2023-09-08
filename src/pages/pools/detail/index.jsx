@@ -27,9 +27,10 @@ import IWCardOneColumn from "components/card/CardOneColumn";
 import CardThreeColumn from "components/card/CardThreeColumn";
 import CardTwoColumn from "components/card/CardTwoColumn";
 import ConfirmModal from "components/modal/ConfirmModal";
-import { formatDataCellTable } from "components/table/IWTable";
+import { formatDataCellTable } from "components/table/IWPaginationTable";
 import IWTabs from "components/tabs/IWTabs";
 import { toastMessages } from "constants";
+import { useAppContext } from "contexts/AppContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
@@ -52,7 +53,6 @@ import { execContractQuery, execContractTx } from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
 import pool_contract from "utils/contracts/pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
-import { useAppContext } from "contexts/AppContext";
 
 export default function PoolDetailPage() {
   const params = useParams();
@@ -61,7 +61,6 @@ export default function PoolDetailPage() {
   const { api } = useAppContext();
   const { allStakingPoolsList } = useSelector((s) => s.allPools);
   const [remainStaking, setRemainStaking] = useState(null);
-  const dispatch = useDispatch();
 
   const currentPool = useMemo(() => {
     const poolData = allStakingPoolsList?.find(
@@ -79,12 +78,6 @@ export default function PoolDetailPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  useEffect(() => {
-    if (currentAccount && !currentAccount?.balance) {
-      dispatch(fetchUserBalance({ currentAccount, api }));
-    }
-  }, [currentAccount]);
 
   const cardData = {
     cardHeaderList: [
@@ -139,11 +132,13 @@ export default function PoolDetailPage() {
 
     cardValue: {
       ...currentPool,
-      totalStaked: currentPool?.totalStaked,
+      totalStaked: formatTokenAmount(
+        currentPool?.totalStaked,
+        currentPool?.tokenDecimal
+      ),
       rewardPool: currentPool?.rewardPool,
     },
   };
-
   const tabsData = [
     {
       label: "My Stakes & Rewards",
@@ -319,7 +314,9 @@ const MyStakeRewardInfo = ({
     if (info) {
       info = {
         ...info,
-        lastRewardUpdate: formatChainStringToNumber(info.lastRewardUpdate),
+        lastRewardUpdate: Number(
+          formatChainStringToNumber(info.lastRewardUpdate)
+        ),
         stakedValue: formatChainStringToNumber(info.stakedValue),
         unclaimedReward: formatChainStringToNumber(info.unclaimedReward),
       };
@@ -415,13 +412,16 @@ const MyStakeRewardInfo = ({
       console.log(error);
     }
 
+    await delay(2000);
+
+    fetchUserStakeInfo();
+    fetchTokenBalance();
+
     await delay(6000).then(() => {
       if (currentAccount) {
         dispatch(fetchAllStakingPools({ currentAccount }));
         dispatch(fetchUserBalance({ currentAccount, api }));
       }
-      fetchUserStakeInfo();
-      fetchTokenBalance();
     });
   }
 
@@ -447,7 +447,7 @@ const MyStakeRewardInfo = ({
         return false;
       }
 
-      if (formatChainStringToNumber(tokenBalance) < amount) {
+      if (+formatChainStringToNumber(tokenBalance) < +amount) {
         toast.error("Not enough tokens!");
         return false;
       }
@@ -570,12 +570,11 @@ const MyStakeRewardInfo = ({
       toast.error("Invalid Amount!");
       return;
     }
-
-    if (stakeInfo?.stakedValue / 10 ** tokenDecimal < amount) {
-      toast.error("Not enough tokens!");
-      return;
-    }
-
+    // if (stakeInfo?.stakedValue / 10 ** tokenDecimal < amount) {
+    //   toast.error("Not enough tokens!");
+    //   return;
+    // }
+    return;
     //Approve
     toast.success("Step 1: Approving...");
 

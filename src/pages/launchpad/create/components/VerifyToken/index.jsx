@@ -1,55 +1,48 @@
 import {
   Box,
+  Button,
+  CircularProgress,
   Flex,
   Heading,
-  Link,
-  Radio,
-  RadioGroup,
+  Image,
   SimpleGrid,
-  Stack,
   Text,
 } from "@chakra-ui/react";
-import { current } from "@reduxjs/toolkit";
 import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
-import IWInput from "components/input/Input";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
+import { useQuery } from "react-query";
 import { useSelector } from "react-redux";
-import { Link as RouterLink } from "react-router-dom";
-import { formatQueryResultToNumber } from "utils";
-import { formatNumDynDecimal } from "utils";
-import { addressShortener } from "utils";
-import { moveINWToBegin } from "utils";
-import { roundUp } from "utils";
-import { isAddressValid } from "utils";
+import {
+  addressShortener,
+  formatNumDynDecimal,
+  formatQueryResultToNumber,
+  isAddressValid,
+  roundUp,
+} from "utils";
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
-import SectionContainer from "../sectionContainer";
+import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
+import { useHistory } from "react-router-dom";
+import psp22_contract_old from "utils/contracts/psp22_contract_old";
+import { getTokenOwner } from "utils";
 
-export default function VerifyToken({ updateToken }) {
+export default function VerifyToken() {
+  const { launchpadData, updateLaunchpadData, current } = useCreateLaunchpad();
   const [tokenInfo, setTokenInfo] = useState(null);
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allTokensList } = useSelector((s) => s.allPools);
   const [tokenAddress, setTokenAddress] = useState("");
+  const history = useHistory();
 
   const tokenList = useMemo(() => {
     return (
-      allTokensList?.filter(
-        (token) => token.creator === currentAccount?.address
-      ) || []
+      allTokensList?.filter((token) => {
+        return token.creator === currentAccount?.address;
+      }) || []
     );
   }, [currentAccount?.address, allTokensList]);
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (tokenAddress) {
-        loadTokenInfo();
-      }
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [tokenAddress]);
 
   const loadTokenInfo = async () => {
     if (!currentAccount) {
@@ -61,16 +54,8 @@ export default function VerifyToken({ updateToken }) {
       toast.error("Invalid address!");
       return;
     }
+    const { address: ownerToken } = await getTokenOwner(tokenAddress);
 
-    let queryResultOwner = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      tokenAddress,
-      0,
-      "ownable::owner"
-    );
-    const ownerToken = queryResultOwner.toHuman().Ok;
     if (currentAccount?.address !== ownerToken) {
       toast.error("You are not token owner!");
       return;
@@ -128,15 +113,7 @@ export default function VerifyToken({ updateToken }) {
       rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
       0
     );
-    let queryResult5 = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      tokenAddress,
-      0,
-      "ownable::owner"
-    );
-    const owner = queryResult5?.toHuman()?.Ok;
+
     let tokenIconUrl = null;
     try {
       const { status, ret } = await APICall.getTokenInfor({
@@ -148,42 +125,53 @@ export default function VerifyToken({ updateToken }) {
     } catch (error) {
       console.log(error);
     }
-
-    setTokenInfo((prev) => {
-      return {
-        ...prev,
-        symbol: tokenSymbol,
-        balance: balance,
-        name: tokenName,
-        totalSupply: formatNumDynDecimal(totalSupply, 4),
-        decimals,
-        owner,
-        tokenIconUrl,
-      };
+    setTokenInfo({
+      symbol: tokenSymbol,
+      balance: balance,
+      name: tokenName,
+      totalSupply: formatNumDynDecimal(totalSupply, 4),
+      decimals,
+      owner: ownerToken,
+      tokenIconUrl,
     });
   };
+  const { isFetching } = useQuery(["query-token-infor", tokenAddress], () => {
+    return new Promise(async (resolve) => {
+      if (tokenAddress) {
+        await loadTokenInfo();
+      }
+      resolve();
+    });
+  });
 
-  // const currencyOptions = ["BNB", "BUSD", "USDC", "USDT"];
-  // const feeOptions = ["5% BNB raised only", "Other"];
-  // const listingOptions = ["Auto Listing", "Manual Listing"];
   useEffect(() => {
-    updateToken(tokenInfo);
+    if (tokenInfo)
+      updateLaunchpadData({
+        ...launchpadData,
+        token: { ...tokenInfo, tokenAddress },
+      });
   }, [tokenInfo]);
+  useEffect(() => {
+    if (current == 0 && launchpadData?.token)
+      setTokenInfo(launchpadData?.token);
+  }, [current]);
 
   return (
     <>
-      <Box w={{ base: "full" }}>
-        <SimpleGrid
+      <Box
+        w={{ base: "full" }}
+        display={{ base: "flex" }}
+        flexDirection={{ base: "column" }}
+      >
+        <Heading as="h4" size="h4" mb="12px">
+          Token Address
+        </Heading>
+        <Box
           w="full"
-          columns={{ base: 1, lg: 2 }}
-          spacingX={{ lg: "20px" }}
-          spacingY={{ base: "20px", lg: "32px" }}
-          mb={{ base: "30px" }}
+          display={{ base: "flex" }}
+          flexDirection={["column-reverse", "column-reverse", "row"]}
         >
-          <Box w="full">
-            <Heading as="h4" size="h4" mb="12px">
-              Select Token
-            </Heading>
+          <Box sx={{ flex: 1, paddingRight: "8px" }}>
             <SelectSearch
               name="token"
               placeholder="Select Token..."
@@ -199,22 +187,36 @@ export default function VerifyToken({ updateToken }) {
                   token?.contractAddress
                 )}`,
               }))}
-            ></SelectSearch>
-          </Box>
-          <Box w="full">
-            <IWInput
-              onChange={({ target }) => setTokenAddress(target.value)}
-              value={tokenAddress}
-              placeholder="Contract Address"
-              label="or enter token contract address"
             />
           </Box>
-        </SimpleGrid>
-        {tokenInfo && (
+          <Button
+            onClick={() => history.push("/create/token")}
+            mb={["16px", "16px", "0px"]}
+          >
+            Create & Import
+          </Button>
+        </Box>
+        {!(tokenList?.length > 0) && (
+          <Text sx={{ textAlign: "center", marginTop: "20px" }}>
+            No owned token. You need to Create or Import first
+          </Text>
+        )}
+
+        {isFetching && (
+          <CircularProgress
+            alignSelf={"center"}
+            isIndeterminate
+            size={"40px"}
+            color="#93F0F5"
+            sx={{ marginTop: "8px" }}
+          />
+        )}
+        {tokenInfo && !isFetching && (
           <Box
             borderWidth={"1px"}
             padding={{ base: "8px" }}
             borderRadius={{ base: "4px" }}
+            marginTop={"8px"}
           >
             <Flex
               py="12px"
@@ -222,7 +224,19 @@ export default function VerifyToken({ updateToken }) {
               justifyContent={"space-between"}
             >
               <Text>Name:</Text>
-              <Text>{tokenInfo?.symbol}</Text>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                {tokenInfo?.tokenIconUrl && (
+                  <Image
+                    mr="8px"
+                    h="42px"
+                    w="42px"
+                    borderRadius={"10px"}
+                    src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${tokenInfo?.tokenIconUrl}`}
+                    alt="logo"
+                  />
+                )}
+                <Text>{tokenInfo?.name}</Text>
+              </Box>
             </Flex>
             <Flex
               py="12px"
@@ -230,7 +244,7 @@ export default function VerifyToken({ updateToken }) {
               justifyContent={"space-between"}
             >
               <Text>Symbol:</Text>
-              <Text>{tokenInfo?.name}</Text>
+              <Text>{tokenInfo?.symbol}</Text>
             </Flex>
             <Flex
               py="12px"
@@ -259,42 +273,6 @@ export default function VerifyToken({ updateToken }) {
           </Box>
         )}
       </Box>
-      {/* <SectionContainer
-        title="Currency"
-        description="User will pay with BNB for your token"
-      >
-        <RadioGroup onChange={setCurrencyOption} value={currencyOption}>
-          <Stack direction="column">
-            {currencyOptions.map((option) => (
-              <Radio key={option} value={option}>
-                {option}
-              </Radio>
-            ))}
-          </Stack>
-        </RadioGroup>
-      </SectionContainer>
-      <SectionContainer title="Fee Options">
-        <RadioGroup onChange={setFeeOption} value={feeOption}>
-          <Stack direction="column">
-            {feeOptions.map((option) => (
-              <Radio key={option} value={option}>
-                {option}
-              </Radio>
-            ))}
-          </Stack>
-        </RadioGroup>
-      </SectionContainer>
-      <SectionContainer title="Currency">
-        <RadioGroup onChange={setListingOption} value={listingOption}>
-          <Stack direction="column">
-            {listingOptions.map((option) => (
-              <Radio key={option} value={option}>
-                {option}
-              </Radio>
-            ))}
-          </Stack>
-        </RadioGroup>
-      </SectionContainer> */}
     </>
   );
 }

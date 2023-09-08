@@ -1,5 +1,4 @@
 import { ContractPromise } from "@polkadot/api-contract";
-import { web3FromSource } from "@polkadot/extension-dapp";
 import { formatBalance } from "@polkadot/util";
 import { toastMessages } from "constants";
 import { toast } from "react-hot-toast";
@@ -112,14 +111,13 @@ export async function execContractTx(
   queryName,
   ...args
 ) {
-  console.log("execContractTx ", queryName);
+  // console.log("execContractTx queryName", queryName);
+  // console.log("execContractTx args", args);
 
   const azeroBalance = await getAzeroBalanceOfAddress({
     wsApi,
     address: caller?.address,
   });
-
-  // console.log("azeroBalance = ", azeroBalance);
 
   if (azeroBalance < 0.005) {
     toast.error("You don’t have enough azero for transaction fee!");
@@ -129,9 +127,8 @@ export async function execContractTx(
   const contract = new ContractPromise(wsApi, contractAbi, contractAddress);
 
   let unsubscribe;
-
-  const { signer } = await web3FromSource(caller?.meta?.source);
-
+  // const { signer } = await web3FromSource(caller?.meta?.source);
+  const signer = window.nightlySigner;
   const gasLimitResult = await getGasLimit(
     wsApi,
     caller?.address,
@@ -211,7 +208,7 @@ export async function execContractTxAndCallAPI(
 
   let unsubscribe;
 
-  const { signer } = await web3FromSource(caller?.meta?.source);
+  const signer = window.nightlySigner;
 
   const gasLimitResult = await getGasLimit(
     wsApi,
@@ -255,7 +252,7 @@ export async function execContractTxAndCallAPI(
             console.log("newContractAddress", newContractAddress);
           }
           if (method === "ExtrinsicSuccess" && status.type === "Finalized") {
-            await delay(3000)
+            await delay(3000);
             const res = await APIUpdate(newContractAddress);
             console.log(
               "method",
@@ -324,7 +321,7 @@ export const txResponseErrorHandler = async ({
   txType,
   api,
 }) => {
-  const url = process.env.REACT_APP_EXPLORER_URL;
+  const url = `https://test.azero.dev/#/explorer/query/`;
   const statusToHuman = Object.entries(status.toHuman());
 
   if (dispatchError) {

@@ -20,6 +20,7 @@ function IWTextArea(props) {
     variant,
     inputRightElementIcon,
     onChange,
+    maxLength,
     ...rest
   } = props;
 
@@ -28,10 +29,22 @@ function IWTextArea(props) {
   const onChangeInput = (valueString) => {
     if (type === "number") {
       if (reg.test(valueString.target.value)) {
-        onChange(valueString);
+        if (maxLength > 0) {
+          const slicedValue = valueString.target.value.slice(0, maxLength);
+          onChange({
+            ...valueString,
+            target: { ...valueString.target, value: slicedValue },
+          });
+        } else onChange(valueString);
       }
     } else {
-      onChange(valueString);
+      if (maxLength > 0) {
+        const slicedValue = valueString.target.value.slice(0, maxLength);
+        onChange({
+          ...valueString,
+          target: { ...valueString.target, value: slicedValue },
+        });
+      } else onChange(valueString);
     }
   };
 
@@ -44,7 +57,7 @@ function IWTextArea(props) {
           </Heading>
         </FormLabel>
       )}
-      <InputGroup {...rest}>
+      <InputGroup>
         {inputRightElementIcon && (
           <InputRightElement
             right="16px"
@@ -55,6 +68,7 @@ function IWTextArea(props) {
         <Textarea
           {...rest}
           onChange={onChangeInput}
+          background="#FFF"
           type={type}
           id={id}
           onWheel={(e) => e.target.blur()}

@@ -5,6 +5,7 @@ export const textareaStyles = {
         field: {
           fontWeight: 400,
           borderRadius: "8px",
+          background: "#FFF",
         },
       },
 

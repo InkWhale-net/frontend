@@ -1,8 +1,7 @@
 import {
-  Circle,
+  Box,
   Flex,
   Heading,
-  Image,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -11,24 +10,20 @@ import {
   ModalOverlay,
   Stack,
 } from "@chakra-ui/react";
-import React from "react";
 
-import PolkadotjsLogo from "assets/img/wallet/PolkadotjsLogo.svg";
-import SubWalletLogo from "assets/img/wallet/SubWalletLogo.svg";
-import { useDispatch } from "react-redux";
-import { addressShortener } from "utils";
-import { setCurrentAccount } from "redux/slices/walletSlice";
 import { SCROLLBAR } from "constants";
-import AzeroSignerLogo from "assets/img/wallet/AzeroSigner.jpg";
-import NightlyLogo from "assets/img/wallet/Nightly.jpg";
+import { BiWallet } from "react-icons/bi";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentAccount } from "redux/slices/walletSlice";
+import { addressShortener } from "utils";
 
-export default function WalletModal({ isOpen, onClose, accounts }) {
+export default function WalletModal({ isOpen, onClose }) {
   const dispatch = useDispatch();
+  const { allAccounts } = useSelector((state) => state.wallet);
 
   function onClickHandler(account) {
     dispatch(setCurrentAccount(account));
     localStorage.setItem("localCurrentAccount", JSON.stringify(account));
-
     onClose();
   }
   return (
@@ -51,7 +46,7 @@ export default function WalletModal({ isOpen, onClose, accounts }) {
 
           <ModalBody px="26px" maxH="400px" overflowY="scroll" sx={SCROLLBAR}>
             <Stack>
-              {accounts?.map((acct) => {
+              {allAccounts?.map((acct) => {
                 return (
                   <Flex
                     p="12px"
@@ -59,40 +54,18 @@ export default function WalletModal({ isOpen, onClose, accounts }) {
                     key={acct?.address}
                     cursor="pointer"
                     borderRadius="10px"
-                    _hover={{ bg: "bg.1" }}
+                    _hover={{ bg: "bg.1", border: "2px solid #93F0F5" }}
+                    border="2px solid transparent"
                     alignItems="center"
                     justifyContent="start"
                     onClick={() => onClickHandler(acct)}
                   >
-                    <Circle
-                      w="44px"
-                      h="44px"
-                      borderWidth="1px"
-                      bg="transparent"
-                      borderColor="border"
-                    >
-                      <Image
-                        w="26px"
-                        h="26px"
-                        src={
-                          acct?.meta?.source === "polkadot-js"
-                            ? PolkadotjsLogo
-                            : acct?.meta?.source === "subwallet-js"
-                            ? SubWalletLogo
-                            : acct?.meta?.source === "aleph-zero-signer"
-                            ? AzeroSignerLogo
-                            : acct?.meta?.source === "Nightly"
-                            ? NightlyLogo
-                            : ""
-                        }
-                        alt={acct?.meta?.source}
-                      />
-                    </Circle>
-
+                    <Box>
+                      <BiWallet size="24px" />
+                    </Box>
                     <Heading w="full" as="h5" size="h5" ml="10px">
-                      {acct?.meta?.name}
+                      {acct?.name}
                     </Heading>
-
                     <Heading w="full" as="h5" size="h5" ml="10px">
                       {addressShortener(acct?.address)}
                     </Heading>

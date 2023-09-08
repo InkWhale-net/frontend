@@ -6,7 +6,7 @@ import { Flex, Text } from "@chakra-ui/react";
 export default function IWCountDown({ date }) {
   const renderer = ({ days, hours, minutes, seconds, completed }) => {
     if (completed) {
-      return <></>;
+      return <>{`--:--:--`}</>;
     } else {
       return (
         <Flex>
@@ -18,13 +18,7 @@ export default function IWCountDown({ date }) {
             ""
           )}
           <Text textAlign="left" minW="40px">
-            {zeroPad(hours)}h
-          </Text>
-          <Text textAlign="left" minW="44px">
-            {zeroPad(minutes)}m
-          </Text>
-          <Text textAlign="left" minW="36px">
-            {zeroPad(seconds)}s
+            {`${zeroPad(hours)}h ${zeroPad(minutes)}m ${zeroPad(seconds)}s`}
           </Text>
         </Flex>
       );

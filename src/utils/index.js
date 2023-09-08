@@ -9,12 +9,15 @@ import { toast } from "react-hot-toast";
 import { SupportedChainId, resolveAddressToDomain } from "@azns/resolver-core";
 import { formatUnits } from "ethers";
 import moment from "moment";
+import { execContractQuery } from "./contracts";
+import psp22_contract_old from "./contracts/psp22_contract_old";
+import psp22_contract from "./contracts/psp22_contract";
 
 // "12,345" (string) or 12,345 (string) -> 12345 (number)
 export const formatChainStringToNumber = (str) => {
   if (typeof str !== "string") return str;
 
-  return parseFloat(str.replace(/,/g, "").replace(/"/g, ""));
+  return str.replace(/,/g, "").replace(/"/g, "");
 };
 export const formatQueryResultToNumber = (result, chainDecimals = 12) => {
   const ret = result?.toHuman()?.Ok?.replaceAll(",", "");
@@ -80,7 +83,7 @@ export const formatNumDynDecimal = (num = 0, dec = 4) => {
 // new func to getImage source from CloudFlare
 export async function getCloudFlareImage(imageHash = "", size = 500) {
   const fallbackURL = `${
-    process.env.REACT_APP_IPFS_BASE_URL
+    process.env.REACT_APP_IPFS_PUBLIC_URL
   }/${imageHash.replace("ipfs://", "")}`;
 
   const ret = `${process.env.REACT_APP_ARTZERO_API_BASE_URL}/getImage?input=${imageHash}&size=${size}&url=${fallbackURL}`;
@@ -156,6 +159,7 @@ export const calcUnclaimedRewardTokenLP = ({
   unclaimedReward = 0,
   multiplier = 1,
   tokenDecimal = 12,
+  lptokenDecimal = 12,
   startTime,
   duration,
 }) => {
@@ -164,16 +168,15 @@ export const calcUnclaimedRewardTokenLP = ({
       ? new Date().getTime()
       : startTime + duration * 1000;
   const accumSecondTillNow = (getTime - lastRewardUpdate) / 1000;
-  // WHY? / 1000000
-  const multiplierPerSecond = multiplier / 24 / 60 / 60 / 1000000;
+  const multiplierPerSecond = multiplier / 24 / 60 / 60;
 
   const accumRewardTillNow =
-    accumSecondTillNow * multiplierPerSecond * stakedValue;
+    (accumSecondTillNow * multiplierPerSecond * stakedValue) /
+    10 ** (lptokenDecimal - tokenDecimal);
 
   const result =
     unclaimedReward / 10 ** tokenDecimal +
     accumRewardTillNow / 10 ** tokenDecimal;
-
   return result?.toFixed(tokenDecimal);
 };
 
@@ -234,14 +237,15 @@ export const moveINWToBegin = (tokensList) => {
     tokensList.unshift(element);
   }
   return tokensList.filter(
-    (e) => !!e?.contractAddress && e?.contractAddress != "undefined"
+    (e) => !!e?.contractAddress && e?.contractAddress !== "undefined"
   );
 };
 
 export const excludeNFT = (tokensList) =>
   tokensList.filter(
     (element) =>
-      element?.nftContractAddress != process.env.REACT_APP_EXCLUDE_TOKEN_ADDRESS
+      element?.nftContractAddress !==
+      process.env.REACT_APP_EXCLUDE_TOKEN_ADDRESS
   );
 
 const toContractAbiMessage = (contractPromise, message) => {
@@ -374,4 +378,53 @@ export const getTimestamp = async (api, blockNumber) => {
   );
 
   return moment(parseInt(ret)).format("DD/MM/YY, H:mm");
+};
+
+export const getIPFSData = async (uri) => {
+  const ret = `${process.env.REACT_APP_IPFS_PUBLIC_URL}/${uri}`;
+
+  try {
+    const response = await axios.get(ret);
+    return response?.data;
+  } catch (error) {
+    console.error("get ipfs data error", error.message);
+  }
+};
+
+export const dayToMilisecond = (amount) => {
+  try {
+    return (amount * 24 * 60 * 60 * 1000).toFixed();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const millisecondsInADay = 24 * 60 * 60 * 1000;
+
+export const getTokenOwner = async (tokenContract) => {
+  const queryOwnerOld = await execContractQuery(
+    process.env.REACT_APP_PUBLIC_ADDRESS,
+    "api",
+    psp22_contract_old.CONTRACT_ABI,
+    tokenContract,
+    0,
+    "ownable::owner"
+  );
+  const queryOwnerNew = await execContractQuery(
+    process.env.REACT_APP_PUBLIC_ADDRESS,
+    "api",
+    psp22_contract.CONTRACT_ABI,
+    tokenContract,
+    0,
+    "ownable::owner"
+  );
+
+  return {
+    address: queryOwnerOld?.toHuman()?.Ok || queryOwnerNew?.toHuman()?.Ok,
+    isNew: queryOwnerNew?.toHuman()?.Ok
+      ? true
+      : queryOwnerOld?.toHuman()?.Ok
+      ? false
+      : null,
+  };
 };

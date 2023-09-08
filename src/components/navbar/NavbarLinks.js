@@ -212,8 +212,8 @@ export const menuListData = [
     href: "/acquire-inw",
   },
   // {
-  //   title: "Tokens",
-  //   href: "/tokens",
+  //   title: "Launchpad",
+  //   href: "/launchpad",
   // },
 ];
 
@@ -264,22 +264,28 @@ export const CreateMenuDropdown = ({
               },
             },
             {
+              label: "Token Farming",
+              href: "/create/token-lp",
+              onClick: () => {
+                if (onClose) onClose();
+              },
+            },
+            {
               label: "NFT Staking Pool",
               onClick: () => {
                 if (onClose) onClose();
               },
               href: "/create/nft-lp",
             },
-            {
-              label: "Launchpad",
-              onClick: () => {
-                if (onClose) {
-                  onClose();
-                }
-                toast.success("Coming soon!");
-              },
-              // href: "/create/launchpad",
-            },
+            // {
+            //   label: "Launchpad",
+            //   onClick: () => {
+            //     if (onClose) {
+            //       onClose();
+            //     }
+            //   },
+            //   href: "/launchpad/create",
+            // },
             // { label: "Token Yield Farm", href: "/create/token-lp" },
           ].map((item, idx) => (
             <IWCard
@@ -361,6 +367,7 @@ export const StakeMenuDropdown = ({
               label: "Token Pools",
               href: "/pools",
             },
+            { label: "Farming", href: "/token-lp" },
             { label: "NFT Pools", href: "/farms" },
             // { label: "NFT Yield Farm", href: "/create/nft-lp" },
             // { label: "Token Yield Farm", href: "/create/token-lp" },
@@ -455,7 +462,6 @@ export const TokenMenuDropdown = ({
               href: "/tokens/transaction",
               onClick: () => {
                 if (onClose) onClose();
-                // toast.success("Coming soon!");
               },
             },
           ].map((item, idx) => (

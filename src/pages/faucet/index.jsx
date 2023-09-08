@@ -251,8 +251,8 @@ export default function FaucetPage({ api }) {
       query10,
     ]);
     const leftAmount =
-      +balanceTotalInwQr.toHuman().Ok?.replaceAll(",", "") -
-      +balancePurchaseInwQr.toHuman().Ok?.replaceAll(",", "");
+      +balanceTotalInwQr?.toHuman().Ok?.replaceAll(",", "") -
+      +balancePurchaseInwQr?.toHuman().Ok?.replaceAll(",", "");
     const result = endTime?.toHuman()?.Ok?.replaceAll(",", "");
     const startTime = startTimeQr?.toHuman()?.Ok?.replaceAll(",", "");
     const result2 = buyInfoQr?.toHuman()?.Ok;
@@ -311,43 +311,54 @@ export default function FaucetPage({ api }) {
       return;
     }
     try {
-      const INWTotalSupplyResponse = await APICall.getINWTotalSupply();
-      if (INWTotalSupplyResponse?.status === "OK") {
-        setInwTotalSupply(
-          formatNumDynDecimal(
-            roundUp(
-              formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12) ||
-                0,
-              4
+      if (!inwTotalSupply) {
+        const INWTotalSupplyResponse = await APICall.getINWTotalSupply();
+        if (INWTotalSupplyResponse?.status === "OK") {
+          setInwTotalSupply(
+            formatNumDynDecimal(
+              roundUp(
+                formatTokenAmount(
+                  INWTotalSupplyResponse?.ret?.totalSupply,
+                  12
+                ) || 0,
+                4
+              )
             )
-          )
-        );
-        let result1 = await execContractQuery(
-          process.env.REACT_APP_PUBLIC_ADDRESS,
-          api,
-          azt_contract.CONTRACT_ABI,
-          azt_contract.CONTRACT_ADDRESS,
-          0,
-          "psp22Capped::cap"
-        );
-        const inwTotalSupplyCap = formatQueryResultToNumber(result1);
-        setInwBurn(
-          parseFloat(inwTotalSupplyCap?.replaceAll(",", "")) -
-            parseFloat(
-              formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
-            )
-        );
-      } else {
-        toast.error("Get In inCirculation fail");
+          );
+          if (!inwBurn) {
+            let result1 = await execContractQuery(
+              process.env.REACT_APP_PUBLIC_ADDRESS,
+              api,
+              azt_contract.CONTRACT_ABI,
+              azt_contract.CONTRACT_ADDRESS,
+              0,
+              "psp22Capped::cap"
+            );
+            const inwTotalSupplyCap = formatQueryResultToNumber(result1);
+            setInwBurn(
+              parseFloat(inwTotalSupplyCap?.replaceAll(",", "")) -
+                parseFloat(
+                  formatTokenAmount(
+                    INWTotalSupplyResponse?.ret?.totalSupply,
+                    12
+                  )
+                )
+            );
+          }
+        } else {
+          toast.error("Get In inCirculation fail");
+        }
       }
 
-      const INWInCirculationResponse = await APICall.getINWInCirculation();
-      if (INWInCirculationResponse?.status === "OK") {
-        setInwInCur(
-          formatNumDynDecimal(INWInCirculationResponse.ret.inCirculation, 2)
-        );
-      } else {
-        toast.error("Get In inCirculation fail");
+      if (!inwInCur) {
+        const INWInCirculationResponse = await APICall.getINWInCirculation();
+        if (INWInCirculationResponse?.status === "OK") {
+          setInwInCur(
+            formatNumDynDecimal(INWInCirculationResponse.ret.inCirculation, 2)
+          );
+        } else {
+          toast.error("Get In inCirculation fail");
+        }
       }
     } catch (error) {
       console.log(error);
@@ -414,7 +425,7 @@ export default function FaucetPage({ api }) {
 
   useEffect(() => {
     getInwMintingCapAndTotalSupply();
-  }, [api, currentAccount, getInwMintingCapAndTotalSupply]);
+  }, [api, getInwMintingCapAndTotalSupply]);
 
   const getInfo = () => {
     if (tabIndex === 0) {
@@ -453,6 +464,7 @@ export default function FaucetPage({ api }) {
       toast.error(toastMessages.NO_WALLET);
       return;
     }
+
     await execContractTx(
       currentAccount,
       api,
@@ -483,6 +495,7 @@ export default function FaucetPage({ api }) {
   };
 
   const inwPrivateMintHandler = async () => {
+    console.log(inwPrice, inwBuyAmount);
     if (!api) {
       toast.error(toastMessages.ERR_API_CONN);
       return;
@@ -611,7 +624,7 @@ export default function FaucetPage({ api }) {
                       </Text>{" "}
                     </>
                   ) : (
-                    <>Sale Ended!</>
+                    <>Ended</>
                   )
                 ) : (
                   ""
@@ -776,7 +789,7 @@ export default function FaucetPage({ api }) {
                       </Text>{" "}
                     </>
                   ) : (
-                    <>Sale Ended!</>
+                    <>Ended</>
                   )
                 ) : (
                   ""

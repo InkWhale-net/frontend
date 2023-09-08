@@ -17,13 +17,12 @@ import { delay } from "utils";
 import IWInput from "components/input/Input";
 import { IWMobileList } from "components/table/IWMobileList";
 import { IWTable } from "components/table/IWTable";
+import { useAppContext } from "contexts/AppContext";
 import { useEffect, useMemo, useState } from "react";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
 import { formatTokenAmount, isPoolEnded, roundUp } from "utils";
-import { fetchUserBalance } from "redux/slices/walletSlice";
-import { useAppContext } from "contexts/AppContext";
 
 export default function PoolsPage() {
   const dispatch = useDispatch();
@@ -87,10 +86,6 @@ export default function PoolsPage() {
     );
   }, [currentAccount, dispatch, endedPools, sortPools]);
 
-  useEffect(() => {
-    if (!currentAccount?.balance && currentAccount && api)
-      dispatch(fetchUserBalance({ currentAccount, api }));
-  }, [currentAccount, api]);
   const poolsListDataFiltered = useMemo(() => {
     let ret = allStakingPoolsList;
 

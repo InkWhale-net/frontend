@@ -1,21 +1,16 @@
-import React, { useState, useRef, useEffect } from "react";
-import toast from "react-hot-toast";
 import {
   Box,
   Button,
   Center,
-  HStack,
   Image,
   Spacer,
   Square,
-  Tag,
-  TagLabel,
-  TagLeftIcon,
   Text,
-  useBreakpointValue,
   VStack,
-  Im,
+  useBreakpointValue,
 } from "@chakra-ui/react";
+import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 
 import { ipfsClient } from "api/client";
 import { Buffer } from "buffer";

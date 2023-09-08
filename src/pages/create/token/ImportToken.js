@@ -1,8 +1,6 @@
 import { Box, Button, Heading, SimpleGrid, VStack } from "@chakra-ui/react";
-import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 
-import { web3FromSource } from "@polkadot/extension-dapp";
 import { stringToHex } from "@polkadot/util";
 import { APICall } from "api/client";
 import { useState } from "react";
@@ -10,13 +8,19 @@ import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import { delay, formatQueryResultToNumber, isAddressValid } from "utils";
+import {
+  delay,
+  formatNumDynDecimal,
+  formatQueryResultToNumber,
+  isAddressValid,
+  roundUp,
+} from "utils";
 import { execContractQuery } from "utils/contracts";
 import core_contract from "utils/contracts/core_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract_old from "utils/contracts/psp22_contract_old";
 import ImageUploadIcon from "./UploadIcon";
-import { roundUp } from "utils";
-import { formatNumDynDecimal } from "utils";
+import { getTokenOwner } from "utils";
 
 const ImportTokenForm = ({ api }) => {
   const dispatch = useDispatch();
@@ -89,15 +93,8 @@ const ImportTokenForm = ({ api }) => {
         rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
         0
       );
-      let queryResult5 = await execContractQuery(
-        currentAccount?.address,
-        "api",
-        psp22_contract.CONTRACT_ABI,
-        tokenAddress,
-        0,
-        "ownable::owner"
-      );
-      const owner = queryResult5?.toHuman()?.Ok;
+
+      const { address: tokenOwnerAddress } = await getTokenOwner(tokenAddress);
       const balance = formatQueryResultToNumber(
         queryResult,
         parseInt(decimals)
@@ -108,7 +105,7 @@ const ImportTokenForm = ({ api }) => {
         balance &&
         totalSupply &&
         decimals &&
-        owner
+        tokenOwnerAddress
       ) {
         setTokenInfo((prev) => {
           return {
@@ -118,7 +115,7 @@ const ImportTokenForm = ({ api }) => {
             content: balance,
             totalSupply: formatNumDynDecimal(totalSupply, 4),
             decimals,
-            owner,
+            owner: tokenOwnerAddress,
           };
         });
       } else {
@@ -135,20 +132,15 @@ const ImportTokenForm = ({ api }) => {
       if (!currentAccount) {
         toast.error("Please connect wallet for full-function using!");
       }
-      let queryResult = await execContractQuery(
-        currentAccount?.address,
-        "api",
-        psp22_contract.CONTRACT_ABI,
-        tokenAddress,
-        0,
-        "ownable::owner"
-      );
-      const tokenOwnerAddress = queryResult.toHuman().Ok;
+
+      const { address: tokenOwnerAddress, isNew: isNewVersionOP } =
+        await getTokenOwner(tokenAddress);
+
       if (tokenOwnerAddress != currentAccount?.address) {
         toast.error("You must be the owner of the token contract to continue");
         return;
       }
-      const { signer } = await web3FromSource(currentAccount?.meta?.source);
+      const signer = window.nightlySigner;
       const { signature } = await signer.signRaw({
         address: currentAccount.address,
         data: stringToHex("Sign message to import token"),
@@ -174,10 +166,12 @@ const ImportTokenForm = ({ api }) => {
           decimal: tokenDecimal,
           creator: tokenOwnerAddress,
           signature,
+          isNew: isNewVersionOP,
         });
         if (status === "OK") {
           setTokenInfo(null);
           setTokenAddress("");
+
           toast.promise(
             delay(10000).then(() => {
               setImportIconIPFSUrl();

@@ -1,61 +1,61 @@
-import React, { useEffect, useState } from "react";
-import ReactDOM from "react-dom";
+import { ChakraProvider } from "@chakra-ui/react";
+import { ApiPromise, WsProvider } from "@polkadot/api";
 import "assets/css/App.css";
-import "react-datetime-picker/dist/DateTimePicker.css";
+import { toastMessages } from "constants";
+import DefaultLayout from "layouts/default";
+import "rc-steps/assets/index.css";
+import React, { useEffect, useState } from "react";
 import "react-calendar/dist/Calendar.css";
 import "react-clock/dist/Clock.css";
-import "rc-steps/assets/index.css";
-import { HashRouter, Redirect, Route, Switch } from "react-router-dom";
-import DefaultLayout from "layouts/default";
-import { ChakraProvider } from "@chakra-ui/react";
-import theme from "theme/theme";
-import { toast, Toaster } from "react-hot-toast";
+import "react-datetime-picker/dist/DateTimePicker.css";
+import ReactDOM from "react-dom";
+import { Toaster, toast } from "react-hot-toast";
 import {
   Provider as ReduxProvider,
   useDispatch,
   useSelector,
 } from "react-redux";
-import store from "./redux/store";
-import { ApiPromise, WsProvider } from "@polkadot/api";
+import { HashRouter, Redirect, Route, Switch } from "react-router-dom";
+import theme from "theme/theme";
 import { formatChainStringToNumber } from "utils";
-import { toastMessages } from "constants";
+import store from "./redux/store";
 
-import FaucetPage from "pages/faucet";
-import PoolsPage from "pages/pools";
-import PoolDetailPage from "pages/pools/detail";
-import FarmsPage from "pages/farms";
-import FarmDetailPage from "pages/farms/detail";
-import TokensPage from "pages/tokens";
-import CreateTokenPage from "pages/create/token";
-import CreateStakePoolPage from "pages/create/stake-pool";
-import MyBalancePage from "pages/account/my-balance";
-import TokensTransactionPage from "pages/tokens/transactions";
 import jsonrpc from "@polkadot/types/interfaces/jsonrpc";
-import { fetchUserBalance } from "redux/slices/walletSlice";
-import { initialApi } from "utils/contracts";
-import CreateNFTLPPage from "pages/create/nft-lp-pool";
-import CreateTokenLPPage from "pages/create/token-lp-pool";
+import { AppContextProvider, useAppContext } from "contexts/AppContext";
+import MyBalancePage from "pages/account/my-balance";
 import MyPoolsPage from "pages/account/my-pools";
 import MyPoolDetailPage from "pages/account/my-pools/detail";
-import { delay } from "utils";
-import { fetchMyStakingPools } from "redux/slices/myPoolsSlice";
-import { fetchMyTokenPools } from "redux/slices/myPoolsSlice";
-import { fetchMyNFTPools } from "redux/slices/myPoolsSlice";
-import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
-import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
-import { fetchAllNFTPools } from "redux/slices/allPoolsSlice";
-import { fetchAllTokenPools } from "redux/slices/allPoolsSlice";
-import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import AdminPage from "pages/admin";
-import CreateLaunchpadPage from "pages/create-launchpad";
-import { AppContextProvider } from "contexts/AppContext";
-import { useAppContext } from "contexts/AppContext";
+import CreateNFTLPPage from "pages/create/nft-lp-pool";
+import CreateStakePoolPage from "pages/create/stake-pool";
+import CreateTokenPage from "pages/create/token";
+import CreateTokenLPPage from "pages/create/token-lp-pool";
+import FarmsPage from "pages/farms";
+import FarmDetailPage from "pages/farms/detail";
+import FaucetPage from "pages/faucet";
+import Launchpad from "pages/launchpad";
+import CreateLaunchpadPage from "pages/launchpad/create";
+import PublicDetailLaunchpad from "pages/launchpad/detail";
+import LPPoolsPage from "pages/lpPools";
+import PoolsPage from "pages/pools";
+import PoolDetailPage from "pages/pools/detail";
+import TokensPage from "pages/tokens";
+import TokensTransactionPage from "pages/tokens/transactions";
 import { QueryClient, QueryClientProvider } from "react-query";
+import {
+  fetchAllStakingPools,
+  fetchAllTokenPools,
+  fetchAllTokensList,
+} from "redux/slices/allPoolsSlice";
+import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import {
+  fetchMyStakingPools,
+  fetchMyTokenPools,
+} from "redux/slices/myPoolsSlice";
 import { fetchTotalValueLocked } from "redux/slices/statSlice";
-import { updateAccountsList } from "redux/slices/walletSlice";
-import { disconnectCurrentAccount } from "redux/slices/walletSlice";
-import { logOutMyPools } from "redux/slices/myPoolsSlice";
-import { updateExtensions } from "redux/slices/walletSlice";
+import { fetchUserBalance } from "redux/slices/walletSlice";
+import { delay } from "utils";
+import { initialApi } from "utils/contracts";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -76,11 +76,8 @@ const App = () => {
     allTokenPoolsList,
   } = useSelector((s) => s.allPools);
   const { setCurrentApi } = useAppContext();
-
+  const { launchpads } = useSelector((s) => s.launchpad);
   const [api, setApi] = useState(null);
-  // const [, setLastChainBlock] = useState(null);
-  // const [, setLastBlockParent] = useState(null);
-
   const uiColorMode = localStorage.getItem("chakra-ui-color-mode");
 
   if (!uiColorMode || uiColorMode === "dark") {
@@ -118,15 +115,6 @@ const App = () => {
         // setLastChainBlock(lastBlock);
         // setLastBlockParent(lastHeader.parentHash.toRawType);
       });
-
-      const currentExtensions = await web3Enable(process.env.REACT_APP_NAME);
-      dispatch(
-        updateExtensions(currentExtensions.map((e) => ({ name: e?.name })))
-      );
-      if (!(allAccounts?.length > 0) && currentAccount) {
-        const accounts = await web3Accounts();
-        dispatch(updateAccountsList(accounts));
-      }
     };
 
     setupProvider().catch((error) => {
@@ -135,22 +123,22 @@ const App = () => {
     });
   }, [dispatch]);
 
-  useEffect(() => {
-    if (currentExt?.length > 0 && currentAccount) {
-      if (!currentExt?.find((e) => e?.name == currentAccount?.meta?.source)) {
-        dispatch(disconnectCurrentAccount());
-        dispatch(logOutMyPools());
-        localStorage.removeItem("localCurrentAccount");
-      }
-    }
-  }, [currentExt, currentAccount]);
+  // useEffect(() => {
+  //   if (currentExt?.length > 0 && currentAccount) {
+  //     if (!currentExt?.find((e) => e?.name == currentAccount?.meta?.source)) {
+  //       dispatch(disconnectCurrentAccount());
+  //       dispatch(logOutMyPools());
+  //       localStorage.removeItem("localCurrentAccount");
+  //     }
+  //   }
+  // }, [currentExt, currentAccount]);
 
   useEffect(() => {
     delay(100);
 
-    if (!allNFTPoolsList) {
-      dispatch(fetchAllNFTPools({ currentAccount }));
-    }
+    // if (!allNFTPoolsList) {
+    //   dispatch(fetchAllNFTPools({ currentAccount }));
+    // }
 
     if (!allTokensList) {
       dispatch(fetchAllTokensList({}));
@@ -168,9 +156,9 @@ const App = () => {
 
     if (!currentAccount?.address) return;
 
-    if (!myNFTPoolsList) {
-      dispatch(fetchMyNFTPools({ currentAccount }));
-    }
+    // if (!myNFTPoolsList) {
+    // dispatch(fetchMyNFTPools({ currentAccount }));
+    // }
 
     if (!myStakingPoolsList) {
       dispatch(fetchMyStakingPools({ currentAccount }));
@@ -183,6 +171,10 @@ const App = () => {
     if (!currentAccount?.balance) {
       dispatch(fetchUserBalance({ currentAccount, api }));
     }
+    if (!launchpads) {
+      dispatch(fetchLaunchpads({}));
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, currentAccount?.address]);
 
@@ -205,7 +197,7 @@ const App = () => {
             path={`/farms/:contractAddress`}
             component={FarmDetailPage}
           />
-          <Route exact path={`/farms`} component={FarmsPage} />{" "}
+          <Route exact path={`/farms`} component={FarmsPage} />
           <Route exact path={`/tokens/interaction`} component={TokensPage} />
           <Route
             exact
@@ -221,13 +213,25 @@ const App = () => {
           <Route exact path={`/create/nft-lp`} component={CreateNFTLPPage} />
           <Route
             exact
-            path={`/create/launchpad`}
+            path={`/launchpad/create`}
             component={CreateLaunchpadPage}
+          />
+          <Route exact path={`/launchpad`} component={Launchpad} />
+          <Route
+            exact
+            path={`/launchpad/:launchpadContract`}
+            component={PublicDetailLaunchpad}
           />
           <Route
             exact
             path={`/create/token-lp`}
             component={CreateTokenLPPage}
+          />
+          <Route exact path={`/token-lp`} component={LPPoolsPage} />
+          <Route
+            exact
+            path={`/token-lp/:contractAddress`}
+            component={FarmDetailPage}
           />
           <Route exact path={`/account`} component={MyBalancePage} />
           <Route exact path={`/account/my-balance`} component={MyBalancePage} />
@@ -251,8 +255,8 @@ ReactDOM.render(
   <ChakraProvider theme={theme}>
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        <AppContextProvider>
-          <ReduxProvider store={store}>
+        <ReduxProvider store={store}>
+          <AppContextProvider>
             <Toaster
               position="bottom-right"
               reverseOrder={true}
@@ -266,10 +270,9 @@ ReactDOM.render(
                 },
               }}
             />
-
             <App />
-          </ReduxProvider>
-        </AppContextProvider>
+          </AppContextProvider>
+        </ReduxProvider>
       </QueryClientProvider>
     </React.StrictMode>
   </ChakraProvider>,

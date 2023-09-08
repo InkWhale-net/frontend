@@ -1,11 +1,9 @@
-import { createAsyncThunk, createSlice, current } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-import { execContractQuery } from "utils/contracts";
-import psp22_contract from "utils/contracts/psp22_contract";
+import { formatNumDynDecimal, formatQueryResultToNumber } from "utils";
+import { execContractQuery, getAzeroBalanceOfAddress } from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
-import { formatQueryResultToNumber } from "utils";
-import { getAzeroBalanceOfAddress } from "utils/contracts";
-import { formatNumDynDecimal } from "utils";
+import psp22_contract from "utils/contracts/psp22_contract";
 
 const localCurrentAccount = window?.localStorage?.getItem(
   "localCurrentAccount"
@@ -15,7 +13,7 @@ const initialState = {
   api: null,
   allAccounts: [],
   currentAccount: JSON.parse(localCurrentAccount) || null,
-  currentExt: []
+  adapter: null,
 };
 
 export const walletSlice = createSlice({
@@ -41,8 +39,8 @@ export const walletSlice = createSlice({
       //   state.currentAccount = null;
       // }
     },
-    updateExtensions: (state, action) => {
-      state.currentExt = action.payload;
+    updateAdapter: (state, action) => {
+      state.adapter = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -60,7 +58,7 @@ export const {
   setCurrentAccount,
   updateAccountsList,
   disconnectCurrentAccount,
-  updateExtensions,
+  updateAdapter,
 } = walletSlice.actions;
 
 export default walletSlice.reducer;

@@ -38,9 +38,15 @@ import React, { useEffect, useState } from "react";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import { toast } from "react-hot-toast";
 import { GoStar } from "react-icons/go";
+import { formatTokenAmount } from "utils";
 import { addressShortener, formatNumDynDecimal } from "utils";
 import { format } from "utils/datetime";
-
+const getStatusPool = (startTime, duration) => {
+  if (startTime + duration * 1000 < new Date()) {
+    return "Pool ended!";
+  }
+  return startTime < new Date() ? "Pool live!" : "Upcoming";
+};
 const ElementCard = ({ tableHeader, itemObj, mode, onClickItemHandler }) => {
   return (
     <Box
@@ -291,14 +297,45 @@ export const formatDataCellTable = (itemObj, header, mode) => {
 
     case "multiplier":
       return mode === "TOKEN_FARM" ? (
-        <Text>{(itemObj[header] / 10 ** 6).toFixed(2)}</Text>
+        <Text>{itemObj[header].toFixed(2)}</Text>
       ) : mode === "NFT_FARM" ? (
         <Text>{(itemObj[header] / 10 ** 12).toFixed(2)}</Text>
       ) : (
         <></>
       );
-
+    case "status":
+      return (
+        <>
+          <Text>
+            {getStatusPool(itemObj["startTime"], itemObj["duration"])}
+          </Text>
+        </>
+      );
     case "rewardPool":
+      return (
+        <>
+          <Text>{formatNumDynDecimal(itemObj[header], 2)}</Text>
+        </>
+      );
+    case "purchasedAmount":
+      return (
+        <>
+          <Text>{formatNumDynDecimal(itemObj[header])}</Text>
+        </>
+      );
+    case "claimedAmount":
+      return (
+        <>
+          <Text>{formatNumDynDecimal(itemObj[header])}</Text>
+        </>
+      );
+    case "amount":
+      return (
+        <>
+          <Text>{formatNumDynDecimal(itemObj[header])}</Text>
+        </>
+      );
+    case "price":
       return (
         <>
           <Text>{formatNumDynDecimal(itemObj[header])}</Text>
@@ -378,8 +415,12 @@ export const formatDataCellTable = (itemObj, header, mode) => {
     case "stakeInfo":
       const numberStakeInfo =
         itemObj[header] &&
-        formatNumDynDecimal(itemObj[header].stakedValue / 10 ** 12);
-
+        formatNumDynDecimal(
+          formatTokenAmount(
+            itemObj[header].stakedValue,
+            parseInt(itemObj?.lptokenDecimal)
+          )
+        );
       const numberNFTStakeInfo =
         itemObj[header] && formatNumDynDecimal(itemObj[header].stakedValue);
 
@@ -392,10 +433,12 @@ export const formatDataCellTable = (itemObj, header, mode) => {
                 <GoStar color="#FFB800" />
               </Flex>
             ) : (
-              <Flex alignItems="center">
-                <Text mr="8px">{numberStakeInfo}</Text>
-                <GoStar color="#FFB800" />
-              </Flex>
+              numberStakeInfo > 0 && (
+                <Flex alignItems="center">
+                  <Text mr="8px">{numberStakeInfo}</Text>
+                  <GoStar color="#FFB800" />
+                </Flex>
+              )
             )
           ) : (
             ""
@@ -416,7 +459,9 @@ export const formatDataCellTable = (itemObj, header, mode) => {
     case "totalSupply":
       return (
         <>
-          <Text>{formatNumDynDecimal(itemObj[header])}</Text>
+          <Text>
+            {formatNumDynDecimal(itemObj[header])} {itemObj?.tokenSymbol}
+          </Text>
         </>
       );
 
@@ -443,6 +488,57 @@ export const formatDataCellTable = (itemObj, header, mode) => {
           <Text textAlign="left">{itemObj[header]} </Text>
         </Flex>
       );
+    case "tokenName":
+      return (
+        <Flex alignItems={"center"} mr={{ base: "20px" }}>
+          <Box
+            w={{ base: null, lg: "42px" }}
+            sx={{
+              h: "42px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <TokenIcon tokenContract={itemObj["tokenContract"]} />
+          </Box>
+          <Text textAlign="left">{itemObj[header]} </Text>
+        </Flex>
+      );
+    case "lptokenSymbol":
+      return (
+        <Flex alignItems={"center"} mr={{ base: "20px" }}>
+          <Box
+            w={{ base: null, lg: "42px" }}
+            sx={{
+              h: "42px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <TokenIcon tokenContract={itemObj["lptokenContract"]} />
+          </Box>
+          <Text textAlign="left">{itemObj[header]} </Text>
+        </Flex>
+      );
+    case "lptokenName":
+      return (
+        <Flex alignItems={"center"} mr={{ base: "20px" }}>
+          <Box
+            w={{ base: null, lg: "42px" }}
+            sx={{
+              h: "42px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <TokenIcon tokenContract={itemObj["lptokenContract"]} />
+          </Box>
+          <Text textAlign="left">{itemObj[header]} </Text>
+        </Flex>
+      );
     case "tokenTotalSupply":
       const tokenTotalSupply = itemObj[header].replaceAll(",", "");
       return (
@@ -458,6 +554,12 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       );
 
     case "contractAddress":
+      return (
+        <>
+          <AddressCopier address={itemObj[header]} fontWeight="none" />
+        </>
+      );
+    case "account":
       return (
         <>
           <AddressCopier address={itemObj[header]} fontWeight="none" />

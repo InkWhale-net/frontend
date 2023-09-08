@@ -3,68 +3,68 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  Button,
   Flex,
-  Heading,
   HStack,
+  Link,
   Show,
   Stack,
   Text,
   VStack,
-  Link,
-  Button,
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 
-import IWCard from "components/card/Card";
-import ConfirmModal from "components/modal/ConfirmModal";
+import { APICall } from "api/client";
+import AddressCopier from "components/address-copier/AddressCopier";
+import IWCard, { BannerCard, NFTBannerCard } from "components/card/Card";
 import IWCardOneColumn from "components/card/CardOneColumn";
 import CardThreeColumn from "components/card/CardThreeColumn";
 import CardTwoColumn from "components/card/CardTwoColumn";
-import { useLocation, useParams } from "react-router-dom";
-import { addressShortener } from "utils";
-import { formatNumDynDecimal } from "utils";
-import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
-import psp22_contract from "utils/contracts/psp22_contract";
-import { formatQueryResultToNumber } from "utils";
-import { execContractQuery } from "utils/contracts";
-import { useEffect } from "react";
-import { execContractTx } from "utils/contracts";
-import pool_contract from "utils/contracts/pool_contract";
-import { delay } from "utils";
-import { formatNumToBN } from "utils";
-import { toast } from "react-hot-toast";
-import { formatChainStringToNumber } from "utils";
-import { useCallback } from "react";
+import ConfirmModal from "components/modal/ConfirmModal";
 import { toastMessages } from "constants";
-import { APICall } from "api/client";
-import { BannerCard } from "components/card/Card";
-import { NFTBannerCard } from "components/card/Card";
-import nft_pool_contract from "utils/contracts/nft_pool_contract";
-import { useMemo } from "react";
-import lp_pool_contract from "utils/contracts/lp_pool_contract";
+import { useAppContext } from "contexts/AppContext";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import {
+  fetchAllNFTPools,
+  fetchAllStakingPools,
+  fetchAllTokenPools,
+} from "redux/slices/allPoolsSlice";
+import {
+  fetchMyNFTPools,
+  fetchMyStakingPools,
+  fetchMyTokenPools,
+} from "redux/slices/myPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import { isPoolEnded } from "utils";
-import { fetchMyStakingPools } from "redux/slices/myPoolsSlice";
-import { fetchMyTokenPools } from "redux/slices/myPoolsSlice";
-import { fetchAllTokenPools } from "redux/slices/allPoolsSlice";
-import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
-import { fetchMyNFTPools } from "redux/slices/myPoolsSlice";
-import { fetchAllNFTPools } from "redux/slices/allPoolsSlice";
-import AddressCopier from "components/address-copier/AddressCopier";
-import { BN } from "bn.js";
-import { roundUp } from "utils";
-import { roundDown } from "utils";
-import { formatTokenAmount } from "utils";
+import {
+  delay,
+  formatChainStringToNumber,
+  formatNumDynDecimal,
+  formatNumToBN,
+  formatQueryResultToNumber,
+  formatTokenAmount,
+  isPoolEnded,
+  roundDown,
+  roundUp,
+} from "utils";
+import { execContractQuery, execContractTx } from "utils/contracts";
+import lp_pool_contract from "utils/contracts/lp_pool_contract";
+import nft_pool_contract from "utils/contracts/nft_pool_contract";
+import pool_contract from "utils/contracts/pool_contract";
+import psp22_contract from "utils/contracts/psp22_contract";
 
-export default function MyPoolDetailPage({ api }) {
+export default function MyPoolDetailPage() {
   const [state, setState] = useState({});
+  const { api } = useAppContext();
   const { currentAccount } = useSelector((s) => s.wallet);
   const { myStakingPoolsList, myNFTPoolsList, myTokenPoolsList } = useSelector(
     (s) => s.myPools
   );
   const params = useParams();
+  const dispatch = useDispatch();
 
   // const { state } = useLocation();
   const currentStakingPool = useMemo(() => {
@@ -100,7 +100,14 @@ export default function MyPoolDetailPage({ api }) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
+  useEffect(() => {
+    if (currentAccount && api) {
+      dispatch(fetchAllNFTPools({ currentAccount }));
+      if (!myNFTPoolsList) {
+        dispatch(fetchMyNFTPools({ currentAccount }));
+      }
+    }
+  }, [currentAccount, api]);
   const stakingPoolCardData = {
     cardHeaderList: [
       {
@@ -175,7 +182,7 @@ export default function MyPoolDetailPage({ api }) {
       {
         name: "multiplier",
         hasTooltip: true,
-        tooltipContent: `Multiplier determines how many reward tokens will the staker receive per 1 NFT in 24 hours.`,
+        tooltipContent: `Multiplier determines how many reward tokens will the staker receive per 1 token in 24 hours.`,
         label: "Multiplier",
       },
       {
@@ -320,7 +327,7 @@ export default function MyPoolDetailPage({ api }) {
             : state?.mode === "NFT_FARM"
             ? "NFT Staking Pools"
             : state?.mode === "TOKEN_FARM"
-            ? "Token Staking Pool"
+            ? "Token Farming Pool"
             : "Pools"
         }`}
       >
@@ -389,6 +396,7 @@ const MyPoolInfo = ({
   multiplier,
   nftInfo,
   lptokenContract,
+  lptokenDecimal,
   lptokenSymbol,
   lptokenName,
   lptokenTotalSupply,
@@ -417,7 +425,6 @@ const MyPoolInfo = ({
       "psp22::balanceOf",
       currentAccount?.address
     );
-
     const balance = formatQueryResultToNumber(result, parseInt(tokenDecimal));
     setTokenBalance(balance);
     if (isPoolEnded(startTime, duration)) {
@@ -465,7 +472,7 @@ const MyPoolInfo = ({
       "psp22::balanceOf",
       currentAccount?.address
     );
-    const balance = formatQueryResultToNumber(result);
+    const balance = formatQueryResultToNumber(result, parseInt(tokenDecimal));
     setTokenBalance(balance);
     const resultLP = await execContractQuery(
       currentAccount?.address,
@@ -477,13 +484,34 @@ const MyPoolInfo = ({
       currentAccount?.address
     );
 
-    const balanceLP = formatQueryResultToNumber(resultLP);
+    const balanceLP = formatQueryResultToNumber(resultLP, lptokenDecimal);
     setLPTokenBalance(balanceLP);
+    if (isPoolEnded(startTime, duration)) {
+      const unclaimRwQr = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        lp_pool_contract.CONTRACT_ABI,
+        poolContract,
+        0,
+        "genericPoolContractTrait::totalUnclaimedReward"
+      );
+      const unclaimRw = formatQueryResultToNumber(
+        unclaimRwQr,
+        parseInt(tokenDecimal)
+      );
+      const withdrawableRs = roundDown(rewardPool) - roundUp(+unclaimRw.replaceAll(",", ""));
+      setWithdrawbleAm(roundDown(withdrawableRs, 3));
+    }
   }, [
-    currentAccount?.address,
     currentAccount?.balance,
-    lptokenContract,
+    currentAccount?.address,
     tokenContract,
+    lptokenContract,
+    startTime,
+    duration,
+    poolContract,
+    tokenDecimal,
+    rewardPool,
   ]);
 
   useEffect(() => {
@@ -816,7 +844,7 @@ const MyPoolInfo = ({
 
     if (mode === "TOKEN_FARM") {
       toast.success("Process...");
-
+      console.log(formatNumToBN(amount, tokenDecimal), 'tokenDecimal');
       await execContractTx(
         currentAccount,
         api,
@@ -827,7 +855,7 @@ const MyPoolInfo = ({
         formatNumToBN(amount, tokenDecimal)
       );
 
-      await APICall.askBEupdate({ type: "pool", poolContract });
+      await APICall.askBEupdate({ type: "lp", poolContract });
 
       await delay(3000);
 
@@ -877,7 +905,7 @@ const MyPoolInfo = ({
                     : mode === "NFT_FARM"
                     ? `${(multiplier / 10 ** 12).toFixed(2)}`
                     : mode === "TOKEN_FARM"
-                    ? `${(multiplier / 10 ** 6).toFixed(2)}`
+                    ? `${multiplier.toFixed(2)}`
                     : `${apy / 100}%`,
               },
               {
@@ -894,17 +922,22 @@ const MyPoolInfo = ({
               },
               {
                 title: "Withdrawble Amount",
-                content: `${formatNumDynDecimal(withdrawbleAm)} ${tokenSymbol}`,
+                content: `${formatNumDynDecimal(withdrawbleAm, 3)} ${tokenSymbol}`,
               },
               {
                 title: "Max Staking Amount",
                 content: `${formatNumDynDecimal(
-                  formatTokenAmount(maxStakingAmount, tokenDecimal)
+                  formatTokenAmount(maxStakingAmount, mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal)
                 )} ${tokenSymbol}`,
               },
               {
                 title: "Total Value Locked",
-                content: `${formatNumDynDecimal(totalStaked)} ${
+                content: `${formatNumDynDecimal(
+                  formatTokenAmount(
+                    totalStaked,
+                    mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal
+                  )
+                )} ${
                   mode === "NFT_FARM"
                     ? `NFT`
                     : mode === "TOKEN_FARM"

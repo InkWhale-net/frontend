@@ -7,39 +7,45 @@ import {
   SimpleGrid,
   Stack,
   Text,
+  Tooltip,
   VStack,
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 import { IWTable } from "components/table/IWTable";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import DateTimePicker from "react-datetime-picker";
-import { useDispatch, useSelector } from "react-redux";
-import { addressShortener } from "utils";
-import { toast } from "react-hot-toast";
-import { isAddressValid } from "utils";
-import { execContractQuery } from "utils/contracts";
-import { formatQueryResultToNumber } from "utils";
-import psp22_contract from "utils/contracts/psp22_contract";
 import { APICall } from "api/client";
 import { toastMessages } from "constants";
-import { execContractTx } from "utils/contracts";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import DateTimePicker from "react-datetime-picker";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMyTokenPools } from "redux/slices/myPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import { delay } from "utils";
-import { formatNumToBN } from "utils";
+import {
+  addressShortener,
+  delay,
+  formatNumToBN,
+  formatQueryResultToNumber,
+  isAddressValid,
+} from "utils";
+import { execContractQuery, execContractTx } from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
 import lp_pool_generator_contract from "utils/contracts/lp_pool_generator_contract";
-import { fetchMyTokenPools } from "redux/slices/myPoolsSlice";
+import psp22_contract from "utils/contracts/psp22_contract";
+import { QuestionOutlineIcon } from "@chakra-ui/icons";
+import { formatNumDynDecimal } from "utils";
+import { roundUp } from "utils";
+import { SelectSearch } from "components/SelectSearch";
 
 export default function CreateTokenLPPage({ api }) {
   const dispatch = useDispatch();
   const { currentAccount } = useSelector((s) => s.wallet);
   const { myTokenPoolsList, loading } = useSelector((s) => s.myPools);
+  const { allTokensList } = useSelector((s) => s.allPools);
 
   const [createTokenFee, setCreateTokenFee] = useState(0);
 
-  const [faucetTokensList, setFaucetTokensList] = useState([]);
   const [selectedContractAddr, setSelectedContractAddr] = useState("");
 
   const [LPtokenContract, setLPTokenContract] = useState("");
@@ -47,9 +53,29 @@ export default function CreateTokenLPPage({ api }) {
   const [duration, setDuration] = useState("");
   const [multiplier, setMultiplier] = useState("");
   const [startTime, setStartTime] = useState(new Date());
+  const [maxStake, setMaxStake] = useState("");
 
   const [tokenBalance, setTokenBalance] = useState(0);
   const [LPtokenBalance, setLPTokenBalance] = useState(0);
+
+  const faucetTokensList = useMemo(() => {
+    return allTokensList?.length > 0
+      ? allTokensList.filter((e) => e?.contractAddress != selectedContractAddr)
+      : [];
+  }, [allTokensList, selectedContractAddr]);
+  const pairTokenList = useMemo(() => {
+    return allTokensList?.length > 0
+      ? allTokensList.filter((e) => e?.contractAddress != LPtokenContract)
+      : [];
+  }, [allTokensList, LPtokenContract]);
+
+  const tokenSymbol = useMemo(
+    () =>
+      pairTokenList.find(
+        (item) => item.contractAddress === selectedContractAddr
+      ),
+    [pairTokenList, selectedContractAddr]
+  );
 
   const fetchTokenBalance = useCallback(async () => {
     if (!selectedContractAddr) return;
@@ -74,17 +100,17 @@ export default function CreateTokenLPPage({ api }) {
       currentAccount?.address
     );
 
-    const bal = formatQueryResultToNumber(queryResult);
+    const bal = formatQueryResultToNumber(queryResult, tokenSymbol?.decimal);
     setTokenBalance(bal);
-  }, [currentAccount, selectedContractAddr]);
+  }, [currentAccount, selectedContractAddr, tokenSymbol]);
 
-  const tokenSymbol = useMemo(() => {
+  const tokenLPSymbol = useMemo(() => {
     const foundItem = faucetTokensList.find(
-      (item) => item.contractAddress === selectedContractAddr
+      (item) => item.contractAddress === LPtokenContract
     );
 
-    return foundItem?.symbol;
-  }, [faucetTokensList, selectedContractAddr]);
+    return foundItem;
+  }, [LPtokenContract, faucetTokensList]);
 
   useEffect(() => {
     fetchTokenBalance();
@@ -113,39 +139,16 @@ export default function CreateTokenLPPage({ api }) {
       currentAccount?.address
     );
 
-    const balLP = formatQueryResultToNumber(queryResultLP);
-    setLPTokenBalance(balLP);
-  }, [LPtokenContract, currentAccount]);
-
-  const tokenLPSymbol = useMemo(() => {
-    const foundItem = faucetTokensList.find(
-      (item) => item.contractAddress === LPtokenContract
+    const balLP = formatQueryResultToNumber(
+      queryResultLP,
+      tokenLPSymbol?.decimal
     );
-
-    return foundItem?.symbol;
-  }, [LPtokenContract, faucetTokensList]);
+    setLPTokenBalance(balLP);
+  }, [LPtokenContract, currentAccount, tokenLPSymbol]);
 
   useEffect(() => {
     fetchLPTokenBalance();
   }, [fetchLPTokenBalance]);
-
-  useEffect(() => {
-    let isUnmounted = false;
-    const getFaucetTokensListData = async () => {
-      let { ret, status, message } = await APICall.getTokensList({});
-
-      if (status === "OK") {
-        if (isUnmounted) return;
-
-        return setFaucetTokensList(ret);
-      }
-
-      toast.error(`Get faucet tokens list failed. ${message}`);
-    };
-    getFaucetTokensListData();
-
-    return () => (isUnmounted = true);
-  }, []);
 
   useEffect(() => {
     const fetchCreateTokenFee = async () => {
@@ -166,6 +169,11 @@ export default function CreateTokenLPPage({ api }) {
     fetchCreateTokenFee();
   }, [currentAccount]);
 
+  const minReward = useMemo(
+    () => formatNumDynDecimal(maxStake * duration * multiplier),
+    [maxStake, duration, multiplier]
+  );
+
   async function createTokenLPHandler() {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
@@ -180,6 +188,21 @@ export default function CreateTokenLPPage({ api }) {
       !startTime
     ) {
       toast.error(`Please fill in all data!`);
+      return;
+    }
+
+    if (!(duration > 0)) {
+      toast.error(`Pool Length must be greater than 0`);
+      return;
+    }
+
+    if (!(multiplier > 0)) {
+      toast.error(`Multiplayer must be greater than 0`);
+      return;
+    }
+
+    if (!(maxStake > 0)) {
+      toast.error(`Total Staking Cap must be greater than 0`);
       return;
     }
 
@@ -200,26 +223,82 @@ export default function CreateTokenLPPage({ api }) {
       return;
     }
 
+    if (
+      parseInt(tokenBalance?.replaceAll(",", "")) <
+      minReward?.replaceAll(",", "")
+    ) {
+      toast.error(
+        `You don't have enough ${tokenSymbol?.symbol} to topup the reward`
+      );
+      return;
+    }
+
     //Approve
     toast.success("Step 1: Approving...");
-
-    let approve = await execContractTx(
-      currentAccount,
+    const allowanceINWQr = await execContractQuery(
+      currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      azt_contract.CONTRACT_ABI,
       azt_contract.CONTRACT_ADDRESS,
       0, //-> value
-      "psp22::approve",
-      lp_pool_generator_contract.CONTRACT_ADDRESS,
-      formatNumToBN(createTokenFee)
+      "psp22::allowance",
+      currentAccount?.address,
+      lp_pool_generator_contract.CONTRACT_ADDRESS
     );
+    const allowanceINW = formatQueryResultToNumber(allowanceINWQr).replaceAll(
+      ",",
+      ""
+    );
+    const allowanceTokenQr = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      selectedContractAddr,
+      0, //-> value
+      "psp22::allowance",
+      currentAccount?.address,
+      lp_pool_generator_contract.CONTRACT_ADDRESS
+    );
+    const allowanceToken = formatQueryResultToNumber(
+      allowanceTokenQr,
+      tokenSymbol?.decimal
+    ).replaceAll(",", "");
+    let step = 1;
 
-    if (!approve) return;
+    //Approve
+    if (allowanceINW < createTokenFee.replaceAll(",", "")) {
+      toast.success(`Step ${step}: Approving INW token...`);
+      step++;
+      let approve = await execContractTx(
+        currentAccount,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        azt_contract.CONTRACT_ADDRESS,
+        0, //-> value
+        "psp22::approve",
+        lp_pool_generator_contract.CONTRACT_ADDRESS,
+        formatNumToBN(Number.MAX_SAFE_INTEGER)
+      );
+      if (!approve) return;
+    }
+    if (allowanceToken < minReward.replaceAll(",", "")) {
+      toast.success(`Step ${step}: Approving ${tokenSymbol?.symbol} token...`);
+      step++;
+      let approve = await execContractTx(
+        currentAccount,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        selectedContractAddr,
+        0, //-> value
+        "psp22::approve",
+        lp_pool_generator_contract.CONTRACT_ADDRESS,
+        formatNumToBN(Number.MAX_SAFE_INTEGER)
+      );
+      if (!approve) return;
+    }
 
-    await delay(3000);
-
-    toast.success("Step 2: Process...");
-
+    await delay(1000);
+    toast.success(`Step ${step}: Process...`);
     await execContractTx(
       currentAccount,
       "api",
@@ -230,13 +309,12 @@ export default function CreateTokenLPPage({ api }) {
       currentAccount?.address,
       LPtokenContract,
       selectedContractAddr,
-      formatNumToBN(multiplier, 6),
-      duration * 24 * 60 * 60 * 1000,
+      formatNumToBN(maxStake, tokenLPSymbol?.decimal || 12),
+      Number(multiplier),
+      roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
     );
-
     await APICall.askBEupdate({ type: "lp", poolContract: "new" });
-
     setMultiplier("");
     setDuration("");
     setStartTime(new Date());
@@ -246,7 +324,7 @@ export default function CreateTokenLPPage({ api }) {
     await delay(3000);
 
     toast.promise(
-      delay(15000).then(() => {
+      delay(10000).then(() => {
         if (currentAccount) {
           dispatch(fetchMyTokenPools({ currentAccount }));
           dispatch(fetchUserBalance({ currentAccount, api }));
@@ -256,7 +334,7 @@ export default function CreateTokenLPPage({ api }) {
         fetchLPTokenBalance();
       }),
       {
-        loading: "Please wait up to 15s for the data to be updated! ",
+        loading: "Please wait up to 10s for the data to be updated! ",
         success: "Done !",
         error: "Could not fetch data!!!",
       }
@@ -310,7 +388,7 @@ export default function CreateTokenLPPage({ api }) {
     <>
       <SectionContainer
         mt={{ base: "0px", xl: "20px" }}
-        title="Create Token Staking Pool"
+        title="Create Token Farming"
         description={
           <span>
             Stakers get rewards in selected token. The creation costs
@@ -333,21 +411,22 @@ export default function CreateTokenLPPage({ api }) {
               <Heading as="h4" size="h4" mb="12px">
                 Select Token To Stake
               </Heading>
-              <Select
-                value={LPtokenContract}
-                id="token-collection"
-                placeholder="Select token"
-                onChange={({ target }) => {
-                  setLPTokenContract(target.value);
+              <SelectSearch
+                name="token"
+                placeholder="Select Token..."
+                closeMenuOnSelect={true}
+                // filterOption={filterOptions}
+                isSearchable
+                onChange={({ value }) => {
+                  setLPTokenContract(value);
                 }}
-              >
-                {faucetTokensList?.map((token, idx) => (
-                  <option key={idx} value={token.contractAddress}>
-                    {token?.symbol} ({token?.name}) -{" "}
-                    {addressShortener(token?.contractAddress)}
-                  </option>
-                ))}
-              </Select>
+                options={faucetTokensList?.map((token, idx) => ({
+                  value: token?.contractAddress,
+                  label: `${token?.symbol} (${
+                    token?.name
+                  }) - ${addressShortener(token?.contractAddress)}`,
+                }))}
+              ></SelectSearch>
             </Box>
 
             <Box w="full">
@@ -363,21 +442,22 @@ export default function CreateTokenLPPage({ api }) {
               <Heading as="h4" size="h4" mb="12px">
                 Select Token To Reward Stakers
               </Heading>
-              <Select
-                value={selectedContractAddr}
-                id="token-collection"
-                placeholder="Select token"
-                onChange={({ target }) => {
-                  setSelectedContractAddr(target.value);
+              <SelectSearch
+                name="token"
+                placeholder="Select Token..."
+                closeMenuOnSelect={true}
+                // filterOption={filterOptions}
+                isSearchable
+                onChange={({ value }) => {
+                  setSelectedContractAddr(value);
                 }}
-              >
-                {faucetTokensList?.map((token, idx) => (
-                  <option key={idx} value={token.contractAddress}>
-                    {token?.symbol} ({token?.name}) -{" "}
-                    {addressShortener(token?.contractAddress)}
-                  </option>
-                ))}
-              </Select>
+                options={pairTokenList?.map((token, idx) => ({
+                  value: token?.contractAddress,
+                  label: `${token?.symbol} (${
+                    token?.name
+                  }) - ${addressShortener(token?.contractAddress)}`,
+                }))}
+              ></SelectSearch>
             </Box>
 
             <Box w="full">
@@ -438,7 +518,17 @@ export default function CreateTokenLPPage({ api }) {
               <IWInput
                 type="number"
                 placeholder="0"
-                label="Multiplier "
+                label={
+                  <>
+                    Multiplier
+                    <Tooltip
+                      fontSize="md"
+                      label="Multiplier determines how many reward tokens will the staker receive per 1 token in 24 hours"
+                    >
+                      <QuestionOutlineIcon ml="6px" color="text.2" />
+                    </Tooltip>
+                  </>
+                }
                 value={multiplier}
                 onChange={({ target }) => setMultiplier(target.value)}
               />
@@ -453,28 +543,69 @@ export default function CreateTokenLPPage({ api }) {
                 w="full"
               >
                 <IWInput
-                  isDisabled={true}
+                  isDisabled
                   value={`${LPtokenBalance || 0}`}
                   // label={`Your ${tokenLPSymbol || "Token"} Balance`}
                   label={`Your Token Balance`}
                   inputRightElementIcon={
                     <Heading as="h5" size="h5" fontWeight="semibold">
-                      {tokenLPSymbol}
+                      {tokenLPSymbol?.symbol}
                     </Heading>
                   }
                 />
                 <IWInput
                   ml={{ lg: "10px" }}
-                  isDisabled={true}
+                  isDisabled
                   value={`${tokenBalance || 0}`}
                   // label={`Your ${tokenSymbol || "Token"} Balance`}
                   inputRightElementIcon={
                     <Heading as="h5" size="h5" fontWeight="semibold">
-                      {tokenSymbol}
+                      {tokenSymbol?.symbol}
                     </Heading>
                   }
                 />
               </Stack>
+            </Box>
+            <Box w="full">
+              <IWInput
+                value={maxStake}
+                onChange={({ target }) => setMaxStake(target.value)}
+                type="number"
+                label={
+                  <>
+                    Total Staking Cap{" "}
+                    {tokenLPSymbol?.symbol ? `(${tokenLPSymbol?.symbol})` : ""}{" "}
+                    <Tooltip
+                      fontSize="smaller"
+                      label={
+                        "How many tokens that users can stake into the pool "
+                      }
+                    >
+                      <QuestionOutlineIcon ml="6px" pb={"2px"} color="text.2" />
+                    </Tooltip>
+                  </>
+                }
+                placeholder="0"
+              />
+            </Box>
+            <Box w="full">
+              <IWInput
+                isDisabled={true}
+                value={`${minReward || 0} ${tokenSymbol?.symbol || ""}`}
+                label={
+                  <>
+                    Total Rewards
+                    <Tooltip
+                      fontSize="smaller"
+                      label={
+                        " Pool creator has to add this amount upfront into the pool to pay for stakers' interest."
+                      }
+                    >
+                      <QuestionOutlineIcon ml="6px" pb={"2px"} color="text.2" />
+                    </Tooltip>
+                  </>
+                }
+              />
             </Box>
           </SimpleGrid>
 
@@ -483,14 +614,14 @@ export default function CreateTokenLPPage({ api }) {
             maxW={{ lg: "260px" }}
             onClick={createTokenLPHandler}
           >
-            Create Token Staking Pool
+            Create Pool
           </Button>
         </VStack>
       </SectionContainer>
 
       <SectionContainer
         mt={{ base: "0px", xl: "8px" }}
-        title="My NFT Staking Pools"
+        title="My Token Farming Pools"
         description=""
       >
         <IWTable

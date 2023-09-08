@@ -20,6 +20,7 @@ function IWInput(props) {
     variant,
     inputRightElementIcon,
     onChange,
+    maxLength,
     ...rest
   } = props;
 
@@ -28,10 +29,22 @@ function IWInput(props) {
   const onChangeInput = (valueString) => {
     if (type === "number") {
       if (reg.test(valueString.target.value)) {
-        onChange(valueString);
+        if (maxLength > 0) {
+          const slicedValue = valueString.target.value.slice(0, maxLength);
+          onChange({
+            ...valueString,
+            target: { ...valueString.target, value: slicedValue },
+          });
+        } else onChange(valueString);
       }
     } else {
-      onChange(valueString);
+      if (maxLength > 0) {
+        const slicedValue = valueString.target.value.slice(0, maxLength);
+        onChange({
+          ...valueString,
+          target: { ...valueString.target, value: slicedValue },
+        });
+      } else onChange(valueString);
     }
   };
 
@@ -47,7 +60,7 @@ function IWInput(props) {
       <InputGroup {...rest}>
         {inputRightElementIcon && (
           <InputRightElement
-            right="16px"
+            right="10px"
             justifyContent="end"
             children={inputRightElementIcon}
           />

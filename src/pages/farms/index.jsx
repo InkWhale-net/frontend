@@ -25,9 +25,7 @@ import {
   fetchAllNFTPools,
   fetchAllTokenPools,
 } from "redux/slices/allPoolsSlice";
-import { fetchUserBalance } from "redux/slices/walletSlice";
-import { formatTokenAmount } from "utils";
-import { delay, isPoolEnded } from "utils";
+import { delay, formatTokenAmount, isPoolEnded } from "utils";
 
 export default function FarmsPage() {
   const dispatch = useDispatch();
@@ -127,10 +125,6 @@ export default function FarmsPage() {
 
     return () => clearTimeout(delayDebounceFn);
   }, [keywords, nftLPListFiltered]);
-  useEffect(() => {
-    if (!currentAccount?.balance && currentAccount && api)
-      dispatch(fetchUserBalance({ currentAccount, api }));
-  }, [currentAccount, api]);
 
   const tokenLPListFiltered = useMemo(() => {
     let ret = allTokenPoolsList;
@@ -252,18 +246,22 @@ export default function FarmsPage() {
     tableBody: tokenLPListFiltered,
   };
 
-  // const tabsData = [
-  //   {
-  //     label: <>NFT Staking Pool</>,
-  //     component: ,
-  //     isDisabled: false,
-  //   },
-  //   // {
-  //   //   label: <>Token Yield Farms</>,
-  //   //   component: <IWTable {...tableDataToken} mode="TOKEN_FARM" />,
-  //   //   isDisabled: false,
-  //   // },
-  // ];
+  const tabsData = [
+    {
+      label: <>NFT Staking Pool</>,
+      component: isSmallerThanMd ? (
+        <IWMobileList {...tableDataNFT} mode="NFT_FARM" />
+      ) : (
+        <IWTable {...tableDataNFT} mode="NFT_FARM" />
+      ),
+      isDisabled: false,
+    },
+    {
+      label: <>Token Yield Farms</>,
+      component: <IWTable {...tableDataToken} mode="TOKEN_FARM" />,
+      isDisabled: false,
+    },
+  ];
 
   return (
     <SectionContainer
@@ -388,14 +386,11 @@ export default function FarmsPage() {
             </Select>
           </Box> */}
         </HStack>
-
-        {/* <IWTabs tabsData={tabsData} loading={loading} /> */}
-        {!loading &&
-          (isSmallerThanMd ? (
-            <IWMobileList {...tableDataNFT} mode="NFT_FARM" />
-          ) : (
-            <IWTable {...tableDataNFT} mode="NFT_FARM" />
-          ))}
+        {isSmallerThanMd ? (
+          <IWMobileList {...tableDataNFT} mode="NFT_FARM" />
+        ) : (
+          <IWTable {...tableDataNFT} mode="NFT_FARM" />
+        )}
       </Stack>
     </SectionContainer>
   );
