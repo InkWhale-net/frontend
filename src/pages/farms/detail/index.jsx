@@ -1369,7 +1369,7 @@ const MyStakeRewardInfoToken = ({
                 justifyContent="space-between"
               >
                 <ConfirmModal
-                  disableBtn={!(availableStakeAmount > 0)}
+                  disableBtn={!(availableStakeAmount > 0) || isPoolEnded(startTime, duration)}
                   action="stake"
                   buttonVariant="primary"
                   buttonLabel="Stake"
