@@ -28,7 +28,6 @@ export default function PoolsPage() {
   const dispatch = useDispatch();
 
   const { currentAccount } = useSelector((s) => s.wallet);
-  const { api } = useAppContext();
   const { allStakingPoolsList } = useSelector((s) => s.allPools);
 
   const [showMyStakedPools, setShowMyStakedPools] = useState(false);
