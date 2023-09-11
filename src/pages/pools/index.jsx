@@ -97,7 +97,12 @@ export default function PoolsPage() {
       ret = ret.filter((p) => isPoolEnded(p?.startTime, p?.duration));
     }
 
-    return ret;
+    return ret?.map((e) => {
+      return {
+        ...e,
+        totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
+      };
+    });
   }, [allStakingPoolsList, showMyStakedPools, endedPools]);
 
   useEffect(() => {
