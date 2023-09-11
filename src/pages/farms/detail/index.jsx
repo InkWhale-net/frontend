@@ -1088,26 +1088,6 @@ const MyStakeRewardInfoToken = ({
       return;
     }
 
-    if (isPoolEnded(startTime, duration)) {
-      toast.error("Pool is ended!");
-      return;
-    }
-
-    if (!LPTokenAmount || LPTokenAmount < 0 || LPTokenAmount === "0") {
-      toast.error("Invalid Amount!");
-      return;
-    }
-
-    if (!rewardPool || parseInt(rewardPool) <= 0) {
-      toast.error("There is no reward balance in this pool!");
-      return;
-    }
-
-    if (formatChainStringToNumber(LPtokenBalance) < LPTokenAmount) {
-      toast.error("There is not enough balance!");
-      return;
-    }
-
     //Approve
     toast.success("Step 1: Approving...");
 
