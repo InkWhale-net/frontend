@@ -922,7 +922,7 @@ const MyPoolInfo = ({
               },
               {
                 title: "Reward Pool",
-                content: `${formatNumDynDecimal(rewardPool)} ${tokenSymbol}`,
+                content: `${formatNumDynDecimal(rewardPool, 2)} ${tokenSymbol}`,
               },
               {
                 title: "Withdrawble Amount",
