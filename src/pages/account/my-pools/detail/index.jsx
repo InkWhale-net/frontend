@@ -153,6 +153,7 @@ export default function MyPoolDetailPage() {
 
     cardValue: {
       ...currentStakingPool,
+      totalStaked: formatTokenAmount(currentStakingPool?.totalStaked, currentStakingPool?.lptokenDecimal),
     },
   };
 

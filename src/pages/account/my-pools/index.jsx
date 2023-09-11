@@ -7,6 +7,7 @@ import { useHistory, useLocation } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import MyNFTAndTokenPoolsTab from "./MyNFTAndTokenPoolsTab";
 import MyBalance from "./MyBalance";
+import { formatTokenAmount } from "utils";
 
 export default function MyPoolsPage({ api }) {
   const history = useHistory();
@@ -67,7 +68,12 @@ export default function MyPoolsPage({ api }) {
       },
     ],
 
-    tableBody: myStakingPoolsList,
+    tableBody: myStakingPoolsList?.map((e) => {
+      return {
+        ...e,
+        totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
+      };
+    }),
   };
 
   const tableDataTokens = {
