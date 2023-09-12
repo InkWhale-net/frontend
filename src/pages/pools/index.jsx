@@ -28,7 +28,6 @@ export default function PoolsPage() {
   const dispatch = useDispatch();
 
   const { currentAccount } = useSelector((s) => s.wallet);
-  const { api } = useAppContext();
   const { allStakingPoolsList } = useSelector((s) => s.allPools);
 
   const [showMyStakedPools, setShowMyStakedPools] = useState(false);
@@ -97,7 +96,12 @@ export default function PoolsPage() {
       ret = ret.filter((p) => isPoolEnded(p?.startTime, p?.duration));
     }
 
-    return ret;
+    return ret?.map((e) => {
+      return {
+        ...e,
+        totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
+      };
+    });
   }, [allStakingPoolsList, showMyStakedPools, endedPools]);
 
   useEffect(() => {

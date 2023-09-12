@@ -159,9 +159,9 @@ const App = () => {
     if (!currentAccount?.balance) {
       dispatch(fetchUserBalance({ currentAccount, api }));
     }
-    if (!launchpads) {
-      dispatch(fetchLaunchpads({}));
-    }
+    // if (!launchpads) {
+    //   dispatch(fetchLaunchpads({}));
+    // }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, currentAccount?.address]);

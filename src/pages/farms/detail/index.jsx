@@ -1088,26 +1088,6 @@ const MyStakeRewardInfoToken = ({
       return;
     }
 
-    if (isPoolEnded(startTime, duration)) {
-      toast.error("Pool is ended!");
-      return;
-    }
-
-    if (!LPTokenAmount || LPTokenAmount < 0 || LPTokenAmount === "0") {
-      toast.error("Invalid Amount!");
-      return;
-    }
-
-    if (!rewardPool || parseInt(rewardPool) <= 0) {
-      toast.error("There is no reward balance in this pool!");
-      return;
-    }
-
-    if (formatChainStringToNumber(LPtokenBalance) < LPTokenAmount) {
-      toast.error("There is not enough balance!");
-      return;
-    }
-
     //Approve
     toast.success("Step 1: Approving...");
 
@@ -1369,7 +1349,11 @@ const MyStakeRewardInfoToken = ({
                 justifyContent="space-between"
               >
                 <ConfirmModal
-                  disableBtn={!(availableStakeAmount > 0)}
+                  disableBtn={
+                    !(availableStakeAmount > 0) ||
+                    isPoolEnded(startTime, duration) ||
+                    !(LPTokenAmount?.length > 0)
+                  }
                   action="stake"
                   buttonVariant="primary"
                   buttonLabel="Stake"
@@ -1381,7 +1365,10 @@ const MyStakeRewardInfoToken = ({
                 />
 
                 <ConfirmModal
-                  disableBtn={!(stakeInfo?.stakedValue > 0)}
+                  disableBtn={
+                    !(stakeInfo?.stakedValue > 0) ||
+                    !(LPTokenAmount?.length > 0)
+                  }
                   action="unstake"
                   buttonVariant="primary"
                   buttonLabel="Unstake"

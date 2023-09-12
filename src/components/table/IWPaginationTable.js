@@ -343,6 +343,8 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       );
 
     case "startTime":
+      if (itemObj[header] > new Date())
+        return <IWCountDown date={itemObj[header]} />;
       return (
         <>
           <IWCountDown date={itemObj[header] + itemObj["duration"] * 1000} />
