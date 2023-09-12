@@ -149,6 +149,7 @@ export default function CreateStakePoolPage({ api }) {
         maxStakingAmount:
           e?.maxStakingAmount &&
           formatTokenAmount(e?.maxStakingAmount, e?.tokenDecimal),
+        totalStaked: formatTokenAmount(e?.totalStaked, e?.tokenDecimal),
       }))
     );
   };
