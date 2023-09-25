@@ -307,7 +307,7 @@ export default function MyPoolDetailPage() {
   return (
     <>
       <Show above="md">
-        <SectionContainer mt={{ xl: "-48px" }} mb={{ xl: "-32px" }}>
+        <SectionContainer>
           <Breadcrumb
             spacing="4px"
             separator={<ChevronRightIcon color="gray.500" />}
