@@ -790,6 +790,7 @@ const PoolInfo = (props) => {
     maxStakingAmount,
     tokenDecimal,
     api,
+    owner,
   } = props;
   const { currentAccount } = useSelector((s) => s.wallet);
   const [totalSupply, setTotalSupply] = useState(0);
@@ -857,6 +858,10 @@ const PoolInfo = (props) => {
             content: `${formatNumDynDecimal(
               parseFloat(formatTokenAmount(totalStaked, tokenDecimal))
             )} ${tokenSymbol}`,
+          },
+          {
+            title: "Creator",
+            content: <AddressCopier address={owner} />,
           },
         ]}
       />
