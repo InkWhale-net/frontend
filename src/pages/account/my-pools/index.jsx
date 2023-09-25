@@ -2,12 +2,13 @@ import { Stack } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 
 import { IWTable } from "components/table/IWTable";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import MyNFTAndTokenPoolsTab from "./MyNFTAndTokenPoolsTab";
 import MyBalance from "./MyBalance";
 import { formatTokenAmount } from "utils";
+import { fetchMyStakingPools } from "redux/slices/myPoolsSlice";
 
 export default function MyPoolsPage({ api }) {
   const history = useHistory();
@@ -15,6 +16,7 @@ export default function MyPoolsPage({ api }) {
   const tokenSectionRef = useRef(null);
   const poolSectionRef = useRef(null);
   const balanceSectionRef = useRef(null);
+  const dispatch = useDispatch();
 
   const { currentAccount } = useSelector((s) => s.wallet);
 
@@ -126,6 +128,9 @@ export default function MyPoolsPage({ api }) {
       (el) => el.creator === currentAccount?.address
     ),
   };
+  useEffect(() => {
+    dispatch(fetchMyStakingPools({ currentAccount }));
+  }, [currentAccount]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -170,9 +175,9 @@ export default function MyPoolsPage({ api }) {
         </Stack>
       </SectionContainer>
 
-      <MyNFTAndTokenPoolsTab mode="NFT_FARM"/>
+      <MyNFTAndTokenPoolsTab mode="NFT_FARM" />
 
-      <MyNFTAndTokenPoolsTab mode="TOKEN_FARM"/>
+      <MyNFTAndTokenPoolsTab mode="TOKEN_FARM" />
 
       <SectionContainer
         mt={{ base: "0px", xl: "8px" }}

@@ -4,6 +4,7 @@ import { IWTable } from "components/table/IWTable";
 import { useAppContext } from "contexts/AppContext";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchMyTokenPools } from "redux/slices/myPoolsSlice";
 import { fetchMyNFTPools } from "redux/slices/myPoolsSlice";
 import { formatTokenAmount } from "utils";
 
@@ -14,6 +15,7 @@ const MyNFTAndTokenPoolsTab = ({ mode }) => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(fetchMyNFTPools({ currentAccount }));
+    dispatch(fetchMyTokenPools({ currentAccount }));
   }, [currentAccount, api]);
 
   const tableDataNFT = {
