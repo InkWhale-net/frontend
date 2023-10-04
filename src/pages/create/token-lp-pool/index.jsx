@@ -311,7 +311,7 @@ export default function CreateTokenLPPage({ api }) {
       LPtokenContract,
       selectedContractAddr,
       formatNumToBN(maxStake, tokenLPSymbol?.decimal || 12),
-      Number(multiplier),
+      Number(multiplier * 10000),
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
     );
