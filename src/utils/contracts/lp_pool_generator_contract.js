@@ -1,14 +1,14 @@
 const lp_pool_generator_contract = {
-	CONTRACT_ADDRESS: "5FLan7qeaAcEk1R8zraGjqHRm9fs4U9CkysnrkTk23hLBMiJ",
+	CONTRACT_ADDRESS: "5EVBFxHMTWadGSkQTx8B8mW454bfkAxsY25so8JGxH6AptYp",
 	CONTRACT_ABI: {
 		"source": {
-		  "hash": "0xdbdf7d7f4462503b7b8ed17863083099415f5066f4d5864e2520321f23e80327",
+		  "hash": "0x16cb993256e7ace0f585845ce496d7a7deeda2370e5b573f0bcbe4139da6f7f4",
 		  "language": "ink! 4.3.0",
-		  "compiler": "rustc 1.69.0-nightly",
+		  "compiler": "rustc 1.68.0",
 		  "build_info": {
-			"build_mode": "Release",
-			"cargo_contract_version": "2.0.0-rc",
-			"rust_toolchain": "nightly-x86_64-unknown-linux-gnu",
+			"build_mode": "Debug",
+			"cargo_contract_version": "3.2.0",
+			"rust_toolchain": "stable-x86_64-unknown-linux-gnu",
 			"wasm_opt_settings": {
 			  "keep_debug_symbols": false,
 			  "optimization_passes": "Z"
@@ -269,37 +269,21 @@ const lp_pool_generator_contract = {
 			  "selector": "0x2393fe3a"
 			},
 			{
-			  "args": [],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_inw_contract",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 17
-			  },
-			  "selector": "0xd6b47e7a"
-			},
-			{
 			  "args": [
 				{
-				  "label": "pool_hash",
+				  "label": "creation_fee",
 				  "type": {
 					"displayName": [
 					  "genericpoolgeneratortrait_external",
-					  "SetPoolHashInput1"
+					  "SetCreationFeeInput1"
 					],
-					"type": 3
+					"type": 5
 				  }
 				}
 			  ],
 			  "default": false,
 			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::set_pool_hash",
+			  "label": "GenericPoolGeneratorTrait::set_creation_fee",
 			  "mutates": true,
 			  "payable": false,
 			  "returnType": {
@@ -309,7 +293,50 @@ const lp_pool_generator_contract = {
 				],
 				"type": 9
 			  },
-			  "selector": "0xc49c451f"
+			  "selector": "0x3cd3873c"
+			},
+			{
+			  "args": [],
+			  "default": false,
+			  "docs": [],
+			  "label": "GenericPoolGeneratorTrait::get_creation_fee",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 17
+			  },
+			  "selector": "0xea416566"
+			},
+			{
+			  "args": [
+				{
+				  "label": "unstake_fee",
+				  "type": {
+					"displayName": [
+					  "genericpoolgeneratortrait_external",
+					  "SetUnstakeFeeInput1"
+					],
+					"type": 5
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [],
+			  "label": "GenericPoolGeneratorTrait::set_unstake_fee",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 9
+			  },
+			  "selector": "0xfd8d8fda"
 			},
 			{
 			  "args": [
@@ -337,6 +364,65 @@ const lp_pool_generator_contract = {
 				"type": 18
 			  },
 			  "selector": "0xd8207f36"
+			},
+			{
+			  "args": [],
+			  "default": false,
+			  "docs": [],
+			  "label": "GenericPoolGeneratorTrait::get_pool_count",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 20
+			  },
+			  "selector": "0x38b09ecb"
+			},
+			{
+			  "args": [
+				{
+				  "label": "contract_owner",
+				  "type": {
+					"displayName": [
+					  "genericpoolgeneratortrait_external",
+					  "GetPoolCountByOwnerInput1"
+					],
+					"type": 0
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [],
+			  "label": "GenericPoolGeneratorTrait::get_pool_count_by_owner",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 20
+			  },
+			  "selector": "0xa4cef8cd"
+			},
+			{
+			  "args": [],
+			  "default": false,
+			  "docs": [],
+			  "label": "GenericPoolGeneratorTrait::get_inw_contract",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 21
+			  },
+			  "selector": "0xd6b47e7a"
 			},
 			{
 			  "args": [
@@ -371,9 +457,68 @@ const lp_pool_generator_contract = {
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 20
+				"type": 22
 			  },
 			  "selector": "0x476bc739"
+			},
+			{
+			  "args": [],
+			  "default": false,
+			  "docs": [],
+			  "label": "GenericPoolGeneratorTrait::get_pool_hash",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 24
+			  },
+			  "selector": "0x79f903bb"
+			},
+			{
+			  "args": [],
+			  "default": false,
+			  "docs": [],
+			  "label": "GenericPoolGeneratorTrait::get_unstake_fee",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 17
+			  },
+			  "selector": "0xa4395f88"
+			},
+			{
+			  "args": [
+				{
+				  "label": "pool_hash",
+				  "type": {
+					"displayName": [
+					  "genericpoolgeneratortrait_external",
+					  "SetPoolHashInput1"
+					],
+					"type": 3
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [],
+			  "label": "GenericPoolGeneratorTrait::set_pool_hash",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 9
+			  },
+			  "selector": "0xc49c451f"
 			},
 			{
 			  "args": [
@@ -401,151 +546,6 @@ const lp_pool_generator_contract = {
 				"type": 9
 			  },
 			  "selector": "0xf71a1217"
-			},
-			{
-			  "args": [],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_pool_count",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 22
-			  },
-			  "selector": "0x38b09ecb"
-			},
-			{
-			  "args": [
-				{
-				  "label": "contract_owner",
-				  "type": {
-					"displayName": [
-					  "genericpoolgeneratortrait_external",
-					  "GetPoolCountByOwnerInput1"
-					],
-					"type": 0
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_pool_count_by_owner",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 22
-			  },
-			  "selector": "0xa4cef8cd"
-			},
-			{
-			  "args": [
-				{
-				  "label": "creation_fee",
-				  "type": {
-					"displayName": [
-					  "genericpoolgeneratortrait_external",
-					  "SetCreationFeeInput1"
-					],
-					"type": 5
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::set_creation_fee",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 9
-			  },
-			  "selector": "0x3cd3873c"
-			},
-			{
-			  "args": [
-				{
-				  "label": "unstake_fee",
-				  "type": {
-					"displayName": [
-					  "genericpoolgeneratortrait_external",
-					  "SetUnstakeFeeInput1"
-					],
-					"type": 5
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::set_unstake_fee",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 9
-			  },
-			  "selector": "0xfd8d8fda"
-			},
-			{
-			  "args": [],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_unstake_fee",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 23
-			  },
-			  "selector": "0xa4395f88"
-			},
-			{
-			  "args": [],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_creation_fee",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 23
-			  },
-			  "selector": "0xea416566"
-			},
-			{
-			  "args": [],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_pool_hash",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 24
-			  },
-			  "selector": "0x79f903bb"
 			},
 			{
 			  "args": [
@@ -686,22 +686,6 @@ const lp_pool_generator_contract = {
 			  "args": [],
 			  "default": false,
 			  "docs": [],
-			  "label": "Ownable::owner",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 18
-			  },
-			  "selector": "0x4fa43c8c"
-			},
-			{
-			  "args": [],
-			  "default": false,
-			  "docs": [],
 			  "label": "Ownable::renounce_ownership",
 			  "mutates": true,
 			  "payable": false,
@@ -713,6 +697,22 @@ const lp_pool_generator_contract = {
 				"type": 27
 			  },
 			  "selector": "0x5e228753"
+			},
+			{
+			  "args": [],
+			  "default": false,
+			  "docs": [],
+			  "label": "Ownable::owner",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 18
+			  },
+			  "selector": "0x4fa43c8c"
 			},
 			{
 			  "args": [
@@ -917,84 +917,6 @@ const lp_pool_generator_contract = {
 					  }
 					},
 					"name": "manager"
-				  },
-				  {
-					"layout": {
-					  "struct": {
-						"fields": [
-						  {
-							"layout": {
-							  "enum": {
-								"dispatchKey": "0x00000000",
-								"name": "Option",
-								"variants": {
-								  "0": {
-									"fields": [],
-									"name": "None"
-								  },
-								  "1": {
-									"fields": [
-									  {
-										"layout": {
-										  "leaf": {
-											"key": "0x00000000",
-											"ty": 6
-										  }
-										},
-										"name": "0"
-									  }
-									],
-									"name": "Some"
-								  }
-								}
-							  }
-							},
-							"name": "_reserved"
-						  }
-						],
-						"name": "Data"
-					  }
-					},
-					"name": "admin_data"
-				  },
-				  {
-					"layout": {
-					  "struct": {
-						"fields": [
-						  {
-							"layout": {
-							  "enum": {
-								"dispatchKey": "0x00000000",
-								"name": "Option",
-								"variants": {
-								  "0": {
-									"fields": [],
-									"name": "None"
-								  },
-								  "1": {
-									"fields": [
-									  {
-										"layout": {
-										  "leaf": {
-											"key": "0x00000000",
-											"ty": 6
-										  }
-										},
-										"name": "0"
-									  }
-									],
-									"name": "Some"
-								  }
-								}
-							  }
-							},
-							"name": "_reserved"
-						  }
-						],
-						"name": "Data"
-					  }
-					},
-					"name": "upgradeable_data"
 				  }
 				],
 				"name": "LPPoolGenerator"
@@ -1752,7 +1674,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 0
+						  "type": 5
 						}
 					  ],
 					  "index": 0,
@@ -1773,7 +1695,7 @@ const lp_pool_generator_contract = {
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 0
+				  "type": 5
 				},
 				{
 				  "name": "E",
@@ -1869,7 +1791,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 21
+						  "type": 4
 						}
 					  ],
 					  "index": 0,
@@ -1890,7 +1812,7 @@ const lp_pool_generator_contract = {
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 21
+				  "type": 4
 				},
 				{
 				  "name": "E",
@@ -1904,6 +1826,90 @@ const lp_pool_generator_contract = {
 		  },
 		  {
 			"id": 21,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
+						  "type": 0
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 8
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 0
+				},
+				{
+				  "name": "E",
+				  "type": 8
+				}
+			  ],
+			  "path": [
+				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 22,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
+						  "type": 23
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 8
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 23
+				},
+				{
+				  "name": "E",
+				  "type": 8
+				}
+			  ],
+			  "path": [
+				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 23,
 			"type": {
 			  "def": {
 				"variant": {
@@ -1932,90 +1938,6 @@ const lp_pool_generator_contract = {
 			  ],
 			  "path": [
 				"Option"
-			  ]
-			}
-		  },
-		  {
-			"id": 22,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 4
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 8
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 4
-				},
-				{
-				  "name": "E",
-				  "type": 8
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 23,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 5
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 8
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 5
-				},
-				{
-				  "name": "E",
-				  "type": 8
-				}
-			  ],
-			  "path": [
-				"Result"
 			  ]
 			}
 		  },
