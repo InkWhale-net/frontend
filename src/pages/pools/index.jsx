@@ -26,9 +26,12 @@ import { formatTokenAmount, isPoolEnded, roundUp } from "utils";
 
 export default function PoolsPage() {
   const dispatch = useDispatch();
+  const { api } = useAppContext();
 
   const { currentAccount } = useSelector((s) => s.wallet);
-  const { allStakingPoolsList } = useSelector((s) => s.allPools);
+  const { allStakingPoolsList, allTokenPoolsList } = useSelector(
+    (s) => s.allPools
+  );
 
   const [showMyStakedPools, setShowMyStakedPools] = useState(false);
 
@@ -75,15 +78,14 @@ export default function PoolsPage() {
   };
 
   useEffect(() => {
-    delay(500);
-
-    dispatch(
-      fetchAllStakingPools({
-        sort: sortPools,
-        currentAccount,
-      })
-    );
-  }, [currentAccount, dispatch, endedPools, sortPools]);
+    if (api)
+      dispatch(
+        fetchAllStakingPools({
+          sort: sortPools,
+          currentAccount,
+        })
+      );
+  }, [currentAccount, api, dispatch, endedPools, sortPools]);
 
   const poolsListDataFiltered = useMemo(() => {
     let ret = allStakingPoolsList;

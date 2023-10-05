@@ -1352,6 +1352,7 @@ const MyStakeRewardInfoToken = ({
                   disableBtn={
                     !(availableStakeAmount > 0) ||
                     isPoolEnded(startTime, duration) ||
+                    isPoolNotStart(startTime, duration) ||
                     !(LPTokenAmount?.length > 0)
                   }
                   action="stake"
