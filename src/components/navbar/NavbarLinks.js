@@ -265,7 +265,7 @@ export const CreateMenuDropdown = ({
             },
             {
               label: "Token Farming",
-              href: "/create/token-lp",
+              href: "/create/farming",
               onClick: () => {
                 if (onClose) onClose();
               },
@@ -286,7 +286,7 @@ export const CreateMenuDropdown = ({
             //   },
             //   href: "/launchpad/create",
             // },
-            // { label: "Token Yield Farm", href: "/create/token-lp" },
+            // { label: "Token Yield Farm", href: "/create/farming" },
           ].map((item, idx) => (
             <IWCard
               key={idx}
@@ -367,10 +367,10 @@ export const StakeMenuDropdown = ({
               label: "Token Pools",
               href: "/pools",
             },
-            { label: "Farming", href: "/token-lp" },
+            { label: "Farming", href: "/farming" },
             { label: "NFT Pools", href: "/farms" },
             // { label: "NFT Yield Farm", href: "/create/nft-lp" },
-            // { label: "Token Yield Farm", href: "/create/token-lp" },
+            // { label: "Token Yield Farm", href: "/create/farming" },
           ].map((item, idx) => (
             <IWCard
               key={idx}

@@ -224,13 +224,13 @@ const App = () => {
           />
           <Route
             exact
-            path={`/create/token-lp`}
+            path={`/create/farming`}
             component={CreateTokenLPPage}
           />
-          <Route exact path={`/token-lp`} component={LPPoolsPage} />
+          <Route exact path={`/farming`} component={LPPoolsPage} />
           <Route
             exact
-            path={`/token-lp/:contractAddress`}
+            path={`/farming/:contractAddress`}
             component={FarmDetailPage}
           />
           <Route exact path={`/account`} component={MyBalancePage} />

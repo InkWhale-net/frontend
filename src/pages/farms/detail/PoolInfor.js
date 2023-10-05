@@ -3,8 +3,13 @@ import { Link, Stack } from "@chakra-ui/react";
 import AddressCopier from "components/address-copier/AddressCopier";
 import { NFTBannerCard } from "components/card/Card";
 import CardTwoColumn from "components/card/CardTwoColumn";
+import { useState } from "react";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { formatTokenAmount } from "utils";
 import { formatNumDynDecimal } from "utils";
+import { execContractQuery } from "utils/contracts";
+import psp22_contract from "utils/contracts/psp22_contract";
 const PoolInfo = ({
   mode,
   nftInfo,
@@ -18,15 +23,14 @@ const PoolInfo = ({
   tokenName,
   tokenContract,
   multiplier,
-  tokenTotalSupply,
   lptokenContract,
   lptokenDecimal,
   lptokenName,
   lptokenSymbol,
-  lptokenTotalSupply,
   tokenDecimal,
   ...rest
 }) => {
+  const { currentAccount } = useSelector((s) => s.wallet);
   const cardDataPoolInfo = {
     cardHeaderList: [
       {
@@ -69,6 +73,37 @@ const PoolInfo = ({
       royaltyFee: `${(nftInfo?.royaltyFee / 100).toFixed(2)}%`,
     },
   };
+  const [tokenTotalSupply, setTokenTotalSupply] = useState("");
+  const [lptokenTotalSupply, setLPtokenTotalSupply] = useState("");
+  const fetchTokenTotalSupply = async () => {
+    try {
+      let queryResult = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenContract,
+        0,
+        "psp22::totalSupply"
+      );
+      const rawTokenTotalSupply = queryResult.toHuman().Ok;
+      setTokenTotalSupply(formatTokenAmount(rawTokenTotalSupply, tokenDecimal));
+      let queryResult2 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        lptokenContract,
+        0,
+        "psp22::totalSupply"
+      );
+      const rawLPTokenTotalSupply = queryResult2.toHuman().Ok;
+      setLPtokenTotalSupply(formatTokenAmount(rawLPTokenTotalSupply, lptokenDecimal));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchTokenTotalSupply();
+  }, [tokenContract, lptokenContract]);
 
   return (
     <>
@@ -129,7 +164,7 @@ const PoolInfo = ({
               title="Staking Token Information"
               data={[
                 {
-                  title: "Total Name",
+                  title: "Token Name",
                   content: lptokenName,
                 },
                 {
@@ -149,7 +184,7 @@ const PoolInfo = ({
           <CardTwoColumn
             title="Reward Token Information"
             data={[
-              { title: "Total Name", content: tokenName },
+              { title: "Token Name", content: tokenName },
               {
                 title: "Contract Address",
                 content: <AddressCopier address={tokenContract} />,
