@@ -17,6 +17,7 @@ import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 import { IWMobileList } from "components/table/IWMobileList";
 import { IWTable } from "components/table/IWTable";
+import { useAppContext } from "contexts/AppContext";
 import { useEffect, useMemo, useState } from "react";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,6 +29,7 @@ import { delay, formatTokenAmount, isPoolEnded } from "utils";
 
 export default function LPPoolsPage() {
   const dispatch = useDispatch();
+  const {api} = useAppContext()
 
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allNFTPoolsList, allTokenPoolsList, loading } = useSelector(
@@ -99,7 +101,7 @@ export default function LPPoolsPage() {
         currentAccount,
       })
     );
-  }, [currentAccount, dispatch, hideZeroRewardPools, sortPools]);
+  }, [currentAccount, api, dispatch, hideZeroRewardPools, sortPools]);
 
   const nftLPListFiltered = useMemo(() => {
     let ret = allNFTPoolsList;
