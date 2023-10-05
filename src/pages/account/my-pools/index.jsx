@@ -2,18 +2,23 @@ import { Stack } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 
 import { IWTable } from "components/table/IWTable";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import MyNFTAndTokenPoolsTab from "./MyNFTAndTokenPoolsTab";
 import MyBalance from "./MyBalance";
+import { formatTokenAmount } from "utils";
+import { fetchMyStakingPools } from "redux/slices/myPoolsSlice";
+import { useAppContext } from "contexts/AppContext";
 
-export default function MyPoolsPage({ api }) {
+export default function MyPoolsPage() {
   const history = useHistory();
   const location = useLocation();
   const tokenSectionRef = useRef(null);
   const poolSectionRef = useRef(null);
   const balanceSectionRef = useRef(null);
+  const dispatch = useDispatch();
+  const { api } = useAppContext();
 
   const { currentAccount } = useSelector((s) => s.wallet);
 
@@ -67,7 +72,12 @@ export default function MyPoolsPage({ api }) {
       },
     ],
 
-    tableBody: myStakingPoolsList,
+    tableBody: myStakingPoolsList?.map((e) => {
+      return {
+        ...e,
+        totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
+      };
+    }),
   };
 
   const tableDataTokens = {
@@ -120,6 +130,10 @@ export default function MyPoolsPage({ api }) {
       (el) => el.creator === currentAccount?.address
     ),
   };
+  useEffect(() => {
+    if (currentAccount && api)
+      dispatch(fetchMyStakingPools({ currentAccount }));
+  }, [currentAccount, api]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -164,9 +178,9 @@ export default function MyPoolsPage({ api }) {
         </Stack>
       </SectionContainer>
 
-      <MyNFTAndTokenPoolsTab mode="NFT_FARM"/>
+      <MyNFTAndTokenPoolsTab mode="NFT_FARM" />
 
-      <MyNFTAndTokenPoolsTab mode="TOKEN_FARM"/>
+      <MyNFTAndTokenPoolsTab mode="TOKEN_FARM" />
 
       <SectionContainer
         mt={{ base: "0px", xl: "8px" }}

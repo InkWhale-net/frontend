@@ -144,13 +144,13 @@ const App = () => {
       dispatch(fetchAllTokensList({}));
     }
 
-    if (!allStakingPoolsList) {
-      dispatch(fetchAllStakingPools({ currentAccount }));
-    }
+    // if (!allStakingPoolsList) {
+    //   dispatch(fetchAllStakingPools({ currentAccount }));
+    // }
 
-    if (!allTokenPoolsList) {
-      dispatch(fetchAllTokenPools({ currentAccount }));
-    }
+    // if (!allTokenPoolsList) {
+    //   dispatch(fetchAllTokenPools({ currentAccount }));
+    // }
 
     dispatch(fetchTotalValueLocked());
 
@@ -160,9 +160,9 @@ const App = () => {
     // dispatch(fetchMyNFTPools({ currentAccount }));
     // }
 
-    if (!myStakingPoolsList) {
-      dispatch(fetchMyStakingPools({ currentAccount }));
-    }
+    // if (!myStakingPoolsList) {
+    //   dispatch(fetchMyStakingPools({ currentAccount }));
+    // }
 
     if (!myTokenPoolsList) {
       dispatch(fetchMyTokenPools({ currentAccount }));

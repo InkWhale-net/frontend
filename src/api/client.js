@@ -34,6 +34,32 @@ const client = async (
   return data;
 };
 
+const clientWithGetParams = async (
+  method,
+  url,
+  options = {},
+  baseURL = process.env.REACT_APP_API_BASE_URL
+) => {
+  const headers = {
+    Accept: "*/*",
+    "Content-Type": "application/x-www-form-urlencoded",
+  };
+
+  const { data } = await axios({
+    baseURL,
+    url,
+    method,
+    headers,
+    params: options,
+  });
+
+  if (data?.status === "FAILED") {
+    console.log("error FAILED @ xx>>", url, data?.message);
+  }
+
+  return data;
+};
+
 export const APICall = {
   // Get list of tokens
   getTokensList: async ({ limit = 1000, offset = 0, sort = -1 }) => {
@@ -312,6 +338,12 @@ export const APICall = {
   getTotalValueLocked: async () => {
     const ret = await client("POST", "/getTotalValueLocked");
     return ret;
+  },
+
+  getKycAddress: async (options) => {
+    return await clientWithGetParams("GET", "/getKycAddress", {
+      filter: { ...options },
+    });
   },
 };
 

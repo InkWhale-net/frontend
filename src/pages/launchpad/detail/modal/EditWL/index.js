@@ -66,7 +66,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
       claimedAmount: formatTokenAmount(e?.claimedAmount, tokenDecimal),
       price: formatTokenAmount(e?.price, 12),
     }));
-  }, [launchpadData, currentAccount, selectedPhase]);
+  }, [launchpadData?.phaseList, selectedPhase, tokenDecimal]);
   const fetchPhaseData = async () => {
     const result = await execContractQuery(
       currentAccount?.address,
@@ -77,6 +77,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
       "launchpadContractTrait::getAvailableTokenAmount"
     );
     const availableAmount = result.toHuman().Ok;
+
     setAvailableTokenAmount(formatTokenAmount(availableAmount, tokenDecimal));
   };
   const tableData = {
@@ -118,7 +119,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     } else {
       return true;
     }
-  }, [selectedPhase]);
+  }, [launchpadData?.phaseList, selectedPhase]);
   const table = useReactTable({
     ...tableData,
     // Pipeline
@@ -134,8 +135,9 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   }, [launchpadData]);
 
   useEffect(() => {
-    if (selectedMode != 0) setSelectedWL(null);
+    if (selectedMode !== 0) setSelectedWL(null);
   }, [selectedMode]);
+
   useEffect(() => {
     if (table) table.setPageSize(4);
   }, [table]);
@@ -162,7 +164,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
             <Box sx={{ width: "320px", minW: "320px" }}>
               <Text>
                 Available token amount:{" "}
-                {`${formatNumDynDecimal(availableTokenAmount)} 
+                {`${formatNumDynDecimal(availableTokenAmount)}
                 ${launchpadData?.projectInfo?.token?.symbol}`}
               </Text>
               {!isPhaseEditable && (

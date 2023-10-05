@@ -155,6 +155,9 @@ const AddSingleWL = ({
   return (
     <Box sx={{ pt: "20px" }}>
       <Text sx={{ fontWeight: "700", color: "#57527E" }}>
+        {launchpadData?.requireKyc ? "Click on table to edit" : null}
+      </Text>
+      <Text sx={{ fontWeight: "700", color: "#57527E" }}>
         Whitelist Address
       </Text>
       {isWhitelistEditable ? (
@@ -176,38 +179,44 @@ const AddSingleWL = ({
         </Box>
       ) : (
         <>
-          <IWInput
-            isDisabled={selectedWL}
-            size="md"
-            value={wlData?.address}
-            width={{ base: "full" }}
-            onChange={({ target }) =>
-              setWLData({ ...wlData, address: target.value })
-            }
-            placeholder="Address"
-          />
-          <Text sx={{ fontWeight: "700", color: "#57527E" }}>Price</Text>
-          <IWInput
-            type="number"
-            size="md"
-            value={wlData?.price}
-            width={{ base: "full" }}
-            onChange={({ target }) =>
-              setWLData({ ...wlData, price: target.value })
-            }
-            placeholder="Price"
-          />
-          <Text sx={{ fontWeight: "700", color: "#57527E" }}>Amount</Text>
-          <IWInput
-            type="number"
-            size="md"
-            value={wlData?.amount}
-            width={{ base: "full" }}
-            onChange={({ target }) =>
-              setWLData({ ...wlData, amount: target.value })
-            }
-            placeholder="Amount"
-          />
+          {!selectedWL && launchpadData?.requireKyc ? null : (
+            <>
+              <IWInput
+                isDisabled={selectedWL}
+                size="md"
+                value={wlData?.address}
+                width={{ base: "full" }}
+                onChange={({ target }) =>
+                  setWLData({ ...wlData, address: target.value })
+                }
+                placeholder="Address"
+              />
+
+              <Text sx={{ fontWeight: "700", color: "#57527E" }}>Amount</Text>
+              <IWInput
+                type="number"
+                size="md"
+                value={wlData?.amount}
+                width={{ base: "full" }}
+                onChange={({ target }) =>
+                  setWLData({ ...wlData, amount: target.value })
+                }
+                placeholder="Amount"
+              />
+
+              <Text sx={{ fontWeight: "700", color: "#57527E" }}>Price</Text>
+              <IWInput
+                type="number"
+                size="md"
+                value={wlData?.price}
+                width={{ base: "full" }}
+                onChange={({ target }) =>
+                  setWLData({ ...wlData, price: target.value })
+                }
+                placeholder="Price"
+              />
+            </>
+          )}
           {selectedWL ? (
             <Box
               sx={{
@@ -244,21 +253,25 @@ const AddSingleWL = ({
               </Button>
             </Box>
           ) : (
-            <Button
-              isDisabled={
-                !(
-                  wlData?.address?.length > 0 &&
-                  wlData?.amount?.length > 0 &&
-                  wlData?.price?.length > 0
-                )
-              }
-              mt="16px"
-              w="full"
-              size="md"
-              onClick={() => addSingleWLHandler()}
-            >
-              Add Whitelist
-            </Button>
+            <>
+              {launchpadData?.requireKyc ? null : (
+                <Button
+                  isDisabled={
+                    !(
+                      wlData?.address?.length > 0 &&
+                      wlData?.amount?.length > 0 &&
+                      wlData?.price?.length > 0
+                    )
+                  }
+                  mt="16px"
+                  w="full"
+                  size="md"
+                  onClick={() => addSingleWLHandler()}
+                >
+                  Add Whitelist x
+                </Button>
+              )}
+            </>
           )}
         </>
       )}

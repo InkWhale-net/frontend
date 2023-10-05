@@ -1,4 +1,5 @@
-import { Box, Button, Text } from "@chakra-ui/react";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { Box, Button, Link, Text } from "@chakra-ui/react";
 import { APICall } from "api/client";
 import { AzeroLogo } from "components/icons/Icons";
 import IWInput from "components/input/Input";
@@ -152,6 +153,28 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
     });
   }, "wl_purchase");
 
+  // useEffect(() => {
+  //   const loadBlockpassWidget = () => {
+  //     const blockpass = new window.BlockpassKYCConnect(
+  //       launchpadData?.launchpadContract,
+  //       {
+  //         refId: currentAccount?.address,
+  //       }
+  //     );
+
+  //     blockpass.startKYCConnect();
+  //   };
+
+  //   currentAccount?.address &&
+  //     launchpadData?.launchpadContract &&
+  //     loadBlockpassWidget();
+  // }, [currentAccount?.address, launchpadData?.launchpadContract]);
+
+  const kycUrl = `https://verify-with.blockpass.org/?env=prod&auto=1&clientId=${launchpadData?.launchpadContract}&refId=${currentAccount?.address}`;
+
+  // const urlencodedOptions = encodeURIComponent(window?.location?.href);
+  // const appLink = `blockpass://service-register/Client_ID?refId=${currentAccount?.address}&redirect=${urlencodedOptions}`;
+
   return (
     <Box
       sx={{
@@ -166,7 +189,25 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
       }}
     >
       <Text fontWeight="600" size="md">
-        {isUserInWL ? "You are in whitelist" : "You are not in whitelist"}
+        {isUserInWL ? (
+          "You are in whitelist"
+        ) : (
+          <>
+            You are not in whitelist.
+            <br />
+            {launchpadData?.requireKyc ? (
+              <>
+                {/* <button id="blockpass-kyc-connect">
+                  Click here to KYC with Blockpass
+                </button> */}
+                <Link href={kycUrl} isExternal>
+                  Click here to KYC with Blockpass
+                  <ExternalLinkIcon mx="2px" />
+                </Link>
+              </>
+            ) : null}
+          </>
+        )}
       </Text>
       {isUserInWL && (
         <>
@@ -181,7 +222,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                 12
               );
               const wlTokenPrice = parseFloat(wlTokenPriceStr);
-              console.log();
+
               const wlMaxAmount = parseFloat(
                 formatTokenAmount(
                   buyerInformation?.amount,
@@ -196,7 +237,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                   )
                 )
               );
-              if (allowBuy)
+              if (allowBuy) {
                 return (
                   <>
                     <Box
@@ -296,6 +337,9 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                     </>
                   </>
                 );
+              } else {
+                return null;
+              }
             })}
           </Box>
         </>
@@ -305,8 +349,6 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
 };
 
 const WhitelistSaleCard = ({ launchpadData }) => {
-  const { currentAccount } = useSelector((s) => s.wallet);
-
   const phaseContainWL = useMemo(() => {
     return launchpadData?.phaseList?.filter(
       (phase) => phase?.whitelist?.length > 0

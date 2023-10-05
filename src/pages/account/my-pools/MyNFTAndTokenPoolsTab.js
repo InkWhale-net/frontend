@@ -4,7 +4,9 @@ import { IWTable } from "components/table/IWTable";
 import { useAppContext } from "contexts/AppContext";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchMyTokenPools } from "redux/slices/myPoolsSlice";
 import { fetchMyNFTPools } from "redux/slices/myPoolsSlice";
+import { formatTokenAmount } from "utils";
 
 const MyNFTAndTokenPoolsTab = ({ mode }) => {
   const { myNFTPoolsList, myTokenPoolsList } = useSelector((s) => s.myPools);
@@ -13,6 +15,7 @@ const MyNFTAndTokenPoolsTab = ({ mode }) => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(fetchMyNFTPools({ currentAccount }));
+    dispatch(fetchMyTokenPools({ currentAccount }));
   }, [currentAccount, api]);
 
   const tableDataNFT = {
@@ -111,13 +114,20 @@ const MyNFTAndTokenPoolsTab = ({ mode }) => {
       },
     ],
 
-    tableBody: myTokenPoolsList,
+    tableBody: myTokenPoolsList?.map((e) => {
+      return {
+        ...e,
+        totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
+      };
+    }),
   };
 
   return (
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
-      title={`My ${mode === "NFT_FARM" ? "NFT Staking" : "Token Farmings"} Pools`}
+      title={`My ${
+        mode === "NFT_FARM" ? "NFT Staking" : "Token Farmings"
+      } Pools`}
       description={
         <span>
           Stake {`My ${mode === "NFT_FARM" ? "NFT" : "Token"}`} to earn tokens

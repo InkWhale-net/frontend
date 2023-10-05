@@ -26,10 +26,12 @@ import { formatTokenAmount, isPoolEnded, roundUp } from "utils";
 
 export default function PoolsPage() {
   const dispatch = useDispatch();
+  const { api } = useAppContext();
 
   const { currentAccount } = useSelector((s) => s.wallet);
-  const { api } = useAppContext();
-  const { allStakingPoolsList } = useSelector((s) => s.allPools);
+  const { allStakingPoolsList, allTokenPoolsList } = useSelector(
+    (s) => s.allPools
+  );
 
   const [showMyStakedPools, setShowMyStakedPools] = useState(false);
 
@@ -76,15 +78,14 @@ export default function PoolsPage() {
   };
 
   useEffect(() => {
-    delay(500);
-
-    dispatch(
-      fetchAllStakingPools({
-        sort: sortPools,
-        currentAccount,
-      })
-    );
-  }, [currentAccount, dispatch, endedPools, sortPools]);
+    if (api)
+      dispatch(
+        fetchAllStakingPools({
+          sort: sortPools,
+          currentAccount,
+        })
+      );
+  }, [currentAccount, api, dispatch, endedPools, sortPools]);
 
   const poolsListDataFiltered = useMemo(() => {
     let ret = allStakingPoolsList;
@@ -97,7 +98,12 @@ export default function PoolsPage() {
       ret = ret.filter((p) => isPoolEnded(p?.startTime, p?.duration));
     }
 
-    return ret;
+    return ret?.map((e) => {
+      return {
+        ...e,
+        totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
+      };
+    });
   }, [allStakingPoolsList, showMyStakedPools, endedPools]);
 
   useEffect(() => {

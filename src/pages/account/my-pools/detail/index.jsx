@@ -94,7 +94,10 @@ export default function MyPoolDetailPage() {
     if (item) {
       setState({ mode: "TOKEN_FARM" });
     }
-    return item;
+    return {
+      ...item,
+      totalStaked: formatTokenAmount(item?.totalStaked, item?.lptokenDecimal),
+    };
   }, [myTokenPoolsList, params]);
 
   useEffect(() => {
@@ -150,6 +153,7 @@ export default function MyPoolDetailPage() {
 
     cardValue: {
       ...currentStakingPool,
+      totalStaked: formatTokenAmount(currentStakingPool?.totalStaked, currentStakingPool?.lptokenDecimal),
     },
   };
 
@@ -303,7 +307,7 @@ export default function MyPoolDetailPage() {
   return (
     <>
       <Show above="md">
-        <SectionContainer mt={{ xl: "-48px" }} mb={{ xl: "-32px" }}>
+        <SectionContainer>
           <Breadcrumb
             spacing="4px"
             separator={<ChevronRightIcon color="gray.500" />}
@@ -499,7 +503,8 @@ const MyPoolInfo = ({
         unclaimRwQr,
         parseInt(tokenDecimal)
       );
-      const withdrawableRs = roundDown(rewardPool) - roundUp(+unclaimRw.replaceAll(",", ""));
+      const withdrawableRs =
+        roundDown(rewardPool) - roundUp(+unclaimRw.replaceAll(",", ""));
       setWithdrawbleAm(roundDown(withdrawableRs, 3));
     }
   }, [
@@ -844,7 +849,6 @@ const MyPoolInfo = ({
 
     if (mode === "TOKEN_FARM") {
       toast.success("Process...");
-      console.log(formatNumToBN(amount, tokenDecimal), 'tokenDecimal');
       await execContractTx(
         currentAccount,
         api,
@@ -918,16 +922,22 @@ const MyPoolInfo = ({
               },
               {
                 title: "Reward Pool",
-                content: `${formatNumDynDecimal(rewardPool)} ${tokenSymbol}`,
+                content: `${formatNumDynDecimal(rewardPool, 2)} ${tokenSymbol}`,
               },
               {
                 title: "Withdrawble Amount",
-                content: `${formatNumDynDecimal(withdrawbleAm, 3)} ${tokenSymbol}`,
+                content: `${formatNumDynDecimal(
+                  withdrawbleAm,
+                  3
+                )} ${tokenSymbol}`,
               },
               {
                 title: "Max Staking Amount",
                 content: `${formatNumDynDecimal(
-                  formatTokenAmount(maxStakingAmount, mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal)
+                  formatTokenAmount(
+                    maxStakingAmount,
+                    mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal
+                  )
                 )} ${tokenSymbol}`,
               },
               {
@@ -935,7 +945,7 @@ const MyPoolInfo = ({
                 content: `${formatNumDynDecimal(
                   formatTokenAmount(
                     totalStaked,
-                    mode === "TOKEN_FARM" ? lptokenDecimal : tokenDecimal
+                    mode === "TOKEN_FARM" ? 1 : tokenDecimal
                   )
                 )} ${
                   mode === "NFT_FARM"

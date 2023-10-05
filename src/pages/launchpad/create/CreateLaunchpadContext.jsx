@@ -114,6 +114,14 @@ const CreateLaunchpadContextProvider = (props) => {
     updateLaunchpadData({ ...launchpadData, totalSupply: value });
   };
 
+  const updateKycUrl = (value) => {
+    updateLaunchpadData({ ...launchpadData, kycUrl: value });
+  };
+
+  const updateRequireKyc = (value) => {
+    updateLaunchpadData({ ...launchpadData, requireKyc: value });
+  };
+
   const verifyStep = async () => {
     switch (current) {
       case 0:
@@ -258,6 +266,8 @@ const CreateLaunchpadContextProvider = (props) => {
         finishModalVisible,
         setFinishModalVisible,
         createTokenFee,
+        updateKycUrl,
+        updateRequireKyc,
       }}
     >
       <FinishModal />

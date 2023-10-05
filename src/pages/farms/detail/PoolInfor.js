@@ -91,8 +91,7 @@ const PoolInfo = ({
             },
             {
               title: "Multiplier",
-              content: multiplier
-              ,
+              content: multiplier,
             },
             {
               title: "Start Date",
@@ -110,13 +109,15 @@ const PoolInfo = ({
             },
             {
               title: "Max Staking Amount",
-              content: `${formatNumDynDecimal(maxStakingAmount)} ${mode === "NFT_FARM" ? "NFT" : lptokenSymbol}${
-                mode === "NFT_FARM" && maxStakingAmount > 1 ? "s" : ""
-              }`,
+              content: `${formatNumDynDecimal(maxStakingAmount)} ${
+                mode === "NFT_FARM" ? "NFT" : lptokenSymbol
+              }${mode === "NFT_FARM" && maxStakingAmount > 1 ? "s" : ""}`,
             },
             {
               title: "Total Value Locked",
-              content: `${formatNumDynDecimal(formatTokenAmount(totalStaked, lptokenDecimal))} ${mode === "NFT_FARM" ? "NFT" : lptokenSymbol}${
+              content: `${formatNumDynDecimal(
+                formatTokenAmount(totalStaked, lptokenDecimal)
+              )} ${mode === "NFT_FARM" ? "NFT" : lptokenSymbol}${
                 mode === "NFT_FARM" && totalStaked > 1 ? "s" : ""
               }`,
             },
@@ -140,6 +141,7 @@ const PoolInfo = ({
                   content: `${formatNumDynDecimal(lptokenTotalSupply)}`,
                 },
                 { title: "Token Symbol", content: lptokenSymbol },
+                { title: "Token Decimal", content: lptokenDecimal },
               ]}
             />
           ) : null}
@@ -157,6 +159,7 @@ const PoolInfo = ({
                 content: `${formatNumDynDecimal(tokenTotalSupply)}`,
               },
               { title: "Token Symbol", content: tokenSymbol },
+              { title: "Token Decimal", content: tokenDecimal },
             ]}
           />
         </Stack>

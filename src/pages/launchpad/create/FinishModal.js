@@ -309,7 +309,7 @@ const FinishModal = ({}) => {
           const project_info_ipfs = await ipfsClient.add(
             JSON.stringify(launchpadData)
           );
-          console.log("activeStep", activeStep);
+
           const result = await execContractTxAndCallAPI(
             currentAccount,
             "api",

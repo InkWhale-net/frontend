@@ -136,7 +136,12 @@ export default function LPPoolsPage() {
       ret = ret.filter((p) => isPoolEnded(p?.startTime, p?.duration));
     }
 
-    return ret;
+    return ret?.map((e) => {
+      return {
+        ...e,
+        totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
+      };
+    });
   }, [allTokenPoolsList, showMyStakedPools, endedPools]);
   const tableDataToken = {
     tableHeader: [
@@ -197,7 +202,7 @@ export default function LPPoolsPage() {
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
       title="Token Farming"
-      description={<span>Stake tokens to earn tokens</span>}
+      description={<span>Lock in one token, get another token as your reward</span>}
     >
       <Stack
         w="full"

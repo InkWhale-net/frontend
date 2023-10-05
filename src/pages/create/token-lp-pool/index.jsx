@@ -37,6 +37,7 @@ import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import { formatNumDynDecimal } from "utils";
 import { roundUp } from "utils";
 import { SelectSearch } from "components/SelectSearch";
+import { formatTokenAmount } from "utils";
 
 export default function CreateTokenLPPage({ api }) {
   const dispatch = useDispatch();
@@ -310,7 +311,7 @@ export default function CreateTokenLPPage({ api }) {
       LPtokenContract,
       selectedContractAddr,
       formatNumToBN(maxStake, tokenLPSymbol?.decimal || 12),
-      Number(multiplier),
+      Number(multiplier * 1000000),
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
     );
@@ -381,7 +382,12 @@ export default function CreateTokenLPPage({ api }) {
       },
     ],
 
-    tableBody: myTokenPoolsList,
+    tableBody: myTokenPoolsList?.map((e) => {
+      return {
+        ...e,
+        totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
+      };
+    }),
   };
 
   return (
