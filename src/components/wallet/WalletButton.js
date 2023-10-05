@@ -31,6 +31,7 @@ import { useAppContext } from "contexts/AppContext";
 import { BiWallet } from "react-icons/bi";
 import { resolveDomain } from "utils";
 import WalletModal from "./WalletModal";
+import { setCurrentAccount } from "redux/slices/walletSlice";
 
 export default function WalletButton({ onCloseSidebar }) {
   const dispatch = useDispatch();
@@ -53,7 +54,7 @@ export default function WalletButton({ onCloseSidebar }) {
       <WalletModal isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
 
       {!currentAccount ? (
-        <WalletNotConnect showSelectAccountModal={onOpen} />
+        <WalletNotConnect />
       ) : (
         <WalletConnect onClose={onCloseSidebar} onClickSwitch={onClickSwitch} />
       )}
@@ -61,12 +62,15 @@ export default function WalletButton({ onCloseSidebar }) {
   );
 }
 
-const WalletNotConnect = ({ showSelectAccountModal }) => {
+const WalletNotConnect = ({ onClose }) => {
   const { walletConnectHandler } = useAppContext();
+  const dispatch = useDispatch();
   const connectWallet = async () => {
+    if (onClose) onClose();
     const accounts = await walletConnectHandler();
     if (accounts?.length > 0) {
-      showSelectAccountModal();
+      dispatch(setCurrentAccount(accounts[0]));
+      localStorage.setItem("localCurrentAccount", JSON.stringify(accounts[0]));
     }
   };
   return (
