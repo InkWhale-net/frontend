@@ -101,7 +101,7 @@ export default function FarmsPage() {
         currentAccount,
       })
     );
-  }, [currentAccount, dispatch, hideZeroRewardPools, sortPools]);
+  }, [currentAccount, api, dispatch, hideZeroRewardPools, sortPools]);
 
   const nftLPListFiltered = useMemo(() => {
     let ret = allNFTPoolsList;
