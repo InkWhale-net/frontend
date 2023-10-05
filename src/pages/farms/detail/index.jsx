@@ -63,8 +63,9 @@ import psp34_standard from "utils/contracts/psp34_standard";
 import PoolInfo from "./PoolInfor";
 import { useAppContext } from "contexts/AppContext";
 import { fetchMyNFTPools } from "redux/slices/myPoolsSlice";
+import { useLocation } from "react-router-dom";
 
-export default function FarmDetailPage() {
+const FarmDetailPage = () => {
   const params = useParams();
 
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -72,6 +73,13 @@ export default function FarmDetailPage() {
   const [refetchData, setRefetchData] = useState();
   const { api } = useAppContext();
   const dispatch = useDispatch();
+  const location = useLocation();
+
+  const farmMode = useMemo(() => {
+    if (location.pathname.includes("/farming/")) return 1;
+    if (location.pathname.includes("/farms/")) return 2;
+    return 0;
+  }, [location]);
 
   const [currentNFTPoolData, setCurrentNFTPoolData] = useState(null);
 
@@ -162,10 +170,13 @@ export default function FarmDetailPage() {
   }, [currentNFTPool]);
 
   useEffect(() => {
-    if (currentAccount && api) {
+    if (farmMode == 1) {
+      dispatch(fetchAllTokenPools({ currentAccount }));
+    } 
+    if (farmMode == 2) {
       dispatch(fetchAllNFTPools({ currentAccount }));
     }
-  }, [currentAccount, api]);
+  }, [currentAccount, api, farmMode]);
 
   const cardData = {
     cardHeaderList: [
@@ -401,7 +412,7 @@ export default function FarmDetailPage() {
       />
     </>
   );
-}
+};
 
 // NFT LP
 const MyStakeRewardInfoNFT = ({
@@ -1447,3 +1458,4 @@ const StakedNFTs = (props) => {
     </Stack>
   );
 };
+export default FarmDetailPage;
