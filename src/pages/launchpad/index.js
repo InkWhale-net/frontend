@@ -4,8 +4,14 @@ import IWTabs from "components/tabs/IWTabs";
 import { isMobile } from "react-device-detect";
 import { useHistory } from "react-router-dom";
 import AllLaunchpads from "./tabs/AllLaunchpads";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 
 const Launchpad = () => {
+  const { currentAccount } = useSelector((s) => s.wallet);
+  const dispatch = useDispatch();
+
   const history = useHistory();
   const tabsData = [
     {
@@ -19,6 +25,10 @@ const Launchpad = () => {
       isDisabled: false,
     },
   ];
+  
+  useEffect(() => {
+    dispatch(fetchLaunchpads({ isActive: 0 }));
+  }, [currentAccount, dispatch]);
 
   return (
     <SectionContainer

@@ -22,8 +22,14 @@ import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import { AzeroLogo } from "components/icons/Icons";
 
 const Phase = () => {
-  const { updatePhase, updateTotalSupply, launchpadData, current } =
-    useCreateLaunchpad();
+  const {
+    updatePhase,
+    updateTotalSupply,
+    launchpadData,
+    current,
+    updateRequireKyc,
+  } = useCreateLaunchpad();
+
   const [phaseList, setPhaseList] = useState([
     {
       name: null,
@@ -65,8 +71,8 @@ const Phase = () => {
   };
   useEffect(() => {
     updatePhase(phaseList);
-    
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phaseList]);
   useEffect(() => {
     updateTotalSupply(totalSupply);
@@ -83,7 +89,7 @@ const Phase = () => {
   }, [current]);
 
   const onChangeImmediateReleaseRate = (value, index) => {
-    if(+value <= 100) {
+    if (+value <= 100) {
       setPhaseList((prevState) => {
         const updatedArray = [...prevState];
         if (index >= 0 && index < updatedArray.length) {
@@ -124,6 +130,9 @@ const Phase = () => {
       return updatedArray;
     });
   };
+
+  const [requireKyc, setRequireKyc] = useState(false);
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <SectionContainer title={"Total For Sale"}>
@@ -138,6 +147,60 @@ const Phase = () => {
           sx={{ mt: "8px" }}
         >{`Token balance: ${launchpadData?.token?.balance} ${launchpadData?.token?.symbol}`}</Text>
       </SectionContainer>
+      {/* =========================== */}
+      <Heading
+        as="h2"
+        size="h2"
+        sx={{ marginTop: "16px" }}
+        lineHeight={{ base: "1.25", lg: "30px" }}
+      >
+        KYC Verification (Know Your Customer)
+      </Heading>
+
+      <Box
+        bg={{ base: "#F6F6FC" }}
+        borderRadius={{ base: "10px" }}
+        padding={{ base: "30px" }}
+        sx={{ display: "flex", flexDirection: "column" }}
+        mt="16px"
+      >
+        <Box sx={{ display: "flex" }} mt="16px">
+          <Heading
+            as="h3"
+            size="h3"
+            mb="16px"
+            lineHeight={{ base: "1.25", lg: "30px" }}
+          >
+            Required KYC
+          </Heading>
+          <Switch
+            sx={{ mt: "4px", ml: "16px" }}
+            id="require-kyc"
+            isChecked={requireKyc}
+            onChange={() => {
+              updateRequireKyc(!requireKyc);
+              setRequireKyc(!requireKyc);
+            }}
+          />
+        </Box>
+        {/* {requireKyc && (
+          <SimpleGrid columns={[1]} spacing={4}>
+            <SectionContainer title={"KYC link"}>
+              <IWInput
+                type="text"
+                value={kycUrl}
+                onChange={({ target }) => {
+                  updateKycUrl(target.value);
+                  setKycUrl(target.value);
+                }}
+                placeholder="https://verify-with.blockpass.org/?clientId=test_9c77f"
+              />
+            </SectionContainer>
+          </SimpleGrid>
+        )} */}
+      </Box>
+
+      {/* ================================================ */}
       <Heading
         sx={{ marginTop: "16px" }}
         as="h2"
@@ -339,113 +402,119 @@ const Phase = () => {
                 />
               </SectionContainer>
 
-              <Box sx={{ display: "flex" }}>
-                <Heading
-                  as="h3"
-                  size="h3"
-                  mb="16px"
-                  lineHeight={{ base: "1.25", lg: "30px" }}
-                >
-                  Allow Public Sale
-                </Heading>
-                <Switch
-                  sx={{ mt: "4px", ml: "16px" }}
-                  id="zero-reward-pools"
-                  isChecked={obj?.allowPublicSale}
-                  onChange={() =>
-                    setPhaseList((prevState) => {
-                      const updatedArray = [...prevState];
-                      if (index >= 0 && index < updatedArray.length) {
-                        updatedArray[index] = {
-                          ...updatedArray[index],
-                          allowPublicSale: !obj?.allowPublicSale,
-                        };
-                      }
-                      return updatedArray;
-                    })
-                  }
-                />
-              </Box>
-            </SimpleGrid>
-            {obj?.allowPublicSale && (
-              <SimpleGrid columns={[1, 1, 3]} spacing={4}>
-                <SectionContainer title={"Public Amount"}>
-                  <IWInput
-                    type="number"
-                    inputRightElementIcon={launchpadData?.token?.symbol}
-                    value={obj?.phasePublicAmount}
-                    onChange={({ target }) =>
-                      setPhaseList((prevState) => {
-                        const updatedArray = [...prevState];
-                        if (index >= 0 && index < updatedArray.length) {
-                          updatedArray[index] = {
-                            ...updatedArray[index],
-                            phasePublicAmount: target.value,
-                          };
-                        }
-                        return updatedArray;
-                      })
-                    }
-                    placeholder="0"
-                  />
-                </SectionContainer>
-                <SectionContainer title={"Phase Public Price"}>
-                  <IWInput
-                    type="number"
-                    inputRightElementIcon={<AzeroLogo />}
-                    value={obj?.phasePublicPrice}
-                    onChange={({ target }) =>
-                      setPhaseList((prevState) => {
-                        const updatedArray = [...prevState];
-                        if (index >= 0 && index < updatedArray.length) {
-                          updatedArray[index] = {
-                            ...updatedArray[index],
-                            phasePublicPrice: target.value,
-                          };
-                        }
-                        return updatedArray;
-                      })
-                    }
-                    placeholder="0.0000"
-                  />
-                </SectionContainer>
-              </SimpleGrid>
-            )}
-            <Divider sx={{ marginTop: "8px" }} />
-            <SectionContainer
-              title={
-                <>
-                  White list
-                  <Tooltip
-                    fontSize="md"
-                    label={`Enter one address, whitelist amount and price on each line.
-                A decimal separator of amount must use dot (.)`}
+              {requireKyc ? (
+                <Box sx={{ display: "flex" }}>
+                  <Heading
+                    as="h3"
+                    size="h3"
+                    mb="16px"
+                    lineHeight={{ base: "1.25", lg: "30px" }}
                   >
-                    <QuestionOutlineIcon ml="6px" color="text.2" />
-                  </Tooltip>
-                </>
-              }
-            >
-              <IWTextArea
-                sx={{
-                  height: "80px",
-                }}
-                value={obj?.whiteList}
-                onChange={({ target }) =>
-                  setPhaseList((prevState) => {
-                    const updatedArray = [...prevState];
-                    if (index >= 0 && index < updatedArray.length) {
-                      updatedArray[index] = {
-                        ...updatedArray[index],
-                        whiteList: target.value,
-                      };
+                    Allow Public Sale
+                  </Heading>
+                  <Switch
+                    sx={{ mt: "4px", ml: "16px" }}
+                    id="zero-reward-pools"
+                    isChecked={obj?.allowPublicSale}
+                    onChange={() =>
+                      setPhaseList((prevState) => {
+                        const updatedArray = [...prevState];
+                        if (index >= 0 && index < updatedArray.length) {
+                          updatedArray[index] = {
+                            ...updatedArray[index],
+                            allowPublicSale: !obj?.allowPublicSale,
+                          };
+                        }
+                        return updatedArray;
+                      })
                     }
-                    return updatedArray;
-                  })
-                }
-                placeholder={`Sample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL, 20, 2`}
-              />
-            </SectionContainer>
+                  />
+                </Box>
+              ) : null}
+            </SimpleGrid>
+            {requireKyc ? (
+              <>
+                {obj?.allowPublicSale && (
+                  <SimpleGrid columns={[1, 1, 3]} spacing={4}>
+                    <SectionContainer title={"Public Amount"}>
+                      <IWInput
+                        type="number"
+                        inputRightElementIcon={launchpadData?.token?.symbol}
+                        value={obj?.phasePublicAmount}
+                        onChange={({ target }) =>
+                          setPhaseList((prevState) => {
+                            const updatedArray = [...prevState];
+                            if (index >= 0 && index < updatedArray.length) {
+                              updatedArray[index] = {
+                                ...updatedArray[index],
+                                phasePublicAmount: target.value,
+                              };
+                            }
+                            return updatedArray;
+                          })
+                        }
+                        placeholder="0"
+                      />
+                    </SectionContainer>
+                    <SectionContainer title={"Phase Public Price"}>
+                      <IWInput
+                        type="number"
+                        inputRightElementIcon={<AzeroLogo />}
+                        value={obj?.phasePublicPrice}
+                        onChange={({ target }) =>
+                          setPhaseList((prevState) => {
+                            const updatedArray = [...prevState];
+                            if (index >= 0 && index < updatedArray.length) {
+                              updatedArray[index] = {
+                                ...updatedArray[index],
+                                phasePublicPrice: target.value,
+                              };
+                            }
+                            return updatedArray;
+                          })
+                        }
+                        placeholder="0.0000"
+                      />
+                    </SectionContainer>
+                  </SimpleGrid>
+                )}
+                <Divider sx={{ marginTop: "8px" }} />
+                <SectionContainer
+                  title={
+                    <>
+                      White list
+                      <Tooltip
+                        fontSize="md"
+                        label={`Enter one address, whitelist amount and price on each line.
+                A decimal separator of amount must use dot (.)`}
+                      >
+                        <QuestionOutlineIcon ml="6px" color="text.2" />
+                      </Tooltip>
+                    </>
+                  }
+                >
+                  <IWTextArea
+                    sx={{
+                      height: "80px",
+                    }}
+                    value={obj?.whiteList}
+                    onChange={({ target }) =>
+                      setPhaseList((prevState) => {
+                        const updatedArray = [...prevState];
+                        if (index >= 0 && index < updatedArray.length) {
+                          updatedArray[index] = {
+                            ...updatedArray[index],
+                            whiteList: target.value,
+                          };
+                        }
+                        return updatedArray;
+                      })
+                    }
+                    placeholder={`Sample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL, 20, 2`}
+                  />
+                </SectionContainer>
+              </>
+            ) : null}
           </Box>
         );
       })}
