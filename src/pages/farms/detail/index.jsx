@@ -79,7 +79,7 @@ const FarmDetailPage = () => {
     if (location.pathname.includes("/farming/")) return 1;
     if (location.pathname.includes("/farms/")) return 2;
     return 0;
-  }, [location]);
+  }, [currentAccount, location, api]);
 
   const [currentNFTPoolData, setCurrentNFTPoolData] = useState(null);
 
@@ -168,7 +168,7 @@ const FarmDetailPage = () => {
       updateTokenData();
     }
   }, [currentNFTPool]);
-
+  
   useEffect(() => {
     if (farmMode == 1) {
       dispatch(fetchAllTokenPools({ currentAccount }));

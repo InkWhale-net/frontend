@@ -61,6 +61,7 @@ export default function PoolDetailPage() {
   const { api } = useAppContext();
   const { allStakingPoolsList } = useSelector((s) => s.allPools);
   const [remainStaking, setRemainStaking] = useState(null);
+  const dispatch = useDispatch();
 
   const currentPool = useMemo(() => {
     const poolData = allStakingPoolsList?.find(
@@ -165,6 +166,11 @@ export default function PoolDetailPage() {
       isDisabled: false,
     },
   ];
+  useEffect(() => {
+    if (api) {
+      dispatch(fetchAllStakingPools({ currentAccount }));
+    }
+  }, [api, currentAccount]);
 
   return (
     <>
