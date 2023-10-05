@@ -132,7 +132,7 @@ const Phase = () => {
   };
 
   const [requireKyc, setRequireKyc] = useState(false);
-
+  console.log("requireKyc", requireKyc);
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <SectionContainer title={"Total For Sale"}>
@@ -155,6 +155,9 @@ const Phase = () => {
         lineHeight={{ base: "1.25", lg: "30px" }}
       >
         KYC Verification (Know Your Customer)
+        <Tooltip fontSize="md" label={`Lorem KYC Verification is Know Your Customer`}>
+          <QuestionOutlineIcon ml="6px" color="text.2" />
+        </Tooltip>
       </Heading>
 
       <Box
@@ -402,7 +405,7 @@ const Phase = () => {
                 />
               </SectionContainer>
 
-              {requireKyc ? (
+              {!requireKyc ? (
                 <Box sx={{ display: "flex" }}>
                   <Heading
                     as="h3"
@@ -432,7 +435,7 @@ const Phase = () => {
                 </Box>
               ) : null}
             </SimpleGrid>
-            {requireKyc ? (
+            {!requireKyc ? (
               <>
                 {obj?.allowPublicSale && (
                   <SimpleGrid columns={[1, 1, 3]} spacing={4}>
