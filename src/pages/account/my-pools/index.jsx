@@ -9,14 +9,16 @@ import MyNFTAndTokenPoolsTab from "./MyNFTAndTokenPoolsTab";
 import MyBalance from "./MyBalance";
 import { formatTokenAmount } from "utils";
 import { fetchMyStakingPools } from "redux/slices/myPoolsSlice";
+import { useAppContext } from "contexts/AppContext";
 
-export default function MyPoolsPage({ api }) {
+export default function MyPoolsPage() {
   const history = useHistory();
   const location = useLocation();
   const tokenSectionRef = useRef(null);
   const poolSectionRef = useRef(null);
   const balanceSectionRef = useRef(null);
   const dispatch = useDispatch();
+  const { api } = useAppContext();
 
   const { currentAccount } = useSelector((s) => s.wallet);
 
@@ -129,8 +131,9 @@ export default function MyPoolsPage({ api }) {
     ),
   };
   useEffect(() => {
-    dispatch(fetchMyStakingPools({ currentAccount }));
-  }, [currentAccount]);
+    if (currentAccount && api)
+      dispatch(fetchMyStakingPools({ currentAccount }));
+  }, [currentAccount, api]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
