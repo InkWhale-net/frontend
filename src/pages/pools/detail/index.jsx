@@ -576,11 +576,10 @@ const MyStakeRewardInfo = ({
       toast.error("Invalid Amount!");
       return;
     }
-    // if (stakeInfo?.stakedValue / 10 ** tokenDecimal < amount) {
-    //   toast.error("Not enough tokens!");
-    //   return;
-    // }
-    return;
+    if (stakeInfo?.stakedValue / 10 ** tokenDecimal < amount) {
+      toast.error("Not enough tokens!");
+      return;
+    }
     //Approve
     toast.success("Step 1: Approving...");
 
