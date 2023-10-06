@@ -49,14 +49,12 @@ const TokensTabTransferToken = ({
       toast.error("Please enter amount to transfer!");
       return;
     }
-
-    if (transferAmount > formatChainStringToNumber(tokenInfo?.content)) {
+    if (+transferAmount > formatChainStringToNumber(tokenInfo?.content)) {
       toast.error(
         `You don't have enough ${tokenInfo?.title} tokens to transfer!`
       );
       return;
     }
-
     if (balance?.azero < 0.05) {
       toast.error("Low Azero balance!");
       return;
