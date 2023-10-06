@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { formatTokenAmount } from "utils";
+import { roundDown } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
@@ -96,7 +97,9 @@ const PoolInfo = ({
         "psp22::totalSupply"
       );
       const rawLPTokenTotalSupply = queryResult2.toHuman().Ok;
-      setLPtokenTotalSupply(formatTokenAmount(rawLPTokenTotalSupply, lptokenDecimal));
+      setLPtokenTotalSupply(
+        formatTokenAmount(rawLPTokenTotalSupply, lptokenDecimal)
+      );
     } catch (error) {
       console.log(error);
     }
@@ -126,7 +129,10 @@ const PoolInfo = ({
             },
             {
               title: "Multiplier",
-              content: multiplier,
+              content:
+                mode === "NFT_FARM"
+                  ? formatTokenAmount(multiplier, tokenDecimal)
+                  : roundDown(multiplier, 6),
             },
             {
               title: "Start Date",
