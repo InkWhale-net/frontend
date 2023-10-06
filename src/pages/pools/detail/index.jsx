@@ -180,11 +180,11 @@ export default function PoolDetailPage() {
             spacing="4px"
             separator={<ChevronRightIcon color="gray.500" />}
           >
-            <BreadcrumbItem color="text.1">
+            <BreadcrumbItem color="text.2">
               <BreadcrumbLink href="#/pools">Staking Pools</BreadcrumbLink>
             </BreadcrumbItem>
 
-            <BreadcrumbItem color="text.2">
+            <BreadcrumbItem color="text.1">
               <BreadcrumbLink>Detail</BreadcrumbLink>
             </BreadcrumbItem>
           </Breadcrumb>

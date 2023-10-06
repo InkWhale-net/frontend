@@ -168,11 +168,11 @@ const FarmDetailPage = () => {
       updateTokenData();
     }
   }, [currentNFTPool]);
-  
+
   useEffect(() => {
     if (farmMode == 1) {
       dispatch(fetchAllTokenPools({ currentAccount }));
-    } 
+    }
     if (farmMode == 2) {
       dispatch(fetchAllNFTPools({ currentAccount }));
     }
@@ -272,7 +272,7 @@ const FarmDetailPage = () => {
       isDisabled: false,
     },
     {
-      label: <>Pool Infor</>,
+      label: <>Pool Info</>,
       component: (
         <PoolInfo
           mode={currMode}
@@ -302,15 +302,16 @@ const FarmDetailPage = () => {
             spacing="4px"
             separator={<ChevronRightIcon color="gray.500" />}
           >
-            <BreadcrumbItem color="text.1">
-              <BreadcrumbLink href="#/farms">Staking Pool</BreadcrumbLink>
+            <BreadcrumbItem color="text.2">
+              <BreadcrumbLink
+                href={currMode === "NFT_FARM" ? "#/farms" : "#/farming"}
+              >
+                {currMode === "NFT_FARM" ? "NFT Staking Pool" : "Token Farming"}
+              </BreadcrumbLink>
             </BreadcrumbItem>
 
-            <BreadcrumbItem color="text.2">
-              <BreadcrumbLink>
-                {currMode === "NFT_FARM" ? "NFT Staking" : "LP Token Farming"}{" "}
-                Pool
-              </BreadcrumbLink>
+            <BreadcrumbItem color="text.1">
+              <BreadcrumbLink>Detail</BreadcrumbLink>
             </BreadcrumbItem>
           </Breadcrumb>
         </SectionContainer>
@@ -319,11 +320,11 @@ const FarmDetailPage = () => {
       <SectionContainer
         title={`${
           currMode === "NFT_FARM"
-            ? "NFT Staking"
+            ? "NFT Staking Pool"
             : currMode === "TOKEN_FARM"
-            ? "LP Token Farming"
+            ? "Token Farming"
             : null
-        }  Pool`}
+        }`}
       >
         <Stack
           w="full"
