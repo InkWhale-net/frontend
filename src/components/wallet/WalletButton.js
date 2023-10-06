@@ -54,7 +54,7 @@ export default function WalletButton({ onCloseSidebar }) {
       <WalletModal isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
 
       {!currentAccount ? (
-        <WalletNotConnect />
+        <WalletNotConnect onClose={onCloseSidebar} />
       ) : (
         <WalletConnect onClose={onCloseSidebar} onClickSwitch={onClickSwitch} />
       )}
