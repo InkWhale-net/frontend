@@ -135,9 +135,17 @@ const MyNFTAndTokenPoolsTab = ({ mode }) => {
       }
     >
       {mode === "NFT_FARM" ? (
-        <IWTable {...tableDataNFT} mode="NFT_FARM" />
+        <IWTable
+          {...tableDataNFT}
+          mode="NFT_FARM"
+          customURLRowClick="/my-farm"
+        />
       ) : (
-        <IWTable {...tableDataToken} mode="TOKEN_FARM" />
+        <IWTable
+          {...tableDataToken}
+          mode="TOKEN_FARM"
+          customURLRowClick="/my-farming"
+        />
       )}
     </SectionContainer>
   );

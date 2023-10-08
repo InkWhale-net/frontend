@@ -8,30 +8,25 @@ import {
   HStack,
   Stack,
   Switch,
-  Tooltip,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
-import { delay } from "utils";
 
 import IWInput from "components/input/Input";
 import { IWMobileList } from "components/table/IWMobileList";
 import { IWTable } from "components/table/IWTable";
 import { useAppContext } from "contexts/AppContext";
 import { useEffect, useMemo, useState } from "react";
-import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
-import { formatTokenAmount, isPoolEnded, roundUp } from "utils";
+import { formatTokenAmount, isPoolEnded } from "utils";
 
 export default function PoolsPage() {
   const dispatch = useDispatch();
   const { api } = useAppContext();
 
   const { currentAccount } = useSelector((s) => s.wallet);
-  const { allStakingPoolsList, allTokenPoolsList } = useSelector(
-    (s) => s.allPools
-  );
+  const { allStakingPoolsList } = useSelector((s) => s.allPools);
 
   const [showMyStakedPools, setShowMyStakedPools] = useState(false);
 
@@ -51,29 +46,7 @@ export default function PoolsPage() {
       return;
     }
     setResultList(
-      result
-        ?.filter((e) => !(e?.totalStaked > 0 && e?.totalStaked < 1))
-        .map((e, index) => {
-          // setRemainStaking(roundUp(maxStakingAmount - totalStaked, 4));
-          const maxObjStakingAmount = parseFloat(
-            formatTokenAmount(e?.maxStakingAmount, e?.tokenDecimal)
-          );
-          const totalStaked = parseFloat(
-            formatTokenAmount(e?.totalStaked, e?.tokenDecimal)
-          );
-          const remainStaking = roundUp(maxObjStakingAmount - totalStaked, 4);
-          return {
-            ...e,
-            maxStakingAmount: maxObjStakingAmount,
-            hasTooltip: remainStaking === 0 && (
-              <Tooltip fontSize="md" label="Max Staking Amount reached">
-                <span style={{ marginLeft: "6px" }}>
-                  <AiOutlineExclamationCircle ml="6px" color="text.1" />
-                </span>
-              </Tooltip>
-            ),
-          };
-        })
+      result?.filter((e) => !(e?.totalStaked > 0 && e?.totalStaked < 1))
     );
   };
 
@@ -91,19 +64,14 @@ export default function PoolsPage() {
     let ret = allStakingPoolsList;
 
     if (showMyStakedPools) {
-      ret = ret.filter((p) => p.stakeInfo);
+      ret = ret.filter((p) => parseInt(p?.stakeInfo?.stakedValue) > 0);
     }
 
     if (endedPools) {
       ret = ret.filter((p) => isPoolEnded(p?.startTime, p?.duration));
     }
 
-    return ret?.map((e) => {
-      return {
-        ...e,
-        totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
-      };
-    });
+    return ret;
   }, [allStakingPoolsList, showMyStakedPools, endedPools]);
 
   useEffect(() => {
@@ -128,6 +96,7 @@ export default function PoolsPage() {
         hasTooltip: true,
         tooltipContent: `Total Value Locked: Total tokens staked into this pool`,
         label: "TVL",
+        showTooltipIconContent: true
       },
       {
         name: "apy",
@@ -176,19 +145,6 @@ export default function PoolsPage() {
         alignItems="start"
         direction={{ base: "column" }}
       >
-        {/* <Stack
-          w="100%"
-          spacing="20px"
-          direction={{ base: "column" }}
-          align={{ base: "column", xl: "center" }}
-        >
-          <IWInput
-            type="number"
-            placeholder="Search"
-            inputRightElementIcon={<SearchIcon color="text.1" />}
-          />
-        </Stack> */}
-
         <HStack
           color="text.1"
           fontSize="md"
@@ -289,9 +245,9 @@ export default function PoolsPage() {
           </Box> */}
         </HStack>
         {isSmallerThanMd ? (
-          <IWMobileList {...tableData} />
+          <IWMobileList {...tableData} mode="STAKING_POOL" />
         ) : (
-          <IWTable {...tableData} />
+          <IWTable {...tableData} mode="STAKING_POOL" />
         )}
       </Stack>
     </SectionContainer>

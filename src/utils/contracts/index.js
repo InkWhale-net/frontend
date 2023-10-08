@@ -159,7 +159,7 @@ export async function execContractTx(
           api: wsApi,
         });
         if (Object.keys(status.toHuman())[0] === "0") {
-          toast.success(`Processing ...`);
+          toast(`Processing ...`);
         }
 
         events.forEach(({ event: { method } }) => {
@@ -249,7 +249,6 @@ export async function execContractTxAndCallAPI(
           if (method === "Instantiated" && data?.contract) {
             // APIUpdate(data.contract?.toHuman());
             newContractAddress = data.contract?.toHuman();
-            console.log("newContractAddress", newContractAddress);
           }
           if (method === "ExtrinsicSuccess" && status.type === "Finalized") {
             await delay(3000);

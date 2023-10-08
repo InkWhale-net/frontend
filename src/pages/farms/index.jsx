@@ -9,7 +9,6 @@ import {
   HStack,
   Stack,
   Switch,
-  Tooltip,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
@@ -19,22 +18,19 @@ import { IWMobileList } from "components/table/IWMobileList";
 import { IWTable } from "components/table/IWTable";
 import { useAppContext } from "contexts/AppContext";
 import { useEffect, useMemo, useState } from "react";
-import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllNFTPools,
   fetchAllTokenPools,
 } from "redux/slices/allPoolsSlice";
-import { delay, formatTokenAmount, isPoolEnded } from "utils";
+import { delay, isPoolEnded } from "utils";
 
 export default function FarmsPage() {
   const dispatch = useDispatch();
   const { api } = useAppContext();
 
   const { currentAccount } = useSelector((s) => s.wallet);
-  const { allNFTPoolsList, allTokenPoolsList, loading } = useSelector(
-    (s) => s.allPools
-  );
+  const { allNFTPoolsList } = useSelector((s) => s.allPools);
 
   const [sortPools, setSortPools] = useState(-1);
   const [hideZeroRewardPools, setHideZeroRewardPools] = useState(true);
@@ -60,27 +56,7 @@ export default function FarmsPage() {
       setResultList();
       return;
     }
-    setResultList(
-      result.map((e) => {
-        return {
-          ...e,
-          maxStakingAmount: parseFloat(
-            formatTokenAmount(e?.maxStakingAmount, 0)
-          ),
-          hasTooltip: !(
-            parseFloat(formatTokenAmount(e?.maxStakingAmount, 0)) -
-              e?.totalStaked >
-            0
-          ) && (
-            <Tooltip fontSize="md" label="Max Staking Amount reached">
-              <span style={{ marginLeft: "6px" }}>
-                <AiOutlineExclamationCircle ml="6px" color="text.1" />
-              </span>
-            </Tooltip>
-          ),
-        };
-      })
-    );
+    setResultList(result);
   };
 
   useEffect(() => {
@@ -126,16 +102,6 @@ export default function FarmsPage() {
     return () => clearTimeout(delayDebounceFn);
   }, [keywords, nftLPListFiltered]);
 
-  const tokenLPListFiltered = useMemo(() => {
-    let ret = allTokenPoolsList;
-
-    if (showMyStakedPools) {
-      ret = allTokenPoolsList.filter((p) => p.stakeInfo);
-    }
-
-    return ret;
-  }, [allTokenPoolsList, showMyStakedPools]);
-
   const tableDataNFT = {
     tableHeader: [
       {
@@ -155,6 +121,7 @@ export default function FarmsPage() {
         hasTooltip: true,
         tooltipContent: `Total Value Locked: Total tokens staked into this pool`,
         label: "TVL",
+        showTooltipIconContent: true,
       },
       {
         name: "rewardPool",
@@ -190,78 +157,6 @@ export default function FarmsPage() {
 
     tableBody: resultList || nftLPListFiltered,
   };
-
-  const tableDataToken = {
-    tableHeader: [
-      {
-        name: "lptokenSymbol",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Stake",
-      },
-      {
-        name: "tokenSymbol",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Earn",
-      },
-      {
-        name: "totalStaked",
-        hasTooltip: true,
-        tooltipContent: `Total Value Locked: Total tokens staked into this pool`,
-        label: "TVL",
-      },
-      {
-        name: "rewardPool",
-        hasTooltip: true,
-        tooltipContent: `Available tokens to pay for stakers`,
-        label: "Reward Pool",
-      },
-      {
-        name: "multiplier",
-        hasTooltip: true,
-        tooltipContent: `Multiplier determines how many reward tokens will the staker receive per 1 token in 24 hours.`,
-        label: "Multiplier",
-      },
-      {
-        name: "status",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Status",
-      },
-      {
-        name: "startTime",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "Countdown",
-      },
-      {
-        name: "stakeInfo",
-        hasTooltip: false,
-        tooltipContent: "",
-        label: "My Stake",
-      },
-    ],
-
-    tableBody: tokenLPListFiltered,
-  };
-
-  const tabsData = [
-    {
-      label: <>NFT Staking Pool</>,
-      component: isSmallerThanMd ? (
-        <IWMobileList {...tableDataNFT} mode="NFT_FARM" />
-      ) : (
-        <IWTable {...tableDataNFT} mode="NFT_FARM" />
-      ),
-      isDisabled: false,
-    },
-    {
-      label: <>Token Yield Farms</>,
-      component: <IWTable {...tableDataToken} mode="TOKEN_FARM" />,
-      isDisabled: false,
-    },
-  ];
 
   return (
     <SectionContainer

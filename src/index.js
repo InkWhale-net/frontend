@@ -42,16 +42,7 @@ import PoolDetailPage from "pages/pools/detail";
 import TokensPage from "pages/tokens";
 import TokensTransactionPage from "pages/tokens/transactions";
 import { QueryClient, QueryClientProvider } from "react-query";
-import {
-  fetchAllStakingPools,
-  fetchAllTokenPools,
-  fetchAllTokensList,
-} from "redux/slices/allPoolsSlice";
-import { fetchLaunchpads } from "redux/slices/launchpadSlice";
-import {
-  fetchMyStakingPools,
-  fetchMyTokenPools,
-} from "redux/slices/myPoolsSlice";
+import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
 import { fetchTotalValueLocked } from "redux/slices/statSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { delay } from "utils";
@@ -152,9 +143,9 @@ const App = () => {
     //   dispatch(fetchMyStakingPools({ currentAccount }));
     // }
 
-    if (!myTokenPoolsList) {
-      dispatch(fetchMyTokenPools({ currentAccount }));
-    }
+    // if (!myTokenPoolsList) {
+    //   dispatch(fetchMyTokenPools({ currentAccount }));
+    // }
 
     if (!currentAccount?.balance) {
       dispatch(fetchUserBalance({ currentAccount, api }));
@@ -210,11 +201,7 @@ const App = () => {
             path={`/launchpad/:launchpadContract`}
             component={PublicDetailLaunchpad}
           />
-          <Route
-            exact
-            path={`/create/farming`}
-            component={CreateTokenLPPage}
-          />
+          <Route exact path={`/create/farming`} component={CreateTokenLPPage} />
           <Route exact path={`/farming`} component={LPPoolsPage} />
           <Route
             exact
@@ -226,9 +213,19 @@ const App = () => {
           <Route exact path={`/my-pools`} component={MyPoolsPage} />
           <Route
             exact
-            path={`/my-pools/:contractAddress`}
+            path={`/my-pool/:contractAddress`}
             component={MyPoolDetailPage}
-          />{" "}
+          />
+          <Route
+            exact
+            path={`/my-farm/:contractAddress`}
+            component={MyPoolDetailPage}
+          />
+          <Route
+            exact
+            path={`/my-farming/:contractAddress`}
+            component={MyPoolDetailPage}
+          />
           <Route exact path={`/admin`} component={AdminPage} />
           <Route>
             <FaucetPage api={api} />

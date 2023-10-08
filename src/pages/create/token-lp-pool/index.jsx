@@ -38,9 +38,11 @@ import { formatNumDynDecimal } from "utils";
 import { roundUp } from "utils";
 import { SelectSearch } from "components/SelectSearch";
 import { formatTokenAmount } from "utils";
+import { useAppContext } from "contexts/AppContext";
 
-export default function CreateTokenLPPage({ api }) {
+export default function CreateTokenLPPage() {
   const dispatch = useDispatch();
+  const { api } = useAppContext();
   const { currentAccount } = useSelector((s) => s.wallet);
   const { myTokenPoolsList, loading } = useSelector((s) => s.myPools);
   const { allTokensList } = useSelector((s) => s.allPools);
@@ -390,6 +392,10 @@ export default function CreateTokenLPPage({ api }) {
     }),
   };
 
+  useEffect(() => {
+    if (api) dispatch(fetchMyTokenPools({ currentAccount }));
+  }, [api, currentAccount]);
+
   return (
     <>
       <SectionContainer
@@ -634,7 +640,7 @@ export default function CreateTokenLPPage({ api }) {
           {...tableData}
           mode="TOKEN_FARM"
           loading={loading}
-          customURLRowClick="/my-pools"
+          customURLRowClick="/my-farming"
         />
       </SectionContainer>
     </>

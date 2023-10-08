@@ -57,7 +57,7 @@ export default function TokensPage() {
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [selectedContractAddr]);
+  }, [selectedContractAddr, currentAccount]);
 
   const selectedToken = useMemo(
     () =>

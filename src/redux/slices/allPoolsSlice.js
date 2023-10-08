@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import { APICall } from "api/client";
 import { toast } from "react-hot-toast";
+import { formatTokenAmount } from "utils";
 import { formatChainStringToNumber } from "utils";
 import { execContractQuery } from "utils/contracts";
 import lp_pool_contract from "utils/contracts/lp_pool_contract";
@@ -100,6 +101,15 @@ export const fetchAllStakingPools = createAsyncThunk(
           );
           let stakeInfo = queryResult?.toHuman().Ok;
 
+          const tokenDecimal = +pool.tokenDecimal;
+          const totalStaked = formatTokenAmount(
+            pool?.totalStaked,
+            tokenDecimal
+          );
+          const maxStakingAmount = formatTokenAmount(
+            pool.maxStakingAmount,
+            tokenDecimal
+          );
           if (stakeInfo) {
             stakeInfo = {
               ...stakeInfo,
@@ -113,7 +123,13 @@ export const fetchAllStakingPools = createAsyncThunk(
             };
           }
 
-          return { ...pool, stakeInfo };
+          return {
+            ...pool,
+            stakeInfo,
+            totalStaked,
+            maxStakingAmount,
+            isMaxStakingAmount: maxStakingAmount == totalStaked,
+          };
         })
       );
 
@@ -158,7 +174,10 @@ export const fetchAllNFTPools = createAsyncThunk(
           );
 
           let stakeInfo = queryResult?.toHuman().Ok;
-
+          const maxStakingAmount = nftLP?.maxStakingAmount
+            ?.toString()
+            ?.replace(/\./g, "")
+            ?.replace(/,/g, "");
           if (stakeInfo) {
             stakeInfo = {
               ...stakeInfo,
@@ -172,7 +191,12 @@ export const fetchAllNFTPools = createAsyncThunk(
             };
           }
 
-          return { ...nftLP, stakeInfo };
+          return {
+            ...nftLP,
+            stakeInfo,
+            maxStakingAmount,
+            isMaxStakingAmount: +maxStakingAmount == +nftLP?.totalStaked,
+          };
         })
       );
       data = nftLPListAddNftInfo;
@@ -202,8 +226,7 @@ export const fetchAllTokenPools = createAsyncThunk(
             return compare(createdTimeB, createdTimeA);
           })
           ?.map(async (tokenLP) => {
-            // console.log(tokenLP?.createdTime);
-            // get stake info
+            // get staking data
             let queryResult = await execContractQuery(
               params?.currentAccount?.address,
               "api",
@@ -215,6 +238,18 @@ export const fetchAllTokenPools = createAsyncThunk(
             );
 
             let stakeInfo = queryResult?.toHuman().Ok;
+
+            // calc staking value
+            const tokenDecimal = +tokenLP.lptokenDecimal;
+            const totalStaked = formatTokenAmount(
+              tokenLP?.totalStaked,
+              tokenDecimal
+            );
+
+            const maxStakingAmount = formatTokenAmount(
+              tokenLP.maxStakingAmount,
+              tokenDecimal
+            );
 
             if (stakeInfo) {
               stakeInfo = {
@@ -229,7 +264,13 @@ export const fetchAllTokenPools = createAsyncThunk(
               };
             }
 
-            return { ...tokenLP, stakeInfo };
+            return {
+              ...tokenLP,
+              stakeInfo,
+              totalStaked,
+              maxStakingAmount,
+              isMaxStakingAmount: maxStakingAmount == totalStaked,
+            };
           })
       );
       data = tokenLPListAddNftInfo;

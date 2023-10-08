@@ -154,7 +154,8 @@ export default function CreateStakePoolPage({ api }) {
     );
   };
   useEffect(() => {
-    formatMaxStakingAmount(myStakingPoolsList);
+    if (myStakingPoolsList) formatMaxStakingAmount(myStakingPoolsList);
+    else dispatch(fetchMyStakingPools({ currentAccount }));
   }, [myStakingPoolsList]);
   async function createStakingPoolHandler() {
     if (!currentAccount) {
@@ -554,7 +555,7 @@ export default function CreateStakePoolPage({ api }) {
           {...tableData}
           mode="STAKING_POOL"
           loading={loading}
-          customURLRowClick="/my-pools"
+          customURLRowClick="/my-pool"
         />
       </SectionContainer>
     </>

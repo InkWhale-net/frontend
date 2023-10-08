@@ -5,6 +5,7 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  CircularProgress,
   Flex,
   HStack,
   Show,
@@ -60,21 +61,15 @@ export default function PoolDetailPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { api } = useAppContext();
   const { allStakingPoolsList } = useSelector((s) => s.allPools);
-  const [remainStaking, setRemainStaking] = useState(null);
   const dispatch = useDispatch();
 
-  const currentPool = useMemo(() => {
-    const poolData = allStakingPoolsList?.find(
-      (p) => p?.poolContract === params?.contractAddress
-    );
-
-    return {
-      ...poolData,
-      maxStakingAmount: parseFloat(
-        formatTokenAmount(poolData?.maxStakingAmount, poolData?.tokenDecimal)
+  const currentPool = useMemo(
+    () =>
+      allStakingPoolsList?.find(
+        (p) => p?.poolContract === params?.contractAddress
       ),
-    };
-  }, [allStakingPoolsList, params?.contractAddress]);
+    [allStakingPoolsList, params?.contractAddress]
+  );
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -91,16 +86,11 @@ export default function PoolDetailPage() {
       {
         name: "totalStaked",
         hasTooltip: true,
-        tooltipContent:
-          remainStaking === 0
-            ? "Max Staking Amount reached"
-            : `Total Value Locked: Total tokens staked into this pool`,
+        tooltipContent: currentPool?.isMaxStakingAmount
+          ? "Max Staking Amount reached"
+          : `Total Value Locked: Total tokens staked into this pool`,
         tooltipIcon: roundUp(
-          currentPool?.maxStakingAmount -
-            formatTokenAmount(
-              currentPool?.totalStaked,
-              currentPool.tokenDecimal
-            ),
+          +currentPool?.maxStakingAmount - +currentPool?.totalStaked,
           4
         ) <= 0 && <AiOutlineExclamationCircle ml="6px" color="text.1" />,
         label: "TVL",
@@ -131,30 +121,16 @@ export default function PoolDetailPage() {
       },
     ],
 
-    cardValue: {
-      ...currentPool,
-      totalStaked: formatTokenAmount(
-        currentPool?.totalStaked,
-        currentPool?.tokenDecimal
-      ),
-      rewardPool: currentPool?.rewardPool,
-    },
+    cardValue: currentPool,
   };
   const tabsData = [
     {
       label: "My Stakes & Rewards",
-      component: (
-        <MyStakeRewardInfo
-          {...currentPool}
-          {...currentAccount}
-          remainStaking={remainStaking}
-          setRemainStaking={setRemainStaking}
-        />
-      ),
+      component: <MyStakeRewardInfo {...currentPool} {...currentAccount} />,
       isDisabled: false,
     },
     {
-      label: <span>Pool Information</span>,
+      label: <span>Pool Info</span>,
       component: (
         <PoolInfo
           {...currentPool}
@@ -172,103 +148,114 @@ export default function PoolDetailPage() {
     }
   }, [api, currentAccount]);
 
-  return (
-    <>
-      <Show above="md">
-        <SectionContainer>
-          <Breadcrumb
-            spacing="4px"
-            separator={<ChevronRightIcon color="gray.500" />}
-          >
-            <BreadcrumbItem color="text.2">
-              <BreadcrumbLink href="#/pools">Staking Pools</BreadcrumbLink>
-            </BreadcrumbItem>
-
-            <BreadcrumbItem color="text.1">
-              <BreadcrumbLink>Detail</BreadcrumbLink>
-            </BreadcrumbItem>
-          </Breadcrumb>
-        </SectionContainer>
-      </Show>
-
-      <SectionContainer title="Staking Pool Detail">
-        <Stack
-          w="full"
-          spacing="30px"
-          alignItems="start"
-          direction={{ base: "column" }}
-        >
-          <IWCard
-            mt="16px"
-            w="full"
-            variant="solid"
-            border="1px solid #E3DFF3"
-            bg="bg.1"
-          >
-            <Flex
-              minH="70px"
-              flexDirection={{ base: "column", lg: "row" }}
-              justifyContent={{ base: "space-between" }}
+  if (currentPool)
+    return (
+      <>
+        <Show above="md">
+          <SectionContainer>
+            <Breadcrumb
+              spacing="4px"
+              separator={<ChevronRightIcon color="gray.500" />}
             >
-              {cardData?.cardHeaderList?.map((item) => {
-                const { name, hasTooltip, label, tooltipContent, tooltipIcon } =
-                  item;
+              <BreadcrumbItem color="text.2">
+                <BreadcrumbLink href="#/pools">Staking Pools</BreadcrumbLink>
+              </BreadcrumbItem>
 
-                return (
-                  <Flex
-                    mt={{ base: "15px", lg: "0px" }}
-                    w="full"
-                    key={name}
-                    justifyContent="center"
-                    flexDirection={{ base: "row", lg: "column" }}
-                  >
+              <BreadcrumbItem color="text.1">
+                <BreadcrumbLink>Detail</BreadcrumbLink>
+              </BreadcrumbItem>
+            </Breadcrumb>
+          </SectionContainer>
+        </Show>
+
+        <SectionContainer title="Staking Pool Detail">
+          <Stack
+            w="full"
+            spacing="30px"
+            alignItems="start"
+            direction={{ base: "column" }}
+          >
+            <IWCard
+              mt="16px"
+              w="full"
+              variant="solid"
+              border="1px solid #E3DFF3"
+              bg="bg.1"
+            >
+              <Flex
+                minH="70px"
+                flexDirection={{ base: "column", lg: "row" }}
+                justifyContent={{ base: "space-between" }}
+              >
+                {cardData?.cardHeaderList?.map((item) => {
+                  const {
+                    name,
+                    hasTooltip,
+                    label,
+                    tooltipContent,
+                    tooltipIcon,
+                  } = item;
+
+                  return (
                     <Flex
-                      w={{ base: "45%", lg: "full" }}
-                      color="text.2"
-                      fontWeight="400"
-                      fontSize="16px"
-                      lineHeight="28px"
-                      alignItems="center"
+                      mt={{ base: "15px", lg: "0px" }}
+                      w="full"
+                      key={name}
+                      justifyContent="center"
+                      flexDirection={{ base: "row", lg: "column" }}
                     >
-                      {label}
-                      {hasTooltip && (
-                        <Tooltip fontSize="md" label={tooltipContent}>
-                          <span style={{ marginLeft: "6px" }}>
-                            {tooltipIcon ? (
-                              tooltipIcon
-                            ) : (
-                              <AiOutlineQuestionCircle color="text.2" />
-                            )}
-                          </span>
-                        </Tooltip>
-                      )}
-                    </Flex>
+                      <Flex
+                        w={{ base: "45%", lg: "full" }}
+                        color="text.2"
+                        fontWeight="400"
+                        fontSize="16px"
+                        lineHeight="28px"
+                        alignItems="center"
+                      >
+                        {label}
+                        {hasTooltip && (
+                          <Tooltip fontSize="md" label={tooltipContent}>
+                            <span style={{ marginLeft: "6px" }}>
+                              {tooltipIcon ? (
+                                tooltipIcon
+                              ) : (
+                                <AiOutlineQuestionCircle color="text.2" />
+                              )}
+                            </span>
+                          </Tooltip>
+                        )}
+                      </Flex>
 
-                    <Flex
-                      color="text.1"
-                      fontWeight="600"
-                      lineHeight="28px"
-                      justify={{ base: "start" }}
-                      alignItems={{ base: "center" }}
-                      w={{ base: "55%", lg: "full" }}
-                      fontSize={{ base: "16px", lg: "20px" }}
-                    >
-                      <Text>
-                        {formatDataCellTable(cardData?.cardValue, name)}
-                      </Text>
+                      <Flex
+                        color="text.1"
+                        fontWeight="600"
+                        lineHeight="28px"
+                        justify={{ base: "start" }}
+                        alignItems={{ base: "center" }}
+                        w={{ base: "55%", lg: "full" }}
+                        fontSize={{ base: "16px", lg: "20px" }}
+                      >
+                        <Text>
+                          {formatDataCellTable(cardData?.cardValue, name)}
+                        </Text>
+                      </Flex>
                     </Flex>
-                  </Flex>
-                );
-              })}
-            </Flex>
-          </IWCard>
-        </Stack>
-      </SectionContainer>
+                  );
+                })}
+              </Flex>
+            </IWCard>
+          </Stack>
+        </SectionContainer>
 
-      <SectionContainer mt={{ base: "-28px", xl: "-48px" }}>
-        <IWTabs tabsData={tabsData} />
-      </SectionContainer>
-    </>
+        <SectionContainer mt={{ base: "-28px", xl: "-48px" }}>
+          <IWTabs tabsData={tabsData} />
+        </SectionContainer>
+      </>
+    );
+  return (
+    <Flex h="calc(100vh/2)" justify="center" alignItems="center">
+      <CircularProgress isIndeterminate color="#93F0F5" />
+    </Flex>
   );
 }
 
@@ -285,8 +272,6 @@ const MyStakeRewardInfo = ({
   tokenDecimal,
   maxStakingAmount,
   totalStaked,
-  remainStaking,
-  setRemainStaking,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -299,6 +284,7 @@ const MyStakeRewardInfo = ({
   const [tokenBalance, setTokenBalance] = useState();
 
   const [amount, setAmount] = useState("");
+  const remainStaking = +maxStakingAmount - +totalStaked;
 
   const fetchUserStakeInfo = useCallback(async () => {
     if (!currentAccount?.balance && currentAccount && api) {
@@ -344,14 +330,6 @@ const MyStakeRewardInfo = ({
       );
       const balance = formatQueryResultToNumber(result, tokenDecimal);
       setTokenBalance(balance);
-
-      setRemainStaking(
-        roundUp(
-          maxStakingAmount -
-            parseFloat(formatTokenAmount(totalStaked, tokenDecimal)),
-          4
-        )
-      );
     } catch (error) {
       console.log(error);
     }
@@ -458,7 +436,7 @@ const MyStakeRewardInfo = ({
         return false;
       }
       if (roundUp(maxStakingAmount - totalStaked) === 0) {
-        toast.error(`Max Staking Amount reached`);
+        toast.error(`Max staking amount reached`);
         return false;
       }
       const remainStaking = roundUp(
@@ -483,7 +461,7 @@ const MyStakeRewardInfo = ({
   async function handleStake() {
     try {
       //Approve
-      toast.success("Step 1: Approving...");
+      toast("Step 1: Approving...");
 
       let approve = await execContractTx(
         currentAccount,
@@ -499,7 +477,7 @@ const MyStakeRewardInfo = ({
 
       await delay(3000);
 
-      toast.success("Step 2: Process...");
+      toast("Step 2: Process...");
       await execContractTx(
         currentAccount,
         api,
@@ -581,7 +559,7 @@ const MyStakeRewardInfo = ({
       return;
     }
     //Approve
-    toast.success("Step 1: Approving...");
+    toast("Step 1: Approving...");
 
     let approve = await execContractTx(
       currentAccount,
@@ -598,7 +576,7 @@ const MyStakeRewardInfo = ({
 
     await delay(3000);
 
-    toast.success("Step 2: Process...");
+    toast("Step 2: Process...");
 
     await execContractTx(
       currentAccount,
@@ -677,7 +655,7 @@ const MyStakeRewardInfo = ({
           {
             title: "My Stakes ",
             content: `${formatNumDynDecimal(
-              stakeInfo?.stakedValue / 10 ** tokenDecimal
+              formatTokenAmount(stakeInfo?.stakedValue, tokenDecimal)
             )} ${tokenSymbol}`,
           },
           {
@@ -737,11 +715,7 @@ const MyStakeRewardInfo = ({
                   !Number(amount) ||
                   isPoolEnded(startTime, duration) ||
                   isPoolNotStart(startTime) ||
-                  !(
-                    maxStakingAmount -
-                      parseFloat(formatTokenAmount(totalStaked, tokenDecimal)) >
-                    0
-                  )
+                  !(remainStaking > 0)
                 }
                 onClick={handleStake}
                 message={formatMessageStakingPool(
@@ -769,10 +743,11 @@ const MyStakeRewardInfo = ({
             </HStack>
           </Flex>
           <Box fontSize={14} ml="2px">
-            {currentAccount?.balance &&
+            {currentAccount &&
+              !isPoolEnded(startTime, duration) &&
               (!(remainStaking > 0)
-                ? "Max Staking Amount reached"
-                : `Max Staking Amount: ${formatNumDynDecimal(remainStaking)}`)}
+                ? "Max staking amount reached"
+                : `Max staking amount: ${formatNumDynDecimal(remainStaking)}`)}
           </Box>
         </IWCard>
       </CardThreeColumn>
@@ -790,7 +765,6 @@ const PoolInfo = (props) => {
     totalStaked,
     tokenContract,
     tokenName,
-    tokenTotalSupply,
     tokenSymbol,
     maxStakingAmount,
     tokenDecimal,
@@ -810,18 +784,12 @@ const PoolInfo = (props) => {
       "psp22::totalSupply"
     );
     const rawTotalSupply = queryResult?.toHuman()?.Ok;
-    let queryResult1 = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      tokenContract,
-      0,
-      "psp22Metadata::tokenDecimals"
-    );
-    const decimals = queryResult1?.toHuman()?.Ok;
 
     const totalSupply = roundUp(
-      formatTokenAmount(rawTotalSupply?.replaceAll(",", ""), parseInt(decimals))
+      formatTokenAmount(
+        rawTotalSupply?.replaceAll(",", ""),
+        parseInt(tokenDecimal)
+      )
     );
     setTotalSupply(totalSupply);
   };
@@ -860,9 +828,7 @@ const PoolInfo = (props) => {
           },
           {
             title: "Total Value Locked",
-            content: `${formatNumDynDecimal(
-              parseFloat(formatTokenAmount(totalStaked, tokenDecimal))
-            )} ${tokenSymbol}`,
+            content: `${formatNumDynDecimal(totalStaked)} ${tokenSymbol}`,
           },
           {
             title: "Creator",

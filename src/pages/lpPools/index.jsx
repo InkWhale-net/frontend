@@ -29,7 +29,7 @@ import { delay, formatTokenAmount, isPoolEnded } from "utils";
 
 export default function LPPoolsPage() {
   const dispatch = useDispatch();
-  const {api} = useAppContext()
+  const { api } = useAppContext();
 
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allNFTPoolsList, allTokenPoolsList, loading } = useSelector(
@@ -60,27 +60,7 @@ export default function LPPoolsPage() {
       setResultList();
       return;
     }
-    setResultList(
-      result.map((e) => {
-        return {
-          ...e,
-          maxStakingAmount: parseFloat(
-            formatTokenAmount(e?.maxStakingAmount, 0)
-          ),
-          hasTooltip: !(
-            parseFloat(formatTokenAmount(e?.maxStakingAmount, 0)) -
-              e?.totalStaked >
-            0
-          ) && (
-            <Tooltip fontSize="md" label="Max Staking Amount reached">
-              <span style={{ marginLeft: "6px" }}>
-                <AiOutlineExclamationCircle ml="6px" color="text.1" />
-              </span>
-            </Tooltip>
-          ),
-        };
-      })
-    );
+    setResultList(result);
   };
 
   useEffect(() => {
@@ -138,12 +118,7 @@ export default function LPPoolsPage() {
       ret = ret.filter((p) => isPoolEnded(p?.startTime, p?.duration));
     }
 
-    return ret?.map((e) => {
-      return {
-        ...e,
-        totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
-      };
-    });
+    return ret;
   }, [allTokenPoolsList, showMyStakedPools, endedPools]);
   const tableDataToken = {
     tableHeader: [
@@ -164,6 +139,7 @@ export default function LPPoolsPage() {
         hasTooltip: true,
         tooltipContent: `Total Value Locked: Total tokens staked into this pool`,
         label: "TVL",
+        showTooltipIconContent: true,
       },
       {
         name: "rewardPool",
@@ -204,7 +180,9 @@ export default function LPPoolsPage() {
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
       title="Token Farming"
-      description={<span>Lock in one token, get another token as your reward</span>}
+      description={
+        <span>Lock in one token, get another token as your reward</span>
+      }
     >
       <Stack
         w="full"
