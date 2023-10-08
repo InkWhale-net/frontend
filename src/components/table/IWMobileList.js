@@ -29,7 +29,10 @@ const ElementCard = ({ tableHeader, itemObj, mode, onClickItemHandler }) => {
     >
       <Grid templateColumns="repeat(2, 1fr)" gap={2}>
         {tableHeader.map(
-          ({ name, label, hasTooltip, tooltipContent }, index) => {
+          (
+            { name, label, hasTooltip, tooltipContent, showTooltipIconContent },
+            index
+          ) => {
             return (
               <React.Fragment key={index}>
                 <Flex alignItems="center">
@@ -45,7 +48,14 @@ const ElementCard = ({ tableHeader, itemObj, mode, onClickItemHandler }) => {
                   color={{ base: "#57527E" }}
                   fontWeight={{ base: "bold" }}
                 >
-                  <FadeIn>{formatDataCellTable(itemObj, name, mode)}</FadeIn>
+                  <FadeIn>
+                    {formatDataCellTable(
+                      itemObj,
+                      name,
+                      mode,
+                      showTooltipIconContent
+                    )}
+                  </FadeIn>
                 </Box>
               </React.Fragment>
             );

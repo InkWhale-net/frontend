@@ -37,6 +37,7 @@ import IWInput from "components/input/Input";
 import React, { useEffect, useState } from "react";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import { toast } from "react-hot-toast";
+import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { GoStar } from "react-icons/go";
 import { formatTokenAmount } from "utils";
 import { roundDown } from "utils";
@@ -48,6 +49,12 @@ const getStatusPool = (startTime, duration) => {
     return "Pool ended!";
   }
   return startTime < new Date() ? "Pool live!" : "Upcoming";
+};
+
+const MODE = {
+  pool: "STAKING_POOL",
+  NFTPool: "NFT_FARM",
+  farming: "TOKEN_FARM",
 };
 const ElementCard = ({ tableHeader, itemObj, mode, onClickItemHandler }) => {
   return (
@@ -66,7 +73,10 @@ const ElementCard = ({ tableHeader, itemObj, mode, onClickItemHandler }) => {
     >
       <Grid templateColumns="repeat(2, 1fr)" gap={2}>
         {tableHeader.map(
-          ({ name, label, hasTooltip, tooltipContent }, index) => {
+          (
+            { name, label, hasTooltip, tooltipContent, showTooltipIconContent },
+            index
+          ) => {
             return (
               <React.Fragment key={index}>
                 <Flex alignItems="center">
@@ -82,7 +92,14 @@ const ElementCard = ({ tableHeader, itemObj, mode, onClickItemHandler }) => {
                   color={{ base: "#57527E" }}
                   fontWeight={{ base: "bold" }}
                 >
-                  <FadeIn>{formatDataCellTable(itemObj, name)}</FadeIn>
+                  <FadeIn>
+                    {formatDataCellTable(
+                      itemObj,
+                      name,
+                      mode,
+                      showTooltipIconContent
+                    )}
+                  </FadeIn>
                 </Box>
               </React.Fragment>
             );
@@ -284,17 +301,29 @@ const IWPaginationTable = ({
   );
 };
 
-export const formatDataCellTable = (itemObj, header, mode) => {
+export const formatDataCellTable = (
+  itemObj,
+  header,
+  mode,
+  showTooltipIconContent = false
+) => {
   switch (header) {
     case "totalStaked":
       const extPart = `NFT${itemObj[header] > 1 ? "s" : ""}`;
       return (
-        <>
+        <Flex alignItems="center">
           <Text>
             {formatNumDynDecimal(itemObj[header])}{" "}
             {itemObj["NFTtokenContract"] && extPart}
           </Text>
-        </>
+          {itemObj?.isMaxStakingAmount && showTooltipIconContent && (
+            <Tooltip fontSize="md" label="Max staking amount reached">
+              <span style={{ marginLeft: "6px" }}>
+                <AiOutlineExclamationCircle ml="6px" color="text.1" />
+              </span>
+            </Tooltip>
+          )}
+        </Flex>
       );
 
     case "multiplier":
@@ -419,39 +448,44 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       );
 
     case "stakeInfo":
-      const numberStakeInfo =
-        itemObj[header] &&
-        formatNumDynDecimal(
-          formatTokenAmount(
-            itemObj[header].stakedValue,
-            parseInt(itemObj?.lptokenDecimal)
+      if (mode == MODE.pool) {
+        const decimal = +itemObj?.tokenDecimal;
+        const numberStakeInfo = itemObj[header]?.stakedValue;
+        const stakedValue = formatTokenAmount(numberStakeInfo, decimal);
+        return (
+          +stakedValue > 0 && (
+            <Flex alignItems="center">
+              <Text mr="8px">{formatNumDynDecimal(stakedValue)}</Text>
+              <GoStar color="#FFB800" />
+            </Flex>
           )
         );
-      const numberNFTStakeInfo =
-        itemObj[header] && formatNumDynDecimal(itemObj[header].stakedValue);
-
-      return (
-        <>
-          {itemObj[header] ? (
-            itemObj["NFTtokenContract"] ? (
-              <Flex alignItems="center">
-                <Text mr="8px">{numberNFTStakeInfo}</Text>
-                <GoStar color="#FFB800" />
-              </Flex>
-            ) : (
-              numberStakeInfo > 0 && (
-                <Flex alignItems="center">
-                  <Text mr="8px">{numberStakeInfo}</Text>
-                  <GoStar color="#FFB800" />
-                </Flex>
-              )
-            )
-          ) : (
-            ""
-          )}
-        </>
-      );
-
+      }
+      if (mode == MODE.farming) {
+        const decimal = +itemObj?.lptokenDecimal;
+        const numberStakeInfo = itemObj[header]?.stakedValue;
+        const stakedValue = formatTokenAmount(numberStakeInfo, decimal);
+        return (
+          +stakedValue > 0 && (
+            <Flex alignItems="center">
+              <Text mr="8px">{formatNumDynDecimal(stakedValue)}</Text>
+              <GoStar color="#FFB800" />
+            </Flex>
+          )
+        );
+      }
+      if (mode == MODE.NFTPool) {
+        const numberStakeInfo = itemObj[header]?.stakedValue;
+        return (
+          +numberStakeInfo > 0 && (
+            <Flex alignItems="center">
+              <Text mr="8px">{formatNumDynDecimal(numberStakeInfo)}</Text>
+              <GoStar color="#FFB800" />
+            </Flex>
+          )
+        );
+      }
+      return <></>;
     case "myStake":
       return (
         <>

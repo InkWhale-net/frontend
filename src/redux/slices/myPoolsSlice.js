@@ -60,7 +60,7 @@ export const fetchMyStakingPools = createAsyncThunk(
     const { ret, status, message } = await APICall.getStakingPoolsListByOwner({
       owner: currentAccount?.address,
     });
-
+    
     if (status === "OK") {
       data = ret;
     } else {

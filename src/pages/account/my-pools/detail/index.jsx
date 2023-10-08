@@ -55,6 +55,7 @@ import lp_pool_contract from "utils/contracts/lp_pool_contract";
 import nft_pool_contract from "utils/contracts/nft_pool_contract";
 import pool_contract from "utils/contracts/pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
+import { useLocation } from "react-router-dom";
 
 export default function MyPoolDetailPage() {
   const [state, setState] = useState({});
@@ -65,6 +66,14 @@ export default function MyPoolDetailPage() {
   );
   const params = useParams();
   const dispatch = useDispatch();
+
+  const location = useLocation();
+  const poolMode = useMemo(() => {
+    if (location.pathname.includes("/my-pool/")) return "STAKING_POOL";
+    if (location.pathname.includes("/my-farm/")) return "NFT_FARM";
+    if (location.pathname.includes("/my-farming/")) return "TOKEN_FARM";
+    return 0;
+  }, [currentAccount, location, api]);
 
   // const { state } = useLocation();
   const currentStakingPool = useMemo(() => {
@@ -105,12 +114,21 @@ export default function MyPoolDetailPage() {
   }, []);
   useEffect(() => {
     if (currentAccount && api) {
-      dispatch(fetchAllNFTPools({ currentAccount }));
-      if (!myNFTPoolsList) {
-        dispatch(fetchMyNFTPools({ currentAccount }));
+      switch (poolMode) {
+        case "NFT_FARM":
+          dispatch(fetchMyNFTPools({ currentAccount }));
+          break;
+        case "STAKING_POOL":
+          dispatch(fetchMyStakingPools({ currentAccount }));
+          break;
+        case "TOKEN_FARM":
+          dispatch(fetchMyTokenPools({ currentAccount }));
+          break;
+        default:
+          break;
       }
     }
-  }, [currentAccount, api]);
+  }, [poolMode, currentAccount, api]);
   const stakingPoolCardData = {
     cardHeaderList: [
       {
@@ -153,7 +171,10 @@ export default function MyPoolDetailPage() {
 
     cardValue: {
       ...currentStakingPool,
-      totalStaked: formatTokenAmount(currentStakingPool?.totalStaked, currentStakingPool?.lptokenDecimal),
+      totalStaked: formatTokenAmount(
+        currentStakingPool?.totalStaked,
+        currentStakingPool?.lptokenDecimal
+      ),
     },
   };
 

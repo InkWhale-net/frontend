@@ -38,9 +38,11 @@ import { SelectSearch } from "components/SelectSearch";
 import { execContractTxAndCallAPI } from "utils/contracts";
 import { moveINWToBegin } from "utils";
 import { excludeNFT } from "utils";
+import { useAppContext } from "contexts/AppContext";
 
-export default function CreateNFTLPPage({ api }) {
+export default function CreateNFTLPPage() {
   const dispatch = useDispatch();
+  const { api } = useAppContext();
   const { currentAccount } = useSelector((s) => s.wallet);
 
   const [createTokenFee, setCreateTokenFee] = useState(0);
@@ -375,6 +377,10 @@ export default function CreateNFTLPPage({ api }) {
     [maxStake, duration, multiplier]
   );
 
+  useEffect(() => {
+    if(api) dispatch(fetchMyNFTPools({ currentAccount }));
+  }, [api, currentAccount]);
+
   const tableData = {
     tableHeader: [
       {
@@ -687,7 +693,7 @@ export default function CreateNFTLPPage({ api }) {
           {...tableData}
           mode="NFT_FARM"
           loading={loading}
-          customURLRowClick="/my-pools"
+          customURLRowClick="/my-farm"
         />
       </SectionContainer>
     </>

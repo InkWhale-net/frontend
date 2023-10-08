@@ -174,7 +174,11 @@ export default function MyPoolsPage() {
           alignItems="start"
           direction={{ base: "column" }}
         >
-          <IWTable {...tableData} mode="STAKING_POOL" />
+          <IWTable
+            {...tableData}
+            mode="STAKING_POOL"
+            customURLRowClick="/my-pool"
+          />
         </Stack>
       </SectionContainer>
 

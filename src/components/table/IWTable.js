@@ -124,7 +124,12 @@ export function IWTable({
                           return (
                             <Td key={idx}>
                               <FadeIn>
-                                {formatDataCellTableNew(itemObj, i?.name, mode)}
+                                {formatDataCellTableNew(
+                                  itemObj,
+                                  i?.name,
+                                  mode,
+                                  i?.showTooltipIconContent
+                                )}
                               </FadeIn>
                             </Td>
                           );

@@ -74,74 +74,34 @@ const FarmDetailPage = () => {
   const { api } = useAppContext();
   const dispatch = useDispatch();
   const location = useLocation();
+  const [tokenTotalSupply, setTokenTotalSupply] = useState(0);
 
   const farmMode = useMemo(() => {
-    if (location.pathname.includes("/farming/")) return 1;
-    if (location.pathname.includes("/farms/")) return 2;
+    if (location.pathname.includes("/farming/")) return "TOKEN_FARM";
+    if (location.pathname.includes("/farms/")) return "NFT_FARM";
     return 0;
   }, [currentAccount, location, api]);
 
   const [currentNFTPoolData, setCurrentNFTPoolData] = useState(null);
 
-  const currentNFTPool = useMemo(() => {
-    const nftPool = allNFTPoolsList?.find(
-      (p) => p?.poolContract === params?.contractAddress
-    );
-    return {
-      ...nftPool,
-      maxStakingAmount: parseFloat(
-        formatTokenAmount(nftPool?.maxStakingAmount, 0)
-      ),
-    };
-  }, [allNFTPoolsList, params?.contractAddress]);
+  const currentNFTPool = useMemo(
+    () =>
+      allNFTPoolsList?.find((p) => p?.poolContract === params?.contractAddress),
+    [allNFTPoolsList, params?.contractAddress]
+  );
 
-  const currentTokenPool = useMemo(() => {
-    const poolData = allTokenPoolsList?.find(
-      (p) => p?.poolContract === params?.contractAddress
-    );
-    return {
-      ...poolData,
-      maxStakingAmount: parseFloat(
-        formatTokenAmount(poolData?.maxStakingAmount, poolData?.lptokenDecimal)
+  const currentTokenPool = useMemo(
+    () =>
+      allTokenPoolsList?.find(
+        (p) => p?.poolContract === params?.contractAddress
       ),
-    };
-  }, [allTokenPoolsList, params?.contractAddress]);
-
-  const currMode = currentNFTPool?.NFTtokenContract
-    ? "NFT_FARM"
-    : currentTokenPool?.lptokenContract
-    ? "TOKEN_FARM"
-    : "NO_MODE";
+    [allTokenPoolsList, params?.contractAddress]
+  );
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const availableStakeAmount = useMemo(() => {
-    if (
-      currentTokenPool?.totalStaked >= 0 &&
-      currentTokenPool?.lptokenDecimal &&
-      currentTokenPool?.maxStakingAmount > 0
-    ) {
-      return (
-        currentTokenPool?.maxStakingAmount -
-        +formatTokenAmount(
-          currentTokenPool?.totalStaked?.toString(),
-          currentTokenPool?.lptokenDecimal
-        )
-      );
-    }
-  }, [currentTokenPool]);
-
-  const maxStaked = useMemo(() => {
-    return currMode === "NFT_FARM"
-      ? !(
-          parseFloat(currentNFTPool?.maxStakingAmount) -
-            currentNFTPool?.totalStaked >
-          0
-        )
-      : !(availableStakeAmount > 0);
-  }, [availableStakeAmount, currentNFTPool]);
   const updateTokenData = async () => {
     let queryResult = await execContractQuery(
       currentAccount?.address,
@@ -164,16 +124,16 @@ const FarmDetailPage = () => {
   };
 
   useEffect(() => {
-    if (currentNFTPool && currMode === "NFT_FARM") {
+    if (currentNFTPool && farmMode === "NFT_FARM") {
       updateTokenData();
     }
   }, [currentNFTPool]);
 
   useEffect(() => {
-    if (farmMode == 1) {
+    if (farmMode == "TOKEN_FARM") {
       dispatch(fetchAllTokenPools({ currentAccount }));
     }
-    if (farmMode == 2) {
+    if (farmMode == "NFT_FARM") {
       dispatch(fetchAllNFTPools({ currentAccount }));
     }
   }, [currentAccount, api, farmMode]);
@@ -181,7 +141,7 @@ const FarmDetailPage = () => {
   const cardData = {
     cardHeaderList: [
       {
-        name: currMode === "NFT_FARM" ? "nftInfo" : "lptokenName",
+        name: farmMode == "NFT_FARM" ? "nftInfo" : "lptokenName",
         hasTooltip: false,
         tooltipContent: "",
         label: "Stake",
@@ -195,13 +155,23 @@ const FarmDetailPage = () => {
       {
         name: "totalStaked",
         hasTooltip: true,
-        tooltipContent: maxStaked
-          ? "Max Staking Amount reached"
-          : "Total Value Locked: Total tokens staked into this pool",
+        tooltipContent:
+          farmMode == "NFT_FARM"
+            ? currentNFTPool?.isMaxStakingAmount
+              ? "Max Staking Amount reached"
+              : "Total Value Locked: Total NFT staked into this pool"
+            : currentTokenPool?.isMaxStakingAmount
+            ? "Max Staking Amount reached"
+            : "Total Value Locked: Total tokens staked into this pool",
         label: "TVL",
-        tooltipIcon: maxStaked && (
-          <AiOutlineExclamationCircle ml="6px" color="text.1" />
-        ),
+        tooltipIcon:
+          farmMode == "NFT_FARM"
+            ? currentNFTPool?.isMaxStakingAmount && (
+                <AiOutlineExclamationCircle ml="6px" color="text.1" />
+              )
+            : currentTokenPool?.isMaxStakingAmount && (
+                <AiOutlineExclamationCircle ml="6px" color="text.1" />
+              ),
       },
       {
         name: "rewardPool",
@@ -213,7 +183,7 @@ const FarmDetailPage = () => {
         name: "multiplier",
         hasTooltip: true,
         tooltipContent: `Multiplier determines how many reward tokens will the staker receive per 1 ${
-          currMode === "NFT_FARM" ? "NFT" : "token"
+          farmMode === "NFT_FARM" ? "NFT" : "token"
         } in 24 hours.`,
         label: "Multiplier",
       },
@@ -234,15 +204,8 @@ const FarmDetailPage = () => {
     cardValue: {
       ...currentNFTPoolData,
       ...currentTokenPool,
-      totalStaked:
-        currMode === "NFT_FARM"
-          ? currentNFTPool?.totalStaked
-          : formatTokenAmount(
-              currentTokenPool?.totalStaked,
-              currentTokenPool?.lptokenDecimal
-            ),
       rewardPool:
-        currMode === "NFT_FARM"
+        farmMode === "NFT_FARM"
           ? currentNFTPool?.rewardPool
           : currentTokenPool?.rewardPool,
     },
@@ -252,10 +215,9 @@ const FarmDetailPage = () => {
     {
       label: "My Stakes & Rewards",
       component:
-        currMode === "NFT_FARM" ? (
+        farmMode === "NFT_FARM" ? (
           <MyStakeRewardInfoNFT
-            maxStaked={maxStaked}
-            mode={currMode}
+            mode={farmMode}
             refetchData={refetchData}
             currentNFTPool={currentNFTPool}
             {...currentNFTPool}
@@ -263,10 +225,9 @@ const FarmDetailPage = () => {
           />
         ) : (
           <MyStakeRewardInfoToken
-            mode={currMode}
+            mode={farmMode}
             {...currentTokenPool}
             {...currentAccount}
-            availableStakeAmount={availableStakeAmount}
           />
         ),
       isDisabled: false,
@@ -275,16 +236,16 @@ const FarmDetailPage = () => {
       label: <>Pool Info</>,
       component: (
         <PoolInfo
-          mode={currMode}
+          mode={farmMode}
           {...currentNFTPoolData}
           {...currentTokenPool}
           rewardPool={
-            currMode === "NFT_FARM"
+            farmMode === "NFT_FARM"
               ? currentNFTPool?.rewardPool
               : currentTokenPool?.rewardPool
           }
           totalStaked={
-            currMode === "NFT_FARM"
+            farmMode === "NFT_FARM"
               ? currentNFTPool?.totalStaked
               : currentTokenPool?.totalStaked
           }
@@ -304,9 +265,9 @@ const FarmDetailPage = () => {
           >
             <BreadcrumbItem color="text.2">
               <BreadcrumbLink
-                href={currMode === "NFT_FARM" ? "#/farms" : "#/farming"}
+                href={farmMode === "NFT_FARM" ? "#/farms" : "#/farming"}
               >
-                {currMode === "NFT_FARM" ? "NFT Staking Pool" : "Token Farming"}
+                {farmMode === "NFT_FARM" ? "NFT Staking Pool" : "Token Farming"}
               </BreadcrumbLink>
             </BreadcrumbItem>
 
@@ -319,9 +280,9 @@ const FarmDetailPage = () => {
 
       <SectionContainer
         title={`${
-          currMode === "NFT_FARM"
+          farmMode === "NFT_FARM"
             ? "NFT Staking Pool"
-            : currMode === "TOKEN_FARM"
+            : farmMode === "TOKEN_FARM"
             ? "Token Farming"
             : null
         }`}
@@ -389,7 +350,7 @@ const FarmDetailPage = () => {
                           {formatDataCellTable(
                             cardData?.cardValue,
                             name,
-                            currMode
+                            farmMode
                           )}
                         </Text>{" "}
                       </Flex>
@@ -406,7 +367,7 @@ const FarmDetailPage = () => {
         <IWTabs tabsData={tabsData} />
       </SectionContainer>
       <NFTGroup
-        mode={currMode}
+        mode={farmMode}
         refetchData={refetchData}
         setRefetchData={setRefetchData}
         {...currentNFTPool}
@@ -434,7 +395,7 @@ const MyStakeRewardInfoNFT = ({
   refetchData,
   totalStaked,
   maxStakingAmount,
-  maxStaked,
+  currentNFTPool,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -590,7 +551,7 @@ const MyStakeRewardInfoNFT = ({
       label: "Available NFTs",
       component: (
         <AvailableNFTs
-          disableBtn={maxStaked}
+          disableBtn={currentNFTPool?.isMaxStakingAmount}
           action="Stake NFT"
           unstakeFee={unstakeFee}
           data={availableNFT}
@@ -702,7 +663,7 @@ const MyStakeRewardInfoNFT = ({
     }
 
     //Approve
-    toast.success("Step 1: Approving...");
+    toast("Step 1: Approving...");
 
     let approve = await execContractTx(
       currentAccount,
@@ -719,7 +680,7 @@ const MyStakeRewardInfoNFT = ({
 
     await delay(3000);
 
-    toast.success("Step 2: Process...");
+    toast("Step 2: Process...");
 
     await execContractTx(
       currentAccount,
@@ -760,7 +721,7 @@ const MyStakeRewardInfoNFT = ({
     }
 
     //Approve
-    toast.success("Step 1: Approving...");
+    toast("Step 1: Approving...");
 
     let approve = await execContractTx(
       currentAccount,
@@ -777,7 +738,7 @@ const MyStakeRewardInfoNFT = ({
 
     await delay(3000);
 
-    toast.success("Step 2: Process...");
+    toast("Step 2: Process...");
 
     await execContractTx(
       currentAccount,
@@ -931,13 +892,13 @@ const MyStakeRewardInfoToken = ({
   nftInfo,
   tokenDecimal,
   lptokenDecimal,
+  lptokenSymbol,
   multiplier,
   lptokenContract,
   duration,
   startTime,
   totalStaked,
   maxStakingAmount,
-  availableStakeAmount,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -951,7 +912,7 @@ const MyStakeRewardInfoToken = ({
   const [LPTokenAmount, setLPTokenAmount] = useState();
 
   const [LPtokenBalance, setLPTokenBalance] = useState();
-
+  const availableStakeAmount = +maxStakingAmount - +totalStaked;
   const fetchUserStakeInfo = useCallback(async () => {
     let queryResult = await execContractQuery(
       currentAccount?.address,
@@ -964,14 +925,13 @@ const MyStakeRewardInfoToken = ({
     );
 
     let info = queryResult?.toHuman().Ok;
-
     if (info) {
       info = {
         ...info,
+        stakedValue: formatChainStringToNumber(info.stakedValue),
         lastRewardUpdate: Number(
           formatChainStringToNumber(info.lastRewardUpdate)
         ),
-        stakedValue: formatChainStringToNumber(info.stakedValue),
         unclaimedReward: formatChainStringToNumber(info.unclaimedReward),
       };
     }
@@ -1002,7 +962,7 @@ const MyStakeRewardInfoToken = ({
     );
 
     const balanceLP = formatQueryResultToNumber(resultLP, lptokenDecimal);
-    setLPTokenBalance(balanceLP);
+    setLPTokenBalance(formatChainStringToNumber(balanceLP));
   }, [currentAccount?.address, lptokenContract, tokenContract]);
 
   useEffect(() => {
@@ -1089,11 +1049,47 @@ const MyStakeRewardInfoToken = ({
       return;
     }
     if (!(availableStakeAmount - +LPTokenAmount >= 0)) {
-      toast.error("Max staking amount reached");
+      toast.error(`Max staking amount is ${availableStakeAmount}`);
       return;
     }
     return true;
   };
+  async function onValidateUnstake() {
+    try {
+      let queryResult = await execContractQuery(
+        currentAccount?.address,
+        api,
+        lp_pool_contract.CONTRACT_ABI,
+        poolContract,
+        0,
+        "genericPoolContractTrait::getStakeInfo",
+        currentAccount?.address
+      );
+
+      let info = queryResult?.toHuman().Ok;
+
+      const userCurrentStake = info?.stakedValue
+        ? formatTokenAmount(info?.stakedValue, +lptokenDecimal)
+        : 0;
+      console.log(userCurrentStake);
+      if (+userCurrentStake === 0) {
+        toast.error(`You musk stake first`);
+        return false;
+      }
+      if (+LPTokenAmount > +userCurrentStake) {
+        toast.error(
+          `You can not unstake higher ${formatNumDynDecimal(
+            userCurrentStake
+          )} ${tokenSymbol}`
+        );
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error(error);
+      toast.error(`Unknow error`);
+    }
+  }
   async function stakeTokenLPHandler() {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
@@ -1101,7 +1097,7 @@ const MyStakeRewardInfoToken = ({
     }
 
     //Approve
-    toast.success("Step 1: Approving...");
+    toast("Step 1: Approving...");
 
     let approve = await execContractTx(
       currentAccount,
@@ -1117,11 +1113,8 @@ const MyStakeRewardInfoToken = ({
 
     await delay(3000);
 
-    toast.success("Step 2: Process...");
-    console.log(
-      formatNumToBN(LPTokenAmount, lptokenDecimal),
-      "formatNumToBN(LPTokenAmount, lptokenDecimal)"
-    );
+    toast("Step 2: Process...");
+
     await execContractTx(
       currentAccount,
       "api",
@@ -1181,7 +1174,7 @@ const MyStakeRewardInfoToken = ({
     }
 
     //Approve
-    toast.success("Step 1: Approving...");
+    toast("Step 1: Approving...");
 
     let approve = await execContractTx(
       currentAccount,
@@ -1198,7 +1191,7 @@ const MyStakeRewardInfoToken = ({
 
     await delay(3000);
 
-    toast.success("Step 2: Process...");
+    toast("Step 2: Process...");
 
     await execContractTx(
       currentAccount,
@@ -1283,8 +1276,10 @@ const MyStakeRewardInfoToken = ({
               content: `${tokenBalance || 0} ${tokenSymbol}`,
             },
             {
-              title: `${rest?.lptokenSymbol} Balance`,
-              content: `${LPtokenBalance || 0} ${rest?.lptokenSymbol}`,
+              title: `${lptokenSymbol} Balance`,
+              content: `${
+                formatNumDynDecimal(LPtokenBalance) || 0
+              } ${lptokenSymbol}`,
             },
           ]}
         />
@@ -1372,21 +1367,33 @@ const MyStakeRewardInfoToken = ({
                   buttonLabel="Stake"
                   onValidate={validateStakeTokenLP}
                   onClick={stakeTokenLPHandler}
-                  message={`Stake ${LPTokenAmount || 0} ${
-                    rest?.lptokenSymbol
-                  }. Continue?`}
+                  message={formatMessageStakingPool(
+                    "stake",
+                    LPTokenAmount,
+                    lptokenSymbol,
+                    unstakeFee
+                  )}
                 />
-
                 <ConfirmModal
                   disableBtn={
-                    !(stakeInfo?.stakedValue > 0) ||
-                    !(LPTokenAmount?.length > 0)
+                    !(
+                      +formatTokenAmount(
+                        stakeInfo?.stakedValue,
+                        lptokenDecimal
+                      ) > 0
+                    ) || !(LPTokenAmount?.length > 0)
                   }
                   action="unstake"
                   buttonVariant="primary"
                   buttonLabel="Unstake"
+                  onValidate={onValidateUnstake}
                   onClick={unstakeTokenLPHandler}
-                  message={`Unstake costs ${unstakeFee} INW. Continue?`}
+                  message={formatMessageStakingPool(
+                    "unstake",
+                    LPTokenAmount,
+                    tokenSymbol,
+                    unstakeFee
+                  )}
                 />
               </HStack>
             </Flex>
@@ -1458,5 +1465,26 @@ const StakedNFTs = (props) => {
       )}
     </Stack>
   );
+};
+
+const formatMessageStakingPool = (action, amount, tokenSymbol, unstakeFee) => {
+  if (action === "stake") {
+    return (
+      <>
+        You are staking {amount} {tokenSymbol}.<br />
+        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)} INW.
+        Continue?
+      </>
+    );
+  }
+
+  if (action === "unstake") {
+    return (
+      <>
+        You are unstaking {amount} ${tokenSymbol}.<br />
+        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)} INW. Continue?
+      </>
+    );
+  }
 };
 export default FarmDetailPage;
