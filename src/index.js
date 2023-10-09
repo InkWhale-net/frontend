@@ -113,46 +113,21 @@ const App = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    delay(100);
+    if (api) {
+      delay(100);
 
-    // if (!allNFTPoolsList) {
-    //   dispatch(fetchAllNFTPools({ currentAccount }));
-    // }
+      if (!allTokensList) {
+        dispatch(fetchAllTokensList({}));
+      }
 
-    if (!allTokensList) {
-      dispatch(fetchAllTokensList({}));
+      dispatch(fetchTotalValueLocked());
+
+      if (!currentAccount?.address) return;
+
+      if (!currentAccount?.balance) {
+        dispatch(fetchUserBalance({ currentAccount, api }));
+      }
     }
-
-    // if (!allStakingPoolsList) {
-    //   dispatch(fetchAllStakingPools({ currentAccount }));
-    // }
-
-    // if (!allTokenPoolsList) {
-    //   dispatch(fetchAllTokenPools({ currentAccount }));
-    // }
-
-    dispatch(fetchTotalValueLocked());
-
-    if (!currentAccount?.address) return;
-
-    // if (!myNFTPoolsList) {
-    // dispatch(fetchMyNFTPools({ currentAccount }));
-    // }
-
-    // if (!myStakingPoolsList) {
-    //   dispatch(fetchMyStakingPools({ currentAccount }));
-    // }
-
-    // if (!myTokenPoolsList) {
-    //   dispatch(fetchMyTokenPools({ currentAccount }));
-    // }
-
-    if (!currentAccount?.balance) {
-      dispatch(fetchUserBalance({ currentAccount, api }));
-    }
-    // if (!launchpads) {
-    //   dispatch(fetchLaunchpads({}));
-    // }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, currentAccount?.address]);
