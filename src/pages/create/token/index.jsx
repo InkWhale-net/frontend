@@ -244,7 +244,7 @@ export default function CreateTokenPage() {
         name: "creator",
         hasTooltip: false,
         tooltipContent: "",
-        label: "Creator",
+        label: "Owner",
       },
       {
         name: "name",

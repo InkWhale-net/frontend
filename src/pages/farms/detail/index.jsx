@@ -472,17 +472,15 @@ const MyStakeRewardInfoNFT = ({
       );
     }
   }, [currentAccount?.address, nftInfo?.nftContractAddress]);
-
   const fetchStakedNFT = useCallback(async () => {
     let isUnmounted = false;
 
     if (stakeInfo?.stakedValue === 0) {
       setStakedNFT([]);
     }
-
     if (stakeInfo?.stakedValue > 0) {
       const listData = await Promise.all(
-        [...Array(stakeInfo?.stakedValue)].map(async (_, idx) => {
+        [...Array(+stakeInfo?.stakedValue)].map(async (_, idx) => {
           if (!currentAccount?.balance) return;
 
           let queryResult = await execContractQuery(
@@ -510,7 +508,6 @@ const MyStakeRewardInfoNFT = ({
         })
       );
       if (isUnmounted) return;
-
       setStakedNFT(listData);
     }
     return () => (isUnmounted = true);

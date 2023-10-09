@@ -74,10 +74,17 @@ export default function AddressCopier({
         _hover={{ color: "text.2" }}
         sx={{ fontWeight: fontWeight || "bold" }}
       >
-        {azeroID || (truncated ? addressShortener(address) : address)}
-        <Box ml="4px" mb="8px" w="20px" h="21px" color="#8C86A5">
-          <CopyIcon w="20px" h="21px" />
-        </Box>
+        {azeroID ||
+          (truncated
+            ? address?.length > 0
+              ? addressShortener(address)
+              : "Unknow"
+            : address)}
+        {address?.length > 0 && (
+          <Box ml="4px" mb="8px" w="20px" h="21px" color="#8C86A5">
+            <CopyIcon w="20px" h="21px" />
+          </Box>
+        )}
       </Flex>
     </>
   );
