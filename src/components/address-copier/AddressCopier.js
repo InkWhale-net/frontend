@@ -78,7 +78,7 @@ export default function AddressCopier({
           (truncated
             ? address?.length > 0
               ? addressShortener(address)
-              : "Unknow"
+              : "Unknown"
             : address)}
         {address?.length > 0 && (
           <Box ml="4px" mb="8px" w="20px" h="21px" color="#8C86A5">

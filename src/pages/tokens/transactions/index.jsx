@@ -178,11 +178,9 @@ export default function TokensPage() {
                   },
                   tokenContract: txObj?.data?.tokenContract,
                   tokenSymbol: findTokenInCache[0].tokenSymbol,
-                  amount: formatNumDynDecimal(
-                    formatTokenAmount(
-                      txObj?.data?.amount?.replaceAll(",", ""),
-                      parseInt(findTokenInCache[0].decimal)
-                    )
+                  amount: formatTokenAmount(
+                    txObj?.data?.amount,
+                    +findTokenInCache[0].decimal
                   ),
                   blockNumber: timeEvent,
                   time: txObj?.createdTime,
@@ -245,11 +243,9 @@ export default function TokensPage() {
                   },
                   tokenContract: txObj?.data?.tokenContract,
                   tokenSymbol,
-                  amount: formatNumDynDecimal(
-                    formatTokenAmount(
-                      txObj?.data?.amount?.replaceAll(",", ""),
-                      parseInt(decimal)
-                    )
+                  amount: formatTokenAmount(
+                    txObj?.data?.amount,
+                    +decimal
                   ),
                   blockNumber: timeEvent,
                   time: txObj?.createdTime,
