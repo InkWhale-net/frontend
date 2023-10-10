@@ -59,11 +59,8 @@ export const AppContextProvider = ({ children }) => {
   };
   const walletConnectHandler = async () => {
     try {
-      await walletAdapter?.disconnect();
-      await delay(100);
       await walletAdapter?.connect();
       const accounts = await walletAdapter?.accounts.get();
-      dispatch(updateAccountsList(accounts));
       return accounts;
     } catch (error) {
       walletDisconnectHandler();
