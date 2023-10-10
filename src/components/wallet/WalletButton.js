@@ -69,6 +69,7 @@ const WalletNotConnect = ({ onClose }) => {
     if (onClose) onClose();
     const accounts = await walletConnectHandler();
     if (accounts?.length > 0) {
+      dispatch(updateAccountsList(accounts));
       dispatch(setCurrentAccount(accounts[0]));
       localStorage.setItem("localCurrentAccount", JSON.stringify(accounts[0]));
     }
