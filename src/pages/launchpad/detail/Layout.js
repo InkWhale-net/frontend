@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import BalanceCard from "./BalanceCard";
 import OwnerZoneCard from "./OwnerZoneCard";
 import SaleCard from "./SaleCard";
-import WhitelistSaleCard from "./WhitelistSaleCard";
+import WhitelistSaleCard, { KycLayout } from "./WhitelistSaleCard";
 
 const TabLayout = ({ children, ...rest }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -34,6 +34,7 @@ const TabLayout = ({ children, ...rest }) => {
         w={{ base: "full", lg: "30%" }}
       >
         <SaleCard {...rest} />
+        <KycLayout {...rest} />
         <WhitelistSaleCard {...rest} />
         <BalanceCard {...rest} />
         {/* <StatusCard {...rest} /> */}
