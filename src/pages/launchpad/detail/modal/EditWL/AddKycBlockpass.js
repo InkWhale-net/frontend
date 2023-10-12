@@ -24,6 +24,14 @@ import {
 } from "@chakra-ui/react";
 import { addressShortener } from "utils";
 import { APICall } from "api/client";
+import toast from "react-hot-toast";
+import { execContractTx } from "utils/contracts";
+import { useDispatch, useSelector } from "react-redux";
+import { useAppContext } from "contexts/AppContext";
+import launchpad from "utils/contracts/launchpad";
+import { parseUnits } from "ethers";
+import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import { delay } from "utils";
 
 const useSkipper = () => {
   const shouldSkipRef = React.useRef(true);
@@ -41,8 +49,15 @@ const useSkipper = () => {
   return [shouldSkip, skip];
 };
 
-export default function AddKycBlockpass({ launchpadData, selectedPhase }) {
+export default function AddKycBlockpass({
+  launchpadData,
+  selectedPhase,
+  availableTokenAmount,
+}) {
+  const { currentAccount } = useSelector((state) => state.wallet);
+  const { api } = useAppContext();
   const [kycAddress, setKycAddress] = useState([]);
+  const dispatch = useDispatch();
 
   const fetchPhaseData = useCallback(async () => {
     const { ret, status } = await APICall.getKycAddress({
@@ -206,7 +221,6 @@ export default function AddKycBlockpass({ launchpadData, selectedPhase }) {
         },
         cell: ({ row }) => (
           <Flex className="" mx={4} justify="center">
-            {console.log("row.original", row.original)}
             <IndeterminateCheckbox
               {...{
                 checked: row.getIsSelected(),
@@ -261,6 +275,81 @@ export default function AddKycBlockpass({ launchpadData, selectedPhase }) {
     },
   });
 
+  const selectedRecords = table
+    .getSelectedRowModel()
+    .flatRows.map((i) => i.original);
+
+  const addBulkWLHandler = async () => {
+    try {
+      // const isWlValid = await verifyWhitelist(wlString);
+      // if (!isWlValid) {
+      //   toast.error("Invalid whitelist string");
+      //   return;
+      // }
+      // const wlData = processStringToArray(wlString);
+      // const currentWl = launchpadData?.phaseList[selectedPhase]?.whitelist;
+      // if (
+      //   wlData?.filter((e) => {
+      //     return !currentWl.some((obj) => obj.account === e?.address);
+      //   })?.length != wlData?.length
+      // ) {
+      //   toast.error("Whitelist address existed");
+      //   return;
+      // }
+      const totalAmountWL = selectedRecords.reduce((acc, object) => {
+        return acc + +object?.amount;
+      }, 0);
+
+      if (!(totalAmountWL <= availableTokenAmount)) {
+        toast.error("Not enough available token");
+        return;
+      }
+
+      const addressList = selectedRecords.map((e) => e?.refId);
+      const amountList = selectedRecords.map((e) =>
+        parseUnits(
+          e?.amount,
+          parseInt(launchpadData?.projectInfo?.token.decimals)
+        )
+      );
+      const priceList = selectedRecords.map((e) => parseUnits(e?.price, 12));
+
+      const result = await execContractTx(
+        currentAccount,
+        api,
+        launchpad.CONTRACT_ABI,
+        launchpadData?.launchpadContract,
+        0, //-> value
+        "launchpadContractTrait::addMultiWhitelists",
+        selectedPhase,
+        addressList,
+        amountList,
+        priceList
+      );
+
+      await APICall.askBEupdate({
+        type: "launchpad",
+        poolContract: launchpadData?.launchpadContract,
+      });
+
+      if (result) {
+        // setSelectedMode(0);
+        toast.promise(
+          delay(6000).then(() => {
+            dispatch(fetchLaunchpads({ isActive: 0 }));
+          }),
+          {
+            loading: "Please wait up to 6s for the data to be updated! ",
+            success: "Whitelist updated",
+            error: "Could not fetch data!!!",
+          }
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
   return (
     <Box sx={{ p: "2px", w: "full" }}>
       <TableContainer
@@ -340,7 +429,6 @@ export default function AddKycBlockpass({ launchpadData, selectedPhase }) {
           </Tbody>
         </Table>
       </TableContainer>
-
       <Flex justify="space-between" alignItems="center" my="10px">
         <Flex alignItem my="10px" h="30px">
           <Button
@@ -429,13 +517,20 @@ export default function AddKycBlockpass({ launchpadData, selectedPhase }) {
           {table.getPreFilteredRowModel().rows.length} Total Rows Selected
         </Flex>
       </Flex>
-      {/* {console.log("table", table)}
-      {console.log(
-        "table.getSelectedRowModel().flatRows",
-        table.getSelectedRowModel().flatRows[0]?.original
-      )}
-      {console.log("table data", table?.options?.data)}{" "} */}
-      {/* <div>{table.getRowModel().rows.length} Rows</div> */}
+
+      <Flex>
+        <Button
+          isDisabled={!(selectedRecords?.length > 0)}
+          mt="16px"
+          mx="auto"
+          w="full"
+          maxW="30%"
+          size="md"
+          onClick={() => addBulkWLHandler()}
+        >
+          Add Whitelist
+        </Button>
+      </Flex>
     </Box>
   );
 }

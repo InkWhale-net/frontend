@@ -365,25 +365,23 @@ export const KycLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
   // const urlencodedOptions = encodeURIComponent(window?.location?.href);
   // const appLink = `blockpass://service-register/Client_ID?refId=${currentAccount?.address}&redirect=${urlencodedOptions}`;
 
-  return (
-    <Box
-      sx={{
-        marginTop: "12px",
-        border: "2.8px solid #E3DFF3",
-        borderRadius: "8px",
-        padding: "16px",
-        paddingBottom: "12px",
-        color: "#57527E",
-      }}
-    >
-      {!isUserInWL && launchpadData?.requireKyc ? (
-        <>
-          <Link href={kycUrl} isExternal>
-            Click here to KYC with Blockpass
-            <ExternalLinkIcon mx="2px" />
-          </Link>
-        </>
-      ) : null}
-    </Box>
-  );
+  return !isUserInWL && launchpadData?.requireKyc ? (
+    <>
+      <Box
+        sx={{
+          marginTop: "12px",
+          border: "2.8px solid #E3DFF3",
+          borderRadius: "8px",
+          padding: "16px",
+          paddingBottom: "12px",
+          color: "#57527E",
+        }}
+      >
+        <Link href={kycUrl} isExternal>
+          Click here to KYC with Blockpass
+          <ExternalLinkIcon mx="2px" />
+        </Link>
+      </Box>
+    </>
+  ) : null;
 };

@@ -97,31 +97,33 @@ const AddBulk = ({
         <AddKycBlockpass
           launchpadData={launchpadData}
           selectedPhase={selectedPhase}
+          availableTokenAmount={availableTokenAmount}
         />
       ) : (
-        <IWTextArea
-          sx={{
-            height: "132px",
-          }}
-          value={wlString}
-          onChange={({ target }) => setWlString(target.value)}
-          placeholder={`Enter one address, whitelist amount and price on each line. A decimal separator of amount must use dot (.)\nSample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL, 20, 2`}
-        />
+        <>
+          <IWTextArea
+            sx={{
+              height: "132px",
+            }}
+            value={wlString}
+            onChange={({ target }) => setWlString(target.value)}
+            placeholder={`Enter one address, whitelist amount and price on each line. A decimal separator of amount must use dot (.)\nSample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL, 20, 2`}
+          />
+          <Flex>
+            <Button
+              isDisabled={!(wlString?.length > 0)}
+              mt="16px"
+              mx="auto"
+              w="full"
+              maxW="30%"
+              size="md"
+              onClick={() => addBulkWLHandler()}
+            >
+              Add Whitelist
+            </Button>
+          </Flex>
+        </>
       )}
-
-      <Flex>
-        <Button
-          isDisabled={!(wlString?.length > 0)}
-          mt="16px"
-          mx="auto"
-          w="full"
-          maxW="30%"
-          size="md"
-          onClick={() => addBulkWLHandler()}
-        >
-          Add Whitelist
-        </Button>
-      </Flex>
     </Box>
   );
 };
