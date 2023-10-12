@@ -153,28 +153,6 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
     });
   }, "wl_purchase");
 
-  // useEffect(() => {
-  //   const loadBlockpassWidget = () => {
-  //     const blockpass = new window.BlockpassKYCConnect(
-  //       launchpadData?.launchpadContract,
-  //       {
-  //         refId: currentAccount?.address,
-  //       }
-  //     );
-
-  //     blockpass.startKYCConnect();
-  //   };
-
-  //   currentAccount?.address &&
-  //     launchpadData?.launchpadContract &&
-  //     loadBlockpassWidget();
-  // }, [currentAccount?.address, launchpadData?.launchpadContract]);
-
-  const kycUrl = `https://verify-with.blockpass.org/?env=prod&auto=1&clientId=${launchpadData?.launchpadContract}&refId=${currentAccount?.address}`;
-
-  // const urlencodedOptions = encodeURIComponent(window?.location?.href);
-  // const appLink = `blockpass://service-register/Client_ID?refId=${currentAccount?.address}&redirect=${urlencodedOptions}`;
-
   return (
     <Box
       sx={{
@@ -189,25 +167,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
       }}
     >
       <Text fontWeight="600" size="md">
-        {isUserInWL ? (
-          "You are in whitelist"
-        ) : (
-          <>
-            You are not in whitelist.
-            <br />
-            {launchpadData?.requireKyc ? (
-              <>
-                {/* <button id="blockpass-kyc-connect">
-                  Click here to KYC with Blockpass
-                </button> */}
-                <Link href={kycUrl} isExternal>
-                  Click here to KYC with Blockpass
-                  <ExternalLinkIcon mx="2px" />
-                </Link>
-              </>
-            ) : null}
-          </>
-        )}
+        {isUserInWL ? "You are in whitelist" : <>You are not in whitelist.</>}
       </Text>
       {isUserInWL && (
         <>
@@ -387,3 +347,41 @@ const WhitelistSaleCard = ({ launchpadData }) => {
 };
 
 export default WhitelistSaleCard;
+
+export const KycLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
+  const { currentAccount } = useSelector((s) => s.wallet);
+
+  const isUserInWL = useMemo(() => {
+    return (
+      livePhase?.whitelist?.find(
+        (e) => e?.account === currentAccount?.address
+      ) ||
+      upComing?.whitelist?.find((e) => e?.account === currentAccount?.address)
+    );
+  }, [livePhase, upComing, currentAccount]);
+
+  const kycUrl = `https://verify-with.blockpass.org/?env=prod&auto=1&clientId=${launchpadData?.launchpadContract}&refId=${currentAccount?.address}`;
+
+  // const urlencodedOptions = encodeURIComponent(window?.location?.href);
+  // const appLink = `blockpass://service-register/Client_ID?refId=${currentAccount?.address}&redirect=${urlencodedOptions}`;
+
+  return !isUserInWL && launchpadData?.requireKyc ? (
+    <>
+      <Box
+        sx={{
+          marginTop: "12px",
+          border: "2.8px solid #E3DFF3",
+          borderRadius: "8px",
+          padding: "16px",
+          paddingBottom: "12px",
+          color: "#57527E",
+        }}
+      >
+        <Link href={kycUrl} isExternal>
+          Click here to KYC with Blockpass
+          <ExternalLinkIcon mx="2px" />
+        </Link>
+      </Box>
+    </>
+  ) : null;
+};

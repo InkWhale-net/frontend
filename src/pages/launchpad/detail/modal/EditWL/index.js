@@ -42,13 +42,15 @@ import launchpad from "utils/contracts/launchpad";
 import AddBulk from "./AddBulk";
 import AddSingleWL from "./AddSingle";
 
-const WLEditMode = [
-  "Single add Whitelist",
-  "Bulk add Whitelist",
-  "Clear Whitelist",
-];
-
 const EditWL = ({ visible, setVisible, launchpadData }) => {
+  const WLEditMode = [
+    `${launchpadData?.requireKyc ? "Edit Whitelist" : "Single add Whitelist"}`,
+    `${
+      launchpadData?.requireKyc ? "Import KYC Blockpass" : "Bulk add Whitelist"
+    }`,
+    "Clear Whitelist",
+  ];
+
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
   const { api } = useAppContext();
   const [selectedPhase, setSelectedPhase] = useState(0);
@@ -157,10 +159,21 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Update Whitelist</ModalHeader>
+        <ModalHeader>
+          {launchpadData?.requireKyc
+            ? "Update Blockpass KYC Whitelist"
+            : "Update Whitelist"}
+        </ModalHeader>
         <ModalCloseButton onClick={() => setVisible(false)} />
         <ModalBody sx={{ pb: "28px" }}>
-          <Box sx={{ display: "flex" }}>
+          <Box
+            sx={{
+              display:
+                launchpadData?.requireKyc && selectedMode == 1
+                  ? "block"
+                  : "flex",
+            }}
+          >
             <Box sx={{ width: "320px", minW: "320px" }}>
               <Text>
                 Available token amount:{" "}
@@ -183,7 +196,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                   <Text sx={{ ml: "8px" }}>You can not edit this phase!</Text>
                 </Box>
               )}
-              <Stack spacing={1}>
+              <Stack spacing={1} display={"flex"}>
                 <Text sx={{ fontWeight: "700", color: "#57527E" }}>
                   Choose Phase
                 </Text>
