@@ -13,7 +13,7 @@ import {
   ModalHeader,
   ModalOverlay,
   Select,
-  Stack,
+  Flex,
   Table,
   TableContainer,
   Tbody,
@@ -159,22 +159,29 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>
+        <ModalHeader fontSize={["2xl", "3xl"]}>
           {launchpadData?.requireKyc
             ? "Update Blockpass KYC Whitelist"
             : "Update Whitelist"}
         </ModalHeader>
         <ModalCloseButton onClick={() => setVisible(false)} />
-        <ModalBody sx={{ pb: "28px" }}>
+        <ModalBody pt="0" sx={{ pb: "28px" }}>
           <Box
-            sx={{
-              display:
-                launchpadData?.requireKyc && selectedMode == 1
-                  ? "block"
-                  : "flex",
-            }}
+            display={[
+              "block",
+              launchpadData?.requireKyc && selectedMode == 1 ? "block" : "flex",
+            ]}
           >
-            <Box sx={{ width: "320px", minW: "320px" }}>
+            <Box
+              sx={{
+                maxWidth:
+                  launchpadData?.requireKyc && selectedMode == 1
+                    ? "100%"
+                    : "320px",
+                minW: "320px",
+              }}
+              mr={["0px", "20px"]}
+            >
               <Text>
                 Available token amount:{" "}
                 {`${formatNumDynDecimal(availableTokenAmount)}
@@ -196,26 +203,63 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                   <Text sx={{ ml: "8px" }}>You can not edit this phase!</Text>
                 </Box>
               )}
-              <Stack spacing={1} display={"flex"}>
-                <Text sx={{ fontWeight: "700", color: "#57527E" }}>
-                  Choose Phase
-                </Text>
-                <Select
-                  variant="filled"
-                  size="md"
-                  onChange={({ target }) => {
-                    setSelectedPhase(target.value);
-                  }}
-                  value={selectedPhase}
+              <Flex
+                display="flex"
+                flexDir={[
+                  "column",
+                  launchpadData?.requireKyc && selectedMode == 1
+                    ? "row"
+                    : "column",
+                ]}
+                alignItems="center"
+                w={[
+                  "full",
+                  launchpadData?.requireKyc && selectedMode == 1
+                    ? "50%"
+                    : "full",
+                ]}
+              >
+                <Box
+                  w={[
+                    "full",
+                    launchpadData?.requireKyc && selectedMode == 1
+                      ? "50%"
+                      : "full",
+                  ]}
+                  mr={[
+                    "0px",
+                    launchpadData?.requireKyc && selectedMode == 1
+                      ? "20px"
+                      : "0px",
+                  ]}
                 >
-                  {launchpadData?.phaseList.map((item, index) => (
-                    <option key={index} value={index}>
-                      {item.name}
-                    </option>
-                  ))}
-                </Select>
+                  <Text sx={{ fontWeight: "700", color: "#57527E" }}>
+                    Choose Phase
+                  </Text>
+                  <Select
+                    variant="filled"
+                    size="md"
+                    onChange={({ target }) => {
+                      setSelectedPhase(target.value);
+                    }}
+                    value={selectedPhase}
+                  >
+                    {launchpadData?.phaseList.map((item, index) => (
+                      <option key={index} value={index}>
+                        {item.name}
+                      </option>
+                    ))}
+                  </Select>
+                </Box>
                 {isPhaseEditable && (
-                  <>
+                  <Box
+                    w={[
+                      "full",
+                      launchpadData?.requireKyc && selectedMode == 1
+                        ? "50%"
+                        : "full",
+                    ]}
+                  >
                     <Text sx={{ fontWeight: "700", color: "#57527E" }}>
                       Choose Mode
                     </Text>
@@ -233,9 +277,9 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                         </option>
                       ))}
                     </Select>
-                  </>
+                  </Box>
                 )}
-              </Stack>
+              </Flex>
               {isPhaseEditable &&
                 (selectedMode == 0 ? (
                   <AddSingleWL
@@ -256,7 +300,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                 setSelectedMode={setSelectedMode}
               />
             ) : (
-              <Box sx={{ flex: 1, px: "20px" }}>
+              <Box sx={{ flex: 1, pt: "16px" }}>
                 <IWInput
                   size="md"
                   value={queries?.keyword}

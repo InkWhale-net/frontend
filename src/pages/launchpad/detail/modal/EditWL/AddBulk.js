@@ -92,7 +92,7 @@ const AddBulk = ({
   };
 
   return (
-    <Box sx={{ pt: "2px", px: "20px", w: "full" }}>
+    <Box sx={{ pt: "2px", px: "0px", w: "full" }}>
       {launchpadData?.requireKyc ? (
         <AddKycBlockpass
           launchpadData={launchpadData}
@@ -115,7 +115,7 @@ const AddBulk = ({
               mt="16px"
               mx="auto"
               w="full"
-              maxW="30%"
+              maxW={["100%", "150px"]}
               size="md"
               onClick={() => addBulkWLHandler()}
             >

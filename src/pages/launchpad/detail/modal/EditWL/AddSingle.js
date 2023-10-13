@@ -268,7 +268,7 @@ const AddSingleWL = ({
                   size="md"
                   onClick={() => addSingleWLHandler()}
                 >
-                  Add Whitelist x
+                  Add Whitelist
                 </Button>
               )}
             </>

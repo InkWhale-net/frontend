@@ -349,43 +349,91 @@ export default function AddKycBlockpass({
       console.log(error);
     }
   };
-  
+
   return (
-    <Box sx={{ p: "2px", w: "full" }}>
+    <Box sx={{ py: "20px", w: "full" }}>
+      <Flex justifyContent="space-between" fontSize={["14px", "16px"]}>
+        <Flex alignItems="center" h="30px">
+          <Text>
+            Page: {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </Text>
+        </Flex>
+        <Select
+          border="none"
+          fontSize={["14px", "16px"]}
+          h="20px"
+          maxW={["160px", "175px"]}
+          value={table.getState().pagination.pageSize}
+          onChange={(e) => {
+            table.setPageSize(Number(e.target.value));
+          }}
+        >
+          {[10, 20, 30, 40, 50].map((pageSize) => (
+            <option key={pageSize} value={pageSize}>
+              Show {pageSize} per page
+            </option>
+          ))}
+        </Select>
+      </Flex>
       <TableContainer
         width="full"
         sx={{
-          my: "18px",
+          my: "12px",
           border: "1px solid #E3DFF3",
           borderRadius: 8,
         }}
       >
-        <Table variant="simple" fontSize="15px">
-          <Thead>
+        <Table
+          variant="simple"
+          fontSize="15px"
+          display="block"
+          maxH="450px"
+          overflowY="auto"
+          sx={{
+            "&::-webkit-scrollbar": {
+              width: "4px",
+              height: "4px",
+              borderRadius: "0px",
+              backgroundColor: `transparent`,
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: `#93F0F5`,
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              backgroundColor: `#93F0F5`,
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: `transparent`,
+            },
+          }}
+        >
+          <Thead bg="#F6F6FC" position="sticky" top={0}>
             {table.getHeaderGroups().map((headerGroup) => (
               <Tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <Th
-                      // style={{
-                      //   border: "1px solid black",
-                      //   fontSize: "15px",
-                      // }}
-                      key={header.id}
-                      colSpan={header.colSpan}
-                    >
+                    <Th key={header.id} colSpan={header.colSpan}>
                       {header.isPlaceholder ? null : (
                         <Flex
                           flexDirection="column"
                           alignItems="center"
                           px="4px"
                         >
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          <Text
+                            color="#8C86A5"
+                            fontSize="16px"
+                            fontWeight="400"
+                          >
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                          </Text>
                           {header.column.getCanFilter() ? (
-                            <Filter column={header.column} table={table} />
+                            <Flex mt="8px">
+                              <Filter column={header.column} table={table} />
+                            </Flex>
                           ) : null}
                         </Flex>
                       )}
@@ -398,44 +446,52 @@ export default function AddKycBlockpass({
           <Tbody>
             {table.getRowModel().rows.map((row) => {
               return (
-                <Tr key={row.id}>
-                  {row.getVisibleCells().map((cell) => {
-                    return (
-                      <Td py="8px" key={cell.id}>
-                        <Flex
-                          h="20px"
-                          flexDirection="column"
-                          alignItems="center"
-                          px="4px"
-                          sx={{
-                            "& input": {
-                              width: "90px",
-                              height: "30px",
-                              padding: "4px",
-                            },
-                          }}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </Flex>
-                      </Td>
-                    );
-                  })}
-                </Tr>
+                <>
+                  <Tr key={row.id} color="#57527E">
+                    {row.getVisibleCells().map((cell) => {
+                      return (
+                        <Td py="8px" key={cell.id}>
+                          <Flex
+                            h="20px"
+                            flexDirection="column"
+                            alignItems="center"
+                            px="4px"
+                            sx={{
+                              "& input": {
+                                width: "90px",
+                                height: "30px",
+                                padding: "4px",
+                              },
+                            }}
+                          >
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </Flex>
+                        </Td>
+                      );
+                    })}
+                  </Tr>
+                </>
               );
             })}
           </Tbody>
         </Table>
       </TableContainer>
-      <Flex justify="space-between" alignItems="center" my="10px">
-        <Flex alignItem my="10px" h="30px">
+      <Flex
+        justify="space-between"
+        alignItems="center"
+        my="10px"
+        flexDirection={["column", "row"]}
+      >
+        <Flex alignItem my={["0px", "10px"]} h="30px">
           <Button
             px="4px"
             mx="4px"
             size="sx"
-            w="30px"
+            w={["30px", "40px"]}
+            h={["30px", "40px"]}
             className="border rounded p-1"
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
@@ -446,7 +502,8 @@ export default function AddKycBlockpass({
             px="4px"
             mx="4px"
             size="sx"
-            w="30px"
+            w={["30px", "40px"]}
+            h={["30px", "40px"]}
             className="border rounded p-1"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
@@ -457,7 +514,8 @@ export default function AddKycBlockpass({
             px="4px"
             mx="4px"
             size="sx"
-            w="30px"
+            w={["30px", "40px"]}
+            h={["30px", "40px"]}
             className="border rounded p-1"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
@@ -468,7 +526,8 @@ export default function AddKycBlockpass({
             px="4px"
             mx="4px"
             size="sx"
-            w="30px"
+            w={["30px", "40px"]}
+            h={["30px", "40px"]}
             className="border rounded p-1"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
@@ -476,45 +535,34 @@ export default function AddKycBlockpass({
             {">>"}
           </Button>
         </Flex>
-        <Flex alignItems="center" mx="24px" h="30px">
-          <Text>Page: </Text>
-          <strong>
-            {" "}
-            {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
-          </strong>
-        </Flex>
-        <Flex mx="24px" className="flex items-center gap-1">
-          | Go to page:
-          <Input
-            h="30px"
-            maxW="50px"
-            type="number"
-            defaultValue={table.getState().pagination.pageIndex + 1}
-            onChange={(e) => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0;
-              table.setPageIndex(page);
-            }}
-            className="border p-1 rounded w-16"
-          />
-        </Flex>
-        <Select
-          h="30px"
-          maxW="220px"
-          value={table.getState().pagination.pageSize}
-          onChange={(e) => {
-            table.setPageSize(Number(e.target.value));
-          }}
+        <Flex
+          w={["full", "auto"]}
+          justifyContent={["space-between"]}
+          fontSize={["14px", "16px"]}
+          mt={["16px", "0px"]}
         >
-          {[10, 20, 30, 40, 50].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize} per page
-            </option>
-          ))}
-        </Select>
-        <Flex mx="24px">
-          {Object.keys(rowSelection).length} of{" "}
-          {table.getPreFilteredRowModel().rows.length} Total Rows Selected
+          <Flex className="flex items-center gap-1">
+            Go to page:
+            <Input
+              ml="4px"
+              px="8px"
+              textAlign="right"
+              h="30px"
+              maxW="40px"
+              type="number"
+              defaultValue={table.getState().pagination.pageIndex + 1}
+              onChange={(e) => {
+                const page = e.target.value ? Number(e.target.value) - 1 : 0;
+                table.setPageIndex(page);
+              }}
+              className="border p-1 rounded w-16"
+            />
+          </Flex>
+
+          <Flex ml={["0px", "20px"]}>
+            {Object.keys(rowSelection).length} of{" "}
+            {table.getPreFilteredRowModel().rows.length} Total Rows Selected
+          </Flex>
         </Flex>
       </Flex>
 
@@ -524,7 +572,7 @@ export default function AddKycBlockpass({
           mt="16px"
           mx="auto"
           w="full"
-          maxW="30%"
+          maxW={["100%", "150px"]}
           size="md"
           onClick={() => addBulkWLHandler()}
         >
@@ -545,8 +593,9 @@ function Filter({ column, table }) {
   return typeof firstValue === "number" ? (
     <Flex justify="space-evenly" className="flex space-x-2">
       <Input
+        fontSize="16px"
         mx="2px"
-        px="2px"
+        px="4px"
         h="30px"
         maxW="100px"
         type="number"
@@ -558,7 +607,8 @@ function Filter({ column, table }) {
         className="w-24 border shadow rounded"
       />
       <Input
-        px="2px"
+        fontSize="16px"
+        px="4px"
         mx="2px"
         h="30px"
         maxW="100px"
@@ -573,7 +623,8 @@ function Filter({ column, table }) {
     </Flex>
   ) : (
     <Input
-      p="2px"
+      fontSize="16px"
+      px="4px"
       h="30px"
       type="text"
       value={columnFilterValue ?? ""}
