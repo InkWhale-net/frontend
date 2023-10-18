@@ -226,11 +226,13 @@ const FinishModal = ({}) => {
             0, //-> value
             "psp22::allowance",
             currentAccount?.address,
-            launchpadData?.token?.tokenAddress
+            launchpad_generator.CONTRACT_ADDRESS
           );
+
           const allowanceINW = formatQueryResultToNumber(
             allowanceINWQr
           ).replaceAll(",", "");
+
           if (allowanceINW < +createTokenFee.replaceAll(",", "")) {
             let approve = await execContractTx(
               currentAccount,
@@ -240,8 +242,9 @@ const FinishModal = ({}) => {
               0, //-> value
               "psp22::approve",
               launchpad_generator.CONTRACT_ADDRESS,
-              formatNumToBN(Number.MAX_SAFE_INTEGER)
+              formatNumToBN(createTokenFee.replaceAll(",", ""))
             );
+
             if (approve) {
               setActiveStep((prev) => prev + 1);
             } else {
@@ -270,10 +273,11 @@ const FinishModal = ({}) => {
             currentAccount?.address,
             launchpad_generator.CONTRACT_ADDRESS
           );
-          const allowanceToken = formatQueryResultToNumber(
-            allowanceTokenQr,
-            launchpadData?.token?.decimals
-          ).replaceAll(",", "");
+
+          const allowanceToken =
+            allowanceTokenQr?.toHuman().Ok?.replaceAll(",", "") /
+            10 ** launchpadData?.token?.decimals;
+
           if (allowanceToken < +launchpadData?.totalSupply) {
             let approve = await execContractTx(
               currentAccount,
@@ -284,7 +288,7 @@ const FinishModal = ({}) => {
               "psp22::approve",
               launchpad_generator.CONTRACT_ADDRESS,
               formatNumToBN(
-                Number.MAX_SAFE_INTEGER,
+                launchpadData?.totalSupply,
                 launchpadData?.token?.decimals
               )
             );
@@ -309,6 +313,70 @@ const FinishModal = ({}) => {
           const project_info_ipfs = await ipfsClient.add(
             JSON.stringify(launchpadData)
           );
+          // ===================================
+          const callbackFn = async (newContractAddress) => {
+            setNewLpAddress(newContractAddress);
+            setActiveStep((prev) => prev + 1);
+            await new Promise(async (resolve) => {
+              resolve(bulkAddingWhitelist(newLpAddress));
+            });
+            await APICall.askBEupdate({
+              type: "launchpad",
+              poolContract: "new",
+            });
+            toast.promise(
+              delay(10000).then(() => {
+                dispatch(fetchLaunchpads({ isActive: 0 }));
+                history.push("/launchpad");
+              }),
+              {
+                loading: "Please wait up to 10s for the data to be updated! ",
+                success:
+                  "Thank you for submitting. Your Project has been created successfully. It will need enabling by our team. We will get in touch with you within the next 48 hours. In the meantime, you can navigate to My Project page to check status of your project.",
+                error: "Could not fetch data!!!",
+              }
+            );
+          };
+
+          const totalSupply = parseUnits(
+            launchpadData?.totalSupply.toString(),
+            parseInt(launchpadData?.token.decimals)
+          );
+
+          const phasesVector = launchpadData.phase.map((p) => {
+            const decimals = launchpadData?.token.decimals;
+            const capAmount = p.capAmount ?? 0;
+            const publicAmount = p?.allowPublicSale
+              ? p?.phasePublicAmount.toString().replaceAll(",", "")
+              : 0;
+            const publicPrice = p?.allowPublicSale
+              ? p?.phasePublicPrice.toString().replaceAll(",", "")
+              : 0;
+
+            const phase = {
+              name: p.name,
+              startTime: p?.startDate?.getTime().toString(),
+              endTime: p?.endDate?.getTime(),
+              immediateReleaseRate: parseInt(
+                (parseFloat(p?.immediateReleaseRate) * 100).toFixed()
+              ).toString(),
+              vestingDuration:
+                parseFloat(p?.immediateReleaseRate) == 100
+                  ? 0
+                  : dayToMilisecond(parseFloat(p?.vestingLength)),
+
+              vestingUnit:
+                parseFloat(p?.immediateReleaseRate) == 100
+                  ? 1
+                  : dayToMilisecond(parseFloat(p?.vestingUnit)),
+              capAmount: formatNumToBN(capAmount, decimals),
+              isPublic: p.allowPublicSale,
+              publicAmount: formatNumToBN(publicAmount, decimals),
+              publicPrice: formatNumToBN(publicPrice),
+            };
+
+            return api.createType("PhaseInput", phase);
+          });
 
           const result = await execContractTxAndCallAPI(
             currentAccount,
@@ -317,65 +385,11 @@ const FinishModal = ({}) => {
             launchpad_generator.CONTRACT_ADDRESS,
             0, //-> value
             "newLaunchpad",
-            async (newContractAddress) => {
-              setNewLpAddress(newContractAddress);
-              setActiveStep((prev) => prev + 1);
-              await new Promise(async (resolve) => {
-                resolve(bulkAddingWhitelist(newLpAddress));
-              });
-              await APICall.askBEupdate({
-                type: "launchpad",
-                poolContract: "new",
-              });
-              toast.promise(
-                delay(10000).then(() => {
-                  dispatch(fetchLaunchpads({ isActive: 0 }));
-                  history.push("/launchpad");
-                }),
-                {
-                  loading: "Please wait up to 10s for the data to be updated! ",
-                  success:
-                    "Thank you for submitting. Your Project has been created successfully. It will need enabling by our team. We will get in touch with you within the next 48 hours. In the meantime, you can navigate to My Project page to check status of your project.",
-                  error: "Could not fetch data!!!",
-                }
-              );
-            },
+            callbackFn,
             project_info_ipfs.path,
             launchpadData?.token?.tokenAddress,
-            parseUnits(
-              launchpadData?.totalSupply.toString(),
-              parseInt(launchpadData?.token.decimals)
-            ),
-            launchpadData?.phase?.map((e) => e?.name),
-            launchpadData?.phase?.map((e) => e?.startDate?.getTime()),
-            launchpadData?.phase?.map((e) => e?.endDate?.getTime()),
-            launchpadData?.phase?.map((e) => {
-              return parseInt(
-                (parseFloat(e?.immediateReleaseRate) * 100).toFixed()
-              ).toString();
-            }),
-            launchpadData?.phase?.map((e) => {
-              if (parseFloat(e?.immediateReleaseRate) == 100) return 0;
-              else return dayToMilisecond(parseFloat(e?.vestingLength));
-            }),
-            launchpadData?.phase?.map((e) => {
-              if (parseFloat(e?.immediateReleaseRate) == 100) return 1;
-              else return dayToMilisecond(parseFloat(e?.vestingUnit));
-            }),
-            launchpadData?.phase?.map((e) => e?.allowPublicSale),
-            launchpadData?.phase?.map((e) => {
-              return e?.allowPublicSale
-                ? parseUnits(
-                    e?.phasePublicAmount.toString(),
-                    parseInt(launchpadData?.token.decimals)
-                  )
-                : 0;
-            }),
-            launchpadData?.phase?.map((e) => {
-              return e?.allowPublicSale
-                ? parseUnits(e?.phasePublicPrice.toString(), 12)
-                : 0;
-            })
+            totalSupply,
+            phasesVector
           );
           if (!result) {
             setIsError(true);

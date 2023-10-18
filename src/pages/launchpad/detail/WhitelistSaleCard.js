@@ -348,8 +348,30 @@ const WhitelistSaleCard = ({ launchpadData }) => {
 
 export default WhitelistSaleCard;
 
-export const KycLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
+export const KycLayout = ({ launchpadData, upComing }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
+
+  const phaseContainWL = useMemo(() => {
+    return launchpadData?.phaseList?.filter(
+      (phase) => phase?.whitelist?.length > 0
+    );
+  }, [launchpadData]);
+
+  const saleTime = useMemo(
+    () =>
+      phaseContainWL?.map((e, index) => ({
+        ...e,
+        id: index,
+        startTime: new Date(parseInt(e?.startTime?.replace(/,/g, ""))),
+        endTime: new Date(parseInt(e?.endTime?.replace(/,/g, ""))),
+      })),
+    [phaseContainWL]
+  );
+
+  const livePhase = saleTime?.find((e) => {
+    const now = Date.now();
+    return now > e.startTime && now < e.endTime;
+  });
 
   const isUserInWL = useMemo(() => {
     return (
@@ -378,7 +400,7 @@ export const KycLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
         }}
       >
         <Link href={kycUrl} isExternal>
-          Click here to KYC with Blockpass
+          Click here to KYC
           <ExternalLinkIcon mx="2px" />
         </Link>
       </Box>

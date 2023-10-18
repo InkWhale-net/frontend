@@ -82,6 +82,20 @@ const App = () => {
         provider,
         rpc: jsonrpc,
         throwOnConnect: true,
+        types: {
+          PhaseInput: {
+            name: "String",
+            startTime: "u64",
+            endTime: "u64",
+            immediateReleaseRate: "u32",
+            vestingDuration: "u64",
+            vestingUnit: "u64",
+            capAmount: "Balance",
+            isPublic: "bool",
+            publicAmount: "Balance",
+            publicPrice: "Balance",
+          },
+        },
       });
 
       if (!wsApi) return;

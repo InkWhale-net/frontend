@@ -296,12 +296,34 @@ export default function AddKycBlockpass({
       //   toast.error("Whitelist address existed");
       //   return;
       // }
-      const totalAmountWL = selectedRecords.reduce((acc, object) => {
-        return acc + +object?.amount;
-      }, 0);
+      // const totalAmountWL = selectedRecords.reduce((acc, object) => {
+      //   return acc + +object?.amount;
+      // }, 0);
 
-      if (!(totalAmountWL <= availableTokenAmount)) {
-        toast.error("Not enough available token");
+      // if (!(totalAmountWL <= availableTokenAmount)) {
+      //   toast.error("Not enough available token");
+      //   return;
+      // }
+      const checkAmount = selectedRecords.map((i) => i.amount);
+
+      if (checkAmount.some((a) => !!a === false)) {
+        toast.error("Whitelist amount invalid!");
+        return;
+      }
+
+      const capAmountBN = launchpadData?.phaseList[selectedPhase]?.capAmount;
+      const decimals = launchpadData.projectInfo.token.decimals;
+      const capAmount = capAmountBN?.replaceAll(",", "") / 10 ** decimals;
+
+      if (checkAmount.some((a) => a > capAmount)) {
+        toast.error("Whitelist amount can't greater than Phase Cap!");
+        return;
+      }
+
+      const checkPrice = selectedRecords.map((i) => i.price);
+
+      if (checkPrice.some((a) => !!a === false)) {
+        toast.error("Whitelist price invalid!");
         return;
       }
 

@@ -74,6 +74,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
         e?.publicSaleInfor?.totalAmount,
         tokenDecimal
       ),
+      capAmount: formatTokenAmount(e?.capAmount, tokenDecimal),
       phasePublicPrice: formatTokenAmount(e?.publicSaleInfor?.price, 12),
     }));
   }, [launchpadData]);
@@ -143,6 +144,13 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
     }));
   };
 
+  const onChangeCapAmount = (value) => {
+    setNewData((prevState) => ({
+      ...prevState,
+      capAmount: value,
+    }));
+  };
+
   const handleCreateNewPhase = async () => {
     try {
       if (!currentAccount) {
@@ -159,8 +167,34 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
           overlapseErrorMsgL:
             "New phase duration overlaps 1 or more phases. Please choose other time range",
         })
-      )
+      ) {
         return;
+      }
+
+      const newPhaseInput = api.createType("PhaseInput", {
+        name: newData?.name,
+        startTime: newData?.startDate?.getTime(),
+        endTime: newData?.endDate?.getTime(),
+        immediateReleaseRate: parseInt(
+          (parseFloat(newData?.immediateReleaseRate) * 100).toFixed()
+        ).toString(),
+        vestingDuration:
+          newData?.immediateReleaseRate === 100
+            ? 0
+            : dayToMilisecond(parseFloat(newData?.vestingLength)),
+        vestingUnit:
+          newData?.immediateReleaseRate === 100
+            ? 1
+            : dayToMilisecond(parseFloat(newData?.vestingUnit)),
+        capAmount: parseUnits(newData?.capAmount.toString(), tokenDecimal),
+        isPublic: newData?.allowPublicSale,
+        publicAmount: newData?.allowPublicSale
+          ? parseUnits(newData?.phasePublicAmount.toString(), tokenDecimal)
+          : null,
+        publicPrice: newData?.allowPublicSale
+          ? parseUnits(newData?.phasePublicPrice.toString(), 12)
+          : null,
+      });
 
       const result = await execContractTx(
         currentAccount,
@@ -169,29 +203,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
         launchpadData?.launchpadContract,
         0, //-> value
         "addNewPhase",
-        newData?.name,
-        newData?.startDate?.getTime(),
-        newData?.endDate?.getTime(),
-        newData?.immediateReleaseRate === 100
-          ? parseInt(
-              (parseFloat(newData?.immediateReleaseRate) * 100).toFixed()
-            )
-          : parseInt(
-              (parseFloat(newData?.immediateReleaseRate) * 100).toFixed()
-            ),
-        newData?.immediateReleaseRate === 100
-          ? 0
-          : dayToMilisecond(parseFloat(newData?.vestingLength)),
-        newData?.immediateReleaseRate === 100
-          ? 1
-          : dayToMilisecond(parseFloat(newData?.vestingUnit)),
-        newData?.allowPublicSale,
-        newData?.allowPublicSale
-          ? parseUnits(newData?.phasePublicAmount.toString(), tokenDecimal)
-          : null,
-        newData?.allowPublicSale
-          ? parseUnits(newData?.phasePublicPrice.toString(), 12)
-          : null
+        newPhaseInput
       );
       if (result) {
         await delay(200);
@@ -250,6 +262,33 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
         })
       )
         return;
+
+
+      const editPhaseInput = api.createType("PhaseInput", {
+        name: newData?.name,
+        startTime: newData?.startDate?.getTime(),
+        endTime: newData?.endDate?.getTime(),
+        immediateReleaseRate: parseInt(
+          (parseFloat(newData?.immediateReleaseRate) * 100).toFixed()
+        ).toString(),
+        vestingDuration:
+          newData?.immediateReleaseRate === 100
+            ? 0
+            : dayToMilisecond(parseFloat(newData?.vestingLength)),
+        vestingUnit:
+          newData?.immediateReleaseRate === 100
+            ? 1
+            : dayToMilisecond(parseFloat(newData?.vestingUnit)),
+        capAmount: parseUnits(newData?.capAmount.toString(), tokenDecimal),
+        isPublic: newData?.allowPublicSale,
+        publicAmount: newData?.allowPublicSale
+          ? parseUnits(newData?.phasePublicAmount.toString(), tokenDecimal)
+          : null,
+        publicPrice: newData?.allowPublicSale
+          ? parseUnits(newData?.phasePublicPrice.toString(), 12)
+          : null,
+      });
+
       const result = await execContractTx(
         currentAccount,
         api,
@@ -259,29 +298,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
         "launchpadContractTrait::setPhase",
         selectedPhaseIndex,
         newData?.isActive,
-        newData?.name,
-        newData?.startDate?.getTime(),
-        newData?.endDate?.getTime(),
-        newData?.immediateReleaseRate === 100
-          ? parseInt(
-              (parseFloat(newData?.immediateReleaseRate) * 100).toFixed()
-            )
-          : parseInt(
-              (parseFloat(newData?.immediateReleaseRate) * 100).toFixed()
-            ),
-        newData?.immediateReleaseRate === 100
-          ? 0
-          : dayToMilisecond(parseFloat(newData?.vestingLength)),
-        newData?.immediateReleaseRate === 100
-          ? 1
-          : dayToMilisecond(parseFloat(newData?.vestingUnit)),
-        newData?.allowPublicSale,
-        newData?.allowPublicSale
-          ? parseUnits(newData?.phasePublicAmount.toString(), tokenDecimal)
-          : null,
-        newData?.allowPublicSale
-          ? parseUnits(newData?.phasePublicPrice.toString(), 12)
-          : null
+        editPhaseInput
       );
       if (result) {
         await delay(200);
@@ -454,11 +471,29 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                 >
                   Vesting Plan
                 </Heading>
-                <SimpleGrid columns={[1, 1, 3]} spacing={4}>
+                <SimpleGrid columns={[1, 1, 4]} spacing={2}>
                   <SectionContainer
                     title={
                       <>
-                        Immediate Release Rate
+                        Phase Cap
+                        <Tooltip fontSize="md" label={`Phase Cap explain`}>
+                          <QuestionOutlineIcon ml="6px" color="text.2" />
+                        </Tooltip>
+                      </>
+                    }
+                  >
+                    <IWInput
+                      isDisabled={!isPhaseEditable}
+                      type="number"
+                      value={newData?.capAmount}
+                      onChange={({ target }) => onChangeCapAmount(target.value)}
+                      placeholder="0"
+                    />
+                  </SectionContainer>
+                  <SectionContainer
+                    title={
+                      <>
+                        Initial Release Rate
                         <Tooltip
                           fontSize="md"
                           label={`Percentage or portion of tokens that are immediately released to token holders upon the token launch or distribution event`}
@@ -540,28 +575,30 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                     />
                   </SectionContainer>
 
-                  <Box sx={{ display: "flex" }}>
-                    <Heading
-                      as="h3"
-                      size="h3"
-                      mb="16px"
-                      lineHeight={{ base: "1.25", lg: "30px" }}
-                    >
-                      Allow Public Sale
-                    </Heading>
-                    <Switch
-                      sx={{ mt: "4px", ml: "16px" }}
-                      id="zero-reward-pools"
-                      isChecked={newData?.allowPublicSale}
-                      isDisabled={!isPhaseEditable}
-                      onChange={() =>
-                        setNewData((prevState) => ({
-                          ...prevState,
-                          allowPublicSale: !prevState?.allowPublicSale,
-                        }))
-                      }
-                    />
-                  </Box>
+                  {!launchpadData?.requireKyc && (
+                    <Box sx={{ display: "flex" }}>
+                      <Heading
+                        as="h3"
+                        size="h3"
+                        mb="16px"
+                        lineHeight={{ base: "1.25", lg: "30px" }}
+                      >
+                        Allow Public Sale
+                      </Heading>
+                      <Switch
+                        sx={{ mt: "4px", ml: "16px" }}
+                        id="zero-reward-pools"
+                        isChecked={newData?.allowPublicSale}
+                        isDisabled={!isPhaseEditable}
+                        onChange={() =>
+                          setNewData((prevState) => ({
+                            ...prevState,
+                            allowPublicSale: !prevState?.allowPublicSale,
+                          }))
+                        }
+                      />
+                    </Box>
+                  )}
                 </SimpleGrid>
                 {newData?.allowPublicSale && (
                   <SimpleGrid columns={[1, 1, 3]} spacing={4}>
@@ -597,37 +634,41 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                     </SectionContainer>
                   </SimpleGrid>
                 )}
-                <Divider sx={{ marginTop: "8px" }} />
-                {selectedPhaseIndex === -1 && (
-                  <SectionContainer
-                    title={
-                      <>
-                        White list
-                        <Tooltip
-                          fontSize="md"
-                          label={`Enter one address, whitelist amount and price on each line.
+                {!launchpadData?.requireKyc && (
+                  <>
+                    <Divider sx={{ marginTop: "8px" }} />
+                    {selectedPhaseIndex === -1 && (
+                      <SectionContainer
+                        title={
+                          <>
+                            White list
+                            <Tooltip
+                              fontSize="md"
+                              label={`Enter one address, whitelist amount and price on each line.
                 A decimal separator of amount must use dot (.)`}
-                        >
-                          <QuestionOutlineIcon ml="6px" color="text.2" />
-                        </Tooltip>
-                      </>
-                    }
-                  >
-                    <IWTextArea
-                      sx={{
-                        height: "80px",
-                      }}
-                      isDisabled={!isPhaseEditable}
-                      value={newData?.whiteList}
-                      onChange={({ target }) =>
-                        setNewData((prevState) => ({
-                          ...prevState,
-                          whiteList: target.value,
-                        }))
-                      }
-                      placeholder={`Sample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL, 20, 2`}
-                    />
-                  </SectionContainer>
+                            >
+                              <QuestionOutlineIcon ml="6px" color="text.2" />
+                            </Tooltip>
+                          </>
+                        }
+                      >
+                        <IWTextArea
+                          sx={{
+                            height: "80px",
+                          }}
+                          isDisabled={!isPhaseEditable}
+                          value={newData?.whiteList}
+                          onChange={({ target }) =>
+                            setNewData((prevState) => ({
+                              ...prevState,
+                              whiteList: target.value,
+                            }))
+                          }
+                          placeholder={`Sample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL, 20, 2`}
+                        />
+                      </SectionContainer>
+                    )}
+                  </>
                 )}
                 <Flex sx={{ justifyContent: "center" }}>
                   <Button
@@ -694,7 +735,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
         </ModalBody>
         <ModalFooter>
           Available token amount:{" "}
-          {`${formatNumDynDecimal(availableTokenAmount)} 
+          {`${formatNumDynDecimal(availableTokenAmount)}
             ${launchpadData?.projectInfo?.token?.symbol}`}
         </ModalFooter>
       </ModalContent>
