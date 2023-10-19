@@ -226,7 +226,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
               }}
               mr={["0px", "20px"]}
             >
-              <Flex bg="green" flexDirection={["column", "row"]}>
+              <Flex flexDirection={["column", "row"]}>
                 <Box
                   w={
                     launchpadData?.requireKyc && selectedMode == 1
