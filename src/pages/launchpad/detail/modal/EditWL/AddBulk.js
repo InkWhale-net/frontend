@@ -7,7 +7,7 @@ import {
   processStringToArray,
   verifyWhitelist,
 } from "pages/launchpad/create/utils";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
@@ -15,6 +15,7 @@ import { delay } from "utils";
 import { execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 import AddKycBlockpass from "./AddKycBlockpass";
+import { PhaseHeaderInfo } from ".";
 
 const AddBulk = ({
   launchpadData,
@@ -90,7 +91,47 @@ const AddBulk = ({
       console.log(error);
     }
   };
+  const phaseHeaderInfo = useMemo(() => {
+    const capAmountBN = launchpadData?.phaseList[selectedPhase]?.capAmount;
+    const decimals = launchpadData?.projectInfo?.token?.decimals;
 
+    const currPhaseInfo = launchpadData?.phaseList[selectedPhase];
+    const currWLPhaseInfo = currPhaseInfo?.whitelist;
+    const currPLPhaseInfo = currPhaseInfo?.publicSaleInfor;
+
+    const whitelistTotalAmount = currWLPhaseInfo?.reduce((prev, curr) => {
+      return prev + curr?.amount?.replaceAll(",", "") / 10 ** decimals;
+    }, 0);
+
+    const whitelistTotalPurchasedAmount = currWLPhaseInfo?.reduce(
+      (prev, curr) =>
+        prev + curr?.purchasedAmount?.replaceAll(",", "") / 10 ** decimals,
+      0
+    );
+
+    const whitelistTotalClaimedAmount = currWLPhaseInfo?.reduce(
+      (prev, curr) =>
+        prev + curr?.claimedAmount?.replaceAll(",", "") / 10 ** decimals,
+      0
+    );
+
+    return {
+      capAmount: capAmountBN?.replaceAll(",", "") / 10 ** decimals,
+
+      isPublic: currPLPhaseInfo?.isPublic,
+      publicTotalAmount: currPLPhaseInfo?.totalAmount,
+      publicTotalPurchasedAmount: currPLPhaseInfo?.totalPurchasedAmount,
+      publicTotalClaimedAmount: currPLPhaseInfo?.totalClaimedAmount,
+
+      whitelistTotalAmount,
+      whitelistTotalPurchasedAmount,
+      whitelistTotalClaimedAmount,
+    };
+  }, [
+    launchpadData?.phaseList,
+    launchpadData?.projectInfo?.token?.decimals,
+    selectedPhase,
+  ]);
   return (
     <Box sx={{ pt: "2px", px: "0px", w: "full" }}>
       {launchpadData?.requireKyc ? (
@@ -101,6 +142,19 @@ const AddBulk = ({
         />
       ) : (
         <>
+          <Flex
+            w="full"
+            p="10px"
+            mb="10px"
+            borderRadius={8}
+            border="1px solid #E3DFF3"
+            bg="#F6F6FC"
+          >
+            <PhaseHeaderInfo
+              phaseHeaderInfo={phaseHeaderInfo}
+              launchpadData={launchpadData}
+            />
+          </Flex>
           <IWTextArea
             sx={{
               height: "132px",

@@ -44,7 +44,6 @@ import AddSingleWL from "./AddSingle";
 import { formatQueryResultToNumber } from "utils";
 
 const EditWL = ({ visible, setVisible, launchpadData }) => {
-
   const WLEditMode = [
     `${launchpadData?.requireKyc ? "Edit Whitelist" : "Single add Whitelist"}`,
     `${
@@ -228,7 +227,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
               mr={["0px", "20px"]}
             >
               <Flex>
-                <Box w={selectedMode == 1 ? "33%" : '100%'}>
+                <Box w={launchpadData?.requireKyc && selectedMode == 1 ? "50%" : "100%"}>
                   <Text>
                     Available token amount:{" "}
                     <Text as="span" fontWeight={600}>
@@ -236,77 +235,27 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                 ${launchpadData?.projectInfo?.token?.symbol}`}
                     </Text>
                   </Text>
-                  {selectedMode == 1 && launchpadData?.requireKyc && (
-                    <Text>
-                      Phase cap amount:{" "}
-                      <Text as="span" fontWeight={600}>
-                        {`${formatNumDynDecimal(phaseHeaderInfo?.capAmount)}
+                  <Text>
+                    Phase cap amount:{" "}
+                    <Text as="span" fontWeight={600}>
+                      {`${formatNumDynDecimal(phaseHeaderInfo?.capAmount)}
                 ${launchpadData?.projectInfo?.token?.symbol}`}
-                      </Text>
                     </Text>
-                  )}
-                  {!launchpadData?.requireKyc && (
-                    <Box w={"33%"}>
-                      <Text>
-                        WL Total Amount:{" "}
-                        <Text as="span" fontWeight={600}>
-                          {`${formatNumDynDecimal(
-                            phaseHeaderInfo?.whitelistTotalAmount
-                          )}
-                ${launchpadData?.projectInfo?.token?.symbol}`}
-                        </Text>
-                      </Text>
-                      <Text>
-                        WL Total Purchased:{" "}
-                        <Text as="span" fontWeight={600}>
-                          {`${formatNumDynDecimal(
-                            phaseHeaderInfo?.whitelistTotalPurchasedAmount
-                          )}
-                ${launchpadData?.projectInfo?.token?.symbol}`}
-                        </Text>
-                      </Text>
-                      <Text>
-                        WL Total Claimed:{" "}
-                        <Text as="span" fontWeight={600}>
-                          {`${formatNumDynDecimal(
-                            phaseHeaderInfo?.whitelistTotalClaimedAmount
-                          )}
-                ${launchpadData?.projectInfo?.token?.symbol}`}
-                        </Text>
-                      </Text>
-                    </Box>
-                  )}
+                  </Text>
                 </Box>
-                {selectedMode == 1 && (
-                  <Box w={"33%"}>
-                    <Text>
-                      WL Total Amount:{" "}
-                      <Text as="span" fontWeight={600}>
-                        {`${formatNumDynDecimal(
-                          phaseHeaderInfo?.whitelistTotalAmount
-                        )}
-                ${launchpadData?.projectInfo?.token?.symbol}`}
-                      </Text>
-                    </Text>
-                    <Text>
-                      WL Total Purchased:{" "}
-                      <Text as="span" fontWeight={600}>
-                        {`${formatNumDynDecimal(
-                          phaseHeaderInfo?.whitelistTotalPurchasedAmount
-                        )}
-                ${launchpadData?.projectInfo?.token?.symbol}`}
-                      </Text>
-                    </Text>
-                    <Text>
-                      WL Total Claimed:{" "}
-                      <Text as="span" fontWeight={600}>
-                        {`${formatNumDynDecimal(
-                          phaseHeaderInfo?.whitelistTotalClaimedAmount
-                        )}
-                ${launchpadData?.projectInfo?.token?.symbol}`}
-                      </Text>
-                    </Text>
-                  </Box>
+                {launchpadData?.requireKyc && selectedMode == 1 && (
+                  <Flex
+                    w="full"
+                    p="10px"
+                    borderRadius={8}
+                    border="1px solid #E3DFF3"
+                    bg="#F6F6FC"
+                  >
+                    <PhaseHeaderInfo
+                      phaseHeaderInfo={phaseHeaderInfo}
+                      launchpadData={launchpadData}
+                    />
+                  </Flex>
                 )}
               </Flex>
               {!isPhaseEditable && (
@@ -422,7 +371,20 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                 setSelectedMode={setSelectedMode}
               />
             ) : (
-              <Box sx={{ flex: 1, pt: "16px" }}>
+              <Box sx={{ flex: 1, pt: "1px" }}>
+                <Flex
+                  w="full"
+                  p="10px"
+                  mb="10px"
+                  borderRadius={8}
+                  border="1px solid #E3DFF3"
+                  bg="#F6F6FC"
+                >
+                  <PhaseHeaderInfo
+                    phaseHeaderInfo={phaseHeaderInfo}
+                    launchpadData={launchpadData}
+                  />
+                </Flex>
                 <IWInput
                   size="md"
                   value={queries?.keyword}
@@ -591,3 +553,62 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   );
 };
 export default EditWL;
+
+export function PhaseHeaderInfo({ phaseHeaderInfo, launchpadData }) {
+  return (
+    <>
+      <Box w={"50%"}>
+        <Text>
+          PL Total Amount:{" "}
+          <Text as="span" fontWeight={600}>
+            {`${formatNumDynDecimal(phaseHeaderInfo?.publicTotalAmount)}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+          </Text>
+        </Text>
+        <Text>
+          PL Total Purchased:{" "}
+          <Text as="span" fontWeight={600}>
+            {`${formatNumDynDecimal(
+              phaseHeaderInfo?.publicTotalPurchasedAmount
+            )}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+          </Text>
+        </Text>
+        <Text>
+          PL Total Claimed:{" "}
+          <Text as="span" fontWeight={600}>
+            {`${formatNumDynDecimal(phaseHeaderInfo?.publicTotalClaimedAmount)}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+          </Text>
+        </Text>
+      </Box>
+      <Box w={"50%"}>
+        <Text>
+          WL Total Amount:{" "}
+          <Text as="span" fontWeight={600}>
+            {`${formatNumDynDecimal(phaseHeaderInfo?.whitelistTotalAmount)}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+          </Text>
+        </Text>
+        <Text>
+          WL Total Purchased:{" "}
+          <Text as="span" fontWeight={600}>
+            {`${formatNumDynDecimal(
+              phaseHeaderInfo?.whitelistTotalPurchasedAmount
+            )}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+          </Text>
+        </Text>
+        <Text>
+          WL Total Claimed:{" "}
+          <Text as="span" fontWeight={600}>
+            {`${formatNumDynDecimal(
+              phaseHeaderInfo?.whitelistTotalClaimedAmount
+            )}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+          </Text>
+        </Text>
+      </Box>
+    </>
+  );
+}
