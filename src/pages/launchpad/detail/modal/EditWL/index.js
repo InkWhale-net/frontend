@@ -226,8 +226,14 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
               }}
               mr={["0px", "20px"]}
             >
-              <Flex>
-                <Box w={launchpadData?.requireKyc && selectedMode == 1 ? "50%" : "100%"}>
+              <Flex bg="green" flexDirection={["column", "row"]}>
+                <Box
+                  w={
+                    launchpadData?.requireKyc && selectedMode == 1
+                      ? "50%"
+                      : "100%"
+                  }
+                >
                   <Text>
                     Available token amount:{" "}
                     <Text as="span" fontWeight={600}>
@@ -245,6 +251,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                 </Box>
                 {launchpadData?.requireKyc && selectedMode == 1 && (
                   <Flex
+                    flexDirection={["column", "row"]}
                     w="full"
                     p="10px"
                     borderRadius={8}
@@ -373,6 +380,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
             ) : (
               <Box sx={{ flex: 1, pt: "1px" }}>
                 <Flex
+                  flexDirection={["column", "row"]}
                   w="full"
                   p="10px"
                   mb="10px"
@@ -557,7 +565,7 @@ export default EditWL;
 export function PhaseHeaderInfo({ phaseHeaderInfo, launchpadData }) {
   return (
     <>
-      <Box w={"50%"}>
+      <Box w={["100%", "50%"]} fontSize={["16px", "18px"]}>
         <Text>
           PL Total Amount:{" "}
           <Text as="span" fontWeight={600}>
@@ -582,7 +590,7 @@ export function PhaseHeaderInfo({ phaseHeaderInfo, launchpadData }) {
           </Text>
         </Text>
       </Box>
-      <Box w={"50%"}>
+      <Box w={["100%", "50%"]} fontSize={["16px", "18px"]}>
         <Text>
           WL Total Amount:{" "}
           <Text as="span" fontWeight={600}>

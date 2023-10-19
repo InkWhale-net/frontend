@@ -263,7 +263,6 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
       )
         return;
 
-
       const editPhaseInput = api.createType("PhaseInput", {
         name: newData?.name,
         startTime: newData?.startDate?.getTime(),
@@ -703,7 +702,11 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
               <Text sx={{ fontWeight: "700", color: "#57527E" }}>
                 Choose Phase
               </Text>
-              <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+              <Box
+                sx={{ display: "flex" }}
+                flexDirection={["column", "row"]}
+                alignItems={["center", "flex-end"]}
+              >
                 <Select
                   variant="filled"
                   defaultValue={-1}
@@ -720,6 +723,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                   ))}
                 </Select>
                 <Button
+                  mt={["16px", "0px"]}
                   sx={{ marginLeft: "10px" }}
                   size="md"
                   onClick={() => {
