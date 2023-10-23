@@ -7,9 +7,11 @@ import AllLaunchpads from "./tabs/AllLaunchpads";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import { useAppContext } from "contexts/AppContext";
 
 const Launchpad = () => {
   const { currentAccount } = useSelector((s) => s.wallet);
+  const { api } = useAppContext();
   const dispatch = useDispatch();
 
   const history = useHistory();
@@ -25,10 +27,10 @@ const Launchpad = () => {
       isDisabled: false,
     },
   ];
-  
+
   useEffect(() => {
-    dispatch(fetchLaunchpads({ isActive: 0 }));
-  }, [currentAccount, dispatch]);
+    if (api) dispatch(fetchLaunchpads({ isActive: 0 }));
+  }, [currentAccount, api, dispatch]);
 
   return (
     <SectionContainer
