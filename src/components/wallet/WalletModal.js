@@ -1,18 +1,20 @@
 import {
-  Box,
+  Circle,
   Flex,
   Heading,
+  Image,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalHeader,
   ModalOverlay,
-  Stack,
+  Stack
 } from "@chakra-ui/react";
+import { supportWallets } from "constants";
 
 import { SCROLLBAR } from "constants";
-import { BiWallet } from "react-icons/bi";
+import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentAccount } from "redux/slices/walletSlice";
 import { addressShortener } from "utils";
@@ -26,6 +28,13 @@ export default function WalletModal({ isOpen, onClose }) {
     localStorage.setItem("localCurrentAccount", JSON.stringify(account));
     onClose();
   }
+  const currentWallet = useMemo(() => {
+    if (allAccounts?.length > 0) {
+      return supportWallets.find(
+        (e) => e?.extensionName == allAccounts[0]?.meta?.source
+      );
+    }
+  }, [allAccounts]);
   return (
     <>
       <Modal size={"md"} onClose={onClose} isOpen={isOpen} isCentered>
@@ -49,7 +58,7 @@ export default function WalletModal({ isOpen, onClose }) {
               {allAccounts?.map((acct) => {
                 return (
                   <Flex
-                    p="12px"
+                    p="4px"
                     w="full"
                     key={acct?.address}
                     cursor="pointer"
@@ -60,11 +69,22 @@ export default function WalletModal({ isOpen, onClose }) {
                     justifyContent="start"
                     onClick={() => onClickHandler(acct)}
                   >
-                    <Box>
-                      <BiWallet size="24px" />
-                    </Box>
+                    <Circle
+                      w="44px"
+                      h="44px"
+                      borderWidth="1px"
+                      bg="transparent"
+                      borderColor="border"
+                    >
+                      <Image
+                        w="26px"
+                        h="26px"
+                        src={currentWallet?.icon}
+                        alt={acct?.meta?.source}
+                      />
+                    </Circle>
                     <Heading w="full" as="h5" size="h5" ml="10px">
-                      {acct?.name}
+                      {acct?.meta?.name}
                     </Heading>
                     <Heading w="full" as="h5" size="h5" ml="10px">
                       {addressShortener(acct?.address)}
