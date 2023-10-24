@@ -29,16 +29,13 @@ import { updateAccountsList } from "redux/slices/walletSlice";
 import { addressShortener } from "utils";
 
 import AddressCopier from "components/address-copier/AddressCopier";
+import { supportWallets } from "constants";
 import { useAppContext } from "contexts/AppContext";
-import { BiWallet } from "react-icons/bi";
+import { useMemo } from "react";
+import { isMobile } from "react-device-detect";
+import { setCurrentAccount } from "redux/slices/walletSlice";
 import { resolveDomain } from "utils";
 import WalletModal from "./WalletModal";
-import { setCurrentAccount } from "redux/slices/walletSlice";
-import { isMobile } from "react-device-detect";
-import toast from "react-hot-toast";
-import { supportWallets } from "constants";
-import { BsChevronDown } from "react-icons/bs";
-import { useMemo } from "react";
 
 export default function WalletButton({ onCloseSidebar }) {
   const dispatch = useDispatch();
@@ -108,7 +105,7 @@ const WalletNotConnect = ({ onClose }) => {
                   mt="-6px"
                   justify={{ base: "start" }}
                   alignItems={{ base: "center" }}
-                  // onClick={() => onClick(item.extensionName)}
+                  onClick={() => connectWallet(item)}
                 >
                   <Circle
                     w="44px"
