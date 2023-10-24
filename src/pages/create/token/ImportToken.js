@@ -21,6 +21,7 @@ import psp22_contract from "utils/contracts/psp22_contract";
 import psp22_contract_old from "utils/contracts/psp22_contract_old";
 import ImageUploadIcon from "./UploadIcon";
 import { getTokenOwner } from "utils";
+import { web3FromSource } from "@polkadot/extension-dapp";
 
 const ImportTokenForm = ({ api }) => {
   const dispatch = useDispatch();
@@ -140,7 +141,7 @@ const ImportTokenForm = ({ api }) => {
         toast.error("You must be the owner of the token contract to continue");
         return;
       }
-      const signer = window.nightlySigner;
+      const { signer } = await web3FromSource(currentAccount?.meta?.source);
       const { signature } = await signer.signRaw({
         address: currentAccount.address,
         data: stringToHex("Sign message to import token"),

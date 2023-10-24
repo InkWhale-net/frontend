@@ -37,6 +37,7 @@ import psp22_contract from "utils/contracts/psp22_contract";
 import { useCreateLaunchpad } from "./CreateLaunchpadContext";
 import { processStringToArray } from "./utils";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import { web3FromSource } from "@polkadot/extension-dapp";
 
 const StepItem = ({
   isActive,
@@ -119,7 +120,7 @@ const FinishModal = ({}) => {
           launchpad.CONTRACT_ABI,
           launchpadContractAddress
         );
-        const signer = window.nightlySigner;
+        const { signer } = await web3FromSource(currentAccount?.meta?.source);
         const gasLimit = await getEstimatedGasBatchTx(
           currentAccount?.address,
           launchpadContract,
