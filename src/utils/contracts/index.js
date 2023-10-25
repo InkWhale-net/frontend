@@ -7,6 +7,7 @@ import { getGasLimit } from "./dryRun";
 
 import { BN, BN_ONE } from "@polkadot/util";
 import { delay } from "utils";
+import { web3FromSource } from "@polkadot/extension-dapp";
 const MAX_CALL_WEIGHT = new BN(5_000_000_000_000).isub(BN_ONE);
 
 let wsApi;
@@ -127,8 +128,7 @@ export async function execContractTx(
   const contract = new ContractPromise(wsApi, contractAbi, contractAddress);
 
   let unsubscribe;
-  // const { signer } = await web3FromSource(caller?.meta?.source);
-  const signer = window.nightlySigner;
+  const { signer } = await web3FromSource(caller?.meta?.source);
   const gasLimitResult = await getGasLimit(
     wsApi,
     caller?.address,
@@ -208,7 +208,7 @@ export async function execContractTxAndCallAPI(
 
   let unsubscribe;
 
-  const signer = window.nightlySigner;
+  const { signer } = await web3FromSource(caller?.meta?.source);
 
   const gasLimitResult = await getGasLimit(
     wsApi,

@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Text } from "@chakra-ui/react";
+import { Box, Button, Flex } from "@chakra-ui/react";
 import { APICall } from "api/client";
 import IWTextArea from "components/input/TextArea";
 import { useAppContext } from "contexts/AppContext";
@@ -7,13 +7,15 @@ import {
   processStringToArray,
   verifyWhitelist,
 } from "pages/launchpad/create/utils";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { delay } from "utils";
 import { execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
+import AddKycBlockpass from "./AddKycBlockpass";
+import { PhaseHeaderInfo } from ".";
 
 const AddBulk = ({
   launchpadData,
@@ -89,70 +91,94 @@ const AddBulk = ({
       console.log(error);
     }
   };
+  const phaseHeaderInfo = useMemo(() => {
+    const capAmountBN = launchpadData?.phaseList[selectedPhase]?.capAmount;
+    const decimals = launchpadData?.projectInfo?.token?.decimals;
 
-  const [kycAddress, setKycAddress] = useState([]);
+    const currPhaseInfo = launchpadData?.phaseList[selectedPhase];
+    const currWLPhaseInfo = currPhaseInfo?.whitelist;
+    const currPLPhaseInfo = currPhaseInfo?.publicSaleInfor;
 
-  const fetchPhaseData = useCallback(async () => {
-    const { ret, status } = await APICall.getKycAddress({
-      where: {
-        clientId: launchpadData?.launchpadContract,
-      },
-    });
-    if (status === "OK") {
-      setKycAddress(ret);
-    }
-  }, [launchpadData?.launchpadContract]);
+    const whitelistTotalAmount = currWLPhaseInfo?.reduce((prev, curr) => {
+      return prev + curr?.amount?.replaceAll(",", "") / 10 ** decimals;
+    }, 0);
 
-  useEffect(() => {
-    fetchPhaseData();
-  }, [fetchPhaseData]);
+    const whitelistTotalPurchasedAmount = currWLPhaseInfo?.reduce(
+      (prev, curr) =>
+        prev + curr?.purchasedAmount?.replaceAll(",", "") / 10 ** decimals,
+      0
+    );
 
-  const addressString = useMemo(
-    () =>
-      kycAddress?.reduce(
-        (p, c, i, a) =>
-          `${p}${p ? ", " : ""}${p ? "\n" : ""} ${c?.refId}${
-            i + 1 === a?.length ? ", " : ""
-          }`,
-        ""
-      ),
-    [kycAddress]
-  );
+    const whitelistTotalClaimedAmount = currWLPhaseInfo?.reduce(
+      (prev, curr) =>
+        prev + curr?.claimedAmount?.replaceAll(",", "") / 10 ** decimals,
+      0
+    );
 
+    return {
+      capAmount: capAmountBN?.replaceAll(",", "") / 10 ** decimals,
+
+      isPublic: currPLPhaseInfo?.isPublic,
+      publicTotalAmount: currPLPhaseInfo?.totalAmount,
+      publicTotalPurchasedAmount: currPLPhaseInfo?.totalPurchasedAmount,
+      publicTotalClaimedAmount: currPLPhaseInfo?.totalClaimedAmount,
+
+      whitelistTotalAmount,
+      whitelistTotalPurchasedAmount,
+      whitelistTotalClaimedAmount,
+    };
+  }, [
+    launchpadData?.phaseList,
+    launchpadData?.projectInfo?.token?.decimals,
+    selectedPhase,
+  ]);
   return (
-    <Box sx={{ pt: "2px", px: "20px", w: "full" }}>
-      <Text as="mark">
-        Sample: 5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1
-      </Text>
-      <IWTextArea
-        sx={{
-          height: "132px",
-        }}
-        value={wlString}
-        onChange={({ target }) => setWlString(target.value)}
-        placeholder={`Enter one address, whitelist amount and price on each line. A decimal separator of amount must use dot (.)\nSample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL, 20, 2`}
-      />
-      <Flex>
-        <Button
-          mt="16px"
-          mr="6px"
-          w="full"
-          size="md"
-          onClick={() => setWlString(addressString)}
-        >
-          Load KYC Whitelist
-        </Button>
-        <Button
-          isDisabled={!(wlString?.length > 0)}
-          mt="16px"
-          ml="6px"
-          w="full"
-          size="md"
-          onClick={() => addBulkWLHandler()}
-        >
-          Add Whitelist
-        </Button>
-      </Flex>
+    <Box sx={{ pt: "2px", px: "0px", w: "full" }}>
+      {launchpadData?.requireKyc ? (
+        <AddKycBlockpass
+          launchpadData={launchpadData}
+          selectedPhase={selectedPhase}
+          availableTokenAmount={availableTokenAmount}
+        />
+      ) : (
+        <>
+          <Flex
+            flexDirection={["column", "row"]}
+            w="full"
+            p="10px"
+            mb="10px"
+            borderRadius={8}
+            border="1px solid #E3DFF3"
+            bg="#F6F6FC"
+           >
+            <PhaseHeaderInfo
+              phaseHeaderInfo={phaseHeaderInfo}
+              launchpadData={launchpadData}
+            />
+          </Flex>
+          <IWTextArea
+            sx={{
+              height: "132px",
+            }}
+            value={wlString}
+            onChange={({ target }) => setWlString(target.value)}
+            placeholder={`Enter one address, whitelist amount and price on each line. A decimal separator of amount must use dot (.)\nSample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL, 20, 2`}
+          />
+          <Flex>
+            <Button
+              isDisabled={!(wlString?.length > 0)}
+              mt="16px"
+              mx="auto"
+              w="full"
+              maxW={["100%", "150px"]}
+              size="md"
+              onClick={() => addBulkWLHandler()}
+            >
+              Add Whitelist
+            </Button>
+          </Flex>
+        </>
+      )}
     </Box>
   );
 };

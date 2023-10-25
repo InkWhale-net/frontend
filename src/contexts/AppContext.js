@@ -1,67 +1,66 @@
-import {
-  getPolkadotWallets,
-  NightlyConnectAdapter,
-} from "@nightlylabs/wallet-selector-polkadot";
+import { Link, Text } from "@chakra-ui/react";
+import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
+import { toastMessages } from "constants";
 import { createContext, useContext, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { logOutMyPools } from "redux/slices/myPoolsSlice";
-import { disconnectCurrentAccount } from "redux/slices/walletSlice";
-import { updateAccountsList } from "redux/slices/walletSlice";
-import { fetchUserBalance } from "redux/slices/walletSlice";
-import { delay } from "utils";
+import {
+  disconnectCurrentAccount,
+  fetchUserBalance,
+  updateAccountsList,
+} from "redux/slices/walletSlice";
 
 const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
-  const { currentAccount, allAccounts } = useSelector((state) => state.wallet);
+  const { currentAccount } = useSelector((state) => state.wallet);
   const [api, setApi] = useState(null);
-  const [walletAdapter, setWalletAdapter] = useState(null);
   const dispatch = useDispatch();
 
-  const initiaWallet = async () => {
-    try {
-      const adapter = NightlyConnectAdapter.buildLazy(
-        {
-          appMetadata: {
-            name: process.env.REACT_APP_NAME,
-            description:
-              "InkWhale.net - Staking and Yield Farming Platform on Aleph Zero",
-            // icon: <InkwhaleLogo />,
-            icon: "https://www.gitbook.com/cdn-cgi/image/width=32,dpr=2,format=auto/https%3A%2F%2F2364279095-files.gitbook.io%2F~%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FL14My8oggxJwLrmNGe9e%252Fuploads%252Fivh2OZ03tsNoZMvCOtCO%252FInk%2520Whale%2520Logo.jpg%3Falt%3Dmedia%26token%3D533db80c-516e-4fa4-8f38-37b6cec2e574",
-            additionalInfo:
-              "InkWhale.net - Staking and Yield Farming Platform on Aleph Zero",
-          },
-          network: "AlephZero",
-        },
-        true // should session be persisted
-      );
-      await setWalletAdapter(adapter);
-    } catch (error) {
-      console.log(error);
-      walletDisconnectHandler();
-    }
-  };
-  useEffect(() => {
-    if (!walletAdapter) initiaWallet();
-  }, []);
   const loadAccounts = async () => {
     try {
-      if (walletAdapter) {
-        await walletAdapter?.connect();
-        const accounts = await walletAdapter?.accounts.get();
-        dispatch(updateAccountsList(accounts));
-        window.nightlySigner = walletAdapter?.signer;
-      }
+      await web3Enable(process.env.REACT_APP_NAME);
+      const currentExt = currentAccount?.meta?.source;
+      const accounts = await web3Accounts();
+      const connectedAccount = accounts?.filter(
+        (e) => e?.meta?.source == currentExt
+      );
+      dispatch(updateAccountsList(connectedAccount));
     } catch (error) {
       walletDisconnectHandler();
       console.log(error);
     }
   };
-  const walletConnectHandler = async () => {
+  const walletConnectHandler = async (selectedExt) => {
     try {
-      await walletAdapter?.connect();
-      const accounts = await walletAdapter?.accounts.get();
-      return accounts;
+      const extentions = await web3Enable(process.env.REACT_APP_NAME);
+      const extData = extentions.find(
+        (e) => e?.name == selectedExt.extensionName
+      );
+      if (extData) {
+        const accounts = await web3Accounts();
+        const connectedAccount = accounts?.filter(
+          (e) => e?.meta?.source == selectedExt.extensionName
+        );
+        return connectedAccount?.length > 0 ? connectedAccount : [];
+      } else {
+        toast.error(
+          <Text>
+            {toastMessages.NO_EXTENSION} You may download {selectedExt?.name}{" "}
+            &nbsp;
+            <Link
+              isExternal
+              rel="noreferrer"
+              target="_blank"
+              href={selectedExt?.downloadUrl}
+            >
+              Here
+            </Link>
+          </Text>
+        );
+        return [];
+      }
     } catch (error) {
       walletDisconnectHandler();
       console.log(error);
@@ -69,7 +68,6 @@ export const AppContextProvider = ({ children }) => {
   };
   const walletDisconnectHandler = async () => {
     try {
-      await walletAdapter?.disconnect();
       dispatch(disconnectCurrentAccount());
       dispatch(logOutMyPools());
       localStorage.removeItem("localCurrentAccount");
@@ -81,15 +79,14 @@ export const AppContextProvider = ({ children }) => {
     if (!currentAccount?.balance && api && currentAccount) {
       dispatch(fetchUserBalance({ currentAccount, api }));
     }
-    if (currentAccount && walletAdapter) loadAccounts();
+    if (currentAccount && api) loadAccounts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [api, currentAccount, walletAdapter]);
+  }, [api, currentAccount]);
   return (
     <AppContext.Provider
       value={{
         api,
         setCurrentApi: setApi,
-        walletAdapter,
         walletConnectHandler,
         walletDisconnectHandler,
       }}

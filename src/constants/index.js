@@ -1,3 +1,9 @@
+import AzeroSignerLogo from "assets/img/wallet/AzeroSigner.jpg";
+import NightlyLogo from "assets/img/wallet/Nightly.jpg";
+import PolkadotjsLogo from "assets/img/wallet/PolkadotjsLogo.svg";
+import SubWalletLogo from "assets/img/wallet/SubWalletLogo.svg";
+import NovaLogo from "assets/img/wallet/nova.jpg";
+
 export const toastMessages = {
   NO_EXTENSION: "Your browser does NOT HAVE the required plugin.",
   NO_WALLET: "You haven't connected your wallet.",
@@ -17,40 +23,39 @@ export const supportWallets = [
     name: "SubWallet",
     title: "subwallet",
     extensionName: "subwallet-js",
+    icon: SubWalletLogo,
+    downloadUrl: `https://www.subwallet.app/download.html`,
   },
   {
     name: "Polkadot JS",
     title: "polkadot",
     extensionName: "polkadot-js",
+    icon: PolkadotjsLogo,
+    downloadUrl: `https://polkadot.js.org/`,
   },
   {
     name: "Azero Signer",
     title: "Azero Signer",
     extensionName: "aleph-zero-signer",
+    icon: AzeroSignerLogo,
+    downloadUrl: `https://alephzero.org/signer`,
   },
   {
     name: "Nova Wallet",
     title: "nova",
-    isMobile: true, 
+    isMobile: true,
     extensionName: "polkadot-js",
+    icon: NovaLogo,
+    downloadUrl: `https://novawallet.io/`,
   },
   {
     name: "Nightly Wallet",
     title: "Nightly",
     extensionName: "Nightly",
+    icon: NightlyLogo,
+    downloadUrl: `https://wallet.nightly.app/download`,
   },
 ];
-
-// {
-//   "name": "subwallet-js",
-//   "version": "0.7.7-0",
-//   "accounts": {},
-//   "metadata": {},
-//   "provider": {
-//       "isClonable": true
-//   },
-//   "signer": {}
-// }
 
 export const SCROLLBAR = {
   "&::-webkit-scrollbar": {
@@ -70,14 +75,14 @@ export const SCROLLBAR = {
   },
 };
 
-export const MAX_INT = 115792089237316195423570985008687907853269984665640564039457584007913129639935
+export const MAX_INT = 115792089237316195423570985008687907853269984665640564039457584007913129639935;
 
 export const ADDRESSES_INW = {
-  INW_TREASURY: '5FKbmp1Fe6tBzUU8wvfgkiuvRTRb15rt6R4K7vkLaWG7AGFh',
-  INT_GROWTH: '5DJdkQWR22B9cqEijAx3ELaJHwwcxAEkVeDUpiVkB3LATAbz',
-  INW_REWARD_POOL: '5CZcZB1CqWLc1PKNScrd8RX38Y1Pe4Mv9BuzqVhrHcxzHDZe',
-  INW_TEAM: '5DtKc7qBE3fmGLHWGbqtYdvhBxkWpTfPfvGABsoqTVyesLsQ'
-}
+  INW_TREASURY: "5FKbmp1Fe6tBzUU8wvfgkiuvRTRb15rt6R4K7vkLaWG7AGFh",
+  INT_GROWTH: "5DJdkQWR22B9cqEijAx3ELaJHwwcxAEkVeDUpiVkB3LATAbz",
+  INW_REWARD_POOL: "5CZcZB1CqWLc1PKNScrd8RX38Y1Pe4Mv9BuzqVhrHcxzHDZe",
+  INW_TEAM: "5DtKc7qBE3fmGLHWGbqtYdvhBxkWpTfPfvGABsoqTVyesLsQ",
+};
 
 // export const IPFS_BASE_URL = 'https://artzeronft.infura-ipfs.io/ipfs';
 

@@ -13,7 +13,7 @@ import {
 import SectionContainer from "components/container/SectionContainer";
 import IWTabs from "components/tabs/IWTabs";
 import { useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import GeneralInformation from "./tabs/GeneralInformation";
 import TokenInformation from "./tabs/TokenInformation";
@@ -22,13 +22,22 @@ import BalanceTab from "./tabs/Balance";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { ChevronRightIcon } from "@chakra-ui/icons";
 import ModalDetailContextProvider from "./modal/ModelContext";
+import { useEffect } from "react";
+import { useAppContext } from "contexts/AppContext";
+import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 
 const PublicDetailLaunchpad = () => {
   const { launchpads } = useSelector((s) => s.launchpad);
+  const { api } = useAppContext();
+  const dispatch = useDispatch();
   const { currentAccount } = useSelector((s) => s.wallet);
   const params = useParams();
   const launchpadContract = params?.launchpadContract;
   const history = useHistory();
+
+  useEffect(() => {
+    if (api) dispatch(fetchLaunchpads({ isActive: 0 }));
+  }, [currentAccount, api, dispatch]);
 
   const launchpadData = useMemo(() => {
     const foundNode = launchpads?.find(

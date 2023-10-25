@@ -13,7 +13,7 @@ import {
   ModalHeader,
   ModalOverlay,
   Select,
-  Stack,
+  Flex,
   Table,
   TableContainer,
   Tbody,
@@ -41,14 +41,17 @@ import { execContractQuery } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 import AddBulk from "./AddBulk";
 import AddSingleWL from "./AddSingle";
-
-const WLEditMode = [
-  "Single add Whitelist",
-  "Bulk add Whitelist",
-  "Clear Whitelist",
-];
+import { formatQueryResultToNumber } from "utils";
 
 const EditWL = ({ visible, setVisible, launchpadData }) => {
+  const WLEditMode = [
+    `${launchpadData?.requireKyc ? "Edit Whitelist" : "Single add Whitelist"}`,
+    `${
+      launchpadData?.requireKyc ? "Import KYC address" : "Bulk add Whitelist"
+    }`,
+    "Clear Whitelist",
+  ];
+
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
   const { api } = useAppContext();
   const [selectedPhase, setSelectedPhase] = useState(0);
@@ -148,6 +151,49 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
       setSelectedMode(0);
     }
   }, [visible]);
+
+  const phaseHeaderInfo = useMemo(() => {
+    const capAmountBN = launchpadData?.phaseList[selectedPhase]?.capAmount;
+    const decimals = launchpadData?.projectInfo?.token?.decimals;
+
+    const currPhaseInfo = launchpadData?.phaseList[selectedPhase];
+    const currWLPhaseInfo = currPhaseInfo?.whitelist;
+    const currPLPhaseInfo = currPhaseInfo?.publicSaleInfor;
+
+    const whitelistTotalAmount = currWLPhaseInfo?.reduce((prev, curr) => {
+      return prev + curr?.amount?.replaceAll(",", "") / 10 ** decimals;
+    }, 0);
+
+    const whitelistTotalPurchasedAmount = currWLPhaseInfo?.reduce(
+      (prev, curr) =>
+        prev + curr?.purchasedAmount?.replaceAll(",", "") / 10 ** decimals,
+      0
+    );
+
+    const whitelistTotalClaimedAmount = currWLPhaseInfo?.reduce(
+      (prev, curr) =>
+        prev + curr?.claimedAmount?.replaceAll(",", "") / 10 ** decimals,
+      0
+    );
+
+    return {
+      capAmount: capAmountBN?.replaceAll(",", "") / 10 ** decimals,
+
+      isPublic: currPLPhaseInfo?.isPublic,
+      publicTotalAmount: currPLPhaseInfo?.totalAmount,
+      publicTotalPurchasedAmount: currPLPhaseInfo?.totalPurchasedAmount,
+      publicTotalClaimedAmount: currPLPhaseInfo?.totalClaimedAmount,
+
+      whitelistTotalAmount,
+      whitelistTotalPurchasedAmount,
+      whitelistTotalClaimedAmount,
+    };
+  }, [
+    launchpadData?.phaseList,
+    launchpadData?.projectInfo?.token?.decimals,
+    selectedPhase,
+  ]);
+
   return (
     <Modal
       onClose={() => setVisible(false)}
@@ -157,16 +203,68 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Update Whitelist</ModalHeader>
+        <ModalHeader fontSize={["2xl", "3xl"]}>
+          {launchpadData?.requireKyc
+            ? "Update KYC Whitelist"
+            : "Update Whitelist"}
+        </ModalHeader>
         <ModalCloseButton onClick={() => setVisible(false)} />
-        <ModalBody sx={{ pb: "28px" }}>
-          <Box sx={{ display: "flex" }}>
-            <Box sx={{ width: "320px", minW: "320px" }}>
-              <Text>
-                Available token amount:{" "}
-                {`${formatNumDynDecimal(availableTokenAmount)}
+        <ModalBody pt="0" sx={{ pb: "28px" }}>
+          <Box
+            display={[
+              "block",
+              launchpadData?.requireKyc && selectedMode == 1 ? "block" : "flex",
+            ]}
+          >
+            <Box
+              sx={{
+                maxWidth:
+                  launchpadData?.requireKyc && selectedMode == 1
+                    ? "100%"
+                    : "320px",
+                minW: "320px",
+              }}
+              mr={["0px", "20px"]}
+            >
+              <Flex flexDirection={["column", "row"]}>
+                <Box
+                  w={
+                    launchpadData?.requireKyc && selectedMode == 1
+                      ? "50%"
+                      : "100%"
+                  }
+                >
+                  <Text>
+                    Available token amount:{" "}
+                    <Text as="span" fontWeight={600}>
+                      {`${formatNumDynDecimal(availableTokenAmount)}
                 ${launchpadData?.projectInfo?.token?.symbol}`}
-              </Text>
+                    </Text>
+                  </Text>
+                  <Text>
+                    Phase cap amount:{" "}
+                    <Text as="span" fontWeight={600}>
+                      {`${formatNumDynDecimal(phaseHeaderInfo?.capAmount)}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+                    </Text>
+                  </Text>
+                </Box>
+                {launchpadData?.requireKyc && selectedMode == 1 && (
+                  <Flex
+                    flexDirection={["column", "row"]}
+                    w="full"
+                    p="10px"
+                    borderRadius={8}
+                    border="1px solid #E3DFF3"
+                    bg="#F6F6FC"
+                  >
+                    <PhaseHeaderInfo
+                      phaseHeaderInfo={phaseHeaderInfo}
+                      launchpadData={launchpadData}
+                    />
+                  </Flex>
+                )}
+              </Flex>
               {!isPhaseEditable && (
                 <Box
                   sx={{
@@ -183,26 +281,63 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                   <Text sx={{ ml: "8px" }}>You can not edit this phase!</Text>
                 </Box>
               )}
-              <Stack spacing={1}>
-                <Text sx={{ fontWeight: "700", color: "#57527E" }}>
-                  Choose Phase
-                </Text>
-                <Select
-                  variant="filled"
-                  size="md"
-                  onChange={({ target }) => {
-                    setSelectedPhase(target.value);
-                  }}
-                  value={selectedPhase}
+              <Flex
+                display="flex"
+                flexDir={[
+                  "column",
+                  launchpadData?.requireKyc && selectedMode == 1
+                    ? "row"
+                    : "column",
+                ]}
+                alignItems="center"
+                w={[
+                  "full",
+                  launchpadData?.requireKyc && selectedMode == 1
+                    ? "50%"
+                    : "full",
+                ]}
+              >
+                <Box
+                  w={[
+                    "full",
+                    launchpadData?.requireKyc && selectedMode == 1
+                      ? "50%"
+                      : "full",
+                  ]}
+                  mr={[
+                    "0px",
+                    launchpadData?.requireKyc && selectedMode == 1
+                      ? "20px"
+                      : "0px",
+                  ]}
                 >
-                  {launchpadData?.phaseList.map((item, index) => (
-                    <option key={index} value={index}>
-                      {item.name}
-                    </option>
-                  ))}
-                </Select>
+                  <Text sx={{ fontWeight: "700", color: "#57527E" }}>
+                    Choose Phase
+                  </Text>
+                  <Select
+                    variant="filled"
+                    size="md"
+                    onChange={({ target }) => {
+                      setSelectedPhase(target.value);
+                    }}
+                    value={selectedPhase}
+                  >
+                    {launchpadData?.phaseList.map((item, index) => (
+                      <option key={index} value={index}>
+                        {item.name}
+                      </option>
+                    ))}
+                  </Select>
+                </Box>
                 {isPhaseEditable && (
-                  <>
+                  <Box
+                    w={[
+                      "full",
+                      launchpadData?.requireKyc && selectedMode == 1
+                        ? "50%"
+                        : "full",
+                    ]}
+                  >
                     <Text sx={{ fontWeight: "700", color: "#57527E" }}>
                       Choose Mode
                     </Text>
@@ -220,9 +355,9 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                         </option>
                       ))}
                     </Select>
-                  </>
+                  </Box>
                 )}
-              </Stack>
+              </Flex>
               {isPhaseEditable &&
                 (selectedMode == 0 ? (
                   <AddSingleWL
@@ -243,7 +378,21 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                 setSelectedMode={setSelectedMode}
               />
             ) : (
-              <Box sx={{ flex: 1, px: "20px" }}>
+              <Box sx={{ flex: 1, pt: "1px" }}>
+                <Flex
+                  flexDirection={["column", "row"]}
+                  w="full"
+                  p="10px"
+                  mb="10px"
+                  borderRadius={8}
+                  border="1px solid #E3DFF3"
+                  bg="#F6F6FC"
+                >
+                  <PhaseHeaderInfo
+                    phaseHeaderInfo={phaseHeaderInfo}
+                    launchpadData={launchpadData}
+                  />
+                </Flex>
                 <IWInput
                   size="md"
                   value={queries?.keyword}
@@ -412,3 +561,62 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   );
 };
 export default EditWL;
+
+export function PhaseHeaderInfo({ phaseHeaderInfo, launchpadData }) {
+  return (
+    <>
+      <Box w={["100%", "50%"]} fontSize={["16px", "18px"]}>
+        <Text>
+          PL Total Amount:{" "}
+          <Text as="span" fontWeight={600}>
+            {`${formatNumDynDecimal(phaseHeaderInfo?.publicTotalAmount)}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+          </Text>
+        </Text>
+        <Text>
+          PL Total Purchased:{" "}
+          <Text as="span" fontWeight={600}>
+            {`${formatNumDynDecimal(
+              phaseHeaderInfo?.publicTotalPurchasedAmount
+            )}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+          </Text>
+        </Text>
+        <Text>
+          PL Total Claimed:{" "}
+          <Text as="span" fontWeight={600}>
+            {`${formatNumDynDecimal(phaseHeaderInfo?.publicTotalClaimedAmount)}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+          </Text>
+        </Text>
+      </Box>
+      <Box w={["100%", "50%"]} fontSize={["16px", "18px"]}>
+        <Text>
+          WL Total Amount:{" "}
+          <Text as="span" fontWeight={600}>
+            {`${formatNumDynDecimal(phaseHeaderInfo?.whitelistTotalAmount)}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+          </Text>
+        </Text>
+        <Text>
+          WL Total Purchased:{" "}
+          <Text as="span" fontWeight={600}>
+            {`${formatNumDynDecimal(
+              phaseHeaderInfo?.whitelistTotalPurchasedAmount
+            )}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+          </Text>
+        </Text>
+        <Text>
+          WL Total Claimed:{" "}
+          <Text as="span" fontWeight={600}>
+            {`${formatNumDynDecimal(
+              phaseHeaderInfo?.whitelistTotalClaimedAmount
+            )}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+          </Text>
+        </Text>
+      </Box>
+    </>
+  );
+}

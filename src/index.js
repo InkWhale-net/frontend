@@ -84,6 +84,20 @@ const App = () => {
         provider,
         rpc: jsonrpc,
         throwOnConnect: true,
+        types: {
+          PhaseInput: {
+            name: "String",
+            startTime: "u64",
+            endTime: "u64",
+            immediateReleaseRate: "u32",
+            vestingDuration: "u64",
+            vestingUnit: "u64",
+            capAmount: "Balance",
+            isPublic: "bool",
+            publicAmount: "Balance",
+            publicPrice: "Balance",
+          },
+        },
       });
 
       if (!wsApi) return;
@@ -177,7 +191,7 @@ const App = () => {
             component={CreateStakePoolPage}
           />
           <Route exact path={`/create/nft-lp`} component={CreateNFTLPPage} />
-          <Route
+          {/* <Route
             exact
             path={`/launchpad/create`}
             component={CreateLaunchpadPage}
@@ -187,7 +201,7 @@ const App = () => {
             exact
             path={`/launchpad/:launchpadContract`}
             component={PublicDetailLaunchpad}
-          />
+          /> */}
           <Route exact path={`/create/farming`} component={CreateTokenLPPage} />
           <Route exact path={`/farming`} component={LPPoolsPage} />
           <Route

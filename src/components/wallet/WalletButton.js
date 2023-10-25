@@ -2,8 +2,10 @@ import {
   Box,
   Button,
   Circle,
+  Collapse,
   Flex,
   Heading,
+  Image,
   Menu,
   MenuButton,
   MenuItem,
@@ -27,11 +29,13 @@ import { updateAccountsList } from "redux/slices/walletSlice";
 import { addressShortener } from "utils";
 
 import AddressCopier from "components/address-copier/AddressCopier";
+import { supportWallets } from "constants";
 import { useAppContext } from "contexts/AppContext";
-import { BiWallet } from "react-icons/bi";
+import { useMemo } from "react";
+import { isMobile } from "react-device-detect";
+import { setCurrentAccount } from "redux/slices/walletSlice";
 import { resolveDomain } from "utils";
 import WalletModal from "./WalletModal";
-import { setCurrentAccount } from "redux/slices/walletSlice";
 
 export default function WalletButton({ onCloseSidebar }) {
   const dispatch = useDispatch();
@@ -71,18 +75,130 @@ export default function WalletButton({ onCloseSidebar }) {
 const WalletNotConnect = ({ onClose }) => {
   const { walletConnectHandler } = useAppContext();
   const dispatch = useDispatch();
-  const connectWallet = async () => {
+  const { isOpen, onToggle } = useDisclosure();
+
+  const connectWallet = async (ext) => {
     if (onClose) onClose();
-    const accounts = await walletConnectHandler();
+    const accounts = await walletConnectHandler(ext);
     if (accounts?.length > 0) {
       dispatch(updateAccountsList(accounts));
       dispatch(setCurrentAccount(accounts[0]));
       localStorage.setItem("localCurrentAccount", JSON.stringify(accounts[0]));
     }
   };
+
+  if (isMobile)
+    return (
+      <Box w="full">
+        <Button w="full" onClick={() => onToggle()}>
+          <Text>Connect Wallet</Text>
+        </Button>
+        <Collapse in={isOpen} animateOpacity>
+          <Box color="white" mt="8px" mb="60px">
+            {supportWallets.map((item, idx) => (
+              <IWCard
+                key={idx}
+                mb="4px"
+                px="-24px"
+                alignItems={{ base: "start" }}
+                cursor="pointer"
+                variant="menuBlank"
+                minW={{ base: "full", lg: "180px" }}
+                border="1px solid rgba(0, 0, 0, 0.1)"
+              >
+                <Flex
+                  w="full"
+                  mt="-6px"
+                  justify={{ base: "start" }}
+                  alignItems={{ base: "center" }}
+                  onClick={() => connectWallet(item)}
+                >
+                  <Circle
+                    w="44px"
+                    h="44px"
+                    borderWidth="1px"
+                    borderColor="border"
+                    bg="white"
+                  >
+                    <Image w="26px" h="26px" alt={item.name} src={item.icon} />
+                  </Circle>
+                  <Heading as="h5" size="h5" ml="10px">
+                    {item.name}
+                  </Heading>
+                </Flex>
+              </IWCard>
+            ))}
+          </Box>
+        </Collapse>
+      </Box>
+    );
   return (
     <Menu placement="bottom-end">
-      <Button onClick={() => connectWallet()}>Connect Wallet</Button>
+      <MenuButton
+        p="0px"
+        w="full"
+        as={Button}
+        minW={{ base: "full", lg: "170px" }}
+      >
+        Connect Wallet
+      </MenuButton>
+      <MenuList
+        p="0px"
+        m="0px"
+        border="none"
+        borderRadius="10px"
+        boxShadow="0px 10px 21px rgba(0, 0, 0, 0.08)"
+      >
+        <Flex flexDirection="column" p="20px">
+          {supportWallets
+            .filter((el) => !el.isMobile)
+            .map((item, idx) => (
+              <IWCard
+                key={idx}
+                mb="0px"
+                px="-24px"
+                alignItems={{ base: "start" }}
+                cursor="pointer"
+                variant="menuBlank"
+                minW={{ base: "full", lg: "180px" }}
+              >
+                <Flex
+                  w="full"
+                  mt="-6px"
+                  justify={{ base: "start" }}
+                  alignItems={{ base: "center" }}
+                  onClick={() => connectWallet(item)}
+                >
+                  <MenuItem
+                    pl="0"
+                    mt="-6px"
+                    justifyContent="start"
+                    _active={{ bg: "transparent" }}
+                    _focus={{ bg: "transparent" }}
+                  >
+                    <Circle
+                      w="44px"
+                      h="44px"
+                      borderWidth="1px"
+                      borderColor="border"
+                      bg="white"
+                    >
+                      <Image
+                        w="26px"
+                        h="26px"
+                        alt={item.name}
+                        src={item.icon}
+                      />
+                    </Circle>
+                    <Heading as="h5" size="h5" ml="10px">
+                      {item.name}
+                    </Heading>
+                  </MenuItem>
+                </Flex>
+              </IWCard>
+            ))}
+        </Flex>
+      </MenuList>
     </Menu>
   );
 };
@@ -99,6 +215,15 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
       setDomain(domainValue)
     );
   }, [currentAccount?.address]);
+
+  const currentWallet = useMemo(() => {
+    if (currentAccount) {
+      return supportWallets.find(
+        (e) => e?.extensionName == currentAccount?.meta?.source
+      );
+    }
+  }, [allAccounts]);
+
   return (
     <Menu placement="bottom-end">
       <MenuButton p="0px">
@@ -106,11 +231,16 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
           <Circle
             w="44px"
             h="44px"
-            bg="transparent"
             borderWidth="1px"
+            bg="transparent"
             borderColor="border"
           >
-            <BiWallet size="24px" />
+            <Image
+              w="26px"
+              h="26px"
+              src={currentWallet?.icon}
+              alt={currentWallet?.meta?.source}
+            />
           </Circle>
           <Heading w="full" as="h5" size="h5" ml="10px">
             {domain || addressShortener(currentAccount?.address)}

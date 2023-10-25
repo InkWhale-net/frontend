@@ -42,6 +42,7 @@ const Phase = () => {
       phasePublicAmount: null,
       phasePublicPrice: null,
       whiteList: null,
+      capAmount: null,
     },
   ]);
   const [totalSupply, setTotalSupply] = useState(null);
@@ -60,6 +61,7 @@ const Phase = () => {
           phasePublicAmount: null,
           phasePublicPrice: null,
           whiteList: null,
+          capAmount: null,
         },
       ]);
     } catch (error) {
@@ -106,6 +108,7 @@ const Phase = () => {
       }
     }
   };
+
   const onChangeVestingDuration = (value, index) => {
     setPhaseList((prevState) => {
       const updatedArray = [...prevState];
@@ -118,6 +121,7 @@ const Phase = () => {
       return updatedArray;
     });
   };
+
   const onChangeVestingReleasePeriod = (value, index) => {
     setPhaseList((prevState) => {
       const updatedArray = [...prevState];
@@ -131,8 +135,21 @@ const Phase = () => {
     });
   };
 
+  const onChangeCapAmount = (value, index) => {
+    setPhaseList((prevState) => {
+      const updatedArray = [...prevState];
+      if (index >= 0 && index < updatedArray.length) {
+        updatedArray[index] = {
+          ...updatedArray[index],
+          capAmount: value,
+        };
+      }
+      return updatedArray;
+    });
+  };
+
   const [requireKyc, setRequireKyc] = useState(false);
-  console.log("requireKyc", requireKyc);
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <SectionContainer title={"Total For Sale"}>
@@ -155,7 +172,10 @@ const Phase = () => {
         lineHeight={{ base: "1.25", lg: "30px" }}
       >
         KYC Verification (Know Your Customer)
-        <Tooltip fontSize="md" label={`Lorem KYC Verification is Know Your Customer`}>
+        <Tooltip
+          fontSize="md"
+          label={`Lorem KYC Verification is Know Your Customer`}
+        >
           <QuestionOutlineIcon ml="6px" color="text.2" />
         </Tooltip>
       </Heading>
@@ -186,21 +206,6 @@ const Phase = () => {
             }}
           />
         </Box>
-        {/* {requireKyc && (
-          <SimpleGrid columns={[1]} spacing={4}>
-            <SectionContainer title={"KYC link"}>
-              <IWInput
-                type="text"
-                value={kycUrl}
-                onChange={({ target }) => {
-                  updateKycUrl(target.value);
-                  setKycUrl(target.value);
-                }}
-                placeholder="https://verify-with.blockpass.org/?clientId=test_9c77f"
-              />
-            </SectionContainer>
-          </SimpleGrid>
-        )} */}
       </Box>
 
       {/* ================================================ */}
@@ -326,11 +331,30 @@ const Phase = () => {
             >
               Vesting Plan
             </Heading>
-            <SimpleGrid columns={[1, 1, 3]} spacing={4}>
+            <SimpleGrid columns={[1, 1, 4]} spacing={2}>
               <SectionContainer
                 title={
                   <>
-                    Immediate Release Rate
+                    Phase Cap
+                    <Tooltip fontSize="md" label={`Phase Cap explain`}>
+                      <QuestionOutlineIcon ml="6px" color="text.2" />
+                    </Tooltip>
+                  </>
+                }
+              >
+                <IWInput
+                  type="number"
+                  value={obj?.capAmount}
+                  onChange={({ target }) =>
+                    onChangeCapAmount(target.value, index)
+                  }
+                  placeholder="0"
+                />
+              </SectionContainer>
+              <SectionContainer
+                title={
+                  <>
+                    Initial Release Rate
                     <Tooltip
                       fontSize="md"
                       label={`Percentage or portion of tokens that are immediately released to token holders upon the token launch or distribution event`}
