@@ -327,7 +327,7 @@ const FinishModal = ({}) => {
             });
             toast.promise(
               delay(10000).then(() => {
-                dispatch(fetchLaunchpads({ isActive: 0 }));
+                dispatch(fetchLaunchpads({}));
                 history.push("/launchpad");
               }),
               {

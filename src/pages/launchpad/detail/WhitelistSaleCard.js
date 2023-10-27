@@ -140,7 +140,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
       await delay(4000);
       if (currentAccount) {
         dispatch(fetchUserBalance({ currentAccount, api }));
-        dispatch(fetchLaunchpads({ isActive: 0 }));
+        dispatch(fetchLaunchpads({}));
       }
     } catch (error) {
       console.log(error);
@@ -152,7 +152,6 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
       resolve();
     });
   }, "wl_purchase");
-
   return (
     <Box
       sx={{
@@ -197,6 +196,8 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                   )
                 )
               );
+
+              const maxAmount = +wlMaxAmount - +wlPurchasedAmount;
               if (allowBuy) {
                 return (
                   <>
@@ -224,7 +225,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                     <>
                       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
                         <IWInput
-                          isDisabled={upComing}
+                          isDisabled={upComing || !(+maxAmount > 0)}
                           onChange={({ target }) => {
                             setAmount(target.value);
                             setAzeroBuyAmount(
@@ -236,7 +237,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                           value={amount}
                           label={
                             <Text fontSize={"16px"}>
-                              Amount (max: {wlMaxAmount - wlPurchasedAmount})
+                              Amount (max: {maxAmount})
                             </Text>
                           }
                           placeholder="0"
@@ -246,7 +247,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                         />
                       </Box>
                       <IWInput
-                        isDisabled={upComing}
+                        isDisabled={upComing || !(+maxAmount > 0)}
                         onChange={({ target }) => {
                           setAzeroBuyAmount(target.value);
                           setAmount(

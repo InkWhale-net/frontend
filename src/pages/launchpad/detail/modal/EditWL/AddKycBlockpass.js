@@ -358,7 +358,7 @@ export default function AddKycBlockpass({
         // setSelectedMode(0);
         toast.promise(
           delay(6000).then(() => {
-            dispatch(fetchLaunchpads({ isActive: 0 }));
+            dispatch(fetchLaunchpads({}));
           }),
           {
             loading: "Please wait up to 6s for the data to be updated! ",

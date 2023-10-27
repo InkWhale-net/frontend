@@ -63,7 +63,7 @@ const EditInfor = ({ visible, setVisible, launchpadData }) => {
     });
     toast.promise(
       delay(5000).then(() => {
-        dispatch(fetchLaunchpads({ isActive: 0 }));
+        dispatch(fetchLaunchpads({}));
         setVisible(false);
       }),
       {

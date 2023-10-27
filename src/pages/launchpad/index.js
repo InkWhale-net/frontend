@@ -29,7 +29,7 @@ const Launchpad = () => {
   ];
 
   useEffect(() => {
-    if (api) dispatch(fetchLaunchpads({ isActive: 0 }));
+    if (api) dispatch(fetchLaunchpads({}));
   }, [currentAccount, api, dispatch]);
 
   return (

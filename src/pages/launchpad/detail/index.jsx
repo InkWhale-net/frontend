@@ -36,7 +36,7 @@ const PublicDetailLaunchpad = () => {
   const history = useHistory();
 
   useEffect(() => {
-    if (api) dispatch(fetchLaunchpads({ isActive: 0 }));
+    if (api) dispatch(fetchLaunchpads({}));
   }, [currentAccount, api, dispatch]);
 
   const launchpadData = useMemo(() => {
