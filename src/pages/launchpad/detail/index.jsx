@@ -97,18 +97,18 @@ const PublicDetailLaunchpad = () => {
   return (
     <ModalDetailContextProvider launchpadData={launchpadData}>
       <Show above="md">
-        <SectionContainer mt={{ xl: "-48px" }} mb={{ xl: "-32px" }}>
+        <SectionContainer mb={{ xl: "-32px" }}>
           <Breadcrumb
             spacing="4px"
             separator={<ChevronRightIcon color="gray.500" />}
           >
-            <BreadcrumbItem color="text.1">
+            <BreadcrumbItem color="text.2">
               <BreadcrumbLink onClick={() => history.push("/launchpad")}>
                 All Launchpads
               </BreadcrumbLink>
             </BreadcrumbItem>
 
-            <BreadcrumbItem color="text.2">
+            <BreadcrumbItem color="text.1">
               <BreadcrumbLink>Detail</BreadcrumbLink>
             </BreadcrumbItem>
           </Breadcrumb>
