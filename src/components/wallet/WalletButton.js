@@ -37,6 +37,7 @@ import { setCurrentAccount } from "redux/slices/walletSlice";
 import { resolveDomain } from "utils";
 import WalletModal from "./WalletModal";
 import useLongPress from "./useLongPress";
+import toast from "react-hot-toast";
 
 export default function WalletButton({ onCloseSidebar }) {
   const dispatch = useDispatch();
@@ -73,10 +74,14 @@ const WalletNotConnect = ({ onClose }) => {
   const { isOpen, onToggle } = useDisclosure();
   const [showDetailMenu, setShowDetailMenu] = useState(false);
   const clearCache = async () => {
-    await caches.keys().then(async (names) => {
-      await Promise.all(names.map((name) => caches.delete(name)));
-    });
-    await window.location.reload();
+    // try {
+      await caches.keys().then(async (names) => {
+        await Promise.all(names.map((name) => caches.delete(name)));
+      });
+      await window.location.reload();
+    // } catch (error) {
+    //   toast.error("Can not clear cache");
+    // }
   };
   const backspaceLongPress = useLongPress(() => setShowDetailMenu(true), 4000);
 
