@@ -40,7 +40,7 @@ const TokensTabBurnToken = ({
       return;
     }
 
-    if (burnAmount > formatChainStringToNumber(tokenInfo?.content)) {
+    if (+burnAmount > +formatChainStringToNumber(tokenInfo?.content)) {
       toast.error(
         `You don't have enough ${tokenInfo?.title} tokens to transfer!`
       );

@@ -36,6 +36,8 @@ import { isMobile } from "react-device-detect";
 import { setCurrentAccount } from "redux/slices/walletSlice";
 import { resolveDomain } from "utils";
 import WalletModal from "./WalletModal";
+import useLongPress from "./useLongPress";
+import toast from "react-hot-toast";
 
 export default function WalletButton({ onCloseSidebar }) {
   const dispatch = useDispatch();
@@ -76,6 +78,18 @@ const WalletNotConnect = ({ onClose }) => {
   const { walletConnectHandler } = useAppContext();
   const dispatch = useDispatch();
   const { isOpen, onToggle } = useDisclosure();
+  const [showDetailMenu, setShowDetailMenu] = useState(false);
+  const clearCache = async () => {
+    // try {
+      await caches.keys().then(async (names) => {
+        await Promise.all(names.map((name) => caches.delete(name)));
+      });
+      await window.location.reload();
+    // } catch (error) {
+    //   toast.error("Can not clear cache");
+    // }
+  };
+  const backspaceLongPress = useLongPress(() => setShowDetailMenu(true), 4000);
 
   const connectWallet = async (ext) => {
     if (onClose) onClose();
@@ -90,9 +104,26 @@ const WalletNotConnect = ({ onClose }) => {
   if (isMobile)
     return (
       <Box w="full">
-        <Button w="full" onClick={() => onToggle()}>
+        <Button
+          w="full"
+          onClick={() => {
+            onToggle();
+            setShowDetailMenu(false);
+          }}
+          {...backspaceLongPress}
+        >
           <Text>Connect Wallet</Text>
         </Button>
+        <Collapse in={showDetailMenu} animateOpacity>
+          <Button
+            w="full"
+            variant="outline"
+            mt="8px"
+            onClick={() => clearCache()}
+          >
+            Empty cache
+          </Button>
+        </Collapse>
         <Collapse in={isOpen} animateOpacity>
           <Box color="white" mt="8px" mb="60px">
             {supportWallets.map((item, idx) => (

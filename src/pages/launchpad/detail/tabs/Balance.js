@@ -334,8 +334,12 @@ const PhaseTag = ({ data, launchpadData }) => {
           </Button>
         </>
       )}
+      {!(data?.publicSaleInfor?.isPublic || data?.whitelist?.length) && (
+        <Text>No data</Text>
+      )}
     </Box>
   );
+  return null;
 };
 const BalanceTab = ({ launchpadContract, launchpadData }) => {
   const { token } = launchpadData?.projectInfo || {};

@@ -83,7 +83,7 @@ const AddSingleWL = ({
         });
         toast.promise(
           delay(4000).then(() => {
-            dispatch(fetchLaunchpads({ isActive: 0 }));
+            dispatch(fetchLaunchpads({}));
           }),
           {
             loading: "Please wait up to 4s for the data to be updated! ",
@@ -136,7 +136,7 @@ const AddSingleWL = ({
         });
         toast.promise(
           delay(4000).then(() => {
-            dispatch(fetchLaunchpads({ isActive: 0 }));
+            dispatch(fetchLaunchpads({}));
           }),
           {
             loading: "Please wait up to 4s for the data to be updated! ",

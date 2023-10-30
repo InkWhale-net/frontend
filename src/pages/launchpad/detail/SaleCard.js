@@ -251,7 +251,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
       await delay(4000);
       if (currentAccount) {
         dispatch(fetchUserBalance({ currentAccount, api }));
-        dispatch(fetchLaunchpads({ isActive: 0 }));
+        dispatch(fetchLaunchpads({}));
       }
     } catch (error) {
       console.log(error);
@@ -334,6 +334,11 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
     );
   }, [allowBuy, amount, publicSaleAmount]);
 
+  const maxAmount = useMemo(
+    () => +publicSaleAmount?.total - +publicSaleAmount?.purchased,
+    [publicSaleAmount]
+  );
+
   return (
     <>
       <Box sx={{ marginTop: "12px" }}>
@@ -357,13 +362,9 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         </Box>
       </Box>
       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
-        <Text sx={headerSX}>
-          {`Amount (max: ${
-            publicSaleAmount?.total - publicSaleAmount?.purchased
-          })`}
-        </Text>
+        <Text sx={headerSX}>{`Amount (max: ${maxAmount})`}</Text>
         <IWInput
-          isDisabled={!allowBuy}
+          isDisabled={!allowBuy || !(+maxAmount > 0)}
           onChange={({ target }) => {
             setAmount(target.value);
             setAzeroBuyAmount(
@@ -377,7 +378,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         />
       </Box>
       <IWInput
-        isDisabled={!allowBuy}
+        isDisabled={!allowBuy || !(+maxAmount > 0)}
         onChange={({ target }) => {
           setAzeroBuyAmount(target.value);
           setAmount(

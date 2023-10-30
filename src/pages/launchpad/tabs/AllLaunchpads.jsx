@@ -38,17 +38,17 @@ const AllLaunchpads = ({ isOwner }) => {
   );
 
   const queryLaunchpads = async () => {
-    dispatch(fetchLaunchpads({ isActive: 0 }));
+    dispatch(fetchLaunchpads({}));
   };
 
   const launchpadList = useMemo(() => {
     if (isOwner) {
-      return launchpads?.filter((el) => el.owner === currentAccount?.address);
+      return launchpads?.filter((el) => el.owner == currentAccount?.address);
     } else {
       return launchpads?.filter((el) => el.isActive === true);
     }
   }, [isOwner, launchpads, currentAccount]);
-
+  if (!(launchpadList?.length > 0)) return <div>No data</div>;
   return (
     <div>
       <Box sx={{ display: "flex" }}>

@@ -189,7 +189,7 @@ const Launchpad = () => {
       await toast.promise(
         delay(4000).then(() => {
           if (currentAccount) {
-            dispatch(fetchLaunchpads({ isActive: 0 }));
+            dispatch(fetchLaunchpads({}));
             fetchLP();
           }
         }),

@@ -213,7 +213,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
         });
         toast.promise(
           delay(5000).then(() => {
-            dispatch(fetchLaunchpads({ isActive: 0 }));
+            dispatch(fetchLaunchpads({}));
             setOnCreateNew(false);
             setVisible(false);
           }),
@@ -307,7 +307,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
         });
         toast.promise(
           delay(5000).then(() => {
-            dispatch(fetchLaunchpads({ isActive: 0 }));
+            dispatch(fetchLaunchpads({}));
             setOnCreateNew(false);
             setVisible(false);
           }),
