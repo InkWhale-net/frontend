@@ -35,6 +35,7 @@ import { toast } from "react-hot-toast";
 import { AiFillExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import { formatChainStringToNumber } from "utils";
 import {
   dayToMilisecond,
   delay,
@@ -121,10 +122,12 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
   }, [visible, launchpadData]);
 
   const onChangeImmediateReleaseRate = (value) => {
-    setNewData((prevState) => ({
-      ...prevState,
-      immediateReleaseRate: value,
-    }));
+    if (+value <= 100) {
+      setNewData((prevState) => ({
+        ...prevState,
+        immediateReleaseRate: value,
+      }));
+    }
 
     if (+value === 100) {
       onChangeVestingDuration(0);
@@ -151,8 +154,20 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
     }));
   };
 
+  const totalSupply =
+    formatChainStringToNumber(launchpadData?.totalSupply) / 10 ** tokenDecimal;
+
   const handleCreateNewPhase = async () => {
+    const newCapAmount = newData?.capAmount;
+
     try {
+      if (newCapAmount > totalSupply) {
+        toast.error(
+          "New phase cap amount can not be greater than total supply!"
+        );
+        return;
+      }
+
       if (!currentAccount) {
         return toast.error("Please connect wallet first!");
       }
@@ -228,7 +243,15 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
       console.log(error);
     }
   };
+
   const handleUpdatePhase = async () => {
+    const newCapAmount = newData?.capAmount;
+
+    if (newCapAmount > totalSupply) {
+      toast.error("New phase cap amount can not be greater than total supply!");
+      return;
+    }
+
     try {
       if (!currentAccount) {
         return toast.error("Please connect wallet first!");
@@ -255,6 +278,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
           };
         }),
       ];
+
       if (
         !validatePhaseData(phaseList, {
           overlapseErrorMsgL:
