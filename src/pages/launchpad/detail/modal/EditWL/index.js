@@ -366,6 +366,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                     selectedWL={selectedWL}
                     setSelectedWL={setSelectedWL}
                     availableTokenAmount={availableTokenAmount}
+                    phaseCapAmount={phaseHeaderInfo?.capAmount}
                   />
                 ) : null)}
             </Box>
