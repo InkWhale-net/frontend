@@ -43,6 +43,12 @@ export const validateRoadmap = (launchpadData) => {
 };
 
 export const validatePhase = (launchpadData) => {
+  const phaseCapAmountList = launchpadData?.phase?.map((p) => p.capAmount);
+
+  if (phaseCapAmountList?.some((i) => i - launchpadData?.totalSupply > 0)) {
+    return false;
+  }
+
   const phaseData = launchpadData?.phase;
   if (!(parseFloat(launchpadData?.totalSupply || 0) > 0)) return false;
   if (
