@@ -45,6 +45,11 @@ const AddSingleWL = ({
 
   const addSingleWLHandler = async () => {
     try {
+      if (availableTokenAmount * 1 <= 0) {
+        toast.error(`No available token amount!`);
+        return;
+      }
+
       const currentWl = launchpadData?.phaseList[selectedPhase]?.whitelist;
       if (currentWl.some((obj) => obj.address === wlData?.address)) {
         toast.error("Whitelist address existed");
@@ -99,6 +104,11 @@ const AddSingleWL = ({
 
   const updateSingleWLHandler = async () => {
     try {
+      if (availableTokenAmount * 1 <= 0) {
+        toast.error(`No available token amount!`);
+        return;
+      }
+
       if (
         wlData?.amount < 0 ||
         +wlData?.amount - +selectedWL?.amount > +availableTokenAmount
