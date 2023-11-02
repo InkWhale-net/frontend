@@ -18,6 +18,7 @@ const AddSingleWL = ({
   selectedWL,
   setSelectedWL,
   availableTokenAmount,
+  phaseCapAmount,
 }) => {
   const { currentAccount } = useSelector((state) => state.wallet);
   const { api } = useAppContext();
@@ -47,6 +48,13 @@ const AddSingleWL = ({
     try {
       if (availableTokenAmount * 1 <= 0) {
         toast.error(`No available token amount!`);
+        return;
+      }
+
+      if (phaseCapAmount < wlData?.amount) {
+        toast.error(
+          `Whitelist amount can not be greater than phase cap amount!`
+        );
         return;
       }
 
@@ -106,6 +114,13 @@ const AddSingleWL = ({
     try {
       if (availableTokenAmount * 1 <= 0) {
         toast.error(`No available token amount!`);
+        return;
+      }
+
+      if (phaseCapAmount < wlData?.amount) {
+        toast.error(
+          `Whitelist amount can not be greater than phase cap amount!`
+        );
         return;
       }
 
