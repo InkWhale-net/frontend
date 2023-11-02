@@ -47,6 +47,7 @@ const ElementCard = ({ tableHeader, itemObj, mode, onClickItemHandler }) => {
                   p={{ base: "4px" }}
                   color={{ base: "#57527E" }}
                   fontWeight={{ base: "bold" }}
+                  fontSize={["16px", "18px"]}
                 >
                   <FadeIn>
                     {formatDataCellTable(
