@@ -1,4 +1,11 @@
-import { Box, Divider, Heading, SimpleGrid, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Divider,
+  Flex,
+  Heading,
+  SimpleGrid,
+  Text,
+} from "@chakra-ui/react";
 import {
   IWStatus,
   IWStatusWithCountDown,
@@ -13,6 +20,7 @@ import {
 } from "utils";
 import { format } from "utils/datetime";
 import TabLayout from "../Layout";
+import { formatChainStringToNumber } from "utils";
 
 const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -20,6 +28,8 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
   const tagData = useMemo(() => {
     return {
       ...data,
+      capAmount:
+        formatChainStringToNumber(data?.capAmount) / 10 ** tokenDecimal,
       startTime: new Date(parseInt(data?.startTime?.replace(/,/g, ""))),
       endTime: new Date(parseInt(data?.endTime?.replace(/,/g, ""))),
       immediateReleaseRate:
@@ -276,6 +286,13 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
           </Box>
         </>
       )}
+      <Flex justify="space-between" mt="12px">
+        <Text>Phase Cap Amount</Text>
+
+        <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
+          {tagData.capAmount} ${launchpadData?.projectInfo?.token?.symbol}
+        </Text>
+      </Flex>
 
       <Divider sx={{ mb: "20px", mt: "8px" }} />
 
