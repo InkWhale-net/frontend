@@ -14,7 +14,7 @@ export default function CardThreeColumn(props) {
   return (
     <Box w={w} __css={styles} {...rest}>
       {title && (
-        <Heading as="h4" size="h4" lineHeight="25px">
+        <Heading as="h4" size="h4" lineHeight="25px" >
           {title}
         </Heading>
       )}
@@ -32,7 +32,11 @@ export default function CardThreeColumn(props) {
           {" "}
           {data?.map(({ title, content }, idx) => {
             return (
-              <Box w="33%" key={idx} my={{ base: "12px", lg: "12px" }}>
+              <Box
+                w={["auto", "33%"]}
+                key={idx}
+                my={{ base: "12px", lg: "12px" }}
+              >
                 <Text fontSize="md" lineHeight="28px">
                   {title}{" "}
                 </Text>
