@@ -1,4 +1,5 @@
-import { Button, Heading, Stack } from "@chakra-ui/react";
+import { CopyIcon } from "@chakra-ui/icons";
+import { Box, Button, Heading, Stack } from "@chakra-ui/react";
 import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
 import IWCardOneColumn from "components/card/CardOneColumn";
@@ -7,7 +8,13 @@ import IWInput from "components/input/Input";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
-import { formatQueryResultToNumber, isAddressValid } from "utils";
+import { handleCopy } from "utils";
+import { addressShortener } from "utils";
+import {
+  formatQueryResultToNumber,
+  isAddressValid,
+  resolveAZDomainToAddress,
+} from "utils";
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 const TokensTabCheckBalance = ({
@@ -21,6 +28,7 @@ const TokensTabCheckBalance = ({
   const { currentAccount } = useSelector((s) => s.wallet);
 
   const [addressCheckBalance, setAddressCheckBalance] = useState("");
+  const [addressFromDomain, setAddressFromDomain] = useState("");
   const [tokenBalance, setTokenBalance] = useState("");
 
   async function checkBalanceHandler() {
@@ -31,10 +39,12 @@ const TokensTabCheckBalance = ({
     if (!tokenInfo?.title) {
       return toast.error("Please load token first!");
     }
-
-    if (!isAddressValid(addressCheckBalance)) {
+    const resolvedAddress = await resolveAZDomainToAddress(addressCheckBalance);
+    setAddressFromDomain(resolvedAddress);
+    if (!isAddressValid(addressCheckBalance) && !resolvedAddress) {
       return toast.error("Invalid address!");
     }
+
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
@@ -42,7 +52,7 @@ const TokensTabCheckBalance = ({
       selectedContractAddr,
       0,
       "psp22::balanceOf",
-      addressCheckBalance
+      resolvedAddress ? resolvedAddress : addressCheckBalance
     );
     let tokenDecimalQuery = await execContractQuery(
       currentAccount?.address,
@@ -90,7 +100,7 @@ const TokensTabCheckBalance = ({
       <IWCard
         w="full"
         variant="outline"
-        title={`Enter any address to check ${tokenInfo?.title} balance`}
+        title={`Enter any address or azero.id to check ${tokenInfo?.title} balance`}
       >
         <IWCard mt="16px" w="full" variant="solid">
           <Stack
@@ -101,9 +111,34 @@ const TokensTabCheckBalance = ({
           >
             <IWInput
               value={addressCheckBalance}
-              onChange={({ target }) => setAddressCheckBalance(target.value)}
-              placeholder="Address you want to check balance"
+              onChange={({ target }) => {
+                setAddressCheckBalance(target.value);
+                setAddressFromDomain("");
+                setTokenBalance("");
+              }}
+              placeholder="Address or azero.id you want to check balance"
             />
+            {addressFromDomain && addressCheckBalance && (
+              <IWInput
+                value={addressShortener(addressFromDomain)}
+                readOnly
+                inputRightElementIcon={
+                  <Box
+                    sx={{
+                      cursor: "pointer",
+                    }}
+                    ml="4px"
+                    mb="8px"
+                    w="20px"
+                    h="21px"
+                    color="#8C86A5"
+                    onClick={() => handleCopy("Address", address)}
+                  >
+                    <CopyIcon w="20px" h="21px" />
+                  </Box>
+                }
+              />
+            )}
 
             <IWInput
               value={tokenBalance}
