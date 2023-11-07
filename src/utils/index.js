@@ -6,7 +6,11 @@ import BN from "bn.js";
 import numeral from "numeral";
 import Keyring from "@polkadot/keyring";
 import { toast } from "react-hot-toast";
-import { SupportedChainId, resolveAddressToDomain } from "@azns/resolver-core";
+import {
+  SupportedChainId,
+  resolveAddressToDomain,
+  resolveDomainToAddress,
+} from "@azns/resolver-core";
 import { formatUnits } from "ethers";
 import moment from "moment";
 import { execContractQuery } from "./contracts";
@@ -350,6 +354,20 @@ export const resolveDomain = async (address) => {
   }
 };
 
+export const resolveAZDomainToAddress = async (domain) => {
+  try {
+    const { address, error } = await resolveDomainToAddress(domain, {
+      chainId: SupportedChainId.AlephZero,
+    });
+
+    // Print result
+    if (error) console.log(error.message);
+    else return address;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const formatTokenAmount = (value, decimal = 12) => {
   try {
     return formatUnits(
@@ -427,4 +445,9 @@ export const getTokenOwner = async (tokenContract) => {
       ? false
       : null,
   };
+};
+
+export const handleCopy = (label, text) => {
+  toast.success(`${label} copied!`);
+  navigator.clipboard.writeText(text);
 };

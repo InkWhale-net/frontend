@@ -1,4 +1,5 @@
-import { Button, Heading, Stack } from "@chakra-ui/react";
+import { CopyIcon } from "@chakra-ui/icons";
+import { Box, Button, Heading, Stack } from "@chakra-ui/react";
 import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
 import IWCardOneColumn from "components/card/CardOneColumn";
@@ -8,6 +9,9 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBalance } from "redux/slices/walletSlice";
+import { addressShortener } from "utils";
+import { handleCopy } from "utils";
+import { resolveAZDomainToAddress } from "utils";
 import {
   delay,
   formatChainStringToNumber,
@@ -30,6 +34,7 @@ const TokensTabTransferToken = ({
   const dispatch = useDispatch();
 
   const [transferAddress, setTransferAddress] = useState("");
+  const [addressFromDomain, setAddressFromDomain] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
 
   async function transferTokenHandler() {
@@ -40,8 +45,9 @@ const TokensTabTransferToken = ({
     if (!tokenInfo?.title) {
       return toast.error("Please load token first!");
     }
-
-    if (!isAddressValid(transferAddress)) {
+    const resolvedAddress = await resolveAZDomainToAddress(transferAddress);
+    setAddressFromDomain(resolvedAddress);
+    if (!isAddressValid(transferAddress) && !resolvedAddress) {
       return toast.error("Invalid address!");
     }
 
@@ -67,7 +73,7 @@ const TokensTabTransferToken = ({
       selectedContractAddr,
       0, //-> value
       "psp22::transfer",
-      transferAddress,
+      resolvedAddress ? resolvedAddress : transferAddress,
       formatNumToBN(transferAmount, tokenInfo?.decimals),
       []
     );
@@ -124,10 +130,34 @@ const TokensTabTransferToken = ({
           >
             <IWInput
               value={transferAddress}
-              onChange={({ target }) => setTransferAddress(target.value)}
+              onChange={({ target }) => {
+                setTransferAddress(target.value);
+                setAddressFromDomain("");
+                setTransferAmount("");
+              }}
               placeholder="Address to transfer"
             />
-
+            {addressFromDomain && transferAddress && (
+              <IWInput
+                value={addressShortener(addressFromDomain)}
+                readOnly
+                inputRightElementIcon={
+                  <Box
+                    sx={{
+                      cursor: "pointer",
+                    }}
+                    ml="4px"
+                    mb="8px"
+                    w="20px"
+                    h="21px"
+                    color="#8C86A5"
+                    onClick={() => handleCopy("Address", address)}
+                  >
+                    <CopyIcon w="20px" h="21px" />
+                  </Box>
+                }
+              />
+            )}
             <IWInput
               value={transferAmount}
               onChange={({ target }) => setTransferAmount(target.value)}
