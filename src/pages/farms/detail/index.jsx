@@ -64,6 +64,7 @@ import PoolInfo from "./PoolInfor";
 import { useAppContext } from "contexts/AppContext";
 import { fetchMyNFTPools } from "redux/slices/myPoolsSlice";
 import { useLocation } from "react-router-dom";
+import { MaxStakeButton } from "pages/pools/detail/MaxStakeButton";
 
 const FarmDetailPage = () => {
   const params = useParams();
@@ -1332,9 +1333,22 @@ const MyStakeRewardInfoToken = ({
                   type="number"
                   placeholder="Enter amount"
                   inputRightElementIcon={
-                    <Heading as="h5" size="h5">
-                      {rest?.lptokenSymbol}
-                    </Heading>
+                    <MaxStakeButton
+                      setStakeMax={() => {
+                        if (+availableStakeAmount > +LPtokenBalance)
+                          setLPTokenAmount(LPtokenBalance);
+                        if (+LPtokenBalance > +availableStakeAmount)
+                          setLPTokenAmount(availableStakeAmount);
+                      }}
+                      setUnstakeMax={() => {
+                        setLPTokenAmount(
+                          +formatTokenAmount(
+                            stakeInfo?.stakedValue?.toString(),
+                            lptokenDecimal
+                          )
+                        );
+                      }}
+                    />
                   }
                 />
                 <Text sx={{ fontSize: "14px" }}>
