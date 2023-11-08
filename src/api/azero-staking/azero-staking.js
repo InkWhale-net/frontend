@@ -83,6 +83,33 @@ export async function getStakeInfo(api, currentAccount) {
   return queryResult.toHuman().Ok.Ok;
 }
 
+export async function getWithdrawalRequestCount(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::getWithdrawalRequestCount"
+  );
+
+  return formatQueryResultToNumber(queryResult, 0);
+}
+
+export async function getWithdrawalRequestListByUser(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::getWithdrawalRequestListByUser",
+    currentAccount?.address
+  );
+
+  return queryResult.toHuman().Ok;
+}
+
 // Execute tx
 
 export async function doStakeAzero(api, currentAccount, amount) {
@@ -93,6 +120,18 @@ export async function doStakeAzero(api, currentAccount, amount) {
     my_azero_staking.CONTRACT_ADDRESS,
     formatNumToBN(amount),
     "azeroStakingTrait::stake",
+    formatNumToBN(amount)
+  );
+}
+
+export async function doWithdrawRequest(api, currentAccount, amount) {
+  return await execContractTx(
+    currentAccount,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::withdrawRequest",
     formatNumToBN(amount)
   );
 }

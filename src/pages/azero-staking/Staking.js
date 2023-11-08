@@ -45,36 +45,47 @@ function Staking() {
   const [footerInfo, setFooterInfo] = useState(null);
   const [statsInfo, setStatsInfo] = useState(null);
 
-  const fetchData = useCallback(async () => {
-    if (!api) return;
+  const fetchData = useCallback(
+    async (isMounted) => {
+      if (!api) return;
 
-    const minStakingAmount = await getMinStakingAmount(api);
-    const maxTotalStakingAmount = await getMaxTotalStakingAmount(api);
-    const stakeInfo = await getStakeInfo(api, currentAccount).then((res) => {
-      if (!res) return 0;
+      const minStakingAmount = await getMinStakingAmount(api);
+      const maxTotalStakingAmount = await getMaxTotalStakingAmount(api);
+      const stakeInfo = await getStakeInfo(api, currentAccount).then((res) => {
+        if (!res) return 0;
 
-      const stakingAmount =
-        formatChainStringToNumber(res?.stakingAmount) / Math.pow(10, 12);
-      return stakingAmount?.toFixed(4) ?? 0;
-    });
+        const stakingAmount =
+          formatChainStringToNumber(res?.stakingAmount) / Math.pow(10, 12);
+        return stakingAmount?.toFixed(4) ?? 0;
+      });
 
-    Promise.all([minStakingAmount, maxTotalStakingAmount, stakeInfo]).then(
-      (resultArr) => setFooterInfo(resultArr)
-    );
+      Promise.all([minStakingAmount, maxTotalStakingAmount, stakeInfo]).then(
+        (resultArr) => {
+          if (!isMounted) return;
+          setFooterInfo(resultArr);
+        }
+      );
 
-    const apy = await getApy(api);
-    const totalAzeroStaked = await getTotalAzeroStaked(api);
-    const totalStakers = await getTotalStakers(api).then((res) =>
-      parseInt(res)
-    );
+      const apy = await getApy(api);
+      const totalAzeroStaked = await getTotalAzeroStaked(api);
+      const totalStakers = await getTotalStakers(api).then((res) =>
+        parseInt(res)
+      );
 
-    Promise.all([apy, totalAzeroStaked, totalStakers]).then((resultArr) =>
-      setStatsInfo(resultArr)
-    );
-  }, [api, currentAccount]);
+      Promise.all([apy, totalAzeroStaked, totalStakers]).then((resultArr) => {
+        if (!isMounted) return;
+        setStatsInfo(resultArr);
+      });
+    },
+    [api, currentAccount]
+  );
 
   useEffect(() => {
-    fetchData();
+    let isMounted = true;
+
+    fetchData(isMounted);
+
+    return () => (isMounted = false);
   }, [api, currentAccount, fetchData]);
 
   return (
