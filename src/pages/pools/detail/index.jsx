@@ -5,6 +5,7 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  Button,
   CircularProgress,
   Flex,
   HStack,
@@ -54,6 +55,7 @@ import { execContractQuery, execContractTx } from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
 import pool_contract from "utils/contracts/pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
+import { MaxStakeButton } from "./MaxStakeButton";
 
 export default function PoolDetailPage() {
   const params = useParams();
@@ -695,6 +697,36 @@ const MyStakeRewardInfo = ({
               onChange={({ target }) => setAmount(target.value)}
               type="number"
               placeholder="Enter amount to stake or unstake"
+              inputRightElementIcon={
+                <MaxStakeButton
+                  setStakeMax={() => {
+                    if (
+                      !Number(amount) ||
+                      isPoolEnded(startTime, duration) ||
+                      isPoolNotStart(startTime) ||
+                      !(remainStaking > 0)
+                    ) {
+                      setAmount(0);
+                      return;
+                    }
+                    const tokenBalanceAmount =
+                      +formatChainStringToNumber(tokenBalance);
+                    if (remainStaking > tokenBalanceAmount)
+                      setAmount(tokenBalanceAmount);
+                    if (tokenBalanceAmount > remainStaking)
+                      setAmount(remainStaking);
+                  }}
+                  setUnstakeMax={() => {
+                    if (!Number(amount) || !(totalStaked > 0)) {
+                      setAmount(0);
+                      return;
+                    }
+                    setAmount(
+                      formatTokenAmount(stakeInfo?.stakedValue, tokenDecimal)
+                    );
+                  }}
+                />
+              }
               // isDisabled={!(remainStaking > 0)}
             />
 
