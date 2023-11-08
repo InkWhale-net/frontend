@@ -12,7 +12,6 @@ import {
   Grid,
   IconButton,
   Image,
-  Input,
   Table,
   TableContainer,
   Tbody,
@@ -41,7 +40,6 @@ import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { GoStar } from "react-icons/go";
 import { formatTokenAmount } from "utils";
 import { roundDown } from "utils";
-import { roundUp } from "utils";
 import { addressShortener, formatNumDynDecimal } from "utils";
 import { format } from "utils/datetime";
 const getStatusPool = (startTime, duration) => {
@@ -275,7 +273,7 @@ const IWPaginationTable = ({
         >
           Go
         </Button>
-        {/* 
+        {/*
         <span className="flex items-center gap-1">
           <div>Page</div>
           <strong>
@@ -668,6 +666,29 @@ export const formatDataCellTable = (
       return (
         <>
           <Text>{addressShortener(itemObj[header])}</Text>
+        </>
+      );
+
+    // AZERO STAKING
+    case "requestIndex":
+      return (
+        <>
+          <Text>#{itemObj[header]}</Text>
+        </>
+      );
+
+    case "withdrawalAmount":
+      return (
+        <>
+          <Text>{formatNumDynDecimal(itemObj[header])} AZERO</Text>
+        </>
+      );
+
+    case "azeroReward":
+      return (
+        <>
+          <Text>{formatNumDynDecimal(itemObj[header], 6)} AZERO</Text>
+          <Text>{formatNumDynDecimal(itemObj["inwReward"], 6)} INW</Text>
         </>
       );
 

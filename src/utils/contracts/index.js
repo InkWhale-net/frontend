@@ -85,7 +85,6 @@ export async function execContractQuery(
   ...args
 ) {
   const contract = new ContractPromise(wsApi, contractAbi, contractAddress);
-  // let gasLimit = 6946816000 * 5;
 
   const gasLimit = readOnlyGasLimit(wsApi);
   try {

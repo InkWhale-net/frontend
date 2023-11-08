@@ -47,6 +47,7 @@ import { fetchTotalValueLocked } from "redux/slices/statSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { delay } from "utils";
 import { initialApi } from "utils/contracts";
+import AzeroStaking from "pages/azero-staking";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -216,6 +217,7 @@ const App = () => {
             component={MyPoolDetailPage}
           />
           <Route exact path={`/admin`} component={AdminPage} />
+          <Route exact path={`/azero-staking`} component={AzeroStaking} />
           <Route>
             <FaucetPage api={api} />
           </Route>
