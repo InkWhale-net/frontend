@@ -211,10 +211,10 @@ export const menuListData = [
     title: "Acquire INW",
     href: "/acquire-inw",
   },
-  {
-    title: "Azero Staking",
-    href: "/azero-staking",
-  },
+  // {
+  //   title: "Azero Staking",
+  //   href: "/azero-staking",
+  // },
   // {
   //   title: "Launchpad",
   //   href: "/launchpad",
