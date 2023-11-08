@@ -52,18 +52,19 @@ function Claim() {
       });
 
       setUserRequestList(formattedRequestedList);
+    } else {
+      setUserRequestList([]);
     }
   }, [api, currentAccount]);
 
   useEffect(() => {
     fetchUserRequestList();
-  }, [api, currentAccount, fetchUserRequestList]);
+  }, [fetchUserRequestList]);
 
   const stakingInfo = useMemo(() => {
     let ret = [];
 
-    const requestedListCount = userRequestList?.length;
-    if (requestedListCount) {
+    if (userRequestList?.length) {
       const availableList = userRequestList.reduce(
         (prev, curr) => {
           let ret = prev;
