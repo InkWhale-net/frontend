@@ -97,7 +97,7 @@ function Claim() {
   return (
     <div>
       <IWCard w="full" variant="outline" mb="24px">
-        <SimpleGrid columns={[1, 2, 3]} spacing={"24px"}>
+        <SimpleGrid columns={[1, 1, 3]} spacing={"24px"}>
           <HeaderInfo info={stakingInfo} />
         </SimpleGrid>
       </IWCard>

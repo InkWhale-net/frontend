@@ -181,7 +181,7 @@ function StakingInfo({ info }) {
         key={i?.title}
         w="full"
         justify="space-between"
-        direction={["column", "row"]}
+        direction={["column", "column", "row"]}
       >
         <Flex alignItems="center">
           {i?.title}

@@ -172,7 +172,7 @@ function FooterInfo({ info }) {
         key={i?.title}
         w="full"
         justify="space-between"
-        direction={["column", "row"]}
+        direction={["column", "column", "row"]}
       >
         <Flex alignItems="center">
           {i?.title}
@@ -204,10 +204,10 @@ function StatsInfo({ info }) {
       tooltipContent: "Content of tooltip ",
     },
     {
-      title: "Total Staked (Included pending withdrawal)",
+      title: "Total Staked (incl. pending withdrawal)",
       number: info && info[1],
       denom: "AZERO",
-      hasTooltip: true,
+      hasTooltip: false,
       tooltipContent: "Content of tooltip ",
     },
     {
@@ -225,7 +225,7 @@ function StatsInfo({ info }) {
         key={i?.title}
         w="full"
         justify="space-between"
-        direction={["column", "row"]}
+        direction={["column", "column", "row"]}
       >
         <Flex alignItems="center">
           {i?.title}
