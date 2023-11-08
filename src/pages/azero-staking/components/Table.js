@@ -1,10 +1,10 @@
-import { Stack } from "@chakra-ui/react";
+import { Alert, AlertIcon, Stack } from "@chakra-ui/react";
 import { IWTable } from "components/table/IWTable";
 
-export default function StakingTable() {
+export default function StakingTable({ tableBody, cb }) {
   const tableData = {
     tableHeader,
-    tableBody: [],
+    tableBody,
   };
 
   return (
@@ -14,23 +14,32 @@ export default function StakingTable() {
       alignItems="start"
       direction={{ base: "column" }}
     >
-      <IWTable {...tableData} mode="STAKING_POOL" />
+      <IWTable
+        {...tableData}
+        mode="AZERO_STAKING"
+        isDisableRowClick
+        cb={cb}
+      />
+      <Alert status="warning">
+        <AlertIcon />
+        Note: 5 $INW will be charged and burned for each claim!{" "}
+      </Alert>
     </Stack>
   );
 }
 
 const tableHeader = [
   {
-    name: "reqiestId",
+    name: "requestIndex",
     hasTooltip: false,
     tooltipContent: "",
-    label: "Reqiest Id",
+    label: "Id",
   },
   {
     name: "requestStatus",
     hasTooltip: true,
     tooltipContent: `Request Status tooltip`,
-    label: "Request Status",
+    label: "Status",
   },
   {
     name: "withdrawalAmount",
@@ -39,15 +48,9 @@ const tableHeader = [
     label: "Withdrawal Amount",
   },
   {
-    name: "rewards",
+    name: "azeroReward",
     hasTooltip: false,
     tooltipContent: ``,
     label: "Rewards",
-  },
-  {
-    name: "action",
-    hasTooltip: false,
-    tooltipContent: "",
-    label: "Action",
   },
 ];

@@ -135,3 +135,15 @@ export async function doWithdrawRequest(api, currentAccount, amount) {
     formatNumToBN(amount)
   );
 }
+
+export async function doClaimRewards(api, currentAccount, index) {
+  return await execContractTx(
+    currentAccount,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::claim",
+    { u128: index }
+  );
+}
