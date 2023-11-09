@@ -696,7 +696,7 @@ const MyStakeRewardInfo = ({
               value={amount}
               onChange={({ target }) => setAmount(target.value)}
               type="number"
-              placeholder="Enter amount to stake or unstake"
+              placeholder="Enter amount"
               inputRightElementIcon={
                 <MaxStakeButton
                   setStakeMax={() => {
