@@ -701,7 +701,6 @@ const MyStakeRewardInfo = ({
                 <MaxStakeButton
                   setStakeMax={() => {
                     if (
-                      !Number(amount) ||
                       isPoolEnded(startTime, duration) ||
                       isPoolNotStart(startTime) ||
                       !(remainStaking > 0)
@@ -717,7 +716,7 @@ const MyStakeRewardInfo = ({
                       setAmount(remainStaking);
                   }}
                   setUnstakeMax={() => {
-                    if (!Number(amount) || !(totalStaked > 0)) {
+                    if (!(totalStaked > 0)) {
                       setAmount(0);
                       return;
                     }

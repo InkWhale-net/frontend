@@ -1338,8 +1338,7 @@ const MyStakeRewardInfoToken = ({
                         if (
                           !(availableStakeAmount > 0) ||
                           isPoolEnded(startTime, duration) ||
-                          isPoolNotStart(startTime, duration) ||
-                          !(LPTokenAmount?.length > 0)
+                          isPoolNotStart(startTime, duration)
                         ) {
                           setLPTokenAmount(0);
                           return;
