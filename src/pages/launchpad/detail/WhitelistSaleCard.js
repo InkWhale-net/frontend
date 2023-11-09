@@ -400,10 +400,17 @@ export const KycLayout = ({ launchpadData, upComing }) => {
           color: "#57527E",
         }}
       >
-        <Link href={kycUrl} isExternal>
-          Click here to KYC
-          <ExternalLinkIcon mx="2px" />
-        </Link>
+        {!currentAccount?.address || !launchpadData?.isActive ? (
+          <Button colorScheme="teal" variant="link" disabled>
+            Click here to KYC
+            <ExternalLinkIcon mx="2px" />
+          </Button>
+        ) : (
+          <Link href={kycUrl} isExternal disable>
+            Click here to KYC
+            <ExternalLinkIcon mx="2px" />
+          </Link>
+        )}
       </Box>
     </>
   ) : null;
