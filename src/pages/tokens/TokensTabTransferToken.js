@@ -135,7 +135,7 @@ const TokensTabTransferToken = ({
                 setAddressFromDomain("");
                 setTransferAmount("");
               }}
-              placeholder="Address to transfer"
+              placeholder="Address or azero.id to transfer"
             />
             {addressFromDomain && transferAddress && (
               <IWInput
