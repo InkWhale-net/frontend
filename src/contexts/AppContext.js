@@ -10,6 +10,7 @@ import {
   fetchUserBalance,
   updateAccountsList,
 } from "redux/slices/walletSlice";
+import { SwapV2TokenProvider } from "./SwapV2TokenModalContext";
 
 const AppContext = createContext();
 
@@ -91,7 +92,7 @@ export const AppContextProvider = ({ children }) => {
         walletDisconnectHandler,
       }}
     >
-      {children}
+      <SwapV2TokenProvider>{children}</SwapV2TokenProvider>
     </AppContext.Provider>
   );
 };

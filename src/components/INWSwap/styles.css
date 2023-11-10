@@ -1,0 +1,84 @@
+.button-open-text {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #57527e;
+}
+.max-amount-button {
+  padding-left: 12px;
+  padding-right: 12px;
+  background-color: #a4f4f9;
+  text-align: center;
+  color: #57527e;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  z-index: 2;
+}
+.unit-text {
+  font-weight: 600;
+  font-size: 14px;
+  margin-right: 4px;
+  text-wrap: nowrap;
+}
+.swap-icon-container {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.token-inw-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: cover;
+}
+.balance-title {
+  color: #57527e;
+  font-weight: 700;
+}
+.balance-container {
+  border: 1px solid #e3dff3;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-radius: 4px;
+  justify-content: space-between;
+}
+.balance-text {
+  color: #57527e;
+  font-weight: 700;
+  margin-right: 8px;
+}
+.balance-text-unit {
+}
+.swap-amount-container {
+  height: 80px;
+  border: 1px solid #e3dff3;
+  align-items: center;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-radius: 4px;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 4px;
+  margin-top: 8px;
+}
+.swap-amount-input {
+  width: 240px !important;
+  font-size: 32px !important;
+  border: transparent !important;
+  text-align: center;
+}
+.swap-amount-input::placeholder {
+  font-size: 32px !important;
+  text-align: center;
+}
+.divider-balance {
+  width: 1px;
+  background: #e3dff3;
+  margin-left: 4px;
+  margin-right: 4px;
+}
