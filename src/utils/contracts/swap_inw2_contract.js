@@ -1,8 +1,8 @@
 const swap_inw2_contract = {
-    CONTRACT_ADDRESS: "5FvhtkkqjsVtTXLDDex5a4GKry4dRVEKyRrcuvMfWL4aKxXa",
+    CONTRACT_ADDRESS: "5GfuZz5b2yU9oCpkzCpWAQos1tPpPd9EeBeRdKysFE2rnryL",
     CONTRACT_ABI: {
       "source": {
-        "hash": "0x5932ebcc5b5cfb4045617ecbfd683f17a2d56c3b8daae151aa68d4aabf9c20f9",
+        "hash": "0xf686245f1371f3d09b8e97cd88a28aef0ec714bf2ca4ac7e5ef26c26bfd2e767",
         "language": "ink! 4.3.0",
         "compiler": "rustc 1.68.0",
         "build_info": {
@@ -127,6 +127,34 @@ const swap_inw2_contract = {
             ],
             "docs": [],
             "label": "Swap"
+          },
+          {
+            "args": [
+              {
+                "docs": [],
+                "indexed": true,
+                "label": "user",
+                "type": {
+                  "displayName": [
+                    "AccountId"
+                  ],
+                  "type": 1
+                }
+              },
+              {
+                "docs": [],
+                "indexed": false,
+                "label": "value",
+                "type": {
+                  "displayName": [
+                    "Balance"
+                  ],
+                  "type": 0
+                }
+              }
+            ],
+            "docs": [],
+            "label": "SwapV2ToV1"
           }
         ],
         "lang_error": {
@@ -215,6 +243,63 @@ const swap_inw2_contract = {
             "selector": "0x9e32fab2"
           },
           {
+            "args": [],
+            "default": false,
+            "docs": [
+              " Get Azero balance"
+            ],
+            "label": "AdminTrait::get_balance",
+            "mutates": true,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 21
+            },
+            "selector": "0xc4360570"
+          },
+          {
+            "args": [
+              {
+                "label": "value",
+                "type": {
+                  "displayName": [
+                    "admintrait_external",
+                    "WithdrawFeeInput1"
+                  ],
+                  "type": 0
+                }
+              },
+              {
+                "label": "receiver",
+                "type": {
+                  "displayName": [
+                    "admintrait_external",
+                    "WithdrawFeeInput2"
+                  ],
+                  "type": 1
+                }
+              }
+            ],
+            "default": false,
+            "docs": [
+              " This function allows contract owner to withdraw contract balance to his account."
+            ],
+            "label": "AdminTrait::withdraw_fee",
+            "mutates": true,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 11
+            },
+            "selector": "0x07573e99"
+          },
+          {
             "args": [
               {
                 "label": "psp22_contract_address",
@@ -264,33 +349,37 @@ const swap_inw2_contract = {
             "selector": "0xd9aad284"
           },
           {
+            "args": [],
+            "default": false,
+            "docs": [],
+            "label": "InwSwapTrait::get_inw_contract_v1",
+            "mutates": false,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 23
+            },
+            "selector": "0x1a3ed4b8"
+          },
+          {
             "args": [
               {
-                "label": "value",
+                "label": "amount",
                 "type": {
                   "displayName": [
-                    "admintrait_external",
-                    "WithdrawFeeInput1"
+                    "inwswaptrait_external",
+                    "SwapInput1"
                   ],
                   "type": 0
-                }
-              },
-              {
-                "label": "receiver",
-                "type": {
-                  "displayName": [
-                    "admintrait_external",
-                    "WithdrawFeeInput2"
-                  ],
-                  "type": 1
                 }
               }
             ],
             "default": false,
-            "docs": [
-              " This function allows contract owner to withdraw contract balance to his account."
-            ],
-            "label": "AdminTrait::withdraw_fee",
+            "docs": [],
+            "label": "InwSwapTrait::swap",
             "mutates": true,
             "payable": false,
             "returnType": {
@@ -300,25 +389,7 @@ const swap_inw2_contract = {
               ],
               "type": 11
             },
-            "selector": "0x07573e99"
-          },
-          {
-            "args": [],
-            "default": false,
-            "docs": [
-              " Get Azero balance"
-            ],
-            "label": "AdminTrait::get_balance",
-            "mutates": true,
-            "payable": false,
-            "returnType": {
-              "displayName": [
-                "ink",
-                "MessageResult"
-              ],
-              "type": 21
-            },
-            "selector": "0xc4360570"
+            "selector": "0xae765606"
           },
           {
             "args": [],
@@ -337,20 +408,31 @@ const swap_inw2_contract = {
             "selector": "0x0543f709"
           },
           {
-            "args": [],
+            "args": [
+              {
+                "label": "inw_contract_v1",
+                "type": {
+                  "displayName": [
+                    "inwswaptrait_external",
+                    "SetInwContractV1Input1"
+                  ],
+                  "type": 1
+                }
+              }
+            ],
             "default": false,
             "docs": [],
-            "label": "InwSwapTrait::get_inw_contract_v1",
-            "mutates": false,
+            "label": "InwSwapTrait::set_inw_contract_v1",
+            "mutates": true,
             "payable": false,
             "returnType": {
               "displayName": [
                 "ink",
                 "MessageResult"
               ],
-              "type": 23
+              "type": 11
             },
-            "selector": "0x1a3ed4b8"
+            "selector": "0x44df600b"
           },
           {
             "args": [
@@ -409,38 +491,11 @@ const swap_inw2_contract = {
           {
             "args": [
               {
-                "label": "inw_contract_v1",
-                "type": {
-                  "displayName": [
-                    "inwswaptrait_external",
-                    "SetInwContractV1Input1"
-                  ],
-                  "type": 1
-                }
-              }
-            ],
-            "default": false,
-            "docs": [],
-            "label": "InwSwapTrait::set_inw_contract_v1",
-            "mutates": true,
-            "payable": false,
-            "returnType": {
-              "displayName": [
-                "ink",
-                "MessageResult"
-              ],
-              "type": 11
-            },
-            "selector": "0x44df600b"
-          },
-          {
-            "args": [
-              {
                 "label": "amount",
                 "type": {
                   "displayName": [
                     "inwswaptrait_external",
-                    "SwapInput1"
+                    "SwapInwV2ToV1Input1"
                   ],
                   "type": 0
                 }
@@ -448,7 +503,7 @@ const swap_inw2_contract = {
             ],
             "default": false,
             "docs": [],
-            "label": "InwSwapTrait::swap",
+            "label": "InwSwapTrait::swap_inw_v2_to_v1",
             "mutates": true,
             "payable": false,
             "returnType": {
@@ -458,7 +513,7 @@ const swap_inw2_contract = {
               ],
               "type": 11
             },
-            "selector": "0xae765606"
+            "selector": "0xa97e9c94"
           },
           {
             "args": [],
@@ -520,31 +575,10 @@ const swap_inw2_contract = {
             "selector": "0x11f43efd"
           },
           {
-            "args": [
-              {
-                "label": "owner",
-                "type": {
-                  "displayName": [
-                    "psp22_external",
-                    "AllowanceInput1"
-                  ],
-                  "type": 1
-                }
-              },
-              {
-                "label": "spender",
-                "type": {
-                  "displayName": [
-                    "psp22_external",
-                    "AllowanceInput2"
-                  ],
-                  "type": 1
-                }
-              }
-            ],
+            "args": [],
             "default": false,
             "docs": [],
-            "label": "PSP22::allowance",
+            "label": "PSP22::total_supply",
             "mutates": false,
             "payable": false,
             "returnType": {
@@ -554,71 +588,7 @@ const swap_inw2_contract = {
               ],
               "type": 28
             },
-            "selector": "0x4d47d921"
-          },
-          {
-            "args": [
-              {
-                "label": "owner",
-                "type": {
-                  "displayName": [
-                    "psp22_external",
-                    "BalanceOfInput1"
-                  ],
-                  "type": 1
-                }
-              }
-            ],
-            "default": false,
-            "docs": [],
-            "label": "PSP22::balance_of",
-            "mutates": false,
-            "payable": false,
-            "returnType": {
-              "displayName": [
-                "ink",
-                "MessageResult"
-              ],
-              "type": 28
-            },
-            "selector": "0x6568382f"
-          },
-          {
-            "args": [
-              {
-                "label": "spender",
-                "type": {
-                  "displayName": [
-                    "psp22_external",
-                    "IncreaseAllowanceInput1"
-                  ],
-                  "type": 1
-                }
-              },
-              {
-                "label": "delta_value",
-                "type": {
-                  "displayName": [
-                    "psp22_external",
-                    "IncreaseAllowanceInput2"
-                  ],
-                  "type": 0
-                }
-              }
-            ],
-            "default": false,
-            "docs": [],
-            "label": "PSP22::increase_allowance",
-            "mutates": true,
-            "payable": false,
-            "returnType": {
-              "displayName": [
-                "ink",
-                "MessageResult"
-              ],
-              "type": 29
-            },
-            "selector": "0x96d6b57a"
+            "selector": "0x162df8c2"
           },
           {
             "args": [
@@ -656,69 +626,6 @@ const swap_inw2_contract = {
               "type": 29
             },
             "selector": "0xfecb57d5"
-          },
-          {
-            "args": [
-              {
-                "label": "to",
-                "type": {
-                  "displayName": [
-                    "psp22_external",
-                    "TransferInput1"
-                  ],
-                  "type": 1
-                }
-              },
-              {
-                "label": "value",
-                "type": {
-                  "displayName": [
-                    "psp22_external",
-                    "TransferInput2"
-                  ],
-                  "type": 0
-                }
-              },
-              {
-                "label": "data",
-                "type": {
-                  "displayName": [
-                    "psp22_external",
-                    "TransferInput3"
-                  ],
-                  "type": 31
-                }
-              }
-            ],
-            "default": false,
-            "docs": [],
-            "label": "PSP22::transfer",
-            "mutates": true,
-            "payable": false,
-            "returnType": {
-              "displayName": [
-                "ink",
-                "MessageResult"
-              ],
-              "type": 29
-            },
-            "selector": "0xdb20f9f5"
-          },
-          {
-            "args": [],
-            "default": false,
-            "docs": [],
-            "label": "PSP22::total_supply",
-            "mutates": false,
-            "payable": false,
-            "returnType": {
-              "displayName": [
-                "ink",
-                "MessageResult"
-              ],
-              "type": 28
-            },
-            "selector": "0x162df8c2"
           },
           {
             "args": [
@@ -776,6 +683,154 @@ const swap_inw2_contract = {
               "type": 29
             },
             "selector": "0x54b3c76e"
+          },
+          {
+            "args": [
+              {
+                "label": "owner",
+                "type": {
+                  "displayName": [
+                    "psp22_external",
+                    "BalanceOfInput1"
+                  ],
+                  "type": 1
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "PSP22::balance_of",
+            "mutates": false,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 28
+            },
+            "selector": "0x6568382f"
+          },
+          {
+            "args": [
+              {
+                "label": "owner",
+                "type": {
+                  "displayName": [
+                    "psp22_external",
+                    "AllowanceInput1"
+                  ],
+                  "type": 1
+                }
+              },
+              {
+                "label": "spender",
+                "type": {
+                  "displayName": [
+                    "psp22_external",
+                    "AllowanceInput2"
+                  ],
+                  "type": 1
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "PSP22::allowance",
+            "mutates": false,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 28
+            },
+            "selector": "0x4d47d921"
+          },
+          {
+            "args": [
+              {
+                "label": "to",
+                "type": {
+                  "displayName": [
+                    "psp22_external",
+                    "TransferInput1"
+                  ],
+                  "type": 1
+                }
+              },
+              {
+                "label": "value",
+                "type": {
+                  "displayName": [
+                    "psp22_external",
+                    "TransferInput2"
+                  ],
+                  "type": 0
+                }
+              },
+              {
+                "label": "data",
+                "type": {
+                  "displayName": [
+                    "psp22_external",
+                    "TransferInput3"
+                  ],
+                  "type": 31
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "PSP22::transfer",
+            "mutates": true,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 29
+            },
+            "selector": "0xdb20f9f5"
+          },
+          {
+            "args": [
+              {
+                "label": "spender",
+                "type": {
+                  "displayName": [
+                    "psp22_external",
+                    "IncreaseAllowanceInput1"
+                  ],
+                  "type": 1
+                }
+              },
+              {
+                "label": "delta_value",
+                "type": {
+                  "displayName": [
+                    "psp22_external",
+                    "IncreaseAllowanceInput2"
+                  ],
+                  "type": 0
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "PSP22::increase_allowance",
+            "mutates": true,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 29
+            },
+            "selector": "0x96d6b57a"
           },
           {
             "args": [],
@@ -1674,7 +1729,15 @@ const swap_inw2_contract = {
                   },
                   {
                     "index": 79,
+                    "name": "CannotCollectInwV2"
+                  },
+                  {
+                    "index": 80,
                     "name": "CannotMintInwV2"
+                  },
+                  {
+                    "index": 81,
+                    "name": "CannotTransferInwV1"
                   }
                 ]
               }
