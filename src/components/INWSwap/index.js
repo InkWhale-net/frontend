@@ -261,7 +261,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
             <Box className="divider-balance" />
             <Flex>
               <Text className="balance-text">
-                {formatNumDynDecimal(currentAccount?.balance?.inw2)}
+                {formatNumDynDecimal(currentAccount?.balance?.inw2?.replaceAll(",", ""))}
               </Text>
               <Text w={isMobile && "64px"} textAlign="end">
                 INW V2
