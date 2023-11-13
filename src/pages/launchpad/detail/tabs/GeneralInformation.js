@@ -7,6 +7,7 @@ import { isMobile } from "react-device-detect";
 import { roundUp } from "utils";
 import { format } from "utils/datetime";
 import TabLayout from "../Layout";
+import TokenInformation from "./TokenInformation";
 
 const LabelField = ({ label, value, divider = true }) => {
   return (
@@ -124,6 +125,14 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
           </>
         );
       })}
+      <Heading sx={{ fontSize: "24px" }} size="lg" marginTop="40px">
+        Token Information
+      </Heading>
+      <Divider sx={{ marginBottom: "16px" }} />
+      <TokenInformation
+        launchpadContract={launchpadContract}
+        launchpadData={launchpadData}
+      />{" "}
       {distributions?.length > 0 && (
         <>
           <Heading
@@ -133,7 +142,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
             }}
             size="lg"
           >
-            Tokenomic
+            Tokenomics
           </Heading>
           <Box
             sx={{

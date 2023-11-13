@@ -78,18 +78,18 @@ const PublicDetailLaunchpad = () => {
       ),
       isDisabled: false,
     },
+    // {
+    //   label: <>Token</>,
+    //   component: (
+    //     <TokenInformation
+    //       launchpadContract={launchpadContract}
+    //       launchpadData={launchpadData}
+    //     />
+    //   ),
+    //   isDisabled: false,
+    // },
     {
-      label: <>Token</>,
-      component: (
-        <TokenInformation
-          launchpadContract={launchpadContract}
-          launchpadData={launchpadData}
-        />
-      ),
-      isDisabled: false,
-    },
-    {
-      label: <>Balance</>,
+      label: 'My Purchase',
       component: <BalanceTab launchpadData={launchpadData} />,
       isDisabled: false,
     },

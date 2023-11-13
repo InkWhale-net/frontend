@@ -49,7 +49,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     `${
       launchpadData?.requireKyc ? "Import KYC address" : "Bulk add Whitelist"
     }`,
-    "Clear Whitelist",
+    // "Clear Whitelist",
   ];
 
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
