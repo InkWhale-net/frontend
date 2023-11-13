@@ -367,7 +367,11 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          {!onCreateNew ? "Manage phases" : `Manage ${newData?.name} phases`}
+          {!onCreateNew
+            ? "Manage Phases"
+            : selectedPhaseIndex >= 0
+            ? `Manage ${newData?.name ?? ""} phase`
+            : "Create New Phase"}
         </ModalHeader>
         <ModalCloseButton onClick={() => setVisible(false)} />
         <ModalBody sx={{ pb: "28px", maxHeight: "80vh", overflow: "auto" }}>
@@ -731,7 +735,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
           ) : (
             <>
               <Text sx={{ fontWeight: "700", color: "#57527E" }}>
-                Choose Phase
+                Select phase to edit
               </Text>
               <Box
                 sx={{ display: "flex" }}
@@ -763,7 +767,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                   setSelectedPhaseIndex(-1);
                 }}
               >
-                Create new Phase
+                Create New Phase
               </Button>
             </>
           )}

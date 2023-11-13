@@ -142,7 +142,7 @@ const AddBulk = ({
         />
       ) : (
         <>
-          <Flex
+          {/* <Flex
             flexDirection={["column", "row"]}
             w="full"
             p="10px"
@@ -155,7 +155,7 @@ const AddBulk = ({
               phaseHeaderInfo={phaseHeaderInfo}
               launchpadData={launchpadData}
             />
-          </Flex>
+          </Flex> */}
           <IWTextArea
             sx={{
               height: "132px",

@@ -249,7 +249,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                     </Text>
                   </Text>
                 </Box>
-                {launchpadData?.requireKyc && selectedMode == 1 && (
+                {/* {launchpadData?.requireKyc && selectedMode == 1 && (
                   <Flex
                     flexDirection={["column", "row"]}
                     w="full"
@@ -263,7 +263,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                       launchpadData={launchpadData}
                     />
                   </Flex>
-                )}
+                )} */}
               </Flex>
               {!isPhaseEditable && (
                 <Box
@@ -312,7 +312,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                   ]}
                 >
                   <Text sx={{ fontWeight: "700", color: "#57527E" }}>
-                    Choose Phase
+                    Select Phase
                   </Text>
                   <Select
                     variant="filled"
@@ -380,7 +380,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
               />
             ) : (
               <Box sx={{ flex: 1, pt: "1px" }}>
-                <Flex
+                {/* <Flex
                   flexDirection={["column", "row"]}
                   w="full"
                   p="10px"
@@ -393,7 +393,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                     phaseHeaderInfo={phaseHeaderInfo}
                     launchpadData={launchpadData}
                   />
-                </Flex>
+                </Flex> */}
                 <IWInput
                   size="md"
                   value={queries?.keyword}
