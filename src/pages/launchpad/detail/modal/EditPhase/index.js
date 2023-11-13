@@ -499,7 +499,10 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                     title={
                       <>
                         Phase Cap
-                        <Tooltip fontSize="md" label={`Phase Cap explain`}>
+                        <Tooltip
+                          fontSize="md"
+                          label={`Total amount of tokens to be sold in this phase.`}
+                        >
                           <QuestionOutlineIcon ml="6px" color="text.2" />
                         </Tooltip>
                       </>
@@ -551,16 +554,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                     }
                   >
                     <IWInput
-                      inputRightElementIcon={
-                        <Tooltip
-                          fontSize="md"
-                          label={
-                            "The vesting duration refers to the length of time over which a vesting schedule is applied"
-                          }
-                        >
-                          <b>day(s)</b>
-                        </Tooltip>
-                      }
+                      inputRightElementIcon={<b>day(s)</b>}
                       isDisabled={
                         parseFloat(newData?.immediateReleaseRate) === 100 ||
                         !isPhaseEditable
@@ -573,18 +567,23 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                       placeholder="0"
                     />
                   </SectionContainer>
-                  <SectionContainer title={"Vesting Release Period"}>
-                    <IWInput
-                      inputRightElementIcon={
+                  <SectionContainer
+                    title={
+                      <>
+                        Vesting Release Period
                         <Tooltip
                           fontSize="md"
                           label={
                             "The Vesting Release Period is the interval or frequency at which vested tokens become accessible to the token holder according to the predetermined vesting schedule"
                           }
                         >
-                          <b>day(s)</b>
+                          <QuestionOutlineIcon ml="6px" color="text.2" />
                         </Tooltip>
-                      }
+                      </>
+                    }
+                  >
+                    <IWInput
+                      inputRightElementIcon={<b>day(s)</b>}
                       isDisabled={
                         parseFloat(newData?.immediateReleaseRate) === 100 ||
                         !isPhaseEditable

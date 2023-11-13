@@ -104,7 +104,7 @@ const PublicDetailLaunchpad = () => {
           >
             <BreadcrumbItem color="text.2">
               <BreadcrumbLink onClick={() => history.push("/launchpad")}>
-                All Launchpads
+                All Launchpad Projects
               </BreadcrumbLink>
             </BreadcrumbItem>
 

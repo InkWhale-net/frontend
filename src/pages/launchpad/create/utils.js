@@ -43,30 +43,52 @@ export const validateRoadmap = (launchpadData) => {
 };
 
 export const validatePhase = (launchpadData) => {
+  if (!launchpadData?.phase || !launchpadData?.totalSupply) return;
+
   const phaseCapAmountList = launchpadData?.phase?.map((p) => p.capAmount);
 
   if (phaseCapAmountList?.some((i) => i - launchpadData?.totalSupply > 0)) {
+    // toast.error(`Phase Cap Amount can not greater than Total Supply`);
     return false;
   }
 
   const phaseData = launchpadData?.phase;
-  if (!(parseFloat(launchpadData?.totalSupply || 0) > 0)) return false;
+  if (!(parseFloat(launchpadData?.totalSupply || 0) > 0)) {
+    //  toast.error(`Total Supply must greater than Zero`);
+
+    return false;
+  }
+
   if (
     phaseData?.filter((e) => e?.name?.length > 0)?.length != phaseData?.length
-  )
+  ) {
+    // toast.error(`Phase name is not valid!`);
     return false;
-  if (phaseData?.filter((e) => e?.startDate > 0)?.length != phaseData?.length)
+  }
+
+  if (phaseData?.filter((e) => e?.startDate > 0)?.length != phaseData?.length) {
+    // toast.error(`Total Phase is not valid!`);
     return false;
-  if (phaseData?.filter((e) => e?.endDate > 0)?.length != phaseData?.length)
+  }
+
+  if (phaseData?.filter((e) => e?.endDate > 0)?.length != phaseData?.length) {
+    // toast.error(`Total Phase is not valid!`);
     return false;
+  }
+
   if (
     phaseData?.filter(
       (e) =>
         parseFloat(e?.immediateReleaseRate) > 0 &&
-        parseFloat(e?.immediateReleaseRate?.length) <= 100
+        parseFloat(e?.immediateReleaseRate) <= 100
     )?.length != phaseData?.length
-  )
+  ) {
+    // toast.error(
+    //   `Immediate ReleaseRate must greater than Zero and less than 100`
+    // );
     return false;
+  }
+
   if (
     phaseData?.filter((e) => {
       if (parseFloat(e?.immediateReleaseRate) == 100) return true;
@@ -74,8 +96,11 @@ export const validatePhase = (launchpadData) => {
         return parseFloat(e?.vestingLength) > 0;
       }
     })?.length != phaseData?.length
-  )
+  ) {
+    // toast.error(`Vesting Length must greater than Zero`);
     return false;
+  }
+
   if (
     phaseData?.filter((e) => {
       if (parseFloat(e?.immediateReleaseRate) == 100) return true;
@@ -83,8 +108,11 @@ export const validatePhase = (launchpadData) => {
         return parseFloat(e?.vestingUnit) > 0;
       }
     })?.length != phaseData?.length
-  )
+  ) {
+    // toast.error(`Vesting Unit must greater than Zero`);
+
     return false;
+  }
   return true;
 };
 
@@ -298,6 +326,7 @@ const checkTimeRangeOverlap = (arr) => {
           { startDate: start2, endDate: end2 }
         )
       ) {
+        toast.error("Phase Time Range is Overlap");
         return true;
       }
     }
@@ -326,7 +355,7 @@ export const validatePhaseData = (phaseData, errorMsg) => {
     phaseData?.filter((e) => {
       return (
         parseFloat(e?.immediateReleaseRate) <= 100 &&
-        parseFloat(e?.immediateReleaseRate) > 0
+        parseFloat(e?.immediateReleaseRate) >= 0
       );
     })?.length !== phaseData?.length
   ) {

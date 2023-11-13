@@ -402,19 +402,19 @@ const FinishModal = ({}) => {
         }
       },
     },
-    {
-      label: "Setup whitelist",
-      callback: async () => {
-        // try {
-        //   if (activeStep != 3 || !newLpAddress) return;
-        //   toast("Please wait for adding whitelist...");
-        //   await delay(100);
-        // } catch (error) {
-        //   setIsError(true);
-        //   console.log(error);
-        // }
-      },
-    },
+    // {
+    //   label: "Setup whitelist",
+    //   callback: async () => {
+    //     // try {
+    //     //   if (activeStep != 3 || !newLpAddress) return;
+    //     //   toast("Please wait for adding whitelist...");
+    //     //   await delay(100);
+    //     // } catch (error) {
+    //     //   setIsError(true);
+    //     //   console.log(error);
+    //     // }
+    //   },
+    // },
   ];
   useEffect(() => {
     if (visible) {
