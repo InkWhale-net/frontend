@@ -294,6 +294,7 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
           {[
             { title: "AZERO Balance", content: currentAccount?.balance?.azero },
             { title: "INW Balance", content: currentAccount?.balance?.inw },
+            { title: "INW V2 Balance", content: currentAccount?.balance?.inw2 },
           ].map(({ title, content }, idx) => {
             return (
               <IWCard

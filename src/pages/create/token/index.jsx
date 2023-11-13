@@ -37,6 +37,8 @@ import SaleTab from "components/tabs/SaleTab";
 import { roundUp } from "utils";
 import { useAppContext } from "contexts/AppContext";
 import { moveINWToBegin } from "utils";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { formatNumDynDecimal } from "utils";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
@@ -70,7 +72,7 @@ export default function CreateTokenPage() {
 
       const fee = formatQueryResultToNumber(result);
 
-      setCreateToken(fee);
+      setCreateToken(fee?.replaceAll(",", ""));
     };
     fetchCreateTokenFee();
   }, [currentAccount, api]);
@@ -80,7 +82,7 @@ export default function CreateTokenPage() {
         let queryResult = await execContractQuery(
           currentAccount?.address,
           "api",
-          psp22_contract.CONTRACT_ABI,
+          psp22_contract_v2.CONTRACT_ABI,
           e?.contractAddress,
           0,
           "psp22::totalSupply"
@@ -89,7 +91,7 @@ export default function CreateTokenPage() {
         let queryResult1 = await execContractQuery(
           currentAccount?.address,
           "api",
-          psp22_contract.CONTRACT_ABI,
+          psp22_contract_v2.CONTRACT_ABI,
           e?.contractAddress,
           0,
           "psp22Metadata::tokenDecimals"
@@ -145,19 +147,21 @@ export default function CreateTokenPage() {
     }
 
     if (
-      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) <
-      createTokenFee?.replaceAll(",", "")
+      +currentAccount?.balance?.inw2?.replaceAll(",", "") <
+      +createTokenFee?.replaceAll(",", "")
     ) {
       toast.error(
-        `You don't have enough INW. Create Token costs ${createTokenFee} INW`
+        `You don't have enough INW V2. Create Token costs ${formatNumDynDecimal(
+          createTokenFee
+        )} INW V2`
       );
       return;
     }
     const allowanceINWQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      azt_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
+      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::allowance",
       currentAccount?.address,
@@ -169,14 +173,14 @@ export default function CreateTokenPage() {
     );
     let step = 1;
     //Approve
-    if (allowanceINW < createTokenFee.replaceAll(",", "")) {
+    if (+allowanceINW < +createTokenFee?.replaceAll(",", "")) {
       toast.success(`Step ${step}: Approving...`);
       step++;
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract.CONTRACT_ABI,
-        azt_contract.CONTRACT_ADDRESS,
+        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ADDRESS,
         0, //-> value
         "psp22::approve",
         core_contract.CONTRACT_ADDRESS,
@@ -288,7 +292,7 @@ export default function CreateTokenPage() {
             specific address. The creation requires
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {createTokenFee} INW
+              {createTokenFee && formatNumDynDecimal(createTokenFee)} INW V2
             </Text>
           </span>
           <VStack w="full" mt={4}>
@@ -349,8 +353,10 @@ export default function CreateTokenPage() {
               <Box w={{ base: "full" }}>
                 <IWInput
                   isDisabled={true}
-                  value={`${currentAccount?.balance?.inw || 0} INW`}
-                  label="Your INW Balance"
+                  value={`${
+                    formatNumDynDecimal(currentAccount?.balance?.inw2?.replaceAll(",", "")) || 0
+                  } INW V2`}
+                  label="Your INW V2 Balance"
                 />
               </Box>
               <Box w="full">

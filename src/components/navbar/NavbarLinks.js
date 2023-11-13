@@ -20,6 +20,7 @@ import routes from "routes.js";
 import WalletButton from "components/wallet/WalletButton";
 import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
+import { INWSwap } from "components/INWSwap";
 
 export default function NavbarLinks(props) {
   const { secondary } = props;
@@ -188,6 +189,7 @@ export default function NavbarLinks(props) {
             </Link>
           </Flex>
         </Flex>
+        <INWSwap />
       </Show>
 
       <Show above="md">
