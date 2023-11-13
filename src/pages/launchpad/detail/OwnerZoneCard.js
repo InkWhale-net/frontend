@@ -258,7 +258,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         onClick={() => showWLModal()}
       >
         {launchpadData?.requireKyc
-          ? "KYC Manager"
+          ? "Manage KYC & Whitelist"
           : "Whitelist Manager"}
       </Button>
       {/* <Button

@@ -205,7 +205,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
       <ModalContent>
         <ModalHeader fontSize={["2xl", "3xl"]}>
           {launchpadData?.requireKyc
-            ? "Update KYC Whitelist"
+            ? "Manage KYC & Whitelist"
             : "Update Whitelist"}
         </ModalHeader>
         <ModalCloseButton onClick={() => setVisible(false)} />
@@ -235,14 +235,14 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                   }
                 >
                   <Text>
-                    Available token amount:{" "}
+                    Balance:{" "}
                     <Text as="span" fontWeight={600}>
                       {`${formatNumDynDecimal(availableTokenAmount)}
                 ${launchpadData?.projectInfo?.token?.symbol}`}
                     </Text>
                   </Text>
                   <Text>
-                    Phase cap amount:{" "}
+                    Phase Cap:{" "}
                     <Text as="span" fontWeight={600}>
                       {`${formatNumDynDecimal(phaseHeaderInfo?.capAmount)}
                 ${launchpadData?.projectInfo?.token?.symbol}`}

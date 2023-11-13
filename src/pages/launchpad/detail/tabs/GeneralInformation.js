@@ -59,16 +59,16 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
       header: "description",
     },
     {
-      label: "Token total for sale",
+      label: "Total token for sale",
       header: "totalSupply",
     },
 
     {
-      label: "Presale Start Time",
+      label: "Start Time",
       header: "presaleStartTime",
     },
     {
-      label: "Presale End Time",
+      label: "End Time",
       header: "presaleEndTime",
     },
   ];

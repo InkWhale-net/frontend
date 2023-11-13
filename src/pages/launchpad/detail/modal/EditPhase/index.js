@@ -366,10 +366,18 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Update phases</ModalHeader>
-
+        <ModalHeader>
+          {!onCreateNew ? "Manage phases" : `Manage ${newData?.name} phases`}
+        </ModalHeader>
         <ModalCloseButton onClick={() => setVisible(false)} />
         <ModalBody sx={{ pb: "28px", maxHeight: "80vh", overflow: "auto" }}>
+          <Text>
+            {`${
+              !onCreateNew ? "Available token amount" : "Balance"
+            }: ${formatNumDynDecimal(availableTokenAmount)} ${
+              launchpadData?.projectInfo?.token?.symbol
+            }`}
+          </Text>
           {onCreateNew ? (
             <>
               {selectedPhaseIndex >= 0 && (
@@ -501,7 +509,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                         Phase Cap
                         <Tooltip
                           fontSize="md"
-                          label={`Total amount of tokens to be sold in this phase.`}
+                          label={`Total token for sale in this phase`}
                         >
                           <QuestionOutlineIcon ml="6px" color="text.2" />
                         </Tooltip>
@@ -745,26 +753,22 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                     </option>
                   ))}
                 </Select>
-                <Button
-                  mt={["16px", "0px"]}
-                  sx={{ marginLeft: "10px" }}
-                  size="md"
-                  onClick={() => {
-                    setOnCreateNew(true);
-                    setSelectedPhaseIndex(-1);
-                  }}
-                >
-                  Create new Phase
-                </Button>
               </Box>
+              <Button
+                mt={["16px"]}
+                size="md"
+                w={["full", "full", "25%"]}
+                onClick={() => {
+                  setOnCreateNew(true);
+                  setSelectedPhaseIndex(-1);
+                }}
+              >
+                Create new Phase
+              </Button>
             </>
           )}
         </ModalBody>
-        <ModalFooter>
-          Available token amount:{" "}
-          {`${formatNumDynDecimal(availableTokenAmount)}
-            ${launchpadData?.projectInfo?.token?.symbol}`}
-        </ModalFooter>
+        <ModalFooter></ModalFooter>
       </ModalContent>
     </Modal>
   );
