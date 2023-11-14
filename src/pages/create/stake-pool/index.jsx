@@ -34,9 +34,8 @@ import {
   roundUp,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import azt_contract from "utils/contracts/azt_contract";
 import pool_generator_contract from "utils/contracts/pool_generator";
-import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 
 export default function CreateStakePoolPage({ api }) {
   const dispatch = useDispatch();
@@ -76,7 +75,7 @@ export default function CreateStakePoolPage({ api }) {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       selectedContractAddr,
       0,
       "psp22::balanceOf",
@@ -91,7 +90,7 @@ export default function CreateStakePoolPage({ api }) {
       let queryResult1 = await execContractQuery(
         currentAccount?.address,
         "api",
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ABI,
         selectedContractAddr,
         0,
         "psp22Metadata::tokenSymbol"
@@ -220,8 +219,8 @@ export default function CreateStakePoolPage({ api }) {
     const allowanceINWQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      azt_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
+      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::allowance",
       currentAccount?.address,
@@ -234,7 +233,7 @@ export default function CreateStakePoolPage({ api }) {
     const allowanceTokenQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       selectedContractAddr,
       0, //-> value
       "psp22::allowance",
@@ -254,8 +253,8 @@ export default function CreateStakePoolPage({ api }) {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract.CONTRACT_ABI,
-        azt_contract.CONTRACT_ADDRESS,
+        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ADDRESS,
         0, //-> value
         "psp22::approve",
         pool_generator_contract.CONTRACT_ADDRESS,
@@ -269,7 +268,7 @@ export default function CreateStakePoolPage({ api }) {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ABI,
         selectedContractAddr,
         0, //-> value
         "psp22::approve",

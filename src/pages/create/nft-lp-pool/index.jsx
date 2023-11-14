@@ -3,7 +3,6 @@ import {
   Button,
   Flex,
   Heading,
-  Select,
   SimpleGrid,
   Text,
   Tooltip,
@@ -13,32 +12,35 @@ import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 import { IWTable } from "components/table/IWTable";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import DateTimePicker from "react-datetime-picker";
-import { useDispatch, useSelector } from "react-redux";
-import { addressShortener } from "utils";
-import { toast } from "react-hot-toast";
-import { isAddressValid } from "utils";
-import { execContractQuery } from "utils/contracts";
-import { formatQueryResultToNumber } from "utils";
-import psp22_contract from "utils/contracts/psp22_contract";
-import { APICall } from "api/client";
-import { toastMessages } from "constants";
-import { execContractTx } from "utils/contracts";
-import { fetchUserBalance } from "redux/slices/walletSlice";
-import { delay } from "utils";
-import { formatNumToBN, formatNumDynDecimal } from "utils";
-import azt_contract from "utils/contracts/azt_contract";
-import nft_pool_generator_contract from "utils/contracts/nft_pool_generator_contract";
-import { fetchMyNFTPools } from "redux/slices/myPoolsSlice";
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
-import { roundUp } from "utils";
-import ImageUploadIcon from "../token/UploadIcon";
+import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
-import { execContractTxAndCallAPI } from "utils/contracts";
-import { moveINWToBegin } from "utils";
-import { excludeNFT } from "utils";
+import { toastMessages } from "constants";
 import { useAppContext } from "contexts/AppContext";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import DateTimePicker from "react-datetime-picker";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMyNFTPools } from "redux/slices/myPoolsSlice";
+import { fetchUserBalance } from "redux/slices/walletSlice";
+import {
+  addressShortener,
+  delay,
+  excludeNFT,
+  formatNumDynDecimal,
+  formatNumToBN,
+  formatQueryResultToNumber,
+  isAddressValid,
+  moveINWToBegin,
+  roundUp,
+} from "utils";
+import {
+  execContractQuery,
+  execContractTx,
+  execContractTxAndCallAPI,
+} from "utils/contracts";
+import nft_pool_generator_contract from "utils/contracts/nft_pool_generator_contract";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 
 export default function CreateNFTLPPage() {
   const dispatch = useDispatch();
@@ -78,7 +80,7 @@ export default function CreateNFTLPPage() {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       selectedContractAddr,
       0,
       "psp22::balanceOf",
@@ -92,7 +94,7 @@ export default function CreateNFTLPPage() {
       let queryResult1 = await execContractQuery(
         currentAccount?.address,
         "api",
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ABI,
         selectedContractAddr,
         0,
         "psp22Metadata::tokenSymbol"
@@ -107,7 +109,7 @@ export default function CreateNFTLPPage() {
       let queryResult1 = await execContractQuery(
         currentAccount?.address,
         "api",
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ABI,
         selectedContractAddr,
         0,
         "psp22Metadata::tokenDecimals"
@@ -266,8 +268,8 @@ export default function CreateNFTLPPage() {
     const allowanceINWQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      azt_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
+      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::allowance",
       currentAccount?.address,
@@ -280,7 +282,7 @@ export default function CreateNFTLPPage() {
     const allowanceTokenQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       selectedContractAddr,
       0, //-> value
       "psp22::allowance",
@@ -300,8 +302,8 @@ export default function CreateNFTLPPage() {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract.CONTRACT_ABI,
-        azt_contract.CONTRACT_ADDRESS,
+        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ADDRESS,
         0, //-> value
         "psp22::approve",
         nft_pool_generator_contract.CONTRACT_ADDRESS,
@@ -315,7 +317,7 @@ export default function CreateNFTLPPage() {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ABI,
         selectedContractAddr,
         0, //-> value
         "psp22::approve",
@@ -378,7 +380,7 @@ export default function CreateNFTLPPage() {
   );
 
   useEffect(() => {
-    if(api) dispatch(fetchMyNFTPools({ currentAccount }));
+    if (api) dispatch(fetchMyNFTPools({ currentAccount }));
   }, [api, currentAccount]);
 
   const tableData = {

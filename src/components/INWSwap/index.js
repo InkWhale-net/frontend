@@ -1,34 +1,37 @@
 import {
   Box,
   Button,
-  Divider,
   Flex,
   Input,
   Link,
   Menu,
   MenuButton,
+  MenuItem,
   MenuList,
   Text,
 } from "@chakra-ui/react";
-import { useState, useEffect, useRef, useMemo } from "react";
-import { isMobile } from "react-device-detect";
-import { useDispatch, useSelector } from "react-redux";
-import { MdWallet } from "react-icons/md";
-import { HiMiniChevronRight } from "react-icons/hi2";
-import "./styles.css";
-import { useMutation } from "react-query";
-import { execContractTx } from "utils/contracts";
+import { ContractPromise } from "@polkadot/api-contract";
 import { useAppContext } from "contexts/AppContext";
-import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
-import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
-import { formatNumToBN } from "utils";
+import { useEffect, useRef, useState } from "react";
+import { isMobile } from "react-device-detect";
 import toast from "react-hot-toast";
-import { delay } from "utils";
+import { FaChevronDown } from "react-icons/fa";
+import { useMutation } from "react-query";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import { execContractQuery } from "utils/contracts";
+import {
+  delay,
+  formatNumDynDecimal,
+  formatNumToBN,
+  formatQueryResultToNumber,
+  formatTokenAmount,
+} from "utils";
+import { execContractQuery, execContractTx } from "utils/contracts";
+import { getGasLimit } from "utils/contracts/dryRun";
 import psp22_contract from "utils/contracts/psp22_contract";
-import { formatQueryResultToNumber } from "utils";
-import { formatNumDynDecimal } from "utils";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
+import "./styles.css";
 export const INWSwap = () => {
   const amountRef = useRef(null);
   if (isMobile) return null;
@@ -57,37 +60,46 @@ export const INWSwap = () => {
   );
 };
 
-const swapOption = [
+// const swapOption = [
+//   {
+//     name:
+//   },
+//   {
+//     option: "inw2toinw",
+//     label: (
+//       <Flex align="center" flex={1}>
+//         INW V2 <HiMiniChevronRight size="20px" /> INW
+//       </Flex>
+//     ),
+//     from: "INW V2",
+//     to: "INW",
+//   },
+// ];
+
+const supportedToken = [
   {
-    option: "inwtoinw2",
-    label: (
-      <Flex align="center" flex={1}>
-        INW <HiMiniChevronRight size="20px" /> INW V2
-      </Flex>
-    ),
-    from: "INW",
-    to: "INW V2",
+    token: "inw",
+    name: "INW",
   },
   {
-    option: "inw2toinw",
-    label: (
-      <Flex align="center" flex={1}>
-        INW V2 <HiMiniChevronRight size="20px" /> INW
-      </Flex>
-    ),
-    from: "INW V2",
-    to: "INW",
+    token: "inw2",
+    name: "INW V2",
   },
 ];
 
 export const SwapModalContent = ({ isOpen, amountRef }) => {
   const [amount, setAmount] = useState("");
-  const [mode, setMode] = useState(0);
+  const [amountV2, setAmountV2] = useState("");
+  const [fromToken, setFromToken] = useState(supportedToken[0]);
+  const [toToken, setToToken] = useState(supportedToken[1]);
+  const [gas, setGas] = useState(0);
+
   const [_isOpen, setIsOpen] = useState(false);
   const { api } = useAppContext();
   const { currentAccount } = useSelector((state) => state.wallet);
 
-  const currentMode = useMemo(() => swapOption[mode], [mode]);
+  const inwBalance = +currentAccount?.balance?.inw?.replaceAll(",", "");
+  const inw2Balance = +currentAccount?.balance?.inw2?.replaceAll(",", "");
 
   const dispatch = useDispatch();
   const swapToTokenv2 = async () => {
@@ -99,7 +111,6 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         toast.error("Please enter valid amount!");
         return;
       }
-      const inwBalance = +currentAccount?.balance?.inw?.replaceAll(",", "");
       if (+inwBalance < +amount) {
         toast.error(
           `Maximum swap amount is ${formatNumDynDecimal(inwBalance)}`
@@ -120,7 +131,6 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
       const allowanceINW = formatQueryResultToNumber(
         allowanceTokenQr
       ).replaceAll(",", "");
-      console.log(allowanceINW);
       if (+allowanceINW < +amount) {
         let approve = await execContractTx(
           currentAccount,
@@ -130,7 +140,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
           0, //-> value
           "psp22::approve",
           swap_inw2_contract.CONTRACT_ADDRESS,
-          formatNumToBN(Number.MAX_SAFE_INTEGER)
+          formatNumToBN(amount)
         );
         if (!approve) return;
       }
@@ -163,7 +173,6 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         toast.error("Please enter valid amount!");
         return;
       }
-      const inw2Balance = +currentAccount?.balance?.inw2?.replaceAll(",", "");
       if (+inw2Balance < +amount) {
         toast.error(
           `Maximum swap amount is ${formatNumDynDecimal(inw2Balance)}`
@@ -184,7 +193,6 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
       const allowanceINW = formatQueryResultToNumber(
         allowanceTokenQr
       ).replaceAll(",", "");
-      console.log(allowanceINW)
       if (+allowanceINW < +amount) {
         let approve = await execContractTx(
           currentAccount,
@@ -194,7 +202,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
           0, //-> value
           "psp22::approve",
           swap_inw2_contract.CONTRACT_ADDRESS,
-          formatNumToBN(Number.MAX_SAFE_INTEGER)
+          formatNumToBN(amount)
         );
         if (!approve) return;
       }
@@ -220,81 +228,159 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
   };
   const { isLoading, mutate } = useMutation(async () => {
     return new Promise((resolve) => {
-      if (currentMode.option == swapOption[0].option) {
+      if (fromToken.token == "inw") {
         resolve(swapToTokenv2());
       } else {
         resolve(swapToTokenv1());
       }
     });
   }, "swap-to-inw-v2");
+
   useEffect(() => {
     setIsOpen(isOpen);
   }, [isOpen]);
+
   useEffect(() => {
     if (isOpen == true) {
       amountRef?.current?.focus();
       setAmount("");
     }
-  }, [_isOpen]);
+  }, [_isOpen, fromToken, toToken]);
+  const updateToken = async (value) => {
+    switch (value.token) {
+      case "inw":
+        setFromToken(supportedToken[0]);
+        setToToken(supportedToken[1]);
+        break;
+      case "inw2":
+        setFromToken(supportedToken[1]);
+        setToToken(supportedToken[0]);
+        break;
+      default:
+        break;
+    }
+  };
+  const updateMaxAmount = () => {
+    setAmount(fromToken.token == "inw" ? inwBalance : inw2Balance);
+  };
+  const getBalance = (token) =>
+    formatNumDynDecimal(currentAccount?.balance?.[token]?.replaceAll(",", ""));
+
+  const fetchGas = async (_amount) => {
+    try {
+      const contract = new ContractPromise(
+        api,
+        swap_inw2_contract.CONTRACT_ABI,
+        swap_inw2_contract.CONTRACT_ADDRESS
+      );
+      const gasLimitResult = await getGasLimit(
+        api,
+        currentAccount?.address,
+        "inwSwapTrait::swap",
+        contract,
+        { value: 0 },
+        [formatNumToBN(_amount)]
+      );
+
+      if (!gasLimitResult.ok) {
+        console.log(gasLimitResult.error);
+        return;
+      }
+      const gasLimit = JSON.parse(gasLimitResult?.value);
+      const gasLimitValue = formatNumDynDecimal(
+        formatTokenAmount(gasLimit?.refTime, 12)
+      );
+      setGas(gasLimitValue);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const onChangeValue = (newValue) => {
+    try {
+      if (fromToken.token == "inw") {
+        const valueToUpdate = +newValue > inwBalance ? inwBalance : +newValue;
+
+        setAmount(valueToUpdate);
+        fetchGas(valueToUpdate);
+      } else {
+        const valueToUpdate = +newValue > inw2Balance ? inw2Balance : +newValue;
+        setAmount(valueToUpdate);
+        fetchGas(valueToUpdate);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
-    <Box minW={!isMobile && "400px"} p="12px">
-      <Flex direction="column">
-        <Flex className="balance-container">
-          <Flex pr="20px">
-            <MdWallet size="32px" />
-          </Flex>
-          <Flex direction={isMobile ? "column" : "row"} alignItems="end">
-            <Flex justify="space-between">
-              <Text className="balance-text">
-                {formatNumDynDecimal(
-                  currentAccount?.balance?.inw?.replaceAll(",", "")
-                )}
-              </Text>
-              <Text
-                className="balance-text-unit"
-                w={isMobile && "64px"}
-                textAlign="end"
-              >
-                INW
-              </Text>
+    <Box minW={!isMobile && "400px"} px="12px">
+      <Flex className="balance-container">
+        <Text>Azero balance</Text>
+        <Text className="balance-value">{getBalance("azero")}</Text>
+      </Flex>
+
+      <Flex justify="space-between" mt="4px">
+        <Menu>
+          <MenuButton>
+            <Flex align="center">
+              {fromToken.name}{" "}
+              <FaChevronDown size="14px" style={{ marginLeft: "4px" }} />
             </Flex>
-            <Box className="divider-balance" />
-            <Flex>
-              <Text className="balance-text">
-                {formatNumDynDecimal(currentAccount?.balance?.inw2?.replaceAll(",", ""))}
-              </Text>
-              <Text w={isMobile && "64px"} textAlign="end">
-                INW V2
-              </Text>
-            </Flex>
-          </Flex>
+          </MenuButton>
+          <MenuList>
+            {supportedToken.map((e, index) => (
+              <MenuItem key={`token-${index}`} onClick={() => updateToken(e)}>
+                {e.name}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
+        <Flex>
+          Balance:{" "}
+          <p className="balance-value">{getBalance(fromToken.token)}</p>
         </Flex>
       </Flex>
-      <Flex className="swap-unit-container">
-        {swapOption[mode].label}{" "}
-        <Box
-          className="change-swap-option-button"
-          onClick={() => setMode((prev) => (prev == 0 ? 1 : 0))}
-        >
-          Change
-        </Box>
-      </Flex>
       <Flex direction="column" className="swap-amount-container">
-        <Box
-          className="max-amount-button"
-          onClick={() =>
-            setAmount(
-              mode == 0
-                ? +currentAccount?.balance?.inw?.replaceAll(",", "")
-                : +currentAccount?.balance?.inw2?.replaceAll(",", "")
-            )
-          }
-        >
+        <Box className="max-amount-button" onClick={() => updateMaxAmount()}>
           max
         </Box>
         <Input
           value={amount}
-          onChange={({ target }) => setAmount(target.value)}
+          onChange={({ target }) => onChangeValue(target.value)}
+          type="number"
+          placeholder="0.0"
+          className="swap-amount-input"
+          ref={amountRef}
+        />
+      </Flex>
+      <Flex justify="center" py="12px">
+        <Flex className="change-swap-option-button">
+          <FaChevronDown />
+        </Flex>
+      </Flex>
+      <Flex justify="space-between">
+        <Menu>
+          <MenuButton>
+            <Flex align="center">
+              {toToken.name}
+              <FaChevronDown size="14px" style={{ marginLeft: "4px" }} />
+            </Flex>
+          </MenuButton>
+          <MenuList>
+            {supportedToken.map((e, index) => (
+              <MenuItem key={`token-${index}`} onClick={() => updateToken(e)}>
+                {e.name}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>{" "}
+        <Flex>
+          Balance: <p className="balance-value">{getBalance(toToken.token)}</p>
+        </Flex>
+      </Flex>
+      <Flex direction="column" className="swap-amount-container">
+        <Input
+          value={amount}
+          onChange={({ target }) => onChangeValue(target.value)}
           type="number"
           placeholder="0.0"
           className="swap-amount-input"
@@ -302,11 +388,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         />
       </Flex>
       <Flex justify="end" fontSize="16px">
-        <Text mr="4px">You will recieve</Text>
-        <Text mr="4px" fontWeight="700" color="#57527e">
-          {formatNumDynDecimal(amount)}
-        </Text>
-        <Text>{currentMode.to}</Text>
+        <Text mr="4px">Gas fee: {gas} Azero</Text>
       </Flex>
       <Button
         isLoading={isLoading}
