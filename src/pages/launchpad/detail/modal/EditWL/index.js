@@ -23,6 +23,13 @@ import {
   Th,
   Thead,
   Tr,
+  Stack,
+  Tabs,
+  TabList,
+  Tab,
+  Heading,
+  TabPanels,
+  TabPanel,
 } from "@chakra-ui/react";
 import {
   flexRender,
@@ -123,6 +130,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
       return true;
     }
   }, [launchpadData?.phaseList, selectedPhase]);
+
   const table = useReactTable({
     ...tableData,
     // Pipeline
@@ -132,6 +140,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     //
     // debugTable: true,
   });
+
   useEffect(() => {
     if (launchpadData) fetchPhaseData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -144,6 +153,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   useEffect(() => {
     if (table) table.setPageSize(4);
   }, [table]);
+
   useEffect(() => {
     if (!visible) {
       setSelectedWL(null);
@@ -194,12 +204,196 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     selectedPhase,
   ]);
 
+  // ++++++++++++++++++++++++++++++++++++++++++
+
+  const EditWhitelist = () => (
+    <Box display={["block", "flex"]}>
+      <Box
+        sx={{
+          maxWidth: "320px",
+          minW: "320px",
+        }}
+        mr={["0px", "20px"]}
+      >
+        {isPhaseEditable && (
+          <AddSingleWL
+            launchpadData={launchpadData}
+            selectedPhase={selectedPhase}
+            selectedWL={selectedWL}
+            setSelectedWL={setSelectedWL}
+            availableTokenAmount={availableTokenAmount}
+            phaseCapAmount={phaseHeaderInfo?.capAmount}
+          />
+        )}
+      </Box>
+
+      <Box sx={{ flex: 1, pt: "30px" }}>
+        <IWInput
+          size="md"
+          value={queries?.keyword}
+          width={{ base: "full" }}
+          onChange={({ target }) =>
+            setQueries({ ...queries, keyword: target.value })
+          }
+          placeholder="Search"
+          inputRightElementIcon={<SearchIcon color="#57527E" />}
+        />
+        <TableContainer
+          width="full"
+          sx={{
+            my: "18px",
+            border: "1px solid #E3DFF3",
+            borderRadius: 8,
+          }}
+        >
+          <Table variant="simple">
+            <Thead>
+              {table?.getHeaderGroups().map((headerGroup) => (
+                <Tr w="full" key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <Th key={header.id} colSpan={header.colSpan}>
+                        {
+                          <div>
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                          </div>
+                        }
+                      </Th>
+                    );
+                  })}
+                </Tr>
+              ))}
+            </Thead>
+
+            {whitelist?.length > 0 ? (
+              <>
+                <Tbody>
+                  {table.getRowModel().rows.map((row, index) => {
+                    return (
+                      <Tr
+                        key={row.id}
+                        cursor="pointer"
+                        border="1px solid transparent"
+                        _hover={{
+                          border: "1px solid #93F0F5",
+                          background: "#E8FDFF",
+                        }}
+                        onClick={() => setSelectedWL(whitelist[index])}
+                      >
+                        {row.getVisibleCells().map((cell) => {
+                          return (
+                            <Td key={cell.id}>
+                              {formatDataCellTable(
+                                whitelist[index],
+                                cell.getContext().column.id
+                              )}
+                            </Td>
+                          );
+                        })}
+                      </Tr>
+                    );
+                  })}
+                </Tbody>
+                <Tfoot sx={{ display: "flex" }}>
+                  <Box
+                    sx={{
+                      width: "full",
+                      display: "flex",
+                      alignItems: "center",
+                      py: "8px",
+                      pl: "8px",
+                    }}
+                  >
+                    <IconButton
+                      aria-label="previousPage"
+                      width={"40px"}
+                      height={"40px"}
+                      variant={"solid"}
+                      bg={"#93F0F5"}
+                      borderRadius={"42px"}
+                      icon={<ChevronLeftIcon size={"80px"} color="#FFF" />}
+                      onClick={() => table.previousPage()}
+                      isDisabled={!table.getCanPreviousPage()}
+                    />
+                    <IconButton
+                      ml={"4px"}
+                      aria-label="previousPage"
+                      width={"40px"}
+                      height={"40px"}
+                      variant={"solid"}
+                      bg={"#93F0F5"}
+                      borderRadius={"42px"}
+                      icon={<ChevronRightIcon size={"80px"} color="#FFF" />}
+                      onClick={() => table.nextPage()}
+                      isDisabled={!table.getCanNextPage()}
+                    />
+                    <Box sx={{ width: "64px", ml: "8px" }}>
+                      <IWInput
+                        size="md"
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          textAlign: "center",
+                        }}
+                        type="number"
+                        value={table.getState().pagination.pageIndex + 1}
+                        onChange={(e) => {
+                          const page = e.target.value
+                            ? Number(e.target.value) - 1
+                            : 0;
+                          table.setPageIndex(page);
+                        }}
+                      />
+                    </Box>{" "}
+                    <Text sx={{ mr: "20px", ml: "8px" }}>
+                      of {table.getPageCount()}
+                    </Text>
+                  </Box>
+                </Tfoot>
+              </>
+            ) : (
+              <Box sx={{ display: "flex", justifyContent: "center" }}>
+                <div style={{ fontSize: 14 }}>
+                  No Whitelist added to this phase
+                </div>
+              </Box>
+            )}
+          </Table>
+        </TableContainer>
+      </Box>
+    </Box>
+  );
+
+  const tabsData = [
+    {
+      label: `${launchpadData?.requireKyc ? "Edit Whitelist" : "Single add"}`,
+      component: <EditWhitelist />,
+      isDisabled: false,
+    },
+    {
+      label: `${launchpadData?.requireKyc ? "Import KYC address" : "Bulk add"}`,
+      component: (
+        <AddBulk
+          launchpadData={launchpadData}
+          selectedPhase={selectedPhase}
+          availableTokenAmount={availableTokenAmount}
+          setSelectedMode={setSelectedMode}
+        />
+      ),
+      isDisabled: false,
+    },
+  ];
+
   return (
     <Modal
-      onClose={() => setVisible(false)}
       isOpen={visible}
       isCentered
       size="6xl"
+      onClose={() => setVisible(false)}
     >
       <ModalOverlay />
       <ModalContent>
@@ -210,352 +404,77 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
         </ModalHeader>
         <ModalCloseButton onClick={() => setVisible(false)} />
         <ModalBody pt="0" sx={{ pb: "28px" }}>
-          <Box
-            display={[
-              "block",
-              launchpadData?.requireKyc && selectedMode == 1 ? "block" : "flex",
-            ]}
-          >
-            <Box
-              sx={{
-                maxWidth:
-                  launchpadData?.requireKyc && selectedMode == 1
-                    ? "100%"
-                    : "320px",
-                minW: "320px",
-              }}
-              mr={["0px", "20px"]}
+          <Box mb="16px">
+            <Flex
+              w="full"
+              flexDirection={["column", "column", "row"]}
+              alignItems={["start", "start", "center"]}
+              justifyContent="space-between"
             >
-              <Flex flexDirection={["column", "row"]}>
-                <Box
-                  w={
-                    launchpadData?.requireKyc && selectedMode == 1
-                      ? "50%"
-                      : "100%"
-                  }
+              <Flex alignItems="center" minW={["100%", "100%", "33%"]}>
+                <Text
+                  mr="16px"
+                  minW="fit-content"
+                  sx={{ fontWeight: "700", color: "#57527E" }}
                 >
-                  <Text>
-                    Balance:{" "}
-                    <Text as="span" fontWeight={600}>
-                      {`${formatNumDynDecimal(availableTokenAmount)}
-                ${launchpadData?.projectInfo?.token?.symbol}`}
-                    </Text>
-                  </Text>
-                  <Text>
-                    Phase Cap:{" "}
-                    <Text as="span" fontWeight={600}>
-                      {`${formatNumDynDecimal(phaseHeaderInfo?.capAmount)}
-                ${launchpadData?.projectInfo?.token?.symbol}`}
-                    </Text>
-                  </Text>
-                </Box>
-                {/* {launchpadData?.requireKyc && selectedMode == 1 && (
-                  <Flex
-                    flexDirection={["column", "row"]}
-                    w="full"
-                    p="10px"
-                    borderRadius={8}
-                    border="1px solid #E3DFF3"
-                    bg="#F6F6FC"
-                  >
-                    <PhaseHeaderInfo
-                      phaseHeaderInfo={phaseHeaderInfo}
-                      launchpadData={launchpadData}
-                    />
-                  </Flex>
-                )} */}
-              </Flex>
-              {!isPhaseEditable && (
-                <Box
-                  sx={{
-                    bg: "#FED1CA",
-                    display: "flex",
-                    alignItems: "center",
-                    px: "10px",
-                    py: "8px",
-                    mt: "10px",
-                    borderRadius: "4px",
-                  }}
-                >
-                  <AiFillExclamationCircle />
-                  <Text sx={{ ml: "8px" }}>You can not edit this phase!</Text>
-                </Box>
-              )}
-              <Flex
-                display="flex"
-                flexDir={[
-                  "column",
-                  launchpadData?.requireKyc && selectedMode == 1
-                    ? "row"
-                    : "column",
-                ]}
-                alignItems="center"
-                w={[
-                  "full",
-                  launchpadData?.requireKyc && selectedMode == 1
-                    ? "50%"
-                    : "full",
-                ]}
-              >
-                <Box
-                  w={[
-                    "full",
-                    launchpadData?.requireKyc && selectedMode == 1
-                      ? "50%"
-                      : "full",
-                  ]}
-                  mr={[
-                    "0px",
-                    launchpadData?.requireKyc && selectedMode == 1
-                      ? "20px"
-                      : "0px",
-                  ]}
-                >
-                  <Text sx={{ fontWeight: "700", color: "#57527E" }}>
-                    Select Phase
-                  </Text>
-                  <Select
-                    variant="filled"
-                    size="md"
-                    onChange={({ target }) => {
-                      setSelectedPhase(target.value);
-                    }}
-                    value={selectedPhase}
-                  >
-                    {launchpadData?.phaseList.map((item, index) => (
-                      <option key={index} value={index}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </Select>
-                </Box>
-                {isPhaseEditable && (
-                  <Box
-                    w={[
-                      "full",
-                      launchpadData?.requireKyc && selectedMode == 1
-                        ? "50%"
-                        : "full",
-                    ]}
-                  >
-                    <Text sx={{ fontWeight: "700", color: "#57527E" }}>
-                      Choose Mode
-                    </Text>
-                    <Select
-                      variant="filled"
-                      size="md"
-                      onChange={({ target }) => {
-                        setSelectedMode(target.value);
-                      }}
-                      value={selectedMode}
-                    >
-                      {WLEditMode.map((item, index) => (
-                        <option key={index} value={index}>
-                          {item}
-                        </option>
-                      ))}
-                    </Select>
-                  </Box>
-                )}
-              </Flex>
-              {isPhaseEditable &&
-                (selectedMode == 0 ? (
-                  <AddSingleWL
-                    launchpadData={launchpadData}
-                    selectedPhase={selectedPhase}
-                    selectedWL={selectedWL}
-                    setSelectedWL={setSelectedWL}
-                    availableTokenAmount={availableTokenAmount}
-                    phaseCapAmount={phaseHeaderInfo?.capAmount}
-                  />
-                ) : null)}
-            </Box>
-            {/* <Divider orientation="vertical" /> */}
-            {selectedMode == 1 ? (
-              <AddBulk
-                launchpadData={launchpadData}
-                selectedPhase={selectedPhase}
-                availableTokenAmount={availableTokenAmount}
-                setSelectedMode={setSelectedMode}
-              />
-            ) : (
-              <Box sx={{ flex: 1, pt: "1px" }}>
-                {/* <Flex
-                  flexDirection={["column", "row"]}
-                  w="full"
-                  p="10px"
-                  mb="10px"
-                  borderRadius={8}
-                  border="1px solid #E3DFF3"
-                  bg="#F6F6FC"
-                >
-                  <PhaseHeaderInfo
-                    phaseHeaderInfo={phaseHeaderInfo}
-                    launchpadData={launchpadData}
-                  />
-                </Flex> */}
-                <IWInput
+                  Select Phase
+                </Text>
+                <Select
+                  variant="filled"
                   size="md"
-                  value={queries?.keyword}
-                  width={{ base: "full" }}
-                  onChange={({ target }) =>
-                    setQueries({ ...queries, keyword: target.value })
-                  }
-                  placeholder="Search"
-                  inputRightElementIcon={<SearchIcon color="#57527E" />}
-                />
-                <TableContainer
-                  width="full"
-                  sx={{
-                    my: "18px",
-                    border: "1px solid #E3DFF3",
-                    borderRadius: 8,
+                  onChange={({ target }) => {
+                    setSelectedPhase(target.value);
                   }}
+                  value={selectedPhase}
                 >
-                  <Table variant="simple">
-                    <Thead>
-                      {table?.getHeaderGroups().map((headerGroup) => (
-                        <Tr w="full" key={headerGroup.id}>
-                          {headerGroup.headers.map((header) => {
-                            return (
-                              <Th key={header.id} colSpan={header.colSpan}>
-                                {
-                                  <div>
-                                    {flexRender(
-                                      header.column.columnDef.header,
-                                      header.getContext()
-                                    )}
-                                  </div>
-                                }
-                              </Th>
-                            );
-                          })}
-                        </Tr>
-                      ))}
-                    </Thead>
+                  {launchpadData?.phaseList.map((item, index) => (
+                    <option key={index} value={index}>
+                      {item.name}
+                    </option>
+                  ))}
+                </Select>
+              </Flex>
 
-                    {whitelist?.length > 0 ? (
-                      <>
-                        <Tbody>
-                          {table.getRowModel().rows.map((row, index) => {
-                            return (
-                              <Tr
-                                key={row.id}
-                                cursor="pointer"
-                                border="1px solid transparent"
-                                _hover={{
-                                  border: "1px solid #93F0F5",
-                                  background: "#E8FDFF",
-                                }}
-                                onClick={() => setSelectedWL(whitelist[index])}
-                              >
-                                {row.getVisibleCells().map((cell) => {
-                                  return (
-                                    <Td key={cell.id}>
-                                      {formatDataCellTable(
-                                        whitelist[index],
-                                        cell.getContext().column.id
-                                      )}
-                                    </Td>
-                                  );
-                                })}
-                              </Tr>
-                            );
-                          })}
-                        </Tbody>
-                        <Tfoot sx={{ display: "flex" }}>
-                          <Box
-                            sx={{
-                              width: "full",
-                              display: "flex",
-                              // justifyContent: "flex-end",
-                              alignItems: "center",
-                              py: "8px",
-                              pl: "8px",
-                            }}
-                          >
-                            <IconButton
-                              aria-label="previousPage"
-                              width={"40px"}
-                              height={"40px"}
-                              variant={"solid"}
-                              bg={"#93F0F5"}
-                              borderRadius={"42px"}
-                              icon={
-                                <ChevronLeftIcon size={"80px"} color="#FFF" />
-                              }
-                              onClick={() => table.previousPage()}
-                              isDisabled={!table.getCanPreviousPage()}
-                            />
-                            <IconButton
-                              ml={"4px"}
-                              aria-label="previousPage"
-                              width={"40px"}
-                              height={"40px"}
-                              variant={"solid"}
-                              bg={"#93F0F5"}
-                              borderRadius={"42px"}
-                              icon={
-                                <ChevronRightIcon size={"80px"} color="#FFF" />
-                              }
-                              onClick={() => table.nextPage()}
-                              isDisabled={!table.getCanNextPage()}
-                            />
-                            <Box sx={{ width: "64px", ml: "8px" }}>
-                              <IWInput
-                                size="md"
-                                sx={{
-                                  display: "flex",
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  textAlign: "center",
-                                }}
-                                type="number"
-                                value={
-                                  table.getState().pagination.pageIndex + 1
-                                }
-                                onChange={(e) => {
-                                  const page = e.target.value
-                                    ? Number(e.target.value) - 1
-                                    : 0;
-                                  table.setPageIndex(page);
-                                }}
-                              />
-                            </Box>{" "}
-                            <Text sx={{ mr: "20px", ml: "8px" }}>
-                              of {table.getPageCount()}
-                            </Text>
-                            {/* <Button
-                          disabled={
-                            pageIndexInput ===
-                            table.getState().pagination.pageIndex + 1
-                          }
-                          onClick={() => {
-                            if (
-                              pageIndexInput > 0 &&
-                              pageIndexInput <= table.getPageCount()
-                            )
-                              table.setPageIndex(pageIndexInput - 1);
-                            else toast.error("invalid page number");
-                          }}
-                        >
-                          Go
-                        </Button> */}
-                          </Box>
-                        </Tfoot>
-                      </>
-                    ) : (
-                      <Box sx={{ display: "flex", justifyContent: "center" }}>
-                        <div style={{ fontSize: 14 }}>
-                          No Whitelist added to this phase
-                        </div>
-                      </Box>
-                    )}
-                  </Table>
-                </TableContainer>
+              <Text>
+                Balance:{" "}
+                <Text as="span" fontWeight={600}>
+                  {`${formatNumDynDecimal(availableTokenAmount)}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+                </Text>
+              </Text>
+
+              <Text>
+                Phase Cap:{" "}
+                <Text as="span" fontWeight={600}>
+                  {`${formatNumDynDecimal(phaseHeaderInfo?.capAmount)}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+                </Text>
+              </Text>
+            </Flex>
+
+            {!isPhaseEditable && (
+              <Box
+                sx={{
+                  bg: "#FED1CA",
+                  display: "flex",
+                  alignItems: "center",
+                  px: "10px",
+                  py: "8px",
+                  mt: "10px",
+                  borderRadius: "4px",
+                }}
+              >
+                <AiFillExclamationCircle />
+                <Text sx={{ ml: "8px" }}>You can not edit this phase!</Text>
               </Box>
             )}
           </Box>
+
+          <KycTabs
+            tabsData={tabsData}
+            selectedMode={selectedMode}
+            setSelectedMode={setSelectedMode}
+          />
         </ModalBody>
       </ModalContent>
     </Modal>
@@ -619,5 +538,50 @@ export function PhaseHeaderInfo({ phaseHeaderInfo, launchpadData }) {
         </Text>
       </Box>
     </>
+  );
+}
+
+function KycTabs({ tabsData, setSelectedMode, selectedMode }) {
+  return (
+    <Stack
+      w="full"
+      spacing="30px"
+      alignItems="start"
+      direction={{ base: "column", lg: "row" }}
+    >
+      <Tabs
+        onChange={(e) => {
+          console.log("e", e);
+          setSelectedMode(e);
+        }}
+        isLazy
+        w="full"
+      >
+        <TabList>
+          {tabsData?.map(({ label }, idx) => (
+            <Tab
+              px="0"
+              mr="20px"
+              key={idx}
+              justifyContent="start"
+              _focus={{ borderWidth: "0px" }}
+              minW={{ base: "fit-content", lg: "250px" }}
+            >
+              <Heading as="h3" size="h3">
+                {label}
+              </Heading>
+            </Tab>
+          ))}
+        </TabList>
+
+        <TabPanels>
+          {tabsData?.map(({ component }, idx) => (
+            <TabPanel py="18px" key={idx}>
+              {component}
+            </TabPanel>
+          ))}
+        </TabPanels>
+      </Tabs>
+    </Stack>
   );
 }

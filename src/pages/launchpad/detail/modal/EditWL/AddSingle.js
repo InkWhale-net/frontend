@@ -174,17 +174,13 @@ const AddSingleWL = ({
       console.log(error);
     }
   };
+
   const isWhitelistEditable = useMemo(() => {
     return +selectedWL?.claimedAmount > 0;
   }, [selectedWL]);
+
   return (
-    <Box sx={{ pt: "20px" }}>
-      <Text sx={{ fontWeight: "700", color: "#57527E" }}>
-        {launchpadData?.requireKyc ? "Click on table to edit" : null}
-      </Text>
-      <Text sx={{ fontWeight: "700", color: "#57527E" }}>
-        Whitelist Address
-      </Text>
+    <Box sx={{ pt: "0px" }}>
       {isWhitelistEditable ? (
         <Box
           sx={{
@@ -204,100 +200,117 @@ const AddSingleWL = ({
         </Box>
       ) : (
         <>
-          {!selectedWL && launchpadData?.requireKyc ? null : (
-            <>
-              <IWInput
-                isDisabled={selectedWL}
-                size="md"
-                value={wlData?.address}
-                width={{ base: "full" }}
-                onChange={({ target }) =>
-                  setWLData({ ...wlData, address: target.value })
-                }
-                placeholder="Address"
-              />
-
-              <Text sx={{ fontWeight: "700", color: "#57527E" }}>Amount</Text>
-              <IWInput
-                type="number"
-                size="md"
-                value={wlData?.amount}
-                width={{ base: "full" }}
-                onChange={({ target }) =>
-                  setWLData({ ...wlData, amount: target.value })
-                }
-                placeholder="Amount"
-              />
-
-              <Text sx={{ fontWeight: "700", color: "#57527E" }}>Price</Text>
-              <IWInput
-                type="number"
-                size="md"
-                value={wlData?.price}
-                width={{ base: "full" }}
-                onChange={({ target }) =>
-                  setWLData({ ...wlData, price: target.value })
-                }
-                placeholder="Price"
-              />
-            </>
-          )}
-          {selectedWL ? (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-              }}
+          <>
+            <Text
+              sx={{ fontWeight: "700" }}
+              color={selectedWL ? "#57527E" : "lightgrey"}
             >
-              <Button
-                mt="16px"
-                size="md"
-                sx={{ bg: "#F6F6FC" }}
-                _hover={{ bg: "#E3E1EC" }}
-                onClick={() => setSelectedWL(null)}
-              >
-                Cancel
-              </Button>
+              Whitelist Address
+            </Text>
+            <IWInput
+              disabled={!selectedWL}
+              size="md"
+              value={wlData?.address}
+              width={{ base: "full" }}
+              onChange={({ target }) =>
+                setWLData({ ...wlData, address: target.value })
+              }
+              placeholder="Address"
+            />
+
+            <Text
+              sx={{ fontWeight: "700" }}
+              color={selectedWL ? "#57527E" : "lightgrey"}
+            >
+              Amount
+            </Text>
+            <IWInput
+              disabled={!selectedWL}
+              type="number"
+              size="md"
+              value={wlData?.amount}
+              width={{ base: "full" }}
+              onChange={({ target }) =>
+                setWLData({ ...wlData, amount: target.value })
+              }
+              placeholder="0"
+            />
+
+            <Text
+              sx={{ fontWeight: "700" }}
+              color={selectedWL ? "#57527E" : "lightgrey"}
+            >
+              Price
+            </Text>
+            <IWInput
+              disabled={!selectedWL}
+              type="number"
+              size="md"
+              value={wlData?.price}
+              width={{ base: "full" }}
+              onChange={({ target }) =>
+                setWLData({ ...wlData, price: target.value })
+              }
+              placeholder="0"
+            />
+          </>
+
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Button
+              disabled={!selectedWL}
+              mt="16px"
+              size="md"
+              sx={{ bg: "#F6F6FC" }}
+              _hover={{ bg: "#E3E1EC" }}
+              onClick={() => setSelectedWL(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              isDisabled={
+                !selectedWL ||
+                !(
+                  wlData?.address?.length > 0 &&
+                  wlData?.amount?.length > 0 &&
+                  wlData?.price?.length > 0 &&
+                  (wlData?.address !== selectedWL?.account ||
+                    wlData?.amount !== (+selectedWL?.amount).toString() ||
+                    wlData?.price !== (+selectedWL?.price).toString())
+                )
+              }
+              ml="4px"
+              mt="16px"
+              size="md"
+              onClick={() => updateSingleWLHandler()}
+            >
+              Update
+            </Button>
+          </Box>
+
+          {/* <>
+             {!launchpadData?.requireKyc ? (
               <Button
                 isDisabled={
                   !(
                     wlData?.address?.length > 0 &&
                     wlData?.amount?.length > 0 &&
-                    wlData?.price?.length > 0 &&
-                    (wlData?.address !== selectedWL?.account ||
-                      wlData?.amount !== (+selectedWL?.amount).toString() ||
-                      wlData?.price !== (+selectedWL?.price).toString())
+                    wlData?.price?.length > 0
                   )
                 }
-                ml="4px"
                 mt="16px"
+                w="full"
                 size="md"
-                onClick={() => updateSingleWLHandler()}
+                onClick={() => addSingleWLHandler()}
               >
-                Update
+                Add Whitelist
               </Button>
-            </Box>
-          ) : (
-            <>
-              {launchpadData?.requireKyc ? null : (
-                <Button
-                  isDisabled={
-                    !(
-                      wlData?.address?.length > 0 &&
-                      wlData?.amount?.length > 0 &&
-                      wlData?.price?.length > 0
-                    )
-                  }
-                  mt="16px"
-                  w="full"
-                  size="md"
-                  onClick={() => addSingleWLHandler()}
-                >
-                  Add Whitelist
-                </Button>
-              )}
-            </>
-          )}
+            ) : null}
+          </> */}
         </>
       )}
     </Box>
