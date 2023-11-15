@@ -30,6 +30,7 @@ import {
   Heading,
   TabPanels,
   TabPanel,
+  Button,
 } from "@chakra-ui/react";
 import {
   flexRender,
@@ -206,172 +207,24 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
 
   // ++++++++++++++++++++++++++++++++++++++++++
 
-  const EditWhitelist = () => (
-    <Box display={["block", "flex"]}>
-      <Box
-        sx={{
-          maxWidth: "320px",
-          minW: "320px",
-        }}
-        mr={["0px", "20px"]}
-      >
-        {isPhaseEditable && (
-          <AddSingleWL
-            launchpadData={launchpadData}
-            selectedPhase={selectedPhase}
-            selectedWL={selectedWL}
-            setSelectedWL={setSelectedWL}
-            availableTokenAmount={availableTokenAmount}
-            phaseCapAmount={phaseHeaderInfo?.capAmount}
-          />
-        )}
-      </Box>
-
-      <Box sx={{ flex: 1, pt: "30px" }}>
-        <IWInput
-          size="md"
-          value={queries?.keyword}
-          width={{ base: "full" }}
-          onChange={({ target }) =>
-            setQueries({ ...queries, keyword: target.value })
-          }
-          placeholder="Search"
-          inputRightElementIcon={<SearchIcon color="#57527E" />}
-        />
-        <TableContainer
-          width="full"
-          sx={{
-            my: "18px",
-            border: "1px solid #E3DFF3",
-            borderRadius: 8,
-          }}
-        >
-          <Table variant="simple">
-            <Thead>
-              {table?.getHeaderGroups().map((headerGroup) => (
-                <Tr w="full" key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <Th key={header.id} colSpan={header.colSpan}>
-                        {
-                          <div>
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                          </div>
-                        }
-                      </Th>
-                    );
-                  })}
-                </Tr>
-              ))}
-            </Thead>
-
-            {whitelist?.length > 0 ? (
-              <>
-                <Tbody>
-                  {table.getRowModel().rows.map((row, index) => {
-                    return (
-                      <Tr
-                        key={row.id}
-                        cursor="pointer"
-                        border="1px solid transparent"
-                        _hover={{
-                          border: "1px solid #93F0F5",
-                          background: "#E8FDFF",
-                        }}
-                        onClick={() => setSelectedWL(whitelist[index])}
-                      >
-                        {row.getVisibleCells().map((cell) => {
-                          return (
-                            <Td key={cell.id}>
-                              {formatDataCellTable(
-                                whitelist[index],
-                                cell.getContext().column.id
-                              )}
-                            </Td>
-                          );
-                        })}
-                      </Tr>
-                    );
-                  })}
-                </Tbody>
-                <Tfoot sx={{ display: "flex" }}>
-                  <Box
-                    sx={{
-                      width: "full",
-                      display: "flex",
-                      alignItems: "center",
-                      py: "8px",
-                      pl: "8px",
-                    }}
-                  >
-                    <IconButton
-                      aria-label="previousPage"
-                      width={"40px"}
-                      height={"40px"}
-                      variant={"solid"}
-                      bg={"#93F0F5"}
-                      borderRadius={"42px"}
-                      icon={<ChevronLeftIcon size={"80px"} color="#FFF" />}
-                      onClick={() => table.previousPage()}
-                      isDisabled={!table.getCanPreviousPage()}
-                    />
-                    <IconButton
-                      ml={"4px"}
-                      aria-label="previousPage"
-                      width={"40px"}
-                      height={"40px"}
-                      variant={"solid"}
-                      bg={"#93F0F5"}
-                      borderRadius={"42px"}
-                      icon={<ChevronRightIcon size={"80px"} color="#FFF" />}
-                      onClick={() => table.nextPage()}
-                      isDisabled={!table.getCanNextPage()}
-                    />
-                    <Box sx={{ width: "64px", ml: "8px" }}>
-                      <IWInput
-                        size="md"
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          textAlign: "center",
-                        }}
-                        type="number"
-                        value={table.getState().pagination.pageIndex + 1}
-                        onChange={(e) => {
-                          const page = e.target.value
-                            ? Number(e.target.value) - 1
-                            : 0;
-                          table.setPageIndex(page);
-                        }}
-                      />
-                    </Box>{" "}
-                    <Text sx={{ mr: "20px", ml: "8px" }}>
-                      of {table.getPageCount()}
-                    </Text>
-                  </Box>
-                </Tfoot>
-              </>
-            ) : (
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
-                <div style={{ fontSize: 14 }}>
-                  No Whitelist added to this phase
-                </div>
-              </Box>
-            )}
-          </Table>
-        </TableContainer>
-      </Box>
-    </Box>
-  );
-
   const tabsData = [
     {
       label: `${launchpadData?.requireKyc ? "Edit Whitelist" : "Single add"}`,
-      component: <EditWhitelist />,
+      component: (
+        <EditWhitelist
+          isPhaseEditable={isPhaseEditable}
+          launchpadData={launchpadData}
+          selectedPhase={selectedPhase}
+          selectedWL={selectedWL}
+          setSelectedWL={setSelectedWL}
+          availableTokenAmount={availableTokenAmount}
+          phaseHeaderInfo={phaseHeaderInfo}
+          queries={queries}
+          setQueries={setQueries}
+          table={table}
+          whitelist={whitelist}
+        />
+      ),
       isDisabled: false,
     },
     {
@@ -481,6 +334,190 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   );
 };
 export default EditWL;
+
+function EditWhitelist({
+  isPhaseEditable,
+  launchpadData,
+  selectedPhase,
+  selectedWL,
+  setSelectedWL,
+  availableTokenAmount,
+  phaseHeaderInfo,
+  queries,
+  setQueries,
+  table,
+  whitelist,
+}) {
+  return (
+    <Box display={["block", "flex"]}>
+      <Box
+        sx={{
+          maxWidth: "320px",
+          minW: "320px",
+        }}
+        mr={["0px", "20px"]}
+      >
+        {isPhaseEditable && (
+          <AddSingleWL
+            launchpadData={launchpadData}
+            selectedPhase={selectedPhase}
+            selectedWL={selectedWL}
+            setSelectedWL={setSelectedWL}
+            availableTokenAmount={availableTokenAmount}
+            phaseCapAmount={phaseHeaderInfo?.capAmount}
+          />
+        )}
+      </Box>
+
+      <Box sx={{ flex: 1, pt: "30px" }}>
+        <IWInput
+          size="md"
+          value={queries?.keyword}
+          width={{ base: "full" }}
+          onChange={({ target }) =>
+            setQueries({ ...queries, keyword: target.value })
+          }
+          placeholder="Search"
+          inputRightElementIcon={<SearchIcon color="#57527E" />}
+        />
+        <TableContainer
+          width="full"
+          sx={{
+            my: "18px",
+            border: "1px solid #E3DFF3",
+            borderRadius: 8,
+          }}
+        >
+          <Table variant="simple">
+            <Thead>
+              {table?.getHeaderGroups().map((headerGroup) => (
+                <Tr w="full" key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <Th key={header.id} colSpan={header.colSpan}>
+                        {
+                          <div>
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                          </div>
+                        }
+                      </Th>
+                    );
+                  })}
+                  <Th>Action</Th>
+                </Tr>
+              ))}
+            </Thead>
+
+            {whitelist?.length > 0 ? (
+              <>
+                <Tbody>
+                  {table.getRowModel().rows.map((row, index) => {
+                    return (
+                      <Tr
+                        key={row.id}
+                        cursor="pointer"
+                        border="1px solid transparent"
+                        _hover={{
+                          border: "1px solid #93F0F5",
+                          background: "#E8FDFF",
+                        }}
+                      >
+                        {row.getVisibleCells().map((cell) => {
+                          return (
+                            <Td key={cell.id}>
+                              {formatDataCellTable(
+                                whitelist[index],
+                                cell.getContext().column.id
+                              )}
+                            </Td>
+                          );
+                        })}
+                        <Td>
+                          <Button
+                            size="sm"
+                            onClick={() => setSelectedWL(whitelist[index])}
+                          >
+                            Edit
+                          </Button>
+                        </Td>
+                      </Tr>
+                    );
+                  })}
+                </Tbody>
+                <Tfoot sx={{ display: "flex" }}>
+                  <Box
+                    sx={{
+                      width: "full",
+                      display: "flex",
+                      alignItems: "center",
+                      py: "8px",
+                      pl: "8px",
+                    }}
+                  >
+                    <IconButton
+                      aria-label="previousPage"
+                      width={"40px"}
+                      height={"40px"}
+                      variant={"solid"}
+                      bg={"#93F0F5"}
+                      borderRadius={"42px"}
+                      icon={<ChevronLeftIcon size={"80px"} color="#FFF" />}
+                      onClick={() => table.previousPage()}
+                      isDisabled={!table.getCanPreviousPage()}
+                    />
+                    <IconButton
+                      ml={"4px"}
+                      aria-label="previousPage"
+                      width={"40px"}
+                      height={"40px"}
+                      variant={"solid"}
+                      bg={"#93F0F5"}
+                      borderRadius={"42px"}
+                      icon={<ChevronRightIcon size={"80px"} color="#FFF" />}
+                      onClick={() => table.nextPage()}
+                      isDisabled={!table.getCanNextPage()}
+                    />
+                    <Box sx={{ width: "64px", ml: "8px" }}>
+                      <IWInput
+                        size="md"
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          textAlign: "center",
+                        }}
+                        type="number"
+                        value={table.getState().pagination.pageIndex + 1}
+                        onChange={(e) => {
+                          const page = e.target.value
+                            ? Number(e.target.value) - 1
+                            : 0;
+                          table.setPageIndex(page);
+                        }}
+                      />
+                    </Box>{" "}
+                    <Text sx={{ mr: "20px", ml: "8px" }}>
+                      of {table.getPageCount()}
+                    </Text>
+                  </Box>
+                </Tfoot>
+              </>
+            ) : (
+              <Box sx={{ display: "flex", justifyContent: "center" }}>
+                <div style={{ fontSize: 14 }}>
+                  No Whitelist added to this phase
+                </div>
+              </Box>
+            )}
+          </Table>
+        </TableContainer>
+      </Box>
+    </Box>
+  );
+}
 
 export function PhaseHeaderInfo({ phaseHeaderInfo, launchpadData }) {
   return (

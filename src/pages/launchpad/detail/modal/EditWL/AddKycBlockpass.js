@@ -66,7 +66,9 @@ export default function AddKycBlockpass({
       },
     });
     if (status === "OK") {
-      const whitelist = launchpadData?.phaseList[selectedPhase] && launchpadData?.phaseList[selectedPhase]["whitelist"];
+      const whitelist =
+        launchpadData?.phaseList[selectedPhase] &&
+        launchpadData?.phaseList[selectedPhase]["whitelist"];
       const whitelistAddress = whitelist.map((i) => i.account);
 
       const retWithCheck = ret.map((item) => {
@@ -358,6 +360,7 @@ export default function AddKycBlockpass({
         // setSelectedMode(0);
         toast.promise(
           delay(6000).then(() => {
+            setRowSelection({});
             dispatch(fetchLaunchpads({}));
           }),
           {
@@ -641,7 +644,7 @@ function Filter({ column, table }) {
         placeholder={`Min`}
         className="w-24 border shadow rounded"
       />
-      <Input
+      {/* <Input
         fontSize="16px"
         px="4px"
         mx="2px"
@@ -654,7 +657,7 @@ function Filter({ column, table }) {
         }
         placeholder={`Max`}
         className="w-24 border shadow rounded"
-      />
+      /> */}
     </Flex>
   ) : (
     <Input
