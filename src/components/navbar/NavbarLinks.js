@@ -189,7 +189,7 @@ export default function NavbarLinks(props) {
             </Link>
           </Flex>
         </Flex>
-        <INWSwap />
+        {/* <INWSwap /> */}
       </Show>
 
       <Show above="md">
