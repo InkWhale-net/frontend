@@ -385,7 +385,7 @@ export default function CreateStakePoolPage({ api }) {
             Staker earns tokens at fixed APR. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {formatNumDynDecimal(createTokenFee)} INW
+              {formatNumDynDecimal(createTokenFee)} INW V2
             </Text>
           </span>
         }
