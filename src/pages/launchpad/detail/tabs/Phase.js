@@ -25,9 +25,13 @@ import { formatChainStringToNumber } from "utils";
 const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
   const tokenDecimal = parseInt(launchpadData.projectInfo.token.decimals);
+  const tokenSymbol = launchpadData?.projectInfo?.token?.symbol;
+
   const tagData = useMemo(() => {
     return {
       ...data,
+      availableAmount:
+        formatChainStringToNumber(data?.availableAmount) / 10 ** tokenDecimal,
       capAmount:
         formatChainStringToNumber(data?.capAmount) / 10 ** tokenDecimal,
       startTime: new Date(parseInt(data?.startTime?.replace(/,/g, ""))),
@@ -55,6 +59,10 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
         tagData?.publicSaleInfor?.totalClaimedAmount,
         tokenDecimal
       ),
+      availableAmount: formatTokenAmount(
+        tagData?.publicSaleInfor?.availableAmount,
+        tokenDecimal
+      ),
       price: formatTokenAmount(tagData?.publicSaleInfor?.price, 12),
     };
   }, [tagData]);
@@ -65,6 +73,48 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
         (e) => e?.account == currentAccount?.address
       );
   }, [currentAccount, tagData]);
+
+  // ###############################
+  // account:"5HdV9C5v5DJF4wNPrMNsEYk5amND93xMHCSncHEWaJbZbzn9"
+  // amount:"100,000,000,000,000" Balance
+  // claimedAmount:"0" Balance
+  // lastUpdatedTime:"0"
+  // price:"500,000,000,000" Balance
+  // purchasedAmount:"0" Balance
+  // vestingAmount: "0"; Balance
+
+  const whitelistList = useMemo(
+    () =>
+      tagData?.whitelist?.map((w) => ({
+        ...w,
+        amount:
+          formatChainStringToNumber(w?.amount) / Math.pow(10, tokenDecimal),
+        claimedAmount:
+          formatChainStringToNumber(w?.claimedAmount) /
+          Math.pow(10, tokenDecimal),
+        price: formatChainStringToNumber(w?.price) / Math.pow(10, tokenDecimal),
+        purchasedAmount:
+          formatChainStringToNumber(w?.purchasedAmount) /
+          Math.pow(10, tokenDecimal),
+        vestingAmount:
+          formatChainStringToNumber(w?.vestingAmount) /
+          Math.pow(10, tokenDecimal),
+      })),
+    [tagData?.whitelist, tokenDecimal]
+  );
+
+  const whitelistAddedAmount = whitelistList?.reduce(
+    (prev, curr) => prev + curr.amount,
+    0
+  );
+
+  const whitelistClaimedAmount = whitelistList?.reduce(
+    (prev, curr) => prev + curr.claimedAmount,
+    0
+  );
+
+  const whitelistClaimed = whitelistList.filter((w) => !!w.claimedAmount);
+
   return (
     <Box
       sx={{
@@ -281,7 +331,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             <Text size="md">
               {`${formatNumDynDecimal(
                 formatTokenAmount(userWL?.amount, tokenDecimal)
-              )} ${launchpadData?.projectInfo?.token?.symbol}`}
+              )} ${tokenSymbol}`}
             </Text>
           </Box>
         </>
@@ -290,9 +340,41 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
         <Text>Phase Cap Amount</Text>
 
         <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
-          {tagData.capAmount} {launchpadData?.projectInfo?.token?.symbol}
+          {tagData.capAmount} {tokenSymbol}
         </Text>
       </Flex>
+
+      <Flex justify="space-between" mt="12px">
+        <Text>Available Token Amount</Text>
+
+        <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
+          {tagData.availableAmount} {tokenSymbol}
+        </Text>
+      </Flex>
+
+      <Divider sx={{ mb: "20px", mt: "8px" }} />
+
+      {whitelistList?.length && (
+        <Flex justify="space-between" mt="12px">
+          <Text>Whitelist added</Text>
+
+          <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
+            {whitelistList?.length ?? 0} address(es). {whitelistAddedAmount}{" "}
+            {tokenSymbol}
+          </Text>
+        </Flex>
+      )}
+
+      {whitelistList?.length && (
+        <Flex justify="space-between" mt="12px">
+          <Text>Whitelist claimed</Text>
+
+          <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
+            {whitelistClaimed?.length ?? 0} address(es).{" "}
+            {whitelistClaimedAmount} {tokenSymbol}
+          </Text>
+        </Flex>
+      )}
 
       <Divider sx={{ mb: "20px", mt: "8px" }} />
 
