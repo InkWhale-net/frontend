@@ -9,6 +9,7 @@ import {
   BreadcrumbLink,
   Button,
   Show,
+  Flex,
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 import IWTabs from "components/tabs/IWTabs";
@@ -148,14 +149,15 @@ const PublicDetailLaunchpad = () => {
               <Text>{`${token?.name}(${token?.symbol})`}</Text>
             </Box>
           </Box>
-
+        </Box>
+        <Flex mb='16px'>
           <CardSocial
             websiteUrl={launchpadData?.projectInfo?.projectInfor?.website}
             twitterUrl={launchpadData?.projectInfo?.projectInfor?.twitter}
             discordUrl={launchpadData?.projectInfo?.projectInfor?.discord}
             telegramUrl={launchpadData?.projectInfo?.projectInfor?.telegram}
           />
-        </Box>
+        </Flex>
 
         <IWTabs tabsData={tabsData} />
       </SectionContainer>

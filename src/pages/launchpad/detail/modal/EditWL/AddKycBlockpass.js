@@ -66,7 +66,7 @@ export default function AddKycBlockpass({
       },
     });
     if (status === "OK") {
-      const whitelist = launchpadData?.phaseList[selectedPhase]["whitelist"];
+      const whitelist = launchpadData?.phaseList[selectedPhase] && launchpadData?.phaseList[selectedPhase]["whitelist"];
       const whitelistAddress = whitelist.map((i) => i.account);
 
       const retWithCheck = ret.map((item) => {
@@ -373,7 +373,7 @@ export default function AddKycBlockpass({
   };
 
   return (
-    <Box sx={{ py: "20px", w: "full" }}>
+    <Box sx={{ pb: "20px", w: "full" }}>
       <Flex justifyContent="space-between" fontSize={["14px", "16px"]}>
         <Flex alignItems="center" h="30px">
           <Text>

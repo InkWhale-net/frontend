@@ -3,8 +3,10 @@ import {
   Box,
   Circle,
   Divider,
+  Flex,
   Heading,
   Image,
+  Link,
   Text,
 } from "@chakra-ui/react";
 import AddressCopier from "components/address-copier/AddressCopier";
@@ -16,6 +18,7 @@ import { roundUp } from "utils";
 import { format } from "utils/datetime";
 import TabLayout from "../Layout";
 import TokenInformation from "./TokenInformation";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 const LabelField = ({ label, value, divider = true }) => {
   return (
@@ -123,7 +126,9 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
               justifyContent: "flex-end",
             }}
           >
-            <Text>{mainTabData?.description}</Text>
+            <Text w="full" textAlign="left">
+              {mainTabData?.description}
+            </Text>
           </Box>
         </Box>
 
@@ -270,7 +275,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
               marginBottom={"10px"}
             >
               <Text sx={{ flex: 1 }}>Description</Text>
-              <Text sx={{ flex: 2, textAlign: "right" }}>
+              <Text sx={{ flex: 2 }} textAlign={["left", "left", "right"]}>
                 {obj?.description}
               </Text>
             </Box>
@@ -323,14 +328,22 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
               <Text>
                 Role: <span>{obj?.title}</span>
               </Text>
-              <Box sx={{ display: "flex" }}>
-                <Text sx={{ marginRight: "8px" }}>Social link:</Text>
-                {obj?.socialLink ? (
-                  <AddressCopier truncated={false} address={obj?.socialLink} />
-                ) : (
-                  "---"
-                )}
-              </Box>
+
+              {obj?.socialLink ? (
+                <Link w="fit-content" href={obj?.socialLink} isExternal>
+                  Social link <ExternalLinkIcon mx="2px" />
+                </Link>
+              ) : (
+                <Flex
+                  color="lightgrey"
+                  cursor="not-allowed"
+                  alignItems="center"
+                  fontWeight={600}
+                  textDecoration="underline"
+                >
+                  Social link <ExternalLinkIcon mx="2px" />
+                </Flex>
+              )}
             </Box>
           </Box>
         );
