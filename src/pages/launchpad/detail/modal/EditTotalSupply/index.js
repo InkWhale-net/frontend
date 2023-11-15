@@ -112,8 +112,10 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
                   `Total Supply must be greater than or equal to ${minAllowed} ${tokenSymbol}`
                 )
                 .max(
-                  tokenBalance,
-                  `Total Supply must be less than or equal to ${tokenBalance} ${tokenSymbol}`
+                  parseInt(tokenBalance?.replaceAll(",", "")),
+                  `Total Supply must be less than or equal to ${parseInt(
+                    tokenBalance?.replaceAll(",", "")
+                  )} ${tokenSymbol}`
                 ),
             })}
             onSubmit={async (values) => {
@@ -179,6 +181,13 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
                     spacingY={{ base: "20px" }}
                     mb={{ base: "30px" }}
                   >
+                    <Text>Current total supply</Text>
+                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                      <Text>{`${formatNumDynDecimal(
+                        parseInt(totalSupply)
+                      )} ${tokenSymbol}`}</Text>
+                    </Box>
+
                     <Text>Available token amount </Text>
                     <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                       <Text>{`${formatNumDynDecimal(
@@ -186,15 +195,19 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
                       )} ${tokenSymbol}`}</Text>
                     </Box>
 
-                    <Text>Total supply amount </Text>
+                    <Text>Your {tokenSymbol} token balance</Text>
                     <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                      <Text>{`${totalSupply} ${tokenSymbol}`}</Text>
+                      <Text>{`${formatNumDynDecimal(
+                        parseInt(tokenBalance?.replaceAll(",", ""))
+                      )} ${tokenSymbol}`}</Text>
                     </Box>
                   </SimpleGrid>
 
                   <Stack>
                     <Text textAlign="left" color="brand.grayLight">
-                      {`New Total Supply (max ${tokenBalance} ${tokenSymbol})`}
+                      {`New Total Supply (max ${formatNumDynDecimal(
+                        parseInt(tokenBalance?.replaceAll(",", ""))
+                      )} ${tokenSymbol})`}
                     </Text>
                     <NumberInputWrapper
                       type="number"
