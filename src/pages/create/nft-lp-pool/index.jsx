@@ -47,7 +47,7 @@ export default function CreateNFTLPPage() {
   const { api } = useAppContext();
   const { currentAccount } = useSelector((s) => s.wallet);
 
-  const [createTokenFee, setCreateTokenFee] = useState(0);
+  const [createTokenFee, setCreateTokenFee] = useState("");
 
   const [faucetTokensList, setFaucetTokensList] = useState([]);
   const [selectedContractAddr, setSelectedContractAddr] = useState("");
@@ -184,7 +184,7 @@ export default function CreateNFTLPPage() {
 
       const fee = formatQueryResultToNumber(result);
 
-      setCreateTokenFee(fee);
+      setCreateTokenFee(fee?.replaceAll(",", ""));
     };
     if (!currentAccount?.address) return;
     fetchCreateTokenFee();
@@ -236,18 +236,15 @@ export default function CreateNFTLPPage() {
     }
 
     if (
-      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) <
-      createTokenFee
+      +currentAccount?.balance?.inw2?.replaceAll(",", "") <
+      +createTokenFee
     ) {
       toast.error(
-        `You don't have enough INW.Create Pool costs ${createTokenFee} INW`
+        `You don't have enough INW V2.Create Pool costs ${createTokenFee} INW V2`
       );
       return;
     }
-    if (
-      parseInt(tokenBalance?.replaceAll(",", "")) <
-      minReward.replaceAll(",", "")
-    ) {
+    if (+tokenBalance?.replaceAll(",", "") < +minReward.replaceAll(",", "")) {
       toast.error(`You don't have enough ${tokenSymbol} to topup the reward`);
       return;
     }
@@ -297,7 +294,7 @@ export default function CreateNFTLPPage() {
 
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving INW token...`);
+      toast.success(`Step ${step}: Approving INW V2 token...`);
       step++;
       let approve = await execContractTx(
         currentAccount,
@@ -451,7 +448,7 @@ export default function CreateNFTLPPage() {
             NFT Stakers get rewards in selected token. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {createTokenFee} INW
+              {formatNumDynDecimal(createTokenFee)} INW V2
             </Text>
             . This currently only works with NFTs on ArtZero platform.
           </span>
@@ -601,8 +598,12 @@ export default function CreateNFTLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.inw || 0} INW`}
-                label="Your INW Balance"
+                value={`${
+                  formatNumDynDecimal(
+                    currentAccount?.balance?.inw2?.replaceAll(",", "")
+                  ) || 0
+                } INW`}
+                label="Your INW V2 Balance"
               />
             </Box>
 

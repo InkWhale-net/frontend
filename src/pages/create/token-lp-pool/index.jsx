@@ -3,7 +3,6 @@ import {
   Button,
   Flex,
   Heading,
-  Select,
   SimpleGrid,
   Stack,
   Text,
@@ -14,8 +13,11 @@ import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 import { IWTable } from "components/table/IWTable";
 
+import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import { APICall } from "api/client";
+import { SelectSearch } from "components/SelectSearch";
 import { toastMessages } from "constants";
+import { useAppContext } from "contexts/AppContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DateTimePicker from "react-datetime-picker";
 import { toast } from "react-hot-toast";
@@ -25,20 +27,16 @@ import { fetchUserBalance } from "redux/slices/walletSlice";
 import {
   addressShortener,
   delay,
+  formatNumDynDecimal,
   formatNumToBN,
   formatQueryResultToNumber,
+  formatTokenAmount,
   isAddressValid,
+  roundUp,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import azt_contract from "utils/contracts/azt_contract";
 import lp_pool_generator_contract from "utils/contracts/lp_pool_generator_contract";
-import psp22_contract from "utils/contracts/psp22_contract";
-import { QuestionOutlineIcon } from "@chakra-ui/icons";
-import { formatNumDynDecimal } from "utils";
-import { roundUp } from "utils";
-import { SelectSearch } from "components/SelectSearch";
-import { formatTokenAmount } from "utils";
-import { useAppContext } from "contexts/AppContext";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 
 export default function CreateTokenLPPage() {
   const dispatch = useDispatch();
@@ -47,7 +45,7 @@ export default function CreateTokenLPPage() {
   const { myTokenPoolsList, loading } = useSelector((s) => s.myPools);
   const { allTokensList } = useSelector((s) => s.allPools);
 
-  const [createTokenFee, setCreateTokenFee] = useState(0);
+  const [createTokenFee, setCreateTokenFee] = useState("");
 
   const [selectedContractAddr, setSelectedContractAddr] = useState("");
 
@@ -96,7 +94,7 @@ export default function CreateTokenLPPage() {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       selectedContractAddr,
       0,
       "psp22::balanceOf",
@@ -135,7 +133,7 @@ export default function CreateTokenLPPage() {
     let queryResultLP = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       LPtokenContract,
       0,
       "psp22::balanceOf",
@@ -166,7 +164,7 @@ export default function CreateTokenLPPage() {
 
       const fee = formatQueryResultToNumber(result);
 
-      setCreateTokenFee(fee);
+      setCreateTokenFee(fee?.replaceAll(",", ""));
     };
 
     fetchCreateTokenFee();
@@ -217,11 +215,13 @@ export default function CreateTokenLPPage() {
     }
 
     if (
-      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) <
-      createTokenFee
+      +currentAccount?.balance?.inw2?.replaceAll(",", "") <
+      +createTokenFee
     ) {
       toast.error(
-        `You don't have enough INW. Stake costs ${createTokenFee} INW`
+        `You don't have enough INW V2. Stake costs ${formatNumDynDecimal(
+          createTokenFee
+        )} INW V2`
       );
       return;
     }
@@ -241,8 +241,8 @@ export default function CreateTokenLPPage() {
     const allowanceINWQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      azt_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
+      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::allowance",
       currentAccount?.address,
@@ -255,7 +255,7 @@ export default function CreateTokenLPPage() {
     const allowanceTokenQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       selectedContractAddr,
       0, //-> value
       "psp22::allowance",
@@ -270,13 +270,13 @@ export default function CreateTokenLPPage() {
 
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving INW token...`);
+      toast.success(`Step ${step}: Approving INW V2 token...`);
       step++;
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract.CONTRACT_ABI,
-        azt_contract.CONTRACT_ADDRESS,
+        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ADDRESS,
         0, //-> value
         "psp22::approve",
         lp_pool_generator_contract.CONTRACT_ADDRESS,
@@ -290,7 +290,7 @@ export default function CreateTokenLPPage() {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ABI,
         selectedContractAddr,
         0, //-> value
         "psp22::approve",
@@ -406,7 +406,7 @@ export default function CreateTokenLPPage() {
             Stakers get rewards in selected token. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {createTokenFee} INW
+              {formatNumDynDecimal(createTokenFee)} INW V2
             </Text>
           </span>
         }
@@ -521,8 +521,12 @@ export default function CreateTokenLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.inw || 0} INW`}
-                label="Your INW Balance"
+                value={`${
+                  formatNumDynDecimal(
+                    currentAccount?.balance?.inw2?.replaceAll(",", "")
+                  ) || 0
+                } INW V2`}
+                label="Your INW V2 Balance"
               />
             </Box>
 

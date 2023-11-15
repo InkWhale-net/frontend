@@ -43,7 +43,7 @@ export default function CreateStakePoolPage({ api }) {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { myStakingPoolsList, loading } = useSelector((s) => s.myPools);
 
-  const [createTokenFee, setCreateTokenFee] = useState(0);
+  const [createTokenFee, setCreateTokenFee] = useState("");
   const [faucetTokensList, setFaucetTokensList] = useState([]);
 
   const [selectedContractAddr, setSelectedContractAddr] = useState("");
@@ -135,7 +135,7 @@ export default function CreateStakePoolPage({ api }) {
       );
 
       const fee = formatQueryResultToNumber(result);
-      setCreateTokenFee(fee);
+      setCreateTokenFee(fee?.replaceAll(",", ""));
     };
 
     fetchCreateTokenFee();
@@ -186,20 +186,14 @@ export default function CreateStakePoolPage({ api }) {
       return toast.error("Invalid address!");
     }
 
-    if (
-      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) <
-      createTokenFee?.replaceAll(",", "")
-    ) {
+    if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
-        `You don't have enough INW. Create Stake Pool costs ${createTokenFee} INW`
+        `You don't have enough INW V2. Create Stake Pool costs ${createTokenFee} INW`
       );
       return;
     }
 
-    if (
-      parseInt(tokenBalance?.replaceAll(",", "")) <
-      minReward?.replaceAll(",", "")
-    ) {
+    if (+tokenBalance?.replaceAll(",", "") < +minReward?.replaceAll(",", "")) {
       toast.error(`You don't have enough ${tokenSymbol} to topup the reward`);
       return;
     }
@@ -300,6 +294,7 @@ export default function CreateStakePoolPage({ api }) {
 
     setApy("");
     setDuration("");
+    setMaxStake("");
     setStartTime(new Date());
     toast.promise(
       delay(30000).then(() => {
@@ -390,7 +385,7 @@ export default function CreateStakePoolPage({ api }) {
             Staker earns tokens at fixed APR. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {createTokenFee} INW
+              {formatNumDynDecimal(createTokenFee)} INW
             </Text>
           </span>
         }
@@ -471,8 +466,12 @@ export default function CreateStakePoolPage({ api }) {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.inw || 0} INW`}
-                label="Your INW Balance"
+                value={`${
+                  formatNumDynDecimal(
+                    currentAccount?.balance?.inw2?.replaceAll(",", "")
+                  ) || 0
+                } INW`}
+                label="Your INW V2 Balance"
               />
             </Box>
 
