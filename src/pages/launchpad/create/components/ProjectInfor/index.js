@@ -136,7 +136,34 @@ const ProjectInfor = () => {
             placeholder="Project Description"
           />
         </SectionContainer>
+
+        <SectionContainer title="Youtube intro link">
+          <IWInput
+            maxLength={100}
+            value={projectInfor?.youtubeUrl}
+            onChange={({ target }) =>
+              setProjectInfor({ ...projectInfor, youtubeUrl: target.value })
+            }
+            placeholder="https://www.youtube.com/embed/fwK7ggA3-bU"
+          />
+        </SectionContainer>
+
         <Tokenomic updateTokenomic={updateTokenomic} />
+
+        <SectionContainer title="Tokenomics more info">
+          <IWTextArea
+            maxLength={300}
+            value={projectInfor?.tokenomicsMoreInfo}
+            onChange={({ target }) =>
+              setProjectInfor({
+                ...projectInfor,
+                tokenomicsMoreInfo: target.value,
+              })
+            }
+            placeholder="Tokenomics more information"
+          />
+        </SectionContainer>
+
         <SimpleGrid columns={[1, 1, 2]} spacing={4}>
           <SectionContainer title="Website">
             <IWInput

@@ -25,6 +25,7 @@ import ModalDetailContextProvider from "./modal/ModelContext";
 import { useEffect } from "react";
 import { useAppContext } from "contexts/AppContext";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import CardSocial from "components/card/CardSocial";
 
 const PublicDetailLaunchpad = () => {
   const { launchpads } = useSelector((s) => s.launchpad);
@@ -89,7 +90,7 @@ const PublicDetailLaunchpad = () => {
     //   isDisabled: false,
     // },
     {
-      label: 'My Purchase',
+      label: "My Purchase",
       component: <BalanceTab launchpadData={launchpadData} />,
       isDisabled: false,
     },
@@ -147,7 +148,15 @@ const PublicDetailLaunchpad = () => {
               <Text>{`${token?.name}(${token?.symbol})`}</Text>
             </Box>
           </Box>
+
+          <CardSocial
+            websiteUrl={launchpadData?.projectInfo?.projectInfor?.website}
+            twitterUrl={launchpadData?.projectInfo?.projectInfor?.twitter}
+            discordUrl={launchpadData?.projectInfo?.projectInfor?.discord}
+            telegramUrl={launchpadData?.projectInfo?.projectInfor?.telegram}
+          />
         </Box>
+
         <IWTabs tabsData={tabsData} />
       </SectionContainer>
     </ModalDetailContextProvider>

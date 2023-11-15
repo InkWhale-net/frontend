@@ -1,4 +1,12 @@
-import { Box, Circle, Divider, Heading, Image, Text } from "@chakra-ui/react";
+import {
+  AspectRatio,
+  Box,
+  Circle,
+  Divider,
+  Heading,
+  Image,
+  Text,
+} from "@chakra-ui/react";
 import AddressCopier from "components/address-copier/AddressCopier";
 import { formatDataCellTable } from "components/table/IWPaginationTable";
 import { useMemo } from "react";
@@ -50,14 +58,11 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
       return [];
     }
   }, [launchpadData]);
+
   const mainTableHeader = [
     {
       label: "Launchpad contract",
       header: "contractAddress",
-    },
-    {
-      label: "Description",
-      header: "description",
     },
     {
       label: "Total token for sale",
@@ -73,11 +78,15 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
       header: "presaleEndTime",
     },
   ];
+
   const mainTabData = useMemo(() => {
     return {
       contractAddress: launchpadContract,
       tokenSymbol: token?.symbol,
       description: projectInfor?.description,
+      youtubeUrl: projectInfor?.youtubeUrl,
+      tokenomicsMoreInfo: projectInfor?.tokenomicsMoreInfo,
+
       totalSupply: roundUp(totalSupply?.replaceAll(",", "")),
       presaleStartTime: format(
         parseInt(launchpadData?.startTime?.replace(/,/g, "")),
@@ -90,15 +99,45 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
     };
   }, [
     launchpadContract,
+    launchpadData?.endTime,
+    launchpadData?.startTime,
     projectInfor?.description,
-    projectInfor?.endTime,
-    projectInfor?.startTime,
+    projectInfor?.tokenomicsMoreInfo,
+    projectInfor?.youtubeUrl,
     token?.symbol,
     totalSupply,
   ]);
+
   return (
     <TabLayout launchpadData={launchpadData}>
-      <Heading sx={{ fontSize: "24px" }} size="lg">
+      <>
+        <Box
+          sx={{ display: "flex", justifyContent: "space-between" }}
+          flexDirection={["column", "column", "row"]}
+          alignItems={["start"]}
+        >
+          <Box
+            sx={{
+              flex: 2,
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Text>{mainTabData?.description}</Text>
+          </Box>
+        </Box>
+
+        {mainTabData.youtubeUrl && (
+          <AspectRatio mt="24px" w="full" maxW="750px" ratio={16 / 9}>
+            <iframe
+              allowFullScreen
+              title="youtube-link"
+              src={mainTabData.youtubeUrl}
+            />
+          </AspectRatio>
+        )}
+      </>
+      <Heading sx={{ fontSize: "24px" }} size="lg" marginTop="40px">
         General Information
       </Heading>
       <Divider sx={{ marginBottom: "16px" }} />
@@ -179,6 +218,24 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
             </Box>
           </Box>
         </>
+      )}
+      {mainTabData?.tokenomicsMoreInfo && (
+        <Box
+          mt="16px"
+          sx={{ display: "flex", justifyContent: "space-between" }}
+          flexDirection={["column", "column", "row"]}
+          alignItems={["start"]}
+        >
+          <Box
+            sx={{
+              flex: 2,
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Text>{mainTabData?.tokenomicsMoreInfo}</Text>
+          </Box>
+        </Box>
       )}
       <Heading
         sx={{
