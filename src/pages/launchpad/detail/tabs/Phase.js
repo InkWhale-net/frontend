@@ -290,7 +290,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
         <Text>Phase Cap Amount</Text>
 
         <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
-          {tagData.capAmount} ${launchpadData?.projectInfo?.token?.symbol}
+          {tagData.capAmount} {launchpadData?.projectInfo?.token?.symbol}
         </Text>
       </Flex>
 

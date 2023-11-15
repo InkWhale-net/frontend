@@ -66,7 +66,7 @@ export default function AddKycBlockpass({
       },
     });
     if (status === "OK") {
-      const whitelist = launchpadData?.phaseList[selectedPhase]["whitelist"];
+      const whitelist = launchpadData?.phaseList[selectedPhase] && launchpadData?.phaseList[selectedPhase]["whitelist"];
       const whitelistAddress = whitelist.map((i) => i.account);
 
       const retWithCheck = ret.map((item) => {
@@ -373,7 +373,7 @@ export default function AddKycBlockpass({
   };
 
   return (
-    <Box sx={{ py: "20px", w: "full" }}>
+    <Box sx={{ pb: "20px", w: "full" }}>
       <Flex justifyContent="space-between" fontSize={["14px", "16px"]}>
         <Flex alignItems="center" h="30px">
           <Text>
@@ -471,6 +471,10 @@ export default function AddKycBlockpass({
                 <>
                   <Tr key={row.id} color="#57527E">
                     {row.getVisibleCells().map((cell) => {
+                      const columnId = cell.column.id;
+                      const isAddWhitelist = cell.row.original.isAddWhitelist;
+                      const blockPassStatus = cell.row.original.status;
+
                       return (
                         <Td py="8px" key={cell.id}>
                           <Flex
@@ -483,13 +487,22 @@ export default function AddKycBlockpass({
                                 width: "90px",
                                 height: "30px",
                                 padding: "4px",
+                                textAlign: "center",
                               },
                             }}
                           >
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
+                            {columnId !== "amount" && columnId !== "price"
+                              ? flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )
+                              : isAddWhitelist === "NO" &&
+                                blockPassStatus === "approved"
+                              ? flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )
+                              : cell.getValue()}
                           </Flex>
                         </Td>
                       );

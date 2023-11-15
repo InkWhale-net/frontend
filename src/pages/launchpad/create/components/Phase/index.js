@@ -336,7 +336,10 @@ const Phase = () => {
                 title={
                   <>
                     Phase Cap
-                    <Tooltip fontSize="md" label={`Phase Cap explain`}>
+                    <Tooltip
+                      fontSize="md"
+                      label={`Total token for sale in this phase`}
+                    >
                       <QuestionOutlineIcon ml="6px" color="text.2" />
                     </Tooltip>
                   </>

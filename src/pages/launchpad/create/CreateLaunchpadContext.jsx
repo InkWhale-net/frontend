@@ -225,12 +225,12 @@ const CreateLaunchpadContextProvider = (props) => {
 
       if (
         !(
-          parseFloat(currentAccount?.balance?.inw.replaceAll(",", "")) >
-          parseFloat(formatTokenAmount(fee, 12))
+          +currentAccount?.balance?.inw2.replaceAll(",", "") >
+          +formatTokenAmount(fee, 12)
         )
       ) {
         toast.error(
-          `Your INW balance must higher than ${formatNumDynDecimal(
+          `Your INW V2 balance must higher than ${formatNumDynDecimal(
             formatTokenAmount(fee, 12)
           )}`
         );

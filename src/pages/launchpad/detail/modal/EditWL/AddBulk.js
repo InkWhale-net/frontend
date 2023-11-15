@@ -133,7 +133,7 @@ const AddBulk = ({
     selectedPhase,
   ]);
   return (
-    <Box sx={{ pt: "2px", px: "0px", w: "full" }}>
+    <Box sx={{ pt: "0px", px: "0px", w: "full" }}>
       {launchpadData?.requireKyc ? (
         <AddKycBlockpass
           launchpadData={launchpadData}
@@ -142,20 +142,6 @@ const AddBulk = ({
         />
       ) : (
         <>
-          <Flex
-            flexDirection={["column", "row"]}
-            w="full"
-            p="10px"
-            mb="10px"
-            borderRadius={8}
-            border="1px solid #E3DFF3"
-            bg="#F6F6FC"
-           >
-            <PhaseHeaderInfo
-              phaseHeaderInfo={phaseHeaderInfo}
-              launchpadData={launchpadData}
-            />
-          </Flex>
           <IWTextArea
             sx={{
               height: "132px",

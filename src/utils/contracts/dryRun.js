@@ -45,7 +45,7 @@ export const getGasLimit = async (
 
   const gasRequired = api.registry.createType("WeightV2", {
     refTime: v2Weight.refTime.mul(new BN(2)),
-    proofSize: v2Weight.proofSize,
+    proofSize: v2Weight.proofSize.mul(new BN(2)),
   });
 
   return { ok: true, value: gasRequired };

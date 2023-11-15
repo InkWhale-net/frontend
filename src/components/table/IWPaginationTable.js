@@ -511,8 +511,8 @@ export const formatDataCellTable = (
       );
     case "tokenSymbol":
       return (
-        <Flex alignItems={"center"} mr={{ base: "20px" }}>
-          <Box
+        <Flex alignItems={"center"}>
+          {/* <Box
             w={{ base: null, lg: "42px" }}
             sx={{
               h: "42px",
@@ -522,14 +522,14 @@ export const formatDataCellTable = (
             }}
           >
             <TokenIcon tokenContract={itemObj["tokenContract"]} />
-          </Box>
+          </Box> */}
           <Text textAlign="left">{itemObj[header]} </Text>
         </Flex>
       );
     case "tokenName":
       return (
-        <Flex alignItems={"center"} mr={{ base: "20px" }}>
-          <Box
+        <Flex alignItems={"center"}>
+          {/* <Box
             w={{ base: null, lg: "42px" }}
             sx={{
               h: "42px",
@@ -539,7 +539,7 @@ export const formatDataCellTable = (
             }}
           >
             <TokenIcon tokenContract={itemObj["tokenContract"]} />
-          </Box>
+          </Box> */}
           <Text textAlign="left">{itemObj[header]} </Text>
         </Flex>
       );

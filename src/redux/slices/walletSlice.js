@@ -4,6 +4,7 @@ import { formatNumDynDecimal, formatQueryResultToNumber } from "utils";
 import { execContractQuery, getAzeroBalanceOfAddress } from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 
 const localCurrentAccount = window?.localStorage?.getItem(
   "localCurrentAccount"
@@ -79,6 +80,18 @@ export const fetchUserBalance = createAsyncThunk(
     );
 
     const inw = formatQueryResultToNumber(inwBalance);
+    const inw2Balance = await execContractQuery(
+      currentAccount?.address,
+      //thunkAPI.getState().wallet.api,
+      api,
+      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ADDRESS,
+      0,
+      "psp22::balanceOf",
+      currentAccount?.address
+    );
+
+    const inw2 = formatQueryResultToNumber(inw2Balance);
 
     const azeroBalance = await getAzeroBalanceOfAddress({
       api,
@@ -86,7 +99,7 @@ export const fetchUserBalance = createAsyncThunk(
     });
 
     const azero = formatNumDynDecimal(azeroBalance);
-    return { inw, azero };
+    return { inw, inw2, azero };
   }
 );
 

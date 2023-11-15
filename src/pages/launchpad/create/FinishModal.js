@@ -11,6 +11,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { ContractPromise } from "@polkadot/api-contract";
+import { web3FromSource } from "@polkadot/extension-dapp";
 import { APICall, ipfsClient } from "api/client";
 import { useAppContext } from "contexts/AppContext";
 import { parseUnits } from "ethers";
@@ -18,6 +19,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
+import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import {
   dayToMilisecond,
   delay,
@@ -30,14 +32,11 @@ import {
   execContractTx,
   execContractTxAndCallAPI,
 } from "utils/contracts";
-import azt_contract from "utils/contracts/azt_contract";
 import launchpad from "utils/contracts/launchpad";
 import launchpad_generator from "utils/contracts/launchpad_generator";
-import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { useCreateLaunchpad } from "./CreateLaunchpadContext";
 import { processStringToArray } from "./utils";
-import { fetchLaunchpads } from "redux/slices/launchpadSlice";
-import { web3FromSource } from "@polkadot/extension-dapp";
 
 const StepItem = ({
   isActive,
@@ -215,15 +214,15 @@ const FinishModal = ({}) => {
 
   const stepList = [
     {
-      label: "Approve INW",
+      label: "Approve INW V2",
       callback: async () => {
         try {
           if (activeStep != 0) return;
           const allowanceINWQr = await execContractQuery(
             currentAccount?.address,
             "api",
-            azt_contract.CONTRACT_ABI,
-            azt_contract.CONTRACT_ADDRESS,
+            psp22_contract_v2.CONTRACT_ABI,
+            psp22_contract_v2.CONTRACT_ADDRESS,
             0, //-> value
             "psp22::allowance",
             currentAccount?.address,
@@ -238,8 +237,8 @@ const FinishModal = ({}) => {
             let approve = await execContractTx(
               currentAccount,
               "api",
-              psp22_contract.CONTRACT_ABI,
-              azt_contract.CONTRACT_ADDRESS,
+              psp22_contract_v2.CONTRACT_ABI,
+              psp22_contract_v2.CONTRACT_ADDRESS,
               0, //-> value
               "psp22::approve",
               launchpad_generator.CONTRACT_ADDRESS,
@@ -267,7 +266,7 @@ const FinishModal = ({}) => {
           const allowanceTokenQr = await execContractQuery(
             currentAccount?.address,
             "api",
-            psp22_contract.CONTRACT_ABI,
+            psp22_contract_v2.CONTRACT_ABI,
             launchpadData?.token?.tokenAddress,
             0, //-> value
             "psp22::allowance",
@@ -283,7 +282,7 @@ const FinishModal = ({}) => {
             let approve = await execContractTx(
               currentAccount,
               "api",
-              psp22_contract.CONTRACT_ABI,
+              psp22_contract_v2.CONTRACT_ABI,
               launchpadData?.token?.tokenAddress,
               0, //-> value
               "psp22::approve",
@@ -402,19 +401,19 @@ const FinishModal = ({}) => {
         }
       },
     },
-    {
-      label: "Setup whitelist",
-      callback: async () => {
-        // try {
-        //   if (activeStep != 3 || !newLpAddress) return;
-        //   toast("Please wait for adding whitelist...");
-        //   await delay(100);
-        // } catch (error) {
-        //   setIsError(true);
-        //   console.log(error);
-        // }
-      },
-    },
+    // {
+    //   label: "Setup whitelist",
+    //   callback: async () => {
+    //     // try {
+    //     //   if (activeStep != 3 || !newLpAddress) return;
+    //     //   toast("Please wait for adding whitelist...");
+    //     //   await delay(100);
+    //     // } catch (error) {
+    //     //   setIsError(true);
+    //     //   console.log(error);
+    //     // }
+    //   },
+    // },
   ];
   useEffect(() => {
     if (visible) {

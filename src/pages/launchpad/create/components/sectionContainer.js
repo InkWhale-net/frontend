@@ -20,7 +20,7 @@ const SectionContainer = ({
         >
           <Heading
             as="h3"
-            size="h3"
+            size="h4"
             mb="16px"
             lineHeight={{ base: "1.25", lg: "30px" }}
           >

@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -8,61 +9,41 @@ import {
   ModalHeader,
   ModalOverlay,
   SimpleGrid,
+  Stack,
   Text,
 } from "@chakra-ui/react";
 import { APICall } from "api/client";
+import NumberInputWrapper from "components/input/NumberInput";
 import { useAppContext } from "contexts/AppContext";
-import { parseUnits } from "ethers";
-import {
-  validatePhaseData,
-  verifyWhitelist,
-} from "pages/launchpad/create/utils";
-import { useEffect, useMemo, useState } from "react";
-import { toast } from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchLaunchpads } from "redux/slices/launchpadSlice";
-import {
-  dayToMilisecond,
-  delay,
-  formatNumDynDecimal,
-  formatTokenAmount,
-  millisecondsInADay,
-} from "utils";
-import { execContractQuery, execContractTx } from "utils/contracts";
+import { Form, Formik } from "formik";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
+import { delay } from "utils";
+import { formatChainStringToNumber } from "utils";
+import { formatQueryResultToNumber } from "utils";
+import { formatNumDynDecimal, formatTokenAmount } from "utils";
+import { execContractTx } from "utils/contracts";
+import { execContractQuery } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
+import psp22_contract from "utils/contracts/psp22_contract";
+import * as Yup from "yup";
 
 const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
   const { api } = useAppContext();
-  const [selectedPhaseIndex, setSelectedPhaseIndex] = useState(-1);
+
   const [availableTokenAmount, setAvailableTokenAmount] = useState(0);
+
   const tokenDecimal = parseInt(launchpadData?.projectInfo?.token?.decimals);
-  const [onCreateNew, setOnCreateNew] = useState(true);
-  const [newData, setNewData] = useState({
-    startDate: new Date(),
-    endDate: new Date(),
-  });
-  const dispatch = useDispatch();
-  const phaseListData = useMemo(() => {
-    return launchpadData?.phaseList?.map((e) => ({
-      ...e,
-      immediateReleaseRate:
-        parseFloat(e?.immediateReleaseRate?.replace(/,/g, "")) / 100,
-      name: e?.name,
-      startDate: new Date(parseInt(e?.startTime?.replace(/,/g, ""))),
-      endDate: new Date(parseInt(e?.endTime?.replace(/,/g, ""))),
-      vestingLength:
-        parseFloat(e?.vestingDuration?.replace(/,/g, "")) / millisecondsInADay,
-      vestingUnit:
-        parseFloat(e?.vestingUnit?.replace(/,/g, "")) / millisecondsInADay,
-      allowPublicSale: e?.publicSaleInfor?.isPublic,
-      phasePublicAmount: formatTokenAmount(
-        e?.publicSaleInfor?.totalAmount,
-        tokenDecimal
-      ),
-      phasePublicPrice: formatTokenAmount(e?.publicSaleInfor?.price, 12),
-    }));
-  }, [launchpadData]);
+  const isPhaseStart =
+    Date.now() > formatChainStringToNumber(launchpadData?.startTime);
+  const isOwner = launchpadData?.owner === currentAccount?.address;
+  const tokenSymbol = launchpadData?.projectInfo?.token?.symbol;
+  const tokenAddress = launchpadData?.projectInfo?.token?.tokenAddress;
+  const totalSupply =
+    formatChainStringToNumber(launchpadData?.totalSupply) /
+    Math.pow(10, tokenDecimal);
 
   const fetchPhaseData = async () => {
     const result = await execContractQuery(
@@ -76,131 +57,186 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
     const availableAmount = result.toHuman().Ok;
     setAvailableTokenAmount(formatTokenAmount(availableAmount, tokenDecimal));
   };
+
   useEffect(() => {
     if (!visible) {
-      setOnCreateNew(false);
-      setNewData(null);
-      setSelectedPhaseIndex(-1);
+      // setOnCreateNew(false);
+      // setNewData(null);
+      // setSelectedPhaseIndex(-1);
     } else {
       if (launchpadData) fetchPhaseData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, launchpadData]);
 
-  const handleCreateNewPhase = async () => {
-    try {
-      if (!currentAccount) {
-        return toast.error("Please connect wallet first!");
-      }
-      if (newData?.whiteList)
-        if (!verifyWhitelist(newData?.whiteList)) {
-          toast.error("Invalid whitelist format");
-          return false;
-        }
-      const phaseList = [...phaseListData, newData];
-      if (
-        !validatePhaseData(phaseList, {
-          overlapseErrorMsgL:
-            "New phase duration overlaps 1 or more phases. Please choose other time range",
-        })
-      )
-        return;
+  const minAllowed = totalSupply - availableTokenAmount;
 
-      const result = await execContractTx(
-        currentAccount,
+  const [tokenBalance, setTokenBalance] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const queryResult = await execContractQuery(
+        currentAccount?.address,
         api,
-        launchpad.CONTRACT_ABI,
-        launchpadData?.launchpadContract,
-        0, //-> value
-        "addNewPhase",
-        newData?.name,
-        newData?.startDate?.getTime(),
-        newData?.endDate?.getTime(),
-        newData?.immediateReleaseRate === 100
-          ? parseInt(
-              (parseFloat(newData?.immediateReleaseRate) * 100).toFixed()
-            )
-          : parseInt(
-              (parseFloat(newData?.immediateReleaseRate) * 100).toFixed()
-            ),
-        newData?.immediateReleaseRate === 100
-          ? 0
-          : dayToMilisecond(parseFloat(newData?.vestingLength)),
-        newData?.immediateReleaseRate === 100
-          ? 1
-          : dayToMilisecond(parseFloat(newData?.vestingUnit)),
-        newData?.allowPublicSale,
-        newData?.allowPublicSale
-          ? parseUnits(newData?.phasePublicAmount.toString(), tokenDecimal)
-          : null,
-        newData?.allowPublicSale
-          ? parseUnits(newData?.phasePublicPrice.toString(), 12)
-          : null
+        psp22_contract.CONTRACT_ABI,
+        tokenAddress,
+        0,
+        "psp22::balanceOf",
+        currentAccount?.address
       );
-      if (result) {
-        await delay(200);
-        await APICall.askBEupdate({
-          type: "launchpad",
-          poolContract: launchpadData?.launchpadContract,
-        });
-        toast.promise(
-          delay(5000).then(() => {
-            dispatch(fetchLaunchpads({}));
-            setOnCreateNew(false);
-            setVisible(false);
-          }),
-          {
-            loading: "Please wait up to 5s for the data to be updated! ",
-            success: "Success",
-            error: "Could not fetch data!!!",
-          }
-        );
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const isPhaseEditable = useMemo(() => {
-    if (selectedPhaseIndex >= 0) {
-      const phaseData = phaseListData[selectedPhaseIndex];
 
-      if (phaseData?.endDate < new Date() || phaseData?.startDate < new Date())
-        return false;
-      else return true;
-    } else {
-      return true;
-    }
-  }, [selectedPhaseIndex]);
+      const tokenBal = formatQueryResultToNumber(queryResult);
+
+      setTokenBalance(tokenBal);
+    };
+    api && fetchData();
+  }, [api, currentAccount?.address, tokenAddress]);
+
   return (
-    <Modal
-      onClose={() => setVisible(false)}
-      isOpen={visible}
-      isCentered
-      size="lg"
-    >
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Edit total token for sale</ModalHeader>
+    <>
+      <Modal
+        isOpen={visible}
+        isCentered
+        size="lg"
+        onClose={() => setVisible(false)}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <Formik
+            initialValues={{ totalSupply }}
+            validationSchema={Yup.object().shape({
+              totalSupply: Yup.number()
+                .required(`This field is required`)
+                .min(
+                  minAllowed,
+                  `Total Supply must be greater than or equal to ${minAllowed} ${tokenSymbol}`
+                )
+                .max(
+                  parseInt(tokenBalance?.replaceAll(",", "")),
+                  `Total Supply must be less than or equal to ${parseInt(
+                    tokenBalance?.replaceAll(",", "")
+                  )} ${tokenSymbol}`
+                ),
+            })}
+            onSubmit={async (values) => {
+              console.log("isPhaseStart", isPhaseStart);
+              if (isPhaseStart) {
+                return toast.error("You can not edit when project started!");
+              }
 
-        <ModalCloseButton onClick={() => setVisible(false)} />
-        <ModalBody sx={{ pb: "28px", maxHeight: "80vh", overflow: "auto" }}>
-          <SimpleGrid
-            w="full"
-            columns={{ base: 1, lg: 2 }}
-            spacingX={{ lg: "20px" }}
-            spacingY={{ base: "20px", lg: "32px" }}
-            mb={{ base: "30px" }}
+              if (!isOwner) {
+                return toast.error("Only owner can edit!");
+              }
+
+              try {
+                const result = await execContractTx(
+                  currentAccount,
+                  api,
+                  launchpad.CONTRACT_ABI,
+                  launchpadData?.launchpadContract,
+                  0, //-> value
+                  "launchpadContractTrait::setTotalSupply",
+                  { u128: values?.totalSupply }
+                );
+
+                if (result) {
+                  await delay(200);
+
+                  await APICall.askBEupdate({
+                    type: "launchpad",
+                    poolContract: launchpadData?.launchpadContract,
+                  });
+
+                  toast.promise(
+                    delay(5000).then(() => {
+                      // dispatch(fetchLaunchpads({}));
+                      // setOnCreateNew(false);
+                      setVisible(false);
+                    }),
+                    {
+                      loading:
+                        "Please wait up to 5s for the data to be updated! ",
+                      success: "Success",
+                      error: "Could not fetch data!!!",
+                    }
+                  );
+                }
+              } catch (error) {
+                console.log("error", error);
+              }
+            }}
           >
-            <Text>Available token amount</Text>
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-              <Text>{`${formatNumDynDecimal(availableTokenAmount)} 
-            ${launchpadData?.projectInfo?.token?.symbol}`}</Text>
-            </Box>
-          </SimpleGrid>
-        </ModalBody>
-        <ModalFooter></ModalFooter>
-      </ModalContent>
-    </Modal>
+            {({ dirty, isValid, isSubmitting }) => (
+              <Form>
+                <ModalHeader>Edit total token for sale</ModalHeader>
+
+                <ModalCloseButton onClick={() => setVisible(false)} />
+                <ModalBody
+                  sx={{ pb: "28px", maxHeight: "80vh", overflow: "auto" }}
+                >
+                  <SimpleGrid
+                    w="full"
+                    columns={{ base: 1, lg: 2 }}
+                    spacingX={{ lg: "20px" }}
+                    spacingY={{ base: "20px" }}
+                    mb={{ base: "30px" }}
+                  >
+                    <Text>Current total supply</Text>
+                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                      <Text>{`${formatNumDynDecimal(
+                        parseInt(totalSupply)
+                      )} ${tokenSymbol}`}</Text>
+                    </Box>
+
+                    <Text>Available token amount </Text>
+                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                      <Text>{`${formatNumDynDecimal(
+                        availableTokenAmount
+                      )} ${tokenSymbol}`}</Text>
+                    </Box>
+
+                    <Text>Your {tokenSymbol} token balance</Text>
+                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                      <Text>{`${formatNumDynDecimal(
+                        parseInt(tokenBalance?.replaceAll(",", ""))
+                      )} ${tokenSymbol}`}</Text>
+                    </Box>
+                  </SimpleGrid>
+
+                  <Stack>
+                    <Text textAlign="left" color="brand.grayLight">
+                      {`New Total Supply (max ${formatNumDynDecimal(
+                        parseInt(tokenBalance?.replaceAll(",", ""))
+                      )} ${tokenSymbol})`}
+                    </Text>
+                    <NumberInputWrapper
+                      type="number"
+                      name="totalSupply"
+                      hasStepper={false}
+                      step={1}
+                      precision={0}
+                      placeholder="Royalty Fee"
+                      isDisabled={isSubmitting}
+                      min={minAllowed}
+                      max={tokenBalance}
+                    />
+                  </Stack>
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    w="full"
+                    type="submit"
+                    isDisabled={!(dirty && isValid) || isSubmitting}
+                  >
+                    Submit
+                  </Button>
+                </ModalFooter>
+              </Form>
+            )}
+          </Formik>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };
 export default EditTotalSupply;

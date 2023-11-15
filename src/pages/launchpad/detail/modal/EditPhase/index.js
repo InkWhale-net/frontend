@@ -366,10 +366,22 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Update phases</ModalHeader>
-
+        <ModalHeader>
+          {!onCreateNew
+            ? "Manage Phases"
+            : selectedPhaseIndex >= 0
+            ? `Manage ${newData?.name ?? ""} phase`
+            : "Create New Phase"}
+        </ModalHeader>
         <ModalCloseButton onClick={() => setVisible(false)} />
         <ModalBody sx={{ pb: "28px", maxHeight: "80vh", overflow: "auto" }}>
+          <Text>
+            {`${
+              !onCreateNew ? "Available token amount" : "Balance"
+            }: ${formatNumDynDecimal(availableTokenAmount)} ${
+              launchpadData?.projectInfo?.token?.symbol
+            }`}
+          </Text>
           {onCreateNew ? (
             <>
               {selectedPhaseIndex >= 0 && (
@@ -499,7 +511,10 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                     title={
                       <>
                         Phase Cap
-                        <Tooltip fontSize="md" label={`Phase Cap explain`}>
+                        <Tooltip
+                          fontSize="md"
+                          label={`Total token for sale in this phase`}
+                        >
                           <QuestionOutlineIcon ml="6px" color="text.2" />
                         </Tooltip>
                       </>
@@ -551,16 +566,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                     }
                   >
                     <IWInput
-                      inputRightElementIcon={
-                        <Tooltip
-                          fontSize="md"
-                          label={
-                            "The vesting duration refers to the length of time over which a vesting schedule is applied"
-                          }
-                        >
-                          <b>day(s)</b>
-                        </Tooltip>
-                      }
+                      inputRightElementIcon={<b>day(s)</b>}
                       isDisabled={
                         parseFloat(newData?.immediateReleaseRate) === 100 ||
                         !isPhaseEditable
@@ -573,18 +579,23 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                       placeholder="0"
                     />
                   </SectionContainer>
-                  <SectionContainer title={"Vesting Release Period"}>
-                    <IWInput
-                      inputRightElementIcon={
+                  <SectionContainer
+                    title={
+                      <>
+                        Vesting Release Period
                         <Tooltip
                           fontSize="md"
                           label={
                             "The Vesting Release Period is the interval or frequency at which vested tokens become accessible to the token holder according to the predetermined vesting schedule"
                           }
                         >
-                          <b>day(s)</b>
+                          <QuestionOutlineIcon ml="6px" color="text.2" />
                         </Tooltip>
-                      }
+                      </>
+                    }
+                  >
+                    <IWInput
+                      inputRightElementIcon={<b>day(s)</b>}
                       isDisabled={
                         parseFloat(newData?.immediateReleaseRate) === 100 ||
                         !isPhaseEditable
@@ -724,7 +735,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
           ) : (
             <>
               <Text sx={{ fontWeight: "700", color: "#57527E" }}>
-                Choose Phase
+                Select phase to edit
               </Text>
               <Box
                 sx={{ display: "flex" }}
@@ -746,26 +757,22 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                     </option>
                   ))}
                 </Select>
-                <Button
-                  mt={["16px", "0px"]}
-                  sx={{ marginLeft: "10px" }}
-                  size="md"
-                  onClick={() => {
-                    setOnCreateNew(true);
-                    setSelectedPhaseIndex(-1);
-                  }}
-                >
-                  Create new Phase
-                </Button>
               </Box>
+              <Button
+                mt={["16px"]}
+                size="md"
+                w={["full", "full", "25%"]}
+                onClick={() => {
+                  setOnCreateNew(true);
+                  setSelectedPhaseIndex(-1);
+                }}
+              >
+                Create New Phase
+              </Button>
             </>
           )}
         </ModalBody>
-        <ModalFooter>
-          Available token amount:{" "}
-          {`${formatNumDynDecimal(availableTokenAmount)}
-            ${launchpadData?.projectInfo?.token?.symbol}`}
-        </ModalFooter>
+        <ModalFooter></ModalFooter>
       </ModalContent>
     </Modal>
   );

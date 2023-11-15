@@ -1,4 +1,14 @@
-import { Box, Circle, Divider, Heading, Image, Text } from "@chakra-ui/react";
+import {
+  AspectRatio,
+  Box,
+  Circle,
+  Divider,
+  Flex,
+  Heading,
+  Image,
+  Link,
+  Text,
+} from "@chakra-ui/react";
 import AddressCopier from "components/address-copier/AddressCopier";
 import { formatDataCellTable } from "components/table/IWPaginationTable";
 import { useMemo } from "react";
@@ -7,6 +17,8 @@ import { isMobile } from "react-device-detect";
 import { roundUp } from "utils";
 import { format } from "utils/datetime";
 import TabLayout from "../Layout";
+import TokenInformation from "./TokenInformation";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 const LabelField = ({ label, value, divider = true }) => {
   return (
@@ -49,34 +61,35 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
       return [];
     }
   }, [launchpadData]);
+
   const mainTableHeader = [
     {
       label: "Launchpad contract",
       header: "contractAddress",
     },
     {
-      label: "Description",
-      header: "description",
-    },
-    {
-      label: "Token total for sale",
+      label: "Total token for sale",
       header: "totalSupply",
     },
 
     {
-      label: "Presale Start Time",
+      label: "Start Time",
       header: "presaleStartTime",
     },
     {
-      label: "Presale End Time",
+      label: "End Time",
       header: "presaleEndTime",
     },
   ];
+
   const mainTabData = useMemo(() => {
     return {
       contractAddress: launchpadContract,
       tokenSymbol: token?.symbol,
       description: projectInfor?.description,
+      youtubeUrl: projectInfor?.youtubeUrl,
+      tokenomicsMoreInfo: projectInfor?.tokenomicsMoreInfo,
+
       totalSupply: roundUp(totalSupply?.replaceAll(",", "")),
       presaleStartTime: format(
         parseInt(launchpadData?.startTime?.replace(/,/g, "")),
@@ -89,15 +102,47 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
     };
   }, [
     launchpadContract,
+    launchpadData?.endTime,
+    launchpadData?.startTime,
     projectInfor?.description,
-    projectInfor?.endTime,
-    projectInfor?.startTime,
+    projectInfor?.tokenomicsMoreInfo,
+    projectInfor?.youtubeUrl,
     token?.symbol,
     totalSupply,
   ]);
+
   return (
     <TabLayout launchpadData={launchpadData}>
-      <Heading sx={{ fontSize: "24px" }} size="lg">
+      <>
+        <Box
+          sx={{ display: "flex", justifyContent: "space-between" }}
+          flexDirection={["column", "column", "row"]}
+          alignItems={["start"]}
+        >
+          <Box
+            sx={{
+              flex: 2,
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Text w="full" textAlign="left">
+              {mainTabData?.description}
+            </Text>
+          </Box>
+        </Box>
+
+        {mainTabData.youtubeUrl && (
+          <AspectRatio mt="24px" w="full" maxW="750px" ratio={16 / 9}>
+            <iframe
+              allowFullScreen
+              title="youtube-link"
+              src={mainTabData.youtubeUrl}
+            />
+          </AspectRatio>
+        )}
+      </>
+      <Heading sx={{ fontSize: "24px" }} size="lg" marginTop="40px">
         General Information
       </Heading>
       <Divider sx={{ marginBottom: "16px" }} />
@@ -124,6 +169,14 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
           </>
         );
       })}
+      <Heading sx={{ fontSize: "24px" }} size="lg" marginTop="40px">
+        Token Information
+      </Heading>
+      <Divider sx={{ marginBottom: "16px" }} />
+      <TokenInformation
+        launchpadContract={launchpadContract}
+        launchpadData={launchpadData}
+      />{" "}
       {distributions?.length > 0 && (
         <>
           <Heading
@@ -133,7 +186,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
             }}
             size="lg"
           >
-            Tokenomic
+            Tokenomics
           </Heading>
           <Box
             sx={{
@@ -171,6 +224,24 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
           </Box>
         </>
       )}
+      {mainTabData?.tokenomicsMoreInfo && (
+        <Box
+          mt="16px"
+          sx={{ display: "flex", justifyContent: "space-between" }}
+          flexDirection={["column", "column", "row"]}
+          alignItems={["start"]}
+        >
+          <Box
+            sx={{
+              flex: 2,
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Text>{mainTabData?.tokenomicsMoreInfo}</Text>
+          </Box>
+        </Box>
+      )}
       <Heading
         sx={{
           marginTop: "40px",
@@ -204,7 +275,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
               marginBottom={"10px"}
             >
               <Text sx={{ flex: 1 }}>Description</Text>
-              <Text sx={{ flex: 2, textAlign: "right" }}>
+              <Text sx={{ flex: 2 }} textAlign={["left", "left", "right"]}>
                 {obj?.description}
               </Text>
             </Box>
@@ -257,14 +328,22 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
               <Text>
                 Role: <span>{obj?.title}</span>
               </Text>
-              <Box sx={{ display: "flex" }}>
-                <Text sx={{ marginRight: "8px" }}>Social link:</Text>
-                {obj?.socialLink ? (
-                  <AddressCopier truncated={false} address={obj?.socialLink} />
-                ) : (
-                  "---"
-                )}
-              </Box>
+
+              {obj?.socialLink ? (
+                <Link w="fit-content" href={obj?.socialLink} isExternal>
+                  Social link <ExternalLinkIcon mx="2px" />
+                </Link>
+              ) : (
+                <Flex
+                  color="lightgrey"
+                  cursor="not-allowed"
+                  alignItems="center"
+                  fontWeight={600}
+                  textDecoration="underline"
+                >
+                  Social link <ExternalLinkIcon mx="2px" />
+                </Flex>
+              )}
             </Box>
           </Box>
         );
