@@ -71,7 +71,7 @@ const PublicDetailLaunchpad = () => {
     },
 
     {
-      label: <>Phase</>,
+      label: <>Sale Phases</>,
       component: (
         <PhaseInformation
           launchpadContract={launchpadContract}

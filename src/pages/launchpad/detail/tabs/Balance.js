@@ -8,6 +8,7 @@ import { delay, formatTokenAmount, roundDown, roundUp } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 import TabLayout from "../Layout";
+import { formatChainStringToNumber } from "utils";
 const Row = ({ label, value, divider = false, ...rest }) => {
   return (
     <>
@@ -40,74 +41,6 @@ const PhaseTag = ({ data, launchpadData }) => {
   const [publicBalance, setPublicBalance] = useState(null);
   const [WLBalance, setWLBalance] = useState(null);
   const dispatch = useDispatch();
-
-  const getPublicBalance = async () => {
-    try {
-      const query = await execContractQuery(
-        currentAccount?.address,
-        api,
-        launchpad.CONTRACT_ABI,
-        launchpadData?.launchpadContract,
-        0,
-        "launchpadContractTrait::getPublicBuyer",
-        data?.id,
-        currentAccount?.address
-      );
-      const publicBuyer = query.toHuman().Ok;
-      const decimalToken = parseInt(token.decimals);
-      setPublicBalance({
-        claimedAmount: formatTokenAmount(
-          publicBuyer?.claimedAmount || 0,
-          decimalToken
-        ),
-        lastUpdatedTime: formatTokenAmount(
-          publicBuyer?.lastUpdatedTime,
-          decimalToken
-        ),
-        purchasedAmount: formatTokenAmount(
-          publicBuyer?.purchasedAmount || 0,
-          decimalToken
-        ),
-        vestingAmount: formatTokenAmount(
-          publicBuyer?.vestingAmount || 0,
-          decimalToken
-        ),
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const getWLBalance = async () => {
-    try {
-      const query = await execContractQuery(
-        currentAccount?.address,
-        api,
-        launchpad.CONTRACT_ABI,
-        launchpadData?.launchpadContract,
-        0,
-        "launchpadContractTrait::getWhitelistBuyer",
-        data?.id,
-        currentAccount?.address
-      );
-      const WLBuyer = query.toHuman().Ok;
-      const decimalToken = parseInt(token.decimals);
-
-      setWLBalance({
-        claimedAmount: formatTokenAmount(WLBuyer?.claimedAmount, decimalToken),
-        lastUpdatedTime: formatTokenAmount(
-          WLBuyer?.lastUpdatedTime,
-          decimalToken
-        ),
-        purchasedAmount: formatTokenAmount(
-          WLBuyer?.purchasedAmount,
-          decimalToken
-        ),
-        vestingAmount: formatTokenAmount(WLBuyer?.vestingAmount, decimalToken),
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const publicClaimHandler = async () => {
     try {
@@ -252,9 +185,124 @@ const PhaseTag = ({ data, launchpadData }) => {
   };
 
   useEffect(() => {
+    const getPublicBalance = async () => {
+      try {
+        const query = await execContractQuery(
+          currentAccount?.address,
+          api,
+          launchpad.CONTRACT_ABI,
+          launchpadData?.launchpadContract,
+          0,
+          "launchpadContractTrait::getPublicBuyer",
+          data?.id,
+          currentAccount?.address
+        );
+        const publicBuyer = query.toHuman().Ok;
+
+        const decimalToken = parseInt(token.decimals);
+        setPublicBalance({
+          claimedAmount: formatTokenAmount(
+            publicBuyer?.claimedAmount || 0,
+            decimalToken
+          ),
+          lastUpdatedTime: formatTokenAmount(
+            publicBuyer?.lastUpdatedTime,
+            decimalToken
+          ),
+          purchasedAmount: formatTokenAmount(
+            publicBuyer?.purchasedAmount || 0,
+            decimalToken
+          ),
+          vestingAmount: formatTokenAmount(
+            publicBuyer?.vestingAmount || 0,
+            decimalToken
+          ),
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    const getWLBalance = async () => {
+      try {
+        const query = await execContractQuery(
+          currentAccount?.address,
+          api,
+          launchpad.CONTRACT_ABI,
+          launchpadData?.launchpadContract,
+          0,
+          "launchpadContractTrait::getWhitelistBuyer",
+          data?.id,
+          currentAccount?.address
+        );
+        const WLBuyer = query.toHuman().Ok;
+        const decimalToken = parseInt(token.decimals);
+
+        setWLBalance({
+          claimedAmount: formatChainStringToNumber(
+            WLBuyer?.claimedAmount,
+            decimalToken
+          ),
+          amount: formatTokenAmount(WLBuyer?.amount, decimalToken),
+          price: formatTokenAmount(WLBuyer?.price, decimalToken),
+          lastUpdatedTime: formatTokenAmount(
+            WLBuyer?.lastUpdatedTime,
+            decimalToken
+          ),
+          purchasedAmount: formatTokenAmount(
+            WLBuyer?.purchasedAmount,
+            decimalToken
+          ),
+          vestingAmount: formatTokenAmount(
+            WLBuyer?.vestingAmount,
+            decimalToken
+          ),
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     if (data?.publicSaleInfor?.isPublic) getPublicBalance();
     if (data?.whitelist?.length) getWLBalance();
-  }, [data, launchpadData]);
+  }, [api, currentAccount?.address, data, launchpadData, token.decimals]);
+
+  const publicPhaseInfo =
+    formatChainStringToNumber(data.publicSaleInfor.price) /
+    Math.pow(10, token.decimals);
+
+
+  const endTime = parseInt(formatChainStringToNumber(data?.endTime));
+  const endVestingTime = parseInt(
+    formatChainStringToNumber(data?.endVestingTime)
+  );
+  const vestingDuration = parseInt(
+    formatChainStringToNumber(data?.vestingDuration)
+  );
+  const vestingUnit = parseInt(
+    formatChainStringToNumber(data?.vestingUnit)
+  );
+  const totalVestingUnits = parseInt(
+    formatChainStringToNumber(data?.totalVestingUnits)
+  );
+
+  let nextClaimWl = endTime + vestingUnit;
+
+  const temp_next = calcNextClaimTime(
+    endTime,
+    vestingUnit,
+    vestingDuration,
+    totalVestingUnits
+  );
+
+  if (temp_next && temp_next[0]) {
+    nextClaimWl = temp_next[1];
+  }
+
+  const now = Date.now();
+
+  if (now > endVestingTime) {
+    nextClaimWl = endVestingTime;
+  }
 
   return (
     <Box
@@ -271,75 +319,96 @@ const PhaseTag = ({ data, launchpadData }) => {
         {data?.name}
       </Heading>
       <Divider sx={{ marginBottom: "8px" }} />
-      {data?.publicSaleInfor?.isPublic && (
-        <>
-          <Text
-            size="md"
-            sx={{ color: "#57527E", fontWeight: "500", mt: "16px" }}
-          >
-            Public Sale
-          </Text>
-          <Divider sx={{ marginBottom: "8px" }} />
-          <Row
-            label="Total purchased"
-            value={
-              `${publicBalance?.purchasedAmount || 0} ${token?.symbol}` || 0
-            }
-          />
-          <Row
-            label="Claimed"
-            value={`${publicBalance?.claimedAmount || 0} ${token?.symbol}` || 0}
-          />
-          <Button
-            isDisabled={
-              !(parseFloat(publicBalance?.purchasedAmount) > 0) &&
-              publicBalance?.purchasedAmount === publicBalance?.claimedAmount
-            }
-            my="8px"
-            w="full"
-            height="40px"
-            variant="outline"
-            onClick={() => publicClaimHandler()}
-          >
-            Claim
-          </Button>
-        </>
-      )}
-      {data?.whitelist?.length > 0 && (
-        <>
-          <Text
-            size="md"
-            sx={{ color: "#57527E", fontWeight: "500", mt: "16px" }}
-          >
-            Whitelist Sale
-          </Text>
-          <Divider sx={{ marginBottom: "8px" }} />
-          <Row
-            label="Total purchased"
-            value={`${WLBalance?.purchasedAmount || 0} ${token?.symbol}` || 0}
-          />
-          <Row
-            label="Claimed"
-            value={`${WLBalance?.claimedAmount || 0} ${token?.symbol}` || 0}
-          />
-          <Button
-            isDisabled={!(parseFloat(WLBalance?.purchasedAmount) > 0)}
-            my="8px"
-            w="full"
-            height="40px"
-            variant="outline"
-            onClick={() => WLClaimHandler()}
-          >
-            Claim
-          </Button>
-        </>
-      )}
-      {!(data?.publicSaleInfor?.isPublic || data?.whitelist?.length) && (
+      {/* {data?.publicSaleInfor?.isPublic && ( */}
+      <>
+        <Text
+          size="md"
+          sx={{ color: "#57527E", fontWeight: "500", mt: "16px" }}
+        >
+          Public Sale
+        </Text>
+        <Divider sx={{ marginBottom: "8px" }} />
+        <Row
+          label="Total Purchased"
+          value={`${publicBalance?.purchasedAmount || 0} ${token?.symbol}` || 0}
+        />
+        <Row
+          label="Public price"
+          value={`${publicPhaseInfo || 0} AZERO` || 0}
+        />
+        <Row
+          label="Total Vesting"
+          value={`${publicBalance?.vestingAmount || 0} ${token?.symbol}` || 0}
+        />
+        <Row
+          label="Claimed"
+          value={`${publicBalance?.claimedAmount || 0} ${token?.symbol}` || 0}
+        />
+        <Button
+          isDisabled={
+            !(parseFloat(publicBalance?.purchasedAmount) > 0) &&
+            publicBalance?.purchasedAmount === publicBalance?.claimedAmount
+          }
+          my="8px"
+          w="full"
+          height="40px"
+          variant="outline"
+          onClick={() => publicClaimHandler()}
+        >
+          Claim
+        </Button>
+      </>
+      {/* )} */}
+      {/* {data?.whitelist?.length > 0 && ( */}
+      <>
+        <Text
+          size="md"
+          sx={{ color: "#57527E", fontWeight: "500", mt: "16px" }}
+        >
+          Whitelist Sale
+        </Text>
+        <Divider sx={{ marginBottom: "8px" }} />
+        <Row
+          label="Whitelist Amount"
+          value={`${WLBalance?.amount || 0} ${token?.symbol}` || 0}
+        />
+        <Row
+          label="Whitelist Price"
+          value={`${WLBalance?.price || 0} AZERO` || 0}
+        />
+        <Row
+          label="Total Purchased"
+          value={`${WLBalance?.purchasedAmount || 0} ${token?.symbol}` || 0}
+        />
+        <Row
+          label="Total Vesting"
+          value={`${WLBalance?.vestingAmount || 0} ${token?.symbol}` || 0}
+        />
+        <Row
+          label="Claimed"
+          value={`${WLBalance?.claimedAmount || 0} ${token?.symbol}` || 0}
+        />
+        <Row
+          label="Next Claim"
+          value={`${new Date(parseInt(nextClaimWl)).toLocaleString()} ` ?? "-"}
+        />
+        <Button
+          isDisabled={!(parseFloat(WLBalance?.purchasedAmount) > 0)}
+          my="8px"
+          w="full"
+          height="40px"
+          variant="outline"
+          onClick={() => WLClaimHandler()}
+        >
+          Claim
+        </Button>
+      </>
+      {/* )} */}
+      {/* {!(data?.publicSaleInfor?.isPublic || data?.whitelist?.length) && (
         <Text>No data</Text>
-      )}
+      )} */}
     </Box>
   );
-  return null;
 };
 const BalanceTab = ({ launchpadContract, launchpadData }) => {
   const { token } = launchpadData?.projectInfo || {};
@@ -368,3 +437,19 @@ const BalanceTab = ({ launchpadContract, launchpadData }) => {
 };
 
 export default BalanceTab;
+
+function calcNextClaimTime(
+  endTime,
+  vestingUnit,
+  vestingDuration,
+  totalVestingUnits
+) {
+  const now = Date.now();
+
+  const gapTime = now - endTime;
+  const claimCount = Math.floor(vestingDuration / gapTime);
+
+  if (gapTime > 0 && claimCount < totalVestingUnits) {
+    return [true, endTime + claimCount * vestingUnit];
+  }
+}
