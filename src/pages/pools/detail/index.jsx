@@ -5,7 +5,6 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  Button,
   CircularProgress,
   Flex,
   HStack,
@@ -52,9 +51,8 @@ import {
   roundUp,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import azt_contract from "utils/contracts/azt_contract";
 import pool_contract from "utils/contracts/pool_contract";
-import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { MaxStakeButton } from "./MaxStakeButton";
 
 export default function PoolDetailPage() {
@@ -324,7 +322,7 @@ const MyStakeRewardInfo = ({
       const result = await execContractQuery(
         currentAccount?.address,
         api,
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ABI,
         tokenContract,
         0,
         "psp22::balanceOf",
@@ -437,15 +435,14 @@ const MyStakeRewardInfo = ({
         toast.error("Not enough tokens!");
         return false;
       }
-      if (roundUp(maxStakingAmount - totalStaked) === 0) {
+      if (roundUp(+maxStakingAmount - +totalStaked) === 0) {
         toast.error(`Max staking amount reached`);
         return false;
       }
       const remainStaking = roundUp(
-        maxStakingAmount -
-          parseFloat(formatTokenAmount(totalStaked, tokenDecimal))
+        maxStakingAmount - +totalStaked?.replaceAll(",", "")
       );
-      if (remainStaking - amount < 0) {
+      if (remainStaking - +amount < 0) {
         toast.error(
           `You can not stake more than ${formatNumDynDecimal(
             remainStaking
@@ -468,7 +465,7 @@ const MyStakeRewardInfo = ({
       let approve = await execContractTx(
         currentAccount,
         api,
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ABI,
         tokenContract,
         0, //-> value
         "psp22::approve",
@@ -507,6 +504,26 @@ const MyStakeRewardInfo = ({
   }
   async function onValidateUnstake() {
     try {
+      if (!currentAccount) {
+        toast.error(toastMessages.NO_WALLET);
+        return false;
+      }
+
+      if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < unstakeFee) {
+        toast.error(
+          `You don't have enough INW V2. Unstake costs ${unstakeFee} INW V2!`
+        );
+        return false;
+      }
+
+      if (!amount) {
+        toast.error("Invalid Amount!");
+        return false;
+      }
+      if (!stakeInfo?.stakedValue) {
+        toast.error("No staking info!");
+        return false;
+      }
       let queryResult = await execContractQuery(
         currentAccount?.address,
         api,
@@ -520,14 +537,19 @@ const MyStakeRewardInfo = ({
       let info = queryResult?.toHuman().Ok;
 
       const userCurrentStake =
-        info?.stakedValue?.replaceAll(",", "") / 10 ** tokenDecimal || 0;
-      if (userCurrentStake === 0) {
+        formatTokenAmount(
+          info?.stakedValue?.replaceAll(",", ""),
+          +tokenDecimal
+        ) || 0;
+      if (!(+userCurrentStake > 0)) {
         toast.error(`You musk stake first`);
         return false;
       }
-      if (amount > userCurrentStake) {
+      if (+amount > +userCurrentStake) {
         toast.error(
-          `You can not unstake higher ${userCurrentStake} ${tokenSymbol}`
+          `You can not unstake higher ${formatNumDynDecimal(
+            userCurrentStake
+          )} ${tokenSymbol}`
         );
         return false;
       }
@@ -538,36 +560,14 @@ const MyStakeRewardInfo = ({
     }
   }
   async function handleUnstake() {
-    if (!currentAccount) {
-      toast.error(toastMessages.NO_WALLET);
-      return;
-    }
-
-    if (
-      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) < unstakeFee
-    ) {
-      toast.error(
-        `You don't have enough INW. Unstake costs ${unstakeFee} INW!`
-      );
-      return;
-    }
-
-    if (!amount) {
-      toast.error("Invalid Amount!");
-      return;
-    }
-    if (stakeInfo?.stakedValue / 10 ** tokenDecimal < amount) {
-      toast.error("Not enough tokens!");
-      return;
-    }
     //Approve
     toast("Step 1: Approving...");
 
     let approve = await execContractTx(
       currentAccount,
       api,
-      psp22_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
+      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::approve",
       poolContract,
@@ -641,12 +641,16 @@ const MyStakeRewardInfo = ({
             content: `${balance?.azero || 0} AZERO`,
           },
           {
-            title: "INW Balance",
-            content: `${balance?.inw || 0} INW`,
+            title: "INW V2 Balance",
+            content: `${
+              formatNumDynDecimal(balance?.inw2?.replaceAll(",", "")) || 0
+            } INW V2`,
           },
           {
             title: `${tokenSymbol} Balance`,
-            content: `${tokenBalance || 0} ${tokenSymbol}`,
+            content: `${
+              formatNumDynDecimal(tokenBalance?.replaceAll(",", "")) || 0
+            } ${tokenSymbol}`,
           },
         ]}
       />
@@ -657,7 +661,7 @@ const MyStakeRewardInfo = ({
           {
             title: "My Stakes ",
             content: `${formatNumDynDecimal(
-              formatTokenAmount(stakeInfo?.stakedValue, tokenDecimal)
+              formatTokenAmount(stakeInfo?.stakedValue, +tokenDecimal)
             )} ${tokenSymbol}`,
           },
           {
@@ -810,7 +814,7 @@ const PoolInfo = (props) => {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       tokenContract,
       0,
       "psp22::totalSupply"
@@ -818,10 +822,7 @@ const PoolInfo = (props) => {
     const rawTotalSupply = queryResult?.toHuman()?.Ok;
 
     const totalSupply = roundUp(
-      formatTokenAmount(
-        rawTotalSupply?.replaceAll(",", ""),
-        parseInt(tokenDecimal)
-      )
+      formatTokenAmount(rawTotalSupply?.replaceAll(",", ""), +tokenDecimal)
     );
     setTotalSupply(totalSupply);
   };
@@ -893,7 +894,7 @@ const formatMessageStakingPool = (action, amount, tokenSymbol, unstakeFee) => {
     return (
       <>
         You are staking {amount} {tokenSymbol}.<br />
-        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)} INW.
+        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)} INW V2.
         Continue?
       </>
     );
@@ -902,8 +903,9 @@ const formatMessageStakingPool = (action, amount, tokenSymbol, unstakeFee) => {
   if (action === "unstake") {
     return (
       <>
-        You are unstaking {amount} ${tokenSymbol}.<br />
-        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)} INW. Continue?
+        You are unstaking {amount} {tokenSymbol}.<br />
+        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)} INW V2.
+        Continue?
       </>
     );
   }
