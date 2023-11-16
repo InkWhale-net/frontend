@@ -708,7 +708,6 @@ const MyStakeRewardInfoNFT = ({
       toast.error(toastMessages.NO_WALLET);
       return;
     }
-
     if (
       +formatTextAmount(currentAccount?.balance?.inw2) <
       +formatTextAmount(unstakeFee)

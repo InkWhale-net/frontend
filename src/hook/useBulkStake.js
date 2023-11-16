@@ -4,14 +4,16 @@ import { APICall } from "api/client";
 import { useAppContext } from "contexts/AppContext";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { delay } from "utils";
-import { formatNumToBN } from "utils";
-import { getEstimatedGasBatchTx } from "utils";
-import { execContractTx } from "utils/contracts";
-import { execContractQuery } from "utils/contracts";
-import azt_contract from "utils/contracts/azt_contract";
+import {
+  delay,
+  formatNumToBN,
+  formatTextAmount,
+  formatTokenAmount,
+  getEstimatedGasBatchTx,
+} from "utils";
+import { execContractQuery, execContractTx } from "utils/contracts";
 import nft_pool_contract from "utils/contracts/nft_pool_contract";
-import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 
 import psp34_standard from "utils/contracts/psp34_standard";
 
@@ -254,22 +256,24 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
 
     toast.success(numberNft > 0 && `Bulk unstakeing process...`);
     if (
-      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) <
-      unstakeFee * numberNft
+      +formatTextAmount(currentAccount?.balance?.inw2) <
+      +unstakeFee * +numberNft
     ) {
       toast.error(
-        `You don't have enough INW. Unstake costs ${unstakeFee * numberNft} INW`
+        `You don't have enough INW V2. Unstake costs ${
+          +unstakeFee * +numberNft
+        } INW V2`
       );
       return;
     }
 
     //Approve
-    toast.success("Step 1: Approving INW...");
+    toast.success("Step 1: Approving INW V2...");
     let approve = await execContractTx(
       currentAccount,
       "api",
-      psp22_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
+      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::approve",
       poolContract,
