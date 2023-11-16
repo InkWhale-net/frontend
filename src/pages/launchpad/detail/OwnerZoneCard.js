@@ -1,12 +1,13 @@
 import { Box, Button, Divider, Heading, Text } from "@chakra-ui/react";
 import { useAppContext } from "contexts/AppContext";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { formatNumToBN, formatTokenAmount } from "utils";
 import { execContractQuery, execContractTxAndCallAPI } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 import { useModalLPDetail } from "./modal/ModelContext";
+import { formatChainStringToNumber } from "utils";
 
 const OwnerZoneCard = ({ launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -155,6 +156,66 @@ const OwnerZoneCard = ({ launchpadData }) => {
   useEffect(() => {
     fetchOwnerData();
   }, [currentAccount, api, launchpadData]);
+  // ############################
+
+  const tokenSymbol = launchpadData?.projectInfo?.token?.symbol;
+
+  const totalSupply =
+    formatChainStringToNumber(launchpadData?.totalSupply) /
+    Math.pow(10, tokenDecimal);
+
+  const availableAmount =
+    formatChainStringToNumber(launchpadData?.availableTokenAmount) /
+    Math.pow(10, tokenDecimal);
+
+  const totalWhitelistByPhase = launchpadData?.phaseList?.map((p) => {
+    const totalSoldAmount = p?.whitelist?.reduce(
+      (prev, curr) =>
+        prev +
+        formatChainStringToNumber(curr.purchasedAmount) /
+          Math.pow(10, tokenDecimal),
+      0
+    );
+    return { ...p, totalSoldAmount };
+  });
+
+  const totalWhitelist = launchpadData?.phaseList?.reduce((prev, curr) => {
+    return prev.concat(curr?.whitelist);
+  }, []);
+
+  const formattedTotalWhitelist = useMemo(
+    () =>
+      totalWhitelist?.map((w) => ({
+        ...w,
+        amount:
+          formatChainStringToNumber(w?.amount) / Math.pow(10, tokenDecimal),
+        claimedAmount:
+          formatChainStringToNumber(w?.claimedAmount) /
+          Math.pow(10, tokenDecimal),
+        price: formatChainStringToNumber(w?.price) / Math.pow(10, tokenDecimal),
+        purchasedAmount:
+          formatChainStringToNumber(w?.purchasedAmount) /
+          Math.pow(10, tokenDecimal),
+        vestingAmount:
+          formatChainStringToNumber(w?.vestingAmount) /
+          Math.pow(10, tokenDecimal),
+      })),
+    [totalWhitelist, tokenDecimal]
+  );
+
+  const totalSoldAmount = formattedTotalWhitelist?.reduce(
+    (prev, curr) => prev + curr.purchasedAmount,
+    0
+  );
+
+  const totalWhitelistAddedAmount = formattedTotalWhitelist?.reduce(
+    (prev, curr) => prev + curr.amount,
+    0
+  );
+
+  const totalWhitelistClaimed = formattedTotalWhitelist?.filter(
+    (w) => !!w.claimedAmount
+  );
 
   return (
     <Box
@@ -174,6 +235,40 @@ const OwnerZoneCard = ({ launchpadData }) => {
       <Text sx={{ mt: "20px", fontWeight: "700", color: "#57527E " }}>
         Launchpad Balance
       </Text>
+      <Divider
+        sx={{
+          marginBottom: "8px",
+        }}
+      />
+      <Row
+        label="Total Token For Sale"
+        value={`${totalSupply} ${tokenSymbol}`}
+      />
+      <Row
+        label="Available Amount"
+        value={`${availableAmount} ${tokenSymbol}`}
+      />
+      <Row
+        label="Total Whitelist Added"
+        value={`${totalWhitelistAddedAmount} ${tokenSymbol}`}
+      />
+      <Row label="Total Sold" value={`${totalSoldAmount} ${tokenSymbol}`} />
+
+      {totalWhitelistByPhase?.map((p, idx) => (
+        <Row
+          key={idx}
+          label={` - ${p?.name}`}
+          value={`${p.totalSoldAmount} ${tokenSymbol}`}
+        />
+      ))}
+      <Row
+        label="Total Whitelist Added"
+        value={`${formattedTotalWhitelist?.length} address(es)`}
+      />
+      <Row
+        label="Total Whitelist Claimed"
+        value={`${totalWhitelistClaimed?.length} address(es)`}
+      />
       <Divider />
       <Box mt="16px" display="flex" justifyContent="space-between">
         <Text>AZERO</Text>
@@ -275,3 +370,22 @@ const OwnerZoneCard = ({ launchpadData }) => {
 };
 
 export default OwnerZoneCard;
+
+const Row = ({ label, value, divider = false, ...rest }) => {
+  return (
+    <>
+      <Box
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "8px",
+          ...rest,
+        }}
+      >
+        <Text>{label}</Text>
+        <Text>{value}</Text>
+      </Box>
+      {divider && <Divider />}
+    </>
+  );
+};
