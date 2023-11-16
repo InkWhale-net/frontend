@@ -24,7 +24,8 @@ export const getGasLimit = async (
   message,
   contract,
   options = {},
-  args = []
+  args = [],
+  gasMul = 2
   // temporarily type is Weight instead of WeightV2 until polkadot-js type `ContractExecResult` will be changed to WeightV2
 ) => {
   const abiMessage = toContractAbiMessage(contract, message);
@@ -42,9 +43,11 @@ export const getGasLimit = async (
   );
 
   const { v2Weight } = convertWeight(result.gasRequired);
-
   const gasRequired = api.registry.createType("WeightV2", {
-    refTime: v2Weight.refTime.mul(new BN(1.5)),
+    refTime:
+      gasMul == 1.05
+        ? v2Weight.refTime.mul(new BN(100)).div(new BN(100))
+        : v2Weight.refTime.mul(new BN(gasMul)),
     proofSize: v2Weight.proofSize,
   });
 

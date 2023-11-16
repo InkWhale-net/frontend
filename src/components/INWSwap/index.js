@@ -26,12 +26,13 @@ import {
   formatQueryResultToNumber,
   formatTokenAmount,
 } from "utils";
-import { execContractQuery, execContractTx } from "utils/contracts";
+import { execContractQuery } from "utils/contracts";
 import { getGasLimit } from "utils/contracts/dryRun";
 import psp22_contract from "utils/contracts/psp22_contract";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
 import "./styles.css";
+import { execContractTx } from "./utils";
 export const INWSwap = () => {
   const amountRef = useRef(null);
   if (isMobile) return null;
@@ -139,6 +140,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
           process.env.REACT_APP_INW_TOKEN_ADDRESS,
           0, //-> value
           "psp22::approve",
+          1.05,
           swap_inw2_contract.CONTRACT_ADDRESS,
           formatNumToBN(amount)
         );
@@ -152,6 +154,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         swap_inw2_contract.CONTRACT_ADDRESS,
         0,
         "inwSwapTrait::swap",
+        1.05,
         formatNumToBN(amount)
       );
       await delay(500).then(() => {
@@ -201,6 +204,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
           psp22_contract_v2.CONTRACT_ADDRESS,
           0, //-> value
           "psp22::approve",
+          1.05,
           swap_inw2_contract.CONTRACT_ADDRESS,
           formatNumToBN(amount)
         );
@@ -214,6 +218,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         swap_inw2_contract.CONTRACT_ADDRESS,
         0,
         "inwSwapTrait::swapInwV2ToV1",
+        1.05,
         formatNumToBN(amount)
       );
       await delay(500).then(() => {
@@ -244,22 +249,10 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
     if (isOpen == true) {
       amountRef?.current?.focus();
       setAmount("");
+      setGas(0);
     }
   }, [_isOpen, fromToken, toToken]);
-  const updateToken = async (value) => {
-    switch (value.token) {
-      case "inw":
-        setFromToken(supportedToken[0]);
-        setToToken(supportedToken[1]);
-        break;
-      case "inw2":
-        setFromToken(supportedToken[1]);
-        setToToken(supportedToken[0]);
-        break;
-      default:
-        break;
-    }
-  };
+
   const updateMaxAmount = () => {
     setAmount(fromToken.token == "inw" ? inwBalance : inw2Balance);
   };
@@ -268,25 +261,43 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
 
   const fetchGas = async (_amount) => {
     try {
+      if (+_amount == 0) {
+        setGas(0);
+        return;
+      }
       const contract = new ContractPromise(
         api,
         swap_inw2_contract.CONTRACT_ABI,
         swap_inw2_contract.CONTRACT_ADDRESS
       );
-      const gasLimitResult = await getGasLimit(
-        api,
-        currentAccount?.address,
-        "inwSwapTrait::swap",
-        contract,
-        { value: 0 },
-        [formatNumToBN(_amount)]
-      );
+      let gasLimitResultSwap;
+      if (fromToken.token == "inw") {
+        gasLimitResultSwap = await getGasLimit(
+          api,
+          currentAccount?.address,
+          "inwSwapTrait::swap",
+          contract,
+          { value: 0 },
+          [formatNumToBN(_amount)],
+          1.05
+        );
+      } else {
+        gasLimitResultSwap = await getGasLimit(
+          api,
+          currentAccount?.address,
+          "inwSwapTrait::swapInwV2ToV1",
+          contract,
+          { value: 0 },
+          [formatNumToBN(_amount)],
+          1.05
+        );
+      }
 
-      if (!gasLimitResult.ok) {
-        console.log(gasLimitResult.error);
+      if (!gasLimitResultSwap.ok) {
+        console.log(gasLimitResultSwap.error);
         return;
       }
-      const gasLimit = JSON.parse(gasLimitResult?.value);
+      const gasLimit = JSON.parse(gasLimitResultSwap?.value);
       const gasLimitValue = formatNumDynDecimal(
         formatTokenAmount(gasLimit?.refTime, 12)
       );
@@ -299,7 +310,6 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
     try {
       if (fromToken.token == "inw") {
         const valueToUpdate = +newValue > inwBalance ? inwBalance : +newValue;
-
         setAmount(valueToUpdate);
         fetchGas(valueToUpdate);
       } else {
@@ -328,7 +338,23 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
           </MenuButton>
           <MenuList>
             {supportedToken.map((e, index) => (
-              <MenuItem key={`token-${index}`} onClick={() => updateToken(e)}>
+              <MenuItem
+                key={`token-${index}`}
+                onClick={() => {
+                  switch (e.token) {
+                    case "inw":
+                      setFromToken(supportedToken[0]);
+                      setToToken(supportedToken[1]);
+                      break;
+                    case "inw2":
+                      setFromToken(supportedToken[1]);
+                      setToToken(supportedToken[0]);
+                      break;
+                    default:
+                      break;
+                  }
+                }}
+              >
                 {e.name}
               </MenuItem>
             ))}
@@ -367,7 +393,23 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
           </MenuButton>
           <MenuList>
             {supportedToken.map((e, index) => (
-              <MenuItem key={`token-${index}`} onClick={() => updateToken(e)}>
+              <MenuItem
+                key={`token-${index}`}
+                onClick={() => {
+                  switch (e.token) {
+                    case "inw":
+                      setToToken(supportedToken[0]);
+                      setFromToken(supportedToken[1]);
+                      break;
+                    case "inw2":
+                      setToToken(supportedToken[1]);
+                      setFromToken(supportedToken[0]);
+                      break;
+                    default:
+                      break;
+                  }
+                }}
+              >
                 {e.name}
               </MenuItem>
             ))}
@@ -388,7 +430,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         />
       </Flex>
       <Flex justify="end" fontSize="16px">
-        <Text mr="4px">Gas fee: {gas} Azero</Text>
+        <Text mr="4px">Estimated gas fee: {gas} Azero</Text>
       </Flex>
       <Button
         isLoading={isLoading}
