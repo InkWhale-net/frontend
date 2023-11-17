@@ -121,7 +121,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
       toast("Approve...");
       const allowanceTokenQr = await execContractQuery(
         currentAccount?.address,
-        "api",
+        api,
         psp22_contract.CONTRACT_ABI,
         process.env.REACT_APP_INW_TOKEN_ADDRESS,
         0, //-> value
@@ -135,7 +135,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
       if (+allowanceINW < +amount) {
         let approve = await execContractTx(
           currentAccount,
-          "api",
+          api,
           psp22_contract.CONTRACT_ABI,
           process.env.REACT_APP_INW_TOKEN_ADDRESS,
           0, //-> value
@@ -162,6 +162,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
           dispatch(fetchUserBalance({ currentAccount, api }));
         }
         setAmount("");
+        setGas(0);
       });
     } catch (error) {
       console.log(error);
@@ -185,7 +186,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
       toast("Approve...");
       const allowanceTokenQr = await execContractQuery(
         currentAccount?.address,
-        "api",
+        api,
         psp22_contract_v2.CONTRACT_ABI,
         psp22_contract_v2.CONTRACT_ADDRESS,
         0, //-> value
@@ -199,7 +200,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
       if (+allowanceINW < +amount) {
         let approve = await execContractTx(
           currentAccount,
-          "api",
+          api,
           psp22_contract_v2.CONTRACT_ABI,
           psp22_contract_v2.CONTRACT_ADDRESS,
           0, //-> value
@@ -226,6 +227,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
           dispatch(fetchUserBalance({ currentAccount, api }));
         }
         setAmount("");
+        setGas(0);
       });
     } catch (error) {
       console.log(error);
@@ -254,7 +256,9 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
   }, [_isOpen, fromToken, toToken]);
 
   const updateMaxAmount = () => {
-    setAmount(fromToken.token == "inw" ? inwBalance : inw2Balance);
+    const _value = fromToken.token == "inw" ? inwBalance : inw2Balance;
+    setAmount(_value);
+    fetchGas(_value);
   };
   const getBalance = (token) =>
     formatNumDynDecimal(currentAccount?.balance?.[token]?.replaceAll(",", ""));
