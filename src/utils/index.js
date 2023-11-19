@@ -450,3 +450,5 @@ export const handleCopy = (label, text) => {
   toast.success(`${label} copied!`);
   navigator.clipboard.writeText(text);
 };
+
+export const formatTextAmount = (value) => value?.replaceAll(",", "");

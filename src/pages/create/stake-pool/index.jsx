@@ -34,9 +34,8 @@ import {
   roundUp,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import azt_contract from "utils/contracts/azt_contract";
 import pool_generator_contract from "utils/contracts/pool_generator";
-import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 
 export default function CreateStakePoolPage({ api }) {
   const dispatch = useDispatch();
@@ -44,7 +43,7 @@ export default function CreateStakePoolPage({ api }) {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { myStakingPoolsList, loading } = useSelector((s) => s.myPools);
 
-  const [createTokenFee, setCreateTokenFee] = useState(0);
+  const [createTokenFee, setCreateTokenFee] = useState("");
   const [faucetTokensList, setFaucetTokensList] = useState([]);
 
   const [selectedContractAddr, setSelectedContractAddr] = useState("");
@@ -76,7 +75,7 @@ export default function CreateStakePoolPage({ api }) {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       selectedContractAddr,
       0,
       "psp22::balanceOf",
@@ -91,7 +90,7 @@ export default function CreateStakePoolPage({ api }) {
       let queryResult1 = await execContractQuery(
         currentAccount?.address,
         "api",
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ABI,
         selectedContractAddr,
         0,
         "psp22Metadata::tokenSymbol"
@@ -136,7 +135,7 @@ export default function CreateStakePoolPage({ api }) {
       );
 
       const fee = formatQueryResultToNumber(result);
-      setCreateTokenFee(fee);
+      setCreateTokenFee(fee?.replaceAll(",", ""));
     };
 
     fetchCreateTokenFee();
@@ -187,20 +186,14 @@ export default function CreateStakePoolPage({ api }) {
       return toast.error("Invalid address!");
     }
 
-    if (
-      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) <
-      createTokenFee?.replaceAll(",", "")
-    ) {
+    if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
-        `You don't have enough INW. Create Stake Pool costs ${createTokenFee} INW`
+        `You don't have enough INW V2. Create Stake Pool costs ${createTokenFee} INW`
       );
       return;
     }
 
-    if (
-      parseInt(tokenBalance?.replaceAll(",", "")) <
-      minReward?.replaceAll(",", "")
-    ) {
+    if (+tokenBalance?.replaceAll(",", "") < +minReward?.replaceAll(",", "")) {
       toast.error(`You don't have enough ${tokenSymbol} to topup the reward`);
       return;
     }
@@ -220,8 +213,8 @@ export default function CreateStakePoolPage({ api }) {
     const allowanceINWQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      azt_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
+      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::allowance",
       currentAccount?.address,
@@ -234,7 +227,7 @@ export default function CreateStakePoolPage({ api }) {
     const allowanceTokenQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       selectedContractAddr,
       0, //-> value
       "psp22::allowance",
@@ -254,8 +247,8 @@ export default function CreateStakePoolPage({ api }) {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract.CONTRACT_ABI,
-        azt_contract.CONTRACT_ADDRESS,
+        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ADDRESS,
         0, //-> value
         "psp22::approve",
         pool_generator_contract.CONTRACT_ADDRESS,
@@ -269,7 +262,7 @@ export default function CreateStakePoolPage({ api }) {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ABI,
         selectedContractAddr,
         0, //-> value
         "psp22::approve",
@@ -301,6 +294,7 @@ export default function CreateStakePoolPage({ api }) {
 
     setApy("");
     setDuration("");
+    setMaxStake("");
     setStartTime(new Date());
     toast.promise(
       delay(30000).then(() => {
@@ -391,7 +385,7 @@ export default function CreateStakePoolPage({ api }) {
             Staker earns tokens at fixed APR. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {createTokenFee} INW
+              {formatNumDynDecimal(createTokenFee)} INW V2
             </Text>
           </span>
         }
@@ -472,8 +466,12 @@ export default function CreateStakePoolPage({ api }) {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.inw || 0} INW`}
-                label="Your INW Balance"
+                value={`${
+                  formatNumDynDecimal(
+                    currentAccount?.balance?.inw2?.replaceAll(",", "")
+                  ) || 0
+                } INW`}
+                label="Your INW V2 Balance"
               />
             </Box>
 
