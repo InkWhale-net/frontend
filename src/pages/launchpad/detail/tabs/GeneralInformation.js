@@ -9,7 +9,6 @@ import {
   Link,
   Text,
 } from "@chakra-ui/react";
-import AddressCopier from "components/address-copier/AddressCopier";
 import { formatDataCellTable } from "components/table/IWPaginationTable";
 import { useMemo } from "react";
 import ReactApexChart from "react-apexcharts";
@@ -40,8 +39,9 @@ const LabelField = ({ label, value, divider = true }) => {
 
 const GeneralInformation = ({ launchpadContract, launchpadData }) => {
   const avatarSize = "120px";
-  const { phase, projectInfor, roadmap, team, token, totalSupply } =
+  const { projectInfor, roadmap, team, token } =
     launchpadData?.projectInfo || {};
+
   const distributions = useMemo(() => {
     try {
       const totalDistribution = projectInfor?.tokenomic.reduce((acc, obj) => {
@@ -90,7 +90,10 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
       youtubeUrl: projectInfor?.youtubeUrl,
       tokenomicsMoreInfo: projectInfor?.tokenomicsMoreInfo,
 
-      totalSupply: roundUp(totalSupply?.replaceAll(",", "")),
+      totalSupply: roundUp(
+        launchpadData?.totalSupply?.replaceAll(",", "") /
+          Math.pow(10, token?.decimals)
+      ),
       presaleStartTime: format(
         parseInt(launchpadData?.startTime?.replace(/,/g, "")),
         "MMMM Do YYYY, h:mm:ss a"
@@ -104,11 +107,12 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
     launchpadContract,
     launchpadData?.endTime,
     launchpadData?.startTime,
+    launchpadData?.totalSupply,
     projectInfor?.description,
     projectInfor?.tokenomicsMoreInfo,
     projectInfor?.youtubeUrl,
+    token?.decimals,
     token?.symbol,
-    totalSupply,
   ]);
 
   return (

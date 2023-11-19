@@ -2,12 +2,14 @@ import { Box, Button, Divider, Heading, Text } from "@chakra-ui/react";
 import { useAppContext } from "contexts/AppContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { formatNumToBN, formatTokenAmount } from "utils";
 import { execContractQuery, execContractTxAndCallAPI } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 import { useModalLPDetail } from "./modal/ModelContext";
 import { formatChainStringToNumber } from "utils";
+import { delay } from "utils";
+import { fetchUserBalance } from "redux/slices/walletSlice";
 
 const OwnerZoneCard = ({ launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -23,6 +25,8 @@ const OwnerZoneCard = ({ launchpadData }) => {
   const [ownerBalance, setOwnerBalance] = useState(0);
   const [unsoldToken, setUnsoldToken] = useState(0);
   const [isDisableWithdrawNBurn, setIsDisableWithdrawNBurn] = useState(false);
+
+  const dispatch = useDispatch();
 
   const fetchBalance = useCallback(async () => {
     const queryResult = await execContractQuery(
@@ -96,6 +100,12 @@ const OwnerZoneCard = ({ launchpadData }) => {
       fetchBalance,
       currentAccount?.address
     );
+
+    await delay(500).then(() => {
+      if (currentAccount) {
+        dispatch(fetchUserBalance({ currentAccount, api }));
+      }
+    });
     fetchBalance();
   };
   const ownerBurnUnsoldHandler = async () => {

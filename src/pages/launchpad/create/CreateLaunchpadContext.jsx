@@ -82,7 +82,7 @@ const CreateLaunchpadContextProvider = (props) => {
     //   content: <Phase />,
     // },
   ]);
-  const [createTokenFee, setCreateTokenFee] = useState(0);
+  const [createTokenFee, setCreateTokenFee] = useState("");
 
   const [launchpadData, updateLaunchpadData] = useState({
     token: null,

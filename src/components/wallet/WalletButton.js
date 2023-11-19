@@ -38,6 +38,7 @@ import { resolveDomain } from "utils";
 import WalletModal from "./WalletModal";
 import useLongPress from "./useLongPress";
 import toast from "react-hot-toast";
+import { formatNumDynDecimal } from "utils";
 
 export default function WalletButton({ onCloseSidebar }) {
   const dispatch = useDispatch();
@@ -75,10 +76,10 @@ const WalletNotConnect = ({ onClose }) => {
   const [showDetailMenu, setShowDetailMenu] = useState(false);
   const clearCache = async () => {
     // try {
-      await caches.keys().then(async (names) => {
-        await Promise.all(names.map((name) => caches.delete(name)));
-      });
-      await window.location.reload();
+    await caches.keys().then(async (names) => {
+      await Promise.all(names.map((name) => caches.delete(name)));
+    });
+    await window.location.reload();
     // } catch (error) {
     //   toast.error("Can not clear cache");
     // }
@@ -293,8 +294,18 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
 
           {[
             { title: "AZERO Balance", content: currentAccount?.balance?.azero },
-            { title: "INW Balance", content: currentAccount?.balance?.inw },
-            { title: "INW V2 Balance", content: currentAccount?.balance?.inw2 },
+            {
+              title: "INW Balance",
+              content: formatNumDynDecimal(
+                currentAccount?.balance?.inw?.replaceAll(",", "")
+              ),
+            },
+            {
+              title: "INW V2 Balance",
+              content: formatNumDynDecimal(
+                currentAccount?.balance?.inw2?.replaceAll(",", "")
+              ),
+            },
           ].map(({ title, content }, idx) => {
             return (
               <IWCard

@@ -34,7 +34,7 @@ const BalanceCard = ({ launchpadData }) => {
         currentAccount?.address,
         "api",
         psp22_contract.CONTRACT_ABI,
-        launchpadData.tokenContract,
+        launchpadData?.tokenContract,
         0,
         "psp22::balanceOf",
         currentAccount?.address

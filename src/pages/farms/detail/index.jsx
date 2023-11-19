@@ -27,7 +27,9 @@ import ConfirmModal from "components/modal/ConfirmModal";
 import { formatDataCellTable } from "components/table/IWPaginationTable";
 import IWTabs from "components/tabs/IWTabs";
 import { toastMessages } from "constants";
+import { useAppContext } from "contexts/AppContext";
 import useInterval from "hook/useInterval";
+import { MaxStakeButton } from "pages/pools/detail/MaxStakeButton";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
@@ -35,7 +37,7 @@ import {
   AiOutlineQuestionCircle,
 } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import {
   fetchAllNFTPools,
   fetchAllTokenPools,
@@ -55,16 +57,12 @@ import {
   isPoolNotStart,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import azt_contract from "utils/contracts/azt_contract";
 import lp_pool_contract from "utils/contracts/lp_pool_contract";
 import nft_pool_contract from "utils/contracts/nft_pool_contract";
-import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import psp34_standard from "utils/contracts/psp34_standard";
 import PoolInfo from "./PoolInfor";
-import { useAppContext } from "contexts/AppContext";
-import { fetchMyNFTPools } from "redux/slices/myPoolsSlice";
-import { useLocation } from "react-router-dom";
-import { MaxStakeButton } from "pages/pools/detail/MaxStakeButton";
+import { formatTextAmount } from "utils";
 
 const FarmDetailPage = () => {
   const params = useParams();
@@ -107,7 +105,7 @@ const FarmDetailPage = () => {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       currentNFTPool?.tokenContract,
       0,
       "psp22::totalSupply"
@@ -444,7 +442,7 @@ const MyStakeRewardInfoNFT = ({
     const result = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       tokenContract,
       0,
       "psp22::balanceOf",
@@ -710,11 +708,13 @@ const MyStakeRewardInfoNFT = ({
       toast.error(toastMessages.NO_WALLET);
       return;
     }
-
     if (
-      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) < unstakeFee
+      +formatTextAmount(currentAccount?.balance?.inw2) <
+      +formatTextAmount(unstakeFee)
     ) {
-      toast.error(`You don't have enough INW. Unstake costs ${unstakeFee} INW`);
+      toast.error(
+        `You don't have enough INW V2. Unstake costs ${unstakeFee} INW V2`
+      );
       return;
     }
 
@@ -724,8 +724,8 @@ const MyStakeRewardInfoNFT = ({
     let approve = await execContractTx(
       currentAccount,
       "api",
-      psp22_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
+      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::approve",
       poolContract,
@@ -817,8 +817,10 @@ const MyStakeRewardInfoNFT = ({
               content: `${balance?.azero || 0} AZERO`,
             },
             {
-              title: "INW Balance",
-              content: `${balance?.inw || 0} INW`,
+              title: "INW V2 Balance",
+              content: `${
+                formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
+              } INW V2`,
             },
             {
               title: `${tokenSymbol} Balance`,
@@ -940,7 +942,7 @@ const MyStakeRewardInfoToken = ({
     const result = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       tokenContract,
       0,
       "psp22::balanceOf",
@@ -952,7 +954,7 @@ const MyStakeRewardInfoToken = ({
     const resultLP = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       lptokenContract,
       0,
       "psp22::balanceOf",
@@ -1100,7 +1102,7 @@ const MyStakeRewardInfoToken = ({
     let approve = await execContractTx(
       currentAccount,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       lptokenContract,
       0, //-> value
       "psp22::approve",
@@ -1152,9 +1154,12 @@ const MyStakeRewardInfoToken = ({
     }
 
     if (
-      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) < unstakeFee
+      +formatTextAmount(currentAccount?.balance?.inw2) <
+      +formatTextAmount(unstakeFee)
     ) {
-      toast.error(`You don't have enough INW. Unstake costs ${unstakeFee} INW`);
+      toast.error(
+        `You don't have enough INW V2. Unstake costs ${unstakeFee} INW V2`
+      );
       return;
     }
 
@@ -1177,8 +1182,8 @@ const MyStakeRewardInfoToken = ({
     let approve = await execContractTx(
       currentAccount,
       "api",
-      psp22_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
+      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::approve",
       poolContract,
@@ -1266,8 +1271,10 @@ const MyStakeRewardInfoToken = ({
               content: `${balance?.azero || 0} AZERO`,
             },
             {
-              title: "INW Balance",
-              content: `${balance?.inw || 0} INW`,
+              title: "INW V2 Balance",
+              content: `${
+                formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
+              } INW V2`,
             },
             {
               title: `${tokenSymbol} Balance`,
@@ -1343,16 +1350,26 @@ const MyStakeRewardInfoToken = ({
                           setLPTokenAmount(0);
                           return;
                         }
-                        if (+availableStakeAmount > +LPtokenBalance)
-                          setLPTokenAmount(LPtokenBalance);
-                        if (+LPtokenBalance > +availableStakeAmount)
-                          setLPTokenAmount(availableStakeAmount);
+
+                        if (
+                          +availableStakeAmount >
+                          +formatTextAmount(LPtokenBalance)
+                        )
+                          setLPTokenAmount(LPtokenBalance.toString());
+
+                        if (
+                          +formatTextAmount(LPtokenBalance) >
+                          +availableStakeAmount
+                        )
+                          setLPTokenAmount(availableStakeAmount.toString());
                       }}
                       setUnstakeMax={() => {
                         setLPTokenAmount(
-                          +formatTokenAmount(
-                            stakeInfo?.stakedValue?.toString(),
-                            lptokenDecimal
+                          formatTextAmount(
+                            formatTokenAmount(
+                              stakeInfo?.stakedValue?.toString(),
+                              lptokenDecimal
+                            )
                           )
                         );
                       }}
@@ -1410,7 +1427,7 @@ const MyStakeRewardInfoToken = ({
                   message={formatMessageStakingPool(
                     "unstake",
                     LPTokenAmount,
-                    tokenSymbol,
+                    lptokenSymbol,
                     unstakeFee
                   )}
                 />
@@ -1491,7 +1508,7 @@ const formatMessageStakingPool = (action, amount, tokenSymbol, unstakeFee) => {
     return (
       <>
         You are staking {amount} {tokenSymbol}.<br />
-        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)} INW.
+        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)} INW V2.
         Continue?
       </>
     );
@@ -1500,8 +1517,9 @@ const formatMessageStakingPool = (action, amount, tokenSymbol, unstakeFee) => {
   if (action === "unstake") {
     return (
       <>
-        You are unstaking {amount} ${tokenSymbol}.<br />
-        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)} INW. Continue?
+        You are unstaking {amount} {tokenSymbol}.<br />
+        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)} INW V2.
+        Continue?
       </>
     );
   }

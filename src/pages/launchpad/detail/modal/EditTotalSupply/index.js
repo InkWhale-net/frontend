@@ -18,7 +18,9 @@ import { useAppContext } from "contexts/AppContext";
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import { formatNumToBN } from "utils";
 import { delay } from "utils";
 import { formatChainStringToNumber } from "utils";
 import { formatQueryResultToNumber } from "utils";
@@ -27,11 +29,13 @@ import { execContractTx } from "utils/contracts";
 import { execContractQuery } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import * as Yup from "yup";
 
 const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
   const { api } = useAppContext();
+  const dispatch = useDispatch();
 
   const [availableTokenAmount, setAvailableTokenAmount] = useState(0);
 
@@ -129,6 +133,45 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
               }
 
               try {
+                // check approve additional portion
+                const additionalPortion = values?.totalSupply - totalSupply;
+
+                if (additionalPortion > 0) {
+                  toast("Approving approve additional token...");
+
+                  const allowanceTokenQr = await execContractQuery(
+                    currentAccount?.address,
+                    "api",
+                    psp22_contract_v2.CONTRACT_ABI,
+                    launchpadData?.projectInfo?.token?.tokenAddress,
+                    0, //-> value
+                    "psp22::allowance",
+                    currentAccount?.address,
+                    launchpadData?.launchpadContract
+                  );
+
+                  const allowanceToken =
+                    allowanceTokenQr?.toHuman().Ok?.replaceAll(",", "") /
+                    10 ** launchpadData?.projectInfo?.token?.decimals;
+
+                  if (additionalPortion > allowanceToken) {
+                    await execContractTx(
+                      currentAccount,
+                      "api",
+                      psp22_contract_v2.CONTRACT_ABI,
+                      launchpadData?.projectInfo?.token?.tokenAddress,
+                      0, //-> value
+                      "psp22::approve",
+                      launchpadData?.launchpadContract,
+                      formatNumToBN(
+                        additionalPortion,
+                        launchpadData?.token?.decimals
+                      )
+                    );
+                  }
+                }
+                // End check approve additional portion
+
                 const result = await execContractTx(
                   currentAccount,
                   api,
@@ -136,7 +179,7 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
                   launchpadData?.launchpadContract,
                   0, //-> value
                   "launchpadContractTrait::setTotalSupply",
-                  { u128: values?.totalSupply }
+                  formatNumToBN(values?.totalSupply)
                 );
 
                 if (result) {
@@ -149,9 +192,8 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
 
                   toast.promise(
                     delay(5000).then(() => {
-                      // dispatch(fetchLaunchpads({}));
-                      // setOnCreateNew(false);
                       setVisible(false);
+                      dispatch(fetchLaunchpads({}));
                     }),
                     {
                       loading:

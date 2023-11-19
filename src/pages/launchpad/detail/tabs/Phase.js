@@ -354,7 +354,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
 
       <Divider sx={{ mb: "20px", mt: "8px" }} />
 
-      {whitelistList?.length && (
+      {whitelistList?.length ? (
         <Flex justify="space-between" mt="12px">
           <Text>Whitelist added</Text>
 
@@ -363,20 +363,21 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             {tokenSymbol}
           </Text>
         </Flex>
-      )}
+      ) : null}
 
-      {whitelistList?.length && (
-        <Flex justify="space-between" mt="12px">
-          <Text>Whitelist claimed</Text>
+      {whitelistList?.length ? (
+        <>
+          <Flex justify="space-between" mt="12px">
+            <Text>Whitelist claimed</Text>
 
-          <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
-            {whitelistClaimed?.length ?? 0} address(es).{" "}
-            {whitelistClaimedAmount} {tokenSymbol}
-          </Text>
-        </Flex>
-      )}
-
-      <Divider sx={{ mb: "20px", mt: "8px" }} />
+            <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
+              {whitelistClaimed?.length ?? 0} address(es).{" "}
+              {whitelistClaimedAmount} {tokenSymbol}
+            </Text>
+          </Flex>
+          <Divider sx={{ mb: "20px", mt: "8px" }} />
+        </>
+      ) : null}
 
       <IWStatusWithCountDown
         direction="row"
