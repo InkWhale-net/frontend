@@ -10,15 +10,15 @@ import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
 import { Field, Form, Formik } from "formik";
 import UploadImage from "pages/launchpad/UploadImage";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { MdError } from "react-icons/md";
 import * as Yup from "yup";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
 import Tokenomic from "./Tokenomic";
-import { MdError } from "react-icons/md";
 
 const ProjectInfor = () => {
-  const { updateProjectInfor, current, launchpadData, nextStep, prevStep } =
+  const { updateProjectInfor, launchpadData, nextStep, prevStep } =
     useCreateLaunchpad();
   const [projectInfor, setProjectInfor] = useState({
     ...launchpadData?.projectInfor,
@@ -42,7 +42,7 @@ const ProjectInfor = () => {
     headerImage: Yup.string().required("This field is required"),
     youtubeUrl: Yup.string().matches(
       /^(https:\/\/www\.youtube\.com\/embed\/[A-Za-z0-9_-]+)$/,
-      "Invalid YouTube URL format"
+      "Invalid YouTube Embed URL format"
     ),
     website: Yup.string().url("Invalid URL format"),
     twitter: Yup.string().url("Invalid URL format"),
@@ -61,14 +61,9 @@ const ProjectInfor = () => {
   };
 
   const updateTokenomic = (value) => {
-    console.log(value);
     setProjectInfor((prev) => ({ ...prev, tokenomic: value }));
   };
 
-  useEffect(() => {
-    if (current == 1 && launchpadData?.projectInfor)
-      setProjectInfor(launchpadData?.projectInfor);
-  }, [current]);
   return (
     <Formik
       initialValues={projectInfor}

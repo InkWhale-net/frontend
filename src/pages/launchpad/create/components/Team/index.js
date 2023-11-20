@@ -2,213 +2,260 @@ import {
   Box,
   Button,
   Flex,
+  FormControl,
+  FormErrorMessage,
   Heading,
   IconButton,
   SimpleGrid,
 } from "@chakra-ui/react";
 import IWInput from "components/input/Input";
+import { Field, Form, Formik } from "formik";
 import UploadImage from "pages/launchpad/UploadImage";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BsTrashFill } from "react-icons/bs";
+import * as Yup from "yup";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
 
 const Team = () => {
-  const { updateMember, current, launchpadData, prevStep, nextStep } =
+  const { updateMember, launchpadData, prevStep, nextStep } =
     useCreateLaunchpad();
-  const [teamList, setTeamList] = useState([
-    {
-      iconIPFSUrl: null,
-      name: null,
-      title: null,
-      socialLink: null,
-    },
-  ]);
-  const addMember = () => {
-    try {
-      setTeamList([
-        ...teamList,
-        {
-          iconIPFSUrl: null,
-          name: null,
-          title: null,
-          socialLink: null,
-        },
-      ]);
-    } catch (error) {
-      console.log(error);
-    }
+  const [teamList, setTeamList] = useState(
+    launchpadData?.team || [
+      {
+        iconIPFSUrl: "",
+        name: "",
+        title: "",
+        socialLink: "",
+      },
+    ]
+  );
+  const validationSchema = Yup.array().of(
+    Yup.object().shape({
+      name: Yup.string().required("Name required"),
+      iconIPFSUrl: Yup.string().required("Avatar required"),
+      title: Yup.string().required("Title required"),
+      socialLink: Yup.string().url("Invalid URL format"),
+    })
+  );
+
+  const handleSubmit = (values, actions) => {
+    updateMember(values);
+    nextStep();
+    actions.setSubmitting(false);
   };
-  const deleteMember = (index) => {
-    setTeamList([...teamList.slice(0, index), ...teamList.slice(index + 1)]);
-  };
-  useEffect(() => {
-    updateMember(teamList);
-  }, [teamList]);
-  useEffect(() => {
-    if (current == 3 && launchpadData?.team) setTeamList(launchpadData?.team);
-  }, [current]);
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <Heading
-        as="h2"
-        size="h2"
-        mb="16px"
-        lineHeight={{ base: "1.25", lg: "30px" }}
-      >
-        Add team member
-      </Heading>
-      {teamList.map((obj, index) => {
-        return (
-          <Box
-            bg={{ base: "#F6F6FC" }}
-            borderRadius={{ base: "10px" }}
-            padding={{ base: "30px" }}
-            sx={{ display: "flex", flexDirection: "column" }}
-            mt="16px"
-          >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-              }}
-            >
-              <UploadImage
-                // isDisabled={!!!tokenInfo}
-                // direction="horizontal"
-                label="Upload member avatar"
-                keyInput={`team-member-avatar-${index}`}
-                previewSize={{ width: "120px", height: "120px" }}
-                limitedSize={{
-                  width: "512",
-                  height: "512",
+    <Formik
+      initialValues={teamList}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+    >
+      <Form>
+        <Heading
+          as="h2"
+          size="h2"
+          mb="16px"
+          lineHeight={{ base: "1.25", lg: "30px" }}
+        >
+          Add team member
+        </Heading>
+        <Field>
+          {({ form }) =>
+            form.values?.map((obj, index) => {
+              return (
+                <Box
+                  bg={{ base: "#F6F6FC" }}
+                  borderRadius={{ base: "10px" }}
+                  padding={{ base: "30px" }}
+                  sx={{ display: "flex", flexDirection: "column" }}
+                  mt="16px"
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <FormControl isInvalid={form.errors[index]?.iconIPFSUrl}>
+                      <UploadImage
+                        errorLabel={form.errors[index]?.iconIPFSUrl}
+                        label="Upload member avatar"
+                        keyInput={`team-member-avatar-${index}`}
+                        previewSize={{ width: "120px", height: "120px" }}
+                        limitedSize={{
+                          width: "512",
+                          height: "512",
+                        }}
+                        previewUrl={teamList[index]?.previewAvatar}
+                        updatePreviewImage={(value) => {
+                          const updatedArray = [...form.values];
+                          if (index >= 0 && index < updatedArray.length) {
+                            updatedArray[index] = {
+                              ...updatedArray[index],
+                              previewAvatar: value,
+                            };
+                          }
+                          form.setValues(updatedArray);
+                        }}
+                        iconUrl={obj?.iconIPFSUrl}
+                        setImageIPFSUrl={(value) => {
+                          const updatedArray = [...form.values];
+                          if (index >= 0 && index < updatedArray.length) {
+                            updatedArray[index] = {
+                              ...updatedArray[index],
+                              iconIPFSUrl: value,
+                            };
+                          }
+                          form.setValues(updatedArray);
+                        }}
+                      />
+                    </FormControl>
+                    {form.values?.length > 1 && (
+                      <IconButton
+                        borderRadius="0"
+                        icon={<BsTrashFill color="#57527E" />}
+                        variant="link"
+                        sx={{ marginTop: "4px" }}
+                        onClick={() => {
+                          form.setValues([
+                            ...form.values.slice(0, index),
+                            ...form.values.slice(index + 1),
+                          ]);
+                        }}
+                      />
+                    )}
+                  </Box>
+                  <SimpleGrid columns={[1, 1, 3]} spacing={4}>
+                    <FormControl
+                      isInvalid={
+                        form.errors[index]?.name && form.touched[index]?.name
+                      }
+                    >
+                      <SectionContainer title="Name" isRequiredLabel>
+                        <IWInput
+                          value={obj?.name}
+                          onChange={({ target }) => {
+                            const updatedArray = [...form.values];
+                            if (index >= 0 && index < updatedArray.length) {
+                              updatedArray[index] = {
+                                ...updatedArray[index],
+                                name: target.value,
+                              };
+                            }
+                            form.setValues(updatedArray);
+                          }}
+                          placeholder="Name"
+                        />
+                        <FormErrorMessage>
+                          {form.errors[index]?.name}
+                        </FormErrorMessage>
+                      </SectionContainer>
+                    </FormControl>
+                    <FormControl
+                      isInvalid={
+                        form.errors[index]?.title && form.touched[index]?.title
+                      }
+                    >
+                      <SectionContainer title="Title" isRequiredLabel>
+                        <IWInput
+                          value={obj?.title}
+                          onChange={({ target }) => {
+                            const updatedArray = [...form.values];
+                            if (index >= 0 && index < updatedArray.length) {
+                              updatedArray[index] = {
+                                ...updatedArray[index],
+                                title: target.value,
+                              };
+                            }
+                            form.setValues(updatedArray);
+                          }}
+                          placeholder="Title"
+                        />
+                        <FormErrorMessage>
+                          {form.errors[index]?.title}
+                        </FormErrorMessage>
+                      </SectionContainer>
+                    </FormControl>
+                    <FormControl
+                      isInvalid={
+                        form.errors[index]?.socialLink &&
+                        form.touched[index]?.socialLink
+                      }
+                    >
+                      <SectionContainer title="Social Link">
+                        <IWInput
+                          value={obj?.socialLink}
+                          onChange={({ target }) => {
+                            const updatedArray = [...form.values];
+                            if (index >= 0 && index < updatedArray.length) {
+                              updatedArray[index] = {
+                                ...updatedArray[index],
+                                socialLink: target.value,
+                              };
+                            }
+                            form.setValues(updatedArray);
+                          }}
+                          placeholder="Social Link"
+                        />
+                        <FormErrorMessage>
+                          {form.errors[index]?.socialLink}
+                        </FormErrorMessage>
+                      </SectionContainer>
+                    </FormControl>
+                  </SimpleGrid>
+                  <Box
+                    w={"full"}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                  ></Box>
+                </Box>
+              );
+            })
+          }
+        </Field>
+        <Flex justify="center">
+          <Field>
+            {({ form }) => (
+              <Button
+                w={{
+                  base: "full",
+                  lg: "-webkit-fit-content",
                 }}
-                previewUrl={teamList[index]?.previewAvatar}
-                updatePreviewImage={(value) =>
-                  setTeamList((prevState) => {
-                    const updatedArray = [...prevState];
-                    if (index >= 0 && index < updatedArray.length) {
-                      updatedArray[index] = {
-                        ...updatedArray[index],
-                        previewAvatar: value,
-                      };
-                    }
-                    return updatedArray;
-                  })
-                }
-                iconUrl={obj?.iconIPFSUrl}
-                setImageIPFSUrl={(value) =>
-                  setTeamList((prevState) => {
-                    const updatedArray = [...prevState];
-                    if (index >= 0 && index < updatedArray.length) {
-                      updatedArray[index] = {
-                        ...updatedArray[index],
-                        iconIPFSUrl: value,
-                      };
-                    }
-                    return updatedArray;
-                  })
-                }
-              />
-              {teamList?.length > 1 && (
-                <IconButton
-                  borderRadius="0"
-                  icon={<BsTrashFill color="#57527E" />}
-                  variant="link"
-                  sx={{ marginTop: "4px" }}
-                  onClick={() => deleteMember(index)}
-                />
-              )}
-            </Box>
-            <SimpleGrid columns={[1, 1, 3]} spacing={4}>
-              <SectionContainer title={"Name"} isRequiredLabel>
-                <IWInput
-                  value={obj?.name}
-                  onChange={({ target }) =>
-                    setTeamList((prevState) => {
-                      const updatedArray = [...prevState];
-                      if (index >= 0 && index < updatedArray.length) {
-                        updatedArray[index] = {
-                          ...updatedArray[index],
-                          name: target.value,
-                        };
-                      }
-                      return updatedArray;
-                    })
-                  }
-                  placeholder="Name"
-                />
-              </SectionContainer>
-              <SectionContainer title={"Title"} isRequiredLabel>
-                <IWInput
-                  value={obj?.title}
-                  onChange={({ target }) =>
-                    setTeamList((prevState) => {
-                      const updatedArray = [...prevState];
-                      if (index >= 0 && index < updatedArray.length) {
-                        updatedArray[index] = {
-                          ...updatedArray[index],
-                          title: target.value,
-                        };
-                      }
-                      return updatedArray;
-                    })
-                  }
-                  placeholder="Title"
-                />
-              </SectionContainer>
-              <SectionContainer title={"Social Link"}>
-                <IWInput
-                  value={obj?.socialLink}
-                  onChange={({ target }) =>
-                    setTeamList((prevState) => {
-                      const updatedArray = [...prevState];
-                      if (index >= 0 && index < updatedArray.length) {
-                        updatedArray[index] = {
-                          ...updatedArray[index],
-                          socialLink: target.value,
-                        };
-                      }
-                      return updatedArray;
-                    })
-                  }
-                  placeholder="Social Link"
-                />
-              </SectionContainer>
-            </SimpleGrid>
-            <Box
-              w={"full"}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            ></Box>
-          </Box>
-        );
-      })}
-      <Button
-        w={{
-          base: "full",
-          lg: "-webkit-fit-content",
-        }}
-        alignSelf={{ base: "center" }}
-        mt={"16px"}
-        type="button"
-        onClick={() => addMember()}
-      >
-        Add Member
-      </Button>
-      <Flex justify="center" mt="20px">
-        <Button onClick={() => prevStep()} minW="100px">
-          Previous
-        </Button>
-        <Button ml="8px" onClick={() => nextStep()} minW="100px">
-          Next
-        </Button>
-      </Flex>
-    </div>
+                alignSelf={{ base: "center" }}
+                mt={"16px"}
+                type="button"
+                onClick={() => {
+                  form.setValues([
+                    ...form.values,
+                    {
+                      iconIPFSUrl: "",
+                      name: "",
+                      title: "",
+                      socialLink: "",
+                    },
+                  ]);
+                }}
+              >
+                Add Member
+              </Button>
+            )}
+          </Field>
+        </Flex>
+
+        <Flex justify="center" mt="20px">
+          <Button onClick={() => prevStep()} minW="100px">
+            Previous
+          </Button>
+          <Button ml="8px" type="submit" minW="100px">
+            Next
+          </Button>
+        </Flex>
+      </Form>
+    </Formik>
   );
 };
 
