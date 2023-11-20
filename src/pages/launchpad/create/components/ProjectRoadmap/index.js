@@ -1,137 +1,181 @@
-import { Box, Button, Flex, IconButton } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  IconButton,
+} from "@chakra-ui/react";
 import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
-import { useEffect, useState } from "react";
+import { Field, Form, Formik } from "formik";
 import { BsTrashFill } from "react-icons/bs";
+import * as Yup from "yup";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
 
 const ProjectRoadmap = () => {
-  const { updateRoadmap, current, launchpadData, prevStep, nextStep } =
+  const { updateRoadmap, launchpadData, prevStep, nextStep } =
     useCreateLaunchpad();
-  const [projectRoadmap, setProjectRoadmap] = useState([
+  const projectRoadmap = launchpadData?.roadmap || [
     {
-      name: null,
-      description: null,
+      name: "",
+      description: "",
     },
-  ]);
-  const handleUpdateMilestone = () => {
-    try {
-      setProjectRoadmap([
-        ...projectRoadmap,
-        {
-          name: null,
-          description: null,
-        },
-      ]);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const deleteMilestone = (index) => {
-    setProjectRoadmap([
-      ...projectRoadmap.slice(0, index),
-      ...projectRoadmap.slice(index + 1),
-    ]);
-  };
-  useEffect(() => {
-    updateRoadmap(projectRoadmap);
-  }, [projectRoadmap]);
+  ];
 
-  useEffect(() => {
-    if (current === 2 && launchpadData?.roadmap)
-      setProjectRoadmap(launchpadData?.roadmap);
-  }, [current]);
+  const validationSchema = Yup.array().of(
+    Yup.object().shape({
+      name: Yup.string().required("Name required"),
+      description: Yup.string().required("Description required"),
+    })
+  );
+
+  const handleSubmit = (values, actions) => {
+    updateRoadmap(values);
+    nextStep();
+    actions.setSubmitting(false);
+  };
+
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <Box w={{ base: "full" }}>
-        {projectRoadmap?.map((obj, index) => (
-          <Box
-            bg={{ base: "#F6F6FC" }}
-            borderRadius={{ base: "10px" }}
-            paddingLeft={{ base: "20px" }}
-            paddingRight={{ base: "20px" }}
-            paddingTop={{ base: "8px" }}
-            paddingBottom={{ base: "32px" }}
-            sx={{ display: "flex", flexDirection: "column" }}
-            mt="16px"
-          >
-            <SectionContainer
-              right={
-                projectRoadmap?.length > 1 && (
-                  <IconButton
-                    borderRadius="0"
-                    icon={<BsTrashFill color="#57527E" />}
-                    variant="link"
-                    onClick={() => deleteMilestone(index)}
-                  />
-                )
-              }
-              title={"Milestone Name"}
-              isRequiredLabel
-            >
-              <IWInput
-                maxLength={60}
-                value={obj?.name || ""}
-                onChange={({ target }) => {
-                  setProjectRoadmap((prevState) => {
-                    const updatedArray = [...prevState];
-                    if (index >= 0 && index < updatedArray.length) {
-                      updatedArray[index] = {
-                        ...updatedArray[index],
-                        name: target.value,
-                      };
+    <Formik
+      initialValues={projectRoadmap}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+    >
+      <Form>
+        <Field>
+          {({ form }) =>
+            form.values?.map((obj, index) => {
+              return (
+                <Box
+                  bg={{ base: "#F6F6FC" }}
+                  borderRadius={{ base: "10px" }}
+                  paddingLeft={{ base: "20px" }}
+                  paddingRight={{ base: "20px" }}
+                  paddingTop={{ base: "8px" }}
+                  paddingBottom={{ base: "32px" }}
+                  sx={{ display: "flex", flexDirection: "column" }}
+                  mt="16px"
+                >
+                  <FormControl
+                    isInvalid={
+                      form.errors[index]?.name && form.touched[index]?.name
                     }
-                    return updatedArray;
-                  });
-                }}
-                placeholder="Milestone Name"
-              />
-            </SectionContainer>
-            <SectionContainer title="Milestone Description" isRequiredLabel>
-              <IWTextArea
-                maxLength={150}
-                value={obj?.description || ""}
-                onChange={({ target }) => {
-                  setProjectRoadmap((prevState) => {
-                    const updatedArray = [...prevState];
-                    if (index >= 0 && index < updatedArray.length) {
-                      updatedArray[index] = {
-                        ...updatedArray[index],
-                        description: target.value,
-                      };
+                  >
+                    <SectionContainer
+                      right={
+                        form.values?.length > 1 && (
+                          <IconButton
+                            borderRadius="0"
+                            icon={<BsTrashFill color="#57527E" />}
+                            variant="link"
+                            onClick={() => {
+                              form.setValues([
+                                ...form.values.slice(0, index),
+                                ...form.values.slice(index + 1),
+                              ]);
+                            }}
+                          />
+                        )
+                      }
+                      title={"Milestone Name"}
+                      isRequiredLabel
+                    >
+                      <IWInput
+                        maxLength={60}
+                        onChange={({ target }) => {
+                          const updatedArray = [...form.values];
+                          if (index >= 0 && index < updatedArray.length) {
+                            updatedArray[index] = {
+                              ...updatedArray[index],
+                              name: target.value,
+                            };
+                          }
+                          form.setValues(updatedArray);
+                        }}
+                        id={`name-roadmap-${index}`}
+                        value={obj?.name}
+                        placeholder="Milestone Name"
+                      />
+                      <FormErrorMessage>
+                        {form.errors[index]?.name}
+                      </FormErrorMessage>
+                    </SectionContainer>
+                  </FormControl>
+                  <FormControl
+                    isInvalid={
+                      form.errors[index]?.description &&
+                      form.touched[index]?.description
                     }
-                    return updatedArray;
-                  });
-                }}
-                placeholder="Project Description"
-              />
-            </SectionContainer>
-          </Box>
-        ))}
-      </Box>
+                  >
+                    <SectionContainer
+                      title="Milestone Description"
+                      isRequiredLabel
+                    >
+                      <IWTextArea
+                        maxLength={150}
+                        value={obj?.description}
+                        onChange={({ target }) => {
+                          const updatedArray = [...form.values];
+                          if (index >= 0 && index < updatedArray.length) {
+                            updatedArray[index] = {
+                              ...updatedArray[index],
+                              description: target.value,
+                            };
+                          }
+                          form.setValues(updatedArray);
+                        }}
+                        id={`description-roadmap-${index}`}
+                        placeholder="Project Description"
+                      />
+                      <FormErrorMessage>
+                        {form.errors[index]?.description}
+                      </FormErrorMessage>
+                    </SectionContainer>
+                  </FormControl>
+                </Box>
+              );
+            })
+          }
+        </Field>
 
-      <Button
-        w={{
-          base: "full",
-          lg: "-webkit-fit-content",
-        }}
-        alignSelf={{ base: "center" }}
-        mt={"16px"}
-        type="button"
-        onClick={() => handleUpdateMilestone()}
-      >
-        Add Milestone
-      </Button>
-      <Flex justify="center" mt="20px">
-        <Button onClick={() => prevStep()} minW="100px">
-          Previous
-        </Button>
-        <Button ml="8px" onClick={() => nextStep()} minW="100px">
-          Next
-        </Button>
-      </Flex>
-    </div>
+        <Flex justify="center">
+          <Field>
+            {({ form }) => (
+              <Button
+                w={{
+                  base: "full",
+                  lg: "-webkit-fit-content",
+                }}
+                alignSelf={{ base: "center" }}
+                mt={"16px"}
+                type="button"
+                onClick={() => {
+                  form.setValues([
+                    ...form.values,
+                    {
+                      name: "",
+                      description: "",
+                    },
+                  ]);
+                }}
+              >
+                Add Milestone
+              </Button>
+            )}
+          </Field>
+        </Flex>
+        <Flex justify="center" mt="20px">
+          <Button onClick={() => prevStep()} minW="100px">
+            Previous
+          </Button>
+          <Button ml="8px" type="submit" minW="100px">
+            Next
+          </Button>
+        </Flex>
+      </Form>
+    </Formik>
   );
 };
 

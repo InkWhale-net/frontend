@@ -1,7 +1,7 @@
 import { CheckIcon } from "@chakra-ui/icons";
 import { Circle } from "@chakra-ui/react";
 import { useAppContext } from "contexts/AppContext";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
@@ -18,17 +18,7 @@ import ProjectInfor from "./components/ProjectInfor";
 import ProjectRoadmap from "./components/ProjectRoadmap";
 import Team from "./components/Team";
 import VerifyToken from "./components/VerifyToken";
-import {
-  validatePhase,
-  validatePhaseData,
-  validateProjectInfor,
-  validateRoadmap,
-  validateTeam,
-  validateTotalSupply,
-  verifyProjectInfo,
-  verifyTeam,
-  verifyTokenValid,
-} from "./utils";
+import { validatePhaseData, validateTotalSupply } from "./utils";
 
 export const CreateLaunchpadContext = createContext();
 
@@ -122,28 +112,13 @@ const CreateLaunchpadContextProvider = (props) => {
     updateLaunchpadData({ ...launchpadData, requireKyc: value });
   };
 
-  const verifyStep = async () => {
-    switch (current) {
-      case 0:
-        return verifyTokenValid(launchpadData, currentAccount);
-      case 1:
-        return verifyProjectInfo(launchpadData);
-      case 3:
-        return verifyTeam(launchpadData);
-      default:
-        return true;
-    }
-  };
-
   const nextStep = async () => {
     const nextStep = Math.min(current + 1, itemStep?.length - 1);
-    if (await verifyStep()) {
-      setItemStep((prevState) => {
-        prevState[current] = { ...prevState[current], icon: <CheckedIcon /> };
-        return prevState;
-      });
-      setCurrent(nextStep);
-    }
+    setItemStep((prevState) => {
+      prevState[current] = { ...prevState[current], icon: <CheckedIcon /> };
+      return prevState;
+    });
+    setCurrent(nextStep);
   };
 
   const prevStep = async () => {
@@ -157,22 +132,6 @@ const CreateLaunchpadContextProvider = (props) => {
     });
     setCurrent(prefStep);
   };
-  const isNextButtonActive = useMemo(() => {
-    switch (current) {
-      case 0:
-        return !!launchpadData?.token;
-      case 1:
-        return validateProjectInfor(launchpadData);
-      case 2:
-        return validateRoadmap(launchpadData);
-      case 3:
-        return validateTeam(launchpadData);
-      case 4:
-        return validatePhase(launchpadData);
-      default:
-        return true;
-    }
-  }, [current, launchpadData]);
 
   useEffect(() => {
     const fetchCreateTokenFee = async () => {
@@ -261,7 +220,6 @@ const CreateLaunchpadContextProvider = (props) => {
         updateTotalSupply,
         launchpadData,
         updateLaunchpadData,
-        isNextButtonActive,
         handleAddNewLaunchpad,
         finishModalVisible,
         setFinishModalVisible,

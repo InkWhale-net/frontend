@@ -10,38 +10,6 @@ export const verifyTokenValid = async (launchpadData, currentAccount) => {
   }
 };
 
-export const validateProjectInfor = (launchpadData) => {
-  if (!launchpadData?.projectInfor) return false;
-  else {
-    const infor = launchpadData?.projectInfor;
-    if (!infor?.avatarImage || !infor?.featureImage || !infor?.headerImage)
-      return false;
-    if (!infor?.name || !infor?.description) return false;
-    if (
-      launchpadData?.projectInfor?.tokenomic?.filter(
-        (e) => e?.label?.length > 0 && e?.value > 0 && e?.value <= 100
-      )?.length != launchpadData?.projectInfor?.tokenomic?.length
-    )
-      return false;
-  }
-  return true;
-};
-
-export const validateRoadmap = (launchpadData) => {
-  const roadmapData = launchpadData?.roadmap;
-  if (
-    roadmapData?.filter((e) => e?.name?.length > 0)?.length !=
-    roadmapData?.length
-  )
-    return false;
-  if (
-    roadmapData?.filter((e) => e?.description?.length > 0)?.length !=
-    roadmapData?.length
-  )
-    return false;
-  return true;
-};
-
 export const validatePhase = (launchpadData) => {
   if (!launchpadData?.phase || !launchpadData?.totalSupply) return;
 
@@ -113,65 +81,6 @@ export const validatePhase = (launchpadData) => {
 
     return false;
   }
-  return true;
-};
-
-export const validateTeam = (launchpadData) => {
-  const teamData = launchpadData?.team;
-  if (
-    teamData?.filter((e) => e?.iconIPFSUrl?.length > 0)?.length !=
-    teamData?.length
-  )
-    return false;
-  if (teamData?.filter((e) => e?.name?.length > 0)?.length != teamData?.length)
-    return false;
-  if (teamData?.filter((e) => e?.title?.length > 0)?.length != teamData?.length)
-    return false;
-  // if (
-  //   teamData?.filter((e) => e?.socialLink && e?.socialLink?.length > 0)
-  //     ?.length != teamData?.length
-  // )
-  //   return false;
-  return true;
-};
-
-export const isWebsite = (text) => {
-  const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-./?%&=#]*)?$/;
-  return urlRegex.test(text);
-};
-
-export const verifyProjectInfo = (launchpadData) => {
-  const infor = launchpadData?.projectInfor;
-  if (!isWebsite(infor?.website) && infor?.website) {
-    toast.error("Website url is invalid");
-    return false;
-  }
-  if (!isWebsite(infor?.twitter) && infor?.twitter) {
-    toast.error("twitter url is invalid");
-    return false;
-  }
-  if (!isWebsite(infor?.discord) && infor?.discord) {
-    toast.error("discord url is invalid");
-    return false;
-  }
-  if (!isWebsite(infor?.telegram) && infor?.telegram) {
-    toast.error("telegram url is invalid");
-    return false;
-  }
-  return true;
-};
-
-export const verifyTeam = (launchpadData) => {
-  const teamData = launchpadData?.team;
-
-  if (
-    teamData?.filter((e) => (e?.socialLink ? isWebsite(e?.socialLink) : true))
-      ?.length != teamData?.length
-  ) {
-    toast.error("Team social link is invalid");
-    return false;
-  }
-
   return true;
 };
 

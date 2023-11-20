@@ -10,28 +10,30 @@ import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
 import { Field, Form, Formik } from "formik";
 import UploadImage from "pages/launchpad/UploadImage";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { MdError } from "react-icons/md";
 import * as Yup from "yup";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
 import Tokenomic from "./Tokenomic";
 
 const ProjectInfor = () => {
-  const { updateProjectInfor, current, launchpadData, nextStep, prevStep } =
+  const { updateProjectInfor, launchpadData, nextStep, prevStep } =
     useCreateLaunchpad();
   const [projectInfor, setProjectInfor] = useState({
-    project_name: "",
-    description: "",
-    avatarImage: "",
-    featureImage: "",
-    headerImage: "",
-    youtubeUrl: "",
-    website: "",
-    twitter: "",
-    discord: "",
-    telegram: "",
+    ...launchpadData?.projectInfor,
+    project_name: launchpadData?.projectInfor?.name || "",
+    description: launchpadData?.projectInfor?.description || "",
+    avatarImage: launchpadData?.projectInfor?.avatarImage || "",
+    featureImage: launchpadData?.projectInfor?.featureImage || "",
+    headerImage: launchpadData?.projectInfor?.headerImage || "",
+    youtubeUrl: launchpadData?.projectInfor?.youtubeUrl || "",
+    website: launchpadData?.projectInfor?.website || "",
+    twitter: launchpadData?.projectInfor?.twitter || "",
+    discord: launchpadData?.projectInfor?.discord || "",
+    telegram: launchpadData?.projectInfor?.telegram || "",
+    tokenomic: launchpadData?.projectInfor?.telegram,
   });
-
   const validationSchema = Yup.object().shape({
     project_name: Yup.string().required("Project name is required"),
     description: Yup.string().required("Description is required"),
@@ -40,7 +42,7 @@ const ProjectInfor = () => {
     headerImage: Yup.string().required("This field is required"),
     youtubeUrl: Yup.string().matches(
       /^(https:\/\/www\.youtube\.com\/embed\/[A-Za-z0-9_-]+)$/,
-      "Invalid YouTube URL format"
+      "Invalid YouTube Embed URL format"
     ),
     website: Yup.string().url("Invalid URL format"),
     twitter: Yup.string().url("Invalid URL format"),
@@ -48,22 +50,20 @@ const ProjectInfor = () => {
     telegram: Yup.string().url("Invalid URL format"),
   });
   const handleSubmit = (values, actions) => {
-    updateProjectInfor({ ...values, name: values?.project_name });
+    updateProjectInfor({
+      ...projectInfor,
+      ...values,
+      name: values?.project_name,
+      tokenomic: projectInfor?.tokenomic,
+    });
     nextStep();
     actions.setSubmitting(false);
   };
 
-  const updateTokenomic = (value) =>
+  const updateTokenomic = (value) => {
     setProjectInfor((prev) => ({ ...prev, tokenomic: value }));
+  };
 
-  // useEffect(() => {
-  //   updateProjectInfor(projectInfor);
-  //   console.log(projectInfor);
-  // }, [projectInfor]);
-  useEffect(() => {
-    if (current == 1 && launchpadData?.projectInfor)
-      setProjectInfor(launchpadData?.projectInfor);
-  }, [current]);
   return (
     <Formik
       initialValues={projectInfor}
@@ -79,7 +79,7 @@ const ProjectInfor = () => {
           mb={{ base: "30px" }}
         >
           <Field name="avatarImage">
-            {({ field, form }) => (
+            {({ form }) => (
               <FormControl isInvalid={form.errors.avatarImage}>
                 <UploadImage
                   errorLabel={form.errors.avatarImage}
@@ -106,7 +106,7 @@ const ProjectInfor = () => {
             )}
           </Field>
           <Field name="featureImage">
-            {({ field, form }) => (
+            {({ form }) => (
               <FormControl isInvalid={form.errors.featureImage}>
                 <UploadImage
                   errorLabel={form.errors.featureImage}
@@ -133,7 +133,7 @@ const ProjectInfor = () => {
             )}
           </Field>
           <Field name="headerImage">
-            {({ field, form }) => (
+            {({ form }) => (
               <FormControl isInvalid={form.errors.headerImage}>
                 <UploadImage
                   errorLabel={form.errors.headerImage}
@@ -323,9 +323,18 @@ const ProjectInfor = () => {
           <Button onClick={() => prevStep()} minW="100px">
             Previous
           </Button>
-          <Button ml="8px" type="submit" minW="100px">
-            Next
-          </Button>
+          <Flex align="center">
+            <Button mr="4px" ml="8px" type="submit" minW="100px">
+              Next
+            </Button>
+            <Field>
+              {({ form }) =>
+                Object.entries(form.errors)?.length > 0 && (
+                  <MdError color="red" />
+                )
+              }
+            </Field>
+          </Flex>
         </Flex>
       </Form>
     </Formik>
