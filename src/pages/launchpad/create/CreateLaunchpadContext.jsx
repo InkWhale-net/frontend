@@ -21,7 +21,6 @@ import VerifyToken from "./components/VerifyToken";
 import {
   validatePhase,
   validatePhaseData,
-  validateProjectInfor,
   validateRoadmap,
   validateTeam,
   validateTotalSupply,
@@ -159,10 +158,6 @@ const CreateLaunchpadContextProvider = (props) => {
   };
   const isNextButtonActive = useMemo(() => {
     switch (current) {
-      case 0:
-        return !!launchpadData?.token;
-      case 1:
-        return validateProjectInfor(launchpadData);
       case 2:
         return validateRoadmap(launchpadData);
       case 3:

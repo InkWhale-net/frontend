@@ -81,8 +81,12 @@ const DistributionTag = ({
         <IconButton
           ml="4px"
           variant="link"
-          icon={<BsTrashFill size={"16px"} color="#57527E" />}
-          onClick={() => onDelete()}
+          icon={
+            data?.label != "Others" && (
+              <BsTrashFill size={"16px"} color="#57527E" />
+            )
+          }
+          onClick={() => data?.label != "Others" && onDelete()}
         />
       </Box>
     </Fade>
@@ -91,21 +95,27 @@ const DistributionTag = ({
 
 const Tokenomic = ({ updateTokenomic, tokenomicValue }) => {
   const { updateProjectInfor, current, launchpadData } = useCreateLaunchpad();
-  const [distribution, setDistribution] = useState([]);
+  const [distribution, setDistribution] = useState(null);
 
   const currentTotalValue = useMemo(
     () =>
-      distribution.reduce((acc, obj) => {
+      distribution?.reduce((acc, obj) => {
         return acc + obj?.value;
       }, 0),
     [distribution]
   );
   const other = useMemo(() => 100 - currentTotalValue, [currentTotalValue]);
 
-  useEffect(() => updateTokenomic(distribution), [distribution]);
-
   useEffect(() => {
-    if (current == 1 && launchpadData?.projectInfor)
+    if (
+      distribution?.length > 0 &&
+      distribution?.filter((e) => +e?.value > 0)?.length == distribution?.length
+    ) {
+      updateTokenomic(distribution);
+    }
+  }, [distribution]);
+  useEffect(() => {
+    if (current == 1) {
       setDistribution(
         launchpadData?.projectInfor?.tokenomic || [
           {
@@ -114,8 +124,8 @@ const Tokenomic = ({ updateTokenomic, tokenomicValue }) => {
           },
         ]
       );
+    }
   }, [current]);
-
   return (
     <SectionContainer title="Tokenomic" sx={{ mt: "40px" }}>
       <SimpleGrid
@@ -131,7 +141,7 @@ const Tokenomic = ({ updateTokenomic, tokenomicValue }) => {
               chart: {
                 type: "donut",
               },
-              labels: [...distribution.map((e) => e.label), "Others"],
+              labels: [...distribution?.map((e) => e.label), "Others"],
               responsive: [
                 {
                   breakpoint: 480,
@@ -148,8 +158,8 @@ const Tokenomic = ({ updateTokenomic, tokenomicValue }) => {
             }}
             series={
               other > 0
-                ? [...distribution.map((e) => e.value), other]
-                : distribution.map((e) => e.value)
+                ? [...distribution?.map((e) => e.value), other]
+                : distribution?.map((e) => e.value)
             }
             type="donut"
           />
@@ -157,7 +167,7 @@ const Tokenomic = ({ updateTokenomic, tokenomicValue }) => {
 
         <div style={{ display: "flex", flexDirection: "column" }}>
           You can add token distribution below, maximum total value is 100
-          {distribution.map((obj, index) => (
+          {distribution?.map((obj, index) => (
             <DistributionTag
               isNewValueValid={(value) => {
                 return +currentTotalValue + +value - +obj.value <= 100;

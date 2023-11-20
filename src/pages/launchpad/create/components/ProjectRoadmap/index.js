@@ -127,7 +127,9 @@ const ProjectRoadmap = () => {
         <Button onClick={() => prevStep()} minW="100px">
           Previous
         </Button>
-        <Button ml="8px" onClick={() => nextStep()} minW="100px">
+        <Button ml="8px" onClick={() => {
+          console.log(launchpadData)
+        }} minW="100px">
           Next
         </Button>
       </Flex>

@@ -10,23 +10,6 @@ export const verifyTokenValid = async (launchpadData, currentAccount) => {
   }
 };
 
-export const validateProjectInfor = (launchpadData) => {
-  if (!launchpadData?.projectInfor) return false;
-  else {
-    const infor = launchpadData?.projectInfor;
-    if (!infor?.avatarImage || !infor?.featureImage || !infor?.headerImage)
-      return false;
-    if (!infor?.name || !infor?.description) return false;
-    if (
-      launchpadData?.projectInfor?.tokenomic?.filter(
-        (e) => e?.label?.length > 0 && e?.value > 0 && e?.value <= 100
-      )?.length != launchpadData?.projectInfor?.tokenomic?.length
-    )
-      return false;
-  }
-  return true;
-};
-
 export const validateRoadmap = (launchpadData) => {
   const roadmapData = launchpadData?.roadmap;
   if (
