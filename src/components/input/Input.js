@@ -25,7 +25,6 @@ function IWInput(props) {
   } = props;
 
   // const styles = useStyleConfig("Input", { variant });
-
   const onChangeInput = (valueString) => {
     if (type === "number") {
       if (reg.test(valueString.target.value)) {

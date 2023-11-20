@@ -5,7 +5,6 @@ import {
   Flex,
   Heading,
   Image,
-  SimpleGrid,
   Text,
 } from "@chakra-ui/react";
 import { APICall } from "api/client";
@@ -14,22 +13,22 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useQuery } from "react-query";
 import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import {
   addressShortener,
   formatNumDynDecimal,
   formatQueryResultToNumber,
+  getTokenOwner,
   isAddressValid,
   roundUp,
 } from "utils";
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
-import { useHistory } from "react-router-dom";
-import psp22_contract_old from "utils/contracts/psp22_contract_old";
-import { getTokenOwner } from "utils";
 
 export default function VerifyToken() {
-  const { launchpadData, updateLaunchpadData, current } = useCreateLaunchpad();
+  const { launchpadData, updateLaunchpadData, current, nextStep } =
+    useCreateLaunchpad();
   const [tokenInfo, setTokenInfo] = useState(null);
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allTokensList } = useSelector((s) => s.allPools);
@@ -155,7 +154,7 @@ export default function VerifyToken() {
     if (current == 0 && launchpadData?.token)
       setTokenInfo(launchpadData?.token);
   }, [current]);
-
+  const tokenBalance = +tokenInfo?.balance?.replaceAll(",", "");
   return (
     <>
       <Box
@@ -273,6 +272,22 @@ export default function VerifyToken() {
           </Box>
         )}
       </Box>
+      {tokenInfo && !(tokenBalance > 0) && !isFetching && (
+        <Box bg="#FCE5E5" p="8px" mt="8px" borderRadius="4px">
+          <Text color="#F17171">
+            Your token balance need to be higher than 0
+          </Text>
+        </Box>
+      )}
+      <Flex justify="center" mt="20px">
+        <Button
+          isDisabled={!(tokenInfo && tokenBalance)}
+          onClick={() => nextStep()}
+          minW="100px"
+        >
+          Next
+        </Button>
+      </Flex>
     </>
   );
 }

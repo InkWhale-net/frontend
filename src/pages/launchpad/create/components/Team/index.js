@@ -1,14 +1,21 @@
-import { Box, Button, Heading, IconButton, SimpleGrid } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  IconButton,
+  SimpleGrid,
+} from "@chakra-ui/react";
 import IWInput from "components/input/Input";
 import UploadImage from "pages/launchpad/UploadImage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BsTrashFill } from "react-icons/bs";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
-import { useEffect } from "react";
 
 const Team = () => {
-  const { updateMember, current, launchpadData } = useCreateLaunchpad();
+  const { updateMember, current, launchpadData, prevStep, nextStep } =
+    useCreateLaunchpad();
   const [teamList, setTeamList] = useState([
     {
       iconIPFSUrl: null,
@@ -193,6 +200,14 @@ const Team = () => {
       >
         Add Member
       </Button>
+      <Flex justify="center" mt="20px">
+        <Button onClick={() => prevStep()} minW="100px">
+          Previous
+        </Button>
+        <Button ml="8px" onClick={() => nextStep()} minW="100px">
+          Next
+        </Button>
+      </Flex>
     </div>
   );
 };

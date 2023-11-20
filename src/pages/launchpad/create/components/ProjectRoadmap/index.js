@@ -1,4 +1,4 @@
-import { Box, Button, IconButton } from "@chakra-ui/react";
+import { Box, Button, Flex, IconButton } from "@chakra-ui/react";
 import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
 import { useEffect, useState } from "react";
@@ -7,7 +7,8 @@ import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
 
 const ProjectRoadmap = () => {
-  const { updateRoadmap, current, launchpadData } = useCreateLaunchpad();
+  const { updateRoadmap, current, launchpadData, prevStep, nextStep } =
+    useCreateLaunchpad();
   const [projectRoadmap, setProjectRoadmap] = useState([
     {
       name: null,
@@ -122,6 +123,14 @@ const ProjectRoadmap = () => {
       >
         Add Milestone
       </Button>
+      <Flex justify="center" mt="20px">
+        <Button onClick={() => prevStep()} minW="100px">
+          Previous
+        </Button>
+        <Button ml="8px" onClick={() => nextStep()} minW="100px">
+          Next
+        </Button>
+      </Flex>
     </div>
   );
 };

@@ -30,7 +30,7 @@
     "babel-register": "^6.26.0",
     "buffer": "^6.0.3",
     "ethers": "^6.6.0",
-    "formik": "^2.4.3",
+    "formik": "^2.4.5",
     "framer-motion": "^6",
     "ipfs-http-client": "^52.0.0",
     "loglevel": "^1.8.1",

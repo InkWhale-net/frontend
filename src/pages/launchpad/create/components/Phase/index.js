@@ -28,6 +28,8 @@ const Phase = () => {
     launchpadData,
     current,
     updateRequireKyc,
+    prevStep,
+    handleAddNewLaunchpad,
   } = useCreateLaunchpad();
 
   const [phaseList, setPhaseList] = useState([
@@ -560,6 +562,14 @@ const Phase = () => {
       >
         Add Phase
       </Button>
+      <Flex justify="center" mt="20px">
+        <Button onClick={() => prevStep()} minW="100px">
+          Previous
+        </Button>
+        <Button ml="8px" onClick={() => handleAddNewLaunchpad()} minW="100px">
+          Next
+        </Button>
+      </Flex>
     </div>
   );
 };
