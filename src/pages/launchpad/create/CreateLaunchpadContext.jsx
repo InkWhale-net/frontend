@@ -161,7 +161,6 @@ const CreateLaunchpadContextProvider = (props) => {
         (acc, e) => acc + (e?.phasePublicAmount || 0),
         0
       );
-      console.log(launchpadData?.phase);
       if (
         !(launchpadData?.phase?.length > 0) ||
         !validateTotalSupply(
