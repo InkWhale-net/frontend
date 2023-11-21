@@ -37,6 +37,8 @@ import launchpad_generator from "utils/contracts/launchpad_generator";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { useCreateLaunchpad } from "./CreateLaunchpadContext";
 import { processStringToArray } from "./utils";
+import { formatTokenAmount } from "utils";
+import { formatTextAmount } from "utils";
 
 const StepItem = ({
   isActive,
@@ -274,11 +276,12 @@ const FinishModal = ({}) => {
             launchpad_generator.CONTRACT_ADDRESS
           );
 
-          const allowanceToken =
-            allowanceTokenQr?.toHuman().Ok?.replaceAll(",", "") /
-            10 ** launchpadData?.token?.decimals;
+          const allowanceToken = formatTokenAmount(
+            allowanceTokenQr?.toHuman().Ok?.replaceAll(",", ""),
+            +launchpadData?.token?.decimals
+          );
 
-          if (allowanceToken < +launchpadData?.totalSupply) {
+          if (+formatTextAmount(allowanceToken) < +launchpadData?.totalSupply) {
             let approve = await execContractTx(
               currentAccount,
               "api",
