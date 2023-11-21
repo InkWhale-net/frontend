@@ -13,6 +13,7 @@ import { BsTrashFill } from "react-icons/bs";
 import * as Yup from "yup";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
+import { MdError } from "react-icons/md";
 
 const ProjectRoadmap = () => {
   const { updateRoadmap, launchpadData, prevStep, nextStep } =
@@ -170,9 +171,18 @@ const ProjectRoadmap = () => {
           <Button onClick={() => prevStep()} minW="100px">
             Previous
           </Button>
-          <Button ml="8px" type="submit" minW="100px">
-            Next
-          </Button>
+          <Flex align="center">
+            <Button mr="4px" ml="8px" type="submit" minW="100px">
+              Next
+            </Button>
+            <Field>
+              {({ form }) =>
+                Object.entries(form.errors)?.length > 0 && (
+                  <MdError color="red" />
+                )
+              }
+            </Field>
+          </Flex>
         </Flex>
       </Form>
     </Formik>

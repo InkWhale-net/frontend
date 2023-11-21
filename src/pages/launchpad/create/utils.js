@@ -245,32 +245,6 @@ const checkTimeRangeOverlap = (arr) => {
 };
 
 export const validatePhaseData = (phaseData, errorMsg) => {
-  if (
-    phaseData?.filter((e) => e?.endDate && e?.startDate)?.length !==
-    phaseData?.length
-  ) {
-    toast.error("Please enter phase time range");
-    return false;
-  }
-  if (
-    phaseData?.filter((e) => {
-      return e?.endDate > e?.startDate;
-    })?.length !== phaseData?.length
-  ) {
-    toast.error("Phase can not end before it start");
-    return false;
-  }
-  if (
-    phaseData?.filter((e) => {
-      return (
-        parseFloat(e?.immediateReleaseRate) <= 100 &&
-        parseFloat(e?.immediateReleaseRate) >= 0
-      );
-    })?.length !== phaseData?.length
-  ) {
-    toast.error("Invalid immediate Release Rate value");
-    return false;
-  }
   const allPhases = [
     ...phaseData.map((e) => ({ startDate: e.startDate, endDate: e.endDate })),
   ];
