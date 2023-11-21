@@ -345,6 +345,43 @@ export const APICall = {
       filter: { ...options },
     });
   },
+
+  // Azero Staking API
+  getWaitingListInfo: async (options) => {
+    return await client(
+      "POST",
+      "/getWaitingListInfoWithinExpirationDuration",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  getAzeroWallet: async (options) => {
+    return await client(
+      "POST",
+      "/getAzeroWallet",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  getInwWallet: async (options) => {
+    return await client(
+      "POST",
+      "/getInwWallet",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  getExpirationTime: async (options) => {
+    return await client(
+      "POST",
+      "/getExpirationTime",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
 };
 
 const projectId = process.env.REACT_APP_IPFS_PROJECT_ID;
