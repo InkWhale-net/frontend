@@ -54,6 +54,8 @@ import { execContractQuery, execContractTx } from "utils/contracts";
 import pool_contract from "utils/contracts/pool_contract";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { MaxStakeButton } from "./MaxStakeButton";
+import psp22_contract from "utils/contracts/psp22_contract";
+import { formatTextAmount } from "utils";
 
 export default function PoolDetailPage() {
   const params = useParams();
@@ -61,6 +63,7 @@ export default function PoolDetailPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { api } = useAppContext();
   const { allStakingPoolsList } = useSelector((s) => s.allPools);
+  const [isOldPool, setIsOldPool] = useState(null);
   const dispatch = useDispatch();
 
   const currentPool = useMemo(
@@ -126,7 +129,13 @@ export default function PoolDetailPage() {
   const tabsData = [
     {
       label: "My Stakes & Rewards",
-      component: <MyStakeRewardInfo {...currentPool} {...currentAccount} />,
+      component: (
+        <MyStakeRewardInfo
+          {...currentPool}
+          {...currentAccount}
+          isOldPool={isOldPool}
+        />
+      ),
       isDisabled: false,
     },
     {
@@ -137,11 +146,27 @@ export default function PoolDetailPage() {
           rewardPool={currentPool?.rewardPool}
           totalStaked={currentPool?.totalStaked}
           api={api}
+          isOldPool={isOldPool}
         />
       ),
       isDisabled: false,
     },
   ];
+  const fetchIsOldPool = async () => {
+    let queryResult = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      pool_contract.CONTRACT_ABI,
+      currentPool?.poolContract,
+      0,
+      "genericPoolContractTrait::inwContract"
+    );
+    const inwContract = queryResult.toHuman().Ok;
+    setIsOldPool(inwContract == psp22_contract.CONTRACT_ADDRESS);
+  };
+  useEffect(() => {
+    if (currentPool && api) fetchIsOldPool();
+  }, [currentPool, api]);
   useEffect(() => {
     if (api) {
       dispatch(fetchAllStakingPools({ currentAccount }));
@@ -272,6 +297,7 @@ const MyStakeRewardInfo = ({
   tokenDecimal,
   maxStakingAmount,
   totalStaked,
+  isOldPool,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -315,14 +341,15 @@ const MyStakeRewardInfo = ({
     }
     setStakeInfo(info);
   }, [api, currentAccount?.address, currentAccount?.balance, poolContract]);
-
   const fetchTokenBalance = useCallback(async () => {
     // if (!currentAccount?.balance) return;
     try {
       const result = await execContractQuery(
         currentAccount?.address,
         api,
-        psp22_contract_v2.CONTRACT_ABI,
+        isOldPool
+          ? psp22_contract.CONTRACT_ABI
+          : psp22_contract_v2.CONTRACT_ABI,
         tokenContract,
         0,
         "psp22::balanceOf",
@@ -336,8 +363,10 @@ const MyStakeRewardInfo = ({
   }, [api, currentAccount?.address, currentAccount?.balance, tokenContract]);
 
   useEffect(() => {
-    fetchUserStakeInfo();
-    fetchTokenBalance();
+    if (isOldPool != null) {
+      fetchUserStakeInfo();
+      fetchTokenBalance();
+    }
   }, [
     api,
     currentAccount?.address,
@@ -345,6 +374,7 @@ const MyStakeRewardInfo = ({
     fetchTokenBalance,
     fetchUserStakeInfo,
     poolContract,
+    isOldPool,
   ]);
 
   useEffect(() => {
@@ -362,7 +392,7 @@ const MyStakeRewardInfo = ({
         );
 
         const fee = formatQueryResultToNumber(result);
-        setUnstakeFee(fee);
+        setUnstakeFee(formatTextAmount(fee));
       } catch (error) {
         console.log(error);
       }
@@ -465,7 +495,9 @@ const MyStakeRewardInfo = ({
       let approve = await execContractTx(
         currentAccount,
         api,
-        psp22_contract_v2.CONTRACT_ABI,
+        isOldPool
+          ? psp22_contract.CONTRACT_ABI
+          : psp22_contract_v2.CONTRACT_ABI,
         tokenContract,
         0, //-> value
         "psp22::approve",
@@ -509,9 +541,21 @@ const MyStakeRewardInfo = ({
         return false;
       }
 
-      if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < unstakeFee) {
+      if (
+        !isOldPool &&
+        +currentAccount?.balance?.inw2?.replaceAll(",", "") < +unstakeFee
+      ) {
         toast.error(
           `You don't have enough INW V2. Unstake costs ${unstakeFee} INW V2!`
+        );
+        return false;
+      }
+      if (
+        isOldPool &&
+        +currentAccount?.balance?.inw?.replaceAll(",", "") < +unstakeFee
+      ) {
+        toast.error(
+          `You don't have enough INW. Unstake costs ${unstakeFee} INW!`
         );
         return false;
       }
@@ -566,8 +610,10 @@ const MyStakeRewardInfo = ({
     let approve = await execContractTx(
       currentAccount,
       api,
-      psp22_contract_v2.CONTRACT_ABI,
-      psp22_contract_v2.CONTRACT_ADDRESS,
+      isOldPool ? psp22_contract.CONTRACT_ABI : psp22_contract_v2.CONTRACT_ABI,
+      isOldPool
+        ? psp22_contract.CONTRACT_ADDRESS
+        : psp22_contract_v2.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::approve",
       poolContract,
@@ -641,10 +687,14 @@ const MyStakeRewardInfo = ({
             content: `${balance?.azero || 0} AZERO`,
           },
           {
-            title: "INW V2 Balance",
-            content: `${
-              formatNumDynDecimal(balance?.inw2?.replaceAll(",", "")) || 0
-            } INW V2`,
+            title: isOldPool ? "INW Balance" : "INW V2 Balance",
+            content: isOldPool
+              ? `${
+                  formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
+                } INW`
+              : `${
+                  formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
+                } INW V2`,
           },
           {
             title: `${tokenSymbol} Balance`,
@@ -757,7 +807,8 @@ const MyStakeRewardInfo = ({
                   "stake",
                   amount,
                   tokenSymbol,
-                  unstakeFee
+                  unstakeFee,
+                  isOldPool
                 )}
               />
 
@@ -772,7 +823,8 @@ const MyStakeRewardInfo = ({
                   "unstake",
                   amount,
                   tokenSymbol,
-                  unstakeFee
+                  unstakeFee,
+                  isOldPool
                 )}
               />
             </HStack>
@@ -805,6 +857,7 @@ const PoolInfo = (props) => {
     tokenDecimal,
     api,
     owner,
+    isOldPool,
   } = props;
   const { currentAccount } = useSelector((s) => s.wallet);
   const [totalSupply, setTotalSupply] = useState(0);
@@ -813,7 +866,7 @@ const PoolInfo = (props) => {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract_v2.CONTRACT_ABI,
+      isOldPool ? psp22_contract.CONTRACT_ABI : psp22_contract_v2.CONTRACT_ABI,
       tokenContract,
       0,
       "psp22::totalSupply"
@@ -821,7 +874,7 @@ const PoolInfo = (props) => {
     const rawTotalSupply = queryResult?.toHuman()?.Ok;
 
     const totalSupply = roundUp(
-      formatTokenAmount(rawTotalSupply?.replaceAll(",", ""), +tokenDecimal)
+      formatTokenAmount(formatTextAmount(rawTotalSupply), +tokenDecimal)
     );
     setTotalSupply(totalSupply);
   };
@@ -888,12 +941,19 @@ const PoolInfo = (props) => {
   );
 };
 
-const formatMessageStakingPool = (action, amount, tokenSymbol, unstakeFee) => {
+const formatMessageStakingPool = (
+  action,
+  amount,
+  tokenSymbol,
+  unstakeFee,
+  isOldPool
+) => {
   if (action === "stake") {
     return (
       <>
         You are staking {amount} {tokenSymbol}.<br />
-        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)} INW V2.
+        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
+        {isOldPool ? "INW" : "INW V2."}
         Continue?
       </>
     );
@@ -903,7 +963,8 @@ const formatMessageStakingPool = (action, amount, tokenSymbol, unstakeFee) => {
     return (
       <>
         You are unstaking {amount} {tokenSymbol}.<br />
-        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)} INW V2.
+        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
+        {isOldPool ? "INW" : "INW V2."}
         Continue?
       </>
     );

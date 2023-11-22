@@ -1,5 +1,5 @@
 const psp22_contract = {
-  CONTRACT_ADDRESS: "5GWe1NDUko5QQiHfyF3x31NjxPP8UsUP5kc7a5r4F4XK3xYa",
+  CONTRACT_ADDRESS: "5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX",
   CONTRACT_ABI: {
 	"source": {
 	  "hash": "0xd0164130f9ff901104d5891d92ce282574bc9ce75f71f83be843ad59eceab548",
