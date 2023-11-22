@@ -25,6 +25,8 @@ import {
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
+import { formatTokenAmount } from "utils";
+import { formatTextAmount } from "utils";
 
 export default function VerifyToken() {
   const { launchpadData, updateLaunchpadData, current, nextStep } =
@@ -108,9 +110,9 @@ export default function VerifyToken() {
       "psp22Metadata::tokenDecimals"
     );
     const decimals = queryResult4.toHuman().Ok;
-    const totalSupply = roundUp(
-      rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
-      0
+    const totalSupply = formatTokenAmount(
+      formatTextAmount(rawTotalSupply),
+      +decimals
     );
 
     let tokenIconUrl = null;
