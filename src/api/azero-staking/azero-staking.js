@@ -309,5 +309,5 @@ export async function getInwBalanceOfAddress({ address, api, currentAccount }) {
     address
   );
 
-  return formatQueryResultToNumber(inwBalance);
+  return formatChainStringToNumber(inwBalance.toHuman().Ok) / Math.pow(10, 12);
 }
