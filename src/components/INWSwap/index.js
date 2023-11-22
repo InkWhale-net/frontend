@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { ContractPromise } from "@polkadot/api-contract";
 import { useAppContext } from "contexts/AppContext";
+import { useSwapV2TokenContext } from "contexts/SwapV2TokenModalContext";
 import { useEffect, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
 import toast from "react-hot-toast";
@@ -35,9 +36,16 @@ import "./styles.css";
 import { execContractTx } from "./utils";
 export const INWSwap = () => {
   const amountRef = useRef(null);
+  const { modalVisible, closeSwapModal, openSwapModal } =
+    useSwapV2TokenContext();
   if (isMobile) return null;
   return (
-    <Menu placement="bottom-end">
+    <Menu
+      isOpen={modalVisible}
+      onClose={() => closeSwapModal()}
+      onOpen={() => openSwapModal()}
+      placement="bottom-end"
+    >
       {({ isOpen }) => (
         <>
           <MenuButton
