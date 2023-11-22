@@ -120,7 +120,7 @@ const FarmDetailPage = () => {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      nft_pool_contract.CONTRACT_ABI,
+      lp_pool_contract.CONTRACT_ABI,
       currentTokenPool?.poolContract,
       0,
       "genericPoolContractTrait::inwContract"
