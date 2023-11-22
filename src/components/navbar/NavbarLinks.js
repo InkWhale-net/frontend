@@ -214,11 +214,7 @@ export const menuListData = [
     href: "/acquire-inw",
   },
   {
-    title: "INW V2",
-    href: "/inw-v2",
-  },
-  {
-    title: "Azero Staking",
+    title: "Staking",
     href: "/azero-staking",
   },
   {
