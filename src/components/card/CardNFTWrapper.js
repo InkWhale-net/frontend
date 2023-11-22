@@ -20,7 +20,7 @@ const NFTCard = (props) => {
   const { listNFTStake } = useSelector((s) => s.bulkStake);
 
   const { nftName, avatar, tokenID } = props?.cardData;
-  const { action, actionHandler, unstakeFee } = props;
+  const { action, actionHandler, unstakeFee, isOldPool } = props;
 
   const isSelected = listNFTStake
     .map((e) => e?.tokenID)
@@ -101,7 +101,12 @@ const NFTCard = (props) => {
               buttonVariant="primary"
               buttonLabel={action}
               onClick={() => actionHandler(tokenID)}
-              message={formatMessageNFTPool(action, nftName, unstakeFee)}
+              message={formatMessageNFTPool(
+                action,
+                nftName,
+                unstakeFee,
+                isOldPool
+              )}
             />
           </Box>
         </VStack>
@@ -111,7 +116,7 @@ const NFTCard = (props) => {
 };
 
 export default function IWCardNFTWrapper(props) {
-  const { data, action, actionHandler, unstakeFee } = props;
+  const { data } = props;
 
   return (
     <>
@@ -126,13 +131,13 @@ export default function IWCardNFTWrapper(props) {
   );
 }
 
-const formatMessageNFTPool = (action, nftName, unstakeFee) => {
+const formatMessageNFTPool = (action, nftName, unstakeFee, isOldPool) => {
   if (action === "Stake NFT") {
     return (
       <>
         You are staking NFT {nftName}.<br />
-        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)} INW V2.
-        Continue?
+        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
+        {isOldPool ? "INW" : "INW V2."} Continue?
       </>
     );
   }
@@ -141,7 +146,8 @@ const formatMessageNFTPool = (action, nftName, unstakeFee) => {
     return (
       <>
         You are unstaking NFT {nftName}.<br />
-        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)} INW V2. Continue?
+        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
+        {isOldPool ? "INW" : "INW V2."} Continue?
       </>
     );
   }

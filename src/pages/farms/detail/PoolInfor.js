@@ -29,6 +29,7 @@ const PoolInfo = ({
   lptokenName,
   lptokenSymbol,
   tokenDecimal,
+  isOldPool,
   ...rest
 }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -88,6 +89,7 @@ const PoolInfo = ({
       );
       const rawTokenTotalSupply = queryResult.toHuman().Ok;
       setTokenTotalSupply(formatTokenAmount(rawTokenTotalSupply, tokenDecimal));
+      if (!lptokenContract) return;
       let queryResult2 = await execContractQuery(
         currentAccount?.address,
         "api",
