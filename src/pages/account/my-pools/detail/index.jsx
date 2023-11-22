@@ -56,6 +56,7 @@ import nft_pool_contract from "utils/contracts/nft_pool_contract";
 import pool_contract from "utils/contracts/pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { useLocation } from "react-router-dom";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 
 export default function MyPoolDetailPage() {
   const [state, setState] = useState({});
@@ -68,6 +69,8 @@ export default function MyPoolDetailPage() {
   const dispatch = useDispatch();
 
   const location = useLocation();
+  const [isOldPool, setIsOldPool] = useState(null);
+
   const poolMode = useMemo(() => {
     if (location.pathname.includes("/my-pool/")) return "STAKING_POOL";
     if (location.pathname.includes("/my-farm/")) return "NFT_FARM";
@@ -75,7 +78,7 @@ export default function MyPoolDetailPage() {
     return 0;
   }, [currentAccount, location, api]);
 
-  // const { state } = useLocation();
+  // ********* Staking Pool *********
   const currentStakingPool = useMemo(() => {
     const item = myStakingPoolsList?.find(
       (p) => p?.poolContract === params?.contractAddress
@@ -86,6 +89,23 @@ export default function MyPoolDetailPage() {
     return item;
   }, [myStakingPoolsList, params]);
 
+  const fetchIsOldStakingPool = async () => {
+    let queryResult = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      pool_contract.CONTRACT_ABI,
+      currentStakingPool?.poolContract,
+      0,
+      "genericPoolContractTrait::inwContract"
+    );
+    const inwContract = queryResult.toHuman().Ok;
+    setIsOldPool(inwContract == psp22_contract.CONTRACT_ADDRESS);
+  };
+  useEffect(() => {
+    if (currentStakingPool && api) fetchIsOldStakingPool();
+  }, [currentStakingPool, api]);
+
+  // ********* NFT Pool *********
   const currentNFTPool = useMemo(() => {
     const item = myNFTPoolsList?.find(
       (p) => p?.poolContract === params?.contractAddress
@@ -96,6 +116,24 @@ export default function MyPoolDetailPage() {
     return item;
   }, [myNFTPoolsList, params]);
 
+  const fetchIsOldPoolNFT = async () => {
+    let queryResult = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      nft_pool_contract.CONTRACT_ABI,
+      currentNFTPool?.poolContract,
+      0,
+      "genericPoolContractTrait::inwContract"
+    );
+    const inwContract = queryResult.toHuman().Ok;
+    setIsOldPool(inwContract == psp22_contract.CONTRACT_ADDRESS);
+  };
+
+  useEffect(() => {
+    if (currentNFTPool && api) fetchIsOldPoolNFT();
+  }, [currentNFTPool, api]);
+
+  // ********* Token farm *********
   const currentTokenPool = useMemo(() => {
     const item = myTokenPoolsList?.find(
       (p) => p?.poolContract === params?.contractAddress
@@ -103,11 +141,30 @@ export default function MyPoolDetailPage() {
     if (item) {
       setState({ mode: "TOKEN_FARM" });
     }
-    return {
-      ...item,
-      totalStaked: formatTokenAmount(item?.totalStaked, item?.lptokenDecimal),
-    };
+    if (item)
+      return {
+        ...item,
+        totalStaked: formatTokenAmount(item?.totalStaked, item?.lptokenDecimal),
+      };
   }, [myTokenPoolsList, params]);
+
+  const fetchIsOldTokenFarming = async () => {
+    let queryResult = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      lp_pool_contract.CONTRACT_ABI,
+      currentTokenPool?.poolContract,
+      0,
+      "genericPoolContractTrait::inwContract"
+    );
+    const inwContract = queryResult.toHuman().Ok;
+    setIsOldPool(inwContract == psp22_contract.CONTRACT_ADDRESS);
+  };
+
+  useEffect(() => {
+    if (currentTokenPool && api) fetchIsOldTokenFarming();
+  }, [currentTokenPool, api]);
+  // ********* ********** *********
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -357,11 +414,23 @@ export default function MyPoolDetailPage() {
         }`}
       >
         {state?.mode === "STAKING_POOL" ? (
-          <BannerCard cardData={stakingPoolCardData} mode={state?.mode} />
+          <BannerCard
+            cardData={stakingPoolCardData}
+            mode={state?.mode}
+            isOldPool={isOldPool}
+          />
         ) : state?.mode === "TOKEN_FARM" ? (
-          <BannerCard cardData={tokenPoolCardData} mode={state?.mode} />
+          <BannerCard
+            cardData={tokenPoolCardData}
+            mode={state?.mode}
+            isOldPool={isOldPool}
+          />
         ) : state?.mode === "NFT_FARM" ? (
-          <BannerCard cardData={nftPoolCardData} mode={state?.mode} />
+          <BannerCard
+            cardData={nftPoolCardData}
+            mode={state?.mode}
+            isOldPool={isOldPool}
+          />
         ) : (
           ""
         )}
@@ -382,18 +451,21 @@ export default function MyPoolDetailPage() {
             mode={state?.mode}
             {...currentStakingPool}
             {...currentAccount}
+            isOldPool={isOldPool}
           />
         ) : state?.mode === "NFT_FARM" ? (
           <MyPoolInfo
             mode={state?.mode}
             {...currentNFTPool}
             {...currentAccount}
+            isOldPool={isOldPool}
           />
         ) : state?.mode === "TOKEN_FARM" ? (
           <MyPoolInfo
             mode={state?.mode}
             {...currentTokenPool}
             {...currentAccount}
+            isOldPool={isOldPool}
           />
         ) : (
           <></>
@@ -426,6 +498,7 @@ const MyPoolInfo = ({
   lptokenName,
   lptokenTotalSupply,
   tokenDecimal,
+  isOldPool,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -444,7 +517,7 @@ const MyPoolInfo = ({
     const result = await execContractQuery(
       currentAccount?.address,
       api,
-      psp22_contract.CONTRACT_ABI,
+      isOldPool ? psp22_contract.CONTRACT_ABI : psp22_contract_v2.CONTRACT_ABI,
       tokenContract,
       0,
       "psp22::balanceOf",
@@ -524,9 +597,8 @@ const MyPoolInfo = ({
         unclaimRwQr,
         parseInt(tokenDecimal)
       );
-      const withdrawableRs =
-        roundDown(rewardPool) - roundUp(+unclaimRw.replaceAll(",", ""));
-      setWithdrawbleAm(roundDown(withdrawableRs, 3));
+      const withdrawableRs = rewardPool - +unclaimRw.replaceAll(",", "");
+      setWithdrawbleAm(roundDown(withdrawableRs, 4));
     }
   }, [
     currentAccount?.balance,
@@ -621,7 +693,9 @@ const MyPoolInfo = ({
       let approve = await execContractTx(
         currentAccount,
         api,
-        psp22_contract.CONTRACT_ABI,
+        isOldPool
+          ? psp22_contract.CONTRACT_ABI
+          : psp22_contract_v2.CONTRACT_ABI,
         tokenContract,
         0, //-> value
         "psp22::approve",
