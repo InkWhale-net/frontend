@@ -22,6 +22,7 @@ import {
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
 
 const INWV2 = () => {
   const [inwV2Info, setInwV2Info] = useState(null);
@@ -45,18 +46,17 @@ const INWV2 = () => {
       const query2 = await execContractQuery(
         publicCurrentAccount?.address,
         api,
-        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ABI,
         psp22_contract.CONTRACT_ADDRESS,
         0,
         "psp22::balanceOf",
-        psp22_contract_v2.CONTRACT_ADDRESS
+        swap_inw2_contract.CONTRACT_ADDRESS
       );
 
-      const cap = query2?.toHuman()?.Ok;
-      console.log(cap);
+      const contractBalance = query2?.toHuman()?.Ok;
 
-      const totalBurn = +formatTokenAmount(cap, 12) - +inwTotalSupply;
-      console.log(totalBurn);
+      const totalBurn =
+        +formatTokenAmount(contractBalance, 12) - +inwTotalSupply;
       setInwV2Info({
         inwInCur: formatNumDynDecimal(inwTotalSupply),
         inwBurn: formatNumDynDecimal(totalBurn),
