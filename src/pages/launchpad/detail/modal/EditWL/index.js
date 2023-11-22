@@ -49,17 +49,8 @@ import { execContractQuery } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 import AddBulk from "./AddBulk";
 import AddSingleWL from "./AddSingle";
-import { formatQueryResultToNumber } from "utils";
 
 const EditWL = ({ visible, setVisible, launchpadData }) => {
-  const WLEditMode = [
-    `${launchpadData?.requireKyc ? "Edit Whitelist" : "Single add Whitelist"}`,
-    `${
-      launchpadData?.requireKyc ? "Import KYC address" : "Bulk add Whitelist"
-    }`,
-    // "Clear Whitelist",
-  ];
-
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
   const { api } = useAppContext();
   const [selectedPhase, setSelectedPhase] = useState(0);

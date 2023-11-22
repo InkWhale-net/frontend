@@ -187,7 +187,8 @@ export function IWTable({
                                 w="full"
                                 size="sm"
                                 disabled={
-                                  itemObj["requestStatus"] === "Claimed"
+                                  itemObj["requestStatus"] === "Claimed"||
+                                  itemObj["requestStatus"] === "Pending"
                                 }
                                 onClick={() =>
                                   handleClaimRewards(itemObj["requestIndex"])

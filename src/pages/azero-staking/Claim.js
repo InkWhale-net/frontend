@@ -3,13 +3,16 @@ import StakingTable from "./components/Table";
 import { Box, SimpleGrid, Text } from "@chakra-ui/react";
 import IWCard from "components/card/Card";
 import { useAppContext } from "contexts/AppContext";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { formatChainStringToNumber } from "utils";
 import { getWithdrawalRequestListByUser } from "api/azero-staking/azero-staking";
 import { formatNumDynDecimal } from "utils";
+import { fetchUserBalance } from "redux/slices/walletSlice";
+import { delay } from "utils";
 
 function Claim() {
   const { api } = useAppContext();
+  const dispatch = useDispatch();
 
   const { currentAccount } = useSelector((s) => s.wallet);
 
@@ -94,6 +97,13 @@ function Claim() {
     return ret;
   }, [userRequestList]);
 
+  async function handleCallback() {
+    delay(1000).then(() => {
+      fetchUserRequestList();
+      dispatch(fetchUserBalance({ currentAccount, api }));
+    });
+  }
+
   return (
     <div>
       <IWCard w="full" variant="outline" mb="24px">
@@ -102,7 +112,7 @@ function Claim() {
         </SimpleGrid>
       </IWCard>
 
-      <StakingTable tableBody={userRequestList} cb={fetchUserRequestList} />
+      <StakingTable tableBody={userRequestList} cb={handleCallback} />
     </div>
   );
 }
