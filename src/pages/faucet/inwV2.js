@@ -20,6 +20,7 @@ import {
   getPublicCurrentAccount,
 } from "utils";
 import { execContractQuery } from "utils/contracts";
+import psp22_contract from "utils/contracts/psp22_contract";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 
 const INWV2 = () => {
@@ -45,17 +46,19 @@ const INWV2 = () => {
         publicCurrentAccount?.address,
         api,
         psp22_contract_v2.CONTRACT_ABI,
-        psp22_contract_v2.CONTRACT_ADDRESS,
+        psp22_contract.CONTRACT_ADDRESS,
         0,
-        "psp22Capped::cap"
+        "psp22::balanceOf",
+        psp22_contract_v2.CONTRACT_ADDRESS
       );
+
       const cap = query2?.toHuman()?.Ok;
+      console.log(cap);
 
       const totalBurn = +formatTokenAmount(cap, 12) - +inwTotalSupply;
       console.log(totalBurn);
       setInwV2Info({
-        totalSupply: formatNumDynDecimal(inwTotalSupply),
-        inwInCur: 0,
+        inwInCur: formatNumDynDecimal(inwTotalSupply),
         inwBurn: formatNumDynDecimal(totalBurn),
       });
     } catch (error) {
@@ -109,18 +112,12 @@ const INWV2 = () => {
                   ),
                 },
                 {
-                  title: "Total Supply",
-                  content: `${inwV2Info?.totalSupply || 0} INW`,
-                },
-                {
                   title: "In Circulation ",
                   content: `${inwV2Info?.inwInCur || 0} INW`,
                 },
                 {
-                  title: "Total Burned ",
-                  content: `${formatNumDynDecimal(
-                    inwV2Info?.inwBurn || 0
-                  )} INW`,
+                  title: "Total Burned",
+                  content: `${inwV2Info?.inwBurn || 0} INW`,
                 },
                 {
                   title: "Your Balance: ",
