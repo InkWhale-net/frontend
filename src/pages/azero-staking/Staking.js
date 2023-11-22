@@ -38,7 +38,7 @@ function Staking() {
     await doStakeAzero(api, currentAccount, stakeAmount);
 
     delay(1000).then(() => {
-      fetchData();
+      fetchData(true);
       setStakeAmount("");
     });
   }

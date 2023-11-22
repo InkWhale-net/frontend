@@ -15,7 +15,7 @@ import { getWithdrawableInw } from "api/azero-staking/azero-staking";
 import { getApy } from "api/azero-staking/azero-staking";
 import { getInwMultiplier } from "api/azero-staking/azero-staking";
 import { getPayableAzero } from "api/azero-staking/azero-staking";
-import { getInw2BalanceOfAddress } from "api/azero-staking/azero-staking";
+import { getInwBalanceOfAddress } from "api/azero-staking/azero-staking";
 import { doUpdateInwMultiplier } from "api/azero-staking/azero-staking";
 import { getIsLocked } from "api/azero-staking/azero-staking";
 import { doUpdateAzeroApy } from "api/azero-staking/azero-staking";
@@ -34,13 +34,13 @@ import { getAzeroBalanceOfAddress } from "utils/contracts";
 import { execContractQuery } from "utils/contracts";
 
 import my_azero_staking from "utils/contracts/my_azero_staking";
+const INW_NAME = "INW";
 
 export default function AzeroStakingAdmin() {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { api } = useAppContext();
 
   const [contractInfo, setContractInfo] = useState({});
-  const [sortedInfo, setSortedInfo] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,7 +63,6 @@ export default function AzeroStakingAdmin() {
             getWithdrawableInw(),
           ]);
 
-        setSortedInfo(waitingListInfo);
         setContractInfo({
           contractAddress: {
             title: "Contract address",
@@ -98,7 +97,7 @@ export default function AzeroStakingAdmin() {
             valueFormat: `${payableAzero} AZERO`,
           },
           contractTotalInw: {
-            title: "Total INW2 for pending list within expiration time",
+            title: `Total ${INW_NAME} for pending list within expiration time`,
             value: (
               formatChainStringToNumber(waitingListInfo?.totalInw) /
               Math.pow(10, 12)
@@ -106,12 +105,12 @@ export default function AzeroStakingAdmin() {
             valueFormat: `${(
               formatChainStringToNumber(waitingListInfo?.totalInw) /
               Math.pow(10, 12)
-            ).toFixed(4)} INW2`,
+            ).toFixed(4)} ${INW_NAME}`,
           },
           withdrawableInw: {
-            title: "Contract Payable INW2 Amount",
+            title: `Contract Payable ${INW_NAME} Amount`,
             value: withdrawableInw,
-            valueFormat: `${withdrawableInw} INW2`,
+            valueFormat: `${withdrawableInw} ${INW_NAME}`,
           },
         });
       } catch (error) {
@@ -145,11 +144,11 @@ export default function AzeroStakingAdmin() {
         }
 
         const [
-          inwWalletInw2Balance,
+          inwWalletInwBalance,
           inwWalletAzeroBalance,
           azeroWalletAzeroBalance,
         ] = await Promise.all([
-          getInw2BalanceOfAddress({ address: inwWalletAddress }),
+          getInwBalanceOfAddress({ address: inwWalletAddress }),
           getAzeroBalanceOfAddress({ address: inwWalletAddress }),
           getAzeroBalanceOfAddress({ address: azeroWalletAddress }),
         ]);
@@ -166,17 +165,19 @@ export default function AzeroStakingAdmin() {
               azeroWalletAzeroBalance
             )} AZERO`,
           },
-          inw2WalletAddress: {
-            title: "INW2 Wallet Address",
+          inwWalletAddress: {
+            title: `${INW_NAME} Wallet Address`,
             valueFormat: <AddressCopier address={inwWalletAddress} />,
           },
-          inwWalletInw2Balance: {
-            title: "INW2 Wallet: INW2 Balance",
-            value: inwWalletInw2Balance,
-            valueFormat: `${formatNumDynDecimal(inwWalletInw2Balance)} INW2`,
+          inwWalletInwBalance: {
+            title: `${INW_NAME} Wallet: ${INW_NAME} Balance`,
+            value: inwWalletInwBalance,
+            valueFormat: `${formatNumDynDecimal(
+              inwWalletInwBalance
+            )} ${INW_NAME}`,
           },
           inwWalletAzeroBalance: {
-            title: "INW2 Wallet: AZERO Balance",
+            title: `${INW_NAME} Wallet: AZERO Balance`,
             value: inwWalletAzeroBalance,
             valueFormat: `${formatNumDynDecimal(inwWalletAzeroBalance)} AZERO`,
           },
@@ -202,7 +203,7 @@ export default function AzeroStakingAdmin() {
     ]
   );
 
-  const insufficientInw2Amount = useMemo(
+  const insufficientInwAmount = useMemo(
     () =>
       parseInt(walletInfo?.inwWalletAzeroBalance?.value) +
       parseInt(
@@ -331,13 +332,14 @@ export default function AzeroStakingAdmin() {
         </Flex>
         <Flex my="8px" flexDirection={["column", "column", "row"]}>
           <Text mr="4px">
-            {insufficientInw2Amount > 0 ? "Excessive" : "Insufficient"} INW2
-            Amount:{" "}
+            {`${insufficientInwAmount > 0 ? "Excessive" : "Insufficient"}
+            ${INW_NAME}
+            Amount:`}
           </Text>
-          {formatNumDynDecimal(insufficientInw2Amount)} INW2
+          {formatNumDynDecimal(insufficientInwAmount)} {INW_NAME}
         </Flex>
 
-        {insufficientAzeroAmount < 0 || insufficientInw2Amount < 0 ? (
+        {insufficientAzeroAmount < 0 || insufficientInwAmount < 0 ? (
           <Alert status="warning">
             <Stack>
               <Flex alignItems="center">
@@ -352,15 +354,15 @@ export default function AzeroStakingAdmin() {
               <Stack>
                 {insufficientAzeroAmount < 0 ? (
                   <Flex flexDirection={["column", "column", "row"]}>
-                    <Text>Insufficient AZERO Amount: </Text>
+                    <Text mr="4px">Insufficient AZERO Amount: </Text>
                     {formatNumDynDecimal(insufficientAzeroAmount)} AZERO
                   </Flex>
                 ) : null}
 
-                {insufficientInw2Amount < 0 ? (
+                {insufficientInwAmount < 0 ? (
                   <Flex flexDirection={["column", "column", "row"]}>
-                    <Text>Insufficient INW2 Amount: </Text>
-                    {formatNumDynDecimal(insufficientInw2Amount)} INW2
+                    <Text mr="4px">Insufficient {INW_NAME} Amount: </Text>
+                    {formatNumDynDecimal(insufficientInwAmount)} {INW_NAME}
                   </Flex>
                 ) : null}
               </Stack>

@@ -71,13 +71,13 @@ function Claim() {
           // 0: waiting, 1: is claimable, 2: claimed
 
           if (parseInt(curr.status) === 1) {
-            ret[0] = prev[0] + curr.azeroReward;
+            ret[0] = prev[0] + curr.totalAzero;
             ret[1] = prev[1] + curr.inwReward;
             ret[4] = prev[4] + 1;
           }
 
           if (parseInt(curr.status) === 0) {
-            ret[2] = prev[2] + curr.azeroReward;
+            ret[2] = prev[2] + curr.totalAzero;
             ret[3] = prev[3] + curr.inwReward;
             ret[5] = prev[5] + 1;
           }

@@ -38,7 +38,7 @@ function AzeroStaking() {
       isDisabled: false,
     },
     {
-      label: isBigScrn ? "Claim Rewards" : "Claim",
+      label: "Claim",
       component: <Claim />,
       isDisabled: false,
     },
