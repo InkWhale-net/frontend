@@ -199,7 +199,7 @@ function StakingInfo({ info }) {
       tooltipContent: "Content of tooltip ",
     },
     {
-      title: "Waiting time",
+      title: "Estimated Waiting time",
       number: info && info[4],
       denom: "mins",
       hasTooltip: false,
