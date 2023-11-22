@@ -1,5 +1,13 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
-import { Box, Button, Flex, Stack, Tooltip } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Stack,
+  Tooltip,
+  useInterval,
+} from "@chakra-ui/react";
+import { getMaxWaitingTime } from "api/azero-staking/azero-staking";
 import { doWithdrawRequest } from "api/azero-staking/azero-staking";
 import { getWithdrawalRequestListByUser } from "api/azero-staking/azero-staking";
 import { getStakeInfo } from "api/azero-staking/azero-staking";
@@ -17,7 +25,13 @@ function Request() {
 
   const { currentAccount } = useSelector((s) => s.wallet);
 
-  const [stakingInfo, setStakingInfo] = useState([0, 0, 0, "Not request yet"]);
+  const [stakingInfo, setStakingInfo] = useState([
+    0,
+    0,
+    0,
+    "Not request yet",
+    0,
+  ]);
   const [requestAmount, setRequestAmount] = useState("");
 
   async function handleRequestClaim() {
@@ -29,7 +43,7 @@ function Request() {
     await doWithdrawRequest(api, currentAccount, requestAmount);
 
     delay(1000).then(() => {
-      fetchData();
+      fetchData(true);
       setRequestAmount("");
     });
   }
@@ -41,7 +55,7 @@ function Request() {
       const info = await getStakeInfo(api, currentAccount);
 
       if (!info) {
-        setStakingInfo([0, 0, 0, "Not request yet"]);
+        setStakingInfo([0, 0, 0, "Not request yet", 0]);
         return;
       }
 
@@ -76,6 +90,12 @@ function Request() {
         ret.push("Not request yet");
       }
 
+      const maxWaitingTime = await getMaxWaitingTime();
+
+      if (maxWaitingTime) {
+        ret.push(maxWaitingTime / 60000);
+      }
+
       if (!isMounted) return;
 
       setStakingInfo(ret);
@@ -89,6 +109,10 @@ function Request() {
 
     return () => (isMounted = false);
   }, [fetchData]);
+
+  useInterval(() => {
+    fetchData(true);
+  }, 1000);
 
   return (
     <IWCard w="full" variant="outline" title={`Staking Information`}>
@@ -127,11 +151,12 @@ function Request() {
 
             <Button
               w="full"
+              fontSize={["16px", "16px", "18px"]}
               isDisabled={!currentAccount?.address || !requestAmount}
               onClick={() => handleRequestClaim()}
             >
               {currentAccount?.address
-                ? "Request to withdraw"
+                ? "Principal & rewards claim request"
                 : "Connect Wallet"}
             </Button>
           </Stack>
@@ -173,6 +198,13 @@ function StakingInfo({ info }) {
       hasTooltip: true,
       tooltipContent: "Content of tooltip ",
     },
+    {
+      title: "Waiting time",
+      number: info && info[4],
+      denom: "mins",
+      hasTooltip: false,
+      tooltipContent: "Content of tooltip ",
+    },
   ];
 
   return formattedInfo?.map((i) => (
@@ -196,7 +228,7 @@ function StakingInfo({ info }) {
           fontWeight={{ base: "bold" }}
           fontSize={["16px", "18px"]}
         >
-          {i.number} {i.denom}
+          {i.number || 0} {i.denom}
         </Box>
       </Flex>
     </>

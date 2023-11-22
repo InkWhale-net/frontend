@@ -184,13 +184,18 @@ export function IWTable({
                           <Td>
                             <FadeIn>
                               <Button
+                                w="full"
                                 size="sm"
-                                disabled={itemObj["requestIndex"] !== 1}
+                                disabled={
+                                  itemObj["requestStatus"] === "Claimed"
+                                }
                                 onClick={() =>
                                   handleClaimRewards(itemObj["requestIndex"])
                                 }
                               >
-                                Claim
+                                {itemObj["requestStatus"] === "Claimed"
+                                  ? "Claimed"
+                                  : "Claim"}
                               </Button>
                             </FadeIn>
                           </Td>
