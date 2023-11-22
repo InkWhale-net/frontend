@@ -144,7 +144,7 @@ export default function NavbarLinks(props) {
               </Text>
             </Link>
           </Flex> */}
-          <Flex
+          {/* <Flex
             _hover={{ textDecoration: "none", bg: "bg.1" }}
             p="6px 10px"
             bg={"transparent"}
@@ -164,7 +164,7 @@ export default function NavbarLinks(props) {
                 Orderbook Dex
               </Text>
             </Link>
-          </Flex>
+          </Flex> */}
           <Flex
             _hover={{ textDecoration: "none", bg: "bg.1" }}
             p="6px 10px"
