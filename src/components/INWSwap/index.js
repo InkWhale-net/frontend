@@ -383,7 +383,23 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         />
       </Flex>
       <Flex justify="center" py="12px">
-        <Flex className="change-swap-option-button">
+        <Flex
+          onClick={() => {
+            switch (fromToken.token) {
+              case "inw":
+                setFromToken(supportedToken[1]);
+                setToToken(supportedToken[0]);
+                break;
+              case "inw2":
+                setFromToken(supportedToken[0]);
+                setToToken(supportedToken[1]);
+                break;
+              default:
+                break;
+            }
+          }}
+          className="change-swap-option-button"
+        >
           <FaChevronDown />
         </Flex>
       </Flex>

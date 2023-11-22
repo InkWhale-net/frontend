@@ -189,7 +189,7 @@ export default function NavbarLinks(props) {
             </Link>
           </Flex>
         </Flex>
-        {/* <INWSwap /> */}
+        <INWSwap />
       </Show>
 
       <Show above="md">
@@ -213,14 +213,14 @@ export const menuListData = [
     title: "Acquire INW",
     href: "/acquire-inw",
   },
-  // {
-  //   title: "Azero Staking",
-  //   href: "/azero-staking",
-  // },
-  // {
-  //   title: "Launchpad",
-  //   href: "/launchpad",
-  // },
+  {
+    title: "Azero Staking",
+    href: "/azero-staking",
+  },
+  {
+    title: "Launchpad",
+    href: "/launchpad",
+  },
 ];
 
 export const CreateMenuDropdown = ({
