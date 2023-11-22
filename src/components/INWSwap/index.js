@@ -34,6 +34,8 @@ import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
 import "./styles.css";
 import { execContractTx } from "./utils";
+import { getSwapGasLimit } from "utils/contracts/dryRun";
+
 export const INWSwap = () => {
   const amountRef = useRef(null);
   const { modalVisible, closeSwapModal, openSwapModal } =
@@ -140,6 +142,9 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
       const allowanceINW = formatQueryResultToNumber(
         allowanceTokenQr
       ).replaceAll(",", "");
+
+      console.log("allowanceINW", allowanceINW);
+
       if (+allowanceINW < +amount) {
         let approve = await execContractTx(
           currentAccount,
@@ -333,6 +338,95 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
       console.log(error);
     }
   };
+
+  // ==================================
+
+  useEffect(() => {
+    console.log("amount", amount);
+    // to v2
+    const fetchDataGasApproveToV2 = async () => {
+      const contract = new ContractPromise(
+        api,
+        psp22_contract.CONTRACT_ABI,
+        process.env.REACT_APP_INW_TOKEN_ADDRESS
+      );
+
+      const gasLimitResult = await getSwapGasLimit(
+        api,
+        currentAccount?.address,
+        "psp22::approve",
+        contract,
+        { value: 0 },
+        [swap_inw2_contract.CONTRACT_ADDRESS, formatNumToBN(amount)]
+      );
+
+      console.log("fetchDataGasApproveToV2", gasLimitResult);
+    };
+
+    fetchDataGasApproveToV2();
+
+    const fetchDataGasSwapToV2 = async () => {
+      const contract = new ContractPromise(
+        api,
+        swap_inw2_contract.CONTRACT_ABI,
+        swap_inw2_contract.CONTRACT_ADDRESS
+      );
+
+      const gasLimitResult = await getSwapGasLimit(
+        api,
+        currentAccount?.address,
+        "inwSwapTrait::swap",
+        contract,
+        { value: 0 },
+        [formatNumToBN(amount)]
+      );
+      console.log("fetchDataGasSwapToV2", gasLimitResult);
+    };
+
+    fetchDataGasSwapToV2();
+    // to v1
+    const fetchDataGasApproveToV1 = async () => {
+      const contract = new ContractPromise(
+        api,
+        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ADDRESS
+      );
+
+      const gasLimitResult = await getSwapGasLimit(
+        api,
+        currentAccount?.address,
+        "psp22::approve",
+        contract,
+        { value: 0 },
+        [swap_inw2_contract.CONTRACT_ADDRESS, formatNumToBN(amount)]
+      );
+
+      console.log("fetchDataGasApproveToV1", gasLimitResult);
+    };
+
+    fetchDataGasApproveToV1();
+
+    const fetchDataGasSwapToV1 = async () => {
+      const contract = new ContractPromise(
+        api,
+        swap_inw2_contract.CONTRACT_ABI,
+        swap_inw2_contract.CONTRACT_ADDRESS
+      );
+
+      const gasLimitResult = await getSwapGasLimit(
+        api,
+        currentAccount?.address,
+        "inwSwapTrait::swapInwV2ToV1",
+        contract,
+        { value: 0 },
+        [formatNumToBN(amount)]
+      );
+      console.log("fetchDataGasSwapToV1", gasLimitResult);
+    };
+
+    fetchDataGasSwapToV1();
+  }, [amount, api, currentAccount?.address]);
+
   return (
     <Box minW={!isMobile && "400px"} px="12px">
       <Flex className="balance-container">
