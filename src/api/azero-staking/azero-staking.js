@@ -5,7 +5,8 @@ import { formatQueryResultToNumber } from "utils";
 import { execContractTx } from "utils/contracts";
 import { execContractQuery } from "utils/contracts";
 import my_azero_staking from "utils/contracts/my_azero_staking";
-import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import psp22_contract from "utils/contracts/psp22_contract";
+// import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 
 export async function getMinStakingAmount(api, currentAccount) {
   const queryResult = await execContractQuery(
@@ -147,7 +148,7 @@ export async function doWithdrawRequest(api, currentAccount, amount) {
     my_azero_staking.CONTRACT_ABI,
     my_azero_staking.CONTRACT_ADDRESS,
     0,
-    "azeroStakingTrait::withdrawRequest",
+    "azeroStakingTrait::withdrawalRequest",
     formatNumToBN(amount)
   );
 }
@@ -279,20 +280,34 @@ export async function doUpdateInwMultiplier(api, currentAccount, amount) {
 }
 // ++++++++++++++++++++
 
-export async function getInw2BalanceOfAddress({
-  address,
-  api,
-  currentAccount,
-}) {
-  const inw2Balance = await execContractQuery(
+// export async function getInw2BalanceOfAddress({
+//   address,
+//   api,
+//   currentAccount,
+// }) {
+//   const inw2Balance = await execContractQuery(
+//     currentAccount?.address,
+//     api,
+//     // psp22_contract_v2.CONTRACT_ABI,
+//     // psp22_contract_v2.CONTRACT_ADDRESS,
+//     0,
+//     "psp22::balanceOf",
+//     address
+//   );
+
+//   return formatQueryResultToNumber(inw2Balance);
+// }
+
+export async function getInwBalanceOfAddress({ address, api, currentAccount }) {
+  const inwBalance = await execContractQuery(
     currentAccount?.address,
     api,
-    psp22_contract_v2.CONTRACT_ABI,
-    psp22_contract_v2.CONTRACT_ADDRESS,
+    psp22_contract.CONTRACT_ABI,
+    psp22_contract.CONTRACT_ADDRESS,
     0,
     "psp22::balanceOf",
     address
   );
 
-  return formatQueryResultToNumber(inw2Balance);
+  return formatQueryResultToNumber(inwBalance);
 }
