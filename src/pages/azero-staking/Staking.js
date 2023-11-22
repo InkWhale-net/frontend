@@ -14,12 +14,14 @@ import IWInput from "components/input/Input";
 import { useAppContext } from "contexts/AppContext";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserBalance } from "redux/slices/walletSlice";
 import { delay } from "utils";
 import { formatChainStringToNumber } from "utils";
 
 function Staking() {
   const { api } = useAppContext();
+  const dispatch = useDispatch();
 
   const { currentAccount } = useSelector((s) => s.wallet);
   const [stakeAmount, setStakeAmount] = useState("");
@@ -39,6 +41,8 @@ function Staking() {
 
     delay(1000).then(() => {
       fetchData(true);
+      dispatch(fetchUserBalance({ currentAccount, api }));
+
       setStakeAmount("");
     });
   }
