@@ -14,15 +14,10 @@ export default function StakingTable({ tableBody, cb }) {
       alignItems="start"
       direction={{ base: "column" }}
     >
-      <IWTable
-        {...tableData}
-        mode="AZERO_STAKING"
-        isDisableRowClick
-        cb={cb}
-      />
+      <IWTable {...tableData} mode="AZERO_STAKING" isDisableRowClick cb={cb} />
       <Alert status="warning">
         <AlertIcon />
-        Note: 5 $INW will be charged and burned for each claim!{" "}
+        Note: 5 INW will be charged and burned for each claim!{" "}
       </Alert>
     </Stack>
   );
