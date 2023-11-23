@@ -16,6 +16,10 @@ import * as Yup from "yup";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
 import Tokenomic from "./Tokenomic";
+import { validationTwitter } from "constants/yup";
+import { validationWebsite } from "constants/yup";
+import { validationDiscord } from "constants/yup";
+import { validationTelegram } from "constants/yup";
 
 const ProjectInfor = () => {
   const { updateProjectInfor, launchpadData, nextStep, prevStep } =
@@ -44,10 +48,10 @@ const ProjectInfor = () => {
       /^(https:\/\/www\.youtube\.com\/embed\/[A-Za-z0-9_-]+)$/,
       "Invalid YouTube Embed URL format"
     ),
-    website: Yup.string().url("Invalid URL format"),
-    twitter: Yup.string().url("Invalid URL format"),
-    discord: Yup.string().url("Invalid URL format"),
-    telegram: Yup.string().url("Invalid URL format"),
+    website: validationWebsite,
+    twitter: validationTwitter,
+    discord: validationDiscord,
+    telegram: validationTelegram,
   });
   const handleSubmit = (values, actions) => {
     updateProjectInfor({
