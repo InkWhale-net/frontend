@@ -131,7 +131,7 @@ function SidebarContent({ onClose }) {
             </Text>
           </Link>
         </Flex> */}
-        <Flex
+        {/* <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
           p="6px 10px"
           bg={"transparent"}
@@ -151,7 +151,7 @@ function SidebarContent({ onClose }) {
               Orderbook Dex
             </Text>
           </Link>
-        </Flex>
+        </Flex> */}
         <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
           p="6px 10px"

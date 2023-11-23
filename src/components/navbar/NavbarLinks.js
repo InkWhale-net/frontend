@@ -218,10 +218,6 @@ export const menuListData = [
     href: "/inw-v2",
   },
   {
-    title: "Staking",
-    href: "/azero-staking",
-  },
-  {
     title: "Launchpad",
     href: "/launchpad",
   },
@@ -379,8 +375,10 @@ export const StakeMenuDropdown = ({
             },
             { label: "Farming", href: "/farming" },
             { label: "NFT Pools", href: "/farms" },
-            // { label: "NFT Yield Farm", href: "/create/nft-lp" },
-            // { label: "Token Yield Farm", href: "/create/farming" },
+            {
+              label: "Staking",
+              href: "/azero-staking",
+            },
           ].map((item, idx) => (
             <IWCard
               key={idx}

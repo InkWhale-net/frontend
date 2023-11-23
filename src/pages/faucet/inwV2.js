@@ -98,7 +98,7 @@ const INWV2 = () => {
             <SimpleGrid
               columns={{
                 base: 1,
-                lg: 3,
+                lg: 4,
               }}
               spacing="4px"
             >
@@ -113,11 +113,11 @@ const INWV2 = () => {
                 },
                 {
                   title: "In Circulation ",
-                  content: `${inwV2Info?.inwInCur || 0} INW`,
+                  content: `${inwV2Info?.inwInCur || 0} INW V2`,
                 },
                 {
                   title: "Total Burned",
-                  content: `${inwV2Info?.inwBurn || 0} INW`,
+                  content: `${inwV2Info?.inwBurn || 0} INW V2`,
                 },
                 {
                   title: "Your Balance: ",
