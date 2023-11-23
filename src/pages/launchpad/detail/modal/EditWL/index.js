@@ -197,7 +197,6 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   ]);
 
   // ++++++++++++++++++++++++++++++++++++++++++
-  const [addNewMode, setAddNewMode] = useState(false);
 
   const tabsData = [
     {
@@ -215,8 +214,6 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
           setQueries={setQueries}
           table={table}
           whitelist={whitelist}
-          addNewMode={addNewMode}
-          setAddNewMode={setAddNewMode}
         />
       ),
       isDisabled: false,
@@ -345,8 +342,6 @@ function EditWhitelist({
   setQueries,
   table,
   whitelist,
-  addNewMode,
-  setAddNewMode,
 }) {
   return (
     <Box display={["block", "flex"]}>
@@ -365,8 +360,7 @@ function EditWhitelist({
             setSelectedWL={setSelectedWL}
             availableTokenAmount={availableTokenAmount}
             phaseCapAmount={phaseHeaderInfo?.capAmount}
-            addNewMode={addNewMode}
-            setAddNewMode={setAddNewMode}
+            whitelist={whitelist}
           />
         )}
       </Box>
@@ -439,12 +433,8 @@ function EditWhitelist({
                         })}
                         <Td>
                           <Button
-                            disabled={addNewMode}
                             size="sm"
-                            onClick={() => {
-                              setAddNewMode(false);
-                              setSelectedWL(whitelist[index]);
-                            }}
+                            onClick={() => setSelectedWL(whitelist[index])}
                           >
                             Edit
                           </Button>

@@ -3,6 +3,7 @@ import { APICall } from "api/client";
 import IWInput from "components/input/Input";
 import { useAppContext } from "contexts/AppContext";
 import { parseUnits } from "ethers";
+import { isValidAddress } from "pages/launchpad/create/utils";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { AiFillExclamationCircle } from "react-icons/ai";
@@ -19,8 +20,7 @@ const AddSingleWL = ({
   setSelectedWL,
   availableTokenAmount,
   phaseCapAmount,
-  addNewMode,
-  setAddNewMode,
+  whitelist,
 }) => {
   const { currentAccount } = useSelector((state) => state.wallet);
   const { api } = useAppContext();
@@ -91,7 +91,6 @@ const AddSingleWL = ({
         poolContract: launchpadData?.launchpadContract,
       });
       if (result) {
-        setAddNewMode(false);
         setWLData({
           address: "",
           amount: "",
@@ -183,8 +182,23 @@ const AddSingleWL = ({
   }, [selectedWL]);
 
   // ++++++++++++++++++++++++++
+  const inWLList = whitelist?.map((i) => i.account).includes(wlData?.address);
 
-   return (
+  useEffect(() => {
+    if (inWLList) {
+      const found = whitelist?.find((i) => i.account === wlData?.address);
+
+      setWLData((prev) => ({ ...prev, ...found }));
+    } else {
+      setWLData((prev) => ({
+        ...prev,
+        amount: "",
+        price: "",
+      }));
+    }
+  }, [inWLList, whitelist, wlData?.address]);
+
+  return (
     <Box sx={{ pt: "0px" }}>
       {isWhitelistEditable ? (
         <Box
@@ -206,14 +220,9 @@ const AddSingleWL = ({
       ) : (
         <>
           <>
-            <Text
-              sx={{ fontWeight: "700" }}
-              color={selectedWL ? "#57527E" : "lightgrey"}
-            >
-              Whitelist Address
-            </Text>
+            <Text sx={{ fontWeight: "700" }}>Whitelist Address</Text>
             <IWInput
-              disabled={!addNewMode && !selectedWL}
+              // disabled={!addNewMode && !selectedWL}
               size="md"
               value={wlData?.address}
               width={{ base: "full" }}
@@ -223,14 +232,9 @@ const AddSingleWL = ({
               placeholder="Address"
             />
 
-            <Text
-              sx={{ fontWeight: "700" }}
-              color={selectedWL ? "#57527E" : "lightgrey"}
-            >
-              Amount
-            </Text>
+            <Text sx={{ fontWeight: "700" }}>Amount</Text>
             <IWInput
-              disabled={!addNewMode && !selectedWL}
+              // disabled={!addNewMode && !selectedWL}
               type="number"
               size="md"
               value={wlData?.amount}
@@ -241,14 +245,9 @@ const AddSingleWL = ({
               placeholder="0"
             />
 
-            <Text
-              sx={{ fontWeight: "700" }}
-              color={selectedWL ? "#57527E" : "lightgrey"}
-            >
-              Price
-            </Text>
+            <Text sx={{ fontWeight: "700" }}>Price</Text>
             <IWInput
-              disabled={!addNewMode && !selectedWL}
+              // disabled={!addNewMode && !selectedWL}
               type="number"
               size="md"
               value={wlData?.price}
@@ -260,7 +259,7 @@ const AddSingleWL = ({
             />
           </>
 
-          {!addNewMode ? (
+          {inWLList ? (
             <Box
               alignItems="center"
               sx={{
@@ -268,20 +267,6 @@ const AddSingleWL = ({
                 justifyContent: "flex-end",
               }}
             >
-              {addNewMode ? null : (
-                <Button
-                  w="92px"
-                  disabled={selectedWL}
-                  m="16px 2px"
-                  onClick={() => {
-                    setSelectedWL(null);
-                    setAddNewMode(!addNewMode);
-                  }}
-                >
-                  +
-                </Button>
-              )}
-
               <Button
                 w="full"
                 disabled={!selectedWL}
@@ -329,18 +314,19 @@ const AddSingleWL = ({
                     amount: "",
                     price: "",
                   });
-                  setAddNewMode(false);
                 }}
               >
                 Cancel
               </Button>
+
               {!launchpadData?.requireKyc ? (
                 <Button
                   isDisabled={
                     !(
                       wlData?.address?.length > 0 &&
                       wlData?.amount?.length > 0 &&
-                      wlData?.price?.length > 0
+                      wlData?.price?.length > 0 &&
+                      isValidAddress(wlData?.address)
                     )
                   }
                   m="16px 2px"
