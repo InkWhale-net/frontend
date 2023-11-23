@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { ContractPromise } from "@polkadot/api-contract";
 import { useAppContext } from "contexts/AppContext";
+import { useSwapV2TokenContext } from "contexts/SwapV2TokenModalContext";
 import { useEffect, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
 import toast from "react-hot-toast";
@@ -38,9 +39,16 @@ import { getSwapGasLimit } from "utils/contracts/dryRun";
 
 export const INWSwap = () => {
   const amountRef = useRef(null);
+  const { modalVisible, closeSwapModal, openSwapModal } =
+    useSwapV2TokenContext();
   if (isMobile) return null;
   return (
-    <Menu placement="bottom-end">
+    <Menu
+      isOpen={modalVisible}
+      onClose={() => closeSwapModal()}
+      onOpen={() => openSwapModal()}
+      placement="bottom-end"
+    >
       {({ isOpen }) => (
         <>
           <MenuButton
@@ -518,7 +526,23 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         />
       </Flex>
       <Flex justify="center" py="12px">
-        <Flex className="change-swap-option-button">
+        <Flex
+          onClick={() => {
+            switch (fromToken.token) {
+              case "inw":
+                setFromToken(supportedToken[1]);
+                setToToken(supportedToken[0]);
+                break;
+              case "inw2":
+                setFromToken(supportedToken[0]);
+                setToToken(supportedToken[1]);
+                break;
+              default:
+                break;
+            }
+          }}
+          className="change-swap-option-button"
+        >
           <FaChevronDown />
         </Flex>
       </Flex>

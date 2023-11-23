@@ -61,17 +61,6 @@ export default function VerifyToken() {
       toast.error("You are not token owner!");
       return;
     }
-    let queryResult = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      tokenAddress,
-      0,
-      "psp22::balanceOf",
-      currentAccount?.address
-    );
-
-    const balance = formatQueryResultToNumber(queryResult);
 
     let queryResult1 = await execContractQuery(
       currentAccount?.address,
@@ -110,10 +99,24 @@ export default function VerifyToken() {
       "psp22Metadata::tokenDecimals"
     );
     const decimals = queryResult4.toHuman().Ok;
+    let queryResult = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      tokenAddress,
+      0,
+      "psp22::balanceOf",
+      currentAccount?.address
+    );
+
+    const balance = formatNumDynDecimal(
+      formatTokenAmount(queryResult?.toHuman()?.Ok, +decimals)
+    );
     const totalSupply = formatTokenAmount(
       formatTextAmount(rawTotalSupply),
       +decimals
     );
+    console.log(totalSupply);
 
     let tokenIconUrl = null;
     try {
@@ -208,7 +211,7 @@ export default function VerifyToken() {
           </Text>
         )}
 
-        {isFetching && (
+        {isLoading && (
           <CircularProgress
             alignSelf={"center"}
             isIndeterminate
@@ -217,7 +220,7 @@ export default function VerifyToken() {
             sx={{ marginTop: "8px" }}
           />
         )}
-        {tokenInfo && !isFetching && (
+        {tokenInfo && !isLoading && (
           <Box
             borderWidth={"1px"}
             padding={{ base: "8px" }}
@@ -279,7 +282,7 @@ export default function VerifyToken() {
           </Box>
         )}
       </Box>
-      {tokenInfo && !(tokenBalance > 0) && !isFetching && (
+      {tokenInfo && !(tokenBalance > 0) && !isLoading && (
         <Box bg="#FCE5E5" p="8px" mt="8px" borderRadius="4px">
           <Text color="#F17171">
             Your token balance need to be higher than 0
