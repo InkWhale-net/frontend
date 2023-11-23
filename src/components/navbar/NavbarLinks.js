@@ -369,10 +369,10 @@ export const StakeMenuDropdown = ({
       >
         <Flex flexDirection="column" p="20px">
           {[
-            {
-              label: "Azero Staking",
-              href: "/azero-staking",
-            },
+            // {
+            //   label: "Azero Staking",
+            //   href: "/azero-staking",
+            // },
             {
               label: "Token Pools",
               href: "/pools",

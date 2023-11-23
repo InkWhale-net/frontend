@@ -28,6 +28,7 @@ import { MdError } from "react-icons/md";
 import { delay } from "utils";
 import { formatTextAmount } from "utils";
 import { formatNumDynDecimal } from "utils";
+import { validationCapAmount } from "./utils";
 const roundToMinute = (date) => {
   const roundedDate = new Date(date);
   roundedDate.setSeconds(0);
@@ -133,70 +134,84 @@ const Phase = () => {
           +value <= +formatTextAmount(launchpadData?.token?.balance) && "ok"
       )
       .required("Total For Sale is required"),
-    phase: Yup.array().of(
-      Yup.object().shape({
-        name: Yup.string().required("Name required"),
-        startDate: Yup.date().required("Start date is required"),
-        endDate: Yup.date()
-          .test(
-            "is-after-start",
-            "End date must be after start date",
+    phase: Yup.array()
+      .of(
+        Yup.object().shape({
+          name: Yup.string().required("Name required"),
+          startDate: Yup.date().required("Start date is required"),
+          endDate: Yup.date()
+            .test(
+              "is-after-start",
+              "End date must be after start date",
+              function (value) {
+                const startDate = this.parent.startDate;
+                return !startDate || !value || value > startDate;
+              }
+            )
+            .required("End date is required"),
+          capAmount: Yup.string().required("This field is required"),
+          immediateReleaseRate: Yup.number()
+            .required("This field is required")
+            .test(
+              "is-valid-immediateReleaseRate",
+              "Value must be in range 0 to 100",
+              (value) => (+value > 0 ? "ok" : null)
+            ),
+          vestingLength: Yup.string().test(
+            "is-require-vesting-length",
+            "This field is required",
             function (value) {
-              const startDate = this.parent.startDate;
-              return !startDate || !value || value > startDate;
+              const immediateReleaseRate = this.parent.immediateReleaseRate;
+              return +immediateReleaseRate == 100
+                ? "ok"
+                : +value > 0
+                ? "ok"
+                : null;
             }
-          )
-          .required("End date is required"),
-        capAmount: Yup.string().required("This field is required"),
-        immediateReleaseRate: Yup.number()
-          .required("This field is required")
-          .test(
-            "is-valid-immediateReleaseRate",
-            "Value must be in range 0 to 100",
-            (value) => (+value > 0 ? "ok" : null)
           ),
-        vestingLength: Yup.string().test(
-          "is-require-vesting-length",
-          "This field is required",
-          function (value) {
-            const immediateReleaseRate = this.parent.immediateReleaseRate;
-            return +immediateReleaseRate == 100
-              ? "ok"
-              : +value > 0
-              ? "ok"
-              : null;
-          }
-        ),
-        vestingUnit: Yup.string().test(
-          "is-require-vesting-unit",
-          "This field is required",
-          function (value) {
-            const immediateReleaseRate = this.parent.immediateReleaseRate;
-            return +immediateReleaseRate == 100
-              ? "ok"
-              : +value > 0
-              ? "ok"
-              : null;
-          }
-        ),
-        phasePublicAmount: Yup.string().test(
-          "is-require-phasePublicAmount",
-          "This field is required",
-          function (value) {
-            const allowPublicSale = this.parent.allowPublicSale;
-            return allowPublicSale == false ? "ok" : +value > 0 ? "ok" : null;
-          }
-        ),
-        phasePublicPrice: Yup.string().test(
-          "is-require-phasePublicAmount",
-          "This field is required",
-          function (value) {
-            const allowPublicSale = this.parent.allowPublicSale;
-            return allowPublicSale == false ? "ok" : +value > 0 ? "ok" : null;
-          }
-        ),
-      })
-    ),
+          vestingUnit: Yup.string().test(
+            "is-require-vesting-unit",
+            "This field is required",
+            function (value) {
+              const immediateReleaseRate = this.parent.immediateReleaseRate;
+              return +immediateReleaseRate == 100
+                ? "ok"
+                : +value > 0
+                ? "ok"
+                : null;
+            }
+          ),
+          phasePublicAmount: Yup.string().test(
+            "is-require-phasePublicAmount",
+            "This field is required",
+            function (value) {
+              const allowPublicSale = this.parent.allowPublicSale;
+              return allowPublicSale == false ? "ok" : +value > 0 ? "ok" : null;
+            }
+          ),
+          phasePublicPrice: Yup.string().test(
+            "is-require-phasePublicAmount",
+            "This field is required",
+            function (value) {
+              const allowPublicSale = this.parent.allowPublicSale;
+              return allowPublicSale == false ? "ok" : +value > 0 ? "ok" : null;
+            }
+          ),
+        })
+      )
+      .test(
+        "is-valid-cap-amount",
+        "Total phase cap must equal or less than Total token for sale",
+        function (values) {
+          const totalSupply = this.parent.totalSupply;
+          const sum = values.reduce(
+            (accumulator, currentValue) =>
+              accumulator + (+currentValue?.capAmount || 0),
+            0
+          );
+          return sum <= totalSupply ? "ok" : null;
+        }
+      ),
   });
 
   const handleSubmit = async (values, actions) => {
@@ -446,7 +461,8 @@ const Phase = () => {
                   <SimpleGrid columns={[1, 1, 4]} spacing={2}>
                     <FormControl
                       isInvalid={
-                        form.errors?.phase?.[index]?.capAmount &&
+                        (form.errors?.phase?.[index]?.capAmount ||
+                          form.errors?.phase) &&
                         form.touched?.phase?.[index]?.capAmount
                       }
                     >
@@ -480,7 +496,9 @@ const Phase = () => {
                           placeholder="0"
                         />
                         <FormErrorMessage>
-                          {form.errors?.phase?.[index]?.capAmount}
+                          {form.errors?.phase?.[index]?.capAmount ||
+                            (typeof form.errors?.phase === "string" &&
+                              form.errors?.phase)}
                         </FormErrorMessage>
                       </SectionContainer>
                     </FormControl>
