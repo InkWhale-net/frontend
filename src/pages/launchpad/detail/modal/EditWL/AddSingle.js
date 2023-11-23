@@ -1,4 +1,4 @@
-import { Box, Button, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { APICall } from "api/client";
 import IWInput from "components/input/Input";
 import { useAppContext } from "contexts/AppContext";
@@ -19,6 +19,8 @@ const AddSingleWL = ({
   setSelectedWL,
   availableTokenAmount,
   phaseCapAmount,
+  addNewMode,
+  setAddNewMode,
 }) => {
   const { currentAccount } = useSelector((state) => state.wallet);
   const { api } = useAppContext();
@@ -89,6 +91,7 @@ const AddSingleWL = ({
         poolContract: launchpadData?.launchpadContract,
       });
       if (result) {
+        setAddNewMode(false);
         setWLData({
           address: "",
           amount: "",
@@ -179,7 +182,9 @@ const AddSingleWL = ({
     return +selectedWL?.claimedAmount > 0;
   }, [selectedWL]);
 
-  return (
+  // ++++++++++++++++++++++++++
+
+   return (
     <Box sx={{ pt: "0px" }}>
       {isWhitelistEditable ? (
         <Box
@@ -208,7 +213,7 @@ const AddSingleWL = ({
               Whitelist Address
             </Text>
             <IWInput
-              disabled={!selectedWL}
+              disabled={!addNewMode && !selectedWL}
               size="md"
               value={wlData?.address}
               width={{ base: "full" }}
@@ -225,7 +230,7 @@ const AddSingleWL = ({
               Amount
             </Text>
             <IWInput
-              disabled={!selectedWL}
+              disabled={!addNewMode && !selectedWL}
               type="number"
               size="md"
               value={wlData?.amount}
@@ -243,7 +248,7 @@ const AddSingleWL = ({
               Price
             </Text>
             <IWInput
-              disabled={!selectedWL}
+              disabled={!addNewMode && !selectedWL}
               type="number"
               size="md"
               value={wlData?.price}
@@ -255,62 +260,99 @@ const AddSingleWL = ({
             />
           </>
 
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-            }}
-          >
-            <Button
-              disabled={!selectedWL}
-              mt="16px"
-              size="md"
-              sx={{ bg: "#F6F6FC" }}
-              _hover={{ bg: "#E3E1EC" }}
-              onClick={() => setSelectedWL(null)}
+          {!addNewMode ? (
+            <Box
+              alignItems="center"
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
             >
-              Cancel
-            </Button>
-            <Button
-              isDisabled={
-                !selectedWL ||
-                !(
-                  wlData?.address?.length > 0 &&
-                  wlData?.amount?.length > 0 &&
-                  wlData?.price?.length > 0 &&
-                  (wlData?.address !== selectedWL?.account ||
-                    wlData?.amount !== (+selectedWL?.amount).toString() ||
-                    wlData?.price !== (+selectedWL?.price).toString())
-                )
-              }
-              ml="4px"
-              mt="16px"
-              size="md"
-              onClick={() => updateSingleWLHandler()}
-            >
-              Update
-            </Button>
-          </Box>
+              {addNewMode ? null : (
+                <Button
+                  w="92px"
+                  disabled={selectedWL}
+                  m="16px 2px"
+                  onClick={() => {
+                    setSelectedWL(null);
+                    setAddNewMode(!addNewMode);
+                  }}
+                >
+                  +
+                </Button>
+              )}
 
-          {/* <>
-             {!launchpadData?.requireKyc ? (
               <Button
+                w="full"
+                disabled={!selectedWL}
+                m="16px 2px"
+                size="md"
+                sx={{ bg: "#F6F6FC" }}
+                _hover={{ bg: "#E3E1EC" }}
+                onClick={() => setSelectedWL(null)}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                w="full"
                 isDisabled={
+                  !selectedWL ||
                   !(
                     wlData?.address?.length > 0 &&
                     wlData?.amount?.length > 0 &&
-                    wlData?.price?.length > 0
+                    wlData?.price?.length > 0 &&
+                    (wlData?.address !== selectedWL?.account ||
+                      wlData?.amount !== (+selectedWL?.amount).toString() ||
+                      wlData?.price !== (+selectedWL?.price).toString())
                   )
                 }
-                mt="16px"
-                w="full"
+                m="16px 2px"
                 size="md"
-                onClick={() => addSingleWLHandler()}
+                onClick={() => updateSingleWLHandler()}
               >
-                Add Whitelist
+                Update
               </Button>
-            ) : null}
-          </> */}
+            </Box>
+          ) : (
+            <Flex>
+              <Button
+                w="full"
+                // disabled={!selectedWL}
+                m="16px 2px"
+                size="md"
+                sx={{ bg: "#F6F6FC" }}
+                _hover={{ bg: "#E3E1EC" }}
+                onClick={() => {
+                  setWLData({
+                    address: "",
+                    amount: "",
+                    price: "",
+                  });
+                  setAddNewMode(false);
+                }}
+              >
+                Cancel
+              </Button>
+              {!launchpadData?.requireKyc ? (
+                <Button
+                  isDisabled={
+                    !(
+                      wlData?.address?.length > 0 &&
+                      wlData?.amount?.length > 0 &&
+                      wlData?.price?.length > 0
+                    )
+                  }
+                  m="16px 2px"
+                  w="full"
+                  size="md"
+                  onClick={() => addSingleWLHandler()}
+                >
+                  Add New
+                </Button>
+              ) : null}
+            </Flex>
+          )}
         </>
       )}
     </Box>
