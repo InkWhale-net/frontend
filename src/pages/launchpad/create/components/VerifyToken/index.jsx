@@ -139,13 +139,12 @@ export default function VerifyToken() {
       tokenIconUrl,
     });
   };
-  const { isFetching } = useQuery(
+  const { isLoading, isFetching } = useQuery(
     ["query-token-infor", tokenAddress],
     () => {
       return new Promise(async (resolve) => {
         if (tokenAddress) {
-          console.log("loadTokenInfo");
-          await loadTokenInfo();
+           await loadTokenInfo();
         }
         resolve();
       });
