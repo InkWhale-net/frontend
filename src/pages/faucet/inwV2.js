@@ -80,8 +80,7 @@ const INWV2 = () => {
         title="INW V2 Tokens"
         description={
           <>
-            Check INW token information and acquire INW to be able to use
-            platform features
+            INW (which has been upgraded to INW version 2 via SWAP feature) is the core token of Ink Whale platform. You will need to acquire INW to be able to use the platform features.
           </>
         }
       >

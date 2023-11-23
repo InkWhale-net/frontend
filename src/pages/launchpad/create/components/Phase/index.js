@@ -1,3 +1,4 @@
+import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -12,23 +13,23 @@ import {
   Text,
   Tooltip,
 } from "@chakra-ui/react";
-import SectionContainer from "../sectionContainer";
-import { useRef, useState } from "react";
+import { AzeroLogo } from "components/icons/Icons";
 import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
-import DateTimePicker from "react-datetime-picker";
-import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
-import { useEffect } from "react";
-import { BsTrashFill } from "react-icons/bs";
-import { QuestionOutlineIcon } from "@chakra-ui/icons";
-import { AzeroLogo } from "components/icons/Icons";
 import { Field, Form, Formik } from "formik";
-import * as Yup from "yup";
+import { useEffect, useRef, useState } from "react";
+import DateTimePicker from "react-datetime-picker";
+import { BsTrashFill } from "react-icons/bs";
 import { MdError } from "react-icons/md";
-import { delay } from "utils";
-import { formatTextAmount } from "utils";
-import { formatNumDynDecimal } from "utils";
-import { validationCapAmount } from "./utils";
+import { delay, formatNumDynDecimal, formatTextAmount } from "utils";
+import * as Yup from "yup";
+import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
+import {
+  checkDuplicatedWL,
+  processStringToArray,
+  verifyWhitelist,
+} from "../../utils";
+import SectionContainer from "../sectionContainer";
 const roundToMinute = (date) => {
   const roundedDate = new Date(date);
   roundedDate.setSeconds(0);
@@ -62,10 +63,6 @@ const Phase = () => {
         phasePublicPrice: "",
         whiteList: "",
         capAmount: "",
-        allowPublicSale: false,
-        phasePublicAmount: "",
-        phasePublicPrice: "",
-        whiteList: "",
       },
     ],
   });
@@ -73,7 +70,7 @@ const Phase = () => {
 
   useEffect(() => {
     if (current === 4) {
-      window.scrollTo(0, 0);
+      // window.scrollTo(0, 0);
       // if (launchpadData?.phase) setPhaseList(launchpadData?.phase);
       // if (launchpadData?.totalSupply)
       //   setTotalSupply(launchpadData?.totalSupply);
@@ -155,7 +152,9 @@ const Phase = () => {
             .test(
               "is-valid-immediateReleaseRate",
               "Value must be in range 0 to 100",
-              (value) => (+value > 0 ? "ok" : null)
+              function (value) {
+                return +value > 0 ? "ok" : null;
+              }
             ),
           vestingLength: Yup.string().test(
             "is-require-vesting-length",
@@ -181,22 +180,104 @@ const Phase = () => {
                 : null;
             }
           ),
-          phasePublicAmount: Yup.string().test(
-            "is-require-phasePublicAmount",
-            "This field is required",
-            function (value) {
-              const allowPublicSale = this.parent.allowPublicSale;
-              return allowPublicSale == false ? "ok" : +value > 0 ? "ok" : null;
-            }
-          ),
+          phasePublicAmount: Yup.string()
+            .test(
+              "is-require-phasePublicAmount",
+              "This field is required",
+              function (value) {
+                const allowPublicSale = this.parent.allowPublicSale;
+                return allowPublicSale == false
+                  ? "ok"
+                  : +value > 0
+                  ? "ok"
+                  : null;
+              }
+            )
+            .test(
+              "is-valid-phasePublicAmount",
+              "Total public sale and whitelist must not higher phase cap",
+              function (value) {
+                const capAmount = this.parent.capAmount;
+                const allowPublicSale = this.parent.allowPublicSale;
+                const whitelistData = processStringToArray(
+                  this.parent?.whiteList
+                );
+                const totalWhitelist = whitelistData.reduce(
+                  (wlAcc, currentWLValue) => wlAcc + currentWLValue?.amount,
+                  0
+                );
+                return (
+                  allowPublicSale == false ||
+                  (allowPublicSale == true &&
+                    (+value || 0) + totalWhitelist <= +capAmount)
+                );
+              }
+            ),
           phasePublicPrice: Yup.string().test(
             "is-require-phasePublicAmount",
             "This field is required",
             function (value) {
               const allowPublicSale = this.parent.allowPublicSale;
-              return allowPublicSale == false ? "ok" : +value > 0 ? "ok" : null;
+              return (
+                allowPublicSale == false ||
+                (allowPublicSale == true && +value > 0)
+              );
             }
           ),
+          whiteList: Yup.string()
+            .test(
+              "is-valid-whitelist",
+              "Invalid whitelist format",
+              function (value) {
+                return verifyWhitelist(value);
+              }
+            )
+            .test(
+              "is-duplicated-whitelist",
+              "Duplicated account address",
+              function (value) {
+                if (value?.length > 0) {
+                  return !checkDuplicatedWL(value);
+                } else return true;
+              }
+            )
+            .test(
+              "is-valid-whitelist",
+              "Total public sale and whitelist must not higher phase cap",
+              function (value) {
+                const capAmount = this.parent.capAmount;
+                const allowPublicSale = this.parent.allowPublicSale;
+                const phasePublicAmount = this.parent.phasePublicAmount;
+
+                const whitelistData = processStringToArray(value);
+                const totalWhitelist = whitelistData.reduce(
+                  (wlAcc, currentWLValue) => wlAcc + currentWLValue?.amount,
+                  0
+                );
+                return (
+                  allowPublicSale == false ||
+                  (allowPublicSale == true &&
+                    (+phasePublicAmount || 0) + totalWhitelist <= +capAmount)
+                );
+              }
+            )
+            .test(
+              "is-valid-whitelist",
+              "Total whitelist sale amount must not higher phase cap",
+              function (value) {
+                const capAmount = this.parent.capAmount;
+                const allowPublicSale = this.parent.allowPublicSale;
+                const whitelistData = processStringToArray(value);
+                const totalWhitelist = whitelistData.reduce(
+                  (wlAcc, currentWLValue) => wlAcc + currentWLValue?.amount,
+                  0
+                );
+                return (
+                  allowPublicSale == true ||
+                  (allowPublicSale == false && totalWhitelist <= +capAmount)
+                );
+              }
+            ),
         })
       )
       .test(
@@ -209,7 +290,7 @@ const Phase = () => {
               accumulator + (+currentValue?.capAmount || 0),
             0
           );
-          return sum <= totalSupply ? "ok" : null;
+          return sum <= totalSupply;
         }
       ),
   });
@@ -697,6 +778,7 @@ const Phase = () => {
                             >
                               <IWInput
                                 type="number"
+                                step="any"
                                 inputRightElementIcon={<AzeroLogo />}
                                 value={obj?.phasePublicPrice}
                                 onChange={({ target }) => {
@@ -722,36 +804,46 @@ const Phase = () => {
                         </SimpleGrid>
                       )}
                       <Divider sx={{ marginTop: "8px" }} />
-                      <SectionContainer
-                        title={
-                          <>
-                            White list
-                            <Tooltip
-                              fontSize="md"
-                              label={`Enter one address, whitelist amount and price on each line.
-                A decimal separator of amount must use dot (.)`}
-                            >
-                              <QuestionOutlineIcon ml="6px" color="text.2" />
-                            </Tooltip>
-                          </>
+                      <FormControl
+                        isInvalid={
+                          form.errors?.phase?.[index]?.whiteList &&
+                          form.touched?.phase?.[index]?.whiteList
                         }
                       >
-                        <IWTextArea
-                          sx={{ height: "80px" }}
-                          value={obj?.whiteList}
-                          onChange={({ target }) => {
-                            const updatedArray = [...form.values.phase];
-                            if (index >= 0 && index < updatedArray?.length) {
-                              updatedArray[index] = {
-                                ...updatedArray[index],
-                                whiteList: target.value,
-                              };
-                            }
-                            form.setFieldValue("phase", updatedArray);
-                          }}
-                          placeholder={`Sample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn,100,0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL,20,2`}
-                        />
-                      </SectionContainer>
+                        <SectionContainer
+                          title={
+                            <>
+                              White list
+                              <Tooltip
+                                fontSize="md"
+                                label={`Enter one address, whitelist amount and price on each line.
+                A decimal separator of amount must use dot (.)`}
+                              >
+                                <QuestionOutlineIcon ml="6px" color="text.2" />
+                              </Tooltip>
+                            </>
+                          }
+                        >
+                          <IWTextArea
+                            sx={{ height: "80px" }}
+                            value={obj?.whiteList}
+                            onChange={({ target }) => {
+                              const updatedArray = [...form.values.phase];
+                              if (index >= 0 && index < updatedArray?.length) {
+                                updatedArray[index] = {
+                                  ...updatedArray[index],
+                                  whiteList: target.value,
+                                };
+                              }
+                              form.setFieldValue("phase", updatedArray);
+                            }}
+                            placeholder={`Sample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn,100,0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL,20,2`}
+                          />
+                          <FormErrorMessage>
+                            {form.errors?.phase?.[index]?.whiteList}
+                          </FormErrorMessage>
+                        </SectionContainer>
+                      </FormControl>
                     </>
                   ) : null}
                 </Box>
@@ -786,10 +878,6 @@ const Phase = () => {
                       phasePublicPrice: "",
                       whiteList: "",
                       capAmount: "",
-                      allowPublicSale: false,
-                      phasePublicAmount: "",
-                      phasePublicPrice: "",
-                      whiteList: "",
                     },
                   ]);
                 }}

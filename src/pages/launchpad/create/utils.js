@@ -131,7 +131,7 @@ export const verifyWhitelist = (wlString) => {
   return true;
 };
 
-const checkDuplicatedWL = (wlString) => {
+export const checkDuplicatedWL = (wlString) => {
   const whitelistphase = processStringToArray(wlString);
   const addressSet = new Set();
 
