@@ -76,6 +76,7 @@ const AddBulk = ({
       });
       if (result) {
         setSelectedMode(0);
+        setWlString('');
         toast.promise(
           delay(6000).then(() => {
             dispatch(fetchLaunchpads({}));

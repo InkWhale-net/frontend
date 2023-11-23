@@ -197,6 +197,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   ]);
 
   // ++++++++++++++++++++++++++++++++++++++++++
+  const [addNewMode, setAddNewMode] = useState(false);
 
   const tabsData = [
     {
@@ -214,6 +215,8 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
           setQueries={setQueries}
           table={table}
           whitelist={whitelist}
+          addNewMode={addNewMode}
+          setAddNewMode={setAddNewMode}
         />
       ),
       isDisabled: false,
@@ -338,6 +341,8 @@ function EditWhitelist({
   setQueries,
   table,
   whitelist,
+  addNewMode,
+  setAddNewMode,
 }) {
   return (
     <Box display={["block", "flex"]}>
@@ -356,12 +361,14 @@ function EditWhitelist({
             setSelectedWL={setSelectedWL}
             availableTokenAmount={availableTokenAmount}
             phaseCapAmount={phaseHeaderInfo?.capAmount}
+            addNewMode={addNewMode}
+            setAddNewMode={setAddNewMode}
           />
         )}
       </Box>
 
       <Box sx={{ flex: 1, pt: "30px" }}>
-        <IWInput
+        {/* <IWInput
           size="md"
           value={queries?.keyword}
           width={{ base: "full" }}
@@ -370,11 +377,12 @@ function EditWhitelist({
           }
           placeholder="Search"
           inputRightElementIcon={<SearchIcon color="#57527E" />}
-        />
+        /> */}
         <TableContainer
+          // mt="18px"
           width="full"
           sx={{
-            my: "18px",
+            mb: "18px",
             border: "1px solid #E3DFF3",
             borderRadius: 8,
           }}
@@ -409,7 +417,6 @@ function EditWhitelist({
                     return (
                       <Tr
                         key={row.id}
-                        cursor="pointer"
                         border="1px solid transparent"
                         _hover={{
                           border: "1px solid #93F0F5",
@@ -428,8 +435,12 @@ function EditWhitelist({
                         })}
                         <Td>
                           <Button
+                            disabled={addNewMode}
                             size="sm"
-                            onClick={() => setSelectedWL(whitelist[index])}
+                            onClick={() => {
+                              setAddNewMode(false);
+                              setSelectedWL(whitelist[index]);
+                            }}
                           >
                             Edit
                           </Button>
