@@ -201,7 +201,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
 
   const tabsData = [
     {
-      label: `${launchpadData?.requireKyc ? "Edit Whitelist" : "Single add"}`,
+      label: `${launchpadData?.requireKyc ? "Edit Whitelist" : "Single"}`,
       component: (
         <EditWhitelist
           isPhaseEditable={isPhaseEditable}
@@ -222,7 +222,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
       isDisabled: false,
     },
     {
-      label: `${launchpadData?.requireKyc ? "Import KYC address" : "Bulk add"}`,
+      label: `${launchpadData?.requireKyc ? "Import KYC address" : "Bulk"}`,
       component: (
         <AddBulk
           launchpadData={launchpadData}
@@ -247,7 +247,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
         <ModalHeader fontSize={["2xl", "3xl"]}>
           {launchpadData?.requireKyc
             ? "Manage KYC & Whitelist"
-            : "Update Whitelist"}
+            : "Whitelist Manager"}
         </ModalHeader>
         <ModalCloseButton onClick={() => setVisible(false)} />
         <ModalBody pt="0" sx={{ pb: "28px" }}>

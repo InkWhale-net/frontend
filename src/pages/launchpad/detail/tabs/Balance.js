@@ -9,6 +9,8 @@ import { execContractQuery, execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 import TabLayout from "../Layout";
 import { formatChainStringToNumber } from "utils";
+import { formatNumDynDecimal } from "utils";
+
 const Row = ({ label, value, divider = false, ...rest }) => {
   return (
     <>
@@ -44,23 +46,9 @@ const PhaseTag = ({ data, launchpadData }) => {
 
   const publicClaimHandler = async () => {
     try {
-      const startTime = new Date(parseInt(data?.startTime?.replace(/,/g, "")));
       const endTime = new Date(parseInt(data?.endTime?.replace(/,/g, "")));
       const now = new Date();
       if (now > endTime) {
-        const query = await execContractQuery(
-          currentAccount?.address,
-          api,
-          launchpad.CONTRACT_ABI,
-          launchpadData?.launchpadContract,
-          0,
-          "launchpadContractTrait::getPublicBuyer",
-          data?.id,
-          currentAccount?.address
-        );
-        const publicBuyer = query.toHuman().Ok;
-        const decimalToken = parseInt(token.decimals);
-
         const vestingDuration = parseInt(
           data?.vestingDuration?.replace(/,/g, "")
         );
@@ -238,7 +226,7 @@ const PhaseTag = ({ data, launchpadData }) => {
         const decimalToken = parseInt(token.decimals);
 
         setWLBalance({
-          claimedAmount: formatChainStringToNumber(
+          claimedAmount: formatTokenAmount(
             WLBuyer?.claimedAmount,
             decimalToken
           ),
@@ -270,7 +258,6 @@ const PhaseTag = ({ data, launchpadData }) => {
     formatChainStringToNumber(data.publicSaleInfor.price) /
     Math.pow(10, token.decimals);
 
-
   const endTime = parseInt(formatChainStringToNumber(data?.endTime));
   const endVestingTime = parseInt(
     formatChainStringToNumber(data?.endVestingTime)
@@ -278,9 +265,7 @@ const PhaseTag = ({ data, launchpadData }) => {
   const vestingDuration = parseInt(
     formatChainStringToNumber(data?.vestingDuration)
   );
-  const vestingUnit = parseInt(
-    formatChainStringToNumber(data?.vestingUnit)
-  );
+  const vestingUnit = parseInt(formatChainStringToNumber(data?.vestingUnit));
   const totalVestingUnits = parseInt(
     formatChainStringToNumber(data?.totalVestingUnits)
   );
@@ -330,20 +315,33 @@ const PhaseTag = ({ data, launchpadData }) => {
         <Divider sx={{ marginBottom: "8px" }} />
         <Row
           label="Total Purchased"
-          value={`${publicBalance?.purchasedAmount || 0} ${token?.symbol}` || 0}
+          value={
+            `${formatNumDynDecimal(publicBalance?.purchasedAmount) || 0} ${
+              token?.symbol
+            }` || 0
+          }
         />
         <Row
           label="Public price"
-          value={`${publicPhaseInfo || 0} AZERO` || 0}
+          value={`${formatNumDynDecimal(publicPhaseInfo) || 0} AZERO` || 0}
         />
         <Row
           label="Total Vesting"
-          value={`${publicBalance?.vestingAmount || 0} ${token?.symbol}` || 0}
+          value={
+            `${formatNumDynDecimal(publicBalance?.vestingAmount) || 0} ${
+              token?.symbol
+            }` || 0
+          }
         />
         <Row
           label="Claimed"
-          value={`${publicBalance?.claimedAmount || 0} ${token?.symbol}` || 0}
+          value={
+            `${formatNumDynDecimal(publicBalance?.claimedAmount) || 0} ${
+              token?.symbol
+            }` || 0
+          }
         />
+
         <Button
           isDisabled={
             !(parseFloat(publicBalance?.purchasedAmount) > 0) &&
@@ -370,27 +368,38 @@ const PhaseTag = ({ data, launchpadData }) => {
         <Divider sx={{ marginBottom: "8px" }} />
         <Row
           label="Whitelist Amount"
-          value={`${WLBalance?.amount || 0} ${token?.symbol}` || 0}
+          value={
+            `${formatNumDynDecimal(WLBalance?.amount) || 0} ${token?.symbol}` ||
+            0
+          }
         />
         <Row
           label="Whitelist Price"
-          value={`${WLBalance?.price || 0} AZERO` || 0}
+          value={`${formatNumDynDecimal(WLBalance?.price) || 0} AZERO` || 0}
         />
         <Row
           label="Total Purchased"
-          value={`${WLBalance?.purchasedAmount || 0} ${token?.symbol}` || 0}
+          value={
+            `${formatNumDynDecimal(WLBalance?.purchasedAmount) || 0} ${
+              token?.symbol
+            }` || 0
+          }
         />
         <Row
           label="Total Vesting"
-          value={`${WLBalance?.vestingAmount || 0} ${token?.symbol}` || 0}
+          value={
+            `${formatNumDynDecimal(WLBalance?.vestingAmount) || 0} ${
+              token?.symbol
+            }` || 0
+          }
         />
         <Row
           label="Claimed"
-          value={`${WLBalance?.claimedAmount || 0} ${token?.symbol}` || 0}
-        />
-        <Row
-          label="Next Claim"
-          value={`${new Date(parseInt(nextClaimWl)).toLocaleString()} ` ?? "-"}
+          value={
+            `${formatNumDynDecimal(WLBalance?.claimedAmount) || 0} ${
+              token?.symbol
+            }` || 0
+          }
         />
         <Button
           isDisabled={!(parseFloat(WLBalance?.purchasedAmount) > 0)}
@@ -402,6 +411,12 @@ const PhaseTag = ({ data, launchpadData }) => {
         >
           Claim
         </Button>
+
+        <Divider my="8px" />
+        <Row
+          label="Next Claim"
+          value={`${new Date(parseInt(nextClaimWl)).toLocaleString()} ` ?? "-"}
+        />
       </>
       {/* )} */}
       {/* {!(data?.publicSaleInfor?.isPublic || data?.whitelist?.length) && (
@@ -410,17 +425,9 @@ const PhaseTag = ({ data, launchpadData }) => {
     </Box>
   );
 };
-const BalanceTab = ({ launchpadContract, launchpadData }) => {
-  const { token } = launchpadData?.projectInfo || {};
-  const { currentAccount } = useSelector((s) => s.wallet);
-  const { api } = useAppContext();
-  const [publicBalance, setPublicBalance] = useState([]);
-  const dispatch = useDispatch();
+const BalanceTab = ({ launchpadData }) => {
   const phases = launchpadData?.phaseList;
 
-  //   useEffect(() => {
-  //     if (currentAccount) getBalance();
-  //   }, [currentAccount, launchpadData]);
   return (
     <TabLayout launchpadData={launchpadData}>
       {phases?.map((obj, index) => {

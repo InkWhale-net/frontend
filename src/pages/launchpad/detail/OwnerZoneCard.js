@@ -10,6 +10,7 @@ import { useModalLPDetail } from "./modal/ModelContext";
 import { formatChainStringToNumber } from "utils";
 import { delay } from "utils";
 import { fetchUserBalance } from "redux/slices/walletSlice";
+import { formatNumDynDecimal } from "utils";
 
 const OwnerZoneCard = ({ launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -239,7 +240,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         paddingBottom: "12px",
       }}
     >
-      <Heading as="h4" size="md" mb='8px'>
+      <Heading as="h4" size="md" mb="8px">
         Owner Zone
       </Heading>
       {/* <Text sx={{ mt: "20px", fontWeight: "700", color: "#57527E " }}>
@@ -250,22 +251,30 @@ const OwnerZoneCard = ({ launchpadData }) => {
           marginBottom: "8px",
         }}
       />
-      <Row label="Token For Sale" value={`${totalSupply} ${tokenSymbol}`} />
       <Row
-        label="Distributed token"
-        value={`${availableAmount} ${tokenSymbol}`}
+        label="Token For Sale"
+        value={`${formatNumDynDecimal(totalSupply)} ${tokenSymbol}`}
+      />
+      <Row
+        label="Distributed Token"
+        value={`${formatNumDynDecimal(availableAmount)} ${tokenSymbol}`}
       />
       <Row
         label="Total Whitelist Added"
-        value={`${totalWhitelistAddedAmount} ${tokenSymbol}`}
+        value={`${formatNumDynDecimal(
+          totalWhitelistAddedAmount
+        )} ${tokenSymbol}`}
       />
-      <Row label="Total Sold" value={`${totalSoldAmount} ${tokenSymbol}`} />
+      <Row
+        label="Total Sold"
+        value={`${formatNumDynDecimal(totalSoldAmount)} ${tokenSymbol}`}
+      />
 
       {totalWhitelistByPhase?.map((p, idx) => (
         <Row
           key={idx}
           label={` - ${p?.name}`}
-          value={`${p.totalSoldAmount} ${tokenSymbol}`}
+          value={`${formatNumDynDecimal(p.totalSoldAmount)} ${tokenSymbol}`}
         />
       ))}
       <Row
@@ -279,7 +288,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
       <Divider />
       <Box mt="16px" display="flex" justifyContent="space-between">
         <Text>Launchpad Balance</Text>
-        <Text>{ownerBalance.toFixed(4)}AZERO</Text>
+        <Text>{formatNumDynDecimal(ownerBalance)}AZERO</Text>
       </Box>
 
       <Button

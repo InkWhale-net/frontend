@@ -622,7 +622,7 @@ export default function FaucetPage({ api }) {
                 {saleInfo?.endTimeSale ? (
                   notSaleStart ? (
                     <>
-                      Sale start in:{" "}
+                      Sale starts in:{" "}
                       <Text paddingLeft={"4px"}>
                         <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
                       </Text>{" "}
@@ -787,7 +787,7 @@ export default function FaucetPage({ api }) {
                 {saleInfo?.endTimeSale ? (
                   notSaleStart ? (
                     <>
-                      Sale start in:{" "}
+                      Sale starts in:{" "}
                       <Text paddingLeft={"4px"}>
                         <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
                       </Text>{" "}

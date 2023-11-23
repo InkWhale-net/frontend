@@ -221,8 +221,11 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             }}
           >
             <Text>Vesting Duration</Text>
-            <Text size="md">{tagData?.vestingDuration} day(s)</Text>
-          </Box>
+            <Text size="md">
+              {tagData?.vestingDuration} day
+              {tagData?.vestingDuration > 1 ? "s" : null}
+            </Text>
+          </Box>{" "}
           <Box
             sx={{
               display: "flex",
@@ -232,7 +235,9 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             }}
           >
             <Text>Vesting Release Period</Text>
-            <Text size="md">{tagData?.vestingUnit} day(s)</Text>
+            <Text size="md">
+              {tagData?.vestingUnit} day {tagData?.vestingUnit > 1 ? "s" : null}
+            </Text>
           </Box>
         </>
       )}
@@ -254,9 +259,10 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
               marginTop: "12px",
             }}
           >
-            <Text>Total sale</Text>
+            <Text>Total for sale</Text>
             <Text size="md">
-              {formatNumDynDecimal(publicSaleInfo?.totalAmount)}
+              {`${formatNumDynDecimal(publicSaleInfo?.totalAmount)}
+               ${tokenSymbol}`}
             </Text>
           </Box>
           <Box
@@ -269,7 +275,8 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
           >
             <Text>Total purchased</Text>
             <Text size="md">
-              {formatNumDynDecimal(publicSaleInfo?.totalPurchasedAmount)}
+              {`${formatNumDynDecimal(publicSaleInfo?.totalPurchasedAmount)}
+               ${tokenSymbol}`}
             </Text>
           </Box>
 
@@ -339,30 +346,28 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
       <Flex justify="space-between" mt="12px">
         <Text>Phase Cap</Text>
 
-        <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
-          {tagData.capAmount} {tokenSymbol}
+        <Text>
+          {formatNumDynDecimal(tagData.capAmount)} {tokenSymbol}
         </Text>
       </Flex>
-
-      {/* <Flex justify="space-between" mt="12px">
-        <Text>Available Token Amount</Text>
-
-        <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
-          {tagData.availableAmount} {tokenSymbol}
-        </Text>
-      </Flex> */}
 
       <Divider sx={{ mb: "20px", mt: "8px" }} />
 
       {whitelistList?.length ? (
-        <Flex justify="space-between" mt="12px">
-          <Text>Whitelist added</Text>
+        <>
+          <Flex justify="space-between" mt="12px">
+            <Text>Whitelist added</Text>
 
-          <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
-            {whitelistList?.length ?? 0} address(es). {whitelistAddedAmount}{" "}
-            {tokenSymbol}
-          </Text>
-        </Flex>
+            <Text>
+              {formatNumDynDecimal(whitelistAddedAmount)} {tokenSymbol}
+            </Text>
+          </Flex>
+          <Flex justify="space-between" mt="12px">
+            <Text>Whitelist address added</Text>
+
+            <Text>{whitelistList?.length ?? 0}</Text>
+          </Flex>
+        </>
       ) : null}
 
       {whitelistList?.length ? (
@@ -370,10 +375,14 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
           <Flex justify="space-between" mt="12px">
             <Text>Whitelist claimed</Text>
 
-            <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
-              {whitelistClaimed?.length ?? 0} address(es).{" "}
-              {whitelistClaimedAmount} {tokenSymbol}
+            <Text>
+              {formatNumDynDecimal(whitelistClaimedAmount)} {tokenSymbol}
             </Text>
+          </Flex>
+          <Flex justify="space-between" mt="12px">
+            <Text>Whitelist address claimed</Text>
+
+            <Text>{whitelistClaimed?.length ?? 0}</Text>
           </Flex>
           <Divider sx={{ mb: "20px", mt: "8px" }} />
         </>

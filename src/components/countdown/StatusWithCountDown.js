@@ -44,7 +44,7 @@ export const IWStatusWithCountDown = ({ startDate, endDate, direction }) => {
     } else if (now < startDate) {
       return (
         <SaleCount
-          label="Sale start in"
+          label="Sale starts in"
           time={startDate}
           direction={direction}
         />

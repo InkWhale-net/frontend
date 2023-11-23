@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { BeatLoader } from "react-spinners";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
+import { formatNumDynDecimal } from "utils";
 import {
   delay,
   formatNumToBN,
@@ -163,7 +164,7 @@ const IWCountDown = ({ saleTime, launchpadData }) => {
     } else if (nearestPhase) {
       return (
         <Box>
-          <SaleCount label="Sale start in" time={nearestPhase?.startTime} />
+          <SaleCount label="Sale starts in" time={nearestPhase?.startTime} />
           <Box sx={{ display: "flex", marginTop: "20px" }}>
             <Text>Upcoming phase: </Text>
             <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
@@ -362,7 +363,9 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         </Box>
       </Box>
       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
-        <Text sx={headerSX}>{`Amount (max: ${maxAmount})`}</Text>
+        <Text sx={headerSX}>{`Amount (max: ${formatNumDynDecimal(
+          maxAmount
+        )})`}</Text>
         <IWInput
           isDisabled={!allowBuy || !(+maxAmount > 0)}
           onChange={({ target }) => {
