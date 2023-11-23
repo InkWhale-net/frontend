@@ -239,23 +239,20 @@ const OwnerZoneCard = ({ launchpadData }) => {
         paddingBottom: "12px",
       }}
     >
-      <Heading as="h4" size="md">
+      <Heading as="h4" size="md" mb='8px'>
         Owner Zone
       </Heading>
-      <Text sx={{ mt: "20px", fontWeight: "700", color: "#57527E " }}>
+      {/* <Text sx={{ mt: "20px", fontWeight: "700", color: "#57527E " }}>
         Launchpad Balance
-      </Text>
+      </Text> */}
       <Divider
         sx={{
           marginBottom: "8px",
         }}
       />
+      <Row label="Token For Sale" value={`${totalSupply} ${tokenSymbol}`} />
       <Row
-        label="Total Token For Sale"
-        value={`${totalSupply} ${tokenSymbol}`}
-      />
-      <Row
-        label="Available Amount"
+        label="Distributed token"
         value={`${availableAmount} ${tokenSymbol}`}
       />
       <Row
@@ -272,17 +269,17 @@ const OwnerZoneCard = ({ launchpadData }) => {
         />
       ))}
       <Row
-        label="Total Whitelist Added"
-        value={`${formattedTotalWhitelist?.length} address(es)`}
+        label="Whitelist Address Added"
+        value={`${formattedTotalWhitelist?.length}`}
       />
       <Row
-        label="Total Whitelist Claimed"
-        value={`${totalWhitelistClaimed?.length} address(es)`}
+        label="Whitelist Address Claimed"
+        value={`${totalWhitelistClaimed?.length}`}
       />
       <Divider />
       <Box mt="16px" display="flex" justifyContent="space-between">
-        <Text>AZERO</Text>
-        <Text>{ownerBalance.toFixed(4)}</Text>
+        <Text>Launchpad Balance</Text>
+        <Text>{ownerBalance.toFixed(4)}AZERO</Text>
       </Box>
 
       <Button

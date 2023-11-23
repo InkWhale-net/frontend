@@ -370,15 +370,15 @@ export const StakeMenuDropdown = ({
         <Flex flexDirection="column" p="20px">
           {[
             {
+              label: "Azero Staking",
+              href: "/azero-staking",
+            },
+            {
               label: "Token Pools",
               href: "/pools",
             },
             { label: "Farming", href: "/farming" },
             { label: "NFT Pools", href: "/farms" },
-            {
-              label: "Staking",
-              href: "/azero-staking",
-            },
           ].map((item, idx) => (
             <IWCard
               key={idx}

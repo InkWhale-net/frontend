@@ -149,7 +149,7 @@ const AddBulk = ({
             }}
             value={wlString}
             onChange={({ target }) => setWlString(target.value)}
-            placeholder={`Enter one address, whitelist amount and price on each line. A decimal separator of amount must use dot (.)\nSample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL, 20, 2`}
+            placeholder={`Enter one address, whitelist amount and price on each line. A decimal separator of amount must use dot (.)\nSample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn,100 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL,20,2`}
           />
           <Flex>
             <Button
