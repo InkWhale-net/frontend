@@ -76,8 +76,11 @@ export default function NavbarLinks(props) {
                 _focus={{ borderWidth: "0px" }}
                 _hover={{ textDecoration: "none", bg: "bg.1" }}
                 onClick={() => setCurrentAnchor(href)}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
               >
-                <Text bg="transparent" fontSize="md">
+                <Text bg="transparent" fontSize="md" textAlign='center'>
                   {title}
                 </Text>
               </Link>
@@ -182,6 +185,8 @@ export default function NavbarLinks(props) {
               onClick={() =>
                 window.open("https://docs.inkwhale.net/", "_blank")
               }
+              display="flex"
+              alignItems="center"
             >
               <Text bg="transparent" fontSize="md">
                 Docs
