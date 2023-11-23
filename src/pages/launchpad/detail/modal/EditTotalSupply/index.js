@@ -109,20 +109,41 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
         <ModalContent>
           <Formik
             initialValues={{ totalSupply }}
-            validationSchema={Yup.object().shape({
-              totalSupply: Yup.number()
-                .required(`This field is required`)
-                .min(
-                  minAllowed,
-                  `Total Supply must be greater than or equal to ${minAllowed} ${tokenSymbol}`
-                )
-                .max(
-                  parseInt(tokenBalance?.replaceAll(",", "")),
-                  `Total Supply must be less than or equal to ${parseInt(
-                    tokenBalance?.replaceAll(",", "")
-                  )} ${tokenSymbol}`
-                ),
-            })}
+            validationSchema={() =>
+              Yup.lazy((values) => {
+                if (values?.totalSupply > totalSupply) {
+                  const bal = formatChainStringToNumber(tokenBalance);
+
+                  return Yup.object().shape({
+                    totalSupply: Yup.number()
+                      .required(`This field is required`)
+                      .min(
+                        minAllowed,
+                        `Total Supply must be greater than or equal to ${minAllowed} ${tokenSymbol}`
+                      )
+                      .max(
+                        totalSupply +
+                          parseInt(tokenBalance?.replaceAll(",", "")),
+                        parseInt(bal) === 0
+                          ? `Can not topup because your balance has zero ${tokenSymbol}`
+                          : `Total Supply must be less than or equal to ${
+                              totalSupply +
+                              parseInt(tokenBalance?.replaceAll(",", ""))
+                            } ${tokenSymbol}`
+                      ),
+                  });
+                } else {
+                  return Yup.object().shape({
+                    totalSupply: Yup.number()
+                      .required(`This field is required`)
+                      .min(
+                        minAllowed,
+                        `Total Supply must be greater than or equal to ${minAllowed} ${tokenSymbol}`
+                      ),
+                  });
+                }
+              })
+            }
             onSubmit={async (values) => {
               console.log("isPhaseStart", isPhaseStart);
               if (isPhaseStart) {
@@ -209,7 +230,7 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
               }
             }}
           >
-            {({ dirty, isValid, isSubmitting }) => (
+            {({ dirty, isValid, isSubmitting, values }) => (
               <Form>
                 <ModalHeader>Edit total token for sale</ModalHeader>
 
@@ -277,11 +298,15 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
                       <Text textAlign="left" color="brand.grayLight">
                         {`New total token for sale `}
                       </Text>
-                      <Text textAlign="left" color="brand.grayLight">
-                        {` (max ${formatNumDynDecimal(
-                          parseInt(tokenBalance?.replaceAll(",", ""))
-                        )} ${tokenSymbol})`}
-                      </Text>
+
+                      {values?.totalSupply > totalSupply ? (
+                        <Text textAlign="left" color="brand.grayLight">
+                          {` (max ${formatNumDynDecimal(
+                            totalSupply +
+                              parseInt(tokenBalance?.replaceAll(",", ""))
+                          )} ${tokenSymbol})`}
+                        </Text>
+                      ) : null}
                     </Flex>
                     <NumberInputWrapper
                       type="number"
@@ -292,7 +317,7 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
                       placeholder="Royalty Fee"
                       isDisabled={isSubmitting}
                       min={minAllowed}
-                      max={tokenBalance}
+                      max={totalSupply + tokenBalance}
                     />
                   </Stack>
                 </ModalBody>

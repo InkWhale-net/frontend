@@ -180,7 +180,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         );
       });
 
-      await delay(500).then(() => {
+      await delay(1500).then(() => {
         setStep(1);
 
         if (currentAccount) {
@@ -261,7 +261,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         );
       });
 
-      await delay(500).then(() => {
+      await delay(1500).then(() => {
         setStep(1);
 
         if (currentAccount) {
@@ -306,7 +306,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
   const getBalance = (token) =>
     formatNumDynDecimal(currentAccount?.balance?.[token]?.replaceAll(",", ""));
 
-  const fetchGas = async (_amount) => {
+    const fetchGas = async (_amount) => {
     try {
       if (+_amount == 0) {
         setGas(0);
