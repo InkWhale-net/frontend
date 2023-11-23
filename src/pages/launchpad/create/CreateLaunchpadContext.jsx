@@ -19,6 +19,7 @@ import ProjectRoadmap from "./components/ProjectRoadmap";
 import Team from "./components/Team";
 import VerifyToken from "./components/VerifyToken";
 import { validatePhaseData, validateTotalSupply } from "./utils";
+import { formatTextAmount } from "utils";
 
 export const CreateLaunchpadContext = createContext();
 
@@ -154,6 +155,7 @@ const CreateLaunchpadContextProvider = (props) => {
 
   const handleAddNewLaunchpad = async (phaseData) => {
     try {
+      updatePhase(phaseData?.phase)
       if (!currentAccount) {
         return toast.error("Please connect wallet first!");
       }
@@ -165,8 +167,8 @@ const CreateLaunchpadContextProvider = (props) => {
         !(phaseData?.phase?.length > 0) ||
         !validateTotalSupply(
           phaseData?.phase,
-          parseFloat(phaseData?.totalSupply),
-          parseFloat(phaseData.token.balance.replaceAll(",", ""))
+          +phaseData?.totalSupply,
+          +formatTextAmount(launchpadData.token.balance)
         )
       )
         return;

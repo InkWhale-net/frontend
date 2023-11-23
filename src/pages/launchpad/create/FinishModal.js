@@ -231,11 +231,11 @@ const FinishModal = ({}) => {
             launchpad_generator.CONTRACT_ADDRESS
           );
 
-          const allowanceINW = formatQueryResultToNumber(
-            allowanceINWQr
-          ).replaceAll(",", "");
-
-          if (allowanceINW < +createTokenFee.replaceAll(",", "")) {
+          const allowanceINW = allowanceINWQr.toHuman().Ok;
+          if (
+            +formatTokenAmount(formatTextAmount(allowanceINW), 12) <
+            +formatTextAmount(createTokenFee)
+          ) {
             let approve = await execContractTx(
               currentAccount,
               "api",
@@ -277,7 +277,7 @@ const FinishModal = ({}) => {
           );
 
           const allowanceToken = formatTokenAmount(
-            allowanceTokenQr?.toHuman().Ok?.replaceAll(",", ""),
+            formatTextAmount(allowanceTokenQr?.toHuman().Ok),
             +launchpadData?.token?.decimals
           );
 
@@ -316,8 +316,6 @@ const FinishModal = ({}) => {
           const project_info_ipfs = await ipfsClient.add(
             JSON.stringify(launchpadData)
           );
-          console.log(project_info_ipfs);
-          return
           // ===================================
           const callbackFn = async (newContractAddress) => {
             setNewLpAddress(newContractAddress);

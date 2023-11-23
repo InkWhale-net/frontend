@@ -66,7 +66,7 @@ const Phase = () => {
       },
     ],
   });
-  const formRef = useRef(null)
+  const formRef = useRef(null);
 
   useEffect(() => {
     if (current === 4) {
@@ -189,12 +189,13 @@ const Phase = () => {
   });
 
   const handleSubmit = async (values, actions) => {
-    actions.setSubmitting(false);
+    
     await updatePhase(values.phase);
     await updateRequireKyc(values.requireKyc);
     await updateTotalSupply(values.totalSupply);
     await delay(1000);
     await handleAddNewLaunchpad(values);
+    actions.setSubmitting(false);
   };
 
   return (
@@ -205,7 +206,7 @@ const Phase = () => {
     >
       <Form ref={formRef}>
         <SectionContainer title={"Total For Sale"}>
-          <Field name="totalSupply">
+          <Field name="totalSupply" >
             {({ field, form }) => (
               <FormControl
                 isInvalid={form.errors.totalSupply && form.touched.totalSupply}
