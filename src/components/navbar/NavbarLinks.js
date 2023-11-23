@@ -218,10 +218,6 @@ export const menuListData = [
     href: "/inw-v2",
   },
   {
-    title: "Staking",
-    href: "/azero-staking",
-  },
-  {
     title: "Launchpad",
     href: "/launchpad",
   },
@@ -373,6 +369,10 @@ export const StakeMenuDropdown = ({
       >
         <Flex flexDirection="column" p="20px">
           {[
+            {
+              label: "Azero Staking",
+              href: "/azero-staking",
+            },
             {
               label: "Token Pools",
               href: "/pools",
