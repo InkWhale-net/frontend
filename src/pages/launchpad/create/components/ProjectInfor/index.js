@@ -226,8 +226,10 @@ const ProjectInfor = () => {
               )}
             </Field>
           </SectionContainer>
+
           <Tokenomic updateTokenomic={updateTokenomic} />
-          <SectionContainer title="Tokenomics more info">
+
+          <SectionContainer title="Tokenomics information">
             <IWTextArea
               maxLength={300}
               value={projectInfor?.tokenomicsMoreInfo}
@@ -237,9 +239,10 @@ const ProjectInfor = () => {
                   tokenomicsMoreInfo: target.value,
                 })
               }
-              placeholder="Tokenomics more information"
+              placeholder="Add more information about your tokenomics..."
             />
           </SectionContainer>
+
           <SimpleGrid columns={[1, 1, 2]} spacing={4}>
             <SectionContainer title="Website">
               <Field name="website">

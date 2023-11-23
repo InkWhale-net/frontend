@@ -136,14 +136,19 @@ export default function VerifyToken() {
       tokenIconUrl,
     });
   };
-  const { isFetching } = useQuery(["query-token-infor", tokenAddress], () => {
-    return new Promise(async (resolve) => {
-      if (tokenAddress) {
-        await loadTokenInfo();
-      }
-      resolve();
-    });
-  });
+  const { isFetching } = useQuery(
+    ["query-token-infor", tokenAddress],
+    () => {
+      return new Promise(async (resolve) => {
+        if (tokenAddress) {
+          console.log("loadTokenInfo");
+          await loadTokenInfo();
+        }
+        resolve();
+      });
+    },
+    { refetchOnWindowFocus: false }
+  );
 
   useEffect(() => {
     if (tokenInfo)
