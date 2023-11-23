@@ -379,10 +379,6 @@ export const StakeMenuDropdown = ({
             },
             { label: "Farming", href: "/farming" },
             { label: "NFT Pools", href: "/farms" },
-            {
-              label: "Staking",
-              href: "/azero-staking",
-            },
           ].map((item, idx) => (
             <IWCard
               key={idx}

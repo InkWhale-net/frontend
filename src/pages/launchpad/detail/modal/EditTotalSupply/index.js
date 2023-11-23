@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Flex,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -101,7 +102,7 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
       <Modal
         isOpen={visible}
         isCentered
-        size="lg"
+        size="xl"
         onClose={() => setVisible(false)}
       >
         <ModalOverlay />
@@ -220,25 +221,48 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
                     w="full"
                     columns={{ base: 1, lg: 2 }}
                     spacingX={{ lg: "20px" }}
-                    spacingY={{ base: "20px" }}
+                    spacingY={{ base: "0px", lg: "20px" }}
                     mb={{ base: "30px" }}
                   >
-                    <Text>Current total supply</Text>
-                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Text>Current total supply:</Text>
+                    <Box
+                      sx={{ display: "flex" }}
+                      justifyContent={["flex-start", "flex-start", "flex-end"]}
+                      mb={["12px", "12px", "0px"]}
+                    >
                       <Text>{`${formatNumDynDecimal(
                         parseInt(totalSupply)
                       )} ${tokenSymbol}`}</Text>
                     </Box>
 
-                    <Text>Available token amount </Text>
-                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Text>Distributed token to all phases: </Text>
+                    <Box
+                      sx={{ display: "flex" }}
+                      justifyContent={["flex-start", "flex-start", "flex-end"]}
+                      mb={["12px", "12px", "0px"]}
+                    >
+                      <Text>{`${formatNumDynDecimal(
+                        parseInt(totalSupply) - availableTokenAmount
+                      )} ${tokenSymbol}`}</Text>
+                    </Box>
+
+                    <Text>Undistributed token: </Text>
+                    <Box
+                      sx={{ display: "flex" }}
+                      justifyContent={["flex-start", "flex-start", "flex-end"]}
+                      mb={["12px", "12px", "0px"]}
+                    >
                       <Text>{`${formatNumDynDecimal(
                         availableTokenAmount
                       )} ${tokenSymbol}`}</Text>
                     </Box>
 
-                    <Text>Your {tokenSymbol} token balance</Text>
-                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Text>Your balance:</Text>
+                    <Box
+                      sx={{ display: "flex" }}
+                      justifyContent={["flex-start", "flex-start", "flex-end"]}
+                      mb={["12px", "12px", "0px"]}
+                    >
                       <Text>{`${formatNumDynDecimal(
                         parseInt(tokenBalance?.replaceAll(",", ""))
                       )} ${tokenSymbol}`}</Text>
@@ -246,11 +270,19 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
                   </SimpleGrid>
 
                   <Stack>
-                    <Text textAlign="left" color="brand.grayLight">
-                      {`New Total Supply (max ${formatNumDynDecimal(
-                        parseInt(tokenBalance?.replaceAll(",", ""))
-                      )} ${tokenSymbol})`}
-                    </Text>
+                    <Flex
+                      flexDirection={["column", "column", "row"]}
+                      justifyContent="space-between"
+                    >
+                      <Text textAlign="left" color="brand.grayLight">
+                        {`New total token for sale `}
+                      </Text>
+                      <Text textAlign="left" color="brand.grayLight">
+                        {` (max ${formatNumDynDecimal(
+                          parseInt(tokenBalance?.replaceAll(",", ""))
+                        )} ${tokenSymbol})`}
+                      </Text>
+                    </Flex>
                     <NumberInputWrapper
                       type="number"
                       name="totalSupply"

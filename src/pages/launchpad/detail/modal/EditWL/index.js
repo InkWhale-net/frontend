@@ -256,9 +256,13 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
               w="full"
               flexDirection={["column", "column", "row"]}
               alignItems={["start", "start", "center"]}
-              justifyContent="space-between"
+              justifyContent="start"
             >
-              <Flex alignItems="center" minW={["100%", "100%", "33%"]}>
+              <Flex
+                alignItems="center"
+                mr={["0px", "0px", "40px"]}
+                mb={["16px", "16px", "0px"]}
+              >
                 <Text
                   mr="16px"
                   minW="fit-content"
@@ -282,13 +286,13 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                 </Select>
               </Flex>
 
-              <Text>
+              {/* <Text>
                 Balance:{" "}
                 <Text as="span" fontWeight={600}>
                   {`${formatNumDynDecimal(availableTokenAmount)}
                 ${launchpadData?.projectInfo?.token?.symbol}`}
                 </Text>
-              </Text>
+              </Text> */}
 
               <Text>
                 Phase Cap:{" "}

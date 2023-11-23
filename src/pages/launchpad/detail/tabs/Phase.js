@@ -254,7 +254,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
               marginTop: "12px",
             }}
           >
-            <Text>Total sale amount</Text>
+            <Text>Total sale</Text>
             <Text size="md">
               {formatNumDynDecimal(publicSaleInfo?.totalAmount)}
             </Text>
@@ -267,7 +267,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
               marginTop: "12px",
             }}
           >
-            <Text>Total purchased amount</Text>
+            <Text>Total purchased</Text>
             <Text size="md">
               {formatNumDynDecimal(publicSaleInfo?.totalPurchasedAmount)}
             </Text>
@@ -337,20 +337,20 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
         </>
       )}
       <Flex justify="space-between" mt="12px">
-        <Text>Phase Cap Amount</Text>
+        <Text>Phase Cap</Text>
 
         <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
           {tagData.capAmount} {tokenSymbol}
         </Text>
       </Flex>
 
-      <Flex justify="space-between" mt="12px">
+      {/* <Flex justify="space-between" mt="12px">
         <Text>Available Token Amount</Text>
 
         <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
           {tagData.availableAmount} {tokenSymbol}
         </Text>
-      </Flex>
+      </Flex> */}
 
       <Divider sx={{ mb: "20px", mt: "8px" }} />
 
