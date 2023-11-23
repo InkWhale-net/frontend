@@ -316,6 +316,8 @@ const FinishModal = ({}) => {
           const project_info_ipfs = await ipfsClient.add(
             JSON.stringify(launchpadData)
           );
+          console.log(project_info_ipfs);
+          return
           // ===================================
           const callbackFn = async (newContractAddress) => {
             setNewLpAddress(newContractAddress);

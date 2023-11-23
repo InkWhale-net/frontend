@@ -13,7 +13,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import SectionContainer from "../sectionContainer";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
 import DateTimePicker from "react-datetime-picker";
@@ -59,9 +59,14 @@ const Phase = () => {
         phasePublicPrice: "",
         whiteList: "",
         capAmount: "",
+        allowPublicSale: false,
+        phasePublicAmount: "",
+        phasePublicPrice: "",
+        whiteList: "",
       },
     ],
   });
+  const formRef = useRef(null)
 
   useEffect(() => {
     if (current === 4) {
@@ -163,6 +168,22 @@ const Phase = () => {
               : null;
           }
         ),
+        phasePublicAmount: Yup.string().test(
+          "is-require-phasePublicAmount",
+          "This field is required",
+          function (value) {
+            const allowPublicSale = this.parent.allowPublicSale;
+            return allowPublicSale == false ? "ok" : +value > 0 ? "ok" : null;
+          }
+        ),
+        phasePublicPrice: Yup.string().test(
+          "is-require-phasePublicAmount",
+          "This field is required",
+          function (value) {
+            const allowPublicSale = this.parent.allowPublicSale;
+            return allowPublicSale == false ? "ok" : +value > 0 ? "ok" : null;
+          }
+        ),
       })
     ),
   });
@@ -173,7 +194,7 @@ const Phase = () => {
     await updateRequireKyc(values.requireKyc);
     await updateTotalSupply(values.totalSupply);
     await delay(1000);
-    await handleAddNewLaunchpad();
+    await handleAddNewLaunchpad(values);
   };
 
   return (
@@ -182,7 +203,7 @@ const Phase = () => {
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      <Form>
+      <Form ref={formRef}>
         <SectionContainer title={"Total For Sale"}>
           <Field name="totalSupply">
             {({ field, form }) => (
@@ -581,19 +602,16 @@ const Phase = () => {
                           sx={{ mt: "4px", ml: "16px" }}
                           id="zero-reward-pools"
                           isChecked={obj?.allowPublicSale}
-                          onChange={
-                            () => {}
-                            // setPhaseList((prevState) => {
-                            //   const updatedArray = [...prevState];
-                            //   if (index >= 0 && index < updatedArray.length) {
-                            //     updatedArray[index] = {
-                            //       ...updatedArray[index],
-                            //       allowPublicSale: !obj?.allowPublicSale,
-                            //     };
-                            //   }
-                            //   return updatedArray;
-                            // })
-                          }
+                          onChange={() => {
+                            const updatedArray = [...form.values.phase];
+                            if (index >= 0 && index < updatedArray?.length) {
+                              updatedArray[index] = {
+                                ...updatedArray[index],
+                                allowPublicSale: !obj?.allowPublicSale,
+                              };
+                            }
+                            form.setFieldValue("phase", updatedArray);
+                          }}
                         />
                       </Box>
                     ) : null}
@@ -602,55 +620,76 @@ const Phase = () => {
                     <>
                       {obj?.allowPublicSale && (
                         <SimpleGrid columns={[1, 1, 3]} spacing={4}>
-                          <SectionContainer title={"Public Amount"}>
-                            <IWInput
-                              type="number"
-                              inputRightElementIcon={
-                                launchpadData?.token?.symbol
-                              }
-                              value={obj?.phasePublicAmount}
-                              onChange={
-                                ({ target }) => {}
-                                // setPhaseList((prevState) => {
-                                //   const updatedArray = [...prevState];
-                                //   if (
-                                //     index >= 0 &&
-                                //     index < updatedArray.length
-                                //   ) {
-                                //     updatedArray[index] = {
-                                //       ...updatedArray[index],
-                                //       phasePublicAmount: target.value,
-                                //     };
-                                //   }
-                                //   return updatedArray;
-                                // })
-                              }
-                              placeholder="0"
-                            />
-                          </SectionContainer>
-                          <SectionContainer title={"Phase Public Price"}>
-                            <IWInput
-                              type="number"
-                              inputRightElementIcon={<AzeroLogo />}
-                              value={obj?.phasePublicPrice}
-                              // onChange={({ target }) =>
-                              //   setPhaseList((prevState) => {
-                              //     const updatedArray = [...prevState];
-                              //     if (
-                              //       index >= 0 &&
-                              //       index < updatedArray.length
-                              //     ) {
-                              //       updatedArray[index] = {
-                              //         ...updatedArray[index],
-                              //         phasePublicPrice: target.value,
-                              //       };
-                              //     }
-                              //     return updatedArray;
-                              //   })
-                              // }
-                              placeholder="0.0000"
-                            />
-                          </SectionContainer>
+                          <FormControl
+                            isInvalid={
+                              form.errors?.phase?.[index]?.phasePublicAmount &&
+                              form.touched?.phase?.[index]?.phasePublicAmount
+                            }
+                          >
+                            <SectionContainer
+                              title="Public Amount"
+                              isRequiredLabel
+                            >
+                              <IWInput
+                                type="number"
+                                inputRightElementIcon={
+                                  launchpadData?.token?.symbol
+                                }
+                                value={obj?.phasePublicAmount}
+                                onChange={({ target }) => {
+                                  const updatedArray = [...form.values.phase];
+                                  if (
+                                    index >= 0 &&
+                                    index < updatedArray?.length
+                                  ) {
+                                    updatedArray[index] = {
+                                      ...updatedArray[index],
+                                      phasePublicAmount: target.value,
+                                    };
+                                  }
+                                  form.setFieldValue("phase", updatedArray);
+                                }}
+                                placeholder="0"
+                              />
+                              <FormErrorMessage>
+                                {form.errors?.phase?.[index]?.phasePublicAmount}
+                              </FormErrorMessage>
+                            </SectionContainer>
+                          </FormControl>
+                          <FormControl
+                            isInvalid={
+                              form.errors?.phase?.[index]?.phasePublicPrice &&
+                              form.touched?.phase?.[index]?.phasePublicPrice
+                            }
+                          >
+                            <SectionContainer
+                              title="Phase Public Price"
+                              isRequiredLabel
+                            >
+                              <IWInput
+                                type="number"
+                                inputRightElementIcon={<AzeroLogo />}
+                                value={obj?.phasePublicPrice}
+                                onChange={({ target }) => {
+                                  const updatedArray = [...form.values.phase];
+                                  if (
+                                    index >= 0 &&
+                                    index < updatedArray?.length
+                                  ) {
+                                    updatedArray[index] = {
+                                      ...updatedArray[index],
+                                      phasePublicPrice: target.value,
+                                    };
+                                  }
+                                  form.setFieldValue("phase", updatedArray);
+                                }}
+                                placeholder="0.0000"
+                              />
+                              <FormErrorMessage>
+                                {form.errors?.phase?.[index]?.phasePublicPrice}
+                              </FormErrorMessage>
+                            </SectionContainer>
+                          </FormControl>
                         </SimpleGrid>
                       )}
                       <Divider sx={{ marginTop: "8px" }} />
@@ -669,23 +708,18 @@ const Phase = () => {
                         }
                       >
                         <IWTextArea
-                          sx={{
-                            height: "80px",
-                          }}
+                          sx={{ height: "80px" }}
                           value={obj?.whiteList}
-                          onChange={
-                            ({ target }) => {}
-                            // setPhaseList((prevState) => {
-                            //   const updatedArray = [...prevState];
-                            //   if (index >= 0 && index < updatedArray.length) {
-                            //     updatedArray[index] = {
-                            //       ...updatedArray[index],
-                            //       whiteList: target.value,
-                            //     };
-                            //   }
-                            //   return updatedArray;
-                            // })
-                          }
+                          onChange={({ target }) => {
+                            const updatedArray = [...form.values.phase];
+                            if (index >= 0 && index < updatedArray?.length) {
+                              updatedArray[index] = {
+                                ...updatedArray[index],
+                                whiteList: target.value,
+                              };
+                            }
+                            form.setFieldValue("phase", updatedArray);
+                          }}
                           placeholder={`Sample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL, 20, 2`}
                         />
                       </SectionContainer>
@@ -723,6 +757,10 @@ const Phase = () => {
                       phasePublicPrice: "",
                       whiteList: "",
                       capAmount: "",
+                      allowPublicSale: false,
+                      phasePublicAmount: "",
+                      phasePublicPrice: "",
+                      whiteList: "",
                     },
                   ]);
                 }}

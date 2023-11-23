@@ -152,22 +152,21 @@ const CreateLaunchpadContextProvider = (props) => {
     fetchCreateTokenFee();
   }, [currentAccount]);
 
-  const handleAddNewLaunchpad = async () => {
+  const handleAddNewLaunchpad = async (phaseData) => {
     try {
       if (!currentAccount) {
         return toast.error("Please connect wallet first!");
       }
-      const minReward = +launchpadData?.phase?.reduce(
+      const minReward = +phaseData?.phase?.reduce(
         (acc, e) => acc + (e?.phasePublicAmount || 0),
         0
       );
-      console.log(launchpadData?.phase);
       if (
-        !(launchpadData?.phase?.length > 0) ||
+        !(phaseData?.phase?.length > 0) ||
         !validateTotalSupply(
-          launchpadData?.phase,
-          parseFloat(launchpadData?.totalSupply),
-          parseFloat(launchpadData.token.balance.replaceAll(",", ""))
+          phaseData?.phase,
+          parseFloat(phaseData?.totalSupply),
+          parseFloat(phaseData.token.balance.replaceAll(",", ""))
         )
       )
         return;
@@ -197,8 +196,7 @@ const CreateLaunchpadContextProvider = (props) => {
       }
       // check wallet connect?
 
-      if (!validatePhaseData(launchpadData?.phase, launchpadData?.totalSupply))
-        return;
+      if (!validatePhaseData(phaseData?.phase, phaseData?.totalSupply)) return;
 
       setFinishModalVisible(true);
     } catch (error) {
