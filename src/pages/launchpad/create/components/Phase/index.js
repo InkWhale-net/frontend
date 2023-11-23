@@ -26,6 +26,8 @@ import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { MdError } from "react-icons/md";
 import { delay } from "utils";
+import { formatTextAmount } from "utils";
+import { formatNumDynDecimal } from "utils";
 const roundToMinute = (date) => {
   const roundedDate = new Date(date);
   roundedDate.setSeconds(0);
@@ -121,7 +123,16 @@ const Phase = () => {
   };
 
   const validationSchema = Yup.object().shape({
-    totalSupply: Yup.string().required("Total For Sale is required"),
+    totalSupply: Yup.string()
+      .test(
+        "is-valid-totalSupply",
+        `Maximum value is ${formatNumDynDecimal(
+          formatTextAmount(launchpadData?.token?.balance)
+        )}`,
+        (value) =>
+          +value <= +formatTextAmount(launchpadData?.token?.balance) && "ok"
+      )
+      .required("Total For Sale is required"),
     phase: Yup.array().of(
       Yup.object().shape({
         name: Yup.string().required("Name required"),
@@ -189,7 +200,6 @@ const Phase = () => {
   });
 
   const handleSubmit = async (values, actions) => {
-    
     await updatePhase(values.phase);
     await updateRequireKyc(values.requireKyc);
     await updateTotalSupply(values.totalSupply);
@@ -205,8 +215,8 @@ const Phase = () => {
       onSubmit={handleSubmit}
     >
       <Form ref={formRef}>
-        <SectionContainer title={"Total For Sale"}>
-          <Field name="totalSupply" >
+        <SectionContainer title="Total token For Sale">
+          <Field name="totalSupply">
             {({ field, form }) => (
               <FormControl
                 isInvalid={form.errors.totalSupply && form.touched.totalSupply}
