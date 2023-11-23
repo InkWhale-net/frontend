@@ -379,8 +379,10 @@ export const StakeMenuDropdown = ({
             },
             { label: "Farming", href: "/farming" },
             { label: "NFT Pools", href: "/farms" },
-            // { label: "NFT Yield Farm", href: "/create/nft-lp" },
-            // { label: "Token Yield Farm", href: "/create/farming" },
+            {
+              label: "Staking",
+              href: "/azero-staking",
+            },
           ].map((item, idx) => (
             <IWCard
               key={idx}
