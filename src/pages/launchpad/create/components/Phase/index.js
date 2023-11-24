@@ -199,13 +199,13 @@ const Phase = () => {
               function (value) {
                 const capAmount = this.parent.capAmount;
                 const allowPublicSale = this.parent.allowPublicSale;
-                const whitelistData = processStringToArray(
-                  this.parent?.whiteList
-                );
-                const totalWhitelist = whitelistData.reduce(
-                  (wlAcc, currentWLValue) => wlAcc + currentWLValue?.amount,
-                  0
-                );
+                const wlStr = this.parent?.whiteList;
+                const whitelistData = wlStr && processStringToArray(wlStr);
+                const totalWhitelist =
+                  whitelistData?.reduce(
+                    (wlAcc, currentWLValue) => wlAcc + currentWLValue?.amount,
+                    0
+                  ) || 0;
                 return (
                   allowPublicSale == false ||
                   (allowPublicSale == true &&
@@ -229,7 +229,9 @@ const Phase = () => {
               "is-valid-whitelist",
               "Invalid whitelist format",
               function (value) {
-                return verifyWhitelist(value);
+                if (value?.length > 0) {
+                  return verifyWhitelist(value);
+                } else return true;
               }
             )
             .test(
@@ -248,12 +250,14 @@ const Phase = () => {
                 const capAmount = this.parent.capAmount;
                 const allowPublicSale = this.parent.allowPublicSale;
                 const phasePublicAmount = this.parent.phasePublicAmount;
-
-                const whitelistData = processStringToArray(value);
-                const totalWhitelist = whitelistData.reduce(
-                  (wlAcc, currentWLValue) => wlAcc + currentWLValue?.amount,
-                  0
-                );
+                const whitelistData =
+                  value?.length > 0 ? processStringToArray(value) : null;
+                const totalWhitelist = whitelistData
+                  ? whitelistData?.reduce(
+                      (wlAcc, currentWLValue) => wlAcc + currentWLValue?.amount,
+                      0
+                    )
+                  : 0;
                 return (
                   allowPublicSale == false ||
                   (allowPublicSale == true &&
@@ -266,15 +270,20 @@ const Phase = () => {
               "Total whitelist sale amount must not higher phase cap",
               function (value) {
                 const capAmount = this.parent.capAmount;
+                if (!(capAmount?.length > 0)) return true;
                 const allowPublicSale = this.parent.allowPublicSale;
-                const whitelistData = processStringToArray(value);
-                const totalWhitelist = whitelistData.reduce(
-                  (wlAcc, currentWLValue) => wlAcc + currentWLValue?.amount,
-                  0
-                );
+                const whitelistData =
+                  value?.length > 0 ? processStringToArray(value) : null;
+                const totalWhitelist = whitelistData
+                  ? whitelistData?.reduce(
+                      (wlAcc, currentWLValue) => wlAcc + currentWLValue?.amount,
+                      0
+                    )
+                  : 0;
                 return (
                   allowPublicSale == true ||
-                  (allowPublicSale == false && totalWhitelist <= +capAmount)
+                  (allowPublicSale == false &&
+                    (totalWhitelist || 0) <= +capAmount)
                 );
               }
             ),
@@ -285,7 +294,7 @@ const Phase = () => {
         "Total phase cap must equal or less than Total token for sale",
         function (values) {
           const totalSupply = this.parent.totalSupply;
-          const sum = values.reduce(
+          const sum = values?.reduce(
             (accumulator, currentValue) =>
               accumulator + (+currentValue?.capAmount || 0),
             0
