@@ -222,7 +222,7 @@ const AddSingleWL = ({
           <>
             <Text sx={{ fontWeight: "700" }}>Whitelist Address</Text>
             <IWInput
-              // disabled={!addNewMode && !selectedWL}
+              disabled={launchpadData?.requireKyc && !selectedWL}
               size="md"
               value={wlData?.address}
               width={{ base: "full" }}
@@ -234,7 +234,7 @@ const AddSingleWL = ({
 
             <Text sx={{ fontWeight: "700" }}>Amount</Text>
             <IWInput
-              // disabled={!addNewMode && !selectedWL}
+              disabled={launchpadData?.requireKyc && !selectedWL}
               type="number"
               size="md"
               value={wlData?.amount}
@@ -247,7 +247,7 @@ const AddSingleWL = ({
 
             <Text sx={{ fontWeight: "700" }}>Price</Text>
             <IWInput
-              // disabled={!addNewMode && !selectedWL}
+              disabled={launchpadData?.requireKyc && !selectedWL}
               type="number"
               size="md"
               value={wlData?.price}
@@ -301,41 +301,42 @@ const AddSingleWL = ({
             </Box>
           ) : (
             <Flex>
-              <Button
-                w="full"
-                // disabled={!selectedWL}
-                m="16px 2px"
-                size="md"
-                sx={{ bg: "#F6F6FC" }}
-                _hover={{ bg: "#E3E1EC" }}
-                onClick={() => {
-                  setWLData({
-                    address: "",
-                    amount: "",
-                    price: "",
-                  });
-                }}
-              >
-                Cancel
-              </Button>
-
               {!launchpadData?.requireKyc ? (
-                <Button
-                  isDisabled={
-                    !(
-                      wlData?.address?.length > 0 &&
-                      wlData?.amount?.length > 0 &&
-                      wlData?.price?.length > 0 &&
-                      isValidAddress(wlData?.address)
-                    )
-                  }
-                  m="16px 2px"
-                  w="full"
-                  size="md"
-                  onClick={() => addSingleWLHandler()}
-                >
-                  Add New
-                </Button>
+                <>
+                  <Button
+                    w="full"
+                    // disabled={!selectedWL}
+                    m="16px 2px"
+                    size="md"
+                    sx={{ bg: "#F6F6FC" }}
+                    _hover={{ bg: "#E3E1EC" }}
+                    onClick={() => {
+                      setWLData({
+                        address: "",
+                        amount: "",
+                        price: "",
+                      });
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    isDisabled={
+                      !(
+                        wlData?.address?.length > 0 &&
+                        wlData?.amount?.length > 0 &&
+                        wlData?.price?.length > 0 &&
+                        isValidAddress(wlData?.address)
+                      )
+                    }
+                    m="16px 2px"
+                    w="full"
+                    size="md"
+                    onClick={() => addSingleWLHandler()}
+                  >
+                    Add New
+                  </Button>
+                </>
               ) : null}
             </Flex>
           )}
