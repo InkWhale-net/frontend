@@ -30,7 +30,7 @@ import {
   verifyWhitelist,
 } from "../../utils";
 import SectionContainer from "../sectionContainer";
-const roundToMinute = (date) => {
+export const roundToMinute = (date) => {
   const roundedDate = new Date(date);
   roundedDate.setSeconds(0);
   roundedDate.setMilliseconds(0);
@@ -319,7 +319,7 @@ const Phase = () => {
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      <Form ref={formRef}>
+      <Form>
         <SectionContainer title="Total token For Sale">
           <Field name="totalSupply">
             {({ field, form }) => (
