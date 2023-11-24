@@ -57,7 +57,11 @@ function SectionContainer({
       )}
 
       {description && (
-        <Box mb={{ base: "40px" }} textAlign={{ base: "center", lg: "left" }}>
+        <Box
+          mt="4px"
+          mb={{ base: "40px" }}
+          textAlign={{ base: "center", lg: "left" }}
+        >
           <Text color="text.2" mx="auto" maxW={{ base: "330px", lg: "full" }}>
             {description}
           </Text>
