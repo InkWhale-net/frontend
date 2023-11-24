@@ -66,34 +66,75 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
   });
   const dispatch = useDispatch();
   const phaseListData = useMemo(() => {
-    return launchpadData?.phaseList?.map((e) => ({
-      ...e,
-      immediateReleaseRate:
-        parseFloat(e?.immediateReleaseRate?.replace(/,/g, "")) / 100,
-      name: e?.name,
-      startDate: new Date(parseInt(e?.startTime?.replace(/,/g, ""))),
-      endDate: new Date(parseInt(e?.endTime?.replace(/,/g, ""))),
-      vestingLength:
-        parseFloat(e?.vestingDuration?.replace(/,/g, "")) / millisecondsInADay,
-      vestingUnit:
-        parseFloat(e?.vestingUnit?.replace(/,/g, "")) / millisecondsInADay,
-      allowPublicSale: e?.publicSaleInfor?.isPublic,
-      phasePublicAmount: formatTokenAmount(
-        e?.publicSaleInfor?.totalAmount,
-        tokenDecimal
-      ),
-      capAmount: formatTokenAmount(e?.capAmount, tokenDecimal),
-      phasePublicPrice: formatTokenAmount(e?.publicSaleInfor?.price, 12),
-    }));
+    return launchpadData?.phaseList?.map((e) => {
+      return {
+        ...e,
+        immediateReleaseRate: +e?.immediateReleaseRate?.replace(/,/g, "") / 100,
+        name: e?.name,
+        startDate: new Date(parseInt(e?.startTime?.replace(/,/g, ""))),
+        endDate: new Date(parseInt(e?.endTime?.replace(/,/g, ""))),
+        vestingLength:
+          parseFloat(e?.vestingDuration?.replace(/,/g, "")) /
+          millisecondsInADay,
+        vestingUnit:
+          +e?.vestingUnit == 1
+            ? 0
+            : parseFloat(e?.vestingUnit?.replace(/,/g, "")) /
+              millisecondsInADay,
+        allowPublicSale: e?.publicSaleInfor?.isPublic,
+        phasePublicAmount: +formatTokenAmount(
+          e?.publicSaleInfor?.totalAmount,
+          tokenDecimal
+        ),
+        capAmount: +formatTokenAmount(e?.capAmount, tokenDecimal),
+        phasePublicPrice: +formatTokenAmount(e?.publicSaleInfor?.price, 12),
+      };
+    });
   }, [launchpadData]);
 
-  const onSelectAction = async (form, selectedPhaseIndex) => {
+  const onSelectAction = async (form, _selectedPhaseIndex) => {
     try {
-      setSelectedPhaseIndex(selectedPhaseIndex);
-      const phaseData = phaseListData[selectedPhaseIndex];
-      if (phaseData) {
-        setOnCreateNew(true);
-        form.setValues(phaseData);
+      if (_selectedPhaseIndex?.length > 0) {
+        if (+_selectedPhaseIndex >= 0) {
+          setSelectedPhaseIndex(_selectedPhaseIndex);
+          const phaseData = phaseListData[_selectedPhaseIndex];
+          if (phaseData) {
+            setOnCreateNew(true);
+            form.setValues(phaseData);
+          }
+        } else {
+          setOnCreateNew(true);
+          setSelectedPhaseIndex(-1);
+          form.setValues({
+            name: "",
+            startDate: roundToMinute(new Date()),
+            endDate: roundToMinute(new Date()),
+            allowPublicSale: false,
+            vestingLength: "",
+            vestingUnit: "",
+            immediateReleaseRate: "",
+            phasePublicAmount: "",
+            phasePublicPrice: "",
+            whiteList: "",
+            capAmount: "",
+          });
+        }
+      } else {
+        setOnCreateNew(false);
+        setSelectedPhaseIndex(-1);
+        form.setValues({
+          name: "",
+          startDate: roundToMinute(new Date()),
+          endDate: roundToMinute(new Date()),
+          allowPublicSale: false,
+          vestingLength: "",
+          vestingUnit: "",
+          immediateReleaseRate: "",
+          phasePublicAmount: "",
+          phasePublicPrice: "",
+          whiteList: "",
+          capAmount: "",
+        });
       }
     } catch (error) {
       console.log(error);
@@ -328,7 +369,13 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
         "is-valid-capAmount",
         "Phase cap must equal or less than undistributed token",
         function (value) {
-          return +value <= +availableTokenAmount;
+          if (+selectedPhaseIndex >= 0) {
+            return (
+              +value <=
+              +phaseListData[selectedPhaseIndex]?.capAmount +
+                +availableTokenAmount
+            );
+          } else return +value <= +availableTokenAmount;
         }
       )
       .required("This field is required"),
@@ -858,6 +905,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                   isRequiredLabel
                                 >
                                   <IWInput
+                                    isDisabled={!isPhaseEditable}
                                     type="number"
                                     inputRightElementIcon={
                                       launchpadData?.token?.symbol
@@ -1018,8 +1066,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                           size="md"
                           w={["full", "full", "25%"]}
                           onClick={() => {
-                            setOnCreateNew(true);
-                            setSelectedPhaseIndex(-1);
+                            onSelectAction(form, "-1");
                           }}
                         >
                           Create New Phase

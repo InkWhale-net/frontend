@@ -203,7 +203,7 @@ const FinishModal = ({}) => {
             resolve(unsub);
           })
           .catch((error) => {
-            toast.error("The staking fail", error?.message);
+            toast.error("Adding whitelist fail", error?.message);
             reject(error);
           });
       } else {

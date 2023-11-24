@@ -351,7 +351,7 @@ const Phase = () => {
           KYC Verification (Know Your Customer)
           <Tooltip
             fontSize="md"
-            label={`Lorem KYC Verification is Know Your Customer`}
+            label={`KYC Verification is Know Your Customer`}
           >
             <QuestionOutlineIcon ml="6px" color="text.2" />
           </Tooltip>
