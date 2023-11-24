@@ -180,20 +180,16 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                 buyerInformation?.price,
                 12
               );
-              const wlTokenPrice = parseFloat(wlTokenPriceStr);
+              const wlTokenPrice = +wlTokenPriceStr;
 
-              const wlMaxAmount = parseFloat(
-                formatTokenAmount(
-                  buyerInformation?.amount,
-                  parseInt(launchpadData.projectInfo.token.decimals)
-                )
+              const wlMaxAmount = +formatTokenAmount(
+                buyerInformation?.amount,
+                parseInt(launchpadData.projectInfo.token.decimals)
               );
               const wlPurchasedAmount = roundUp(
-                parseFloat(
-                  formatTokenAmount(
-                    buyerInformation?.purchasedAmount,
-                    parseInt(launchpadData.projectInfo.token.decimals)
-                  )
+                +formatTokenAmount(
+                  buyerInformation?.purchasedAmount,
+                  parseInt(launchpadData.projectInfo.token.decimals)
                 )
               );
 
@@ -229,7 +225,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                           onChange={({ target }) => {
                             setAmount(target.value);
                             setAzeroBuyAmount(
-                              roundUp(parseFloat(target.value) * wlTokenPrice),
+                              roundDown(+target.value * wlTokenPrice),
                               4
                             );
                           }}
@@ -282,7 +278,10 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                         <Button
                           isLoading={wlBuyMutation.isLoading}
                           isDisabled={
-                            !allowBuy || !(parseFloat(amount) > 0) || upComing
+                            !launchpadData?.isActive ||
+                            !allowBuy ||
+                            !(parseFloat(amount) > 0) ||
+                            upComing
                           }
                           sx={{ flex: 1, height: "40px", marginTop: "8px" }}
                           onClick={() =>
