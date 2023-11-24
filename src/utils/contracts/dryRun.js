@@ -1,4 +1,4 @@
-import { BN } from "@polkadot/util";
+import { BN, BN_BILLION } from "@polkadot/util";
 import { convertWeight } from "@polkadot/api-contract/base/util";
 import { formatChainStringToNumber } from "utils";
 
@@ -52,11 +52,26 @@ export const getGasLimit = async (
     proofSize: v2Weight.proofSize,
   });
 
-  // const rs =
-  //   formatChainStringToNumber(gasRequired.toHuman()?.refTime) /
-  //   Math.pow(10, 12);
+  const currentRefTime =
+    formatChainStringToNumber(v2Weight?.refTime) / Math.pow(10, 12);
 
-  // console.log(message, "getGasLimit NORMAL ", gasMul, "x refTime", rs);
+  const currentProofSize =
+    formatChainStringToNumber(v2Weight?.proofSize) / Math.pow(10, 12);
+
+  console.log("currentRefTime", currentRefTime);
+
+  if (currentRefTime * 2 > 0.239) {
+    const MAX_CALL_WEIGHT = new BN(240_000_000_000).isub(BN_BILLION);
+
+    const gasRequiredAdjust = api.registry.createType("WeightV2", {
+      refTime: MAX_CALL_WEIGHT,
+      proofSize: new BN(currentProofSize * 10 ** 12).mul(new BN(1.5)),
+    });
+
+    console.log("gasRequiredAdjust.toString()", gasRequiredAdjust.toString());
+
+    return { ok: true, value: gasRequiredAdjust };
+  }
 
   return { ok: true, value: gasRequired };
 };
