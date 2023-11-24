@@ -50,6 +50,8 @@ import { execContractQuery, execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 import * as Yup from "yup";
 import { roundToMinute } from "pages/launchpad/create/components/Phase";
+import { processStringToArray } from "pages/launchpad/create/utils";
+import { checkDuplicatedWL } from "pages/launchpad/create/utils";
 
 const EditPhase = ({ visible, setVisible, launchpadData }) => {
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
@@ -129,26 +131,12 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
   const totalSupply =
     formatChainStringToNumber(launchpadData?.totalSupply) / 10 ** tokenDecimal;
 
-  const handleCreateNewPhase = async () => {
-    const newCapAmount = newData?.capAmount;
-
+  const handleCreateNewPhase = async (data) => {
     try {
-      if (newCapAmount > totalSupply) {
-        toast.error(
-          "New phase cap amount can not be greater than total supply!"
-        );
-        return;
-      }
-
       if (!currentAccount) {
         return toast.error("Please connect wallet first!");
       }
-      if (newData?.whiteList)
-        if (!verifyWhitelist(newData?.whiteList)) {
-          toast.error("Invalid whitelist format");
-          return false;
-        }
-      const phaseList = [...phaseListData, newData];
+      const phaseList = [...phaseListData, data];
       if (
         !validatePhaseData(phaseList, {
           overlapseErrorMsgL:
@@ -157,29 +145,28 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
       ) {
         return;
       }
-
       const newPhaseInput = api.createType("PhaseInput", {
-        name: newData?.name,
-        startTime: newData?.startDate?.getTime(),
-        endTime: newData?.endDate?.getTime(),
+        name: data?.name,
+        startTime: data?.startDate?.getTime(),
+        endTime: data?.endDate?.getTime(),
         immediateReleaseRate: parseInt(
-          (parseFloat(newData?.immediateReleaseRate) * 100).toFixed()
+          (parseFloat(data?.immediateReleaseRate) * 100).toFixed()
         ).toString(),
         vestingDuration:
-          newData?.immediateReleaseRate === 100
+          data?.immediateReleaseRate === 100
             ? 0
-            : dayToMilisecond(parseFloat(newData?.vestingLength)),
+            : dayToMilisecond(parseFloat(data?.vestingLength)),
         vestingUnit:
-          newData?.immediateReleaseRate === 100
+          data?.immediateReleaseRate === 100
             ? 1
-            : dayToMilisecond(parseFloat(newData?.vestingUnit)),
-        capAmount: parseUnits(newData?.capAmount.toString(), tokenDecimal),
-        isPublic: newData?.allowPublicSale,
-        publicAmount: newData?.allowPublicSale
-          ? parseUnits(newData?.phasePublicAmount.toString(), tokenDecimal)
+            : dayToMilisecond(parseFloat(data?.vestingUnit)),
+        capAmount: parseUnits(data?.capAmount.toString(), tokenDecimal),
+        isPublic: data?.allowPublicSale,
+        publicAmount: data?.allowPublicSale
+          ? parseUnits(data?.phasePublicAmount.toString(), tokenDecimal)
           : null,
-        publicPrice: newData?.allowPublicSale
-          ? parseUnits(newData?.phasePublicPrice.toString(), 12)
+        publicPrice: data?.allowPublicSale
+          ? parseUnits(data?.phasePublicPrice.toString(), 12)
           : null,
       });
 
@@ -216,7 +203,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
     }
   };
 
-  const handleUpdatePhase = async () => {
+  const handleUpdatePhase = async (values) => {
     const newCapAmount = newData?.capAmount;
 
     if (newCapAmount > totalSupply) {
@@ -360,9 +347,107 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
           return +value > 0 && +value <= 100;
         }
       ),
+    phasePublicAmount: Yup.string()
+      .test(
+        "is-require-phasePublicAmount",
+        "This field is required",
+        function (value) {
+          const allowPublicSale = this.parent.allowPublicSale;
+          return allowPublicSale == false ? true : +value > 0;
+        }
+      )
+      .test(
+        "is-valid-phasePublicAmount",
+        "Total public sale and whitelist must not higher phase cap",
+        function (value) {
+          const capAmount = this.parent.capAmount;
+          const allowPublicSale = this.parent.allowPublicSale;
+          const wlStr = this.parent?.whiteList;
+          const whitelistData = wlStr && processStringToArray(wlStr);
+          const totalWhitelist =
+            whitelistData?.reduce(
+              (wlAcc, currentWLValue) => wlAcc + currentWLValue?.amount,
+              0
+            ) || 0;
+          return (
+            allowPublicSale == false ||
+            (allowPublicSale == true &&
+              (+value || 0) + totalWhitelist <= +capAmount)
+          );
+        }
+      ),
+    phasePublicPrice: Yup.string().test(
+      "is-require-phasePublicAmount",
+      "This field is required",
+      function (value) {
+        const allowPublicSale = this.parent.allowPublicSale;
+        return (
+          allowPublicSale == false || (allowPublicSale == true && +value > 0)
+        );
+      }
+    ),
+    whiteList: Yup.string()
+      .test("is-valid-whitelist", "Invalid whitelist format", function (value) {
+        if (value?.length > 0) {
+          return verifyWhitelist(value);
+        } else return true;
+      })
+      .test(
+        "is-duplicated-whitelist",
+        "Duplicated account address",
+        function (value) {
+          if (value?.length > 0) {
+            return !checkDuplicatedWL(value);
+          } else return true;
+        }
+      )
+      .test(
+        "is-valid-whitelist-no-allowPublicSale",
+        "Total public sale and whitelist must not higher phase cap",
+        function (value) {
+          const capAmount = this.parent.capAmount;
+          const allowPublicSale = this.parent.allowPublicSale;
+          const phasePublicAmount = this.parent.phasePublicAmount;
+          const whitelistData =
+            value?.length > 0 ? processStringToArray(value) : null;
+          const totalWhitelist = whitelistData
+            ? whitelistData?.reduce(
+                (wlAcc, currentWLValue) => wlAcc + currentWLValue?.amount,
+                0
+              )
+            : 0;
+          return (
+            allowPublicSale == false ||
+            (allowPublicSale == true &&
+              (+phasePublicAmount || 0) + totalWhitelist <= +capAmount)
+          );
+        }
+      )
+      .test(
+        "is-valid-whitelist-allowPublicSale",
+        "Total whitelist sale amount must not higher phase cap",
+        function (value) {
+          const capAmount = this.parent.capAmount;
+          if (!(capAmount?.length > 0)) return true;
+          const allowPublicSale = this.parent.allowPublicSale;
+          const whitelistData =
+            value?.length > 0 ? processStringToArray(value) : null;
+          const totalWhitelist = whitelistData
+            ? whitelistData?.reduce(
+                (wlAcc, currentWLValue) => wlAcc + currentWLValue?.amount,
+                0
+              )
+            : 0;
+          return (
+            allowPublicSale == true ||
+            (allowPublicSale == false && (totalWhitelist || 0) <= +capAmount)
+          );
+        }
+      ),
   });
   const handleSubmit = async (values, actions) => {
-    console.log(values);
+    // handleUpdatePhase(values);
+    if (selectedPhaseIndex < 0) handleCreateNewPhase(values);
     actions.setSubmitting(false);
   };
 
@@ -508,7 +593,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                     value={form.values.startDate}
                                     onChange={(value) => {
                                       form.setFieldValue(
-                                        "name",
+                                        "startDate",
                                         roundToMinute(value)
                                       );
                                     }}
@@ -541,7 +626,10 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                     locale="en-EN"
                                     value={form.values.endDate}
                                     onChange={(value) => {
-                                      form.setFieldValue("endDate", value);
+                                      form.setFieldValue(
+                                        "endDate",
+                                        roundToMinute(value)
+                                      );
                                     }}
                                   />
                                 </Flex>
@@ -752,89 +840,124 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                   id="zero-reward-pools"
                                   isChecked={newData?.allowPublicSale}
                                   isDisabled={!isPhaseEditable}
-                                  onChange={() =>
-                                    setNewData((prevState) => ({
-                                      ...prevState,
-                                      allowPublicSale:
-                                        !prevState?.allowPublicSale,
-                                    }))
-                                  }
+                                  onChange={() => {
+                                    form.setFieldValue(
+                                      "allowPublicSale",
+                                      !form.values.allowPublicSale
+                                    );
+                                  }}
                                 />
                               </Box>
                             )}
                           </SimpleGrid>
-                          {newData?.allowPublicSale && (
+                          {form.values.allowPublicSale && (
                             <SimpleGrid columns={[1, 1, 3]} spacing={4}>
-                              <SectionContainer title={"Public Amount"}>
-                                <IWInput
-                                  type="number"
-                                  isDisabled={!isPhaseEditable}
-                                  inputRightElementIcon={
-                                    launchpadData?.token?.symbol
-                                  }
-                                  value={newData?.phasePublicAmount}
-                                  onChange={({ target }) =>
-                                    setNewData((prevState) => ({
-                                      ...prevState,
-                                      phasePublicAmount: target.value,
-                                    }))
-                                  }
-                                  placeholder="0"
-                                />
-                              </SectionContainer>
-                              <SectionContainer title={"Phase Public Price"}>
-                                <IWInput
-                                  isDisabled={!isPhaseEditable}
-                                  type="number"
-                                  inputRightElementIcon={<AzeroLogo />}
-                                  value={newData?.phasePublicPrice}
-                                  onChange={({ target }) =>
-                                    setNewData((prevState) => ({
-                                      ...prevState,
-                                      phasePublicPrice: target.value,
-                                    }))
-                                  }
-                                  placeholder="0.0000"
-                                />
-                              </SectionContainer>
+                              <FormControl
+                                isInvalid={
+                                  form.errors?.phasePublicAmount &&
+                                  form.touched?.phasePublicAmount
+                                }
+                              >
+                                <SectionContainer
+                                  title="Public Amount"
+                                  isRequiredLabel
+                                >
+                                  <IWInput
+                                    type="number"
+                                    inputRightElementIcon={
+                                      launchpadData?.token?.symbol
+                                    }
+                                    value={form.values?.phasePublicAmount}
+                                    onChange={({ target }) => {
+                                      form.setFieldValue(
+                                        "phasePublicAmount",
+                                        target.value
+                                      );
+                                    }}
+                                    placeholder="0"
+                                  />
+                                  <FormErrorMessage>
+                                    {form.errors?.phasePublicAmount}
+                                  </FormErrorMessage>
+                                </SectionContainer>
+                              </FormControl>
+                              <FormControl
+                                isInvalid={
+                                  form.errors?.phasePublicPrice &&
+                                  form.touched?.phasePublicPrice
+                                }
+                              >
+                                <SectionContainer
+                                  title="Phase Public Price"
+                                  isRequiredLabel
+                                >
+                                  <IWInput
+                                    type="number"
+                                    step="any"
+                                    isDisabled={!isPhaseEditable}
+                                    inputRightElementIcon={<AzeroLogo />}
+                                    value={form.values?.phasePublicPrice}
+                                    onChange={({ target }) => {
+                                      form.setFieldValue(
+                                        "phasePublicPrice",
+                                        target.value
+                                      );
+                                    }}
+                                    placeholder="0.0000"
+                                  />
+                                  <FormErrorMessage>
+                                    {form.errors?.phasePublicPrice}
+                                  </FormErrorMessage>
+                                </SectionContainer>
+                              </FormControl>
                             </SimpleGrid>
                           )}
                           {!launchpadData?.requireKyc && (
                             <>
                               <Divider sx={{ marginTop: "8px" }} />
                               {selectedPhaseIndex === -1 && (
-                                <SectionContainer
-                                  title={
-                                    <>
-                                      White list
-                                      <Tooltip
-                                        fontSize="md"
-                                        label={`Enter one address, whitelist amount and price on each line.
-                A decimal separator of amount must use dot (.)`}
-                                      >
-                                        <QuestionOutlineIcon
-                                          ml="6px"
-                                          color="text.2"
-                                        />
-                                      </Tooltip>
-                                    </>
+                                <FormControl
+                                  isInvalid={
+                                    form.errors?.whiteList &&
+                                    form.touched?.whiteList
                                   }
                                 >
-                                  <IWTextArea
-                                    sx={{
-                                      height: "80px",
-                                    }}
-                                    isDisabled={!isPhaseEditable}
-                                    value={newData?.whiteList}
-                                    onChange={({ target }) =>
-                                      setNewData((prevState) => ({
-                                        ...prevState,
-                                        whiteList: target.value,
-                                      }))
+                                  <SectionContainer
+                                    title={
+                                      <>
+                                        White list
+                                        <Tooltip
+                                          fontSize="md"
+                                          label={`Enter one address, whitelist amount and price on each line.
+                A decimal separator of amount must use dot (.)`}
+                                        >
+                                          <QuestionOutlineIcon
+                                            ml="6px"
+                                            color="text.2"
+                                          />
+                                        </Tooltip>
+                                      </>
                                     }
-                                    placeholder={`Sample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn,100,0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL,20,2`}
-                                  />
-                                </SectionContainer>
+                                  >
+                                    <IWTextArea
+                                      sx={{
+                                        height: "80px",
+                                      }}
+                                      isDisabled={!isPhaseEditable}
+                                      value={form.values.whiteList}
+                                      onChange={({ target }) =>
+                                        form.setFieldValue(
+                                          "whiteList",
+                                          target.value
+                                        )
+                                      }
+                                      placeholder={`Sample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn,100,0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL,20,2`}
+                                    />
+                                    <FormErrorMessage>
+                                      {form.errors?.whiteList}
+                                    </FormErrorMessage>
+                                  </SectionContainer>
+                                </FormControl>
                               )}
                             </>
                           )}

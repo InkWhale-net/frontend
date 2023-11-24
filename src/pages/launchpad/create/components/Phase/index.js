@@ -153,7 +153,7 @@ const Phase = () => {
               "is-valid-immediateReleaseRate",
               "Value must be in range 0 to 100",
               function (value) {
-                return +value > 0 ? "ok" : null;
+                return +value > 0 ? true : null;
               }
             ),
           vestingLength: Yup.string().test(
@@ -162,9 +162,9 @@ const Phase = () => {
             function (value) {
               const immediateReleaseRate = this.parent.immediateReleaseRate;
               return +immediateReleaseRate == 100
-                ? "ok"
+                ? true
                 : +value > 0
-                ? "ok"
+                ? true
                 : null;
             }
           ),
@@ -174,9 +174,9 @@ const Phase = () => {
             function (value) {
               const immediateReleaseRate = this.parent.immediateReleaseRate;
               return +immediateReleaseRate == 100
-                ? "ok"
+                ? true
                 : +value > 0
-                ? "ok"
+                ? true
                 : null;
             }
           ),
@@ -186,11 +186,7 @@ const Phase = () => {
               "This field is required",
               function (value) {
                 const allowPublicSale = this.parent.allowPublicSale;
-                return allowPublicSale == false
-                  ? "ok"
-                  : +value > 0
-                  ? "ok"
-                  : null;
+                return allowPublicSale == false ? true : +value > 0;
               }
             )
             .test(
@@ -244,7 +240,7 @@ const Phase = () => {
               }
             )
             .test(
-              "is-valid-whitelist",
+              "is-valid-whitelist-no-allowPublicSale",
               "Total public sale and whitelist must not higher phase cap",
               function (value) {
                 const capAmount = this.parent.capAmount;
@@ -266,7 +262,7 @@ const Phase = () => {
               }
             )
             .test(
-              "is-valid-whitelist",
+              "is-valid-whitelist-allowPublicSale",
               "Total whitelist sale amount must not higher phase cap",
               function (value) {
                 const capAmount = this.parent.capAmount;
