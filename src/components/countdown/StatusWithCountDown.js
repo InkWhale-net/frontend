@@ -15,11 +15,9 @@ const SaleCount = ({ label, time, direction }) => {
     } else {
       return (
         <Flex>
-          <Text sx={{ fontWeight: "bold", color: "#57527E" }}>{`${
-            days && zeroPad(days)
-          }d:${zeroPad(hours)}h:${zeroPad(minutes)}m:${zeroPad(
-            seconds
-          )}s`}</Text>
+          <Text>{`${days && zeroPad(days)}d:${zeroPad(hours)}h:${zeroPad(
+            minutes
+          )}m:${zeroPad(seconds)}s`}</Text>
         </Flex>
       );
     }

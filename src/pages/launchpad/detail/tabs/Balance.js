@@ -22,14 +22,7 @@ const Row = ({ label, value, divider = false, ...rest }) => {
         }}
       >
         <Text>{label}</Text>
-        <Text
-          sx={{
-            fontWeight: "512",
-            color: "#57527E",
-          }}
-        >
-          {value}
-        </Text>
+        <Text>{value}</Text>
       </Box>
       {divider && <Divider />}
     </>

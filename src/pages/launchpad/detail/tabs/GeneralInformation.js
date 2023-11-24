@@ -198,24 +198,39 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
               // justifyContent: "center",
             }}
           >
-            <Box display={{ base: "flex" }} justifyContent={{ base: "center" }}>
+            <Box
+              w="full"
+              display={{ base: "flex" }}
+              justifyContent={{ base: "center" }}
+              textAlign="left"
+            >
               <ReactApexChart
-                width={isMobile ? window.innerWidth : "400px"}
-                height={isMobile ? window.innerWidth : "400px"}
+                width={isMobile ? window.innerWidth : "550px"}
+                height={isMobile ? window.innerWidth : "550px"}
                 options={{
                   chart: {
                     type: "donut",
+                    height: "auto",
                   },
                   labels: distributions.map((e) => e.label),
+                  legend: { width: 250 },
                   responsive: [
                     {
                       breakpoint: 480,
                       options: {
+                        plotOptions: {
+                          pie: {
+                            donut: {
+                              size: "45%",
+                            },
+                          },
+                        },
                         chart: {
-                          width: 200,
+                          width: 400,
+                          height: 600,
                         },
                         legend: {
-                          position: "bottom",
+                          width: 160,
                         },
                       },
                     },
@@ -239,7 +254,6 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
             sx={{
               flex: 2,
               display: "flex",
-              justifyContent: "flex-end",
             }}
           >
             <Text>{mainTabData?.tokenomicsMoreInfo}</Text>
