@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Heading, Text } from "@chakra-ui/react";
+import { Box, Button, Divider, Flex, Heading, Text } from "@chakra-ui/react";
 import { useAppContext } from "contexts/AppContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -11,6 +11,7 @@ import { formatChainStringToNumber } from "utils";
 import { delay } from "utils";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { formatNumDynDecimal } from "utils";
+import { AzeroLogo } from "components/icons/Icons";
 
 const OwnerZoneCard = ({ launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -287,8 +288,11 @@ const OwnerZoneCard = ({ launchpadData }) => {
       />
       <Divider />
       <Box mt="16px" display="flex" justifyContent="space-between">
-        <Text>Launchpad Balance</Text>
-        <Text>{formatNumDynDecimal(ownerBalance)}AZERO</Text>
+        <Text>Balance</Text>
+        <Flex alignItems="center">
+          <Text mr="4px">{formatNumDynDecimal(ownerBalance)}</Text>
+          <AzeroLogo w="14px" />
+        </Flex>
       </Box>
 
       <Button
