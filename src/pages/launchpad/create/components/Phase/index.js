@@ -124,11 +124,17 @@ const Phase = () => {
     totalSupply: Yup.string()
       .test(
         "is-valid-totalSupply",
-        `Maximum value is ${formatNumDynDecimal(
-          formatTextAmount(launchpadData?.token?.balance)
-        )}`,
-        (value) =>
-          +value <= +formatTextAmount(launchpadData?.token?.balance) && "ok"
+        `You do not have enough tokens for sale. Please reduce total tokens for sale or send more tokens to the wallet`,
+        function (value) {
+          return +value <= +formatTextAmount(launchpadData?.token?.balance);
+        }
+      )
+      .test(
+        "is-valid-totalSupply",
+        `Invalid total for sale amount`,
+        function (value) {
+          return +value > 0;
+        }
       )
       .required("Total For Sale is required"),
     phase: Yup.array()
@@ -151,7 +157,7 @@ const Phase = () => {
             .required("This field is required")
             .test(
               "is-valid-immediateReleaseRate",
-              "Value must be in range 0 to 100",
+              "Release rate must be input from 0 to 100",
               function (value) {
                 return +value > 0 ? true : null;
               }
@@ -191,7 +197,7 @@ const Phase = () => {
             )
             .test(
               "is-valid-phasePublicAmount",
-              "Total public sale and whitelist must not higher phase cap",
+              "Whitelist & public sale amount cannot exceed phase cap",
               function (value) {
                 const capAmount = this.parent.capAmount;
                 const allowPublicSale = this.parent.allowPublicSale;
@@ -232,7 +238,7 @@ const Phase = () => {
             )
             .test(
               "is-duplicated-whitelist",
-              "Duplicated account address",
+              "Duplicated whitelisted addresses",
               function (value) {
                 if (value?.length > 0) {
                   return !checkDuplicatedWL(value);
@@ -263,7 +269,7 @@ const Phase = () => {
             )
             .test(
               "is-valid-whitelist-allowPublicSale",
-              "Total whitelist sale amount must not higher phase cap",
+              "Total whitelist amount cannot exceed phase cap",
               function (value) {
                 const capAmount = this.parent.capAmount;
                 if (!(capAmount?.length > 0)) return true;
@@ -287,7 +293,7 @@ const Phase = () => {
       )
       .test(
         "is-valid-cap-amount",
-        "Total phase cap must equal or less than Total token for sale",
+        "All phases cap have exceeded total tokens for sale. Please edit the amount accordingly",
         function (values) {
           const totalSupply = this.parent.totalSupply;
           const sum = values?.reduce(
@@ -297,7 +303,15 @@ const Phase = () => {
           );
           return sum <= totalSupply;
         }
-      ),
+      )
+      // .test(
+      //   "is-valid-timerange",
+      //   "Phase time range can not overlapse",
+      //   function (values) {
+      //     const phaseData = this.parent.phase;
+      //     console.log(phaseData);
+      //   }
+      // ),
   });
 
   const handleSubmit = async (values, actions) => {
