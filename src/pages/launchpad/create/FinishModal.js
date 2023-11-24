@@ -179,8 +179,8 @@ const FinishModal = ({}) => {
                     if (api.events.utility?.BatchCompleted.is(event)) {
                       toast.success(
                         whitelist?.length == 1
-                          ? "Added whitelist successfully"
-                          : "All whitelist have been Added successfully"
+                          ? "Address has been successfully added to the whitelist"
+                          : "Addresses have been successfully added to the whitelist"
                       );
                     }
                   }
@@ -191,7 +191,7 @@ const FinishModal = ({}) => {
                   toast.error(
                     whitelist?.length == 1
                       ? "Adding whitelist not successfully!                "
-                      : `Bulk adding are not fully successful! ${totalSuccessTxCount} adding completed successfully.`
+                      : `Bulk adding are not fully successful! ${totalSuccessTxCount} adding completed successfully`
                   );
                 }
                 // updateData();

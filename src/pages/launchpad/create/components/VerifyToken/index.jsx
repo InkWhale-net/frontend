@@ -144,7 +144,7 @@ export default function VerifyToken() {
     () => {
       return new Promise(async (resolve) => {
         if (tokenAddress) {
-           await loadTokenInfo();
+          await loadTokenInfo();
         }
         resolve();
       });
@@ -206,7 +206,7 @@ export default function VerifyToken() {
         </Box>
         {!(tokenList?.length > 0) && (
           <Text sx={{ textAlign: "center", marginTop: "20px" }}>
-            No owned token. You need to Create or Import first
+            No token found. You need to Create or Import a PSP22 token first
           </Text>
         )}
 
@@ -284,7 +284,7 @@ export default function VerifyToken() {
       {tokenInfo && !(tokenBalance > 0) && !isLoading && (
         <Box bg="#FCE5E5" p="8px" mt="8px" borderRadius="4px">
           <Text color="#F17171">
-            Your token balance need to be higher than 0
+            Low balance. You need to send tokens to your wallet
           </Text>
         </Box>
       )}
