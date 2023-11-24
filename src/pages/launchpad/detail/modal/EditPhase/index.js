@@ -87,24 +87,19 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
     }));
   }, [launchpadData]);
 
-  useEffect(() => {
-    if (selectedPhaseIndex >= 0) {
+  const onSelectAction = async (form, selectedPhaseIndex) => {
+    try {
+      setSelectedPhaseIndex(selectedPhaseIndex);
       const phaseData = phaseListData[selectedPhaseIndex];
       if (phaseData) {
         setOnCreateNew(true);
-        setNewData(phaseData);
-      } else {
-        setOnCreateNew(false);
-        setNewData({
-          startDate: new Date(),
-          endDate: new Date(),
-        });
-        setSelectedPhaseIndex(-1);
+        form.setValues(phaseData);
       }
+    } catch (error) {
+      console.log(error);
     }
+  };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedPhaseIndex]);
   const fetchPhaseData = async () => {
     const result = await execContractQuery(
       currentAccount?.address,
@@ -204,25 +199,25 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
   };
 
   const handleUpdatePhase = async (values) => {
-    const newCapAmount = newData?.capAmount;
+    // const newCapAmount = values?.capAmount;
 
-    if (newCapAmount > totalSupply) {
-      toast.error("New phase cap amount can not be greater than total supply!");
-      return;
-    }
+    // if (newCapAmount > totalSupply) {
+    //   toast.error("New phase cap amount can not be greater than total supply!");
+    //   return;
+    // }
 
     try {
       if (!currentAccount) {
         return toast.error("Please connect wallet first!");
       }
-      if (newData?.whiteList)
-        if (!verifyWhitelist(newData?.whiteList)) {
+      if (values?.whiteList)
+        if (!verifyWhitelist(values?.whiteList)) {
           toast.error("Invalid whitelist format");
           return false;
         }
       const phaseList = [
         ...phaseListData.map((e, index) => {
-          const phaseData = index === +selectedPhaseIndex ? newData : e;
+          const phaseData = index === +selectedPhaseIndex ? values : e;
           return {
             ...phaseData,
             name: phaseData?.name,
@@ -237,7 +232,6 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
           };
         }),
       ];
-
       if (
         !validatePhaseData(phaseList, {
           overlapseErrorMsgL:
@@ -247,27 +241,27 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
         return;
 
       const editPhaseInput = api.createType("PhaseInput", {
-        name: newData?.name,
-        startTime: newData?.startDate?.getTime(),
-        endTime: newData?.endDate?.getTime(),
+        name: values?.name,
+        startTime: values?.startDate?.getTime(),
+        endTime: values?.endDate?.getTime(),
         immediateReleaseRate: parseInt(
-          (parseFloat(newData?.immediateReleaseRate) * 100).toFixed()
+          (parseFloat(values?.immediateReleaseRate) * 100).toFixed()
         ).toString(),
         vestingDuration:
-          newData?.immediateReleaseRate === 100
+          values?.immediateReleaseRate === 100
             ? 0
-            : dayToMilisecond(parseFloat(newData?.vestingLength)),
+            : dayToMilisecond(parseFloat(values?.vestingLength)),
         vestingUnit:
-          newData?.immediateReleaseRate === 100
+          values?.immediateReleaseRate === 100
             ? 1
-            : dayToMilisecond(parseFloat(newData?.vestingUnit)),
-        capAmount: parseUnits(newData?.capAmount.toString(), tokenDecimal),
-        isPublic: newData?.allowPublicSale,
-        publicAmount: newData?.allowPublicSale
-          ? parseUnits(newData?.phasePublicAmount.toString(), tokenDecimal)
+            : dayToMilisecond(parseFloat(values?.vestingUnit)),
+        capAmount: parseUnits(values?.capAmount.toString(), tokenDecimal),
+        isPublic: values?.allowPublicSale,
+        publicAmount: values?.allowPublicSale
+          ? parseUnits(values?.phasePublicAmount.toString(), tokenDecimal)
           : null,
-        publicPrice: newData?.allowPublicSale
-          ? parseUnits(newData?.phasePublicPrice.toString(), 12)
+        publicPrice: values?.allowPublicSale
+          ? parseUnits(values?.phasePublicPrice.toString(), 12)
           : null,
       });
 
@@ -279,7 +273,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
         0, //-> value
         "launchpadContractTrait::setPhase",
         selectedPhaseIndex,
-        newData?.isActive,
+        values?.isActive,
         editPhaseInput
       );
       if (result) {
@@ -448,6 +442,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
   const handleSubmit = async (values, actions) => {
     // handleUpdatePhase(values);
     if (selectedPhaseIndex < 0) handleCreateNewPhase(values);
+    if (selectedPhaseIndex >= 0) handleUpdatePhase(values);
     actions.setSubmitting(false);
   };
 
@@ -510,7 +505,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                 defaultValue={-1}
                                 placeholder="Select phase"
                                 onChange={({ target }) => {
-                                  setSelectedPhaseIndex(target.value);
+                                  onSelectAction(form, target.value);
                                 }}
                                 value={selectedPhaseIndex}
                               >
@@ -838,7 +833,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                 <Switch
                                   sx={{ mt: "4px", ml: "16px" }}
                                   id="zero-reward-pools"
-                                  isChecked={newData?.allowPublicSale}
+                                  isChecked={form.values?.allowPublicSale}
                                   isDisabled={!isPhaseEditable}
                                   onChange={() => {
                                     form.setFieldValue(
@@ -1007,7 +1002,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                             defaultValue={-1}
                             placeholder="Select phase"
                             onChange={({ target }) => {
-                              setSelectedPhaseIndex(target.value);
+                              onSelectAction(form, target.value);
                             }}
                             value={selectedPhaseIndex}
                           >
