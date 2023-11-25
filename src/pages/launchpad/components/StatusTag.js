@@ -33,6 +33,7 @@ export const UpcomingStatusTag = () => {
         fontWeight: "bold",
         fontSize: "14px",
         color: "#57527E",
+        whiteSpace: "nowrap",
       }}
     >
       <BsDot size={"20px"} color="#57527E" />
@@ -54,6 +55,7 @@ export const LiveStatusTag = () => {
         fontWeight: "bold",
         fontSize: "14px",
         color: "#57527E",
+        whiteSpace: "nowrap",
       }}
     >
       <BsDot size={"20px"} color="#9CDE85" />
@@ -74,6 +76,7 @@ export const EndStatusTag = () => {
         fontWeight: "bold",
         fontSize: "14px",
         color: "#57527E",
+        whiteSpace: "nowrap",
       }}
     >
       <BsDot size={"20px"} color="#FF9595" />

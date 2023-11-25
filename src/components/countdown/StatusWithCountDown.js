@@ -125,9 +125,6 @@ export const NotActive = ({ label }) => {
     <Tooltip label="Contact InkWhale to active project">
       <div
         style={{
-          position: "absolute",
-          right: "8px",
-          top: "8px",
           background: "#E3DFF3",
           paddingLeft: "8px",
           paddingRight: "12px",
@@ -137,6 +134,7 @@ export const NotActive = ({ label }) => {
           fontWeight: "bold",
           fontSize: "14px",
           color: "#57527E",
+          whiteSpace: "nowrap",
         }}
       >
         <BsDot size={"20px"} color="#FF9595" />
