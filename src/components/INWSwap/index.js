@@ -306,7 +306,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
   const getBalance = (token) =>
     formatNumDynDecimal(currentAccount?.balance?.[token]?.replaceAll(",", ""));
 
-    const fetchGas = async (_amount) => {
+  const fetchGas = async (_amount) => {
     try {
       if (+_amount == 0) {
         setGas(0);
@@ -592,7 +592,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
           ref={amountRef}
         />
       </Flex>
-      {console.log("step", step)}
+
       <Flex justify="end" fontSize="16px">
         {fromToken.name === "INW" ? (
           <Stack>

@@ -152,6 +152,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             live: "On-going",
             end: "Ended",
           }}
+          isActive={tagData.isActive}
         />
       </Box>
       <Divider sx={{ mb: "16px" }} />

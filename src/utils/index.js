@@ -371,13 +371,13 @@ export const formatTokenAmount = (value, decimal = 12) => {
   try {
     const ret = formatChainStringToNumber(value) / Math.pow(10, decimal);
 
-    const ret2 = formatUnits(
-      value?.toString()?.replace(/\./g, "")?.replace(/,/g, ""),
-      decimal
-    );
+    // const ret2 = formatUnits(
+    //   value?.toString()?.replace(/\./g, "")?.replace(/,/g, ""),
+    //   decimal
+    // );
 
-    console.log("ret", ret);
-    console.log("ret2", ret2);
+    // console.log("ret", ret);
+    // console.log("ret2", ret2);
 
     return ret;
   } catch (error) {

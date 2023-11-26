@@ -123,25 +123,35 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
         launchpadData?.launchpadContract,
         parseUnits(azeroBuyAmount.toString(), 12), //-> value
         "launchpadContractTrait::whitelistPurchase",
-        livePhase?.id,
+        livePhase?.phaseID,
         formatNumToBN(
           parseFloat(amount),
           parseInt(launchpadData.projectInfo.token.decimals)
         )
       );
       if (!buyResult) return;
-      await delay(400);
+      await delay(1000);
       await APICall.askBEupdate({
         type: "launchpad",
         poolContract: launchpadData?.launchpadContract,
       });
-      setAmount(0);
-      setAzeroBuyAmount(0);
-      await delay(4000);
-      if (currentAccount) {
-        dispatch(fetchUserBalance({ currentAccount, api }));
-        dispatch(fetchLaunchpads({}));
-      }
+
+      setAmount("");
+      setAzeroBuyAmount("");
+
+      toast.promise(
+        delay(6000).then(() => {
+          if (currentAccount) {
+            dispatch(fetchUserBalance({ currentAccount, api }));
+            dispatch(fetchLaunchpads({}));
+          }
+        }),
+        {
+          loading: "Please wait up to 5s for the data to be updated!",
+          success: "Done !",
+          error: "Could not fetch data!!!",
+        }
+      );
     } catch (error) {
       console.log(error);
     }
@@ -175,7 +185,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
               const buyerInformation = obj?.whitelist?.find(
                 (e) => e?.account === currentAccount?.address
               );
-              const allowBuy = index === livePhase?.id;
+              const allowBuy = obj?.phaseID === livePhase?.phaseID;
               const wlTokenPriceStr = formatTokenAmount(
                 buyerInformation?.price,
                 12
