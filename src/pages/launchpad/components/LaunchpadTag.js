@@ -142,7 +142,7 @@ const LaunchpadTag = ({ launchpadData }) => {
             objectPosition="center"
             filter="brightness(0.4)"
             borderRadius="4px"
-            src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}/${projectInfo?.projectInfor?.headerImage}`}
+            src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${projectInfo?.projectInfor?.headerImage}`}
           />
           <Flex
             style={{
@@ -181,7 +181,7 @@ const LaunchpadTag = ({ launchpadData }) => {
               boxShadow="base"
               objectFit="cover"
               objectPosition="center"
-              src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}/${projectInfo?.projectInfor?.avatarImage}`}
+              src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${projectInfo?.projectInfor?.avatarImage}`}
             />
           </div>
         </div>
