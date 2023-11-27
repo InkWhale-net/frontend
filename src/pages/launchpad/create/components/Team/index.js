@@ -17,6 +17,7 @@ import * as Yup from "yup";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
 import { MdError } from "react-icons/md";
+import { validationWebsite } from "constants/yup";
 
 const Team = () => {
   const { updateMember, launchpadData, prevStep, nextStep } =
@@ -36,7 +37,7 @@ const Team = () => {
       name: Yup.string().required("Name required"),
       iconIPFSUrl: Yup.string().required("Avatar required"),
       title: Yup.string().required("Title required"),
-      socialLink: Yup.string().url("Invalid URL format"),
+      socialLink: validationWebsite,
     })
   );
 

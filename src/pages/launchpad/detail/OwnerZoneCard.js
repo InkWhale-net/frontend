@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Heading, Text } from "@chakra-ui/react";
+import { Box, Button, Divider, Flex, Heading, Text } from "@chakra-ui/react";
 import { useAppContext } from "contexts/AppContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -10,6 +10,8 @@ import { useModalLPDetail } from "./modal/ModelContext";
 import { formatChainStringToNumber } from "utils";
 import { delay } from "utils";
 import { fetchUserBalance } from "redux/slices/walletSlice";
+import { formatNumDynDecimal } from "utils";
+import { AzeroLogo } from "components/icons/Icons";
 
 const OwnerZoneCard = ({ launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -239,50 +241,58 @@ const OwnerZoneCard = ({ launchpadData }) => {
         paddingBottom: "12px",
       }}
     >
-      <Heading as="h4" size="md">
+      <Heading as="h4" size="md" mb="8px">
         Owner Zone
       </Heading>
-      <Text sx={{ mt: "20px", fontWeight: "700", color: "#57527E " }}>
+      {/* <Text sx={{ mt: "20px", fontWeight: "700", color: "#57527E " }}>
         Launchpad Balance
-      </Text>
+      </Text> */}
       <Divider
         sx={{
           marginBottom: "8px",
         }}
       />
       <Row
-        label="Total Token For Sale"
-        value={`${totalSupply} ${tokenSymbol}`}
+        label="Token For Sale"
+        value={`${formatNumDynDecimal(totalSupply)} ${tokenSymbol}`}
       />
       <Row
-        label="Available Amount"
-        value={`${availableAmount} ${tokenSymbol}`}
+        label="Distributed Token"
+        value={`${formatNumDynDecimal(availableAmount)} ${tokenSymbol}`}
       />
       <Row
         label="Total Whitelist Added"
-        value={`${totalWhitelistAddedAmount} ${tokenSymbol}`}
+        value={`${formatNumDynDecimal(
+          totalWhitelistAddedAmount
+        )} ${tokenSymbol}`}
       />
-      <Row label="Total Sold" value={`${totalSoldAmount} ${tokenSymbol}`} />
+      <Row
+        label="Total Sold"
+        value={`${formatNumDynDecimal(totalSoldAmount)} ${tokenSymbol}`}
+      />
 
       {totalWhitelistByPhase?.map((p, idx) => (
         <Row
           key={idx}
           label={` - ${p?.name}`}
-          value={`${p.totalSoldAmount} ${tokenSymbol}`}
+          value={`${formatNumDynDecimal(p.totalSoldAmount)} ${tokenSymbol}`}
         />
       ))}
       <Row
-        label="Total Whitelist Added"
-        value={`${formattedTotalWhitelist?.length} address(es)`}
+        label="Whitelist Address Added"
+        value={`${formattedTotalWhitelist?.length}`}
       />
       <Row
-        label="Total Whitelist Claimed"
-        value={`${totalWhitelistClaimed?.length} address(es)`}
+        label="Whitelist Address Claimed"
+        value={`${totalWhitelistClaimed?.length}`}
       />
       <Divider />
       <Box mt="16px" display="flex" justifyContent="space-between">
-        <Text>AZERO</Text>
-        <Text>{ownerBalance.toFixed(4)}</Text>
+        <Text>Balance</Text>
+        <Flex alignItems="center">
+          <Text mr="4px">{formatNumDynDecimal(ownerBalance)}</Text>
+          <AzeroLogo w="14px" />
+        </Flex>
       </Box>
 
       <Button

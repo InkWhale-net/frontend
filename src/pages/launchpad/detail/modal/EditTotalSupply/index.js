@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Flex,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -101,27 +102,48 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
       <Modal
         isOpen={visible}
         isCentered
-        size="lg"
+        size="xl"
         onClose={() => setVisible(false)}
       >
         <ModalOverlay />
         <ModalContent>
           <Formik
             initialValues={{ totalSupply }}
-            validationSchema={Yup.object().shape({
-              totalSupply: Yup.number()
-                .required(`This field is required`)
-                .min(
-                  minAllowed,
-                  `Total Supply must be greater than or equal to ${minAllowed} ${tokenSymbol}`
-                )
-                .max(
-                  parseInt(tokenBalance?.replaceAll(",", "")),
-                  `Total Supply must be less than or equal to ${parseInt(
-                    tokenBalance?.replaceAll(",", "")
-                  )} ${tokenSymbol}`
-                ),
-            })}
+            validationSchema={() =>
+              Yup.lazy((values) => {
+                if (values?.totalSupply > totalSupply) {
+                  const bal = formatChainStringToNumber(tokenBalance);
+
+                  return Yup.object().shape({
+                    totalSupply: Yup.number()
+                      .required(`This field is required`)
+                      .min(
+                        minAllowed,
+                        `Total Supply must be greater than or equal to ${minAllowed} ${tokenSymbol}`
+                      )
+                      .max(
+                        totalSupply +
+                          parseInt(tokenBalance?.replaceAll(",", "")),
+                        parseInt(bal) === 0
+                          ? `Can not topup because your balance has zero ${tokenSymbol}`
+                          : `Total Supply must be less than or equal to ${
+                              totalSupply +
+                              parseInt(tokenBalance?.replaceAll(",", ""))
+                            } ${tokenSymbol}`
+                      ),
+                  });
+                } else {
+                  return Yup.object().shape({
+                    totalSupply: Yup.number()
+                      .required(`This field is required`)
+                      .min(
+                        minAllowed,
+                        `Total Supply must be greater than or equal to ${minAllowed} ${tokenSymbol}`
+                      ),
+                  });
+                }
+              })
+            }
             onSubmit={async (values) => {
               console.log("isPhaseStart", isPhaseStart);
               if (isPhaseStart) {
@@ -208,7 +230,7 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
               }
             }}
           >
-            {({ dirty, isValid, isSubmitting }) => (
+            {({ dirty, isValid, isSubmitting, values }) => (
               <Form>
                 <ModalHeader>Edit total token for sale</ModalHeader>
 
@@ -220,25 +242,48 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
                     w="full"
                     columns={{ base: 1, lg: 2 }}
                     spacingX={{ lg: "20px" }}
-                    spacingY={{ base: "20px" }}
+                    spacingY={{ base: "0px", lg: "20px" }}
                     mb={{ base: "30px" }}
                   >
-                    <Text>Current total supply</Text>
-                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Text>Current total supply:</Text>
+                    <Box
+                      sx={{ display: "flex" }}
+                      justifyContent={["flex-start", "flex-start", "flex-end"]}
+                      mb={["12px", "12px", "0px"]}
+                    >
                       <Text>{`${formatNumDynDecimal(
                         parseInt(totalSupply)
                       )} ${tokenSymbol}`}</Text>
                     </Box>
 
-                    <Text>Available token amount </Text>
-                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Text>Distributed token to all phases: </Text>
+                    <Box
+                      sx={{ display: "flex" }}
+                      justifyContent={["flex-start", "flex-start", "flex-end"]}
+                      mb={["12px", "12px", "0px"]}
+                    >
+                      <Text>{`${formatNumDynDecimal(
+                        parseInt(totalSupply) - availableTokenAmount
+                      )} ${tokenSymbol}`}</Text>
+                    </Box>
+
+                    <Text>Undistributed token: </Text>
+                    <Box
+                      sx={{ display: "flex" }}
+                      justifyContent={["flex-start", "flex-start", "flex-end"]}
+                      mb={["12px", "12px", "0px"]}
+                    >
                       <Text>{`${formatNumDynDecimal(
                         availableTokenAmount
                       )} ${tokenSymbol}`}</Text>
                     </Box>
 
-                    <Text>Your {tokenSymbol} token balance</Text>
-                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Text>Your balance:</Text>
+                    <Box
+                      sx={{ display: "flex" }}
+                      justifyContent={["flex-start", "flex-start", "flex-end"]}
+                      mb={["12px", "12px", "0px"]}
+                    >
                       <Text>{`${formatNumDynDecimal(
                         parseInt(tokenBalance?.replaceAll(",", ""))
                       )} ${tokenSymbol}`}</Text>
@@ -246,11 +291,23 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
                   </SimpleGrid>
 
                   <Stack>
-                    <Text textAlign="left" color="brand.grayLight">
-                      {`New Total Supply (max ${formatNumDynDecimal(
-                        parseInt(tokenBalance?.replaceAll(",", ""))
-                      )} ${tokenSymbol})`}
-                    </Text>
+                    <Flex
+                      flexDirection={["column", "column", "row"]}
+                      justifyContent="space-between"
+                    >
+                      <Text textAlign="left" color="brand.grayLight">
+                        {`New total token for sale `}
+                      </Text>
+
+                      {values?.totalSupply > totalSupply ? (
+                        <Text textAlign="left" color="brand.grayLight">
+                          {` (max ${formatNumDynDecimal(
+                            totalSupply +
+                              parseInt(tokenBalance?.replaceAll(",", ""))
+                          )} ${tokenSymbol})`}
+                        </Text>
+                      ) : null}
+                    </Flex>
                     <NumberInputWrapper
                       type="number"
                       name="totalSupply"
@@ -260,7 +317,7 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
                       placeholder="Royalty Fee"
                       isDisabled={isSubmitting}
                       min={minAllowed}
-                      max={tokenBalance}
+                      max={totalSupply + tokenBalance}
                     />
                   </Stack>
                 </ModalBody>

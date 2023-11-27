@@ -16,6 +16,10 @@ import * as Yup from "yup";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
 import Tokenomic from "./Tokenomic";
+import { validationTwitter } from "constants/yup";
+import { validationWebsite } from "constants/yup";
+import { validationDiscord } from "constants/yup";
+import { validationTelegram } from "constants/yup";
 
 const ProjectInfor = () => {
   const { updateProjectInfor, launchpadData, nextStep, prevStep } =
@@ -44,10 +48,10 @@ const ProjectInfor = () => {
       /^(https:\/\/www\.youtube\.com\/embed\/[A-Za-z0-9_-]+)$/,
       "Invalid YouTube Embed URL format"
     ),
-    website: Yup.string().url("Invalid URL format"),
-    twitter: Yup.string().url("Invalid URL format"),
-    discord: Yup.string().url("Invalid URL format"),
-    telegram: Yup.string().url("Invalid URL format"),
+    website: validationWebsite,
+    twitter: validationTwitter,
+    discord: validationDiscord,
+    telegram: validationTelegram,
   });
   const handleSubmit = (values, actions) => {
     updateProjectInfor({
@@ -226,8 +230,10 @@ const ProjectInfor = () => {
               )}
             </Field>
           </SectionContainer>
+
           <Tokenomic updateTokenomic={updateTokenomic} />
-          <SectionContainer title="Tokenomics more info">
+
+          <SectionContainer title="Tokenomics information">
             <IWTextArea
               maxLength={300}
               value={projectInfor?.tokenomicsMoreInfo}
@@ -237,9 +243,10 @@ const ProjectInfor = () => {
                   tokenomicsMoreInfo: target.value,
                 })
               }
-              placeholder="Tokenomics more information"
+              placeholder="Add more information about your tokenomics..."
             />
           </SectionContainer>
+
           <SimpleGrid columns={[1, 1, 2]} spacing={4}>
             <SectionContainer title="Website">
               <Field name="website">

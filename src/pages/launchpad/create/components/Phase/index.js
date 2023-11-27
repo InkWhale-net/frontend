@@ -1,3 +1,4 @@
+import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
@@ -12,21 +13,24 @@ import {
   Text,
   Tooltip,
 } from "@chakra-ui/react";
-import SectionContainer from "../sectionContainer";
-import { useState } from "react";
+import { AzeroLogo } from "components/icons/Icons";
 import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
-import DateTimePicker from "react-datetime-picker";
-import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
-import { useEffect } from "react";
-import { BsTrashFill } from "react-icons/bs";
-import { QuestionOutlineIcon } from "@chakra-ui/icons";
-import { AzeroLogo } from "components/icons/Icons";
 import { Field, Form, Formik } from "formik";
-import * as Yup from "yup";
+import { useEffect, useRef, useState } from "react";
+import DateTimePicker from "react-datetime-picker";
+import { BsTrashFill } from "react-icons/bs";
 import { MdError } from "react-icons/md";
-import { delay } from "utils";
-const roundToMinute = (date) => {
+import { delay, formatNumDynDecimal, formatTextAmount } from "utils";
+import * as Yup from "yup";
+import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
+import {
+  checkDuplicatedWL,
+  processStringToArray,
+  verifyWhitelist,
+} from "../../utils";
+import SectionContainer from "../sectionContainer";
+export const roundToMinute = (date) => {
   const roundedDate = new Date(date);
   roundedDate.setSeconds(0);
   roundedDate.setMilliseconds(0);
@@ -62,10 +66,11 @@ const Phase = () => {
       },
     ],
   });
+  const formRef = useRef(null);
 
   useEffect(() => {
     if (current === 4) {
-      window.scrollTo(0, 0);
+      // window.scrollTo(0, 0);
       // if (launchpadData?.phase) setPhaseList(launchpadData?.phase);
       // if (launchpadData?.totalSupply)
       //   setTotalSupply(launchpadData?.totalSupply);
@@ -116,64 +121,206 @@ const Phase = () => {
   };
 
   const validationSchema = Yup.object().shape({
-    totalSupply: Yup.string().required("Total For Sale is required"),
-    phase: Yup.array().of(
-      Yup.object().shape({
-        name: Yup.string().required("Name required"),
-        startDate: Yup.date().required("Start date is required"),
-        endDate: Yup.date()
-          .test(
-            "is-after-start",
-            "End date must be after start date",
+    totalSupply: Yup.string()
+      .test(
+        "is-valid-totalSupply",
+        `You do not have enough tokens for sale. Please reduce total tokens for sale or send more tokens to the wallet`,
+        function (value) {
+          return +value <= +formatTextAmount(launchpadData?.token?.balance);
+        }
+      )
+      .test(
+        "is-valid-totalSupply",
+        `Invalid total for sale amount`,
+        function (value) {
+          return +value > 0;
+        }
+      )
+      .required("Total For Sale is required"),
+    phase: Yup.array()
+      .of(
+        Yup.object().shape({
+          name: Yup.string().required("Name required"),
+          startDate: Yup.date().required("Start date is required"),
+          endDate: Yup.date()
+            .test(
+              "is-after-start",
+              "End date must be after start date",
+              function (value) {
+                const startDate = this.parent.startDate;
+                return !startDate || !value || value > startDate;
+              }
+            )
+            .required("End date is required"),
+          capAmount: Yup.string().required("This field is required"),
+          immediateReleaseRate: Yup.number()
+            .required("This field is required")
+            .test(
+              "is-valid-immediateReleaseRate",
+              "Release rate must be input from 0 to 100",
+              function (value) {
+                return +value > 0 ? true : null;
+              }
+            ),
+          vestingLength: Yup.string().test(
+            "is-require-vesting-length",
+            "This field is required",
             function (value) {
-              const startDate = this.parent.startDate;
-              return !startDate || !value || value > startDate;
+              const immediateReleaseRate = this.parent.immediateReleaseRate;
+              return +immediateReleaseRate == 100
+                ? true
+                : +value > 0
+                ? true
+                : null;
             }
-          )
-          .required("End date is required"),
-        capAmount: Yup.string().required("This field is required"),
-        immediateReleaseRate: Yup.number()
-          .required("This field is required")
-          .test(
-            "is-valid-immediateReleaseRate",
-            "Value must be in range 0 to 100",
-            (value) => (+value > 0 ? "ok" : null)
           ),
-        vestingLength: Yup.string().test(
-          "is-require-vesting-length",
-          "This field is required",
-          function (value) {
-            const immediateReleaseRate = this.parent.immediateReleaseRate;
-            return +immediateReleaseRate == 100
-              ? "ok"
-              : +value > 0
-              ? "ok"
-              : null;
-          }
-        ),
-        vestingUnit: Yup.string().test(
-          "is-require-vesting-unit",
-          "This field is required",
-          function (value) {
-            const immediateReleaseRate = this.parent.immediateReleaseRate;
-            return +immediateReleaseRate == 100
-              ? "ok"
-              : +value > 0
-              ? "ok"
-              : null;
-          }
-        ),
-      })
-    ),
+          vestingUnit: Yup.string().test(
+            "is-require-vesting-unit",
+            "This field is required",
+            function (value) {
+              const immediateReleaseRate = this.parent.immediateReleaseRate;
+              return +immediateReleaseRate == 100
+                ? true
+                : +value > 0
+                ? true
+                : null;
+            }
+          ),
+          phasePublicAmount: Yup.string()
+            .test(
+              "is-require-phasePublicAmount",
+              "This field is required",
+              function (value) {
+                const allowPublicSale = this.parent.allowPublicSale;
+                return allowPublicSale == false ? true : +value > 0;
+              }
+            )
+            .test(
+              "is-valid-phasePublicAmount",
+              "Whitelist & public sale amount cannot exceed phase cap",
+              function (value) {
+                const capAmount = this.parent.capAmount;
+                const allowPublicSale = this.parent.allowPublicSale;
+                const wlStr = this.parent?.whiteList;
+                const whitelistData = wlStr && processStringToArray(wlStr);
+                const totalWhitelist =
+                  whitelistData?.reduce(
+                    (wlAcc, currentWLValue) => wlAcc + currentWLValue?.amount,
+                    0
+                  ) || 0;
+                return (
+                  allowPublicSale == false ||
+                  (allowPublicSale == true &&
+                    (+value || 0) + totalWhitelist <= +capAmount)
+                );
+              }
+            ),
+          phasePublicPrice: Yup.string().test(
+            "is-require-phasePublicAmount",
+            "This field is required",
+            function (value) {
+              const allowPublicSale = this.parent.allowPublicSale;
+              return (
+                allowPublicSale == false ||
+                (allowPublicSale == true && +value > 0)
+              );
+            }
+          ),
+          whiteList: Yup.string()
+            .test(
+              "is-valid-whitelist",
+              "Invalid whitelist format",
+              function (value) {
+                if (value?.length > 0) {
+                  return verifyWhitelist(value);
+                } else return true;
+              }
+            )
+            .test(
+              "is-duplicated-whitelist",
+              "Duplicated whitelisted addresses",
+              function (value) {
+                if (value?.length > 0) {
+                  return !checkDuplicatedWL(value);
+                } else return true;
+              }
+            )
+            .test(
+              "is-valid-whitelist-no-allowPublicSale",
+              "Total public sale and whitelist must not higher phase cap",
+              function (value) {
+                const capAmount = this.parent.capAmount;
+                const allowPublicSale = this.parent.allowPublicSale;
+                const phasePublicAmount = this.parent.phasePublicAmount;
+                const whitelistData =
+                  value?.length > 0 ? processStringToArray(value) : null;
+                const totalWhitelist = whitelistData
+                  ? whitelistData?.reduce(
+                      (wlAcc, currentWLValue) => wlAcc + currentWLValue?.amount,
+                      0
+                    )
+                  : 0;
+                return (
+                  allowPublicSale == false ||
+                  (allowPublicSale == true &&
+                    (+phasePublicAmount || 0) + totalWhitelist <= +capAmount)
+                );
+              }
+            )
+            .test(
+              "is-valid-whitelist-allowPublicSale",
+              "Total whitelist amount cannot exceed phase cap",
+              function (value) {
+                const capAmount = this.parent.capAmount;
+                if (!(capAmount?.length > 0)) return true;
+                const allowPublicSale = this.parent.allowPublicSale;
+                const whitelistData =
+                  value?.length > 0 ? processStringToArray(value) : null;
+                const totalWhitelist = whitelistData
+                  ? whitelistData?.reduce(
+                      (wlAcc, currentWLValue) => wlAcc + currentWLValue?.amount,
+                      0
+                    )
+                  : 0;
+                return (
+                  allowPublicSale == true ||
+                  (allowPublicSale == false &&
+                    (totalWhitelist || 0) <= +capAmount)
+                );
+              }
+            ),
+        })
+      )
+      .test(
+        "is-valid-cap-amount",
+        "All phases cap have exceeded total tokens for sale. Please edit the amount accordingly",
+        function (values) {
+          const totalSupply = this.parent.totalSupply;
+          const sum = values?.reduce(
+            (accumulator, currentValue) =>
+              accumulator + (+currentValue?.capAmount || 0),
+            0
+          );
+          return sum <= totalSupply;
+        }
+      )
+      // .test(
+      //   "is-valid-timerange",
+      //   "Phase time range can not overlapse",
+      //   function (values) {
+      //     const phaseData = this.parent.phase;
+      //     console.log(phaseData);
+      //   }
+      // ),
   });
 
   const handleSubmit = async (values, actions) => {
-    actions.setSubmitting(false);
     await updatePhase(values.phase);
     await updateRequireKyc(values.requireKyc);
     await updateTotalSupply(values.totalSupply);
     await delay(1000);
-    await handleAddNewLaunchpad();
+    await handleAddNewLaunchpad(values);
+    actions.setSubmitting(false);
   };
 
   return (
@@ -183,7 +330,7 @@ const Phase = () => {
       onSubmit={handleSubmit}
     >
       <Form>
-        <SectionContainer title={"Total For Sale"}>
+        <SectionContainer title="Total token For Sale">
           <Field name="totalSupply">
             {({ field, form }) => (
               <FormControl
@@ -218,7 +365,7 @@ const Phase = () => {
           KYC Verification (Know Your Customer)
           <Tooltip
             fontSize="md"
-            label={`Lorem KYC Verification is Know Your Customer`}
+            label={`KYC Verification is Know Your Customer`}
           >
             <QuestionOutlineIcon ml="6px" color="text.2" />
           </Tooltip>
@@ -414,7 +561,8 @@ const Phase = () => {
                   <SimpleGrid columns={[1, 1, 4]} spacing={2}>
                     <FormControl
                       isInvalid={
-                        form.errors?.phase?.[index]?.capAmount &&
+                        (form.errors?.phase?.[index]?.capAmount ||
+                          form.errors?.phase) &&
                         form.touched?.phase?.[index]?.capAmount
                       }
                     >
@@ -448,7 +596,9 @@ const Phase = () => {
                           placeholder="0"
                         />
                         <FormErrorMessage>
-                          {form.errors?.phase?.[index]?.capAmount}
+                          {form.errors?.phase?.[index]?.capAmount ||
+                            (typeof form.errors?.phase === "string" &&
+                              form.errors?.phase)}
                         </FormErrorMessage>
                       </SectionContainer>
                     </FormControl>
@@ -581,19 +731,16 @@ const Phase = () => {
                           sx={{ mt: "4px", ml: "16px" }}
                           id="zero-reward-pools"
                           isChecked={obj?.allowPublicSale}
-                          onChange={
-                            () => {}
-                            // setPhaseList((prevState) => {
-                            //   const updatedArray = [...prevState];
-                            //   if (index >= 0 && index < updatedArray.length) {
-                            //     updatedArray[index] = {
-                            //       ...updatedArray[index],
-                            //       allowPublicSale: !obj?.allowPublicSale,
-                            //     };
-                            //   }
-                            //   return updatedArray;
-                            // })
-                          }
+                          onChange={() => {
+                            const updatedArray = [...form.values.phase];
+                            if (index >= 0 && index < updatedArray?.length) {
+                              updatedArray[index] = {
+                                ...updatedArray[index],
+                                allowPublicSale: !obj?.allowPublicSale,
+                              };
+                            }
+                            form.setFieldValue("phase", updatedArray);
+                          }}
                         />
                       </Box>
                     ) : null}
@@ -602,93 +749,120 @@ const Phase = () => {
                     <>
                       {obj?.allowPublicSale && (
                         <SimpleGrid columns={[1, 1, 3]} spacing={4}>
-                          <SectionContainer title={"Public Amount"}>
-                            <IWInput
-                              type="number"
-                              inputRightElementIcon={
-                                launchpadData?.token?.symbol
-                              }
-                              value={obj?.phasePublicAmount}
-                              onChange={
-                                ({ target }) => {}
-                                // setPhaseList((prevState) => {
-                                //   const updatedArray = [...prevState];
-                                //   if (
-                                //     index >= 0 &&
-                                //     index < updatedArray.length
-                                //   ) {
-                                //     updatedArray[index] = {
-                                //       ...updatedArray[index],
-                                //       phasePublicAmount: target.value,
-                                //     };
-                                //   }
-                                //   return updatedArray;
-                                // })
-                              }
-                              placeholder="0"
-                            />
-                          </SectionContainer>
-                          <SectionContainer title={"Phase Public Price"}>
-                            <IWInput
-                              type="number"
-                              inputRightElementIcon={<AzeroLogo />}
-                              value={obj?.phasePublicPrice}
-                              // onChange={({ target }) =>
-                              //   setPhaseList((prevState) => {
-                              //     const updatedArray = [...prevState];
-                              //     if (
-                              //       index >= 0 &&
-                              //       index < updatedArray.length
-                              //     ) {
-                              //       updatedArray[index] = {
-                              //         ...updatedArray[index],
-                              //         phasePublicPrice: target.value,
-                              //       };
-                              //     }
-                              //     return updatedArray;
-                              //   })
-                              // }
-                              placeholder="0.0000"
-                            />
-                          </SectionContainer>
+                          <FormControl
+                            isInvalid={
+                              form.errors?.phase?.[index]?.phasePublicAmount &&
+                              form.touched?.phase?.[index]?.phasePublicAmount
+                            }
+                          >
+                            <SectionContainer
+                              title="Public Amount"
+                              isRequiredLabel
+                            >
+                              <IWInput
+                                type="number"
+                                inputRightElementIcon={
+                                  launchpadData?.token?.symbol
+                                }
+                                value={obj?.phasePublicAmount}
+                                onChange={({ target }) => {
+                                  const updatedArray = [...form.values.phase];
+                                  if (
+                                    index >= 0 &&
+                                    index < updatedArray?.length
+                                  ) {
+                                    updatedArray[index] = {
+                                      ...updatedArray[index],
+                                      phasePublicAmount: target.value,
+                                    };
+                                  }
+                                  form.setFieldValue("phase", updatedArray);
+                                }}
+                                placeholder="0"
+                              />
+                              <FormErrorMessage>
+                                {form.errors?.phase?.[index]?.phasePublicAmount}
+                              </FormErrorMessage>
+                            </SectionContainer>
+                          </FormControl>
+                          <FormControl
+                            isInvalid={
+                              form.errors?.phase?.[index]?.phasePublicPrice &&
+                              form.touched?.phase?.[index]?.phasePublicPrice
+                            }
+                          >
+                            <SectionContainer
+                              title="Phase Public Price"
+                              isRequiredLabel
+                            >
+                              <IWInput
+                                type="number"
+                                step="any"
+                                inputRightElementIcon={<AzeroLogo />}
+                                value={obj?.phasePublicPrice}
+                                onChange={({ target }) => {
+                                  const updatedArray = [...form.values.phase];
+                                  if (
+                                    index >= 0 &&
+                                    index < updatedArray?.length
+                                  ) {
+                                    updatedArray[index] = {
+                                      ...updatedArray[index],
+                                      phasePublicPrice: target.value,
+                                    };
+                                  }
+                                  form.setFieldValue("phase", updatedArray);
+                                }}
+                                placeholder="0.0000"
+                              />
+                              <FormErrorMessage>
+                                {form.errors?.phase?.[index]?.phasePublicPrice}
+                              </FormErrorMessage>
+                            </SectionContainer>
+                          </FormControl>
                         </SimpleGrid>
                       )}
                       <Divider sx={{ marginTop: "8px" }} />
-                      <SectionContainer
-                        title={
-                          <>
-                            White list
-                            <Tooltip
-                              fontSize="md"
-                              label={`Enter one address, whitelist amount and price on each line.
-                A decimal separator of amount must use dot (.)`}
-                            >
-                              <QuestionOutlineIcon ml="6px" color="text.2" />
-                            </Tooltip>
-                          </>
+                      <FormControl
+                        isInvalid={
+                          form.errors?.phase?.[index]?.whiteList &&
+                          form.touched?.phase?.[index]?.whiteList
                         }
                       >
-                        <IWTextArea
-                          sx={{
-                            height: "80px",
-                          }}
-                          value={obj?.whiteList}
-                          onChange={
-                            ({ target }) => {}
-                            // setPhaseList((prevState) => {
-                            //   const updatedArray = [...prevState];
-                            //   if (index >= 0 && index < updatedArray.length) {
-                            //     updatedArray[index] = {
-                            //       ...updatedArray[index],
-                            //       whiteList: target.value,
-                            //     };
-                            //   }
-                            //   return updatedArray;
-                            // })
+                        <SectionContainer
+                          title={
+                            <>
+                              White list
+                              <Tooltip
+                                fontSize="md"
+                                label={`Enter one address, whitelist amount and price on each line.
+                A decimal separator of amount must use dot (.)`}
+                              >
+                                <QuestionOutlineIcon ml="6px" color="text.2" />
+                              </Tooltip>
+                            </>
                           }
-                          placeholder={`Sample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL, 20, 2`}
-                        />
-                      </SectionContainer>
+                        >
+                          <IWTextArea
+                            sx={{ height: "80px" }}
+                            value={obj?.whiteList}
+                            onChange={({ target }) => {
+                              const updatedArray = [...form.values.phase];
+                              if (index >= 0 && index < updatedArray?.length) {
+                                updatedArray[index] = {
+                                  ...updatedArray[index],
+                                  whiteList: target.value,
+                                };
+                              }
+                              form.setFieldValue("phase", updatedArray);
+                            }}
+                            placeholder={`Sample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn,100,0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL,20,2`}
+                          />
+                          <FormErrorMessage>
+                            {form.errors?.phase?.[index]?.whiteList}
+                          </FormErrorMessage>
+                        </SectionContainer>
+                      </FormControl>
                     </>
                   ) : null}
                 </Box>

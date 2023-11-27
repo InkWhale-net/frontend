@@ -43,6 +43,10 @@ import { execContractQuery, execContractTx } from "utils/contracts";
 import { parseUnits } from "ethers";
 import { formatTokenAmount } from "utils";
 import IWCountDownClaim from "./ClaimButton";
+import { formatTextAmount } from "utils";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import psp22_contract from "utils/contracts/psp22_contract";
+import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
 
@@ -61,6 +65,7 @@ export default function FaucetPage({ api }) {
   const [inwBuyAmount, setInwBuyAmount] = useState("");
   const [azeroBuyAmount, setAzeroBuyAmount] = useState("");
   const [inwInCur, setInwInCur] = useState(0);
+  const [swappedV2Amount, setSwappedV2Amount] = useState(0);
   const [inwPrice, setInwPrice] = useState(0);
   const [tabIndex, setTabIndex] = useState(0);
   const [saleInfo, setSaleInfo] = useState({});
@@ -325,6 +330,17 @@ export default function FaucetPage({ api }) {
               )
             )
           );
+          const queryContractBalance = await execContractQuery(
+            publicCurrentAccount?.address,
+            api,
+            psp22_contract_v2.CONTRACT_ABI,
+            psp22_contract.CONTRACT_ADDRESS,
+            0,
+            "psp22::balanceOf",
+            swap_inw2_contract.CONTRACT_ADDRESS
+          );
+          const contractBalance = queryContractBalance?.toHuman()?.Ok;
+          setSwappedV2Amount(formatTokenAmount(contractBalance, 12));
           if (!inwBurn) {
             let result1 = await execContractQuery(
               process.env.REACT_APP_PUBLIC_ADDRESS,
@@ -336,13 +352,8 @@ export default function FaucetPage({ api }) {
             );
             const inwTotalSupplyCap = formatQueryResultToNumber(result1);
             setInwBurn(
-              parseFloat(inwTotalSupplyCap?.replaceAll(",", "")) -
-                parseFloat(
-                  formatTokenAmount(
-                    INWTotalSupplyResponse?.ret?.totalSupply,
-                    12
-                  )
-                )
+              +formatTextAmount(inwTotalSupplyCap) -
+                +formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
             );
           }
         } else {
@@ -611,7 +622,7 @@ export default function FaucetPage({ api }) {
                 {saleInfo?.endTimeSale ? (
                   notSaleStart ? (
                     <>
-                      Sale start in:{" "}
+                      Sale starts in:{" "}
                       <Text paddingLeft={"4px"}>
                         <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
                       </Text>{" "}
@@ -776,7 +787,7 @@ export default function FaucetPage({ api }) {
                 {saleInfo?.endTimeSale ? (
                   notSaleStart ? (
                     <>
-                      Sale start in:{" "}
+                      Sale starts in:{" "}
                       <Text paddingLeft={"4px"}>
                         <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
                       </Text>{" "}
@@ -896,6 +907,10 @@ export default function FaucetPage({ api }) {
               },
               { title: "Total Supply", content: `${inwTotalSupply} INW` },
               { title: "In Circulation ", content: `${inwInCur} INW` },
+              {
+                title: "Total Swap To INW V2 ",
+                content: `${formatNumDynDecimal(swappedV2Amount)} INW`,
+              },
               {
                 title: "Total Burned ",
                 content: `${formatNumDynDecimal(inwBurn)} INW`,

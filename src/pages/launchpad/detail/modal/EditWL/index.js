@@ -200,7 +200,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
 
   const tabsData = [
     {
-      label: `${launchpadData?.requireKyc ? "Edit Whitelist" : "Single add"}`,
+      label: `${launchpadData?.requireKyc ? "Edit Whitelist" : "Single"}`,
       component: (
         <EditWhitelist
           isPhaseEditable={isPhaseEditable}
@@ -219,7 +219,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
       isDisabled: false,
     },
     {
-      label: `${launchpadData?.requireKyc ? "Import KYC address" : "Bulk add"}`,
+      label: `${launchpadData?.requireKyc ? "Import KYC address" : "Bulk"}`,
       component: (
         <AddBulk
           launchpadData={launchpadData}
@@ -244,7 +244,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
         <ModalHeader fontSize={["2xl", "3xl"]}>
           {launchpadData?.requireKyc
             ? "Manage KYC & Whitelist"
-            : "Update Whitelist"}
+            : "Whitelist Manager"}
         </ModalHeader>
         <ModalCloseButton onClick={() => setVisible(false)} />
         <ModalBody pt="0" sx={{ pb: "28px" }}>
@@ -253,9 +253,13 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
               w="full"
               flexDirection={["column", "column", "row"]}
               alignItems={["start", "start", "center"]}
-              justifyContent="space-between"
+              justifyContent="start"
             >
-              <Flex alignItems="center" minW={["100%", "100%", "33%"]}>
+              <Flex
+                alignItems="center"
+                mr={["0px", "0px", "40px"]}
+                mb={["16px", "16px", "0px"]}
+              >
                 <Text
                   mr="16px"
                   minW="fit-content"
@@ -279,13 +283,13 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                 </Select>
               </Flex>
 
-              <Text>
+              {/* <Text>
                 Balance:{" "}
                 <Text as="span" fontWeight={600}>
                   {`${formatNumDynDecimal(availableTokenAmount)}
                 ${launchpadData?.projectInfo?.token?.symbol}`}
                 </Text>
-              </Text>
+              </Text> */}
 
               <Text>
                 Phase Cap:{" "}
@@ -356,12 +360,13 @@ function EditWhitelist({
             setSelectedWL={setSelectedWL}
             availableTokenAmount={availableTokenAmount}
             phaseCapAmount={phaseHeaderInfo?.capAmount}
+            whitelist={whitelist}
           />
         )}
       </Box>
 
       <Box sx={{ flex: 1, pt: "30px" }}>
-        <IWInput
+        {/* <IWInput
           size="md"
           value={queries?.keyword}
           width={{ base: "full" }}
@@ -370,11 +375,12 @@ function EditWhitelist({
           }
           placeholder="Search"
           inputRightElementIcon={<SearchIcon color="#57527E" />}
-        />
+        /> */}
         <TableContainer
+          // mt="18px"
           width="full"
           sx={{
-            my: "18px",
+            mb: "18px",
             border: "1px solid #E3DFF3",
             borderRadius: 8,
           }}
@@ -409,7 +415,6 @@ function EditWhitelist({
                     return (
                       <Tr
                         key={row.id}
-                        cursor="pointer"
                         border="1px solid transparent"
                         _hover={{
                           border: "1px solid #93F0F5",

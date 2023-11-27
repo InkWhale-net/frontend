@@ -8,10 +8,12 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Stack,
   Text,
 } from "@chakra-ui/react";
 import { ContractPromise } from "@polkadot/api-contract";
 import { useAppContext } from "contexts/AppContext";
+import { useSwapV2TokenContext } from "contexts/SwapV2TokenModalContext";
 import { useEffect, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
 import toast from "react-hot-toast";
@@ -33,11 +35,20 @@ import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
 import "./styles.css";
 import { execContractTx } from "./utils";
+import { getSwapGasLimit } from "utils/contracts/dryRun";
+
 export const INWSwap = () => {
   const amountRef = useRef(null);
+  const { modalVisible, closeSwapModal, openSwapModal } =
+    useSwapV2TokenContext();
   if (isMobile) return null;
   return (
-    <Menu placement="bottom-end">
+    <Menu
+      isOpen={modalVisible}
+      onClose={() => closeSwapModal()}
+      onOpen={() => openSwapModal()}
+      placement="bottom-end"
+    >
       {({ isOpen }) => (
         <>
           <MenuButton
@@ -102,6 +113,8 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
   const inwBalance = +currentAccount?.balance?.inw?.replaceAll(",", "");
   const inw2Balance = +currentAccount?.balance?.inw2?.replaceAll(",", "");
 
+  const [step, setStep] = useState(1);
+
   const dispatch = useDispatch();
   const swapToTokenv2 = async () => {
     try {
@@ -118,7 +131,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         );
         return;
       }
-      toast("Approve...");
+      toast("Step1: Approve...");
       const allowanceTokenQr = await execContractQuery(
         currentAccount?.address,
         api,
@@ -132,7 +145,11 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
       const allowanceINW = formatQueryResultToNumber(
         allowanceTokenQr
       ).replaceAll(",", "");
+
+      console.log("allowanceINW", allowanceINW);
+
       if (+allowanceINW < +amount) {
+        setStep(1);
         let approve = await execContractTx(
           currentAccount,
           api,
@@ -140,24 +157,32 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
           process.env.REACT_APP_INW_TOKEN_ADDRESS,
           0, //-> value
           "psp22::approve",
-          1.05,
+          2,
           swap_inw2_contract.CONTRACT_ADDRESS,
           formatNumToBN(amount)
         );
         if (!approve) return;
       }
-      toast("Swap...");
-      await execContractTx(
-        currentAccount,
-        api,
-        swap_inw2_contract.CONTRACT_ABI,
-        swap_inw2_contract.CONTRACT_ADDRESS,
-        0,
-        "inwSwapTrait::swap",
-        1.05,
-        formatNumToBN(amount)
-      );
-      await delay(500).then(() => {
+
+      await delay(1500).then(async () => {
+        setStep(2);
+
+        toast("Step2: Swap...");
+        await execContractTx(
+          currentAccount,
+          api,
+          swap_inw2_contract.CONTRACT_ABI,
+          swap_inw2_contract.CONTRACT_ADDRESS,
+          0,
+          "inwSwapTrait::swap",
+          2,
+          formatNumToBN(amount)
+        );
+      });
+
+      await delay(1500).then(() => {
+        setStep(1);
+
         if (currentAccount) {
           dispatch(fetchUserBalance({ currentAccount, api }));
         }
@@ -165,6 +190,8 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         setGas(0);
       });
     } catch (error) {
+      setStep(1);
+
       console.log(error);
     }
   };
@@ -183,7 +210,6 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         );
         return;
       }
-      toast("Approve...");
       const allowanceTokenQr = await execContractQuery(
         currentAccount?.address,
         api,
@@ -197,7 +223,14 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
       const allowanceINW = formatQueryResultToNumber(
         allowanceTokenQr
       ).replaceAll(",", "");
+
+      console.log("allowanceINW", allowanceINW);
+
       if (+allowanceINW < +amount) {
+        toast("Step1: Approve...");
+
+        setStep(1);
+
         let approve = await execContractTx(
           currentAccount,
           api,
@@ -205,24 +238,32 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
           psp22_contract_v2.CONTRACT_ADDRESS,
           0, //-> value
           "psp22::approve",
-          1.05,
+          2,
           swap_inw2_contract.CONTRACT_ADDRESS,
           formatNumToBN(amount)
         );
         if (!approve) return;
       }
-      toast("Swap...");
-      await execContractTx(
-        currentAccount,
-        api,
-        swap_inw2_contract.CONTRACT_ABI,
-        swap_inw2_contract.CONTRACT_ADDRESS,
-        0,
-        "inwSwapTrait::swapInwV2ToV1",
-        1.05,
-        formatNumToBN(amount)
-      );
-      await delay(500).then(() => {
+
+      await delay(1500).then(async () => {
+        setStep(2);
+
+        toast("Step2: Swap...");
+        await execContractTx(
+          currentAccount,
+          api,
+          swap_inw2_contract.CONTRACT_ABI,
+          swap_inw2_contract.CONTRACT_ADDRESS,
+          0,
+          "inwSwapTrait::swapInwV2ToV1",
+          2,
+          formatNumToBN(amount)
+        );
+      });
+
+      await delay(1500).then(() => {
+        setStep(1);
+
         if (currentAccount) {
           dispatch(fetchUserBalance({ currentAccount, api }));
         }
@@ -230,6 +271,8 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         setGas(0);
       });
     } catch (error) {
+      setStep(1);
+
       console.log(error);
     }
   };
@@ -325,6 +368,106 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
       console.log(error);
     }
   };
+
+  // ==================================
+  const [gasSwapToV2, setGasSwapToV2] = useState(0);
+  const [gasApproveToV2, setGasApproveToV2] = useState(0);
+
+  const [gasSwapToV1, setGasSwapToV1] = useState(0);
+  const [gasApproveToV1, setGasApproveToV1] = useState(0);
+
+  useEffect(() => {
+    console.log("amount", amount);
+    // to v2
+    const fetchDataGasApproveToV2 = async () => {
+      const contract = new ContractPromise(
+        api,
+        psp22_contract.CONTRACT_ABI,
+        process.env.REACT_APP_INW_TOKEN_ADDRESS
+      );
+
+      const gasLimitResult = await getSwapGasLimit(
+        api,
+        currentAccount?.address,
+        "psp22::approve",
+        contract,
+        { value: 0 },
+        [swap_inw2_contract.CONTRACT_ADDRESS, formatNumToBN(amount)]
+      );
+
+      console.log("Gas Approve To V2", gasLimitResult * 1.688);
+      setGasApproveToV2(gasLimitResult * 1.688);
+    };
+
+    fetchDataGasApproveToV2();
+
+    const fetchDataGasSwapToV2 = async () => {
+      const contract = new ContractPromise(
+        api,
+        swap_inw2_contract.CONTRACT_ABI,
+        swap_inw2_contract.CONTRACT_ADDRESS
+      );
+
+      const gasLimitResult = await getSwapGasLimit(
+        api,
+        currentAccount?.address,
+        "inwSwapTrait::swap",
+        contract,
+        { value: 0 },
+        [formatNumToBN(amount)]
+      );
+      console.log("Gas Swap To V2", gasLimitResult * 1.05);
+      setGasSwapToV2(gasLimitResult * 1.05);
+    };
+
+    fetchDataGasSwapToV2();
+
+    // to v1
+    const fetchDataGasApproveToV1 = async () => {
+      const contract = new ContractPromise(
+        api,
+        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ADDRESS
+      );
+
+      const gasLimitResult = await getSwapGasLimit(
+        api,
+        currentAccount?.address,
+        "psp22::approve",
+        contract,
+        { value: 0 },
+        [swap_inw2_contract.CONTRACT_ADDRESS, formatNumToBN(amount)]
+      );
+
+      console.log("fetchDataGasApproveToV1", gasLimitResult * 1.688);
+      setGasApproveToV1(gasLimitResult * 1.688);
+    };
+
+    fetchDataGasApproveToV1();
+
+    const fetchDataGasSwapToV1 = async () => {
+      const contract = new ContractPromise(
+        api,
+        swap_inw2_contract.CONTRACT_ABI,
+        swap_inw2_contract.CONTRACT_ADDRESS
+      );
+
+      const gasLimitResult = await getSwapGasLimit(
+        api,
+        currentAccount?.address,
+        "inwSwapTrait::swapInwV2ToV1",
+        contract,
+        { value: 0 },
+        [formatNumToBN(amount)]
+      );
+      console.log("fetchDataGasSwapToV1", gasLimitResult * 1.05);
+      setGasSwapToV1(gasLimitResult * 1.05);
+    };
+
+    fetchDataGasSwapToV1();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [amount, api, currentAccount?.address, amount, step]);
+
   return (
     <Box minW={!isMobile && "400px"} px="12px">
       <Flex className="balance-container">
@@ -383,7 +526,23 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         />
       </Flex>
       <Flex justify="center" py="12px">
-        <Flex className="change-swap-option-button">
+        <Flex
+          onClick={() => {
+            switch (fromToken.token) {
+              case "inw":
+                setFromToken(supportedToken[1]);
+                setToToken(supportedToken[0]);
+                break;
+              case "inw2":
+                setFromToken(supportedToken[0]);
+                setToToken(supportedToken[1]);
+                break;
+              default:
+                break;
+            }
+          }}
+          className="change-swap-option-button"
+        >
           <FaChevronDown />
         </Flex>
       </Flex>
@@ -433,8 +592,35 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
           ref={amountRef}
         />
       </Flex>
+
       <Flex justify="end" fontSize="16px">
-        <Text mr="4px">Estimated gas fee: {gas} Azero</Text>
+        {fromToken.name === "INW" ? (
+          <Stack>
+            {step === 1 ? (
+              <Text mr="4px">
+                Step 1: Approve Estimated Gas: {gasApproveToV2.toFixed(8)} Azero
+              </Text>
+            ) : null}
+            {step === 2 ? (
+              <Text mr="4px">
+                Step 2: Swap Estimated Gas: {gasSwapToV2.toFixed(8)} Azero
+              </Text>
+            ) : null}
+          </Stack>
+        ) : (
+          <Stack>
+            {step === 1 ? (
+              <Text mr="4px">
+                Step 1: Approve Estimated Gas: {gasApproveToV1.toFixed(8)} Azero
+              </Text>
+            ) : null}
+            {step === 2 ? (
+              <Text mr="4px">
+                Step 2: Swap Estimated Gas: {gasSwapToV1.toFixed(8)} Azero
+              </Text>
+            ) : null}
+          </Stack>
+        )}
       </Flex>
       <Button
         isLoading={isLoading}

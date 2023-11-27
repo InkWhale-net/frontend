@@ -90,7 +90,7 @@ export const processStringToArray = (input) => {
     const result = [];
 
     lines.forEach((line) => {
-      const [address, amount, price] = line?.trim().split(", ");
+      const [address, amount, price] = line?.trim().split(",");
       result.push({ address, amount: Number(amount), price: Number(price) });
     });
 
@@ -131,7 +131,7 @@ export const verifyWhitelist = (wlString) => {
   return true;
 };
 
-const checkDuplicatedWL = (wlString) => {
+export const checkDuplicatedWL = (wlString) => {
   const whitelistphase = processStringToArray(wlString);
   const addressSet = new Set();
 
@@ -143,74 +143,6 @@ const checkDuplicatedWL = (wlString) => {
   }
 
   return false;
-};
-export const validateTotalSupply = (phaseData, totalSupply, tokenBalance) => {
-  try {
-    if (totalSupply > tokenBalance) {
-      toast.error("Total for sale is not higher you balance");
-      return false;
-    }
-    if (!(totalSupply > 0)) {
-      toast.error("Total for sale must higher than 0");
-      return false;
-    }
-    if (
-      phaseData?.filter((e) => {
-        if (e?.allowPublicSale === false) return true;
-        else {
-          return (
-            e?.phasePublicAmount > 0 && regexTestNum.test(e?.phasePublicPrice)
-          );
-        }
-      })?.length != phaseData?.length
-    ) {
-      toast.error("Invalid Public Amount or Public Price");
-      return false;
-    }
-    if (
-      phaseData.filter((e) => {
-        return e?.whiteList?.length > 0 ? verifyWhitelist(e?.whiteList) : true;
-      })?.length !== phaseData?.length
-    ) {
-      toast.error("Invalid whitelist format");
-      return false;
-    }
-    if (
-      phaseData.filter((e) => {
-        return e?.whiteList?.length > 0
-          ? !checkDuplicatedWL(e?.whiteList)
-          : true;
-      })?.length !== phaseData?.length
-    ) {
-      toast.error("Duplicated Whitelist Address");
-      return false;
-    }
-    const totalValue = phaseData.reduce((accumulator, currentValue) => {
-      const totalPublicAmount =
-        currentValue?.allowPublicSale == true
-          ? parseFloat(currentValue?.phasePublicAmount || 0)
-          : 0;
-      const whitelistparse = currentValue?.whiteList
-        ? processStringToArray(currentValue?.whiteList)
-        : [];
-      const totalWhiteListAmount = whitelistparse.reduce(
-        (accumulatorWL, currentValueWL) => {
-          return accumulatorWL + (currentValueWL?.amount || 0);
-        },
-        0
-      );
-      return accumulator + totalPublicAmount + totalWhiteListAmount;
-    }, 0);
-    if (parseFloat(totalSupply) < totalValue) {
-      toast.error(
-        "Launchpad total supply must not lower than total whitelist amount and public sale"
-      );
-      return false;
-    }
-    return true;
-  } catch (error) {
-    console.log(error);
-  }
 };
 
 const checkTimeRangeOverlap = (arr) => {

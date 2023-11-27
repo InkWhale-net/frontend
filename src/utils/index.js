@@ -369,10 +369,17 @@ export const resolveAZDomainToAddress = async (domain) => {
 
 export const formatTokenAmount = (value, decimal = 12) => {
   try {
-    return formatUnits(
-      value?.toString()?.replace(/\./g, "")?.replace(/,/g, ""),
-      decimal
-    );
+    const ret = formatChainStringToNumber(value) / Math.pow(10, decimal);
+
+    // const ret2 = formatUnits(
+    //   value?.toString()?.replace(/\./g, "")?.replace(/,/g, ""),
+    //   decimal
+    // );
+
+    // console.log("ret", ret);
+    // console.log("ret2", ret2);
+
+    return ret;
   } catch (error) {
     // console.log(error);
     return;

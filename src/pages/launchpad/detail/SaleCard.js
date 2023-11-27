@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { BeatLoader } from "react-spinners";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
+import { formatNumDynDecimal } from "utils";
 import {
   delay,
   formatNumToBN,
@@ -163,7 +164,7 @@ const IWCountDown = ({ saleTime, launchpadData }) => {
     } else if (nearestPhase) {
       return (
         <Box>
-          <SaleCount label="Sale start in" time={nearestPhase?.startTime} />
+          <SaleCount label="Sale starts in" time={nearestPhase?.startTime} />
           <Box sx={{ display: "flex", marginTop: "20px" }}>
             <Text>Upcoming phase: </Text>
             <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
@@ -187,6 +188,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
   const [amount, setAmount] = useState(null);
   const [tokenPrice, setTokenPrice] = useState(0);
   const [azeroBuyAmount, setAzeroBuyAmount] = useState(0);
+  const [isBuyWithA0, setIsBuyWithA0] = useState(false);
   const [publicSaleAmount, setPublicSale] = useState({
     purchased: 0,
     total: 0,
@@ -215,29 +217,24 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         toast.error(toastMessages.NO_WALLET);
         return;
       }
-      if (
-        parseFloat(amount) + parseFloat(publicSaleAmount?.purchased) >
-        parseFloat(publicSaleAmount?.total)
-      ) {
+      if (+amount + +publicSaleAmount?.purchased > +publicSaleAmount?.total) {
         toast.error(
-          `Current max public sale available is ${
-            publicSaleAmount?.total - publicSaleAmount?.purchased
-          }`
+          `Current max public sale available is ${formatNumDynDecimal(
+            +publicSaleAmount?.total - +publicSaleAmount?.purchased
+          )}`
         );
         return;
       }
+      const a0BuyAmount = isBuyWithA0 ? +azeroBuyAmount : +amount * +tokenPrice;
       const buyResult = await execContractTx(
         currentAccount,
         api,
         launchpad.CONTRACT_ABI,
         launchpadData?.launchpadContract,
-        parseUnits(azeroBuyAmount.toString(), 12), //-> value
+        parseUnits(a0BuyAmount.toString(), 12), //-> value
         "launchpadContractTrait::publicPurchase",
         livePhase?.id,
-        formatNumToBN(
-          parseFloat(amount),
-          parseInt(launchpadData.projectInfo.token.decimals)
-        )
+        formatNumToBN(+amount, +launchpadData.projectInfo.token.decimals)
       );
       if (!buyResult) return;
       await delay(400);
@@ -328,6 +325,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
   );
   const isBuyDisabled = useMemo(() => {
     return (
+      !launchpadData?.isActive ||
       !allowBuy ||
       !(parseFloat(amount) > 0) ||
       !(publicSaleAmount?.total - publicSaleAmount?.purchased > 0)
@@ -362,14 +360,15 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         </Box>
       </Box>
       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
-        <Text sx={headerSX}>{`Amount (max: ${maxAmount})`}</Text>
+        <Text sx={headerSX}>{`Amount (max: ${formatNumDynDecimal(
+          maxAmount
+        )})`}</Text>
         <IWInput
           isDisabled={!allowBuy || !(+maxAmount > 0)}
           onChange={({ target }) => {
             setAmount(target.value);
-            setAzeroBuyAmount(
-              roundUp(target.value * parseFloat(tokenPrice), 4)
-            );
+            setAzeroBuyAmount(roundDown(+target.value * +tokenPrice, 8));
+            setIsBuyWithA0(false);
           }}
           type="number"
           value={amount}
@@ -381,9 +380,8 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         isDisabled={!allowBuy || !(+maxAmount > 0)}
         onChange={({ target }) => {
           setAzeroBuyAmount(target.value);
-          setAmount(
-            roundDown(parseFloat(target.value) / parseFloat(tokenPrice))
-          );
+          setAmount(roundDown(+target.value / +tokenPrice, 8));
+          setIsBuyWithA0(true);
         }}
         type="number"
         value={azeroBuyAmount}

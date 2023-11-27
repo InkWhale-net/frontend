@@ -48,6 +48,7 @@ import { fetchUserBalance } from "redux/slices/walletSlice";
 import { delay } from "utils";
 import { initialApi } from "utils/contracts";
 import AzeroStaking from "pages/azero-staking";
+import INWV2 from "pages/faucet/inwV2";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -218,6 +219,7 @@ const App = () => {
           />
           <Route exact path={`/admin`} component={AdminPage} />
           <Route exact path={`/azero-staking`} component={AzeroStaking} />
+          <Route exact path={`/inw-v2`} component={INWV2} />
           <Route>
             <FaucetPage api={api} />
           </Route>

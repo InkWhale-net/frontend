@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Divider,
+  Flex,
   Heading,
   Image,
   Progress,
@@ -12,7 +13,12 @@ import {
   IWStatusWithCountDown,
 } from "components/countdown/StatusWithCountDown";
 import { useHistory } from "react-router-dom";
-import { EndStatusTag, LiveStatusTag, UpcomingStatusTag } from "./StatusTag";
+import {
+  EndStatusTag,
+  LiveStatusTag,
+  RequireKyc,
+  UpcomingStatusTag,
+} from "./StatusTag";
 import { useMemo } from "react";
 import Countdown, { zeroPad } from "react-countdown";
 import FadeIn from "react-fade-in/lib/FadeIn";
@@ -138,14 +144,23 @@ const LaunchpadTag = ({ launchpadData }) => {
             borderRadius="4px"
             src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}/${projectInfo?.projectInfor?.headerImage}`}
           />
-          <IWStatus
-            isActive={launchpadData.isActive}
-            startDate={projectTime?.startTime}
-            endDate={projectTime?.endTime}
-            liveRender={<LiveStatusTag />}
-            upcomingRender={<UpcomingStatusTag />}
-            endRender={<EndStatusTag />}
-          />
+          <Flex
+            style={{
+              position: "absolute",
+              right: "8px",
+              top: "8px",
+            }}
+          >
+            {launchpadData?.requireKyc && <RequireKyc />}
+            <IWStatus
+              isActive={launchpadData.isActive}
+              startDate={projectTime?.startTime}
+              endDate={projectTime?.endTime}
+              liveRender={<LiveStatusTag />}
+              upcomingRender={<UpcomingStatusTag />}
+              endRender={<EndStatusTag />}
+            />
+          </Flex>
 
           <div
             style={{

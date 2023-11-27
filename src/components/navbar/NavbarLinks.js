@@ -76,8 +76,11 @@ export default function NavbarLinks(props) {
                 _focus={{ borderWidth: "0px" }}
                 _hover={{ textDecoration: "none", bg: "bg.1" }}
                 onClick={() => setCurrentAnchor(href)}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
               >
-                <Text bg="transparent" fontSize="md">
+                <Text bg="transparent" fontSize="md" textAlign='center'>
                   {title}
                 </Text>
               </Link>
@@ -182,6 +185,8 @@ export default function NavbarLinks(props) {
               onClick={() =>
                 window.open("https://docs.inkwhale.net/", "_blank")
               }
+              display="flex"
+              alignItems="center"
             >
               <Text bg="transparent" fontSize="md">
                 Docs
@@ -189,7 +194,7 @@ export default function NavbarLinks(props) {
             </Link>
           </Flex>
         </Flex>
-        {/* <INWSwap /> */}
+        <INWSwap />
       </Show>
 
       <Show above="md">
@@ -213,14 +218,14 @@ export const menuListData = [
     title: "Acquire INW",
     href: "/acquire-inw",
   },
-  // {
-  //   title: "Azero Staking",
-  //   href: "/azero-staking",
-  // },
-  // {
-  //   title: "Launchpad",
-  //   href: "/launchpad",
-  // },
+  {
+    title: "INW V2",
+    href: "/inw-v2",
+  },
+  {
+    title: "Launchpad",
+    href: "/launchpad",
+  },
 ];
 
 export const CreateMenuDropdown = ({
@@ -369,14 +374,16 @@ export const StakeMenuDropdown = ({
       >
         <Flex flexDirection="column" p="20px">
           {[
+            // {
+            //   label: "Azero Staking",
+            //   href: "/azero-staking",
+            // },
             {
               label: "Token Pools",
               href: "/pools",
             },
             { label: "Farming", href: "/farming" },
             { label: "NFT Pools", href: "/farms" },
-            // { label: "NFT Yield Farm", href: "/create/nft-lp" },
-            // { label: "Token Yield Farm", href: "/create/farming" },
           ].map((item, idx) => (
             <IWCard
               key={idx}
