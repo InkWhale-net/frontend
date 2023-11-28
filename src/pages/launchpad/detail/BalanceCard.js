@@ -39,7 +39,7 @@ const BalanceCard = ({ launchpadData }) => {
         "psp22::balanceOf",
         currentAccount?.address
       );
-      const tokenBalance = queryResult.toHuman().Ok;
+      const tokenBalance = queryResult?.toHuman()?.Ok;
 
       setTokenBalance(
         formatNumDynDecimal(

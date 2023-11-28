@@ -132,6 +132,8 @@ const LaunchpadTag = ({ launchpadData }) => {
         }}
       >
         <div style={{ position: "relative" }}>
+          {console.log('process.env.REACT_APP_IPFS_PUBLIC_URL', process.env.REACT_APP_IPFS_PUBLIC_URL)}
+          {console.log('projectInfo?.projectInfor?.headerImage', projectInfo?.projectInfor?.headerImage)}
           <Image
             fit={"cover"}
             h="160px"

@@ -44,7 +44,7 @@ const GeneralInformation = ({ launchpadContract, launchpadData }) => {
 
   const distributions = useMemo(() => {
     try {
-      const totalDistribution = projectInfor?.tokenomic.reduce((acc, obj) => {
+      const totalDistribution = projectInfor?.tokenomic?.reduce((acc, obj) => {
         return acc + obj?.value;
       }, 0);
       if (totalDistribution) {
