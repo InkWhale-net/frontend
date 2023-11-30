@@ -36,6 +36,7 @@ import {
 import { execContractQuery, execContractTx } from "utils/contracts";
 import pool_generator_contract from "utils/contracts/pool_generator";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { execContractTxAndCallAPI } from "utils/contracts";
 
 export default function CreateStakePoolPage({ api }) {
   const dispatch = useDispatch();
@@ -274,13 +275,19 @@ export default function CreateStakePoolPage({ api }) {
 
     await delay(3000);
     toast.success(`Step ${step}: Process...`);
-    await execContractTx(
+    await execContractTxAndCallAPI(
       currentAccount,
       "api",
       pool_generator_contract.CONTRACT_ABI,
       pool_generator_contract.CONTRACT_ADDRESS,
       0, //-> value
       "newPool",
+      async (newContractAddress) => {
+        await APICall.askBEupdate({
+          type: "pool",
+          poolContract: newContractAddress,
+        });
+      },
       currentAccount?.address,
       selectedContractAddr,
       formatNumToBN(maxStake, tokenInfor?.decimal || 12),
