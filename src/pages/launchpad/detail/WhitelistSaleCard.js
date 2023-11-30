@@ -192,12 +192,12 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
               );
               const wlTokenPrice = +wlTokenPriceStr;
 
-              const wlMaxAmount = +formatTokenAmount(
+              const wlMaxAmount = formatTokenAmount(
                 buyerInformation?.amount,
                 parseInt(launchpadData.projectInfo.token.decimals)
               );
               const wlPurchasedAmount = roundUp(
-                +formatTokenAmount(
+                formatTokenAmount(
                   buyerInformation?.purchasedAmount,
                   parseInt(launchpadData.projectInfo.token.decimals)
                 )

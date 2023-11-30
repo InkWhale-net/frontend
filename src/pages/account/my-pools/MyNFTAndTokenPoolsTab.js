@@ -117,7 +117,7 @@ const MyNFTAndTokenPoolsTab = ({ mode }) => {
     tableBody: myTokenPoolsList?.map((e) => {
       return {
         ...e,
-        totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
+        totalStaked: formatTokenAmount(e?.totalStaked, +e?.lptokenDecimal),
       };
     }),
   };

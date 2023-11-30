@@ -233,7 +233,7 @@ const FinishModal = ({}) => {
 
           const allowanceINW = allowanceINWQr.toHuman().Ok;
           if (
-            +formatTokenAmount(formatTextAmount(allowanceINW), 12) <
+            formatTokenAmount(formatTextAmount(allowanceINW), 12) <
             +formatTextAmount(createTokenFee)
           ) {
             let approve = await execContractTx(

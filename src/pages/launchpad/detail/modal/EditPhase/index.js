@@ -82,12 +82,12 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
             : parseFloat(e?.vestingUnit?.replace(/,/g, "")) /
               millisecondsInADay,
         allowPublicSale: e?.publicSaleInfor?.isPublic,
-        phasePublicAmount: +formatTokenAmount(
+        phasePublicAmount: formatTokenAmount(
           e?.publicSaleInfor?.totalAmount,
           tokenDecimal
         ),
-        capAmount: +formatTokenAmount(e?.capAmount, tokenDecimal),
-        phasePublicPrice: +formatTokenAmount(e?.publicSaleInfor?.price, 12),
+        capAmount: formatTokenAmount(e?.capAmount, tokenDecimal),
+        phasePublicPrice: formatTokenAmount(e?.publicSaleInfor?.price, 12),
       };
     });
   }, [launchpadData]);

@@ -283,17 +283,13 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
       );
       const publicSaleTotalBuyedAmount = result.toHuman()?.Ok;
       setPublicSale({
-        total: parseFloat(
-          formatTokenAmount(
-            publicSaleTotalAmount,
-            parseInt(launchpadData.projectInfo.token.decimals)
-          )
+        total: formatTokenAmount(
+          publicSaleTotalAmount,
+          parseInt(launchpadData.projectInfo.token.decimals)
         ),
-        purchased: parseFloat(
-          formatTokenAmount(
-            publicSaleTotalBuyedAmount,
-            parseInt(launchpadData.projectInfo.token.decimals)
-          )
+        purchased: formatTokenAmount(
+          publicSaleTotalBuyedAmount,
+          parseInt(launchpadData.projectInfo.token.decimals)
         ),
       });
       const result1 = await execContractQuery(

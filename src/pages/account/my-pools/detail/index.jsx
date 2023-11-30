@@ -144,7 +144,10 @@ export default function MyPoolDetailPage() {
     if (item)
       return {
         ...item,
-        totalStaked: formatTokenAmount(item?.totalStaked, item?.lptokenDecimal),
+        totalStaked: formatTokenAmount(
+          item?.totalStaked,
+          +item?.lptokenDecimal
+        ),
       };
   }, [myTokenPoolsList, params]);
 
@@ -230,7 +233,7 @@ export default function MyPoolDetailPage() {
       ...currentStakingPool,
       totalStaked: formatTokenAmount(
         currentStakingPool?.totalStaked,
-        currentStakingPool?.lptokenDecimal
+        +currentStakingPool?.lptokenDecimal
       ),
     },
   };

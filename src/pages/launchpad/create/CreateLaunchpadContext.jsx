@@ -177,7 +177,7 @@ const CreateLaunchpadContextProvider = (props) => {
       if (
         !(
           +formatTextAmount(currentAccount?.balance?.inw2) >
-          +formatTokenAmount(fee, 12)
+          formatTokenAmount(fee, 12)
         )
       ) {
         toast.error(`Low INW V2 balance`);

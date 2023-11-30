@@ -775,7 +775,10 @@ const MyStakeRewardInfo = ({
                       return;
                     }
                     setAmount(
-                      formatTokenAmount(stakeInfo?.stakedValue, tokenDecimal)
+                      formatTokenAmount(
+                        stakeInfo?.stakedValue,
+                        tokenDecimal
+                      ).toString()
                     );
                   }}
                 />

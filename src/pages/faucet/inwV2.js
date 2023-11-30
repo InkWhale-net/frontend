@@ -56,7 +56,7 @@ const INWV2 = () => {
       const contractBalance = query2?.toHuman()?.Ok;
 
       const totalBurn =
-        +formatTokenAmount(contractBalance, 12) - +inwTotalSupply;
+        formatTokenAmount(contractBalance, 12) - +inwTotalSupply;
       setInwV2Info({
         inwInCur: formatNumDynDecimal(inwTotalSupply),
         inwBurn: formatNumDynDecimal(totalBurn),
@@ -80,7 +80,9 @@ const INWV2 = () => {
         title="INW V2 Tokens"
         description={
           <>
-            INW (which has been upgraded to INW version 2 via SWAP feature) is the core token of Ink Whale platform. You will need to acquire INW to be able to use the platform features.
+            INW (which has been upgraded to INW version 2 via SWAP feature) is
+            the core token of Ink Whale platform. You will need to acquire INW
+            to be able to use the platform features.
           </>
         }
       >

@@ -151,7 +151,7 @@ const FarmDetailPage = () => {
     setCurrentNFTPoolData({
       ...currentNFTPool,
       tokenTotalSupply: formatTokenAmount(
-        rawTotalSupply.replaceAll(",", ""),
+        rawTotalSupply,
         currentNFTPool?.tokenDecimal
       ),
       maxStakingAmount: parseFloat(currentNFTPool?.maxStakingAmount),
@@ -1236,9 +1236,8 @@ const MyStakeRewardInfoToken = ({
       return;
     }
     if (
-      Number(
-        formatTokenAmount(stakeInfo?.stakedValue?.toString(), lptokenDecimal)
-      ) < LPTokenAmount
+      formatTokenAmount(stakeInfo?.stakedValue?.toString(), +lptokenDecimal) <
+      LPTokenAmount
     ) {
       toast.error("There is not enough balance!");
       return;
@@ -1368,7 +1367,7 @@ const MyStakeRewardInfoToken = ({
             {
               title: `My Stakes ${nftInfo?.name ? `(${nftInfo?.name})` : ""}`,
               content: `${formatNumDynDecimal(
-                +formatTokenAmount(
+                formatTokenAmount(
                   stakeInfo?.stakedValue?.toString(),
                   lptokenDecimal
                 )
@@ -1424,7 +1423,6 @@ const MyStakeRewardInfoToken = ({
                           setLPTokenAmount(0);
                           return;
                         }
-
                         if (
                           +availableStakeAmount >
                           +formatTextAmount(LPtokenBalance)
@@ -1439,12 +1437,10 @@ const MyStakeRewardInfoToken = ({
                       }}
                       setUnstakeMax={() => {
                         setLPTokenAmount(
-                          formatTextAmount(
-                            formatTokenAmount(
-                              stakeInfo?.stakedValue?.toString(),
-                              lptokenDecimal
-                            )
-                          )
+                          formatTokenAmount(
+                            stakeInfo?.stakedValue?.toString(),
+                            lptokenDecimal
+                          ).toString()
                         );
                       }}
                     />
@@ -1488,11 +1484,11 @@ const MyStakeRewardInfoToken = ({
                 <ConfirmModal
                   disableBtn={
                     !(
-                      +formatTokenAmount(
+                      formatTokenAmount(
                         stakeInfo?.stakedValue,
                         lptokenDecimal
                       ) > 0
-                    ) || !(LPTokenAmount?.length > 0)
+                    ) || !(LPTokenAmount > 0)
                   }
                   action="unstake"
                   buttonVariant="primary"
