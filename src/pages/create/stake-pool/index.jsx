@@ -295,7 +295,7 @@ export default function CreateStakePoolPage({ api }) {
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
     );
-    await delay(3000);
+    await delay(1000);
 
     await APICall.askBEupdate({ type: "pool", poolContract: "new" });
 
@@ -304,7 +304,7 @@ export default function CreateStakePoolPage({ api }) {
     setMaxStake("");
     setStartTime(new Date());
     toast.promise(
-      delay(30000).then(() => {
+      delay(10000).then(() => {
         if (currentAccount) {
           dispatch(fetchUserBalance({ currentAccount, api }));
           dispatch(fetchMyStakingPools({ currentAccount }));
@@ -313,7 +313,7 @@ export default function CreateStakePoolPage({ api }) {
         fetchTokenBalance();
       }),
       {
-        loading: "Please wait 30s for the data to be updated! ",
+        loading: "Please wait 10s for the data to be updated! ",
         success: "Done !",
         error: "Could not fetch data!!!",
       }
