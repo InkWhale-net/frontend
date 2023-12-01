@@ -21,7 +21,7 @@ import { useSelector } from "react-redux";
 import { formatChainStringToNumber } from "utils";
 import toast from "react-hot-toast";
 import { useAppContext } from "contexts/AppContext";
-import { doClaimRewards } from "api/azero-staking/azero-staking";
+import { doClaimPrincipal } from "api/azero-staking/azero-staking";
 import { delay } from "utils";
 
 export function IWTable({
@@ -78,7 +78,7 @@ export function IWTable({
       return;
     }
 
-    await doClaimRewards(api, currentAccount, index);
+    await doClaimPrincipal(api, currentAccount, index);
 
     delay(1000).then(() => {
       cb && cb();
@@ -128,8 +128,12 @@ export function IWTable({
                 fontSize="16px"
                 lineHeight="28px"
                 textTransform="none"
+                display="flex"
+                justifyContent="center"
               >
-                <Flex alignItems="center">Action</Flex>
+                <Flex alignItems="center">
+                  Action
+                </Flex>
               </Th>
             )}
           </Tr>
@@ -187,7 +191,7 @@ export function IWTable({
                                 w="full"
                                 size="sm"
                                 disabled={
-                                  itemObj["requestStatus"] === "Claimed"||
+                                  itemObj["requestStatus"] === "Claimed" ||
                                   itemObj["requestStatus"] === "Pending"
                                 }
                                 onClick={() =>

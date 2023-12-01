@@ -156,7 +156,7 @@ function HeaderInfo({ info }) {
   ));
 }
 
-function getRequestStatus(status) {
+export function getRequestStatus(status) {
   switch (parseInt(status)) {
     case 0:
       return "Pending";

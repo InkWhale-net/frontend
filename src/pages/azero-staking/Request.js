@@ -7,18 +7,19 @@ import {
   Tooltip,
   useInterval,
 } from "@chakra-ui/react";
-import { getMaxWaitingTime } from "api/azero-staking/azero-staking";
-import { doWithdrawRequest } from "api/azero-staking/azero-staking";
-import { getWithdrawalRequestListByUser } from "api/azero-staking/azero-staking";
+import { doClaimRewards } from "api/azero-staking/azero-staking";
 import { getStakeInfo } from "api/azero-staking/azero-staking";
 import IWCard from "components/card/Card";
-import IWInput from "components/input/Input";
 import { useAppContext } from "contexts/AppContext";
 import React, { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { delay } from "utils";
 import { formatChainStringToNumber } from "utils";
+import { ClaimRewardsTable } from "./components/Table";
+import { fetchUserBalance } from "redux/slices/walletSlice";
+import { APICall } from "api/client";
+import { addressShortener } from "utils";
 
 function Request() {
   const { api } = useAppContext();
@@ -32,19 +33,19 @@ function Request() {
     "Not request yet",
     0,
   ]);
-  const [requestAmount, setRequestAmount] = useState("");
 
-  async function handleRequestClaim() {
-    if (stakingInfo[0] < requestAmount) {
-      toast.error("Not enough AZERO stakes!");
+  async function handleClaimRewards() {
+    if (stakingInfo[0] <= 0) {
+      toast.error("No rewards!");
       return;
     }
 
-    await doWithdrawRequest(api, currentAccount, requestAmount);
+    await doClaimRewards(api, currentAccount);
 
     delay(1000).then(() => {
       fetchData(true);
-      setRequestAmount("");
+      fetchUserClaimedList();
+      dispatch(fetchUserBalance({ currentAccount, api }));
     });
   }
 
@@ -59,9 +60,6 @@ function Request() {
         return;
       }
 
-      const stakingAmount =
-        formatChainStringToNumber(info?.stakingAmount) / Math.pow(10, 12);
-
       const unclaimedAzeroReward =
         formatChainStringToNumber(info?.unclaimedAzeroReward) /
         Math.pow(10, 12);
@@ -69,32 +67,28 @@ function Request() {
       const unclaimedInwReward =
         formatChainStringToNumber(info?.unclaimedInwReward) / Math.pow(10, 12);
 
-      ret = [
-        stakingAmount?.toFixed(4),
-        unclaimedAzeroReward?.toFixed(4),
-        unclaimedInwReward?.toFixed(4),
-      ];
+      ret = [unclaimedAzeroReward?.toFixed(4), unclaimedInwReward?.toFixed(4)];
 
-      const lastRequestedList = await getWithdrawalRequestListByUser(
-        api,
-        currentAccount
-      );
+      // const lastRequestedList = await getWithdrawalRequestListByUser(
+      //   api,
+      //   currentAccount
+      // );
 
-      if (lastRequestedList?.length) {
-        const lastRequest = lastRequestedList[lastRequestedList?.length - 1];
-        let requestTime =
-          formatChainStringToNumber(lastRequest.requestTime) * Math.pow(10, 0);
+      // if (lastRequestedList?.length) {
+      //   const lastRequest = lastRequestedList[lastRequestedList?.length - 1];
+      //   let requestTime =
+      //     formatChainStringToNumber(lastRequest.requestTime) * Math.pow(10, 0);
 
-        ret.push(new Date(requestTime).toLocaleString());
-      } else {
-        ret.push("Not request yet");
-      }
+      //   ret.push(new Date(requestTime).toLocaleString());
+      // } else {
+      //   ret.push("Not request yet");
+      // }
 
-      const maxWaitingTime = await getMaxWaitingTime();
+      // const maxWaitingTime = await getMaxWaitingTime();
 
-      if (maxWaitingTime) {
-        ret.push(maxWaitingTime / 60000);
-      }
+      // if (maxWaitingTime) {
+      //   ret.push(maxWaitingTime / 60000);
+      // }
 
       if (!isMounted) return;
 
@@ -114,25 +108,74 @@ function Request() {
     fetchData(true);
   }, 1000);
 
-  return (
-    <IWCard w="full" variant="outline" title={`Staking Information`}>
-      <Stack
-        mt="18px"
-        w="100%"
-        spacing="8px"
-        direction={{ base: "column" }}
-        align={{ base: "column", xl: "center" }}
-      >
-        <StakingInfo info={stakingInfo} />
+  // ==============
+  const dispatch = useDispatch();
 
-        <IWCard w="full" variant="solid">
-          <Stack
-            w="100%"
-            spacing="20px"
-            direction={{ base: "column" }}
-            align={{ base: "column", xl: "center" }}
-          >
-            <IWInput
+  const [userClaimedList, setUserClaimedList] = useState([]);
+
+  const fetchUserClaimedList = useCallback(async () => {
+    const { status, ret, message } = await APICall.getDistributionInfo();
+
+    if (status === "OK") {
+      console.log("message", message);
+    }
+
+    if (message?.length) {
+      const formattedClaimedList = message.map((i) => {
+        const interestAccount =
+          formatChainStringToNumber(i.interestAccountAmount) / Math.pow(10, 12);
+
+        const masterAccount =
+          formatChainStringToNumber(i.masterAccountAmount) / Math.pow(10, 12);
+
+        const shortTxId = addressShortener(i.txId);
+
+        const claimedTime = new Date(i.timestamp).toLocaleString();
+
+        return {
+          ...i,
+          claimedTime,
+          shortTxId,
+          interestAccount,
+          masterAccount,
+        };
+      });
+
+      setUserClaimedList(formattedClaimedList);
+    } else {
+      setUserClaimedList([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUserClaimedList();
+  }, [fetchUserClaimedList]);
+
+  return (
+    <>
+      <IWCard
+        mb="18px"
+        w="full"
+        variant="outline"
+        title={`Staking Information`}
+      >
+        <Stack
+          mt="18px"
+          w="100%"
+          spacing="8px"
+          direction={{ base: "column" }}
+          align={{ base: "column", xl: "center" }}
+        >
+          <StakingInfo info={stakingInfo} />
+
+          <IWCard w="full" variant="solid">
+            <Stack
+              w="100%"
+              spacing="20px"
+              direction={{ base: "column" }}
+              align={{ base: "column", xl: "center" }}
+            >
+              {/* <IWInput
               type="number"
               placeholder="0"
               value={requestAmount}
@@ -147,22 +190,22 @@ function Request() {
                   Max
                 </Button>
               }
-            />
+            /> */}
 
-            <Button
-              w="full"
-              fontSize={["16px", "16px", "18px"]}
-              isDisabled={!currentAccount?.address || !requestAmount}
-              onClick={() => handleRequestClaim()}
-            >
-              {currentAccount?.address
-                ? "Principal & rewards claim request"
-                : "Connect Wallet"}
-            </Button>
-          </Stack>
-        </IWCard>
-      </Stack>
-    </IWCard>
+              <Button
+                w="full"
+                fontSize={["16px", "16px", "18px"]}
+                isDisabled={!currentAccount?.address}
+                onClick={() => handleClaimRewards()}
+              >
+                {currentAccount?.address ? "Claim rewards" : "Connect Wallet"}
+              </Button>
+            </Stack>
+          </IWCard>
+        </Stack>
+      </IWCard>
+      <ClaimRewardsTable tableBody={userClaimedList} />
+    </>
   );
 }
 
@@ -171,38 +214,17 @@ export default Request;
 function StakingInfo({ info }) {
   const formattedInfo = [
     {
-      title: "My stakes",
+      title: "AZERO Unclaimed Rewards",
       number: info && info[0],
       denom: "AZERO",
       hasTooltip: true,
       tooltipContent: "Content of tooltip ",
     },
     {
-      title: "AZERO Unclaimed Rewards",
-      number: info && info[1],
-      denom: "AZERO",
-      hasTooltip: true,
-      tooltipContent: "Content of tooltip ",
-    },
-    {
       title: "INW Unclaimed Rewards",
-      number: info && info[2],
+      number: info && info[1],
       denom: "INW",
       hasTooltip: true,
-      tooltipContent: "Content of tooltip ",
-    },
-    {
-      title: "Last requested",
-      number: info && info[3],
-      denom: "",
-      hasTooltip: true,
-      tooltipContent: "Content of tooltip ",
-    },
-    {
-      title: "Estimated Waiting time",
-      number: info && info[4],
-      denom: "mins",
-      hasTooltip: false,
       tooltipContent: "Content of tooltip ",
     },
   ];
