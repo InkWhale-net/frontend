@@ -30,8 +30,8 @@ export async function getMaxTotalStakingAmount(api, currentAccount) {
     0,
     "azeroStakingTrait::getMaxTotalStakingAmount"
   );
-
-  return formatQueryResultToNumber(queryResult);
+  const rs = queryResult?.toHuman()?.Ok;
+  return formatChainStringToNumber(rs) / Math.pow(10, 12);
 }
 
 export async function getTotalStakers(api, currentAccount) {
@@ -57,7 +57,8 @@ export async function getTotalAzeroStaked(api, currentAccount) {
     "azeroStakingTrait::getTotalAzeroStaked"
   );
 
-  return formatQueryResultToNumber(queryResult);
+  const rs = queryResult?.toHuman()?.Ok;
+  return formatChainStringToNumber(rs) / Math.pow(10, 12);
 }
 
 export async function getApy(api, currentAccount) {
@@ -153,7 +154,7 @@ export async function doWithdrawRequest(api, currentAccount, amount) {
   );
 }
 
-export async function doClaimRewards(api, currentAccount, index) {
+export async function doClaimPrincipal(api, currentAccount, index) {
   return await execContractTx(
     currentAccount,
     api,
@@ -162,6 +163,17 @@ export async function doClaimRewards(api, currentAccount, index) {
     0,
     "azeroStakingTrait::claim",
     { u128: index }
+  );
+}
+
+export async function doClaimRewards(api, currentAccount) {
+  return await execContractTx(
+    currentAccount,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::claimRewards"
   );
 }
 

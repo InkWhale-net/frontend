@@ -28,20 +28,20 @@ function AzeroStaking() {
 
   const tabsData = [
     {
-      label: isBigScrn ? "Stake Azero" : "Stake",
+      label: "Stake/ Unstake",
       component: <Staking />,
       isDisabled: false,
     },
     {
-      label: isBigScrn ? "Withdrawal Request" : "Withdraw",
+      label: "Claim Rewards",
       component: <Request />,
       isDisabled: false,
     },
-    {
-      label: "Claim",
-      component: <Claim />,
-      isDisabled: false,
-    },
+    // {
+    //   label: "Claim",
+    //   component: <Claim />,
+    //   isDisabled: false,
+    // },
   ];
 
   return (

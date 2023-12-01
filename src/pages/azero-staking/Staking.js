@@ -1,6 +1,14 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
-import { Box, Button, Flex, Stack, Tooltip } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  SimpleGrid,
+  Stack,
+  Tooltip,
+} from "@chakra-ui/react";
 import { getStakeInfo } from "api/azero-staking/azero-staking";
+import { doWithdrawRequest } from "api/azero-staking/azero-staking";
 import { getApy } from "api/azero-staking/azero-staking";
 import { getTotalStakers } from "api/azero-staking/azero-staking";
 import { getTotalAzeroStaked } from "api/azero-staking/azero-staking";
@@ -16,8 +24,12 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBalance } from "redux/slices/walletSlice";
+import { formatNumDynDecimal } from "utils";
 import { delay } from "utils";
 import { formatChainStringToNumber } from "utils";
+import StakingTable from "./components/Table";
+import { getRequestStatus } from "./Claim";
+import { getWithdrawalRequestListByUser } from "api/azero-staking/azero-staking";
 
 function Staking() {
   const { api } = useAppContext();
@@ -92,43 +104,153 @@ function Staking() {
     return () => (isMounted = false);
   }, [api, currentAccount, fetchData]);
 
+  // ================
+
+  const [unstakeAmount, setUnstakeAmount] = useState("");
+
+  async function handleRequestUnstake() {
+    if (footerInfo && footerInfo[2] < unstakeAmount) {
+      toast.error("Not enough AZERO stakes!");
+      return;
+    }
+
+    await doWithdrawRequest(api, currentAccount, unstakeAmount);
+
+    delay(1000).then(() => {
+      fetchData(true);
+      setUnstakeAmount("");
+    });
+  }
+
+  const [userRequestList, setUserRequestList] = useState([]);
+
+  const fetchUserRequestList = useCallback(async () => {
+    const requestedList = await getWithdrawalRequestListByUser(
+      api,
+      currentAccount
+    );
+    console.log("requestedList", requestedList);
+
+    if (requestedList?.length) {
+      const formattedRequestedList = requestedList.map((i) => {
+        const withdrawalAmount =
+          formatChainStringToNumber(i.amount) / Math.pow(10, 12);
+
+        const azeroReward =
+          formatChainStringToNumber(i.azeroReward) / Math.pow(10, 12);
+
+        const totalAzero =
+          formatChainStringToNumber(i.totalAzero) / Math.pow(10, 12);
+
+        const inwReward =
+          formatChainStringToNumber(i.inwReward) / Math.pow(10, 12);
+
+        const requestTime =
+          formatChainStringToNumber(i.requestTime) * Math.pow(10, 0);
+
+        const requestStatus = getRequestStatus(i.status);
+
+        return {
+          ...i,
+          withdrawalAmount,
+          azeroReward,
+          totalAzero,
+          inwReward,
+          requestStatus,
+          requestTime: new Date(requestTime).toLocaleString(),
+        };
+      });
+
+      setUserRequestList(formattedRequestedList);
+    } else {
+      setUserRequestList([]);
+    }
+  }, [api, currentAccount]);
+
+  useEffect(() => {
+    fetchUserRequestList();
+  }, [fetchUserRequestList]);
+
+  async function handleCallback() {
+    delay(1000).then(() => {
+      fetchUserRequestList();
+      dispatch(fetchUserBalance({ currentAccount, api }));
+    });
+  }
+
   return (
     <>
       <IWCard w="full" variant="solid">
-        <Stack
-          w="100%"
-          spacing="20px"
-          direction={{ base: "column" }}
-          align={{ base: "column", xl: "center" }}
-        >
-          <IWInput
-            type="number"
-            placeholder="0"
-            value={stakeAmount}
-            onChange={({ target }) => setStakeAmount(target.value)}
-            inputRightElementIcon={
-              <Button
-                size="xs"
-                fontWeight="normal"
-                disabled={!currentAccount?.address}
-                onClick={() => setStakeAmount(azeroBalance)}
-              >
-                Max
-              </Button>
-            }
-          />
-          <Button
-            w="full"
-            isDisabled={!currentAccount?.address || !stakeAmount}
-            onClick={() => handleStake()}
+        <SimpleGrid gap="24px" columns={[1, 1, 2]} mb="18px">
+          {/* Stake */}
+          <Stack
+            w="100%"
+            spacing="20px"
+            direction={{ base: "column" }}
+            align={{ base: "column", xl: "center" }}
           >
-            {currentAccount?.address ? "Stake" : "Connect Wallet"}
-          </Button>
-          <FooterInfo info={footerInfo} />
-        </Stack>
+            <IWInput
+              type="number"
+              placeholder="0"
+              value={stakeAmount}
+              onChange={({ target }) => setStakeAmount(target.value)}
+              inputRightElementIcon={
+                <Button
+                  size="xs"
+                  fontWeight="normal"
+                  disabled={!currentAccount?.address}
+                  onClick={() => setStakeAmount(azeroBalance)}
+                >
+                  Max
+                </Button>
+              }
+            />
+            <Button
+              w="full"
+              isDisabled={!currentAccount?.address || !stakeAmount}
+              onClick={() => handleStake()}
+            >
+              {currentAccount?.address ? "Stake" : "Connect Wallet"}
+            </Button>
+          </Stack>
+
+          {/* Request unstake */}
+          <Stack
+            w="100%"
+            spacing="20px"
+            direction={{ base: "column" }}
+            align={{ base: "column", xl: "center" }}
+          >
+            <IWInput
+              type="number"
+              placeholder="0"
+              value={unstakeAmount}
+              onChange={({ target }) => setUnstakeAmount(target.value)}
+              inputRightElementIcon={
+                <Button
+                  size="xs"
+                  fontWeight="normal"
+                  disabled={!currentAccount?.address}
+                  onClick={() => setUnstakeAmount(footerInfo[2])}
+                >
+                  Max
+                </Button>
+              }
+            />
+            <Button
+              w="full"
+              isDisabled={!currentAccount?.address || !unstakeAmount}
+              onClick={() => handleRequestUnstake()}
+            >
+              {currentAccount?.address ? "Request Unstake" : "Connect Wallet"}
+            </Button>
+          </Stack>
+        </SimpleGrid>
+
+        <FooterInfo info={footerInfo} />
       </IWCard>
 
-      <IWCard w="full" variant="outline" title={`Statistics`} mt="18px">
+      <IWCard w="full" variant="outline" title={`Statistics`} my="18px">
         <Stack
           mt="18px"
           w="100%"
@@ -139,6 +261,8 @@ function Staking() {
           <StatsInfo info={statsInfo} />
         </Stack>
       </IWCard>
+
+      <StakingTable tableBody={userRequestList} cb={handleCallback} />
     </>
   );
 }
@@ -146,23 +270,24 @@ function Staking() {
 export default Staking;
 
 function FooterInfo({ info }) {
+  console.log("info", info);
   const formatInfo = [
     {
-      title: "Min staking amount",
+      title: "Min staking",
       number: info && info[0],
       denom: "AZERO",
       hasTooltip: true,
       tooltipContent: "Content of tooltip ",
     },
     {
-      title: "Max total staking amount",
+      title: "Max total staking",
       number: info && info[1],
       denom: "AZERO",
       hasTooltip: true,
       tooltipContent: "Content of tooltip ",
     },
     {
-      title: "Staked amount",
+      title: "My Staked",
       number: info && info[2],
       denom: "AZERO",
       hasTooltip: true,
@@ -191,7 +316,7 @@ function FooterInfo({ info }) {
           fontWeight={{ base: "bold" }}
           fontSize={["16px", "18px"]}
         >
-          {i.number} {i.denom}
+          {formatNumDynDecimal(i.number)} {i.denom}
         </Box>
       </Flex>
     </>
@@ -244,7 +369,7 @@ function StatsInfo({ info }) {
           fontWeight={{ base: "bold" }}
           fontSize={["16px", "18px"]}
         >
-          {i.number} {i.denom}
+          {formatNumDynDecimal(i.number)} {i.denom}
         </Box>
       </Flex>
     </>
