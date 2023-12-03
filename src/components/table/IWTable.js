@@ -24,6 +24,12 @@ import { useAppContext } from "contexts/AppContext";
 import { doClaimPrincipal } from "api/azero-staking/azero-staking";
 import { delay } from "utils";
 
+import { execContractQuery } from "utils/contracts";
+import my_azero_staking from "utils/contracts/my_azero_staking";
+import { formatNumToBN } from "utils";
+import { execContractTx } from "utils/contracts";
+import psp22_contract from "utils/contracts/psp22_contract";
+
 export function IWTable({
   tableHeader,
   tableBody,
@@ -77,12 +83,50 @@ export function IWTable({
       toast.error("Too low INW balance!");
       return;
     }
+    try {
+      // check approve 5inw
+      const allowanceTokenQr = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ADDRESS,
+        0, //-> value
+        "psp22::allowance",
+        currentAccount?.address,
+        my_azero_staking.CONTRACT_ADDRESS
+      );
 
-    await doClaimPrincipal(api, currentAccount, index);
+      const allowanceToken =
+        allowanceTokenQr?.toHuman().Ok?.replaceAll(",", "") / 10 ** 12;
 
-    delay(1000).then(() => {
-      cb && cb();
-    });
+      console.log("allowanceToken", allowanceToken);
+
+      if (5 > allowanceToken) {
+        toast("Approving fee...");
+
+        await execContractTx(
+          currentAccount,
+          "api",
+          psp22_contract.CONTRACT_ABI,
+          psp22_contract.CONTRACT_ADDRESS,
+          0, //-> value
+          "psp22::approve",
+          my_azero_staking.CONTRACT_ADDRESS,
+          formatNumToBN(5)
+        );
+      }
+      // End check approve additional portion
+
+      await delay(1000).then(async () => {
+        await doClaimPrincipal(api, currentAccount, index);
+      });
+
+      delay(1000).then(() => {
+        cb && cb();
+      });
+    } catch (error) {
+      console.log("error", error);
+    }
   }
 
   return (
@@ -131,9 +175,7 @@ export function IWTable({
                 display="flex"
                 justifyContent="center"
               >
-                <Flex alignItems="center">
-                  Action
-                </Flex>
+                <Flex alignItems="center">Action</Flex>
               </Th>
             )}
           </Tr>

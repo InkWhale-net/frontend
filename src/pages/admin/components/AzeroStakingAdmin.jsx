@@ -386,7 +386,7 @@ export default function AzeroStakingAdmin() {
             <Flex>
               <Text as="span">AZERO APY</Text>
               <Spacer />
-              <Text as="span">{apy || 0} %/year</Text>
+              <Text as="span">{formatNumDynDecimal(apy) || 0} %/year</Text>
             </Flex>
           }
         >
@@ -431,7 +431,9 @@ export default function AzeroStakingAdmin() {
             <Flex>
               <Text as="span">INW Multiplier</Text>
               <Spacer />
-              <Text as="span">{inwMultiplier || 0} INW/day</Text>
+              <Text as="span">
+                {formatNumDynDecimal(inwMultiplier) || 0} INW/day
+              </Text>
             </Flex>
           }
         >
