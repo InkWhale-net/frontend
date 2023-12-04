@@ -29,6 +29,7 @@ import my_azero_staking from "utils/contracts/my_azero_staking";
 import { formatNumToBN } from "utils";
 import { execContractTx } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
+import { stakeStatus } from "constants";
 
 export function IWTable({
   tableHeader,
@@ -233,16 +234,19 @@ export function IWTable({
                                 w="full"
                                 size="sm"
                                 disabled={
-                                  itemObj["requestStatus"] === "Claimed" ||
-                                  itemObj["requestStatus"] === "Pending"
+                                  itemObj["requestStatus"] ===
+                                    stakeStatus.UNSTAKED ||
+                                  itemObj["requestStatus"] ===
+                                    stakeStatus.PENDING
                                 }
                                 onClick={() =>
                                   handleClaimRewards(itemObj["requestIndex"])
                                 }
                               >
-                                {itemObj["requestStatus"] === "Claimed"
-                                  ? "Claimed"
-                                  : "Claim"}
+                                {itemObj["requestStatus"] ===
+                                stakeStatus.UNSTAKED
+                                  ? "Unstaked"
+                                  : "Unstake"}
                               </Button>
                             </FadeIn>
                           </Td>
