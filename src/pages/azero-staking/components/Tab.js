@@ -15,6 +15,8 @@ import {
   useInterval,
 } from "@chakra-ui/react";
 import { doClaimRewards } from "api/azero-staking/azero-staking";
+import { getLastAzeroInterestTopup } from "api/azero-staking/azero-staking";
+import { getRewardsClaimWaitingTime } from "api/azero-staking/azero-staking";
 import { getStakeInfo } from "api/azero-staking/azero-staking";
 import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
@@ -85,7 +87,7 @@ const LeftColumn = () => {
       setMyStaked(stakeInfo);
     };
 
-    fetch();
+    api && fetch();
   }, [api, currentAccount]);
 
   return (
@@ -144,7 +146,8 @@ function StakingInfo() {
   const dispatch = useDispatch();
   const { currentAccount } = useSelector((s) => s.wallet);
 
-  const [info, setInfo] = useState([0, 0]);
+  const [info, setInfo] = useState([0, 0, 0, 0]);
+
   const fetchData = useCallback(
     async (isMounted) => {
       let ret = [];
@@ -163,8 +166,9 @@ function StakingInfo() {
       //   lastAnchored: '1,701,333,524,000',
       //   lastRewardsClaimed: '0'
       // }
+
       if (!info) {
-        setInfo([0, 0]);
+        setInfo([0, 0, 0, 0]);
         return;
       }
 
@@ -175,28 +179,27 @@ function StakingInfo() {
       const unclaimedInwReward =
         formatChainStringToNumber(info?.unclaimedInwReward) / Math.pow(10, 12);
 
-      ret = [unclaimedAzeroReward?.toFixed(4), unclaimedInwReward?.toFixed(4)];
+      const claimedAzeroReward =
+        formatChainStringToNumber(info?.claimedAzeroReward) / Math.pow(10, 12);
 
-      // const lastRequestedList = await getWithdrawalRequestListByUser(
-      //   api,
-      //   currentAccount
-      // );
+      const claimedInwReward =
+        formatChainStringToNumber(info?.claimedInwReward) / Math.pow(10, 12);
 
-      // if (lastRequestedList?.length) {
-      //   const lastRequest = lastRequestedList[lastRequestedList?.length - 1];
-      //   let requestTime =
-      //     formatChainStringToNumber(lastRequest.requestTime) * Math.pow(10, 0);
+      const lastRewardsClaimedTime = formatChainStringToNumber(
+        info?.lastRewardsClaimed
+      );
 
-      //   ret.push(new Date(requestTime).toLocaleString());
-      // } else {
-      //   ret.push("Not request yet");
-      // }
+      ret = [
+        unclaimedAzeroReward?.toFixed(4),
+        unclaimedInwReward?.toFixed(4),
+        claimedAzeroReward?.toFixed(4),
+        claimedInwReward?.toFixed(4),
+        lastRewardsClaimedTime,
+      ];
 
-      // const maxWaitingTime = await getMaxWaitingTime();
+      const rewardsClaimWaitingTime = await getRewardsClaimWaitingTime();
 
-      // if (maxWaitingTime) {
-      //   ret.push(maxWaitingTime / 60000);
-      // }
+      ret.push(rewardsClaimWaitingTime / 60000);
 
       if (!isMounted) return;
 
@@ -216,9 +219,38 @@ function StakingInfo() {
     api && fetchData(true);
   }, 1000);
 
+  const [lastAzeroInterestTopupTimer, setLastAzeroInterestTopupTimer] =
+    useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const lastAzeroInterestTopup = await getLastAzeroInterestTopup();
+
+      setLastAzeroInterestTopupTimer(lastAzeroInterestTopup);
+    };
+
+    fetchData();
+  }, []);
+
   async function handleClaimRewards() {
     if (info[0] <= 0) {
       toast.error("No rewards!");
+      return;
+    }
+
+    if (info[4] >= lastAzeroInterestTopupTimer) {
+      console.log("Wait until there is a new top-ups for azero interest ");
+      toast.error("Invalid Time To Claim Rewards!");
+      return;
+    }
+
+    if (
+      info &&
+      info[4] !== "0" &&
+      parseInt(info[4]) + 60000 * parseInt(info[5]) > Date.now()
+    ) {
+      console.log("Wait min time between 2 consecutive claims");
+      toast.error("Invalid Time To Claim Rewards..");
       return;
     }
 
@@ -226,10 +258,12 @@ function StakingInfo() {
 
     delay(1000).then(() => {
       fetchData(true);
-      // fetchUserClaimedList();
       dispatch(fetchUserBalance({ currentAccount, api }));
     });
   }
+
+  const lastClaimTime =
+    info && (parseInt(info[4]) === 0 ? "Not claim yet" : info[4]);
 
   const formattedInfo = [
     {
@@ -243,6 +277,34 @@ function StakingInfo() {
       title: "INW Unclaimed",
       number: info && info[1],
       denom: "INW",
+      hasTooltip: true,
+      tooltipContent: "Content of tooltip ",
+    },
+    {
+      title: "Total AZERO Claimed",
+      number: info && info[2],
+      denom: "AZERO",
+      hasTooltip: true,
+      tooltipContent: "Content of tooltip ",
+    },
+    {
+      title: "Total INW Claimed",
+      number: info && info[3],
+      denom: "INW",
+      hasTooltip: true,
+      tooltipContent: "Content of tooltip ",
+    },
+    {
+      title: "Last Claimed Time",
+      number: lastClaimTime,
+      denom: "",
+      hasTooltip: true,
+      tooltipContent: "Content of tooltip ",
+    },
+    {
+      title: "Claim Waiting Time",
+      number: info && info[5],
+      denom: `min${info && info[5] > 1 ? "s" : ""}`,
       hasTooltip: true,
       tooltipContent: "Content of tooltip ",
     },
@@ -271,7 +333,13 @@ function StakingInfo() {
               fontWeight={{ base: "bold" }}
               fontSize={["16px", "18px"]}
             >
-              {i.number || 0} {i.denom}
+              {i.title === "Last Claimed Time" ? (
+                <>{new Date(parseInt(i?.number)).toLocaleString("en-US")}</>
+              ) : (
+                <>
+                  {formatNumDynDecimal(i.number) || 0} {i.denom}
+                </>
+              )}
             </Box>
           </Flex>
         ))}
@@ -286,7 +354,13 @@ function StakingInfo() {
             <Button
               w="full"
               fontSize={["16px", "16px", "18px"]}
-              isDisabled={!currentAccount?.address}
+              isDisabled={
+                !currentAccount?.address ||
+                info[4] >= lastAzeroInterestTopupTimer ||
+                (info &&
+                  info[4] !== "0" &&
+                  parseInt(info[4]) + 60000 * parseInt(info[5]) > Date.now())
+              }
               onClick={() => handleClaimRewards()}
             >
               {currentAccount?.address ? "Claim rewards" : "Connect Wallet"}

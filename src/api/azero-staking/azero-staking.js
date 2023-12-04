@@ -192,6 +192,32 @@ export async function getMaxWaitingTime(api, currentAccount) {
   return formatChainStringToNumber(queryResult?.toHuman()?.Ok);
 }
 
+export async function getRewardsClaimWaitingTime(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::getRewardsClaimWaitingDuration"
+  );
+
+  return formatChainStringToNumber(queryResult?.toHuman()?.Ok);
+}
+
+export async function getLastAzeroInterestTopup(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::getLastAzeroInterestTopup"
+  );
+
+  return formatChainStringToNumber(queryResult?.toHuman()?.Ok);
+}
+
 export async function getSortedWaitingListWithinExpirationDuration(
   expirationDuration,
   api,
