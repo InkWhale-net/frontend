@@ -1,5 +1,7 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import {
+  Alert,
+  AlertIcon,
   Box,
   Button,
   Flex,
@@ -367,6 +369,14 @@ function StakingInfo() {
             </Button>
           </Stack>
         </IWCard>
+        {info[4] >= lastAzeroInterestTopupTimer ? (
+          <Alert status="warning">
+            <AlertIcon />
+            Please waiting for top up!
+          </Alert>
+        ) : (
+          ""
+        )}
       </>
     </>
   );
