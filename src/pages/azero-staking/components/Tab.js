@@ -23,6 +23,7 @@ import { getStakeInfo } from "api/azero-staking/azero-staking";
 import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
 import IWCardOneColumn from "components/card/CardOneColumn";
+import IWCountDown from "components/countdown/CountDown";
 import { useAppContext } from "contexts/AppContext";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -31,6 +32,9 @@ import { fetchUserBalance } from "redux/slices/walletSlice";
 import { delay } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { formatChainStringToNumber } from "utils";
+
+const oneDay = 1000 * 60 * 60 * 24;
+const tenMins = 1000 * 60 * 10;
 
 export default function StakingTabs({ tabsData, onChangeTab }) {
   return (
@@ -199,10 +203,6 @@ function StakingInfo() {
         lastRewardsClaimedTime,
       ];
 
-      const rewardsClaimWaitingTime = await getRewardsClaimWaitingTime();
-
-      ret.push(rewardsClaimWaitingTime / 60000);
-
       if (!isMounted) return;
 
       setInfo(ret);
@@ -221,18 +221,25 @@ function StakingInfo() {
     api && fetchData(true);
   }, 1000);
 
-  const [lastAzeroInterestTopupTimer, setLastAzeroInterestTopupTimer] =
-    useState(0);
+  const [nextClaimTime, setNextClaimTime] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       const lastAzeroInterestTopup = await getLastAzeroInterestTopup();
 
-      setLastAzeroInterestTopupTimer(lastAzeroInterestTopup);
+      const rewardsClaimWaitingTime = await getRewardsClaimWaitingTime();
+      
+      const nextTime =
+        parseInt(lastAzeroInterestTopup) +
+        parseInt(rewardsClaimWaitingTime) +
+        tenMins +
+        oneDay;
+
+      setNextClaimTime(nextTime);
     };
 
-    fetchData();
-  }, []);
+    api && fetchData();
+  }, [api]);
 
   async function handleClaimRewards() {
     if (info[0] <= 0) {
@@ -240,11 +247,11 @@ function StakingInfo() {
       return;
     }
 
-    if (info[4] >= lastAzeroInterestTopupTimer) {
-      console.log("Wait until there is a new top-ups for azero interest ");
-      toast.error("Invalid Time To Claim Rewards!");
-      return;
-    }
+    // if (info[4] >= lastAzeroInterestTopupTimer) {
+    //   console.log("Wait until there is a new top-ups for azero interest ");
+    //   toast.error("Invalid Time To Claim Rewards!");
+    //   return;
+    // }
 
     if (
       info &&
@@ -269,28 +276,28 @@ function StakingInfo() {
 
   const formattedInfo = [
     {
-      title: "AZERO Unclaimed",
+      title: "Unclaimed AZERO",
       number: info && info[0],
       denom: "AZERO",
       hasTooltip: true,
       tooltipContent: "Content of tooltip ",
     },
     {
-      title: "INW Unclaimed",
+      title: "Unclaimed INW",
       number: info && info[1],
       denom: "INW",
       hasTooltip: true,
       tooltipContent: "Content of tooltip ",
     },
     {
-      title: "Total AZERO Claimed",
+      title: "Total Claimed AZERO",
       number: info && info[2],
       denom: "AZERO",
       hasTooltip: true,
       tooltipContent: "Content of tooltip ",
     },
     {
-      title: "Total INW Claimed",
+      title: "Total Claimed INW",
       number: info && info[3],
       denom: "INW",
       hasTooltip: true,
@@ -300,13 +307,6 @@ function StakingInfo() {
       title: "Last Claimed Time",
       number: lastClaimTime,
       denom: "",
-      hasTooltip: true,
-      tooltipContent: "Content of tooltip ",
-    },
-    {
-      title: "Claim Waiting Time",
-      number: info && info[5],
-      denom: `min${info && info[5] > 1 ? "s" : ""}`,
       hasTooltip: true,
       tooltipContent: "Content of tooltip ",
     },
@@ -346,6 +346,21 @@ function StakingInfo() {
           </Flex>
         ))}
 
+        {Date.now() <= nextClaimTime ? (
+          <Flex w="full" justify="space-between" direction={["column"]}>
+            <Flex alignItems="center">Est. Next Claim</Flex>
+            <Box
+              color={{ base: "#57527E" }}
+              fontWeight={{ base: "bold" }}
+              fontSize={["16px", "18px"]}
+            >
+              <IWCountDown date={nextClaimTime} />
+            </Box>
+          </Flex>
+        ) : (
+          ""
+        )}
+
         <IWCard w="full" variant="solid">
           <Stack
             w="100%"
@@ -358,7 +373,7 @@ function StakingInfo() {
               fontSize={["16px", "16px", "18px"]}
               isDisabled={
                 !currentAccount?.address ||
-                info[4] >= lastAzeroInterestTopupTimer ||
+                Date.now() <= nextClaimTime ||
                 (info &&
                   info[4] !== "0" &&
                   parseInt(info[4]) + 60000 * parseInt(info[5]) > Date.now())
@@ -369,10 +384,11 @@ function StakingInfo() {
             </Button>
           </Stack>
         </IWCard>
-        {info[4] >= lastAzeroInterestTopupTimer ? (
+
+        {Date.now() <= nextClaimTime ? (
           <Alert status="warning">
             <AlertIcon />
-            Please waiting for top up!
+            User can claim the rewards approximately every 24 hours.
           </Alert>
         ) : (
           ""

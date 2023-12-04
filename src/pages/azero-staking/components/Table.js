@@ -19,7 +19,7 @@ export default function StakingTable({ tableBody, cb }) {
       name: "withdrawalAmount",
       hasTooltip: false,
       tooltipContent: "",
-      label: "Withdrawal Amount",
+      label: "Amount",
     },
   ];
 
