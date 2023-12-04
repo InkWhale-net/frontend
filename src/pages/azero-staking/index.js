@@ -40,11 +40,6 @@ function AzeroStaking() {
       component: <>Transaction History</>,
       isDisabled: false,
     },
-    // {
-    //   label: "Claim",
-    //   component: <Claim />,
-    //   isDisabled: false,
-    // },
   ];
 
   return (

@@ -45,7 +45,7 @@ function Staking() {
     delay(1000).then(() => {
       fetchData(true);
       dispatch(fetchUserBalance({ currentAccount, api }));
-
+      fetchUserRequestList();
       setAmount("");
     });
   }
@@ -94,6 +94,8 @@ function Staking() {
 
     delay(1000).then(() => {
       fetchData(true);
+      dispatch(fetchUserBalance({ currentAccount, api }));
+      fetchUserRequestList();
       setAmount("");
     });
   }
@@ -143,8 +145,8 @@ function Staking() {
   }, [api, currentAccount]);
 
   useEffect(() => {
-    fetchUserRequestList();
-  }, [fetchUserRequestList]);
+    api && fetchUserRequestList();
+  }, [api, fetchUserRequestList]);
 
   async function handleCallback() {
     delay(1000).then(() => {
@@ -160,8 +162,7 @@ function Staking() {
           mb="16px"
           w="100%"
           spacing="16px"
-          direction={{ base: "column", xl: "row" }}
-          align={{ base: "column", xl: "center" }}
+          direction={["column", "column", "row"]}
         >
           <IWInput
             type="number"
@@ -180,7 +181,7 @@ function Staking() {
           />
 
           <Button
-            w={["full", "full", "45%"]}
+            w={["full", "full", "full", "45%"]}
             onClick={() => handleStake()}
             isDisabled={!currentAccount?.address || !azeroBalance || !amount}
           >
@@ -188,7 +189,7 @@ function Staking() {
           </Button>
 
           <Button
-            w={["full", "full", "45%"]}
+            w={["full", "full", "full", "45%"]}
             onClick={() => handleRequestUnstake()}
             isDisabled={
               !currentAccount?.address ||
@@ -211,7 +212,6 @@ function Staking() {
 export default Staking;
 
 function FooterInfo({ info }) {
-
   const formatInfo = [
     {
       title: "Min staking",
