@@ -684,6 +684,20 @@ export const formatDataCellTable = (
         </>
       );
 
+    case "interestAccount":
+      return (
+        <>
+          <Text>{formatNumDynDecimal(itemObj[header])} AZERO</Text>
+        </>
+      );
+
+    case "masterAccount":
+      return (
+        <>
+          <Text>{formatNumDynDecimal(itemObj[header])} AZERO</Text>
+        </>
+      );
+
     case "azeroReward":
       return (
         <>

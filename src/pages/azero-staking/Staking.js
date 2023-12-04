@@ -1,9 +1,7 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import { Box, Button, Flex, Stack, Tooltip } from "@chakra-ui/react";
 import { getStakeInfo } from "api/azero-staking/azero-staking";
-import { getApy } from "api/azero-staking/azero-staking";
-import { getTotalStakers } from "api/azero-staking/azero-staking";
-import { getTotalAzeroStaked } from "api/azero-staking/azero-staking";
+import { doWithdrawRequest } from "api/azero-staking/azero-staking";
 import { doStakeAzero } from "api/azero-staking/azero-staking";
 import {
   getMinStakingAmount,
@@ -16,15 +14,20 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBalance } from "redux/slices/walletSlice";
+import { formatNumDynDecimal } from "utils";
 import { delay } from "utils";
 import { formatChainStringToNumber } from "utils";
+import StakingTable from "./components/Table";
+import { getRequestStatus } from "./Claim";
+import { getWithdrawalRequestListByUser } from "api/azero-staking/azero-staking";
+import { MaxStakeButton } from "pages/pools/detail/MaxStakeButton";
 
 function Staking() {
   const { api } = useAppContext();
   const dispatch = useDispatch();
 
   const { currentAccount } = useSelector((s) => s.wallet);
-  const [stakeAmount, setStakeAmount] = useState("");
+  const [amount, setAmount] = useState("");
 
   const azeroBalance = useMemo(() => {
     const azeroBal = formatChainStringToNumber(currentAccount?.balance?.azero);
@@ -32,22 +35,21 @@ function Staking() {
   }, [currentAccount?.balance?.azero]);
 
   async function handleStake() {
-    if (azeroBalance < stakeAmount) {
+    if (azeroBalance < amount) {
       toast.error("Not enough AZERO balance!");
       return;
     }
 
-    await doStakeAzero(api, currentAccount, stakeAmount);
+    await doStakeAzero(api, currentAccount, amount);
 
     delay(1000).then(() => {
       fetchData(true);
       dispatch(fetchUserBalance({ currentAccount, api }));
-
-      setStakeAmount("");
+      fetchUserRequestList();
+      setAmount("");
     });
   }
   const [footerInfo, setFooterInfo] = useState(null);
-  const [statsInfo, setStatsInfo] = useState(null);
 
   const fetchData = useCallback(
     async (isMounted) => {
@@ -60,26 +62,14 @@ function Staking() {
 
         const stakingAmount =
           formatChainStringToNumber(res?.stakingAmount) / Math.pow(10, 12);
-        return stakingAmount?.toFixed(4) ?? 0;
+        return stakingAmount ?? 0;
       });
-
       Promise.all([minStakingAmount, maxTotalStakingAmount, stakeInfo]).then(
         (resultArr) => {
           if (!isMounted) return;
           setFooterInfo(resultArr);
         }
       );
-
-      const apy = await getApy(api);
-      const totalAzeroStaked = await getTotalAzeroStaked(api);
-      const totalStakers = await getTotalStakers(api).then((res) =>
-        parseInt(res)
-      );
-
-      Promise.all([apy, totalAzeroStaked, totalStakers]).then((resultArr) => {
-        if (!isMounted) return;
-        setStatsInfo(resultArr);
-      });
     },
     [api, currentAccount]
   );
@@ -92,53 +82,129 @@ function Staking() {
     return () => (isMounted = false);
   }, [api, currentAccount, fetchData]);
 
+  // ================
+
+  async function handleRequestUnstake() {
+    if (footerInfo && footerInfo[2] < amount) {
+      toast.error("Not enough AZERO stakes!");
+      return;
+    }
+
+    await doWithdrawRequest(api, currentAccount, amount);
+
+    delay(1000).then(() => {
+      fetchData(true);
+      dispatch(fetchUserBalance({ currentAccount, api }));
+      fetchUserRequestList();
+      setAmount("");
+    });
+  }
+
+  const [userRequestList, setUserRequestList] = useState([]);
+
+  const fetchUserRequestList = useCallback(async () => {
+    const requestedList = await getWithdrawalRequestListByUser(
+      api,
+      currentAccount
+    );
+
+    if (requestedList?.length) {
+      const formattedRequestedList = requestedList.map((i) => {
+        const withdrawalAmount =
+          formatChainStringToNumber(i.amount) / Math.pow(10, 12);
+
+        const azeroReward =
+          formatChainStringToNumber(i.azeroReward) / Math.pow(10, 12);
+
+        const totalAzero =
+          formatChainStringToNumber(i.totalAzero) / Math.pow(10, 12);
+
+        const inwReward =
+          formatChainStringToNumber(i.inwReward) / Math.pow(10, 12);
+
+        const requestTime =
+          formatChainStringToNumber(i.requestTime) * Math.pow(10, 0);
+
+        const requestStatus = getRequestStatus(i.status);
+
+        return {
+          ...i,
+          withdrawalAmount,
+          azeroReward,
+          totalAzero,
+          inwReward,
+          requestStatus,
+          requestTime: new Date(requestTime).toLocaleString(),
+        };
+      });
+
+      setUserRequestList(formattedRequestedList);
+    } else {
+      setUserRequestList([]);
+    }
+  }, [api, currentAccount]);
+
+  useEffect(() => {
+    api && fetchUserRequestList();
+  }, [api, fetchUserRequestList]);
+
+  async function handleCallback() {
+    delay(1000).then(() => {
+      fetchUserRequestList();
+      dispatch(fetchUserBalance({ currentAccount, api }));
+    });
+  }
+
   return (
     <>
-      <IWCard w="full" variant="solid">
+      <IWCard w="full" variant="solid" mb="24px">
         <Stack
+          mb="16px"
           w="100%"
-          spacing="20px"
-          direction={{ base: "column" }}
-          align={{ base: "column", xl: "center" }}
+          spacing="16px"
+          direction={["column", "column", "row"]}
         >
           <IWInput
             type="number"
             placeholder="0"
-            value={stakeAmount}
-            onChange={({ target }) => setStakeAmount(target.value)}
+            value={amount}
+            onChange={({ target }) => setAmount(target.value)}
             inputRightElementIcon={
-              <Button
-                size="xs"
-                fontWeight="normal"
+              <MaxStakeButton
                 disabled={!currentAccount?.address}
-                onClick={() => setStakeAmount(azeroBalance)}
-              >
-                Max
-              </Button>
+                setStakeMax={() => {
+                  setAmount(azeroBalance ?? 0);
+                }}
+                setUnstakeMax={() => setAmount(footerInfo[2] ?? 0)}
+              />
             }
           />
+
           <Button
-            w="full"
-            isDisabled={!currentAccount?.address || !stakeAmount}
+            w={["full", "full", "full", "45%"]}
             onClick={() => handleStake()}
+            isDisabled={!currentAccount?.address || !azeroBalance || !amount}
           >
             {currentAccount?.address ? "Stake" : "Connect Wallet"}
           </Button>
-          <FooterInfo info={footerInfo} />
+
+          <Button
+            w={["full", "full", "full", "45%"]}
+            onClick={() => handleRequestUnstake()}
+            isDisabled={
+              !currentAccount?.address ||
+              (footerInfo && !footerInfo[2]) ||
+              !amount
+            }
+          >
+            {currentAccount?.address ? "Unstake" : "Connect Wallet"}
+          </Button>
         </Stack>
+
+        <FooterInfo info={footerInfo} />
       </IWCard>
 
-      <IWCard w="full" variant="outline" title={`Statistics`} mt="18px">
-        <Stack
-          mt="18px"
-          w="100%"
-          spacing="20px"
-          direction={{ base: "column" }}
-          align={{ base: "column", xl: "center" }}
-        >
-          <StatsInfo info={statsInfo} />
-        </Stack>
-      </IWCard>
+      <StakingTable tableBody={userRequestList} cb={handleCallback} />
     </>
   );
 }
@@ -148,22 +214,15 @@ export default Staking;
 function FooterInfo({ info }) {
   const formatInfo = [
     {
-      title: "Min staking amount",
+      title: "Min staking",
       number: info && info[0],
       denom: "AZERO",
       hasTooltip: true,
       tooltipContent: "Content of tooltip ",
     },
     {
-      title: "Max total staking amount",
+      title: "Max total staking",
       number: info && info[1],
-      denom: "AZERO",
-      hasTooltip: true,
-      tooltipContent: "Content of tooltip ",
-    },
-    {
-      title: "Staked amount",
-      number: info && info[2],
       denom: "AZERO",
       hasTooltip: true,
       tooltipContent: "Content of tooltip ",
@@ -191,60 +250,7 @@ function FooterInfo({ info }) {
           fontWeight={{ base: "bold" }}
           fontSize={["16px", "18px"]}
         >
-          {i.number} {i.denom}
-        </Box>
-      </Flex>
-    </>
-  ));
-}
-
-function StatsInfo({ info }) {
-  const formattedInfo = [
-    {
-      title: "Annual Percentage Rate",
-      number: info && info[0],
-      denom: "%",
-      hasTooltip: true,
-      tooltipContent: "Content of tooltip ",
-    },
-    {
-      title: "Total Staked (incl. pending withdrawal)",
-      number: info && info[1],
-      denom: "AZERO",
-      hasTooltip: false,
-      tooltipContent: "Content of tooltip ",
-    },
-    {
-      title: "Stakers",
-      number: info && info[2],
-      denom: "",
-      hasTooltip: true,
-      tooltipContent: "Content of tooltip ",
-    },
-  ];
-
-  return formattedInfo?.map((i) => (
-    <>
-      <Flex
-        key={i?.title}
-        w="full"
-        justify="space-between"
-        direction={["column", "column", "row"]}
-      >
-        <Flex alignItems="center">
-          {i?.title}
-          {i?.hasTooltip && (
-            <Tooltip fontSize="md" label={i?.tooltipContent}>
-              <QuestionOutlineIcon ml="6px" color="text.2" />
-            </Tooltip>
-          )}
-        </Flex>
-        <Box
-          color={{ base: "#57527E" }}
-          fontWeight={{ base: "bold" }}
-          fontSize={["16px", "18px"]}
-        >
-          {i.number} {i.denom}
+          {formatNumDynDecimal(i.number)} {i.denom}
         </Box>
       </Flex>
     </>

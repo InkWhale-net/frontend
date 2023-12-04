@@ -382,6 +382,15 @@ export const APICall = {
       "https://staking.inkwhale.net/"
     );
   },
+
+  getDistributionInfo: async (options) => {
+    return await client(
+      "POST",
+      "/getDistributionInfo",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
 };
 
 const projectId = process.env.REACT_APP_IPFS_PROJECT_ID;

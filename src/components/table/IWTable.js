@@ -21,8 +21,14 @@ import { useSelector } from "react-redux";
 import { formatChainStringToNumber } from "utils";
 import toast from "react-hot-toast";
 import { useAppContext } from "contexts/AppContext";
-import { doClaimRewards } from "api/azero-staking/azero-staking";
+import { doClaimPrincipal } from "api/azero-staking/azero-staking";
 import { delay } from "utils";
+
+import { execContractQuery } from "utils/contracts";
+import my_azero_staking from "utils/contracts/my_azero_staking";
+import { formatNumToBN } from "utils";
+import { execContractTx } from "utils/contracts";
+import psp22_contract from "utils/contracts/psp22_contract";
 
 export function IWTable({
   tableHeader,
@@ -77,12 +83,50 @@ export function IWTable({
       toast.error("Too low INW balance!");
       return;
     }
+    try {
+      // check approve 5inw
+      const allowanceTokenQr = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ADDRESS,
+        0, //-> value
+        "psp22::allowance",
+        currentAccount?.address,
+        my_azero_staking.CONTRACT_ADDRESS
+      );
 
-    await doClaimRewards(api, currentAccount, index);
+      const allowanceToken =
+        allowanceTokenQr?.toHuman().Ok?.replaceAll(",", "") / 10 ** 12;
 
-    delay(1000).then(() => {
-      cb && cb();
-    });
+      console.log("allowanceToken", allowanceToken);
+
+      if (5 > allowanceToken) {
+        toast("Approving fee...");
+
+        await execContractTx(
+          currentAccount,
+          "api",
+          psp22_contract.CONTRACT_ABI,
+          psp22_contract.CONTRACT_ADDRESS,
+          0, //-> value
+          "psp22::approve",
+          my_azero_staking.CONTRACT_ADDRESS,
+          formatNumToBN(5)
+        );
+      }
+      // End check approve additional portion
+
+      await delay(1000).then(async () => {
+        await doClaimPrincipal(api, currentAccount, index);
+      });
+
+      delay(1000).then(() => {
+        cb && cb();
+      });
+    } catch (error) {
+      console.log("error", error);
+    }
   }
 
   return (
@@ -128,6 +172,8 @@ export function IWTable({
                 fontSize="16px"
                 lineHeight="28px"
                 textTransform="none"
+                display="flex"
+                justifyContent="center"
               >
                 <Flex alignItems="center">Action</Flex>
               </Th>
@@ -187,7 +233,7 @@ export function IWTable({
                                 w="full"
                                 size="sm"
                                 disabled={
-                                  itemObj["requestStatus"] === "Claimed"||
+                                  itemObj["requestStatus"] === "Claimed" ||
                                   itemObj["requestStatus"] === "Pending"
                                 }
                                 onClick={() =>
