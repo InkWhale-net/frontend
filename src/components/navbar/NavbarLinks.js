@@ -80,7 +80,7 @@ export default function NavbarLinks(props) {
                 alignItems="center"
                 justifyContent="center"
               >
-                <Text bg="transparent" fontSize="md" textAlign='center'>
+                <Text bg="transparent" fontSize="md" textAlign="center">
                   {title}
                 </Text>
               </Link>
@@ -374,10 +374,10 @@ export const StakeMenuDropdown = ({
       >
         <Flex flexDirection="column" p="20px">
           {[
-            // {
-            //   label: "Azero Staking",
-            //   href: "/azero-staking",
-            // },
+            {
+              label: "AZERO Staking",
+              href: "/azero-staking",
+            },
             {
               label: "Token Pools",
               href: "/pools",
