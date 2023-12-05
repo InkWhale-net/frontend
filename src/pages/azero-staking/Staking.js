@@ -1,5 +1,5 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
-import { Box, Button, Flex, Stack, Tooltip } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Stack, Tooltip } from "@chakra-ui/react";
 import { getStakeInfo } from "api/azero-staking/azero-staking";
 import { doWithdrawRequest } from "api/azero-staking/azero-staking";
 import { doStakeAzero } from "api/azero-staking/azero-staking";
@@ -18,9 +18,10 @@ import { formatNumDynDecimal } from "utils";
 import { delay } from "utils";
 import { formatChainStringToNumber } from "utils";
 import StakingTable from "./components/Table";
-import { getRequestStatus } from "./Claim";
+
 import { getWithdrawalRequestListByUser } from "api/azero-staking/azero-staking";
 import { MaxStakeButton } from "pages/pools/detail/MaxStakeButton";
+import { stakeStatus } from "constants";
 
 function Staking() {
   const { api } = useAppContext();
@@ -197,12 +198,16 @@ function Staking() {
               !amount
             }
           >
-            {currentAccount?.address ? "Unstake" : "Connect Wallet"}
+            {currentAccount?.address ? "Request Unstake" : "Connect Wallet"}
           </Button>
         </Stack>
 
         <FooterInfo info={footerInfo} />
       </IWCard>
+
+      <Heading as="h3" size="h3" mb="16px">
+        Unstake History
+      </Heading>
 
       <StakingTable tableBody={userRequestList} cb={handleCallback} />
     </>
@@ -256,3 +261,17 @@ function FooterInfo({ info }) {
     </>
   ));
 }
+
+export function getRequestStatus(status) {
+  switch (parseInt(status)) {
+    case 0:
+      return stakeStatus.PENDING;
+    case 1:
+      return stakeStatus.READY;
+    case 2:
+      return stakeStatus.UNSTAKED;
+    default:
+      return "n/a";
+  }
+}
+// pub status: u8 // 0: waiting, 1: is Ready to unstake, 2: unstaked

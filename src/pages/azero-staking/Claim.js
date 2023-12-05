@@ -156,16 +156,16 @@
 //   ));
 // }
 
-export function getRequestStatus(status) {
-  switch (parseInt(status)) {
-    case 0:
-      return "Pending";
-    case 1:
-      return "Claimable";
-    case 2:
-      return "Claimed";
-    default:
-      return "n/a";
-  }
-}
-// pub status: u8 // 0: waiting, 1: is claimable, 2: claimed
+// export function getRequestStatus(status) {
+//   switch (parseInt(status)) {
+//     case 0:
+//       return "Pending";
+//     case 1:
+//       return "Ready to unstake";
+//     case 2:
+//       return "Unstaked";
+//     default:
+//       return "n/a";
+//   }
+// }
+// // pub status: u8 // 0: waiting, 1: is Ready to unstake, 2: unstaked
