@@ -228,7 +228,7 @@ function StakingInfo() {
       const lastAzeroInterestTopup = await getLastAzeroInterestTopup();
 
       const rewardsClaimWaitingTime = await getRewardsClaimWaitingTime();
-      
+
       const nextTime =
         parseInt(lastAzeroInterestTopup) +
         parseInt(rewardsClaimWaitingTime) +
@@ -336,7 +336,13 @@ function StakingInfo() {
               fontSize={["16px", "18px"]}
             >
               {i.title === "Last Claimed Time" ? (
-                <>{new Date(parseInt(i?.number)).toLocaleString("en-US")}</>
+                <>
+                  {!i?.number
+                    ? "Not claim yet"
+                    : !!parseInt(i?.number)
+                    ? new Date(parseInt(i?.number)).toLocaleString("en-US")
+                    : i?.number}
+                </>
               ) : (
                 <>
                   {formatNumDynDecimal(i.number) || 0} {i.denom}
@@ -346,7 +352,9 @@ function StakingInfo() {
           </Flex>
         ))}
 
-        {Date.now() <= nextClaimTime ? (
+        {formattedInfo && !formattedInfo[4].number ? (
+          ""
+        ) : Date.now() <= nextClaimTime ? (
           <Flex w="full" justify="space-between" direction={["column"]}>
             <Flex alignItems="center">Est. Next Claim</Flex>
             <Box
