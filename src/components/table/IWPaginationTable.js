@@ -621,15 +621,7 @@ export const formatDataCellTable = (
           <AddressCopier address={itemObj[header]} fontWeight="none" />
         </>
       );
-    case "amount":
-      return (
-        <>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            {itemObj?.amountIcon}
-            {itemObj[header]}{" "}
-          </Box>
-        </>
-      );
+
     case "tokenIconUrl":
       return itemObj[header] ? (
         <Image
@@ -678,6 +670,20 @@ export const formatDataCellTable = (
       );
 
     case "withdrawalAmount":
+      return (
+        <>
+          <Text>{formatNumDynDecimal(itemObj[header])} AZERO</Text>
+        </>
+      );
+
+    case "requestUserAddress":
+      return (
+        <>
+          <AddressCopier address={itemObj[header]} />
+        </>
+      );
+
+    case "azeroAmount":
       return (
         <>
           <Text>{formatNumDynDecimal(itemObj[header])} AZERO</Text>

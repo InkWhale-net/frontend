@@ -100,6 +100,7 @@ const LeftColumn = () => {
     <VStack w={["full", "full", "auto"]} spacing="24px">
       {/* Side column */}
       <IWCardOneColumn
+        w="full"
         title="My Account"
         data={[
           ...prepareAccountInfo(currentAccount),
