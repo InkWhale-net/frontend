@@ -88,6 +88,7 @@ export const stakeStatus = {
   PENDING: "Pending",
   READY: "Ready To Unstake",
   UNSTAKED: "Unstaked",
+  CANCEL: "Cancel",
 };
 
 // export const IPFS_BASE_URL = 'https://artzeronft.infura-ipfs.io/ipfs';
