@@ -25,6 +25,7 @@ import TokensTabCheckBalance from "./TokensTabCheckBalance";
 import TokensTabTransferToken from "./TokensTabTransferToken";
 import psp22_contract_old from "utils/contracts/psp22_contract_old";
 import { getTokenOwner } from "utils";
+import { formatTokenAmount } from "utils";
 
 export default function TokensPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -126,10 +127,7 @@ export default function TokensPage() {
     );
     const rawTotalSupply = queryResult3.toHuman().Ok;
 
-    const totalSupply = roundUp(
-      rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
-      0
-    );
+    const totalSupply = formatTokenAmount(rawTotalSupply, decimals);
 
     const { address: owner } = await getTokenOwner(selectedContractAddr);
     let tokenIconUrl = null;
@@ -154,6 +152,7 @@ export default function TokensPage() {
         decimals,
         owner,
         tokenIconUrl,
+        address: selectedContractAddr,
       };
     });
   }
