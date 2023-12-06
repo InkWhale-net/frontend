@@ -76,6 +76,26 @@ export async function getTotalAzeroStaked(api, currentAccount) {
   return formatChainStringToNumber(rs) / Math.pow(10, 12);
 }
 
+export async function getWithdrawableAzeroToStakeToValidator(
+  expirationDuration,
+  api,
+  currentAccount
+) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::getWithdrawableAzeroToStakeToValidator",
+    expirationDuration
+  );
+
+  const rs = queryResult?.toHuman()?.Ok.Ok;
+
+  return formatChainStringToNumber(rs) / Math.pow(10, 12);
+}
+
 export async function getAzeroStakeBalance(api, currentAccount) {
   const queryResult = await execContractQuery(
     currentAccount?.address,
@@ -244,6 +264,54 @@ export async function doClaimRewards(api, currentAccount) {
     my_azero_staking.CONTRACT_ADDRESS,
     0,
     "azeroStakingTrait::claimRewards"
+  );
+}
+
+export async function doWithdrawAzeroToStake(
+  api,
+  currentAccount,
+  expirationDuration,
+  receiver
+) {
+  return await execContractTx(
+    currentAccount,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::withdrawAzeroToStake",
+    expirationDuration,
+    receiver
+  );
+}
+
+export async function doWithdrawAzeroEmergency(
+  api,
+  currentAccount,
+  receiver,
+  amount
+) {
+  return await execContractTx(
+    currentAccount,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::withdrawAzeroEmergency",
+    receiver,
+    formatNumToBN(amount)
+  );
+}
+
+export async function doTopupAzeroStakeAccount(api, currentAccount, amount) {
+  return await execContractTx(
+    currentAccount,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    formatNumToBN(amount),
+    "azeroStakingTrait::topupAzeroStakeAccount",
+    formatNumToBN(amount)
   );
 }
 
