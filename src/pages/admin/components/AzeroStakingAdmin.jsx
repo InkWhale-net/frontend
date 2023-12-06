@@ -31,8 +31,8 @@ import { getRequestStatus } from "pages/azero-staking/Staking";
 import { stakeStatus } from "constants";
 import { ClaimRewardsTable } from "pages/azero-staking/components/Table";
 import { addressShortener } from "utils";
-
-const INW_NAME = "INW";
+import { getInwInterestBalance } from "api/azero-staking/azero-staking";
+import { getWithdrawableAzeroToStakeToValidator } from "api/azero-staking/azero-staking";
 
 export default function AzeroStakingAdmin() {
   return (
@@ -56,30 +56,39 @@ function ContractBalanceSection() {
     const fetchData = async (isMounted) => {
       try {
         setLoading(true);
+        const { ret: expirationTime } = await APICall.getExpirationTime();
 
         const azeroStakingContract = await getAzeroStakingContract();
 
         const azeroBalanceOfStakingContract =
           await getAzeroBalanceOfStakingContract();
-        const totalAzeroStaked = await getTotalAzeroStaked();
+        const withdrawableAzeroToStakeToValidator =
+          await getWithdrawableAzeroToStakeToValidator(expirationTime);
         const azeroStakeBalance = await getAzeroStakeBalance();
+        const inwInterestBalance = await getInwInterestBalance();
 
-        // console.log("interest::getAzeroStakingContract",azeroStakingContract);
-        // console.log("Staking::getAzeroBalance",azeroBalanceOfStakingContract);
-        // console.log("Staking::getTotalAzeroStaked", totalAzeroStaked);
-        // console.log("Staking::getAzeroStakeAccount", azeroStakeBalance);
+        console.log("interest::getAzeroStakingContract", azeroStakingContract);
+        console.log("Staking::getAzeroBalance", azeroBalanceOfStakingContract);
+        console.log("Staking::getWithdrawableAzeroToStakeToValidator",          withdrawableAzeroToStakeToValidator
+        );
+        console.log("Staking::getAzeroStakeAccount", azeroStakeBalance);
+
+
+        console.log("Staking::getInwInterestAccount", inwInterestBalance);
 
         Promise.all([
           azeroStakingContract,
           azeroBalanceOfStakingContract,
           azeroStakeBalance,
-          totalAzeroStaked,
+          withdrawableAzeroToStakeToValidator,
+          inwInterestBalance,
         ]).then(
           ([
             azeroStakingContract,
             azeroBalanceOfStakingContract,
             azeroStakeBalance,
-            totalAzeroStaked,
+            withdrawableAzeroToStakeToValidator,
+            inwInterestBalance,
           ]) => {
             if (!isMounted) {
               return;
@@ -116,13 +125,22 @@ function ContractBalanceSection() {
                 tooltipContent: "azeroStakeBalance",
               },
               {
-                title: "Total Azero Staked",
-                value: totalAzeroStaked,
+                title: "Withdrawable AZERO To Stake To Validator",
+                value: withdrawableAzeroToStakeToValidator,
                 valueFormatted: `${formatNumDynDecimal(
-                  totalAzeroStaked
+                  withdrawableAzeroToStakeToValidator
                 )} AZERO`,
                 hasTooltip: true,
-                tooltipContent: "totalAzeroStaked",
+                tooltipContent: "withdrawableAzeroToStakeToValidator",
+              },
+              {
+                title: "INW Interest Balance",
+                value: inwInterestBalance,
+                valueFormatted: `${formatNumDynDecimal(
+                  inwInterestBalance
+                )} INW`,
+                hasTooltip: true,
+                tooltipContent: "inwInterestBalance",
               },
             ];
 
@@ -188,16 +206,6 @@ function RewardsBalanceSection() {
         const inwContract = await getInwContract();
         console.log("interest::getInwContract", inwContract);
 
-        const inwContractBalanceINW = await getInwBalanceOfAddress({
-          address: inwContract,
-        });
-        console.log("InwContract psp22::balanceOf INW", inwContractBalanceINW);
-
-        const inwContractBalanceAZERO = await getAzeroBalanceOfAddress({
-          address: inwContract,
-        });
-        console.log("InwContractBalanceAZERO", inwContractBalanceAZERO);
-
         const inkContractInfoData = [
           {
             title: "INW Contract",
@@ -205,22 +213,6 @@ function RewardsBalanceSection() {
             valueFormatted: <AddressCopier address={inwContract} />,
             hasTooltip: true,
             tooltipContent: "inwContract",
-          },
-          {
-            title: "INW Balance",
-            value: inwContractBalanceINW,
-            valueFormatted: `${formatNumDynDecimal(inwContractBalanceINW)} INW`,
-            hasTooltip: true,
-            tooltipContent: "inwContractBalanceINW",
-          },
-          {
-            title: "AZERO Balance",
-            value: inwContractBalanceAZERO,
-            valueFormatted: `${formatNumDynDecimal(
-              inwContractBalanceAZERO
-            )} AZERO`,
-            hasTooltip: true,
-            tooltipContent: "inwContractBalanceAZERO",
           },
         ];
 
@@ -254,13 +246,6 @@ function RewardsBalanceSection() {
         const masterAccount = await getMasterAccount();
         console.log("interest::getMasterAccount", masterAccount);
 
-        const masterAccountBalanceINW = await getInwBalanceOfAddress({
-          address: masterAccount,
-        });
-        console.log(
-          "MasterAccount psp22::balanceOf INW",
-          masterAccountBalanceINW
-        );
         const masterAccountBalanceAZERO = await getAzeroBalanceOfAddress({
           address: masterAccount,
         });
@@ -274,15 +259,7 @@ function RewardsBalanceSection() {
             hasTooltip: true,
             tooltipContent: "masterAccount",
           },
-          {
-            title: "INW Balance",
-            value: masterAccountBalanceINW,
-            valueFormatted: `${formatNumDynDecimal(
-              masterAccountBalanceINW
-            )} INW`,
-            hasTooltip: true,
-            tooltipContent: "masterAccountBalanceINW",
-          },
+
           {
             title: "AZERO Balance",
             value: masterAccountBalanceAZERO,
