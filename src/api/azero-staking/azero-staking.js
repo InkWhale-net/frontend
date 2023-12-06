@@ -77,7 +77,8 @@ export async function getTotalAzeroStaked(api, currentAccount) {
 }
 
 export async function getWithdrawableAzeroToStakeToValidator(
-  expirationDuration,api,
+  expirationDuration,
+  api,
   currentAccount
 ) {
   const queryResult = await execContractQuery(
@@ -263,6 +264,55 @@ export async function doClaimRewards(api, currentAccount) {
     my_azero_staking.CONTRACT_ADDRESS,
     0,
     "azeroStakingTrait::claimRewards"
+  );
+}
+
+export async function doWithdrawAzeroToStake(
+  api,
+  currentAccount,
+  expirationDuration,
+  receiver
+) {
+  return await execContractTx(
+    currentAccount,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::withdrawAzeroToStake",
+    expirationDuration,
+    receiver
+  );
+}
+
+export async function doWithdrawAzeroEmergency(
+  api,
+  currentAccount,
+  receiver,
+  amount
+) {
+   
+  return await execContractTx(
+    currentAccount,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::withdrawAzeroEmergency",
+    receiver,
+    formatNumToBN(amount)
+  );
+}
+
+export async function doTopupAzeroStakeAccount(api, currentAccount, amount) {
+  return await execContractTx(
+    currentAccount,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::topupAzeroStakeAccount",
+    formatNumToBN(amount)
   );
 }
 
