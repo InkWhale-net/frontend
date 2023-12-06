@@ -291,7 +291,6 @@ export async function doWithdrawAzeroEmergency(
   receiver,
   amount
 ) {
-   
   return await execContractTx(
     currentAccount,
     api,
@@ -310,7 +309,7 @@ export async function doTopupAzeroStakeAccount(api, currentAccount, amount) {
     api,
     my_azero_staking.CONTRACT_ABI,
     my_azero_staking.CONTRACT_ADDRESS,
-    0,
+    formatNumToBN(amount),
     "azeroStakingTrait::topupAzeroStakeAccount",
     formatNumToBN(amount)
   );

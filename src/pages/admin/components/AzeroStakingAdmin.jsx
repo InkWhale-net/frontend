@@ -10,46 +10,52 @@ import {
   InputGroup,
   InputRightElement,
   SimpleGrid,
+  Stack,
   Text,
 } from "@chakra-ui/react";
-import { getMasterAccount } from "api/azero-staking/azero-staking";
-import { getAzeroStakingContract } from "api/azero-staking/azero-staking";
-import { getInwContract } from "api/azero-staking/azero-staking";
-import { getInwBalanceOfAddress } from "api/azero-staking/azero-staking";
+import {
+  getAzeroStakingContract,
+  getInwBalanceOfAddress,
+  getInwContract,
+  getMasterAccount,
+} from "api/azero-staking/azero-staking";
 
-import { getAzeroStakeBalance } from "api/azero-staking/azero-staking";
-import { getInterestDistributionContract } from "api/azero-staking/azero-staking";
-import { getAzeroBalanceOfStakingContract } from "api/azero-staking/azero-staking";
-import { getWithdrawalRequestList } from "api/azero-staking/azero-staking";
+import {
+  getAzeroBalanceOfStakingContract,
+  getAzeroStakeBalance,
+  getInterestDistributionContract,
+  getWithdrawalRequestList,
+} from "api/azero-staking/azero-staking";
 import { APICall } from "api/client";
 import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { ClipLoader } from "react-spinners";
-import { formatNumDynDecimal } from "utils";
-import { formatChainStringToNumber } from "utils";
+import { formatChainStringToNumber, formatNumDynDecimal } from "utils";
 import { getAzeroBalanceOfAddress } from "utils/contracts";
 
-import RequestListTable from "./Table";
-import { getRequestStatus } from "pages/azero-staking/Staking";
-import { stakeStatus } from "constants";
-import { ClaimRewardsTable } from "pages/azero-staking/components/Table";
-import { addressShortener } from "utils";
-import { getInwInterestBalance } from "api/azero-staking/azero-staking";
-import { getWithdrawableAzeroToStakeToValidator } from "api/azero-staking/azero-staking";
-import { doWithdrawAzeroToStake } from "api/azero-staking/azero-staking";
-import { useAppContext } from "contexts/AppContext";
-import { useDispatch, useSelector } from "react-redux";
-import my_azero_staking from "utils/contracts/my_azero_staking";
-import { execContractQuery } from "utils/contracts";
-import { delay } from "utils";
-import { fetchUserBalance } from "redux/slices/walletSlice";
-import { isValidAddress } from "pages/launchpad/create/utils";
 import { WarningTwoIcon } from "@chakra-ui/icons";
+import {
+  doTopupAzeroStakeAccount,
+  doWithdrawAzeroEmergency,
+  doWithdrawAzeroToStake,
+  getInwInterestBalance,
+  getWithdrawableAzeroToStakeToValidator,
+} from "api/azero-staking/azero-staking";
+import { stakeStatus } from "constants";
+import { useAppContext } from "contexts/AppContext";
 import { Field, Form, Formik } from "formik";
+import { getRequestStatus } from "pages/azero-staking/Staking";
+import { ClaimRewardsTable } from "pages/azero-staking/components/Table";
+import { isValidAddress } from "pages/launchpad/create/utils";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserBalance } from "redux/slices/walletSlice";
+import { addressShortener, delay } from "utils";
+import { execContractQuery } from "utils/contracts";
+import my_azero_staking from "utils/contracts/my_azero_staking";
 import * as Yup from "yup";
-import { doWithdrawAzeroEmergency } from "api/azero-staking/azero-staking";
+import RequestListTable from "./Table";
 
 export default function AzeroStakingAdmin() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -93,7 +99,6 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
 
   const { api } = useAppContext();
   const { currentAccount } = useSelector((s) => s.wallet);
-
   const [loading, setLoading] = useState(true);
   const [info, setInfo] = useState([]);
   const [expirationDuration, setExpirationDuration] = useState(0);
@@ -254,7 +259,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
 
     if (info && info[1]?.value < amountEmergency) {
       toast.error(
-        `Amount must be less than ${info[1]?.value.toFixed(2)} AZERO`
+        `Amount must be less than ${info[1]?.value.toFixed(4)} AZERO`
       );
       return;
     }
@@ -266,6 +271,32 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
         receiverEmergency,
         amountEmergency
       );
+
+      delay(1000).then(() => {
+        fetchData(true);
+        dispatch(fetchUserBalance({ currentAccount, api }));
+      });
+    } catch (error) {
+      console.log("Error", error);
+      toast.error("Error", error);
+    }
+  }
+
+  const userAzeroBalance = currentAccount?.balance?.azero?.replaceAll(",", "");
+
+  async function handleTopupAzeroStakeAccount({ topupAmount }) {
+    if (!topupAmount) {
+      toast.error("Invalid input!");
+      return;
+    }
+
+    if (userAzeroBalance < topupAmount) {
+      toast.error(`Amount must be less than ${userAzeroBalance} AZERO`);
+      return;
+    }
+
+    try {
+      await doTopupAzeroStakeAccount(api, currentAccount, topupAmount);
 
       delay(1000).then(() => {
         fetchData(true);
@@ -300,83 +331,200 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
       </Box>
 
       <SimpleGrid columns={[1, 1, 2]} w="full" spacing="24px">
-        {/* doWithdrawAzeroToStake */}
-        <IWCard mt="16px" w="full" variant="solid">
-          <Formik
-            initialValues={{ receiver: "" }}
-            validationSchema={() =>
-              Yup.object().shape({
-                receiver: Yup.string().required("This field is a required"),
-              })
-            }
-            onSubmit={async (values, formHelper) => {
-              await handleWithdrawAzeroToStake(values);
-              formHelper.resetForm();
-            }}
-          >
-            {({ dirty, isValid, isSubmitting }) => (
-              <Form>
-                <Flex flexDirection={["column"]}>
-                  <Field name="receiver">
-                    {({ field, form, meta }) => (
-                      <FormControl id="receiver" isRequired alignItems="center">
-                        <FormLabel
-                          display="flex"
-                          ml={[0, 1]}
-                          htmlFor="receiver"
-                        >
-                          <Text>Receiver:</Text>
-                        </FormLabel>
-
-                        <Input
-                          {...field}
+        <Stack>
+          {/* doWithdrawAzeroToStake */}
+          <IWCard mt="16px" w="full" variant="solid">
+            <Formik
+              initialValues={{ receiver: "" }}
+              validationSchema={() =>
+                Yup.object().shape({
+                  receiver: Yup.string().required("This field is a required"),
+                })
+              }
+              onSubmit={async (values, formHelper) => {
+                await handleWithdrawAzeroToStake(values);
+                formHelper.resetForm();
+              }}
+            >
+              {({ dirty, isValid, isSubmitting }) => (
+                <Form>
+                  <Flex flexDirection={["column"]}>
+                    <Field name="receiver">
+                      {({ field, form, meta }) => (
+                        <FormControl
                           id="receiver"
-                          isDisabled={isSubmitting || !hasWithdrawalManagerRole}
-                          onChange={({ target }) => {
-                            form.setFieldValue(field.name, target.value);
-                          }}
-                          value={form.values.receiver}
-                          placeholder="type your receiver address here ..."
-                        />
-                        <Text
-                          h="20px"
-                          color="red"
-                          textAlign="left"
-                          fontSize="14px"
-                          lineHeight="22px"
+                          isRequired
+                          alignItems="center"
                         >
-                          {meta.touched && meta.error ? meta.error : null}
-                        </Text>
-                      </FormControl>
-                    )}
-                  </Field>
+                          <FormLabel
+                            display="flex"
+                            ml={[0, 1]}
+                            htmlFor="receiver"
+                          >
+                            <Text>Receiver</Text>
+                          </FormLabel>
 
-                  <Button
-                    mt="16px"
-                    isDisabled={
-                      !(dirty && isValid) ||
-                      isSubmitting ||
-                      !hasWithdrawalManagerRole
-                    }
-                    type="submit"
-                    w={["full"]}
+                          <Input
+                            {...field}
+                            id="receiver"
+                            isDisabled={
+                              isSubmitting || !hasWithdrawalManagerRole
+                            }
+                            onChange={({ target }) => {
+                              form.setFieldValue(field.name, target.value);
+                            }}
+                            value={form.values.receiver}
+                            placeholder="type your receiver address here ..."
+                          />
+                          <Text
+                            h="20px"
+                            color="red"
+                            textAlign="left"
+                            fontSize="14px"
+                            lineHeight="22px"
+                          >
+                            {meta.touched && meta.error ? meta.error : null}
+                          </Text>
+                        </FormControl>
+                      )}
+                    </Field>
+
+                    <Button
+                      mt="16px"
+                      isDisabled={
+                        !(dirty && isValid) ||
+                        isSubmitting ||
+                        !hasWithdrawalManagerRole
+                      }
+                      type="submit"
+                      w={["full"]}
+                    >
+                      {isSubmitting ? (
+                        <ClipLoader
+                          color="#57527E"
+                          loading
+                          size={18}
+                          speedMultiplier={1.5}
+                        />
+                      ) : (
+                        "Withdraw To Stake"
+                      )}
+                    </Button>
+                  </Flex>
+                </Form>
+              )}
+            </Formik>
+          </IWCard>
+
+          {/* doTopupAzeroStakeAccount */}
+          <IWCard mt="16px" w="full" variant="solid">
+            <Formik
+              initialValues={{ topupAmount: "" }}
+              validationSchema={() =>
+                Yup.object().shape({
+                  topupAmount: Yup.number("Amount Emergency must be a number.")
+                    .max(
+                      userAzeroBalance,
+                      `Topup Amount must be less than or equal to ${userAzeroBalance} AZERO`
+                    )
+                    .required("This field is a required"),
+                })
+              }
+              onSubmit={async (values, formHelper) => {
+                await handleTopupAzeroStakeAccount(values);
+                formHelper.resetForm();
+              }}
+            >
+              {({ dirty, isValid, isSubmitting }) => (
+                <Form>
+                  <Flex
+                    flexDirection={["column", "column", "row"]}
+                    alignItems="start"
                   >
-                    {isSubmitting ? (
-                      <ClipLoader
-                        color="#57527E"
-                        loading
-                        size={18}
-                        speedMultiplier={1.5}
-                      />
-                    ) : (
-                      "Withdraw To Stake"
-                    )}
-                  </Button>
-                </Flex>
-              </Form>
-            )}
-          </Formik>
-        </IWCard>
+                    <Field name="topupAmount">
+                      {({ field, form, meta }) => (
+                        <FormControl
+                          isRequired
+                          id="topupAmount"
+                          alignItems="center"
+                        >
+                          <FormLabel
+                            display="flex"
+                            ml={[0, 1]}
+                            htmlFor="topupAmount"
+                          >
+                            <Text>Topup Amount</Text>
+                          </FormLabel>
+
+                          <InputGroup>
+                            <InputRightElement
+                              right="10px"
+                              justifyContent="end"
+                              children={
+                                <Button
+                                  isDisabled={isSubmitting}
+                                  size="sm"
+                                  onClick={() => {
+                                    form.setFieldValue(
+                                      field.name,
+                                      userAzeroBalance
+                                    );
+                                  }}
+                                >
+                                  Max
+                                </Button>
+                              }
+                            />
+                            <Input
+                              {...field}
+                              id="topupAmount"
+                              isDisabled={isSubmitting}
+                              onChange={({ target }) => {
+                                form.setFieldValue(field.name, target.value);
+                              }}
+                              value={form.values.topupAmount}
+                              placeholder="0"
+                              type="number"
+                              max={userAzeroBalance}
+                            />
+                          </InputGroup>
+                          <Text
+                            h="20px"
+                            color="red"
+                            textAlign="left"
+                            fontSize="14px"
+                            lineHeight="22px"
+                          >
+                            {meta.touched && meta.error ? meta.error : null}
+                          </Text>
+                        </FormControl>
+                      )}
+                    </Field>
+
+                    <Button
+                      mt={["38px"]}
+                      ml={["8px"]}
+                      isDisabled={!(dirty && isValid) || isSubmitting}
+                      type="submit"
+                      w={["full"]}
+                    >
+                      {isSubmitting ? (
+                        <ClipLoader
+                          color="#57527E"
+                          loading
+                          size={18}
+                          speedMultiplier={1.5}
+                        />
+                      ) : (
+                        "Topup Stake Account"
+                      )}
+                    </Button>
+                  </Flex>
+                </Form>
+              )}
+            </Formik>
+          </IWCard>
+        </Stack>
 
         {/* doWithdrawAzeroEmergency */}
         <IWCard mt="16px" w="full" variant="solid">
@@ -393,7 +541,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                   .max(
                     info && info[1]?.value,
                     `Amount Emergency must be less than or equal to ${
-                      info && info[1]?.value?.toFixed(2)
+                      info && info[1]?.value?.toFixed(4)
                     } AZERO`
                   )
                   .required("This field is a required"),
@@ -419,7 +567,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                           ml={[0, 1]}
                           htmlFor="receiverEmergency"
                         >
-                          <Text>Receiver Emergency:</Text>
+                          <Text>Receiver Emergency</Text>
                         </FormLabel>
                         <InputGroup>
                           <Input
@@ -460,7 +608,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                           ml={[0, 1]}
                           htmlFor="amountEmergency"
                         >
-                          <Text>Amount:</Text>
+                          <Text>Amount</Text>
                         </FormLabel>
 
                         <InputGroup>
@@ -476,7 +624,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                                 onClick={() => {
                                   form.setFieldValue(
                                     field.name,
-                                    info && info[1]?.value.toFixed(0)
+                                    info && info[1]?.value.toFixed(4)
                                   );
                                 }}
                               >
