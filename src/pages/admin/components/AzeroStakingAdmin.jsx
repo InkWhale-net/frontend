@@ -1,474 +1,734 @@
 import {
-  Alert,
-  AlertIcon,
-  Button,
+  Box,
+  Checkbox,
+  Divider,
   Flex,
-  Heading,
-  Input,
-  InputGroup,
-  InputRightElement,
-  Spacer,
-  Stack,
+  SimpleGrid,
   Text,
 } from "@chakra-ui/react";
-import { getWithdrawableInw } from "api/azero-staking/azero-staking";
-import { getApy } from "api/azero-staking/azero-staking";
-import { getInwMultiplier } from "api/azero-staking/azero-staking";
-import { getPayableAzero } from "api/azero-staking/azero-staking";
+import { getMasterAccount } from "api/azero-staking/azero-staking";
+import { getAzeroStakingContract } from "api/azero-staking/azero-staking";
+import { getInwContract } from "api/azero-staking/azero-staking";
 import { getInwBalanceOfAddress } from "api/azero-staking/azero-staking";
-import { doUpdateInwMultiplier } from "api/azero-staking/azero-staking";
-import { getIsLocked } from "api/azero-staking/azero-staking";
-import { doUpdateAzeroApy } from "api/azero-staking/azero-staking";
-import { getMaxWaitingTime } from "api/azero-staking/azero-staking";
+
+import { getAzeroStakeBalance } from "api/azero-staking/azero-staking";
+import { getInterestDistributionContract } from "api/azero-staking/azero-staking";
+import { getAzeroBalanceOfStakingContract } from "api/azero-staking/azero-staking";
+import { getWithdrawalRequestList } from "api/azero-staking/azero-staking";
+import { getTotalAzeroStaked } from "api/azero-staking/azero-staking";
 import { APICall } from "api/client";
 import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
-import { useAppContext } from "contexts/AppContext";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { toast } from "react-hot-toast";
-import { useSelector } from "react-redux";
+import { ClipLoader } from "react-spinners";
 import { formatNumDynDecimal } from "utils";
 import { formatChainStringToNumber } from "utils";
-import { delay } from "utils";
 import { getAzeroBalanceOfAddress } from "utils/contracts";
-import { execContractQuery } from "utils/contracts";
 
-import my_azero_staking from "utils/contracts/my_azero_staking";
+import RequestListTable from "./Table";
+import { getRequestStatus } from "pages/azero-staking/Staking";
+import { stakeStatus } from "constants";
+import { ClaimRewardsTable } from "pages/azero-staking/components/Table";
+import { addressShortener } from "utils";
+
 const INW_NAME = "INW";
 
 export default function AzeroStakingAdmin() {
-  const { currentAccount } = useSelector((s) => s.wallet);
-  const { api } = useAppContext();
+  return (
+    <>
+      <ContractBalanceSection />
+      <RewardsBalanceSection />
+      <WithdrawalRequestListSection />
+      <ValidatorRewardsSection />
+    </>
+  );
+}
 
-  const [contractInfo, setContractInfo] = useState({});
+function ContractBalanceSection() {
+  const [loading, setLoading] = useState(true);
+
+  const [info, setInfo] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    let isMounted = true;
+
+    const fetchData = async (isMounted) => {
       try {
-        const {
-          status,
-          message,
-          ret: expirationDuration,
-        } = await APICall.getExpirationTime({});
+        setLoading(true);
 
-        if (status !== "OK") {
-          return toast.error(message);
-        }
+        const azeroStakingContract = await getAzeroStakingContract();
 
-        const [maxWaitingTime, waitingListInfo, payableAzero, withdrawableInw] =
-          await Promise.all([
-            getMaxWaitingTime(),
-            APICall.getWaitingListInfo({ expirationDuration }),
-            getPayableAzero(),
-            getWithdrawableInw(),
-          ]);
+        const azeroBalanceOfStakingContract =
+          await getAzeroBalanceOfStakingContract();
+        const totalAzeroStaked = await getTotalAzeroStaked();
+        const azeroStakeBalance = await getAzeroStakeBalance();
 
-        setContractInfo({
-          contractAddress: {
-            title: "Contract address",
-            valueFormat: (
-              <AddressCopier address={my_azero_staking.CONTRACT_ADDRESS} />
-            ),
-          },
-          maxWaitingTime: {
-            title: "Withdrawal Waiting Time",
-            value: maxWaitingTime,
-            valueFormat: `${maxWaitingTime / 60000} mins`,
-          },
-          expirationTime: {
-            title: "Expiration Time",
-            value: expirationDuration,
-            valueFormat: `${expirationDuration / 60000} mins`,
-          },
-          contractTotalAzero: {
-            title: "Total AZERO for pending list within expiration time",
-            value: (
-              formatChainStringToNumber(waitingListInfo?.totalAzero) /
-              Math.pow(10, 12)
-            ).toFixed(4),
-            valueFormat: `${(
-              formatChainStringToNumber(waitingListInfo?.totalAzero) /
-              Math.pow(10, 12)
-            ).toFixed(4)} AZERO`,
-          },
-          payableAzero: {
-            title: "Contract Payable Azero Amount",
-            value: payableAzero,
-            valueFormat: `${payableAzero} AZERO`,
-          },
-          contractTotalInw: {
-            title: `Total ${INW_NAME} for pending list within expiration time`,
-            value: (
-              formatChainStringToNumber(waitingListInfo?.totalInw) /
-              Math.pow(10, 12)
-            ).toFixed(4),
-            valueFormat: `${(
-              formatChainStringToNumber(waitingListInfo?.totalInw) /
-              Math.pow(10, 12)
-            ).toFixed(4)} ${INW_NAME}`,
-          },
-          withdrawableInw: {
-            title: `Contract Payable ${INW_NAME} Amount`,
-            value: withdrawableInw,
-            valueFormat: `${withdrawableInw} ${INW_NAME}`,
-          },
-        });
+        // console.log("interest::getAzeroStakingContract",azeroStakingContract);
+        // console.log("Staking::getAzeroBalance",azeroBalanceOfStakingContract);
+        // console.log("Staking::getTotalAzeroStaked", totalAzeroStaked);
+        // console.log("Staking::getAzeroStakeAccount", azeroStakeBalance);
+
+        Promise.all([
+          azeroStakingContract,
+          azeroBalanceOfStakingContract,
+          azeroStakeBalance,
+          totalAzeroStaked,
+        ]).then(
+          ([
+            azeroStakingContract,
+            azeroBalanceOfStakingContract,
+            azeroStakeBalance,
+            totalAzeroStaked,
+          ]) => {
+            if (!isMounted) {
+              return;
+            }
+
+            const ret = [
+              {
+                title: "Azero Staking Contract",
+                value: azeroStakingContract,
+                valueFormatted: (
+                  <>
+                    <AddressCopier address={azeroStakingContract} />
+                  </>
+                ),
+                hasTooltip: true,
+                tooltipContent: "azeroStakingContract",
+              },
+              {
+                title: "Azero Balance Of Staking Contract",
+                value: azeroBalanceOfStakingContract,
+                valueFormatted: `${formatNumDynDecimal(
+                  azeroBalanceOfStakingContract
+                )} AZERO`,
+                hasTooltip: true,
+                tooltipContent: "azeroBalanceOfStakingContract",
+              },
+              {
+                title: "Azero Stake Balance",
+                value: azeroStakeBalance,
+                valueFormatted: `${formatNumDynDecimal(
+                  azeroStakeBalance
+                )} AZERO`,
+                hasTooltip: true,
+                tooltipContent: "azeroStakeBalance",
+              },
+              {
+                title: "Total Azero Staked",
+                value: totalAzeroStaked,
+                valueFormatted: `${formatNumDynDecimal(
+                  totalAzeroStaked
+                )} AZERO`,
+                hasTooltip: true,
+                tooltipContent: "totalAzeroStaked",
+              },
+            ];
+
+            setInfo(ret);
+            setLoading(false);
+          }
+        );
       } catch (error) {
-        console.error("Error Fetching Contract Info:", error);
-        toast.error("Error Fetching Contract Info:", error);
+        setLoading(false);
+
+        console.log("Error", error);
+        toast.error("Error", error);
       }
     };
 
-    fetchData();
+    fetchData(isMounted);
+
+    return () => (isMounted = false);
   }, []);
 
-  const [walletInfo, setWalletInfo] = useState({});
+  return (
+    <IWCard mb="24px" w="full" variant="outline" title="Staking">
+      <Box pt="18px">
+        {loading ? (
+          <Flex justify="center" align="center" py="16px">
+            <ClipLoader
+              color="#57527E"
+              loading
+              size={36}
+              speedMultiplier={1.5}
+            />
+          </Flex>
+        ) : (
+          info?.map(({ title, valueFormatted }) => (
+            <SimpleGrid columns={[1, 1, 2]}>
+              <Text mr="4px">{title}: </Text>
+              <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
+            </SimpleGrid>
+          ))
+        )}
+      </Box>
+    </IWCard>
+  );
+}
+
+function RewardsBalanceSection() {
+  const [loadingInkContract, setLoadingInkContract] = useState(true);
+  const [inkContractInfo, setInkContractInfo] = useState([]);
+
+  const [loadingMasterAccount, setLoadingMasterAccount] = useState(true);
+  const [masterAccountInfo, setMasterAccountInfo] = useState([]);
+
+  const [loadingInterest, setLoadingInterest] = useState(true);
+  const [interestDistAccountInfo, setInterestDistAccountInfo] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    let isMounted = true;
+
+    const fetchData = async (isMounted) => {
       try {
-        const {
-          status: azeroStatus,
-          message: azeroMessage,
-          ret: azeroWalletAddress,
-        } = await APICall.getAzeroWallet({});
+        setLoadingInkContract(true);
 
-        const {
-          status: inwStatus,
-          message: inwMessage,
-          ret: inwWalletAddress,
-        } = await APICall.getInwWallet({});
+        const inwContract = await getInwContract();
+        console.log("interest::getInwContract", inwContract);
 
-        if (azeroStatus !== "OK" || inwStatus !== "OK") {
-          return toast.error(inwMessage || azeroMessage);
-        }
+        const inwContractBalanceINW = await getInwBalanceOfAddress({
+          address: inwContract,
+        });
+        console.log("InwContract psp22::balanceOf INW", inwContractBalanceINW);
 
-        const [
-          inwWalletInwBalance,
-          inwWalletAzeroBalance,
-          azeroWalletAzeroBalance,
-        ] = await Promise.all([
-          getInwBalanceOfAddress({ address: inwWalletAddress }),
-          getAzeroBalanceOfAddress({ address: inwWalletAddress }),
-          getAzeroBalanceOfAddress({ address: azeroWalletAddress }),
-        ]);
+        const inwContractBalanceAZERO = await getAzeroBalanceOfAddress({
+          address: inwContract,
+        });
+        console.log("InwContractBalanceAZERO", inwContractBalanceAZERO);
 
-        setWalletInfo({
-          azeroWalletAddress: {
-            title: "AZERO Wallet Address",
-            valueFormat: <AddressCopier address={azeroWalletAddress} />,
+        const inkContractInfoData = [
+          {
+            title: "INW Contract",
+            value: inwContract,
+            valueFormatted: <AddressCopier address={inwContract} />,
+            hasTooltip: true,
+            tooltipContent: "inwContract",
           },
-          azeroWalletAzeroBalance: {
-            title: "AZERO Wallet Balance",
-            value: azeroWalletAzeroBalance,
-            valueFormat: `${formatNumDynDecimal(
-              azeroWalletAzeroBalance
+          {
+            title: "INW Balance",
+            value: inwContractBalanceINW,
+            valueFormatted: `${formatNumDynDecimal(inwContractBalanceINW)} INW`,
+            hasTooltip: true,
+            tooltipContent: "inwContractBalanceINW",
+          },
+          {
+            title: "AZERO Balance",
+            value: inwContractBalanceAZERO,
+            valueFormatted: `${formatNumDynDecimal(
+              inwContractBalanceAZERO
             )} AZERO`,
+            hasTooltip: true,
+            tooltipContent: "inwContractBalanceAZERO",
           },
-          inwWalletAddress: {
-            title: `${INW_NAME} Wallet Address`,
-            valueFormat: <AddressCopier address={inwWalletAddress} />,
-          },
-          inwWalletInwBalance: {
-            title: `${INW_NAME} Wallet: ${INW_NAME} Balance`,
-            value: inwWalletInwBalance,
-            valueFormat: `${formatNumDynDecimal(
-              inwWalletInwBalance
-            )} ${INW_NAME}`,
-          },
-          inwWalletAzeroBalance: {
-            title: `${INW_NAME} Wallet: AZERO Balance`,
-            value: inwWalletAzeroBalance,
-            valueFormat: `${formatNumDynDecimal(inwWalletAzeroBalance)} AZERO`,
-          },
-        });
+        ];
+
+        if (!isMounted) {
+          return;
+        }
+
+        setInkContractInfo(inkContractInfoData);
+
+        setLoadingInkContract(false);
       } catch (error) {
-        console.error("Error Fetching Wallet Info:", error);
-        toast.error("Error Fetching Wallet Info:", error);
+        setLoadingInkContract(false);
+
+        console.log("Error", error);
+        toast.error("Error", error);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchData(isMounted);
 
-  const insufficientAzeroAmount = useMemo(
-    () =>
-      parseInt(walletInfo?.azeroWalletAzeroBalance?.value) +
-      parseInt(formatChainStringToNumber(contractInfo?.payableAzero?.value)) -
-      parseInt(contractInfo?.contractTotalAzero?.value),
-    [
-      contractInfo?.contractTotalAzero?.value,
-      contractInfo?.payableAzero?.value,
-      walletInfo?.azeroWalletAzeroBalance?.value,
-    ]
-  );
-
-  const insufficientInwAmount = useMemo(
-    () =>
-      parseInt(walletInfo?.inwWalletAzeroBalance?.value) +
-      parseInt(
-        formatChainStringToNumber(contractInfo?.withdrawableInw?.value)
-      ) -
-      parseInt(contractInfo?.contractTotalInw?.value),
-    [
-      contractInfo?.contractTotalInw?.value,
-      contractInfo?.withdrawableInw?.value,
-      walletInfo?.inwWalletAzeroBalance?.value,
-    ]
-  );
-
-  const [apy, setApy] = useState(null);
-  const [inwMultiplier, setInwMultiplier] = useState(null);
-
-  const fetchApyAndMultiplier = useCallback(async () => {
-    const apy = await getApy();
-
-    // 5 ~ 5% // 500 ~500%
-    setApy(apy);
-    const inwMultiplier = await getInwMultiplier();
-
-    // 10 ~ 10 INW/day
-    setInwMultiplier(inwMultiplier);
+    return () => (isMounted = false);
   }, []);
 
   useEffect(() => {
-    api && fetchApyAndMultiplier();
-  }, [api, fetchApyAndMultiplier]);
+    let isMounted = true;
 
-  const [isLocked, setIsLocked] = useState(false);
-  const [hasAdminRole, setHasAdminRole] = useState(false);
+    const fetchData = async (isMounted) => {
+      try {
+        setLoadingMasterAccount(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const isLocked = await getIsLocked();
-      setIsLocked(isLocked);
+        const masterAccount = await getMasterAccount();
+        console.log("interest::getMasterAccount", masterAccount);
 
-      const hasAdminRole = await execContractQuery(
-        currentAccount?.address,
-        "api",
-        my_azero_staking.CONTRACT_ABI,
-        my_azero_staking.CONTRACT_ADDRESS,
-        0,
-        "accessControl::hasRole",
-        3739740293,
-        currentAccount?.address
-      );
-      setHasAdminRole(hasAdminRole.toHuman().Ok);
+        const masterAccountBalanceINW = await getInwBalanceOfAddress({
+          address: masterAccount,
+        });
+        console.log(
+          "MasterAccount psp22::balanceOf INW",
+          masterAccountBalanceINW
+        );
+        const masterAccountBalanceAZERO = await getAzeroBalanceOfAddress({
+          address: masterAccount,
+        });
+        console.log("MasterAccountBalanceAZERO", masterAccountBalanceAZERO);
+
+        const masterAccountInfoData = [
+          {
+            title: "Master Account Address",
+            value: masterAccount,
+            valueFormatted: <AddressCopier address={masterAccount} />,
+            hasTooltip: true,
+            tooltipContent: "masterAccount",
+          },
+          {
+            title: "INW Balance",
+            value: masterAccountBalanceINW,
+            valueFormatted: `${formatNumDynDecimal(
+              masterAccountBalanceINW
+            )} INW`,
+            hasTooltip: true,
+            tooltipContent: "masterAccountBalanceINW",
+          },
+          {
+            title: "AZERO Balance",
+            value: masterAccountBalanceAZERO,
+            valueFormatted: `${formatNumDynDecimal(
+              masterAccountBalanceAZERO
+            )} AZERO`,
+            hasTooltip: true,
+            tooltipContent: "masterAccountBalanceAZERO",
+          },
+        ];
+
+        if (!isMounted) {
+          return;
+        }
+
+        setMasterAccountInfo(masterAccountInfoData);
+        setLoadingMasterAccount(false);
+      } catch (error) {
+        setLoadingMasterAccount(false);
+
+        console.log("Error", error);
+        toast.error("Error", error);
+      }
     };
 
-    fetchData();
-  }, [currentAccount?.address]);
+    fetchData(isMounted);
 
-  const [newApy, setNewApy] = useState("");
+    return () => (isMounted = false);
+  }, []);
 
-  async function handleUpdateAzeroApy() {
-    if (!hasAdminRole) {
-      toast.error("You don't have Admin Role!");
-      return;
-    }
+  useEffect(() => {
+    let isMounted = true;
 
-    if (!isLocked) {
-      toast.error("Contract is not locked!");
-      return;
-    }
+    const fetchData = async (isMounted) => {
+      try {
+        setLoadingInterest(true);
 
-    await doUpdateAzeroApy(api, currentAccount, newApy * 100);
+        const interestDistributionContract =
+          await getInterestDistributionContract();
+        console.log(
+          "Staking::getInterestDistributionContract",
+          interestDistributionContract
+        );
+        const interestDistributionContractBalance =
+          await getInwBalanceOfAddress({
+            address: interestDistributionContract,
+          });
+        console.log(
+          "InterestDistributionContract psp22::balanceOf INW",
+          interestDistributionContractBalance
+        );
+        const interestDistributionContractBalanceAZERO =
+          await getAzeroBalanceOfAddress({
+            address: interestDistributionContract,
+          });
+        console.log(
+          "InterestDistributionContractBalanceAZERO",
+          interestDistributionContractBalanceAZERO
+        );
 
-    delay(1000).then(() => {
-      fetchApyAndMultiplier();
-      setNewApy("");
-    });
+        const interestDistAccountInfoData = [
+          {
+            title: "Interest Distribution Contract",
+            value: interestDistributionContract,
+            valueFormatted: (
+              <AddressCopier address={interestDistributionContract} />
+            ),
+            hasTooltip: true,
+            tooltipContent: "interestDistributionContract",
+          },
+          {
+            title: "INW Balance",
+            value: interestDistributionContractBalance,
+            valueFormatted: `${formatNumDynDecimal(
+              interestDistributionContractBalance
+            )} INW`,
+            hasTooltip: true,
+            tooltipContent: "interestDistributionContractBalance",
+          },
+          {
+            title: "AZEROBalance",
+            value: interestDistributionContractBalanceAZERO,
+            valueFormatted: `${formatNumDynDecimal(
+              interestDistributionContractBalanceAZERO
+            )} AZERO`,
+            hasTooltip: true,
+            tooltipContent: "interestDistributionContractBalanceAZERO",
+          },
+        ];
+
+        if (!isMounted) {
+          return;
+        }
+
+        setInterestDistAccountInfo(interestDistAccountInfoData);
+        setLoadingInterest(false);
+      } catch (error) {
+        setLoadingInterest(false);
+
+        console.log("Error", error);
+        toast.error("Error", error);
+      }
+    };
+
+    fetchData(isMounted);
+
+    return () => (isMounted = false);
+  }, []);
+
+  return (
+    <IWCard mb="24px" w="full" variant="outline" title="Rewards & Distribution">
+      <Box pt="18px">
+        {loadingInkContract ? (
+          <Flex justify="center" align="center" py="16px">
+            <ClipLoader
+              color="#57527E"
+              loading
+              size={36}
+              speedMultiplier={1.5}
+            />
+          </Flex>
+        ) : (
+          <>
+            {inkContractInfo?.map(({ title, valueFormatted }) => (
+              <SimpleGrid columns={[1, 1, 2]}>
+                <Text mr="4px">{title}: </Text>
+                <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
+              </SimpleGrid>
+            ))}
+            <Divider my="12px" />{" "}
+          </>
+        )}
+      </Box>
+      <Box pt="18px">
+        {loadingMasterAccount ? (
+          <Flex justify="center" align="center" py="16px">
+            <ClipLoader
+              color="#57527E"
+              loading
+              size={36}
+              speedMultiplier={1.5}
+            />
+          </Flex>
+        ) : (
+          <>
+            <Box>
+              {masterAccountInfo?.map(({ title, valueFormatted }) => (
+                <SimpleGrid columns={[1, 1, 2]}>
+                  <Text mr="4px">{title}: </Text>
+                  <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
+                </SimpleGrid>
+              ))}{" "}
+              <Divider my="12px" />
+            </Box>
+          </>
+        )}
+      </Box>
+      <Box pt="18px">
+        {loadingInterest ? (
+          <Flex justify="center" align="center" py="16px">
+            <ClipLoader
+              color="#57527E"
+              loading
+              size={36}
+              speedMultiplier={1.5}
+            />
+          </Flex>
+        ) : (
+          <>
+            <Box>
+              {interestDistAccountInfo?.map(({ title, valueFormatted }) => (
+                <SimpleGrid columns={[1, 1, 2]}>
+                  <Text mr="4px">{title}: </Text>
+                  <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
+                </SimpleGrid>
+              ))}
+            </Box>
+          </>
+        )}
+      </Box>
+    </IWCard>
+  );
+}
+
+function WithdrawalRequestListSection() {
+  const [loading, setLoading] = useState(true);
+
+  const [requestList, setRequestList] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchData = async (isMounted) => {
+      try {
+        setLoading(true);
+
+        const withdrawalRequestList = await getWithdrawalRequestList();
+
+        const withdrawalRequestListFormatted = withdrawalRequestList
+          ?.map((i) => ({
+            ...i,
+            requestUserAddress: i.user,
+            requestIndex: parseInt(i.requestIndex),
+            azeroAmount: formatChainStringToNumber(i.amount) / Math.pow(10, 12),
+            timeStamp: formatChainStringToNumber(i.requestTime) * 1,
+            dateTime: new Date(
+              formatChainStringToNumber(i.requestTime) * 1
+            ).toLocaleString(),
+            requestStatus: getRequestStatus(i.status),
+          }))
+          .sort((a, b) => b.requestIndex - a.requestIndex);
+
+        // {
+        //   requestIndex: '0',
+        //   user: '5HSnVwAUX6N1Xvcs4wnYueAhom6oBN6YzvGk7uvL3grjR1Pt',
+        //   amount: '6,000,000,000,000',
+        //   requestTime: '1,701,430,238,000',
+        //   status: '2'
+        // },
+        // ================================
+        // {
+        //   requestIndex: 9,
+        //   user: '5HSnVwAUX6N1Xvcs4wnYueAhom6oBN6YzvGk7uvL3grjR1Pt',
+        //   amount: '2,000,000,000,000',
+        //   requestTime: '1,701,746,143,000',
+        //   status: '2',
+        //   requestUserAddress: '5HSnVwAUX6N1Xvcs4wnYueAhom6oBN6YzvGk7uvL3grjR1Pt',
+        //   azeroAmount: 2,
+        //   timeStamp: 1701746143000,
+        //   dateTime: '12/5/2023, 10:15:43 AM',
+        //   requestStatus: 'Unstaked'
+        // },
+        // ================================
+
+        if (!isMounted) {
+          return;
+        }
+        setRequestList(withdrawalRequestListFormatted);
+
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+
+        console.log("Error", error);
+        toast.error("Error", error);
+      }
+    };
+
+    fetchData(isMounted);
+
+    return () => (isMounted = false);
+  }, []);
+
+  function calculateTotalStake(p, c, status) {
+    const num = c.requestStatus === status ? c.azeroAmount : 0;
+    return num + p;
   }
 
-  const [newInwMultiplier, setNewInwMultiplier] = useState("");
+  const totalPending = useMemo(
+    () =>
+      requestList?.reduce(
+        (p, c) => calculateTotalStake(p, c, stakeStatus.PENDING),
+        0
+      ),
+    [requestList]
+  );
 
-  async function handleUpdateInwMultiplier() {
-    if (!hasAdminRole) {
-      toast.error("You don't have Admin Role!");
-      return;
+  const totalReady = useMemo(
+    () =>
+      requestList?.reduce(
+        (p, c) => calculateTotalStake(p, c, stakeStatus.READY),
+        0
+      ),
+    [requestList]
+  );
+
+  const totalUnstaked = useMemo(
+    () =>
+      requestList?.reduce(
+        (p, c) => calculateTotalStake(p, c, stakeStatus.UNSTAKED),
+        0
+      ),
+    [requestList]
+  );
+
+  const [filter, setFilter] = useState(false);
+
+  const filterList = useMemo(() => {
+    if (!filter) {
+      return requestList;
     }
 
-    if (!isLocked) {
-      toast.error("Contract is not locked!");
-      return;
-    }
-
-    await doUpdateInwMultiplier(api, currentAccount, newInwMultiplier * 10000);
-
-    delay(1000).then(() => {
-      fetchApyAndMultiplier();
-      setNewInwMultiplier("");
-    });
-  }
+    return requestList.filter((i) => i.requestStatus === stakeStatus.PENDING);
+  }, [filter, requestList]);
 
   return (
     <>
-      <Heading as="h4" size="h4" mb="5" fontWeight="600" lineHeight="25px">
-        You are {hasAdminRole ? "" : "Not"} owner
-      </Heading>
-      <IWCard mb="24px" w="full" variant="outline" title={`Contract Info`}>
-        {Object.entries(contractInfo)?.map(([k, v]) => (
-          <Flex flexDirection={["column", "column", "row"]} key={k} my="8px">
-            <Text mr="4px">{v?.title}: </Text> {v?.valueFormat}
-          </Flex>
-        ))}
-      </IWCard>
-
-      <IWCard mb="24px" w="full" variant="outline" title={`Wallet Info`}>
-        {Object.entries(walletInfo)?.map(([k, v]) => (
-          <Flex flexDirection={["column", "column", "row"]} key={k} my="8px">
-            <Text mr="4px">{v?.title}:</Text> {v?.valueFormat}
-          </Flex>
-        ))}
-      </IWCard>
-
-      <IWCard mb="24px" w="full" variant="outline" title={`Topup Request`}>
-        <Flex my="8px" flexDirection={["column", "column", "row"]}>
-          <Text mr="4px">
-            {insufficientAzeroAmount > 0 ? "Excessive" : "Insufficient"} AZERO
-            Amount:
-          </Text>{" "}
-          {formatNumDynDecimal(insufficientAzeroAmount)} AZERO
-        </Flex>
-        <Flex my="8px" flexDirection={["column", "column", "row"]}>
-          <Text mr="4px">
-            {`${insufficientInwAmount > 0 ? "Excessive" : "Insufficient"}
-            ${INW_NAME}
-            Amount:`}
-          </Text>
-          {formatNumDynDecimal(insufficientInwAmount)} {INW_NAME}
-        </Flex>
-
-        {insufficientAzeroAmount < 0 || insufficientInwAmount < 0 ? (
-          <Alert status="warning">
-            <Stack>
-              <Flex alignItems="center">
-                <AlertIcon />
-                <Text>Note:</Text>
-              </Flex>
-
-              <Flex>
-                Please kindly topup to staking contract: <br />
-              </Flex>
-
-              <Stack>
-                {insufficientAzeroAmount < 0 ? (
-                  <Flex flexDirection={["column", "column", "row"]}>
-                    <Text mr="4px">Insufficient AZERO Amount: </Text>
-                    {formatNumDynDecimal(insufficientAzeroAmount)} AZERO
-                  </Flex>
-                ) : null}
-
-                {insufficientInwAmount < 0 ? (
-                  <Flex flexDirection={["column", "column", "row"]}>
-                    <Text mr="4px">Insufficient {INW_NAME} Amount: </Text>
-                    {formatNumDynDecimal(insufficientInwAmount)} {INW_NAME}
-                  </Flex>
-                ) : null}
-              </Stack>
-            </Stack>
-          </Alert>
-        ) : null}
-      </IWCard>
-
-      <Stack
-        w="full"
-        mt="24px"
-        spacing="24px"
-        alignItems="start"
-        direction={{ base: "column", lg: "row" }}
-      >
-        {/* apy */}
-        <IWCard
-          w="full"
-          variant="outline"
-          title={
-            <Flex>
-              <Text as="span">AZERO APY</Text>
-              <Spacer />
-              <Text as="span">{formatNumDynDecimal(apy) || 0} %/year</Text>
+      <IWCard mb="24px" w="full" variant="outline" title="Withdrawal Request">
+        <Box>
+          {loading ? (
+            <Flex justify="center" align="center" py="16px">
+              <ClipLoader
+                color="#57527E"
+                loading
+                size={36}
+                speedMultiplier={1.5}
+              />
             </Flex>
-          }
+          ) : (
+            <>
+              <Box pt="18px">
+                <SimpleGrid columns={[1, 1, 2]}>
+                  <Text mr="4px">Total Pending </Text>
+                  <Text mb={["12px", "12px", "2px"]}>{totalPending} AZERO</Text>
+                </SimpleGrid>
+
+                <SimpleGrid columns={[1, 1, 2]}>
+                  <Text mr="4px">Total Ready </Text>
+                  <Text mb={["12px", "12px", "2px"]}>{totalReady} AZERO</Text>
+                </SimpleGrid>
+
+                <SimpleGrid columns={[1, 1, 2]}>
+                  <Text mr="4px">Total Unstaked </Text>
+                  <Text mb={["12px", "12px", "2px"]}>
+                    {totalUnstaked} AZERO
+                  </Text>
+                </SimpleGrid>
+              </Box>
+            </>
+          )}
+        </Box>
+      </IWCard>
+
+      <Flex justify="end" my="18px">
+        <Checkbox
+          size="lg"
+          colorScheme="orange"
+          onChange={() => setFilter(!filter)}
         >
-          <IWCard mt="16px" w="full" variant="solid">
-            <Flex flexDirection={["column-reverse", "column-reverse", "row"]}>
-              <Button
-                mx={["0px", "0px", "16px"]}
-                w={["full", "full", "40%"]}
-                mt={["16px", "16px", "0px"]}
-                isDisabled={!newApy || !hasAdminRole}
-                onClick={handleUpdateAzeroApy}
-              >
-                Update APY
-              </Button>
+          <Text mr="4px">Pending Only </Text>
+        </Checkbox>
+      </Flex>
 
-              <InputGroup w={["full", "full", "60%"]}>
-                <InputRightElement
-                  right={["10px", "10px", "30px"]}
-                  justifyContent="end"
-                  children={"%/year"}
-                />
-                <Input
-                  isDisabled={!hasAdminRole}
-                  type="number"
-                  pr="80px"
-                  placeholder="0"
-                  textAlign="right"
-                  mx={["0px", "0px", "16px"]}
-                  value={newApy}
-                  onChange={({ target }) => setNewApy(target.value)}
-                />
-              </InputGroup>
-            </Flex>
-          </IWCard>
-        </IWCard>
+      <Box>
+        {loading ? (
+          <Flex justify="center" align="center" py="16px">
+            <ClipLoader
+              color="#57527E"
+              loading
+              size={36}
+              speedMultiplier={1.5}
+            />
+          </Flex>
+        ) : (
+          <>
+            <RequestListTable tableBody={filterList} />
+          </>
+        )}
+      </Box>
+    </>
+  );
+}
 
-        {/* inwMultiplier */}
-        <IWCard
-          w="full"
-          variant="outline"
-          title={
-            <Flex>
-              <Text as="span">INW Multiplier</Text>
-              <Spacer />
-              <Text as="span">
-                {formatNumDynDecimal(inwMultiplier) || 0} INW/day
-              </Text>
+function ValidatorRewardsSection() {
+  const [loading, setLoading] = useState(true);
+
+  const [userClaimedList, setUserClaimedList] = useState([]);
+
+  const fetchUserClaimedList = useCallback(async () => {
+    try {
+      setLoading(true);
+      const { status, ret, message } = await APICall.getDistributionInfo();
+
+      if (status !== "OK") {
+        toast.error("message", message);
+      }
+
+      if (ret?.length) {
+        const formattedClaimedList = ret.map((i) => {
+          const interestAccount =
+            formatChainStringToNumber(i.interestAccountAmount) /
+            Math.pow(10, 12);
+
+          const masterAccount =
+            formatChainStringToNumber(i.masterAccountAmount) / Math.pow(10, 12);
+
+          const shortTxId = addressShortener(i.txId);
+
+          const claimedTime = new Date(i.timestamp).toLocaleString();
+
+          return {
+            ...i,
+            claimedTime,
+            shortTxId,
+            interestAccount,
+            masterAccount,
+          };
+        });
+
+        setUserClaimedList(formattedClaimedList);
+        setLoading(false);
+      } else {
+        setUserClaimedList([]);
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+
+      console.log("Error", error);
+      toast.error("Error", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUserClaimedList();
+  }, [fetchUserClaimedList]);
+
+  return (
+    <>
+      <IWCard my="24px" w="full" variant="outline" title="Validator Rewards">
+        <Box>
+          {loading ? (
+            <Flex justify="center" align="center" py="16px">
+              <ClipLoader
+                color="#57527E"
+                loading
+                size={36}
+                speedMultiplier={1.5}
+              />
             </Flex>
-          }
-        >
-          <IWCard mt="16px" w="full" variant="solid">
-            <Flex flexDirection={["column-reverse", "column-reverse", "row"]}>
-              <Button
-                mx={["0px", "0px", "16px"]}
-                w={["full", "full", "40%"]}
-                mt={["16px", "16px", "0px"]}
-                isDisabled={!newInwMultiplier || !hasAdminRole}
-                onClick={handleUpdateInwMultiplier}
-              >
-                Update Multiplier
-              </Button>
-              <InputGroup w={["full", "full", "60%"]}>
-                <InputRightElement
-                  right={["10px", "10px", "30px"]}
-                  justifyContent="end"
-                  children={"INW/day"}
-                />
-                <Input
-                  isDisabled={!hasAdminRole}
-                  type="number"
-                  pr="90px"
-                  placeholder="0"
-                  textAlign="right"
-                  mx={["0px", "0px", "16px"]}
-                  value={newInwMultiplier}
-                  onChange={({ target }) => setNewInwMultiplier(target.value)}
-                />
-              </InputGroup>
-            </Flex>
-          </IWCard>
-        </IWCard>
-      </Stack>
+          ) : (
+            <>
+              <Box py="18px"></Box>
+            </>
+          )}
+        </Box>
+      </IWCard>
+      {loading ? (
+        <Flex justify="center" align="center" py="16px">
+          <ClipLoader color="#57527E" loading size={36} speedMultiplier={1.5} />
+        </Flex>
+      ) : (
+        <>
+          <ClaimRewardsTable tableBody={userClaimedList} />
+        </>
+      )}
     </>
   );
 }

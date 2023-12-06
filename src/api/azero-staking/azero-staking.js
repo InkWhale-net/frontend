@@ -5,6 +5,7 @@ import { formatQueryResultToNumber } from "utils";
 import { execContractTx } from "utils/contracts";
 import { execContractQuery } from "utils/contracts";
 import my_azero_staking from "utils/contracts/my_azero_staking";
+import my_interest_distribution from "utils/contracts/my_interest_distribution";
 import psp22_contract from "utils/contracts/psp22_contract";
 // import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 
@@ -47,6 +48,20 @@ export async function getTotalStakers(api, currentAccount) {
   return formatQueryResultToNumber(queryResult, 0);
 }
 
+export async function getAzeroBalanceOfStakingContract(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::getAzeroBalance"
+  );
+
+  const rs = queryResult?.toHuman()?.Ok;
+  return formatChainStringToNumber(rs) / Math.pow(10, 12);
+}
+
 export async function getTotalAzeroStaked(api, currentAccount) {
   const queryResult = await execContractQuery(
     currentAccount?.address,
@@ -55,6 +70,48 @@ export async function getTotalAzeroStaked(api, currentAccount) {
     my_azero_staking.CONTRACT_ADDRESS,
     0,
     "azeroStakingTrait::getTotalAzeroStaked"
+  );
+
+  const rs = queryResult?.toHuman()?.Ok;
+  return formatChainStringToNumber(rs) / Math.pow(10, 12);
+}
+
+export async function getAzeroStakeBalance(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::getAzeroStakeAccount"
+  );
+
+  const rs = queryResult?.toHuman()?.Ok;
+  return formatChainStringToNumber(rs) / Math.pow(10, 12);
+}
+
+export async function getAzeroInterestBalance(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::getAzeroInterestAccount"
+  );
+
+  const rs = queryResult?.toHuman()?.Ok;
+  return formatChainStringToNumber(rs) / Math.pow(10, 12);
+}
+
+export async function getInwInterestBalance(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::getInwInterestAccount"
   );
 
   const rs = queryResult?.toHuman()?.Ok;
@@ -98,7 +155,7 @@ export async function getStakeInfo(api, currentAccount) {
     currentAccount?.address
   );
 
-  return queryResult.toHuman().Ok.Ok;
+  return queryResult?.toHuman()?.Ok.Ok;
 }
 
 export async function getWithdrawalRequestCount(api, currentAccount) {
@@ -125,7 +182,20 @@ export async function getWithdrawalRequestListByUser(api, currentAccount) {
     currentAccount?.address
   );
 
-  return queryResult.toHuman().Ok;
+  return queryResult?.toHuman()?.Ok;
+}
+
+export async function getWithdrawalRequestList(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::getWithdrawalRequestList"
+  );
+  console.log("queryResult?.toHuman()", queryResult.toHuman());
+  return queryResult?.toHuman()?.Ok;
 }
 
 // Execute tx
@@ -232,7 +302,7 @@ export async function getSortedWaitingListWithinExpirationDuration(
     "azeroStakingTrait::getWaitingListWithinExpirationDuration",
     expirationDuration
   );
-
+  console.log("queryResult", queryResult);
   return queryResult?.toHuman()?.Ok?.Ok;
 }
 
@@ -288,6 +358,19 @@ export async function getIsLocked(api, currentAccount) {
     "azeroStakingTrait::getIsLocked"
   );
 
+  return queryResult?.toHuman()?.Ok;
+}
+
+export async function getInterestDistributionContract(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::getInterestDistributionContract"
+  );
+  console.log("queryResult", queryResult?.toHuman()?.Ok);
   return queryResult?.toHuman()?.Ok;
 }
 
@@ -348,4 +431,96 @@ export async function getInwBalanceOfAddress({ address, api, currentAccount }) {
   );
 
   return formatChainStringToNumber(inwBalance.toHuman().Ok) / Math.pow(10, 12);
+}
+
+// ADMIN AZERO STAKING - MY INTEREST DISTRIBUTION
+export async function getAzeroStakingContract(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_interest_distribution.CONTRACT_ABI,
+    my_interest_distribution.CONTRACT_ADDRESS,
+    0,
+    "interestDistributionTrait::getAzeroStakingContract"
+  );
+  console.log("queryResult", queryResult?.toHuman()?.Ok);
+  return queryResult?.toHuman()?.Ok;
+}
+
+export async function getInwContract(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_interest_distribution.CONTRACT_ABI,
+    my_interest_distribution.CONTRACT_ADDRESS,
+    0,
+    "interestDistributionTrait::getInwContract"
+  );
+  console.log("queryResult", queryResult?.toHuman()?.Ok);
+  return queryResult?.toHuman()?.Ok;
+}
+
+export async function getMasterAccount(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_interest_distribution.CONTRACT_ABI,
+    my_interest_distribution.CONTRACT_ADDRESS,
+    0,
+    "interestDistributionTrait::getMasterAccount"
+  );
+  console.log("queryResult", queryResult?.toHuman()?.Ok);
+  return queryResult?.toHuman()?.Ok;
+}
+
+export async function getTotalRate(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_interest_distribution.CONTRACT_ABI,
+    my_interest_distribution.CONTRACT_ADDRESS,
+    0,
+    "interestDistributionTrait::getTotalRate"
+  );
+  console.log("queryResult", queryResult?.toHuman()?.Ok);
+  return queryResult?.toHuman()?.Ok;
+}
+
+export async function getInterestAccountRate(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_interest_distribution.CONTRACT_ABI,
+    my_interest_distribution.CONTRACT_ADDRESS,
+    0,
+    "interestDistributionTrait::getInterestAccountRate"
+  );
+  console.log("queryResult", queryResult?.toHuman()?.Ok);
+  return queryResult?.toHuman()?.Ok;
+}
+
+export async function getAzeroBalanceOfInterestContract(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_interest_distribution.CONTRACT_ABI,
+    my_interest_distribution.CONTRACT_ADDRESS,
+    0,
+    "interestDistributionTrait::getAzeroBalance"
+  );
+  console.log("queryResult", queryResult?.toHuman()?.Ok);
+  return queryResult?.toHuman()?.Ok;
+}
+
+export async function getAzeroMinimumBalance(api, currentAccount) {
+  const queryResult = await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_interest_distribution.CONTRACT_ABI,
+    my_interest_distribution.CONTRACT_ADDRESS,
+    0,
+    "interestDistributionTrait::getAzeroMinimumBalance"
+  );
+  console.log("queryResult", queryResult?.toHuman()?.Ok);
+  return queryResult?.toHuman()?.Ok;
 }

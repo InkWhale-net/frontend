@@ -1,8 +1,8 @@
 const my_azero_staking = {
-  CONTRACT_ADDRESS: "5EXQ65sFKpuCoUgzXMdJXXgzEn7Nte1ywmeAKAcoLx1SDwed",
+  CONTRACT_ADDRESS: "5HSDE13D3ARZQTXMqxa9crU42ZYvuAyW26oq7KQncihEYER9",
   CONTRACT_ABI: {
     source: {
-      hash: "0x38f026da118257be30f31e83df07a36286298c308b8fb7c89022f77bafb375fe",
+      hash: "0xe57699310dacfc90ebb540ad01ce6429c5730a0a37495f7bf868e7b88f31c8ec",
       language: "ink! 4.3.0",
       compiler: "rustc 1.68.0",
       build_info: {
@@ -187,7 +187,49 @@ const my_azero_staking = {
             },
           ],
           docs: [],
-          label: "WithrawalRequestEvent",
+          label: "WithdrawalRequestEvent",
+        },
+        {
+          args: [
+            {
+              docs: [],
+              indexed: false,
+              label: "request_id",
+              type: {
+                displayName: ["u128"],
+                type: 3,
+              },
+            },
+            {
+              docs: [],
+              indexed: false,
+              label: "user",
+              type: {
+                displayName: ["AccountId"],
+                type: 0,
+              },
+            },
+            {
+              docs: [],
+              indexed: false,
+              label: "amount",
+              type: {
+                displayName: ["Balance"],
+                type: 3,
+              },
+            },
+            {
+              docs: [],
+              indexed: false,
+              label: "time",
+              type: {
+                displayName: ["u64"],
+                type: 4,
+              },
+            },
+          ],
+          docs: [],
+          label: "CancelEvent",
         },
         {
           args: [
@@ -511,17 +553,122 @@ const my_azero_staking = {
       },
       messages: [
         {
+          args: [
+            {
+              label: "receiver",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "WithdrawAzeroNotInAccountsInput1",
+                ],
+                type: 0,
+              },
+            },
+            {
+              label: "amount",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "WithdrawAzeroNotInAccountsInput2",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::withdraw_azero_not_in_accounts",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0x10263093",
+        },
+        {
+          args: [
+            {
+              label: "receiver",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "WithdrawAzeroEmergencyInput1",
+                ],
+                type: 0,
+              },
+            },
+            {
+              label: "amount",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "WithdrawAzeroEmergencyInput2",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::withdraw_azero_emergency",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0x8d82295b",
+        },
+        {
           args: [],
           default: false,
           docs: [],
-          label: "AzeroStakingTrait::get_unclaimed_reward_at_last_topup",
+          label: "AzeroStakingTrait::get_apy",
           mutates: false,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
             type: 20,
           },
-          selector: "0xec6187ff",
+          selector: "0x3462eeef",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_total_azero_claimed",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 20,
+          },
+          selector: "0x9c50c036",
+        },
+        {
+          args: [
+            {
+              label: "amount",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "WithdrawalRequestInput1",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::withdrawal_request",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0x6e4b13fa",
         },
         {
           args: [],
@@ -532,140 +679,31 @@ const my_azero_staking = {
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 23,
+            type: 20,
           },
           selector: "0x4428c124",
         },
         {
-          args: [
-            {
-              label: "interest_distribution_contract",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "SetInterestDistributionContractInput1",
-                ],
-                type: 0,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::set_interest_distribution_contract",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0xa60188de",
-        },
-        {
-          args: [
-            {
-              label: "staker",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "GetStakeInfoInput1",
-                ],
-                type: 0,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_stake_info",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 24,
-          },
-          selector: "0x3b01b496",
-        },
-        {
-          args: [
-            {
-              label: "min_staking_amount",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "SetMinStakingAmountInput1",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::set_min_staking_amount",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0x4f9a052b",
-        },
-        {
-          args: [
-            {
-              label: "unstaking_fee",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "SetUnstakingFeeInput1",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::set_unstaking_fee",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0x25c30ffb",
-        },
-        {
           args: [],
           default: false,
           docs: [],
-          label: "AzeroStakingTrait::get_waiting_withdrawal_list",
+          label: "AzeroStakingTrait::get_azero_balance",
           mutates: false,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 28,
+            type: 20,
           },
-          selector: "0x8c3b79ff",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_total_azero_for_waiting_withdrawals",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 23,
-          },
-          selector: "0x8919cece",
+          selector: "0xe8b1ab1a",
         },
         {
           args: [
             {
-              label: "is_withdrawable",
+              label: "is_locked",
               type: {
                 displayName: [
                   "azerostakingtrait_external",
-                  "SetIsWithdrawableInput1",
+                  "SetIsLockedInput1",
                 ],
                 type: 6,
               },
@@ -673,201 +711,27 @@ const my_azero_staking = {
           ],
           default: false,
           docs: [],
-          label: "AzeroStakingTrait::set_is_withdrawable",
+          label: "AzeroStakingTrait::set_is_locked",
           mutates: true,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
             type: 9,
           },
-          selector: "0xb03ba9d7",
-        },
-        {
-          args: [
-            {
-              label: "receiver",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "WithdrawInwNotInAccountsInput1",
-                ],
-                type: 0,
-              },
-            },
-            {
-              label: "amount",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "WithdrawInwNotInAccountsInput2",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::withdraw_inw_not_in_accounts",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0xca066fa7",
+          selector: "0x8454c384",
         },
         {
           args: [],
           default: false,
           docs: [],
-          label: "AzeroStakingTrait::get_staker_list",
+          label: "AzeroStakingTrait::get_min_staking_amount",
           mutates: false,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 30,
+            type: 20,
           },
-          selector: "0x94151ab4",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_azero_interest_account",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 23,
-          },
-          selector: "0x81d6cc5a",
-        },
-        {
-          args: [
-            {
-              label: "expiration_duration",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "WithdrawAzeroToStakeInput1",
-                ],
-                type: 4,
-              },
-            },
-            {
-              label: "receiver",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "WithdrawAzeroToStakeInput2",
-                ],
-                type: 0,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::withdraw_azero_to_stake",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0x2c42ce57",
-        },
-        {
-          args: [
-            {
-              label: "receiver",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "WithdrawInwFromInterestAccountInput1",
-                ],
-                type: 0,
-              },
-            },
-            {
-              label: "amount",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "WithdrawInwFromInterestAccountInput2",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::withdraw_inw_from_interest_account",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0x3557d3f7",
-        },
-        {
-          args: [
-            {
-              label: "request_index",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "SetWithdrawalRequestInfoStatusInput1",
-                ],
-                type: 3,
-              },
-            },
-            {
-              label: "status",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "SetWithdrawalRequestInfoStatusInput2",
-                ],
-                type: 2,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::set_withdrawal_request_info_status",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0xcddca59d",
-        },
-        {
-          args: [
-            {
-              label: "request_index",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "RemoveRequestIndexInWithdrawalWaitingListInput1",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label:
-            "AzeroStakingTrait::remove_request_index_in_withdrawal_waiting_list",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0xb785b12e",
+          selector: "0x91d337b9",
         },
         {
           args: [
@@ -907,779 +771,14 @@ const my_azero_staking = {
           args: [],
           default: false,
           docs: [],
-          label: "AzeroStakingTrait::get_total_azero_reserved_for_withdrawals",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 23,
-          },
-          selector: "0xc85ced38",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::claim_rewards",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0x75b8f217",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_max_total_staking_amount",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 23,
-          },
-          selector: "0xcf52de55",
-        },
-        {
-          args: [
-            {
-              label: "user",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "GetWithdrawalRequestIndexByUserInput1",
-                ],
-                type: 0,
-              },
-            },
-            {
-              label: "index",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "GetWithdrawalRequestIndexByUserInput2",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_withdrawal_request_index_by_user",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 31,
-          },
-          selector: "0x86196557",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_rewards_claim_waiting_duration",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 33,
-          },
-          selector: "0xe06dbbe0",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_is_locked",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 34,
-          },
-          selector: "0xdf9d224a",
-        },
-        {
-          args: [
-            {
-              label: "receiver",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "WithdrawAzeroFromInterestAccountInput1",
-                ],
-                type: 0,
-              },
-            },
-            {
-              label: "amount",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "WithdrawAzeroFromInterestAccountInput2",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::withdraw_azero_from_interest_account",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0x8202ea63",
-        },
-        {
-          args: [
-            {
-              label: "apy",
-              type: {
-                displayName: ["azerostakingtrait_external", "SetApyInput1"],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::set_apy",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0xa477acfc",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_payable_azero",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 35,
-          },
-          selector: "0x2463ece1",
-        },
-        {
-          args: [
-            {
-              label: "inw_contract",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "SetInwContractInput1",
-                ],
-                type: 0,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::set_inw_contract",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0xba86540d",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
           label: "AzeroStakingTrait::get_interest_distribution_contract",
           mutates: false,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 37,
+            type: 21,
           },
           selector: "0x985ee014",
-        },
-        {
-          args: [
-            {
-              label: "inw_multiplier",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "SetInwMultiplierInput1",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::set_inw_multiplier",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0x1cf13874",
-        },
-        {
-          args: [
-            {
-              label: "total_azero_reserved_for_withdrawals",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "SetTotalAzeroReservedForWithdrawalsInput1",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::set_total_azero_reserved_for_withdrawals",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0x19691612",
-        },
-        {
-          args: [
-            {
-              label: "receiver",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "WithdrawAzeroNotInAccountsInput1",
-                ],
-                type: 0,
-              },
-            },
-            {
-              label: "amount",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "WithdrawAzeroNotInAccountsInput2",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::withdraw_azero_not_in_accounts",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0x10263093",
-        },
-        {
-          args: [
-            {
-              label: "user",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "GetWithdrawalRequestListByUserInput1",
-                ],
-                type: 0,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_withdrawal_request_list_by_user",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 38,
-          },
-          selector: "0xcbce5802",
-        },
-        {
-          args: [
-            {
-              label: "amount",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "TopupAzeroInterestAccountInput1",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::topup_azero_interest_account",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0xf65150b3",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_waiting_withdrawal_count",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 23,
-          },
-          selector: "0xf60e78d9",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_last_azero_interest_topup",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 33,
-          },
-          selector: "0xba30a825",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_apy",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 23,
-          },
-          selector: "0x3462eeef",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_inw_multiplier",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 23,
-          },
-          selector: "0xa721cd60",
-        },
-        {
-          args: [
-            {
-              label: "max_waiting_time",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "SetMaxWaitingTimeInput1",
-                ],
-                type: 4,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::set_max_waiting_time",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0xd414c1a1",
-        },
-        {
-          args: [
-            {
-              label: "amount",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "WithdrawalRequestInput1",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::withdrawal_request",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0x6e4b13fa",
-        },
-        {
-          args: [
-            {
-              label: "is_locked",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "SetIsLockedInput1",
-                ],
-                type: 6,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::set_is_locked",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0x8454c384",
-        },
-        {
-          args: [
-            {
-              label: "index",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "GetWithdrawalRequestInput1",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_withdrawal_request",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 41,
-          },
-          selector: "0x99b05303",
-        },
-        {
-          args: [
-            {
-              label: "index",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "GetWaitingWithdrawalIndexInput1",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_waiting_withdrawal_index",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 31,
-          },
-          selector: "0x21994b34",
-        },
-        {
-          args: [
-            {
-              label: "receiver",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "WithdrawAzeroEmergencyInput1",
-                ],
-                type: 0,
-              },
-            },
-            {
-              label: "amount",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "WithdrawAzeroEmergencyInput2",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::withdraw_azero_emergency",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0x8d82295b",
-        },
-        {
-          args: [
-            {
-              label: "user",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "GetWithdrawalRequestIndexListByUserInput1",
-                ],
-                type: 0,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_withdrawal_request_index_list_by_user",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 28,
-          },
-          selector: "0x28e00c0c",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_inw_contract",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 37,
-          },
-          selector: "0x851d72b9",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_withdrawal_request_list",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 38,
-          },
-          selector: "0x17511a77",
-        },
-        {
-          args: [
-            {
-              label: "expiration_duration",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "GetWithdrawableAzeroToStakeToValidatorInput1",
-                ],
-                type: 4,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label:
-            "AzeroStakingTrait::get_withdrawable_azero_to_stake_to_validator",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 35,
-          },
-          selector: "0x998a18ee",
-        },
-        {
-          args: [
-            {
-              label: "rewards_claim_waiting_duration",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "SetRewardsClaimWaitingDurationInput1",
-                ],
-                type: 4,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::set_rewards_claim_waiting_duration",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0xba3e649e",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_unstaking_fee",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 23,
-          },
-          selector: "0x84352494",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_total_azero_staked",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 23,
-          },
-          selector: "0xa2efe52b",
-        },
-        {
-          args: [
-            {
-              label: "user",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "GetWithdrawalRequestCountByUserInput1",
-                ],
-                type: 0,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_withdrawal_request_count_by_user",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 23,
-          },
-          selector: "0x7b6d001a",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_inw_interest_account",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 23,
-          },
-          selector: "0x612d2f56",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_min_staking_amount",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 23,
-          },
-          selector: "0x91d337b9",
-        },
-        {
-          args: [
-            {
-              label: "amount",
-              type: {
-                displayName: [
-                  "azerostakingtrait_external",
-                  "TopupAzeroStakeAccountInput1",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::topup_azero_stake_account",
-          mutates: true,
-          payable: true,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 9,
-          },
-          selector: "0xc9ad32f9",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_block_timestamp",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 33,
-          },
-          selector: "0xad9b34fc",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_total_stakers",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 23,
-          },
-          selector: "0xc0481a7d",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "AzeroStakingTrait::get_is_withdrawable",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 34,
-          },
-          selector: "0x55a4f689",
         },
         {
           args: [
@@ -1716,30 +815,104 @@ const my_azero_staking = {
           selector: "0xb21a4a00",
         },
         {
-          args: [],
+          args: [
+            {
+              label: "index",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "GetWithdrawalRequestInput1",
+                ],
+                type: 3,
+              },
+            },
+          ],
           default: false,
           docs: [],
-          label: "AzeroStakingTrait::get_total_azero_claimed",
+          label: "AzeroStakingTrait::get_withdrawal_request",
           mutates: false,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 23,
+            type: 22,
           },
-          selector: "0x9c50c036",
+          selector: "0x99b05303",
         },
         {
           args: [],
           default: false,
           docs: [],
-          label: "AzeroStakingTrait::get_withdrawal_request_count",
+          label: "AzeroStakingTrait::get_is_selecting_requests_to_pay",
           mutates: false,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 23,
+            type: 25,
           },
-          selector: "0x26bd140c",
+          selector: "0x8b99ebea",
+        },
+        {
+          args: [
+            {
+              label: "amount",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "TopupAzeroInterestAccountInput1",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::topup_azero_interest_account",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0xf65150b3",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_total_azero_for_waiting_withdrawals",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 20,
+          },
+          selector: "0x8919cece",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_unstaking_fee",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 20,
+          },
+          selector: "0x84352494",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_total_azero_withdrawn_to_stake",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 20,
+          },
+          selector: "0xcf15742a",
         },
         {
           args: [
@@ -1761,6 +934,311 @@ const my_azero_staking = {
             type: 9,
           },
           selector: "0x1946a0e0",
+        },
+        {
+          args: [
+            {
+              label: "staker",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "GetStakeInfoInput1",
+                ],
+                type: 0,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_stake_info",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 26,
+          },
+          selector: "0x3b01b496",
+        },
+        {
+          args: [
+            {
+              label: "receiver",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "WithdrawInwNotInAccountsInput1",
+                ],
+                type: 0,
+              },
+            },
+            {
+              label: "amount",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "WithdrawInwNotInAccountsInput2",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::withdraw_inw_not_in_accounts",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0xca066fa7",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_inw_interest_account",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 20,
+          },
+          selector: "0x612d2f56",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_azero_interest_account",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 20,
+          },
+          selector: "0x81d6cc5a",
+        },
+        {
+          args: [
+            {
+              label: "receiver",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "WithdrawAzeroFromInterestAccountInput1",
+                ],
+                type: 0,
+              },
+            },
+            {
+              label: "amount",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "WithdrawAzeroFromInterestAccountInput2",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::withdraw_azero_from_interest_account",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0x8202ea63",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_waiting_withdrawal_list",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 30,
+          },
+          selector: "0x8c3b79ff",
+        },
+        {
+          args: [
+            {
+              label: "total_azero_reserved_for_withdrawals",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "SetTotalAzeroReservedForWithdrawalsInput1",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::set_total_azero_reserved_for_withdrawals",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0x19691612",
+        },
+        {
+          args: [
+            {
+              label: "claimer",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "GetTotalWithdrawalRequestClaimedInput1",
+                ],
+                type: 0,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_total_withdrawal_request_claimed",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 32,
+          },
+          selector: "0x2c71f717",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_payable_azero",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 34,
+          },
+          selector: "0x2463ece1",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_is_locked",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 25,
+          },
+          selector: "0xdf9d224a",
+        },
+        {
+          args: [
+            {
+              label: "interest_distribution_contract",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "SetInterestDistributionContractInput1",
+                ],
+                type: 0,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::set_interest_distribution_contract",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0xa60188de",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_unclaimed_reward_at_last_topup",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 36,
+          },
+          selector: "0xec6187ff",
+        },
+        {
+          args: [
+            {
+              label: "user",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "GetWithdrawalRequestCountByUserInput1",
+                ],
+                type: 0,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_withdrawal_request_count_by_user",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 20,
+          },
+          selector: "0x7b6d001a",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_last_azero_interest_topup",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 39,
+          },
+          selector: "0xba30a825",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_rewards_claim_waiting_duration",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 39,
+          },
+          selector: "0xe06dbbe0",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_waiting_withdrawal_count",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 20,
+          },
+          selector: "0xf60e78d9",
         },
         {
           args: [
@@ -1787,14 +1265,647 @@ const my_azero_staking = {
           args: [],
           default: false,
           docs: [],
-          label: "AzeroStakingTrait::get_azero_balance",
+          label: "AzeroStakingTrait::get_total_azero_staked",
           mutates: false,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 23,
+            type: 20,
           },
-          selector: "0xe8b1ab1a",
+          selector: "0xa2efe52b",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_block_timestamp",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 39,
+          },
+          selector: "0xad9b34fc",
+        },
+        {
+          args: [
+            {
+              label: "rewards_claim_waiting_duration",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "SetRewardsClaimWaitingDurationInput1",
+                ],
+                type: 4,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::set_rewards_claim_waiting_duration",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0xba3e649e",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_max_waiting_time",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 39,
+          },
+          selector: "0x69d7fcb9",
+        },
+        {
+          args: [
+            {
+              label: "receiver",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "WithdrawInwFromInterestAccountInput1",
+                ],
+                type: 0,
+              },
+            },
+            {
+              label: "amount",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "WithdrawInwFromInterestAccountInput2",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::withdraw_inw_from_interest_account",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0x3557d3f7",
+        },
+        {
+          args: [
+            {
+              label: "user",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "GetWithdrawalRequestListByUserInput1",
+                ],
+                type: 0,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_withdrawal_request_list_by_user",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 40,
+          },
+          selector: "0xcbce5802",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_inw_contract",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 21,
+          },
+          selector: "0x851d72b9",
+        },
+        {
+          args: [
+            {
+              label: "request_index",
+              type: {
+                displayName: ["azerostakingtrait_external", "CancelInput1"],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::cancel",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0xead348fa",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_withdrawal_request_list",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 40,
+          },
+          selector: "0x17511a77",
+        },
+        {
+          args: [
+            {
+              label: "index",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "GetWaitingWithdrawalIndexInput1",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_waiting_withdrawal_index",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 32,
+          },
+          selector: "0x21994b34",
+        },
+        {
+          args: [
+            {
+              label: "apy",
+              type: {
+                displayName: ["azerostakingtrait_external", "SetApyInput1"],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::set_apy",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0xa477acfc",
+        },
+        {
+          args: [
+            {
+              label: "user",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "GetWithdrawalRequestIndexByUserInput1",
+                ],
+                type: 0,
+              },
+            },
+            {
+              label: "index",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "GetWithdrawalRequestIndexByUserInput2",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_withdrawal_request_index_by_user",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 32,
+          },
+          selector: "0x86196557",
+        },
+        {
+          args: [
+            {
+              label: "inw_contract",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "SetInwContractInput1",
+                ],
+                type: 0,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::set_inw_contract",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0xba86540d",
+        },
+        {
+          args: [
+            {
+              label: "expiration_duration",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "GetWithdrawableAzeroToStakeToValidatorInput1",
+                ],
+                type: 4,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label:
+            "AzeroStakingTrait::get_withdrawable_azero_to_stake_to_validator",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 34,
+          },
+          selector: "0x998a18ee",
+        },
+        {
+          args: [
+            {
+              label: "request_index",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "RemoveRequestIndexInWithdrawalWaitingListInput1",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label:
+            "AzeroStakingTrait::remove_request_index_in_withdrawal_waiting_list",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0xb785b12e",
+        },
+        {
+          args: [
+            {
+              label: "is_selecting_requests_to_pay",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "SetIsSelectingRequestsToPayInput1",
+                ],
+                type: 6,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::set_is_selecting_requests_to_pay",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0xedeb929a",
+        },
+        {
+          args: [
+            {
+              label: "amount",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "TopupAzeroStakeAccountInput1",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::topup_azero_stake_account",
+          mutates: true,
+          payable: true,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0xc9ad32f9",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_staker_list",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 42,
+          },
+          selector: "0x94151ab4",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_inw_multiplier",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 20,
+          },
+          selector: "0xa721cd60",
+        },
+        {
+          args: [
+            {
+              label: "user",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "GetTotalWithdrawalRequestCancelledInput1",
+                ],
+                type: 0,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_total_withdrawal_request_cancelled",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 32,
+          },
+          selector: "0xb68ba475",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_total_inw_claimed",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 20,
+          },
+          selector: "0xe179dab6",
+        },
+        {
+          args: [
+            {
+              label: "max_waiting_time",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "SetMaxWaitingTimeInput1",
+                ],
+                type: 4,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::set_max_waiting_time",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0xd414c1a1",
+        },
+        {
+          args: [
+            {
+              label: "min_staking_amount",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "SetMinStakingAmountInput1",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::set_min_staking_amount",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0x4f9a052b",
+        },
+        {
+          args: [
+            {
+              label: "user",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "GetWithdrawalRequestIndexListByUserInput1",
+                ],
+                type: 0,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_withdrawal_request_index_list_by_user",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 30,
+          },
+          selector: "0x28e00c0c",
+        },
+        {
+          args: [
+            {
+              label: "request_index",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "SetWithdrawalRequestInfoStatusInput1",
+                ],
+                type: 3,
+              },
+            },
+            {
+              label: "status",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "SetWithdrawalRequestInfoStatusInput2",
+                ],
+                type: 2,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::set_withdrawal_request_info_status",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0xcddca59d",
+        },
+        {
+          args: [
+            {
+              label: "unstaking_fee",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "SetUnstakingFeeInput1",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::set_unstaking_fee",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0x25c30ffb",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::claim_rewards",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0x75b8f217",
+        },
+        {
+          args: [
+            {
+              label: "expiration_duration",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "WithdrawAzeroToStakeInput1",
+                ],
+                type: 4,
+              },
+            },
+            {
+              label: "receiver",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "WithdrawAzeroToStakeInput2",
+                ],
+                type: 0,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::withdraw_azero_to_stake",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0x2c42ce57",
+        },
+        {
+          args: [
+            {
+              label: "inw_multiplier",
+              type: {
+                displayName: [
+                  "azerostakingtrait_external",
+                  "SetInwMultiplierInput1",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::set_inw_multiplier",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 9,
+          },
+          selector: "0x1cf13874",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_total_azero_reserved_for_withdrawals",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 20,
+          },
+          selector: "0xc85ced38",
         },
         {
           args: [
@@ -1824,27 +1935,40 @@ const my_azero_staking = {
           args: [],
           default: false,
           docs: [],
-          label: "AzeroStakingTrait::get_max_waiting_time",
+          label: "AzeroStakingTrait::get_total_stakers",
           mutates: false,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 33,
+            type: 20,
           },
-          selector: "0x69d7fcb9",
+          selector: "0xc0481a7d",
         },
         {
           args: [],
           default: false,
           docs: [],
-          label: "AzeroStakingTrait::get_total_inw_claimed",
+          label: "AzeroStakingTrait::get_withdrawal_request_count",
           mutates: false,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 23,
+            type: 20,
           },
-          selector: "0xe179dab6",
+          selector: "0x26bd140c",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "AzeroStakingTrait::get_max_total_staking_amount",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 20,
+          },
+          selector: "0xcf52de55",
         },
         {
           args: [
@@ -1868,6 +1992,83 @@ const my_azero_staking = {
             type: 9,
           },
           selector: "0x9e32fab2",
+        },
+        {
+          args: [
+            {
+              label: "role",
+              type: {
+                displayName: ["accesscontrol_external", "HasRoleInput1"],
+                type: 7,
+              },
+            },
+            {
+              label: "address",
+              type: {
+                displayName: ["accesscontrol_external", "HasRoleInput2"],
+                type: 43,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AccessControl::has_role",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 25,
+          },
+          selector: "0xc1d9ac18",
+        },
+        {
+          args: [
+            {
+              label: "role",
+              type: {
+                displayName: ["accesscontrol_external", "GrantRoleInput1"],
+                type: 7,
+              },
+            },
+            {
+              label: "account",
+              type: {
+                displayName: ["accesscontrol_external", "GrantRoleInput2"],
+                type: 43,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AccessControl::grant_role",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 44,
+          },
+          selector: "0x4ac062fd",
+        },
+        {
+          args: [
+            {
+              label: "role",
+              type: {
+                displayName: ["accesscontrol_external", "GetRoleAdminInput1"],
+                type: 7,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AccessControl::get_role_admin",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 46,
+          },
+          selector: "0x83da3bb2",
         },
         {
           args: [
@@ -1902,34 +2103,6 @@ const my_azero_staking = {
             {
               label: "role",
               type: {
-                displayName: ["accesscontrol_external", "HasRoleInput1"],
-                type: 7,
-              },
-            },
-            {
-              label: "address",
-              type: {
-                displayName: ["accesscontrol_external", "HasRoleInput2"],
-                type: 43,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AccessControl::has_role",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 34,
-          },
-          selector: "0xc1d9ac18",
-        },
-        {
-          args: [
-            {
-              label: "role",
-              type: {
                 displayName: ["accesscontrol_external", "RenounceRoleInput1"],
                 type: 7,
               },
@@ -1958,49 +2131,24 @@ const my_azero_staking = {
             {
               label: "role",
               type: {
-                displayName: ["accesscontrol_external", "GetRoleAdminInput1"],
+                displayName: [
+                  "accesscontrolenumerable_external",
+                  "GetRoleMemberCountInput1",
+                ],
                 type: 7,
               },
             },
           ],
           default: false,
           docs: [],
-          label: "AccessControl::get_role_admin",
+          label: "AccessControlEnumerable::get_role_member_count",
           mutates: false,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
             type: 46,
           },
-          selector: "0x83da3bb2",
-        },
-        {
-          args: [
-            {
-              label: "role",
-              type: {
-                displayName: ["accesscontrol_external", "GrantRoleInput1"],
-                type: 7,
-              },
-            },
-            {
-              label: "account",
-              type: {
-                displayName: ["accesscontrol_external", "GrantRoleInput2"],
-                type: 43,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AccessControl::grant_role",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 44,
-          },
-          selector: "0x4ac062fd",
+          selector: "0xf1b1a9d7",
         },
         {
           args: [
@@ -2037,43 +2185,6 @@ const my_azero_staking = {
           selector: "0x163469e0",
         },
         {
-          args: [
-            {
-              label: "role",
-              type: {
-                displayName: [
-                  "accesscontrolenumerable_external",
-                  "GetRoleMemberCountInput1",
-                ],
-                type: 7,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AccessControlEnumerable::get_role_member_count",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 46,
-          },
-          selector: "0xf1b1a9d7",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "Ownable::owner",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 47,
-          },
-          selector: "0x4fa43c8c",
-        },
-        {
           args: [],
           default: false,
           docs: [],
@@ -2106,6 +2217,19 @@ const my_azero_staking = {
             type: 48,
           },
           selector: "0x11f43efd",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "Ownable::owner",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 47,
+          },
+          selector: "0x4fa43c8c",
         },
       ],
     },
@@ -2452,6 +2576,20 @@ const my_azero_staking = {
                       },
                       {
                         layout: {
+                          root: {
+                            layout: {
+                              leaf: {
+                                key: "0xa1415054",
+                                ty: 3,
+                              },
+                            },
+                            root_key: "0xa1415054",
+                          },
+                        },
+                        name: "total_withdrawal_request_cancelled",
+                      },
+                      {
+                        layout: {
                           leaf: {
                             key: "0x00000000",
                             ty: 3,
@@ -2494,6 +2632,15 @@ const my_azero_staking = {
                           },
                         },
                         name: "total_azero_reserved_for_withdrawals",
+                      },
+                      {
+                        layout: {
+                          leaf: {
+                            key: "0x00000000",
+                            ty: 3,
+                          },
+                        },
+                        name: "total_azero_withdrawn_to_stake",
                       },
                       {
                         layout: {
@@ -2547,7 +2694,7 @@ const my_azero_staking = {
                             ty: 6,
                           },
                         },
-                        name: "is_withdrawable",
+                        name: "is_selecting_requests_to_pay",
                       },
                       {
                         layout: {
@@ -3210,155 +3357,167 @@ const my_azero_staking = {
                 },
                 {
                   index: 81,
-                  name: "WithdrawError",
+                  name: "WithdrawalRequestIsNotCancellable",
                 },
                 {
                   index: 82,
-                  name: "RequestNotForClaimer",
+                  name: "WithdrawError",
                 },
                 {
                   index: 83,
-                  name: "NoWithdrawalRequestInfo",
+                  name: "RequestNotForClaimer",
                 },
                 {
                   index: 84,
-                  name: "NoStakeInfoFound",
+                  name: "RequestNotForCaller",
                 },
                 {
                   index: 85,
-                  name: "CannotGetWaitingList",
+                  name: "NoWithdrawalRequestInfo",
                 },
                 {
                   index: 86,
-                  name: "CannotGetWithdrawableAmount",
+                  name: "NoStakeInfoFound",
                 },
                 {
                   index: 87,
-                  name: "InvalidWithdrawalAmount",
+                  name: "CannotGetWaitingList",
                 },
                 {
                   index: 88,
-                  name: "CannotUpdateUnclaimedRewards",
+                  name: "CannotGetWithdrawableAmount",
                 },
                 {
                   index: 89,
-                  name: "CannotUpdateLastUnclaimedRewards",
+                  name: "InvalidWithdrawalAmount",
                 },
                 {
                   index: 90,
-                  name: "InvalidCapAmount",
+                  name: "CannotUpdateUnclaimedRewards",
                 },
                 {
                   index: 91,
-                  name: "InvalidWhitelistAmount",
+                  name: "CannotUpdateLastUnclaimedRewards",
                 },
                 {
                   index: 92,
-                  name: "CapExceeded",
+                  name: "InvalidCapAmount",
                 },
                 {
                   index: 93,
-                  name: "CannotCollectInwV1",
+                  name: "InvalidWhitelistAmount",
                 },
                 {
                   index: 94,
-                  name: "InvalidWithdrawalRequestStatus",
+                  name: "CapExceeded",
                 },
                 {
                   index: 95,
-                  name: "InvalidWaitingRequestIndex",
+                  name: "CannotCollectInwV1",
                 },
                 {
                   index: 96,
-                  name: "IsNotWithdrawable",
+                  name: "InvalidWithdrawalRequestStatus",
                 },
                 {
                   index: 97,
-                  name: "CannotCollectInwV2",
+                  name: "InvalidWaitingRequestIndex",
                 },
                 {
                   index: 98,
-                  name: "CannotMintInwV2",
+                  name: "IsNotWithdrawable",
                 },
                 {
                   index: 99,
-                  name: "CannotTransferInwV1",
+                  name: "CannotCollectInwV2",
                 },
                 {
                   index: 100,
-                  name: "InvalidIsLockedInput",
+                  name: "CannotMintInwV2",
                 },
                 {
                   index: 101,
-                  name: "InvalidTimeToClaimRewards",
+                  name: "CannotTransferInwV1",
                 },
                 {
                   index: 102,
-                  name: "NotEnoughAzeroReward",
+                  name: "InvalidIsLockedInput",
                 },
                 {
                   index: 103,
-                  name: "NotEnoughInwReward",
+                  name: "InvalidTimeToClaimRewards",
                 },
                 {
                   index: 104,
-                  name: "RequestToClaimRewardsFirst",
+                  name: "NotEnoughAzeroReward",
                 },
                 {
                   index: 105,
-                  name: "InvalidTotalRate",
+                  name: "NotEnoughInwReward",
                 },
                 {
                   index: 106,
-                  name: "InvalidInterestAccountRate",
+                  name: "RequestToClaimRewardsFirst",
                 },
                 {
                   index: 107,
-                  name: "NoAzeroToDistribute",
+                  name: "InvalidTotalRate",
                 },
                 {
                   index: 108,
-                  name: "CannotTopupAzeroInterestAccount",
+                  name: "InvalidInterestAccountRate",
                 },
                 {
                   index: 109,
-                  name: "NoNewAzeroTopup",
+                  name: "NoAzeroToDistribute",
                 },
                 {
                   index: 110,
-                  name: "NotInterestDistributionContract",
+                  name: "CannotTopupAzeroInterestAccount",
                 },
                 {
                   index: 111,
-                  name: "NotAzeroStakingContract",
+                  name: "NoNewAzeroTopup",
                 },
                 {
                   index: 112,
-                  name: "CannotTransferToInterestAccount",
+                  name: "NotInterestDistributionContract",
                 },
                 {
                   index: 113,
-                  name: "CannotTransferToMasterAccount",
+                  name: "NotAzeroStakingContract",
                 },
                 {
                   index: 114,
-                  name: "CheckedOperationsTimeLength",
+                  name: "CannotTransferToInterestAccount",
                 },
                 {
                   index: 115,
-                  name: "CheckedOperationsAzeroInterestAccount",
+                  name: "CannotTransferToMasterAccount",
                 },
                 {
                   index: 116,
-                  name: "CheckedOperationsInwInterestAccount",
+                  name: "CheckedOperationsTimeLength",
                 },
                 {
                   index: 117,
-                  name: "CheckedOperationsUnclaimedAzeroReward",
+                  name: "CheckedOperationsAzeroInterestAccount",
                 },
                 {
                   index: 118,
+                  name: "CheckedOperationsInwInterestAccount",
+                },
+                {
+                  index: 119,
+                  name: "CheckedOperationsUnclaimedAzeroReward",
+                },
+                {
+                  index: 120,
                   name: "CheckedOperationsUnclaimedInwReward",
+                },
+                {
+                  index: 121,
+                  name: "IsSelectingRequestsToPay",
                 },
               ],
             },
@@ -3643,114 +3802,6 @@ const my_azero_staking = {
                 {
                   fields: [
                     {
-                      type: 21,
-                    },
-                  ],
-                  index: 0,
-                  name: "Ok",
-                },
-                {
-                  fields: [
-                    {
-                      type: 19,
-                    },
-                  ],
-                  index: 1,
-                  name: "Err",
-                },
-              ],
-            },
-          },
-          params: [
-            {
-              name: "T",
-              type: 21,
-            },
-            {
-              name: "E",
-              type: 19,
-            },
-          ],
-          path: ["Result"],
-        },
-      },
-      {
-        id: 21,
-        type: {
-          def: {
-            variant: {
-              variants: [
-                {
-                  fields: [
-                    {
-                      type: 22,
-                    },
-                  ],
-                  index: 0,
-                  name: "Ok",
-                },
-                {
-                  fields: [
-                    {
-                      type: 11,
-                    },
-                  ],
-                  index: 1,
-                  name: "Err",
-                },
-              ],
-            },
-          },
-          params: [
-            {
-              name: "T",
-              type: 22,
-            },
-            {
-              name: "E",
-              type: 11,
-            },
-          ],
-          path: ["Result"],
-        },
-      },
-      {
-        id: 22,
-        type: {
-          def: {
-            composite: {
-              fields: [
-                {
-                  name: "azero_reward",
-                  type: 3,
-                  typeName: "Balance",
-                },
-                {
-                  name: "inw_reward",
-                  type: 3,
-                  typeName: "Balance",
-                },
-              ],
-            },
-          },
-          path: [
-            "inkwhale_project",
-            "impls",
-            "azero_staking",
-            "data",
-            "UnclaimedRewardAtLastTopup",
-          ],
-        },
-      },
-      {
-        id: 23,
-        type: {
-          def: {
-            variant: {
-              variants: [
-                {
-                  fields: [
-                    {
                       type: 3,
                     },
                   ],
@@ -3783,7 +3834,7 @@ const my_azero_staking = {
         },
       },
       {
-        id: 24,
+        id: 21,
         type: {
           def: {
             variant: {
@@ -3791,7 +3842,7 @@ const my_azero_staking = {
                 {
                   fields: [
                     {
-                      type: 25,
+                      type: 0,
                     },
                   ],
                   index: 0,
@@ -3812,7 +3863,7 @@ const my_azero_staking = {
           params: [
             {
               name: "T",
-              type: 25,
+              type: 0,
             },
             {
               name: "E",
@@ -3820,6 +3871,120 @@ const my_azero_staking = {
             },
           ],
           path: ["Result"],
+        },
+      },
+      {
+        id: 22,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
+                  fields: [
+                    {
+                      type: 23,
+                    },
+                  ],
+                  index: 0,
+                  name: "Ok",
+                },
+                {
+                  fields: [
+                    {
+                      type: 19,
+                    },
+                  ],
+                  index: 1,
+                  name: "Err",
+                },
+              ],
+            },
+          },
+          params: [
+            {
+              name: "T",
+              type: 23,
+            },
+            {
+              name: "E",
+              type: 19,
+            },
+          ],
+          path: ["Result"],
+        },
+      },
+      {
+        id: 23,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
+                  index: 0,
+                  name: "None",
+                },
+                {
+                  fields: [
+                    {
+                      type: 24,
+                    },
+                  ],
+                  index: 1,
+                  name: "Some",
+                },
+              ],
+            },
+          },
+          params: [
+            {
+              name: "T",
+              type: 24,
+            },
+          ],
+          path: ["Option"],
+        },
+      },
+      {
+        id: 24,
+        type: {
+          def: {
+            composite: {
+              fields: [
+                {
+                  name: "request_index",
+                  type: 3,
+                  typeName: "u128",
+                },
+                {
+                  name: "user",
+                  type: 0,
+                  typeName: "AccountId",
+                },
+                {
+                  name: "amount",
+                  type: 3,
+                  typeName: "Balance",
+                },
+                {
+                  name: "request_time",
+                  type: 4,
+                  typeName: "u64",
+                },
+                {
+                  name: "status",
+                  type: 2,
+                  typeName: "u8",
+                },
+              ],
+            },
+          },
+          path: [
+            "inkwhale_project",
+            "impls",
+            "azero_staking",
+            "data",
+            "WithdrawalRequestInformation",
+          ],
         },
       },
       {
@@ -3831,7 +3996,87 @@ const my_azero_staking = {
                 {
                   fields: [
                     {
-                      type: 26,
+                      type: 6,
+                    },
+                  ],
+                  index: 0,
+                  name: "Ok",
+                },
+                {
+                  fields: [
+                    {
+                      type: 19,
+                    },
+                  ],
+                  index: 1,
+                  name: "Err",
+                },
+              ],
+            },
+          },
+          params: [
+            {
+              name: "T",
+              type: 6,
+            },
+            {
+              name: "E",
+              type: 19,
+            },
+          ],
+          path: ["Result"],
+        },
+      },
+      {
+        id: 26,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
+                  fields: [
+                    {
+                      type: 27,
+                    },
+                  ],
+                  index: 0,
+                  name: "Ok",
+                },
+                {
+                  fields: [
+                    {
+                      type: 19,
+                    },
+                  ],
+                  index: 1,
+                  name: "Err",
+                },
+              ],
+            },
+          },
+          params: [
+            {
+              name: "T",
+              type: 27,
+            },
+            {
+              name: "E",
+              type: 19,
+            },
+          ],
+          path: ["Result"],
+        },
+      },
+      {
+        id: 27,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
+                  fields: [
+                    {
+                      type: 28,
                     },
                   ],
                   index: 0,
@@ -3852,7 +4097,7 @@ const my_azero_staking = {
           params: [
             {
               name: "T",
-              type: 26,
+              type: 28,
             },
             {
               name: "E",
@@ -3863,7 +4108,7 @@ const my_azero_staking = {
         },
       },
       {
-        id: 26,
+        id: 28,
         type: {
           def: {
             variant: {
@@ -3875,7 +4120,7 @@ const my_azero_staking = {
                 {
                   fields: [
                     {
-                      type: 27,
+                      type: 29,
                     },
                   ],
                   index: 1,
@@ -3887,14 +4132,14 @@ const my_azero_staking = {
           params: [
             {
               name: "T",
-              type: 27,
+              type: 29,
             },
           ],
           path: ["Option"],
         },
       },
       {
-        id: 27,
+        id: 29,
         type: {
           def: {
             composite: {
@@ -3962,56 +4207,6 @@ const my_azero_staking = {
         },
       },
       {
-        id: 28,
-        type: {
-          def: {
-            variant: {
-              variants: [
-                {
-                  fields: [
-                    {
-                      type: 29,
-                    },
-                  ],
-                  index: 0,
-                  name: "Ok",
-                },
-                {
-                  fields: [
-                    {
-                      type: 19,
-                    },
-                  ],
-                  index: 1,
-                  name: "Err",
-                },
-              ],
-            },
-          },
-          params: [
-            {
-              name: "T",
-              type: 29,
-            },
-            {
-              name: "E",
-              type: 19,
-            },
-          ],
-          path: ["Result"],
-        },
-      },
-      {
-        id: 29,
-        type: {
-          def: {
-            sequence: {
-              type: 3,
-            },
-          },
-        },
-      },
-      {
         id: 30,
         type: {
           def: {
@@ -4020,7 +4215,7 @@ const my_azero_staking = {
                 {
                   fields: [
                     {
-                      type: 5,
+                      type: 31,
                     },
                   ],
                   index: 0,
@@ -4041,7 +4236,7 @@ const my_azero_staking = {
           params: [
             {
               name: "T",
-              type: 5,
+              type: 31,
             },
             {
               name: "E",
@@ -4055,12 +4250,22 @@ const my_azero_staking = {
         id: 31,
         type: {
           def: {
+            sequence: {
+              type: 3,
+            },
+          },
+        },
+      },
+      {
+        id: 32,
+        type: {
+          def: {
             variant: {
               variants: [
                 {
                   fields: [
                     {
-                      type: 32,
+                      type: 33,
                     },
                   ],
                   index: 0,
@@ -4081,7 +4286,7 @@ const my_azero_staking = {
           params: [
             {
               name: "T",
-              type: 32,
+              type: 33,
             },
             {
               name: "E",
@@ -4092,7 +4297,7 @@ const my_azero_staking = {
         },
       },
       {
-        id: 32,
+        id: 33,
         type: {
           def: {
             variant: {
@@ -4123,46 +4328,6 @@ const my_azero_staking = {
         },
       },
       {
-        id: 33,
-        type: {
-          def: {
-            variant: {
-              variants: [
-                {
-                  fields: [
-                    {
-                      type: 4,
-                    },
-                  ],
-                  index: 0,
-                  name: "Ok",
-                },
-                {
-                  fields: [
-                    {
-                      type: 19,
-                    },
-                  ],
-                  index: 1,
-                  name: "Err",
-                },
-              ],
-            },
-          },
-          params: [
-            {
-              name: "T",
-              type: 4,
-            },
-            {
-              name: "E",
-              type: 19,
-            },
-          ],
-          path: ["Result"],
-        },
-      },
-      {
         id: 34,
         type: {
           def: {
@@ -4171,7 +4336,7 @@ const my_azero_staking = {
                 {
                   fields: [
                     {
-                      type: 6,
+                      type: 35,
                     },
                   ],
                   index: 0,
@@ -4192,7 +4357,7 @@ const my_azero_staking = {
           params: [
             {
               name: "T",
-              type: 6,
+              type: 35,
             },
             {
               name: "E",
@@ -4204,46 +4369,6 @@ const my_azero_staking = {
       },
       {
         id: 35,
-        type: {
-          def: {
-            variant: {
-              variants: [
-                {
-                  fields: [
-                    {
-                      type: 36,
-                    },
-                  ],
-                  index: 0,
-                  name: "Ok",
-                },
-                {
-                  fields: [
-                    {
-                      type: 19,
-                    },
-                  ],
-                  index: 1,
-                  name: "Err",
-                },
-              ],
-            },
-          },
-          params: [
-            {
-              name: "T",
-              type: 36,
-            },
-            {
-              name: "E",
-              type: 19,
-            },
-          ],
-          path: ["Result"],
-        },
-      },
-      {
-        id: 36,
         type: {
           def: {
             variant: {
@@ -4283,7 +4408,7 @@ const my_azero_staking = {
         },
       },
       {
-        id: 37,
+        id: 36,
         type: {
           def: {
             variant: {
@@ -4291,7 +4416,7 @@ const my_azero_staking = {
                 {
                   fields: [
                     {
-                      type: 0,
+                      type: 37,
                     },
                   ],
                   index: 0,
@@ -4312,11 +4437,51 @@ const my_azero_staking = {
           params: [
             {
               name: "T",
-              type: 0,
+              type: 37,
             },
             {
               name: "E",
               type: 19,
+            },
+          ],
+          path: ["Result"],
+        },
+      },
+      {
+        id: 37,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
+                  fields: [
+                    {
+                      type: 38,
+                    },
+                  ],
+                  index: 0,
+                  name: "Ok",
+                },
+                {
+                  fields: [
+                    {
+                      type: 11,
+                    },
+                  ],
+                  index: 1,
+                  name: "Err",
+                },
+              ],
+            },
+          },
+          params: [
+            {
+              name: "T",
+              type: 38,
+            },
+            {
+              name: "E",
+              type: 11,
             },
           ],
           path: ["Result"],
@@ -4326,82 +4491,17 @@ const my_azero_staking = {
         id: 38,
         type: {
           def: {
-            variant: {
-              variants: [
-                {
-                  fields: [
-                    {
-                      type: 39,
-                    },
-                  ],
-                  index: 0,
-                  name: "Ok",
-                },
-                {
-                  fields: [
-                    {
-                      type: 19,
-                    },
-                  ],
-                  index: 1,
-                  name: "Err",
-                },
-              ],
-            },
-          },
-          params: [
-            {
-              name: "T",
-              type: 39,
-            },
-            {
-              name: "E",
-              type: 19,
-            },
-          ],
-          path: ["Result"],
-        },
-      },
-      {
-        id: 39,
-        type: {
-          def: {
-            sequence: {
-              type: 40,
-            },
-          },
-        },
-      },
-      {
-        id: 40,
-        type: {
-          def: {
             composite: {
               fields: [
                 {
-                  name: "request_index",
-                  type: 3,
-                  typeName: "u128",
-                },
-                {
-                  name: "user",
-                  type: 0,
-                  typeName: "AccountId",
-                },
-                {
-                  name: "amount",
+                  name: "azero_reward",
                   type: 3,
                   typeName: "Balance",
                 },
                 {
-                  name: "request_time",
-                  type: 4,
-                  typeName: "u64",
-                },
-                {
-                  name: "status",
-                  type: 2,
-                  typeName: "u8",
+                  name: "inw_reward",
+                  type: 3,
+                  typeName: "Balance",
                 },
               ],
             },
@@ -4411,12 +4511,12 @@ const my_azero_staking = {
             "impls",
             "azero_staking",
             "data",
-            "WithdrawalRequestInformation",
+            "UnclaimedRewardAtLastTopup",
           ],
         },
       },
       {
-        id: 41,
+        id: 39,
         type: {
           def: {
             variant: {
@@ -4424,7 +4524,7 @@ const my_azero_staking = {
                 {
                   fields: [
                     {
-                      type: 42,
+                      type: 4,
                     },
                   ],
                   index: 0,
@@ -4445,7 +4545,7 @@ const my_azero_staking = {
           params: [
             {
               name: "T",
-              type: 42,
+              type: 4,
             },
             {
               name: "E",
@@ -4456,23 +4556,28 @@ const my_azero_staking = {
         },
       },
       {
-        id: 42,
+        id: 40,
         type: {
           def: {
             variant: {
               variants: [
                 {
+                  fields: [
+                    {
+                      type: 41,
+                    },
+                  ],
                   index: 0,
-                  name: "None",
+                  name: "Ok",
                 },
                 {
                   fields: [
                     {
-                      type: 40,
+                      type: 19,
                     },
                   ],
                   index: 1,
-                  name: "Some",
+                  name: "Err",
                 },
               ],
             },
@@ -4480,10 +4585,64 @@ const my_azero_staking = {
           params: [
             {
               name: "T",
-              type: 40,
+              type: 41,
+            },
+            {
+              name: "E",
+              type: 19,
             },
           ],
-          path: ["Option"],
+          path: ["Result"],
+        },
+      },
+      {
+        id: 41,
+        type: {
+          def: {
+            sequence: {
+              type: 24,
+            },
+          },
+        },
+      },
+      {
+        id: 42,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
+                  fields: [
+                    {
+                      type: 5,
+                    },
+                  ],
+                  index: 0,
+                  name: "Ok",
+                },
+                {
+                  fields: [
+                    {
+                      type: 19,
+                    },
+                  ],
+                  index: 1,
+                  name: "Err",
+                },
+              ],
+            },
+          },
+          params: [
+            {
+              name: "T",
+              type: 5,
+            },
+            {
+              name: "E",
+              type: 19,
+            },
+          ],
+          path: ["Result"],
         },
       },
       {
