@@ -13,6 +13,8 @@ import { getTotalStakers } from "api/azero-staking/azero-staking";
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import { formatNumDynDecimal } from "utils";
 import IWCard from "components/card/Card";
+import { APICall } from "api/client";
+import { formatChainStringToNumber } from "utils";
 
 function AzeroStaking() {
   const { api } = useAppContext();
@@ -37,7 +39,7 @@ function AzeroStaking() {
     },
     {
       label: "Transaction History",
-      component: <>Transaction History</>,
+      component: <TransactionHistory />,
       isDisabled: false,
     },
   ];
@@ -146,4 +148,35 @@ function StatsInfo() {
       </SimpleGrid>
     </IWCard>
   );
+}
+
+function TransactionHistory() {
+  useEffect(() => {
+    const fetchData = async () => {
+      const { ret: transactionHistory } = await APICall.getEventData({
+        type: 0,
+        limit: 10,
+        offset: 0,
+      });
+      console.log("transactionHistory", transactionHistory);
+      //  _id: '6571258484342a1651ccbe43',
+      // blockNumber: 48576754,
+      // staker: '5HSnVwAUX6N1Xvcs4wnYueAhom6oBN6YzvGk7uvL3grjR1Pt',
+      // amount: 5000000000000,
+      // time: 1701913987000,
+      // __v: 0
+      const txHistoryFormatted = transactionHistory?.map((i) => ({
+        ...i,
+        azeroAmount: formatChainStringToNumber(i.amount) / Math.pow(10, 12),
+        dateTime: new Date(
+          formatChainStringToNumber(i.time) * 1
+        ).toLocaleString(),
+      }));
+
+      console.log("txHistoryFormatted", txHistoryFormatted);
+    };
+    fetchData();
+  }, []);
+
+  return <></>;
 }
