@@ -56,6 +56,7 @@ import { execContractQuery } from "utils/contracts";
 import my_azero_staking from "utils/contracts/my_azero_staking";
 import * as Yup from "yup";
 import RequestListTable from "./Table";
+import { getAzeroInterestBalance } from "api/azero-staking/azero-staking";
 
 export default function AzeroStakingAdmin() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -116,6 +117,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
         expirationTime
       );
       const azeroStakeBalance = await getAzeroStakeBalance();
+      const azeroInterestBalance = await getAzeroInterestBalance();
       const inwInterestBalance = await getInwInterestBalance();
 
       // console.log("interest::getAzeroStakingContract", azeroStakingContract);
@@ -129,6 +131,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
         azeroBalance,
         azeroStakeBalance,
         withdrawableAzero,
+        azeroInterestBalance,
         inwInterestBalance,
       ]).then(
         ([
@@ -136,6 +139,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
           azeroBalance,
           azeroStakeBalance,
           withdrawableAzero,
+          azeroInterestBalance,
           inwInterestBalance,
         ]) => {
           if (!isMounted) {
@@ -174,6 +178,15 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
               valueFormatted: `${formatNumDynDecimal(withdrawableAzero)} AZERO`,
               hasTooltip: true,
               tooltipContent: "withdrawableAzero",
+            },
+            {
+              title: "AZERO Interest Balance",
+              value: azeroInterestBalance,
+              valueFormatted: `${formatNumDynDecimal(
+                azeroInterestBalance
+              )} AZERO`,
+              hasTooltip: true,
+              tooltipContent: "azeroInterestBalance",
             },
             {
               title: "INW Interest Balance",
@@ -907,7 +920,10 @@ function RewardsBalanceSection() {
           <>
             <Box>
               {masterAccountInfo?.map(({ title, valueFormatted }) => (
-                <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
+                <SimpleGrid
+                  columns={[1, 1, 2]}
+                  spacing={["0px", "0px", "24px"]}
+                >
                   <Text mr="4px">{title}: </Text>
                   <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
                 </SimpleGrid>
@@ -931,7 +947,10 @@ function RewardsBalanceSection() {
           <>
             <Box>
               {interestDistAccountInfo?.map(({ title, valueFormatted }) => (
-                <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
+                <SimpleGrid
+                  columns={[1, 1, 2]}
+                  spacing={["0px", "0px", "24px"]}
+                >
                   <Text mr="4px">{title}: </Text>
                   <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
                 </SimpleGrid>
@@ -1071,17 +1090,26 @@ function WithdrawalRequestListSection() {
           ) : (
             <>
               <Box pt="18px">
-                <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
+                <SimpleGrid
+                  columns={[1, 1, 2]}
+                  spacing={["0px", "0px", "24px"]}
+                >
                   <Text mr="4px">Total Pending </Text>
                   <Text mb={["12px", "12px", "2px"]}>{totalPending} AZERO</Text>
                 </SimpleGrid>
 
-                <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
+                <SimpleGrid
+                  columns={[1, 1, 2]}
+                  spacing={["0px", "0px", "24px"]}
+                >
                   <Text mr="4px">Total Ready </Text>
                   <Text mb={["12px", "12px", "2px"]}>{totalReady} AZERO</Text>
                 </SimpleGrid>
 
-                <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
+                <SimpleGrid
+                  columns={[1, 1, 2]}
+                  spacing={["0px", "0px", "24px"]}
+                >
                   <Text mr="4px">Total Unstaked </Text>
                   <Text mb={["12px", "12px", "2px"]}>
                     {totalUnstaked} AZERO
