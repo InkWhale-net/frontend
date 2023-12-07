@@ -356,23 +356,6 @@ export const APICall = {
     );
   },
 
-  getAzeroWallet: async (options) => {
-    return await client(
-      "POST",
-      "/getAzeroWallet",
-      { ...options },
-      "https://staking.inkwhale.net/"
-    );
-  },
-
-  getInwWallet: async (options) => {
-    return await client(
-      "POST",
-      "/getInwWallet",
-      { ...options },
-      "https://staking.inkwhale.net/"
-    );
-  },
 
   getExpirationTime: async (options) => {
     return await client(
@@ -387,6 +370,15 @@ export const APICall = {
     return await client(
       "POST",
       "/getDistributionInfo",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  getEventData: async (options) => {
+    return await client(
+      "POST",
+      "/getEventData",
       { ...options },
       "https://staking.inkwhale.net/"
     );

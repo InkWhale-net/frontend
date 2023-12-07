@@ -78,14 +78,14 @@ export default function AzeroStakingAdmin() {
         0,
         "accessControl::hasRole",
         3333445727,
-        currentAccount.address
+        currentAccount?.address
       );
 
       setHasWithdrawalManagerRole(hasRole?.toHuman()?.Ok);
     };
 
     fetchData();
-  }, [currentAccount.address]);
+  }, [currentAccount?.address]);
 
   return (
     <>
