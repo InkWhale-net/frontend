@@ -320,7 +320,9 @@ export function IWTable({
                                   size="sm"
                                   disabled={
                                     itemObj["requestStatus"] !==
-                                    stakeStatus.READY
+                                      stakeStatus.READY &&
+                                    itemObj["requestStatus"] !==
+                                      stakeStatus.PENDING
                                   }
                                   onClick={() =>
                                     handleCancelRequest(itemObj["requestIndex"])
