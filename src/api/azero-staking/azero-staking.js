@@ -256,6 +256,18 @@ export async function doClaimPrincipal(api, currentAccount, index) {
   );
 }
 
+export async function doCancelRequest(api, currentAccount, index) {
+  return await execContractTx(
+    currentAccount,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::cancel",
+    { u128: index }
+  );
+}
+
 export async function doClaimRewards(api, currentAccount) {
   return await execContractTx(
     currentAccount,

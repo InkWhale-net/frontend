@@ -30,6 +30,7 @@ import { formatNumToBN } from "utils";
 import { execContractTx } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { stakeStatus } from "constants";
+import { doCancelRequest } from "api/azero-staking/azero-staking";
 
 export function IWTable({
   tableHeader,
@@ -74,7 +75,7 @@ export function IWTable({
     return Number(azeroBal);
   }, [currentAccount?.balance?.inw]);
 
-  async function handleClaimRewards(index) {
+  async function handleClaimPrincipal(index) {
     if (azeroBalance < 0.01) {
       toast.error("Too low AZERO balance!");
       return;
@@ -130,6 +131,36 @@ export function IWTable({
     }
   }
 
+  async function handleCancelRequest(index) {
+    const foundItem = tableBody?.find((i) => i.requestIndex === index);
+
+    if (!foundItem) {
+      toast.error("Invalid Id!");
+      return;
+    }
+
+    if (parseInt(foundItem.status) !== 0 && parseInt(foundItem.status) !== 1) {
+      toast.error("This request can not be cancel!");
+      return;
+    }
+
+    if (azeroBalance < 0.01) {
+      toast.error("Too low AZERO balance!");
+      return;
+    }
+
+    try {
+      await doCancelRequest(api, currentAccount, index);
+
+      delay(1000).then(() => {
+        cb && cb();
+      });
+    } catch (error) {
+      console.log("error", error);
+      toast.error("There is something wrong with your request!");
+    }
+  }
+
   return (
     <TableContainer
       w="full"
@@ -165,19 +196,45 @@ export function IWTable({
               </Th>
             ))}
             {mode === "AZERO_STAKING" && (
-              <Th
-                h="60px"
-                bg="bg.5"
-                color="text.2"
-                fontWeight="400"
-                fontSize="16px"
-                lineHeight="28px"
-                textTransform="none"
-                display="flex"
-                justifyContent="center"
-              >
-                <Flex alignItems="center">Action</Flex>
-              </Th>
+              <>
+                <Th
+                  h="60px"
+                  bg="bg.5"
+                  color="text.2"
+                  fontWeight="400"
+                  fontSize="16px"
+                  lineHeight="28px"
+                  textTransform="none"
+                >
+                  <Flex
+                    display="flex"
+                    justifyContent="center"
+                    w="full"
+                    alignItems="center"
+                  >
+                    Unstake
+                  </Flex>
+                </Th>
+                <Th
+                  h="60px"
+                  bg="bg.5"
+                  color="text.2"
+                  fontWeight="400"
+                  fontSize="16px"
+                  lineHeight="28px"
+                  textTransform="none"
+                  textAlign="center"
+                >
+                  <Flex
+                    display="flex"
+                    justifyContent="center"
+                    w="full"
+                    alignItems="center"
+                  >
+                    Cancel
+                  </Flex>
+                </Th>
+              </>
             )}
           </Tr>
         </Thead>
@@ -228,28 +285,55 @@ export function IWTable({
                           );
                         })}
                         {mode === "AZERO_STAKING" && (
-                          <Td>
-                            <FadeIn>
-                              <Button
-                                w="full"
-                                size="sm"
-                                disabled={
-                                  itemObj["requestStatus"] ===
-                                    stakeStatus.UNSTAKED ||
-                                  itemObj["requestStatus"] ===
-                                    stakeStatus.PENDING
-                                }
-                                onClick={() =>
-                                  handleClaimRewards(itemObj["requestIndex"])
-                                }
-                              >
-                                {itemObj["requestStatus"] ===
-                                stakeStatus.UNSTAKED
-                                  ? "Unstaked"
-                                  : "Unstake"}
-                              </Button>
-                            </FadeIn>
-                          </Td>
+                          <>
+                            <Td>
+                              <FadeIn>
+                                <Button
+                                  w="full"
+                                  size="sm"
+                                  disabled={
+                                    itemObj["requestStatus"] !==
+                                    stakeStatus.READY
+                                  }
+                                  onClick={() =>
+                                    handleClaimPrincipal(
+                                      itemObj["requestIndex"]
+                                    )
+                                  }
+                                >
+                                  {itemObj["requestStatus"] ===
+                                  stakeStatus.UNSTAKED
+                                    ? "Unstaked"
+                                    : "Unstake"}
+                                </Button>
+                              </FadeIn>
+                            </Td>
+                            <Td>
+                              <FadeIn>
+                                <Button
+                                  _hover={{ bg: "indianred" }}
+                                  _focus={{ bg: "indianred" }}
+                                  _active={{ bg: "indianred" }}
+                                  bg="orangered"
+                                  color="black"
+                                  w="full"
+                                  size="sm"
+                                  disabled={
+                                    itemObj["requestStatus"] !==
+                                    stakeStatus.READY
+                                  }
+                                  onClick={() =>
+                                    handleCancelRequest(itemObj["requestIndex"])
+                                  }
+                                >
+                                  {itemObj["requestStatus"] !==
+                                  stakeStatus.CANCELLED
+                                    ? "Cancel"
+                                    : "Cancelled"}
+                                </Button>
+                              </FadeIn>
+                            </Td>
+                          </>
                         )}
                       </Tr>
                     </Fragment>
