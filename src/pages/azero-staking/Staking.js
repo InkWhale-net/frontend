@@ -271,7 +271,7 @@ export function getRequestStatus(status) {
     case 2:
       return stakeStatus.UNSTAKED;
     case 3:
-      return stakeStatus.CANCEL;
+      return stakeStatus.CANCELLED;
     default:
       return "n/a";
   }

@@ -169,7 +169,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
               tooltipContent: "azeroStakeBalance",
             },
             {
-              title: "Withdrawable AZERO To Stake To Validator",
+              title: "Withdrawable To Stake To Validator",
               value: withdrawableAzero,
               valueFormatted: `${formatNumDynDecimal(withdrawableAzero)} AZERO`,
               hasTooltip: true,
@@ -322,7 +322,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
           </Flex>
         ) : (
           info?.map(({ title, valueFormatted }) => (
-            <SimpleGrid columns={[1, 1, 2]} spacing="24px">
+            <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
               <Text mr="4px">{title}: </Text>
               <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
             </SimpleGrid>
@@ -330,7 +330,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
         )}
       </Box>
 
-      <SimpleGrid columns={[1, 1, 2]} w="full" spacing="24px">
+      <SimpleGrid columns={[1, 1, 2]} w="full" spacing={["0px", "0px", "24px"]}>
         <Stack>
           {/* doWithdrawAzeroToStake */}
           <IWCard mt="16px" w="full" variant="solid">
@@ -502,8 +502,8 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                     </Field>
 
                     <Button
-                      mt={["38px"]}
-                      ml={["8px"]}
+                      mt={["16px", "16px", "38px"]}
+                      ml={["0px", "0px", "8px"]}
                       isDisabled={!(dirty && isValid) || isSubmitting}
                       type="submit"
                       w={["full"]}
@@ -884,7 +884,7 @@ function RewardsBalanceSection() {
         ) : (
           <>
             {inkContractInfo?.map(({ title, valueFormatted }) => (
-              <SimpleGrid columns={[1, 1, 2]} spacing="24px">
+              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
                 <Text mr="4px">{title}: </Text>
                 <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
               </SimpleGrid>
@@ -907,7 +907,7 @@ function RewardsBalanceSection() {
           <>
             <Box>
               {masterAccountInfo?.map(({ title, valueFormatted }) => (
-                <SimpleGrid columns={[1, 1, 2]} spacing="24px">
+                <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
                   <Text mr="4px">{title}: </Text>
                   <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
                 </SimpleGrid>
@@ -931,7 +931,7 @@ function RewardsBalanceSection() {
           <>
             <Box>
               {interestDistAccountInfo?.map(({ title, valueFormatted }) => (
-                <SimpleGrid columns={[1, 1, 2]} spacing="24px">
+                <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
                   <Text mr="4px">{title}: </Text>
                   <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
                 </SimpleGrid>
@@ -1071,17 +1071,17 @@ function WithdrawalRequestListSection() {
           ) : (
             <>
               <Box pt="18px">
-                <SimpleGrid columns={[1, 1, 2]} spacing="24px">
+                <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
                   <Text mr="4px">Total Pending </Text>
                   <Text mb={["12px", "12px", "2px"]}>{totalPending} AZERO</Text>
                 </SimpleGrid>
 
-                <SimpleGrid columns={[1, 1, 2]} spacing="24px">
+                <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
                   <Text mr="4px">Total Ready </Text>
                   <Text mb={["12px", "12px", "2px"]}>{totalReady} AZERO</Text>
                 </SimpleGrid>
 
-                <SimpleGrid columns={[1, 1, 2]} spacing="24px">
+                <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
                   <Text mr="4px">Total Unstaked </Text>
                   <Text mb={["12px", "12px", "2px"]}>
                     {totalUnstaked} AZERO
