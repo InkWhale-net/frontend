@@ -35,7 +35,7 @@ import { ClipLoader } from "react-spinners";
 import { formatChainStringToNumber, formatNumDynDecimal } from "utils";
 import { getAzeroBalanceOfAddress } from "utils/contracts";
 
-import { WarningTwoIcon } from "@chakra-ui/icons";
+import { CheckCircleIcon, WarningTwoIcon } from "@chakra-ui/icons";
 import {
   doTopupAzeroStakeAccount,
   doWithdrawAzeroEmergency,
@@ -57,6 +57,10 @@ import my_azero_staking from "utils/contracts/my_azero_staking";
 import * as Yup from "yup";
 import RequestListTable from "./Table";
 import { getAzeroInterestBalance } from "api/azero-staking/azero-staking";
+import { getMaxWaitingTime } from "api/azero-staking/azero-staking";
+import { getPayableAzero } from "api/azero-staking/azero-staking";
+import { getStakeList } from "api/azero-staking/azero-staking";
+import { getStakeInfo } from "api/azero-staking/azero-staking";
 
 export default function AzeroStakingAdmin() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -104,17 +108,19 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
   const [info, setInfo] = useState([]);
   const [expirationDuration, setExpirationDuration] = useState(0);
 
+  const userAzeroBalance = currentAccount?.balance?.azero?.replaceAll(",", "");
+
   const fetchData = useCallback(async (isMounted) => {
     try {
       setLoading(true);
-      const { ret: expirationTime } = await APICall.getExpirationTime();
-      setExpirationDuration(expirationTime);
+      const { ret } = await APICall.getExpirationTime();
+      setExpirationDuration(ret);
 
       const azeroStakingContract = await getAzeroStakingContract();
 
       const azeroBalance = await getAzeroBalanceOfStakingContract();
       const withdrawableAzero = await getWithdrawableAzeroToStakeToValidator(
-        expirationTime
+        ret
       );
       const azeroStakeBalance = await getAzeroStakeBalance();
       const azeroInterestBalance = await getAzeroInterestBalance();
@@ -126,6 +132,12 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
       // console.log("Staking::getAzeroStakeAccount", azeroStakeBalance);
       // console.log("Staking::getInwInterestAccount", inwInterestBalance);
 
+      const maxWaitingTime = await getMaxWaitingTime();
+      const waitingListInfo = await APICall.getWaitingListInfo({
+        expirationDuration: ret,
+      });
+      const payableAzero = await getPayableAzero();
+
       Promise.all([
         azeroStakingContract,
         azeroBalance,
@@ -133,6 +145,9 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
         withdrawableAzero,
         azeroInterestBalance,
         inwInterestBalance,
+        maxWaitingTime,
+        waitingListInfo,
+        payableAzero,
       ]).then(
         ([
           azeroStakingContract,
@@ -141,10 +156,18 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
           withdrawableAzero,
           azeroInterestBalance,
           inwInterestBalance,
+          maxWaitingTime,
+          waitingListInfo,
+          payableAzero,
         ]) => {
           if (!isMounted) {
             return;
           }
+
+          const insufficientAzeroAmount =
+            formatChainStringToNumber(payableAzero) -
+            (formatChainStringToNumber(waitingListInfo?.totalAzero) /
+              Math.pow(10, 12) || 0);
 
           const ret = [
             {
@@ -194,6 +217,53 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
               valueFormatted: `${formatNumDynDecimal(inwInterestBalance)} INW`,
               hasTooltip: true,
               tooltipContent: "inwInterestBalance",
+            },
+            {
+              title: "Withdrawal Waiting Time",
+              value: maxWaitingTime,
+              valueFormatted: `${maxWaitingTime / 60000} mins`,
+              hasTooltip: true,
+              tooltipContent: "maxWaitingTime",
+            },
+            {
+              title: "Total AZERO for pending list within expiration time",
+              value: waitingListInfo?.totalAzero,
+              valueFormatted: `${formatNumDynDecimal(
+                formatChainStringToNumber(waitingListInfo?.totalAzero) /
+                  Math.pow(10, 12)
+              )} AZERO`,
+              hasTooltip: true,
+              tooltipContent: "waitingListInfo?.totalAzero",
+            },
+            {
+              title: "Contract Payable Azero Amount",
+              value: payableAzero,
+              valueFormatted: `${formatNumDynDecimal(
+                formatChainStringToNumber(payableAzero)
+              )} AZERO`,
+              hasTooltip: true,
+              tooltipContent: "payableAzero",
+            },
+            {
+              title: `${
+                insufficientAzeroAmount > 0 ? "Excessive" : "Insufficient"
+              } Amount`,
+              value: insufficientAzeroAmount,
+              valueFormatted: (
+                <Flex
+                  alignItems="center"
+                  color={insufficientAzeroAmount < 0 ? "#EA4A61" : "#8C86A5"}
+                >
+                  {insufficientAzeroAmount < 0 ? (
+                    <WarningTwoIcon color="#EA4A61" mr="8px" />
+                  ) : (
+                    <CheckCircleIcon color="lightgreen" mr="8px" />
+                  )}
+                  {formatNumDynDecimal(insufficientAzeroAmount)} AZERO
+                </Flex>
+              ),
+              hasTooltip: true,
+              tooltipContent: "insufficientAzeroAmount",
             },
           ];
 
@@ -295,8 +365,6 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
     }
   }
 
-  const userAzeroBalance = currentAccount?.balance?.azero?.replaceAll(",", "");
-
   async function handleTopupAzeroStakeAccount({ topupAmount }) {
     if (!topupAmount) {
       toast.error("Invalid input!");
@@ -334,11 +402,14 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
             />
           </Flex>
         ) : (
-          info?.map(({ title, valueFormatted }) => (
-            <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
-              <Text mr="4px">{title}: </Text>
-              <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
-            </SimpleGrid>
+          info?.map(({ title, valueFormatted }, idx) => (
+            <>
+              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
+                <Text mr="4px">{title}: </Text>
+                <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
+              </SimpleGrid>
+              {idx === 6 && <Divider my="16px" />}
+            </>
           ))
         )}
       </Box>
@@ -708,6 +779,8 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
 }
 
 function RewardsBalanceSection() {
+  const { api } = useAppContext();
+  const { currentAccount } = useSelector((s) => s.wallet);
   const [loadingInkContract, setLoadingInkContract] = useState(true);
   const [inkContractInfo, setInkContractInfo] = useState([]);
 
@@ -820,18 +893,19 @@ function RewardsBalanceSection() {
 
         const interestDistributionContract =
           await getInterestDistributionContract();
-        const interestDistributionContractBalance =
-          await getInwBalanceOfAddress({
-            address: interestDistributionContract,
-          });
 
         const interestDistributionContractBalanceAZERO =
           await getAzeroBalanceOfAddress({
             address: interestDistributionContract,
           });
+
+        const interestDistributionContractBalance =
+          await getInwBalanceOfAddress({
+            address: interestDistributionContract,
+          });
         // console.log("Staking::getInterestDistributionContract", interestDistributionContract);
-        // console.log("InterestDistributionContract psp22::balanceOf INW", interestDistributionContractBalance);
         // console.log("InterestDistributionContractBalanceAZERO", interestDistributionContractBalanceAZERO);
+        // console.log("InterestDistributionContract psp22::balanceOf INW", interestDistributionContractBalance);
 
         const interestDistAccountInfoData = [
           {
@@ -844,15 +918,6 @@ function RewardsBalanceSection() {
             tooltipContent: "interestDistributionContract",
           },
           {
-            title: "INW Balance",
-            value: interestDistributionContractBalance,
-            valueFormatted: `${formatNumDynDecimal(
-              interestDistributionContractBalance
-            )} INW`,
-            hasTooltip: true,
-            tooltipContent: "interestDistributionContractBalance",
-          },
-          {
             title: "AZEROBalance",
             value: interestDistributionContractBalanceAZERO,
             valueFormatted: `${formatNumDynDecimal(
@@ -860,6 +925,15 @@ function RewardsBalanceSection() {
             )} AZERO`,
             hasTooltip: true,
             tooltipContent: "interestDistributionContractBalanceAZERO",
+          },
+          {
+            title: "INW Balance",
+            value: interestDistributionContractBalance,
+            valueFormatted: `${formatNumDynDecimal(
+              interestDistributionContractBalance
+            )} INW`,
+            hasTooltip: true,
+            tooltipContent: "interestDistributionContractBalance",
           },
         ];
 
@@ -882,6 +956,70 @@ function RewardsBalanceSection() {
     return () => (isMounted = false);
   }, []);
 
+  // Calc Unclaimed Rewards Data==============
+  const [unclaimedRewardsData, setUnclaimedRewardsData] = useState({});
+  const [loadingUnclaimed, setLoadingUnclaimed] = useState(true);
+
+  const fetchUnclaimedRewardsData = useCallback(
+    async (isMounted) => {
+      try {
+        setLoadingUnclaimed(true);
+
+        const stakeList = await getStakeList();
+
+        const listInfo = await Promise.all(
+          stakeList.map(async (addr) => {
+            const info = await getStakeInfo(api, currentAccount, addr);
+
+            const unclaimedAzero =
+              formatChainStringToNumber(info?.unclaimedAzeroReward) /
+              Math.pow(10, 12);
+
+            const unclaimedInw =
+              formatChainStringToNumber(info?.unclaimedInwReward) /
+              Math.pow(10, 12);
+
+            return { unclaimedAzero, unclaimedInw };
+          })
+        );
+
+        const totalUnclaimedRewards = listInfo?.reduce(
+          (prev, curr) => ({
+            azero: prev?.azero + curr?.unclaimedAzero,
+            inw: prev?.inw + curr?.unclaimedInw,
+          }),
+          {
+            azero: 0,
+            inw: 0,
+          }
+        );
+
+        if (!isMounted) return;
+
+        setUnclaimedRewardsData(totalUnclaimedRewards);
+        setLoadingUnclaimed(false);
+      } catch (error) {
+        setLoadingUnclaimed(false);
+        console.log("Error", error);
+        toast.error("Error", error);
+      }
+    },
+    [api, currentAccount]
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+    api && fetchUnclaimedRewardsData(isMounted);
+
+    return () => (isMounted = false);
+  }, [api, currentAccount, fetchUnclaimedRewardsData]);
+
+  const insufficientInwRewardsAmount =
+    (interestDistAccountInfo && interestDistAccountInfo[2]?.value) -
+    unclaimedRewardsData?.inw;
+
+  // ==============
+
   return (
     <IWCard mb="24px" w="full" variant="outline" title="Rewards & Distribution">
       <Box pt="18px">
@@ -897,7 +1035,11 @@ function RewardsBalanceSection() {
         ) : (
           <>
             {inkContractInfo?.map(({ title, valueFormatted }) => (
-              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
+              <SimpleGrid
+                key={title}
+                columns={[1, 1, 2]}
+                spacing={["0px", "0px", "24px"]}
+              >
                 <Text mr="4px">{title}: </Text>
                 <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
               </SimpleGrid>
@@ -906,6 +1048,7 @@ function RewardsBalanceSection() {
           </>
         )}
       </Box>
+
       <Box pt="18px">
         {loadingMasterAccount ? (
           <Flex justify="center" align="center" py="16px">
@@ -933,8 +1076,9 @@ function RewardsBalanceSection() {
           </>
         )}
       </Box>
+
       <Box pt="18px">
-        {loadingInterest ? (
+        {loadingInterest || loadingUnclaimed ? (
           <Flex justify="center" align="center" py="16px">
             <ClipLoader
               color="#57527E"
@@ -955,6 +1099,42 @@ function RewardsBalanceSection() {
                   <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
                 </SimpleGrid>
               ))}
+
+              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
+                <Text mr="4px">Unclaimed INW Rewards: </Text>
+                <Text mb={["12px", "12px", "2px"]}>
+                  {formatNumDynDecimal(unclaimedRewardsData?.inw)} INW
+                </Text>
+              </SimpleGrid>
+
+              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
+                <Text mr="4px">
+                  {insufficientInwRewardsAmount > 0
+                    ? "Excessive"
+                    : "Insufficient"}{" "}
+                  INW Amount:
+                </Text>
+                <Flex
+                  alignItems="center"
+                  color={
+                    insufficientInwRewardsAmount < 0 ? "#EA4A61" : "#8C86A5"
+                  }
+                >
+                  {insufficientInwRewardsAmount < 0 ? (
+                    <WarningTwoIcon color="#EA4A61" mr="8px" />
+                  ) : (
+                    <CheckCircleIcon color="lightgreen" mr="8px" />
+                  )}
+                  {formatNumDynDecimal(insufficientInwRewardsAmount)} INW
+                </Flex>
+              </SimpleGrid>
+
+              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
+                <Text mr="4px">Unclaimed AZERO Rewards: </Text>
+                <Text mb={["12px", "12px", "2px"]}>
+                  {formatNumDynDecimal(unclaimedRewardsData?.azero)} AZERO
+                </Text>
+              </SimpleGrid>
             </Box>
           </>
         )}
@@ -1095,7 +1275,9 @@ function WithdrawalRequestListSection() {
                   spacing={["0px", "0px", "24px"]}
                 >
                   <Text mr="4px">Total Pending </Text>
-                  <Text mb={["12px", "12px", "2px"]}>{totalPending} AZERO</Text>
+                  <Text mb={["12px", "12px", "2px"]}>
+                    {formatNumDynDecimal(totalPending)} AZERO
+                  </Text>
                 </SimpleGrid>
 
                 <SimpleGrid
@@ -1103,7 +1285,9 @@ function WithdrawalRequestListSection() {
                   spacing={["0px", "0px", "24px"]}
                 >
                   <Text mr="4px">Total Ready </Text>
-                  <Text mb={["12px", "12px", "2px"]}>{totalReady} AZERO</Text>
+                  <Text mb={["12px", "12px", "2px"]}>
+                    {formatNumDynDecimal(totalReady)} AZERO
+                  </Text>
                 </SimpleGrid>
 
                 <SimpleGrid
@@ -1112,7 +1296,7 @@ function WithdrawalRequestListSection() {
                 >
                   <Text mr="4px">Total Unstaked </Text>
                   <Text mb={["12px", "12px", "2px"]}>
-                    {totalUnstaked} AZERO
+                    {formatNumDynDecimal(totalUnstaked)} AZERO
                   </Text>
                 </SimpleGrid>
               </Box>
