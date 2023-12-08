@@ -110,7 +110,7 @@ function Staking() {
     );
 
     if (requestedList?.length) {
-      const formattedRequestedList = requestedList.map((i) => {
+      let formattedRequestedList = requestedList.map((i) => {
         const withdrawalAmount =
           formatChainStringToNumber(i.amount) / Math.pow(10, 12);
 
@@ -137,6 +137,13 @@ function Staking() {
           requestStatus,
           requestTime: new Date(requestTime).toLocaleString(),
         };
+      });
+
+      formattedRequestedList.sort((a, b) => {
+        return (
+          formatChainStringToNumber(b?.requestIndex) -
+          formatChainStringToNumber(a?.requestIndex)
+        );
       });
 
       setUserRequestList(formattedRequestedList);
