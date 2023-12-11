@@ -8,6 +8,7 @@ import { getGasLimit } from "./dryRun";
 import { BN, BN_ONE } from "@polkadot/util";
 import { delay } from "utils";
 import { web3FromSource } from "@polkadot/extension-dapp";
+import { formatChainStringToNumber } from "utils";
 const MAX_CALL_WEIGHT = new BN(5_000_000_000_000).isub(BN_ONE);
 
 let wsApi;
@@ -405,3 +406,43 @@ export const txResponseErrorHandler = async ({
     }
   }
 };
+
+// only use for Bond Address - staking section
+export async function getBalanceOfBondAddress({ api, address }) {
+  if (!address || !wsApi) return console.log("acct , wsApi invalid!");
+  if (!wsApi) {
+    toast.error(toastMessages.ERR_API_CONN);
+    return;
+  }
+
+  if (!address) {
+    toast.error(toastMessages.NO_WALLET);
+    return;
+  }
+
+  const {
+    data,
+    data: { free, frozen },
+  } = await wsApi.query.system.account(address);
+
+  console.log("address", address);
+  console.log("data", data.toHuman());
+  const [chainDecimals] = await wsApi.registry.chainDecimals;
+
+  const freeBal = formatBalance(free, {
+    withSi: false,
+    forceUnit: "-",
+    decimals: chainDecimals,
+  });
+
+  const frozenBal = formatBalance(frozen, {
+    withSi: false,
+    forceUnit: "-",
+    decimals: chainDecimals,
+  });
+
+  return {
+    freeBal: formatChainStringToNumber(freeBal),
+    frozenBal: formatChainStringToNumber(frozenBal),
+  };
+}
