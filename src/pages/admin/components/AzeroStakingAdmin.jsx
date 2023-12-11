@@ -10,13 +10,13 @@ import {
   InputGroup,
   InputRightElement,
   SimpleGrid,
+  Spacer,
   Stack,
   Text,
 } from "@chakra-ui/react";
 import {
   getAzeroStakingContract,
   getInwBalanceOfAddress,
-  getInwContract,
   getMasterAccount,
 } from "api/azero-staking/azero-staking";
 
@@ -61,6 +61,12 @@ import { getMaxWaitingTime } from "api/azero-staking/azero-staking";
 import { getPayableAzero } from "api/azero-staking/azero-staking";
 import { getStakeList } from "api/azero-staking/azero-staking";
 import { getStakeInfo } from "api/azero-staking/azero-staking";
+import { getApy } from "api/azero-staking/azero-staking";
+import { getInwMultiplier } from "api/azero-staking/azero-staking";
+import { getIsLocked } from "api/azero-staking/azero-staking";
+import { doUpdateAzeroApy } from "api/azero-staking/azero-staking";
+import { doUpdateInwMultiplier } from "api/azero-staking/azero-staking";
+import { getBalanceOfBondAddress } from "utils/contracts";
 
 export default function AzeroStakingAdmin() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -92,6 +98,7 @@ export default function AzeroStakingAdmin() {
       <ContractBalanceSection
         hasWithdrawalManagerRole={hasWithdrawalManagerRole}
       />
+      <ApyAndMultiplierSection />
       <RewardsBalanceSection />
       <WithdrawalRequestListSection />
       <ValidatorRewardsSection />
@@ -287,13 +294,13 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
     return () => (isMounted = false);
   }, [fetchData]);
 
-  async function handleWithdrawAzeroToStake({ receiver }) {
+  async function handleWithdrawAzeroToStake({ receiver, amount }) {
     if (!hasWithdrawalManagerRole) {
       toast.error("This account don't have Withdrawal Manager Role!");
       return;
     }
 
-    if (!expirationDuration || !receiver) {
+    if (!expirationDuration || !receiver || !amount) {
       toast.error("Invalid input!");
       return;
     }
@@ -303,12 +310,20 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
       return;
     }
 
+    if (info && info[3]?.value < amount) {
+      toast.error(
+        `Amount must be less than ${info[3]?.value.toFixed(4)} AZERO`
+      );
+      return;
+    }
+
     try {
       await doWithdrawAzeroToStake(
         api,
         currentAccount,
         expirationDuration,
-        receiver
+        receiver,
+        amount
       );
 
       delay(1000).then(() => {
@@ -388,6 +403,133 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
       toast.error("Error", error);
     }
   }
+  // rewards section
+  const [loadingInterest, setLoadingInterest] = useState(true);
+  const [interestDistAccountInfo, setInterestDistAccountInfo] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchData = async (isMounted) => {
+      try {
+        setLoadingInterest(true);
+
+        const interestDistributionContract =
+          await getInterestDistributionContract();
+
+        const interestDistributionContractBalance =
+          await getInwBalanceOfAddress({
+            address: interestDistributionContract,
+          });
+        // console.log("Staking::getInterestDistributionContract", interestDistributionContract);
+        // console.log("InterestDistributionContractBalanceAZERO", interestDistributionContractBalanceAZERO);
+        // console.log("InterestDistributionContract psp22::balanceOf INW", interestDistributionContractBalance);
+
+        const interestDistAccountInfoData = [
+          {
+            title: "Interest Distribution Contract",
+            value: interestDistributionContract,
+            valueFormatted: (
+              <AddressCopier address={interestDistributionContract} />
+            ),
+            hasTooltip: true,
+            tooltipContent: "interestDistributionContract",
+          },
+          {
+            title: "INW Balance",
+            value: interestDistributionContractBalance,
+            valueFormatted: `${formatNumDynDecimal(
+              interestDistributionContractBalance
+            )} INW`,
+            hasTooltip: true,
+            tooltipContent: "interestDistributionContractBalance",
+          },
+        ];
+
+        if (!isMounted) {
+          return;
+        }
+
+        setInterestDistAccountInfo(interestDistAccountInfoData);
+        setLoadingInterest(false);
+      } catch (error) {
+        setLoadingInterest(false);
+
+        console.log("Error", error);
+        toast.error("Error", error);
+      }
+    };
+
+    fetchData(isMounted);
+
+    return () => (isMounted = false);
+  }, []);
+
+  // Calc Unclaimed Rewards Data==============
+  const [unclaimedRewardsData, setUnclaimedRewardsData] = useState({});
+  const [loadingUnclaimed, setLoadingUnclaimed] = useState(true);
+
+  const fetchUnclaimedRewardsData = useCallback(
+    async (isMounted) => {
+      try {
+        setLoadingUnclaimed(true);
+
+        const stakeList = await getStakeList();
+
+        const listInfo = await Promise.all(
+          stakeList.map(async (addr) => {
+            const info = await getStakeInfo(api, currentAccount, addr);
+
+            const unclaimedAzero =
+              formatChainStringToNumber(info?.unclaimedAzeroReward) /
+              Math.pow(10, 12);
+
+            const unclaimedInw =
+              formatChainStringToNumber(info?.unclaimedInwReward) /
+              Math.pow(10, 12);
+
+            return { unclaimedAzero, unclaimedInw };
+          })
+        );
+
+        const totalUnclaimedRewards = listInfo?.reduce(
+          (prev, curr) => ({
+            azero: prev?.azero + curr?.unclaimedAzero,
+            inw: prev?.inw + curr?.unclaimedInw,
+          }),
+          {
+            azero: 0,
+            inw: 0,
+          }
+        );
+
+        if (!isMounted) return;
+
+        setUnclaimedRewardsData(totalUnclaimedRewards);
+        setLoadingUnclaimed(false);
+      } catch (error) {
+        setLoadingUnclaimed(false);
+        console.log("Error", error);
+        toast.error("Error", error);
+      }
+    },
+    [api, currentAccount]
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+    api && fetchUnclaimedRewardsData(isMounted);
+
+    return () => (isMounted = false);
+  }, [api, currentAccount, fetchUnclaimedRewardsData]);
+
+  const insufficientInwRewardsAmount =
+    (interestDistAccountInfo && interestDistAccountInfo[1]?.value) -
+    unclaimedRewardsData?.inw;
+
+  // ==============
+
+  // END rewards section
 
   return (
     <IWCard mb="24px" w="full" variant="outline" title="Staking">
@@ -412,6 +554,69 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
             </>
           ))
         )}
+
+        <Divider my="16px" />
+
+        {loadingInterest || loadingUnclaimed ? (
+          <Flex justify="center" align="center" py="16px">
+            <ClipLoader
+              color="#57527E"
+              loading
+              size={36}
+              speedMultiplier={1.5}
+            />
+          </Flex>
+        ) : (
+          <>
+            <Box>
+              {interestDistAccountInfo?.map(({ title, valueFormatted }) => (
+                <SimpleGrid
+                  columns={[1, 1, 2]}
+                  spacing={["0px", "0px", "24px"]}
+                >
+                  <Text mr="4px">{title}: </Text>
+                  <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
+                </SimpleGrid>
+              ))}
+
+              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
+                <Text mr="4px">Unclaimed INW Rewards: xxx </Text>
+                <Text mb={["12px", "12px", "2px"]}>
+                  {formatNumDynDecimal(unclaimedRewardsData?.inw)} INW
+                </Text>
+              </SimpleGrid>
+
+              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
+                <Text mr="4px">
+                  {insufficientInwRewardsAmount > 0
+                    ? "Excessive"
+                    : "Insufficient"}{" "}
+                  INW Amount:
+                </Text>
+                <Flex
+                  alignItems="center"
+                  color={
+                    insufficientInwRewardsAmount < 0 ? "#EA4A61" : "#8C86A5"
+                  }
+                >
+                  {insufficientInwRewardsAmount < 0 ? (
+                    <WarningTwoIcon color="#EA4A61" mr="8px" />
+                  ) : (
+                    <CheckCircleIcon color="lightgreen" mr="8px" />
+                  )}
+                  {formatNumDynDecimal(insufficientInwRewardsAmount)} INW
+                </Flex>
+              </SimpleGrid>
+
+              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
+                <Text mr="4px">Unclaimed AZERO Rewards: </Text>
+                <Text mb={["12px", "12px", "2px"]}>
+                  {formatNumDynDecimal(unclaimedRewardsData?.azero)} AZERO
+                </Text>
+              </SimpleGrid>
+            </Box>
+          </>
+        )}
       </Box>
 
       <SimpleGrid columns={[1, 1, 2]} w="full" spacing={["0px", "0px", "24px"]}>
@@ -423,6 +628,14 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
               validationSchema={() =>
                 Yup.object().shape({
                   receiver: Yup.string().required("This field is a required"),
+                  amount: Yup.number("Amount must be a number.")
+                    .max(
+                      info && info[3]?.value,
+                      `Amount must be less than or equal to ${
+                        info && info[3]?.value?.toFixed(4)
+                      } AZERO`
+                    )
+                    .required("This field is a required"),
                 })
               }
               onSubmit={async (values, formHelper) => {
@@ -460,6 +673,66 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                             value={form.values.receiver}
                             placeholder="type your receiver address here ..."
                           />
+                          <Text
+                            h="20px"
+                            color="red"
+                            textAlign="left"
+                            fontSize="14px"
+                            lineHeight="22px"
+                          >
+                            {meta.touched && meta.error ? meta.error : null}
+                          </Text>
+                        </FormControl>
+                      )}
+                    </Field>
+
+                    <Field name="amount">
+                      {({ field, form, meta }) => (
+                        <FormControl isRequired id="amount" alignItems="center">
+                          <FormLabel
+                            display="flex"
+                            ml={[0, 1]}
+                            htmlFor="amount"
+                          >
+                            <Text>Amount</Text>
+                          </FormLabel>
+
+                          <InputGroup>
+                            <InputRightElement
+                              right="10px"
+                              justifyContent="end"
+                              children={
+                                <Button
+                                  isDisabled={
+                                    isSubmitting || !hasWithdrawalManagerRole
+                                  }
+                                  size="sm"
+                                  onClick={() => {
+                                    form.setFieldValue(
+                                      field.name,
+                                      info && info[3]?.value.toFixed(4)
+                                    );
+                                  }}
+                                >
+                                  Max
+                                </Button>
+                              }
+                            />
+                            <Input
+                              {...field}
+                              id="amount"
+                              isDisabled={
+                                isSubmitting || !hasWithdrawalManagerRole
+                              }
+                              onChange={({ target }) => {
+                                form.setFieldValue(field.name, target.value);
+                              }}
+                              value={form.values.amount}
+                              placeholder="0"
+                              type="number"
+                              max={info && info[3]?.value}
+                            />
+                          </InputGroup>
                           <Text
                             h="20px"
                             color="red"
@@ -779,56 +1052,56 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
 }
 
 function RewardsBalanceSection() {
-  const { api } = useAppContext();
-  const { currentAccount } = useSelector((s) => s.wallet);
-  const [loadingInkContract, setLoadingInkContract] = useState(true);
-  const [inkContractInfo, setInkContractInfo] = useState([]);
+  // const { api } = useAppContext();
+  // const { currentAccount } = useSelector((s) => s.wallet);
+  // const [loadingInkContract, setLoadingInkContract] = useState(true);
+  // const [inkContractInfo, setInkContractInfo] = useState([]);
 
   const [loadingMasterAccount, setLoadingMasterAccount] = useState(true);
   const [masterAccountInfo, setMasterAccountInfo] = useState([]);
 
-  const [loadingInterest, setLoadingInterest] = useState(true);
-  const [interestDistAccountInfo, setInterestDistAccountInfo] = useState([]);
+  // const [loadingInterest, setLoadingInterest] = useState(true);
+  // const [interestDistAccountInfo, setInterestDistAccountInfo] = useState([]);
 
-  useEffect(() => {
-    let isMounted = true;
+  // useEffect(() => {
+  //   let isMounted = true;
 
-    const fetchData = async (isMounted) => {
-      try {
-        setLoadingInkContract(true);
+  //   const fetchData = async (isMounted) => {
+  //     try {
+  //       setLoadingInkContract(true);
 
-        const inwContract = await getInwContract();
-        // console.log("interest::getInwContract", inwContract);
+  //       const inwContract = await getInwContract();
+  //       // console.log("interest::getInwContract", inwContract);
 
-        const inkContractInfoData = [
-          {
-            title: "INW Contract",
-            value: inwContract,
-            valueFormatted: <AddressCopier address={inwContract} />,
-            hasTooltip: true,
-            tooltipContent: "inwContract",
-          },
-        ];
+  //       const inkContractInfoData = [
+  //         {
+  //           title: "INW Contract",
+  //           value: inwContract,
+  //           valueFormatted: <AddressCopier address={inwContract} />,
+  //           hasTooltip: true,
+  //           tooltipContent: "inwContract",
+  //         },
+  //       ];
 
-        if (!isMounted) {
-          return;
-        }
+  //       if (!isMounted) {
+  //         return;
+  //       }
 
-        setInkContractInfo(inkContractInfoData);
+  //       setInkContractInfo(inkContractInfoData);
 
-        setLoadingInkContract(false);
-      } catch (error) {
-        setLoadingInkContract(false);
+  //       setLoadingInkContract(false);
+  //     } catch (error) {
+  //       setLoadingInkContract(false);
 
-        console.log("Error", error);
-        toast.error("Error", error);
-      }
-    };
+  //       console.log("Error", error);
+  //       toast.error("Error", error);
+  //     }
+  //   };
 
-    fetchData(isMounted);
+  //   fetchData(isMounted);
 
-    return () => (isMounted = false);
-  }, []);
+  //   return () => (isMounted = false);
+  // }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -845,6 +1118,10 @@ function RewardsBalanceSection() {
         });
         // console.log("MasterAccountBalanceAZERO", masterAccountBalanceAZERO);
 
+        const { freeBal, frozenBal } = await getBalanceOfBondAddress({
+          address: process.env.REACT_APP_ADMIN_BOND_WALLET_ADDRESS,
+        });
+
         const masterAccountInfoData = [
           {
             title: "Master Account Address",
@@ -853,7 +1130,6 @@ function RewardsBalanceSection() {
             hasTooltip: true,
             tooltipContent: "masterAccount",
           },
-
           {
             title: "AZERO Balance",
             value: masterAccountBalanceAZERO,
@@ -862,6 +1138,31 @@ function RewardsBalanceSection() {
             )} AZERO`,
             hasTooltip: true,
             tooltipContent: "masterAccountBalanceAZERO",
+          },
+          {
+            title: "Validator Account Address",
+            value: process.env.REACT_APP_ADMIN_BOND_WALLET_ADDRESS,
+            valueFormatted: (
+              <AddressCopier
+                address={process.env.REACT_APP_ADMIN_BOND_WALLET_ADDRESS}
+              />
+            ),
+            hasTooltip: true,
+            tooltipContent: "Validator Account",
+          },
+          {
+            title: "Frozen Balance",
+            value: frozenBal,
+            valueFormatted: `${formatNumDynDecimal(frozenBal)} AZERO`,
+            hasTooltip: true,
+            tooltipContent: "frozenBal",
+          },
+          {
+            title: "Free Balance",
+            value: freeBal,
+            valueFormatted: `${formatNumDynDecimal(freeBal)} AZERO`,
+            hasTooltip: true,
+            tooltipContent: "freeBal",
           },
         ];
 
@@ -884,145 +1185,145 @@ function RewardsBalanceSection() {
     return () => (isMounted = false);
   }, []);
 
-  useEffect(() => {
-    let isMounted = true;
+  // useEffect(() => {
+  //   let isMounted = true;
 
-    const fetchData = async (isMounted) => {
-      try {
-        setLoadingInterest(true);
+  //   const fetchData = async (isMounted) => {
+  //     try {
+  //       setLoadingInterest(true);
 
-        const interestDistributionContract =
-          await getInterestDistributionContract();
+  //       const interestDistributionContract =
+  //         await getInterestDistributionContract();
 
-        const interestDistributionContractBalanceAZERO =
-          await getAzeroBalanceOfAddress({
-            address: interestDistributionContract,
-          });
+  //       const interestDistributionContractBalanceAZERO =
+  //         await getAzeroBalanceOfAddress({
+  //           address: interestDistributionContract,
+  //         });
 
-        const interestDistributionContractBalance =
-          await getInwBalanceOfAddress({
-            address: interestDistributionContract,
-          });
-        // console.log("Staking::getInterestDistributionContract", interestDistributionContract);
-        // console.log("InterestDistributionContractBalanceAZERO", interestDistributionContractBalanceAZERO);
-        // console.log("InterestDistributionContract psp22::balanceOf INW", interestDistributionContractBalance);
+  //       const interestDistributionContractBalance =
+  //         await getInwBalanceOfAddress({
+  //           address: interestDistributionContract,
+  //         });
+  //       // console.log("Staking::getInterestDistributionContract", interestDistributionContract);
+  //       // console.log("InterestDistributionContractBalanceAZERO", interestDistributionContractBalanceAZERO);
+  //       // console.log("InterestDistributionContract psp22::balanceOf INW", interestDistributionContractBalance);
 
-        const interestDistAccountInfoData = [
-          {
-            title: "Interest Distribution Contract",
-            value: interestDistributionContract,
-            valueFormatted: (
-              <AddressCopier address={interestDistributionContract} />
-            ),
-            hasTooltip: true,
-            tooltipContent: "interestDistributionContract",
-          },
-          {
-            title: "AZEROBalance",
-            value: interestDistributionContractBalanceAZERO,
-            valueFormatted: `${formatNumDynDecimal(
-              interestDistributionContractBalanceAZERO
-            )} AZERO`,
-            hasTooltip: true,
-            tooltipContent: "interestDistributionContractBalanceAZERO",
-          },
-          {
-            title: "INW Balance",
-            value: interestDistributionContractBalance,
-            valueFormatted: `${formatNumDynDecimal(
-              interestDistributionContractBalance
-            )} INW`,
-            hasTooltip: true,
-            tooltipContent: "interestDistributionContractBalance",
-          },
-        ];
+  //       const interestDistAccountInfoData = [
+  //         {
+  //           title: "Interest Distribution Contract",
+  //           value: interestDistributionContract,
+  //           valueFormatted: (
+  //             <AddressCopier address={interestDistributionContract} />
+  //           ),
+  //           hasTooltip: true,
+  //           tooltipContent: "interestDistributionContract",
+  //         },
+  //         {
+  //           title: "AZEROBalance",
+  //           value: interestDistributionContractBalanceAZERO,
+  //           valueFormatted: `${formatNumDynDecimal(
+  //             interestDistributionContractBalanceAZERO
+  //           )} AZERO`,
+  //           hasTooltip: true,
+  //           tooltipContent: "interestDistributionContractBalanceAZERO",
+  //         },
+  //         {
+  //           title: "INW Balance",
+  //           value: interestDistributionContractBalance,
+  //           valueFormatted: `${formatNumDynDecimal(
+  //             interestDistributionContractBalance
+  //           )} INW`,
+  //           hasTooltip: true,
+  //           tooltipContent: "interestDistributionContractBalance",
+  //         },
+  //       ];
 
-        if (!isMounted) {
-          return;
-        }
+  //       if (!isMounted) {
+  //         return;
+  //       }
 
-        setInterestDistAccountInfo(interestDistAccountInfoData);
-        setLoadingInterest(false);
-      } catch (error) {
-        setLoadingInterest(false);
+  //       setInterestDistAccountInfo(interestDistAccountInfoData);
+  //       setLoadingInterest(false);
+  //     } catch (error) {
+  //       setLoadingInterest(false);
 
-        console.log("Error", error);
-        toast.error("Error", error);
-      }
-    };
+  //       console.log("Error", error);
+  //       toast.error("Error", error);
+  //     }
+  //   };
 
-    fetchData(isMounted);
+  //   fetchData(isMounted);
 
-    return () => (isMounted = false);
-  }, []);
+  //   return () => (isMounted = false);
+  // }, []);
 
   // Calc Unclaimed Rewards Data==============
-  const [unclaimedRewardsData, setUnclaimedRewardsData] = useState({});
-  const [loadingUnclaimed, setLoadingUnclaimed] = useState(true);
+  // const [unclaimedRewardsData, setUnclaimedRewardsData] = useState({});
+  // const [loadingUnclaimed, setLoadingUnclaimed] = useState(true);
 
-  const fetchUnclaimedRewardsData = useCallback(
-    async (isMounted) => {
-      try {
-        setLoadingUnclaimed(true);
+  // const fetchUnclaimedRewardsData = useCallback(
+  //   async (isMounted) => {
+  //     try {
+  //       setLoadingUnclaimed(true);
 
-        const stakeList = await getStakeList();
+  //       const stakeList = await getStakeList();
 
-        const listInfo = await Promise.all(
-          stakeList.map(async (addr) => {
-            const info = await getStakeInfo(api, currentAccount, addr);
+  //       const listInfo = await Promise.all(
+  //         stakeList.map(async (addr) => {
+  //           const info = await getStakeInfo(api, currentAccount, addr);
 
-            const unclaimedAzero =
-              formatChainStringToNumber(info?.unclaimedAzeroReward) /
-              Math.pow(10, 12);
+  //           const unclaimedAzero =
+  //             formatChainStringToNumber(info?.unclaimedAzeroReward) /
+  //             Math.pow(10, 12);
 
-            const unclaimedInw =
-              formatChainStringToNumber(info?.unclaimedInwReward) /
-              Math.pow(10, 12);
+  //           const unclaimedInw =
+  //             formatChainStringToNumber(info?.unclaimedInwReward) /
+  //             Math.pow(10, 12);
 
-            return { unclaimedAzero, unclaimedInw };
-          })
-        );
+  //           return { unclaimedAzero, unclaimedInw };
+  //         })
+  //       );
 
-        const totalUnclaimedRewards = listInfo?.reduce(
-          (prev, curr) => ({
-            azero: prev?.azero + curr?.unclaimedAzero,
-            inw: prev?.inw + curr?.unclaimedInw,
-          }),
-          {
-            azero: 0,
-            inw: 0,
-          }
-        );
+  //       const totalUnclaimedRewards = listInfo?.reduce(
+  //         (prev, curr) => ({
+  //           azero: prev?.azero + curr?.unclaimedAzero,
+  //           inw: prev?.inw + curr?.unclaimedInw,
+  //         }),
+  //         {
+  //           azero: 0,
+  //           inw: 0,
+  //         }
+  //       );
 
-        if (!isMounted) return;
+  //       if (!isMounted) return;
 
-        setUnclaimedRewardsData(totalUnclaimedRewards);
-        setLoadingUnclaimed(false);
-      } catch (error) {
-        setLoadingUnclaimed(false);
-        console.log("Error", error);
-        toast.error("Error", error);
-      }
-    },
-    [api, currentAccount]
-  );
+  //       setUnclaimedRewardsData(totalUnclaimedRewards);
+  //       setLoadingUnclaimed(false);
+  //     } catch (error) {
+  //       setLoadingUnclaimed(false);
+  //       console.log("Error", error);
+  //       toast.error("Error", error);
+  //     }
+  //   },
+  //   [api, currentAccount]
+  // );
 
-  useEffect(() => {
-    let isMounted = true;
-    api && fetchUnclaimedRewardsData(isMounted);
+  // useEffect(() => {
+  //   let isMounted = true;
+  //   api && fetchUnclaimedRewardsData(isMounted);
 
-    return () => (isMounted = false);
-  }, [api, currentAccount, fetchUnclaimedRewardsData]);
+  //   return () => (isMounted = false);
+  // }, [api, currentAccount, fetchUnclaimedRewardsData]);
 
-  const insufficientInwRewardsAmount =
-    (interestDistAccountInfo && interestDistAccountInfo[2]?.value) -
-    unclaimedRewardsData?.inw;
-
+  // const insufficientInwRewardsAmount =
+  //   (interestDistAccountInfo && interestDistAccountInfo[2]?.value) -
+  //   unclaimedRewardsData?.inw;
+  // console.log("insufficientInwRewardsAmount", insufficientInwRewardsAmount);
   // ==============
 
   return (
     <IWCard mb="24px" w="full" variant="outline" title="Rewards & Distribution">
-      <Box pt="18px">
+      {/* <Box pt="18px">
         {loadingInkContract ? (
           <Flex justify="center" align="center" py="16px">
             <ClipLoader
@@ -1047,7 +1348,7 @@ function RewardsBalanceSection() {
             <Divider my="12px" />{" "}
           </>
         )}
-      </Box>
+      </Box> */}
 
       <Box pt="18px">
         {loadingMasterAccount ? (
@@ -1072,69 +1373,6 @@ function RewardsBalanceSection() {
                 </SimpleGrid>
               ))}{" "}
               <Divider my="12px" />
-            </Box>
-          </>
-        )}
-      </Box>
-
-      <Box pt="18px">
-        {loadingInterest || loadingUnclaimed ? (
-          <Flex justify="center" align="center" py="16px">
-            <ClipLoader
-              color="#57527E"
-              loading
-              size={36}
-              speedMultiplier={1.5}
-            />
-          </Flex>
-        ) : (
-          <>
-            <Box>
-              {interestDistAccountInfo?.map(({ title, valueFormatted }) => (
-                <SimpleGrid
-                  columns={[1, 1, 2]}
-                  spacing={["0px", "0px", "24px"]}
-                >
-                  <Text mr="4px">{title}: </Text>
-                  <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
-                </SimpleGrid>
-              ))}
-
-              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
-                <Text mr="4px">Unclaimed INW Rewards: </Text>
-                <Text mb={["12px", "12px", "2px"]}>
-                  {formatNumDynDecimal(unclaimedRewardsData?.inw)} INW
-                </Text>
-              </SimpleGrid>
-
-              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
-                <Text mr="4px">
-                  {insufficientInwRewardsAmount > 0
-                    ? "Excessive"
-                    : "Insufficient"}{" "}
-                  INW Amount:
-                </Text>
-                <Flex
-                  alignItems="center"
-                  color={
-                    insufficientInwRewardsAmount < 0 ? "#EA4A61" : "#8C86A5"
-                  }
-                >
-                  {insufficientInwRewardsAmount < 0 ? (
-                    <WarningTwoIcon color="#EA4A61" mr="8px" />
-                  ) : (
-                    <CheckCircleIcon color="lightgreen" mr="8px" />
-                  )}
-                  {formatNumDynDecimal(insufficientInwRewardsAmount)} INW
-                </Flex>
-              </SimpleGrid>
-
-              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
-                <Text mr="4px">Unclaimed AZERO Rewards: </Text>
-                <Text mb={["12px", "12px", "2px"]}>
-                  {formatNumDynDecimal(unclaimedRewardsData?.azero)} AZERO
-                </Text>
-              </SimpleGrid>
             </Box>
           </>
         )}
@@ -1419,5 +1657,195 @@ function ValidatorRewardsSection() {
         </>
       )}
     </>
+  );
+}
+
+function ApyAndMultiplierSection() {
+  const { currentAccount } = useSelector((s) => s.wallet);
+  const { api } = useAppContext();
+
+  const [apy, setApy] = useState(null);
+  const [inwMultiplier, setInwMultiplier] = useState(null);
+
+  const fetchApyAndMultiplier = useCallback(async () => {
+    const apy = await getApy();
+
+    // 5 ~ 5% // 500 ~500%
+    setApy(apy);
+    const inwMultiplier = await getInwMultiplier();
+
+    // 10 ~ 10 INW/day
+    setInwMultiplier(inwMultiplier);
+  }, []);
+
+  useEffect(() => {
+    api && fetchApyAndMultiplier();
+  }, [api, fetchApyAndMultiplier]);
+
+  const [isLocked, setIsLocked] = useState(false);
+  const [hasAdminRole, setHasAdminRole] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const isLocked = await getIsLocked();
+      setIsLocked(isLocked);
+
+      const hasAdminRole = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        my_azero_staking.CONTRACT_ABI,
+        my_azero_staking.CONTRACT_ADDRESS,
+        0,
+        "accessControl::hasRole",
+        3739740293,
+        currentAccount?.address
+      );
+      setHasAdminRole(hasAdminRole.toHuman().Ok);
+    };
+
+    fetchData();
+  }, [currentAccount?.address]);
+
+  const [newApy, setNewApy] = useState("");
+
+  async function handleUpdateAzeroApy() {
+    if (!hasAdminRole) {
+      toast.error("You don't have Admin Role!");
+      return;
+    }
+
+    if (!isLocked) {
+      toast.error("Contract is not locked!");
+      return;
+    }
+
+    await doUpdateAzeroApy(api, currentAccount, newApy * 100);
+
+    delay(1000).then(() => {
+      fetchApyAndMultiplier();
+      setNewApy("");
+    });
+  }
+
+  const [newInwMultiplier, setNewInwMultiplier] = useState("");
+
+  async function handleUpdateInwMultiplier() {
+    if (!hasAdminRole) {
+      toast.error("You don't have Admin Role!");
+      return;
+    }
+
+    if (!isLocked) {
+      toast.error("Contract is not locked!");
+      return;
+    }
+
+    await doUpdateInwMultiplier(api, currentAccount, newInwMultiplier * 10000);
+
+    delay(1000).then(() => {
+      fetchApyAndMultiplier();
+      setNewInwMultiplier("");
+    });
+  }
+
+  return (
+    <Stack
+      w="full"
+      my="24px"
+      spacing="24px"
+      alignItems="start"
+      direction={{ base: "column", lg: "row" }}
+    >
+      {/* apy */}
+      <IWCard
+        w="full"
+        variant="outline"
+        title={
+          <Flex>
+            <Text as="span">AZERO APY</Text>
+            <Spacer />
+            <Text as="span">{formatNumDynDecimal(apy) || 0} %/year</Text>
+          </Flex>
+        }
+      >
+        <IWCard mt="16px" w="full" variant="solid">
+          <Flex flexDirection={["column-reverse", "column-reverse", "row"]}>
+            <Button
+              mx={["0px", "0px", "16px"]}
+              w={["full", "full", "40%"]}
+              mt={["16px", "16px", "0px"]}
+              isDisabled={!newApy || !hasAdminRole}
+              onClick={handleUpdateAzeroApy}
+            >
+              Update APY
+            </Button>
+
+            <InputGroup w={["full", "full", "60%"]}>
+              <InputRightElement
+                right={["10px", "10px", "30px"]}
+                justifyContent="end"
+                children={"%/year"}
+              />
+              <Input
+                isDisabled={!hasAdminRole}
+                type="number"
+                pr="80px"
+                placeholder="0"
+                textAlign="right"
+                mx={["0px", "0px", "16px"]}
+                value={newApy}
+                onChange={({ target }) => setNewApy(target.value)}
+              />
+            </InputGroup>
+          </Flex>
+        </IWCard>
+      </IWCard>
+
+      {/* inwMultiplier */}
+      <IWCard
+        w="full"
+        variant="outline"
+        title={
+          <Flex>
+            <Text as="span">INW Multiplier</Text>
+            <Spacer />
+            <Text as="span">
+              {formatNumDynDecimal(inwMultiplier) || 0} INW/day
+            </Text>
+          </Flex>
+        }
+      >
+        <IWCard mt="16px" w="full" variant="solid">
+          <Flex flexDirection={["column-reverse", "column-reverse", "row"]}>
+            <Button
+              mx={["0px", "0px", "16px"]}
+              w={["full", "full", "40%"]}
+              mt={["16px", "16px", "0px"]}
+              isDisabled={!newInwMultiplier || !hasAdminRole}
+              onClick={handleUpdateInwMultiplier}
+            >
+              Update Multiplier
+            </Button>
+            <InputGroup w={["full", "full", "60%"]}>
+              <InputRightElement
+                right={["10px", "10px", "30px"]}
+                justifyContent="end"
+                children={"INW/day"}
+              />
+              <Input
+                isDisabled={!hasAdminRole}
+                type="number"
+                pr="90px"
+                placeholder="0"
+                textAlign="right"
+                mx={["0px", "0px", "16px"]}
+                value={newInwMultiplier}
+                onChange={({ target }) => setNewInwMultiplier(target.value)}
+              />
+            </InputGroup>
+          </Flex>
+        </IWCard>
+      </IWCard>
+    </Stack>
   );
 }

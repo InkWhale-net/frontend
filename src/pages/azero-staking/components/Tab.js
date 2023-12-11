@@ -97,7 +97,7 @@ const LeftColumn = () => {
   }, [api, currentAccount]);
 
   return (
-    <VStack w={["full", "full", "auto"]} spacing="24px">
+    <VStack w={["full", "full", "full"]} maxW="380px" spacing="24px">
       {/* Side column */}
       <IWCardOneColumn
         w="full"
@@ -223,6 +223,8 @@ function StakingInfo() {
   }, 1000);
 
   const [nextClaimTime, setNextClaimTime] = useState(0);
+  const [lastAzeroInterestTopupTimer, setLastAzeroInterestTopupTimer] =
+    useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -235,7 +237,7 @@ function StakingInfo() {
         parseInt(rewardsClaimWaitingTime) +
         tenMins +
         oneDay;
-
+      setLastAzeroInterestTopupTimer(lastAzeroInterestTopup);
       setNextClaimTime(nextTime);
     };
 
@@ -248,19 +250,9 @@ function StakingInfo() {
       return;
     }
 
-    // if (info[4] >= lastAzeroInterestTopupTimer) {
-    //   console.log("Wait until there is a new top-ups for azero interest ");
-    //   toast.error("Invalid Time To Claim Rewards!");
-    //   return;
-    // }
-
-    if (
-      info &&
-      info[4] !== "0" &&
-      parseInt(info[4]) + 60000 * parseInt(info[5]) > Date.now()
-    ) {
-      console.log("Wait min time between 2 consecutive claims");
-      toast.error("Invalid Time To Claim Rewards..");
+    if (parseInt(info[4]) !== 0 && info[4] >= lastAzeroInterestTopupTimer) {
+      console.log("Wait until there is a new top-ups for azero interest ");
+      toast.error("Invalid Time To Claim Rewards!");
       return;
     }
 
@@ -385,7 +377,7 @@ function StakingInfo() {
                 Date.now() <= nextClaimTime ||
                 (info &&
                   info[4] !== "0" &&
-                  parseInt(info[4]) + 60000 * parseInt(info[5]) > Date.now())
+                  info[4] >= lastAzeroInterestTopupTimer)
               }
               onClick={() => handleClaimRewards()}
             >
@@ -397,7 +389,7 @@ function StakingInfo() {
         {Date.now() <= nextClaimTime ? (
           <Alert status="warning">
             <AlertIcon />
-            User can claim the rewards approximately every 24 hours.
+            User can claim the rewards approximately every 48 hours.
           </Alert>
         ) : (
           ""
