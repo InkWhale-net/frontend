@@ -1,8 +1,8 @@
 const my_interest_distribution = {
-  CONTRACT_ADDRESS: "5H8ip2uNJZBzU2r3VTGFqha5JqCgCMHXCRYczoSvYBZncQHj",
+  CONTRACT_ADDRESS: "5DCN4HRkvhLk44KEEHqEq5rStJc64gf38Bq4wNa6Hkxb7wgr",
   CONTRACT_ABI: {
     source: {
-      hash: "0x08bcac8aad5d66e47415134a52537f9662867ed9a2131dfbeca8b0d0df7d9c8a",
+      hash: "0xaef5079f4fdafed91357458d785a60bfd367e65fb33ed36a4ac142eeb9eea90a",
       language: "ink! 4.3.0",
       compiler: "rustc 1.68.0",
       build_info: {
@@ -24,13 +24,6 @@ const my_interest_distribution = {
       constructors: [
         {
           args: [
-            {
-              label: "inw_contract",
-              type: {
-                displayName: ["AccountId"],
-                type: 0,
-              },
-            },
             {
               label: "azero_staking_contract",
               type: {
@@ -144,6 +137,36 @@ const my_interest_distribution = {
         {
           args: [
             {
+              label: "value",
+              type: {
+                displayName: ["admintrait_external", "WithdrawFeeInput1"],
+                type: 19,
+              },
+            },
+            {
+              label: "receiver",
+              type: {
+                displayName: ["admintrait_external", "WithdrawFeeInput2"],
+                type: 0,
+              },
+            },
+          ],
+          default: false,
+          docs: [
+            " This function allows contract owner to withdraw contract balance to his account.",
+          ],
+          label: "AdminTrait::withdraw_fee",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 6,
+          },
+          selector: "0x07573e99",
+        },
+        {
+          args: [
+            {
               label: "psp22_contract_address",
               type: {
                 displayName: ["admintrait_external", "TranferPsp22Input1"],
@@ -181,141 +204,11 @@ const my_interest_distribution = {
         {
           args: [
             {
-              label: "value",
-              type: {
-                displayName: ["admintrait_external", "WithdrawFeeInput1"],
-                type: 19,
-              },
-            },
-            {
-              label: "receiver",
-              type: {
-                displayName: ["admintrait_external", "WithdrawFeeInput2"],
-                type: 0,
-              },
-            },
-          ],
-          default: false,
-          docs: [
-            " This function allows contract owner to withdraw contract balance to his account.",
-          ],
-          label: "AdminTrait::withdraw_fee",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 6,
-          },
-          selector: "0x07573e99",
-        },
-        {
-          args: [
-            {
-              label: "interest_account_rate",
+              label: "azero_staking_contract",
               type: {
                 displayName: [
                   "interestdistributiontrait_external",
-                  "SetInterestAccountRateInput1",
-                ],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "InterestDistributionTrait::set_interest_account_rate",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 6,
-          },
-          selector: "0x30e95acf",
-        },
-        {
-          args: [
-            {
-              label: "amount",
-              type: {
-                displayName: [
-                  "interestdistributiontrait_external",
-                  "DistributeInwRewardInput1",
-                ],
-                type: 19,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "InterestDistributionTrait::distribute_inw_reward",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 6,
-          },
-          selector: "0x9a354382",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "InterestDistributionTrait::get_azero_staking_contract",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 20,
-          },
-          selector: "0x5819cac9",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "InterestDistributionTrait::get_master_account",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 20,
-          },
-          selector: "0x91a1c2eb",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "InterestDistributionTrait::get_inw_contract",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 20,
-          },
-          selector: "0x63f699f9",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "InterestDistributionTrait::get_azero_minimum_balance",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 21,
-          },
-          selector: "0xd1faf01d",
-        },
-        {
-          args: [
-            {
-              label: "inw_contract",
-              type: {
-                displayName: [
-                  "interestdistributiontrait_external",
-                  "SetInwContractInput1",
+                  "SetAzeroStakingContractInput1",
                 ],
                 type: 0,
               },
@@ -323,14 +216,27 @@ const my_interest_distribution = {
           ],
           default: false,
           docs: [],
-          label: "InterestDistributionTrait::set_inw_contract",
+          label: "InterestDistributionTrait::set_azero_staking_contract",
           mutates: true,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
             type: 6,
           },
-          selector: "0xc2c9c903",
+          selector: "0x77b08da0",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "InterestDistributionTrait::distribute_azero",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 6,
+          },
+          selector: "0x2707bb36",
         },
         {
           args: [
@@ -360,27 +266,77 @@ const my_interest_distribution = {
           args: [],
           default: false,
           docs: [],
-          label: "InterestDistributionTrait::get_total_rate",
+          label: "InterestDistributionTrait::get_master_account",
           mutates: false,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 22,
+            type: 20,
           },
-          selector: "0x55ef99cc",
+          selector: "0x91a1c2eb",
         },
         {
           args: [],
           default: false,
           docs: [],
-          label: "InterestDistributionTrait::get_azero_balance",
+          label: "InterestDistributionTrait::get_total_rate",
           mutates: false,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
             type: 21,
           },
-          selector: "0x07a81ca2",
+          selector: "0x55ef99cc",
+        },
+        {
+          args: [
+            {
+              label: "interest_account_rate",
+              type: {
+                displayName: [
+                  "interestdistributiontrait_external",
+                  "SetInterestAccountRateInput1",
+                ],
+                type: 3,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "InterestDistributionTrait::set_interest_account_rate",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 6,
+          },
+          selector: "0x30e95acf",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "InterestDistributionTrait::get_azero_staking_contract",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 20,
+          },
+          selector: "0x5819cac9",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "InterestDistributionTrait::get_interest_account_rate",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 21,
+          },
+          selector: "0xbaaa0723",
         },
         {
           args: [
@@ -407,82 +363,17 @@ const my_interest_distribution = {
           selector: "0x1ea0ae5f",
         },
         {
-          args: [
-            {
-              label: "azero_staking_contract",
-              type: {
-                displayName: [
-                  "interestdistributiontrait_external",
-                  "SetAzeroStakingContractInput1",
-                ],
-                type: 0,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "InterestDistributionTrait::set_azero_staking_contract",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 6,
-          },
-          selector: "0x77b08da0",
-        },
-        {
           args: [],
           default: false,
           docs: [],
-          label: "InterestDistributionTrait::get_interest_account_rate",
+          label: "InterestDistributionTrait::get_azero_balance",
           mutates: false,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
             type: 22,
           },
-          selector: "0xbaaa0723",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "InterestDistributionTrait::distribute_azero",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 6,
-          },
-          selector: "0x2707bb36",
-        },
-        {
-          args: [
-            {
-              label: "role",
-              type: {
-                displayName: ["accesscontrol_external", "RenounceRoleInput1"],
-                type: 4,
-              },
-            },
-            {
-              label: "account",
-              type: {
-                displayName: ["accesscontrol_external", "RenounceRoleInput2"],
-                type: 23,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AccessControl::renounce_role",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 24,
-          },
-          selector: "0xeaf1248a",
+          selector: "0x07a81ca2",
         },
         {
           args: [
@@ -517,6 +408,62 @@ const my_interest_distribution = {
             {
               label: "role",
               type: {
+                displayName: ["accesscontrol_external", "RenounceRoleInput1"],
+                type: 4,
+              },
+            },
+            {
+              label: "account",
+              type: {
+                displayName: ["accesscontrol_external", "RenounceRoleInput2"],
+                type: 23,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AccessControl::renounce_role",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 24,
+          },
+          selector: "0xeaf1248a",
+        },
+        {
+          args: [
+            {
+              label: "role",
+              type: {
+                displayName: ["accesscontrol_external", "HasRoleInput1"],
+                type: 4,
+              },
+            },
+            {
+              label: "address",
+              type: {
+                displayName: ["accesscontrol_external", "HasRoleInput2"],
+                type: 23,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "AccessControl::has_role",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 26,
+          },
+          selector: "0xc1d9ac18",
+        },
+        {
+          args: [
+            {
+              label: "role",
+              type: {
                 displayName: ["accesscontrol_external", "GetRoleAdminInput1"],
                 type: 4,
               },
@@ -529,7 +476,7 @@ const my_interest_distribution = {
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 26,
+            type: 28,
           },
           selector: "0x83da3bb2",
         },
@@ -566,34 +513,6 @@ const my_interest_distribution = {
             {
               label: "role",
               type: {
-                displayName: ["accesscontrol_external", "HasRoleInput1"],
-                type: 4,
-              },
-            },
-            {
-              label: "address",
-              type: {
-                displayName: ["accesscontrol_external", "HasRoleInput2"],
-                type: 23,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "AccessControl::has_role",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 27,
-          },
-          selector: "0xc1d9ac18",
-        },
-        {
-          args: [
-            {
-              label: "role",
-              type: {
                 displayName: [
                   "accesscontrolenumerable_external",
                   "GetRoleMemberCountInput1",
@@ -609,7 +528,7 @@ const my_interest_distribution = {
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 26,
+            type: 28,
           },
           selector: "0xf1b1a9d7",
         },
@@ -749,15 +668,6 @@ const my_interest_distribution = {
                 layout: {
                   struct: {
                     fields: [
-                      {
-                        layout: {
-                          leaf: {
-                            key: "0x00000000",
-                            ty: 0,
-                          },
-                        },
-                        name: "inw_contract",
-                      },
                       {
                         layout: {
                           leaf: {
@@ -1411,155 +1321,167 @@ const my_interest_distribution = {
                 },
                 {
                   index: 81,
-                  name: "WithdrawError",
+                  name: "WithdrawalRequestIsNotCancellable",
                 },
                 {
                   index: 82,
-                  name: "RequestNotForClaimer",
+                  name: "WithdrawError",
                 },
                 {
                   index: 83,
-                  name: "NoWithdrawalRequestInfo",
+                  name: "RequestNotForClaimer",
                 },
                 {
                   index: 84,
-                  name: "NoStakeInfoFound",
+                  name: "RequestNotForCaller",
                 },
                 {
                   index: 85,
-                  name: "CannotGetWaitingList",
+                  name: "NoWithdrawalRequestInfo",
                 },
                 {
                   index: 86,
-                  name: "CannotGetWithdrawableAmount",
+                  name: "NoStakeInfoFound",
                 },
                 {
                   index: 87,
-                  name: "InvalidWithdrawalAmount",
+                  name: "CannotGetWaitingList",
                 },
                 {
                   index: 88,
-                  name: "CannotUpdateUnclaimedRewards",
+                  name: "CannotGetWithdrawableAmount",
                 },
                 {
                   index: 89,
-                  name: "CannotUpdateLastUnclaimedRewards",
+                  name: "InvalidWithdrawalAmount",
                 },
                 {
                   index: 90,
-                  name: "InvalidCapAmount",
+                  name: "CannotUpdateUnclaimedRewards",
                 },
                 {
                   index: 91,
-                  name: "InvalidWhitelistAmount",
+                  name: "CannotUpdateLastUnclaimedRewards",
                 },
                 {
                   index: 92,
-                  name: "CapExceeded",
+                  name: "InvalidCapAmount",
                 },
                 {
                   index: 93,
-                  name: "CannotCollectInwV1",
+                  name: "InvalidWhitelistAmount",
                 },
                 {
                   index: 94,
-                  name: "InvalidWithdrawalRequestStatus",
+                  name: "CapExceeded",
                 },
                 {
                   index: 95,
-                  name: "InvalidWaitingRequestIndex",
+                  name: "CannotCollectInwV1",
                 },
                 {
                   index: 96,
-                  name: "IsNotWithdrawable",
+                  name: "InvalidWithdrawalRequestStatus",
                 },
                 {
                   index: 97,
-                  name: "CannotCollectInwV2",
+                  name: "InvalidWaitingRequestIndex",
                 },
                 {
                   index: 98,
-                  name: "CannotMintInwV2",
+                  name: "IsNotWithdrawable",
                 },
                 {
                   index: 99,
-                  name: "CannotTransferInwV1",
+                  name: "CannotCollectInwV2",
                 },
                 {
                   index: 100,
-                  name: "InvalidIsLockedInput",
+                  name: "CannotMintInwV2",
                 },
                 {
                   index: 101,
-                  name: "InvalidTimeToClaimRewards",
+                  name: "CannotTransferInwV1",
                 },
                 {
                   index: 102,
-                  name: "NotEnoughAzeroReward",
+                  name: "InvalidIsLockedInput",
                 },
                 {
                   index: 103,
-                  name: "NotEnoughInwReward",
+                  name: "InvalidTimeToClaimRewards",
                 },
                 {
                   index: 104,
-                  name: "RequestToClaimRewardsFirst",
+                  name: "NotEnoughAzeroReward",
                 },
                 {
                   index: 105,
-                  name: "InvalidTotalRate",
+                  name: "NotEnoughInwReward",
                 },
                 {
                   index: 106,
-                  name: "InvalidInterestAccountRate",
+                  name: "RequestToClaimRewardsFirst",
                 },
                 {
                   index: 107,
-                  name: "NoAzeroToDistribute",
+                  name: "InvalidTotalRate",
                 },
                 {
                   index: 108,
-                  name: "CannotTopupAzeroInterestAccount",
+                  name: "InvalidInterestAccountRate",
                 },
                 {
                   index: 109,
-                  name: "NoNewAzeroTopup",
+                  name: "NoAzeroToDistribute",
                 },
                 {
                   index: 110,
-                  name: "NotInterestDistributionContract",
+                  name: "CannotTopupAzeroInterestAccount",
                 },
                 {
                   index: 111,
-                  name: "NotAzeroStakingContract",
+                  name: "NoNewAzeroTopup",
                 },
                 {
                   index: 112,
-                  name: "CannotTransferToInterestAccount",
+                  name: "NotInterestDistributionContract",
                 },
                 {
                   index: 113,
-                  name: "CannotTransferToMasterAccount",
+                  name: "NotAzeroStakingContract",
                 },
                 {
                   index: 114,
-                  name: "CheckedOperationsTimeLength",
+                  name: "CannotTransferToInterestAccount",
                 },
                 {
                   index: 115,
-                  name: "CheckedOperationsAzeroInterestAccount",
+                  name: "CannotTransferToMasterAccount",
                 },
                 {
                   index: 116,
-                  name: "CheckedOperationsInwInterestAccount",
+                  name: "CheckedOperationsTimeLength",
                 },
                 {
                   index: 117,
-                  name: "CheckedOperationsUnclaimedAzeroReward",
+                  name: "CheckedOperationsAzeroInterestAccount",
                 },
                 {
                   index: 118,
+                  name: "CheckedOperationsInwInterestAccount",
+                },
+                {
+                  index: 119,
+                  name: "CheckedOperationsUnclaimedAzeroReward",
+                },
+                {
+                  index: 120,
                   name: "CheckedOperationsUnclaimedInwReward",
+                },
+                {
+                  index: 121,
+                  name: "IsSelectingRequestsToPay",
                 },
               ],
             },
@@ -1972,46 +1894,6 @@ const my_interest_distribution = {
                 {
                   fields: [
                     {
-                      type: 19,
-                    },
-                  ],
-                  index: 0,
-                  name: "Ok",
-                },
-                {
-                  fields: [
-                    {
-                      type: 16,
-                    },
-                  ],
-                  index: 1,
-                  name: "Err",
-                },
-              ],
-            },
-          },
-          params: [
-            {
-              name: "T",
-              type: 19,
-            },
-            {
-              name: "E",
-              type: 16,
-            },
-          ],
-          path: ["Result"],
-        },
-      },
-      {
-        id: 22,
-        type: {
-          def: {
-            variant: {
-              variants: [
-                {
-                  fields: [
-                    {
                       type: 3,
                     },
                   ],
@@ -2034,6 +1916,46 @@ const my_interest_distribution = {
             {
               name: "T",
               type: 3,
+            },
+            {
+              name: "E",
+              type: 16,
+            },
+          ],
+          path: ["Result"],
+        },
+      },
+      {
+        id: 22,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
+                  fields: [
+                    {
+                      type: 19,
+                    },
+                  ],
+                  index: 0,
+                  name: "Ok",
+                },
+                {
+                  fields: [
+                    {
+                      type: 16,
+                    },
+                  ],
+                  index: 1,
+                  name: "Err",
+                },
+              ],
+            },
+          },
+          params: [
+            {
+              name: "T",
+              type: 19,
             },
             {
               name: "E",
@@ -2163,6 +2085,54 @@ const my_interest_distribution = {
                 {
                   fields: [
                     {
+                      type: 27,
+                    },
+                  ],
+                  index: 0,
+                  name: "Ok",
+                },
+                {
+                  fields: [
+                    {
+                      type: 16,
+                    },
+                  ],
+                  index: 1,
+                  name: "Err",
+                },
+              ],
+            },
+          },
+          params: [
+            {
+              name: "T",
+              type: 27,
+            },
+            {
+              name: "E",
+              type: 16,
+            },
+          ],
+          path: ["Result"],
+        },
+      },
+      {
+        id: 27,
+        type: {
+          def: {
+            primitive: "bool",
+          },
+        },
+      },
+      {
+        id: 28,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
+                  fields: [
+                    {
                       type: 4,
                     },
                   ],
@@ -2192,54 +2162,6 @@ const my_interest_distribution = {
             },
           ],
           path: ["Result"],
-        },
-      },
-      {
-        id: 27,
-        type: {
-          def: {
-            variant: {
-              variants: [
-                {
-                  fields: [
-                    {
-                      type: 28,
-                    },
-                  ],
-                  index: 0,
-                  name: "Ok",
-                },
-                {
-                  fields: [
-                    {
-                      type: 16,
-                    },
-                  ],
-                  index: 1,
-                  name: "Err",
-                },
-              ],
-            },
-          },
-          params: [
-            {
-              name: "T",
-              type: 28,
-            },
-            {
-              name: "E",
-              type: 16,
-            },
-          ],
-          path: ["Result"],
-        },
-      },
-      {
-        id: 28,
-        type: {
-          def: {
-            primitive: "bool",
-          },
         },
       },
       {
