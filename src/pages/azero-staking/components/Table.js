@@ -88,3 +88,61 @@ export function ClaimRewardsTable({ tableBody }) {
     </Stack>
   );
 }
+
+export function TxHistoryTable({ tableBody }) {
+  const tableHeader = [
+    {
+      name: "blockNumber",
+      hasTooltip: false,
+      tooltipContent: "",
+      label: "Block Number",
+    },
+    {
+      name: "requestUserAddress",
+      hasTooltip: true,
+      tooltipContent: `Request Status tooltip`,
+      label: "Account",
+    },
+    {
+      name: "requestId",
+      hasTooltip: false,
+      tooltipContent: "",
+      label: "Request Id",
+    },
+
+    {
+      name: "azeroAmount",
+      hasTooltip: false,
+      tooltipContent: "",
+      label: "Amount",
+    },
+    {
+      name: "stakeStatus",
+      hasTooltip: false,
+      tooltipContent: "",
+      label: "Status",
+    },
+    {
+      name: "dateTime",
+      hasTooltip: false,
+      tooltipContent: ``,
+      label: "Time ",
+    },
+  ];
+
+  const tableData = {
+    tableHeader,
+    tableBody,
+  };
+
+  return (
+    <Stack
+      w="full"
+      spacing="30px"
+      alignItems="start"
+      direction={{ base: "column" }}
+    >
+      <IWTable {...tableData} isDisableRowClick />
+    </Stack>
+  );
+}

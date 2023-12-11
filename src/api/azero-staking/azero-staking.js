@@ -296,7 +296,8 @@ export async function doWithdrawAzeroToStake(
   api,
   currentAccount,
   expirationDuration,
-  receiver
+  receiver,
+  amount
 ) {
   return await execContractTx(
     currentAccount,
@@ -306,7 +307,8 @@ export async function doWithdrawAzeroToStake(
     0,
     "azeroStakingTrait::withdrawAzeroToStake",
     expirationDuration,
-    receiver
+    receiver,
+    formatNumToBN(amount)
   );
 }
 

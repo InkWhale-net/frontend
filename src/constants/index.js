@@ -83,7 +83,14 @@ export const ADDRESSES_INW = {
   INW_TEAM: "5DtKc7qBE3fmGLHWGbqtYdvhBxkWpTfPfvGABsoqTVyesLsQ",
 };
 
-// pub status: u8 // 0: waiting, 1: is Ready to unstake, 2: unstaked
+/*
+  pub status: u8
+  0: waiting,
+  1: is Ready to unstake,
+  2: unstaked,
+  3: cancelled
+ */
+
 export const stakeStatus = {
   PENDING: "Pending",
   READY: "Ready To Unstake",
