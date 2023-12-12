@@ -130,8 +130,6 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
         ret
       );
       const azeroStakeBalance = await getAzeroStakeBalance();
-      const azeroInterestBalance = await getAzeroInterestBalance();
-      const inwInterestBalance = await getInwInterestBalance();
 
       // console.log("interest::getAzeroStakingContract", azeroStakingContract);
       // console.log("Staking::getAzeroBalance", azeroBalanceOfStakingContract);
@@ -150,8 +148,6 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
         azeroBalance,
         azeroStakeBalance,
         withdrawableAzero,
-        azeroInterestBalance,
-        inwInterestBalance,
         maxWaitingTime,
         waitingListInfo,
         payableAzero,
@@ -161,8 +157,6 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
           azeroBalance,
           azeroStakeBalance,
           withdrawableAzero,
-          azeroInterestBalance,
-          inwInterestBalance,
           maxWaitingTime,
           waitingListInfo,
           payableAzero,
@@ -208,22 +202,6 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
               valueFormatted: `${formatNumDynDecimal(withdrawableAzero)} AZERO`,
               hasTooltip: true,
               tooltipContent: "withdrawableAzero",
-            },
-            {
-              title: "AZERO Interest Balance",
-              value: azeroInterestBalance,
-              valueFormatted: `${formatNumDynDecimal(
-                azeroInterestBalance
-              )} AZERO`,
-              hasTooltip: true,
-              tooltipContent: "azeroInterestBalance",
-            },
-            {
-              title: "INW Interest Balance",
-              value: inwInterestBalance,
-              valueFormatted: `${formatNumDynDecimal(inwInterestBalance)} INW`,
-              hasTooltip: true,
-              tooltipContent: "inwInterestBalance",
             },
             {
               title: "Withdrawal Waiting Time",
@@ -417,13 +395,8 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
         const interestDistributionContract =
           await getInterestDistributionContract();
 
-        const interestDistributionContractBalance =
-          await getInwBalanceOfAddress({
-            address: interestDistributionContract,
-          });
-        // console.log("Staking::getInterestDistributionContract", interestDistributionContract);
-        // console.log("InterestDistributionContractBalanceAZERO", interestDistributionContractBalanceAZERO);
-        // console.log("InterestDistributionContract psp22::balanceOf INW", interestDistributionContractBalance);
+        const inwInterestBalance = await getInwInterestBalance();
+        const azeroInterestBalance = await getAzeroInterestBalance();
 
         const interestDistAccountInfoData = [
           {
@@ -436,13 +409,20 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
             tooltipContent: "interestDistributionContract",
           },
           {
-            title: "INW Balance",
-            value: interestDistributionContractBalance,
-            valueFormatted: `${formatNumDynDecimal(
-              interestDistributionContractBalance
-            )} INW`,
+            title: "INW Interest Balance",
+            value: inwInterestBalance,
+            valueFormatted: `${formatNumDynDecimal(inwInterestBalance)} INW`,
             hasTooltip: true,
-            tooltipContent: "interestDistributionContractBalance",
+            tooltipContent: "inwInterestBalance",
+          },
+          {
+            title: "AZERO Interest Balance",
+            value: azeroInterestBalance,
+            valueFormatted: `${formatNumDynDecimal(
+              azeroInterestBalance
+            )} AZERO`,
+            hasTooltip: true,
+            tooltipContent: "azeroInterestBalance",
           },
         ];
 
@@ -527,12 +507,16 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
     (interestDistAccountInfo && interestDistAccountInfo[1]?.value) -
     unclaimedRewardsData?.inw;
 
+  const insufficientAzeroRewardsAmount =
+    (interestDistAccountInfo && interestDistAccountInfo[2]?.value) -
+    unclaimedRewardsData?.azero;
+
   // ==============
 
   // END rewards section
 
   return (
-    <IWCard mb="24px" w="full" variant="outline" title="Staking">
+    <IWCard mb="24px" w="full" variant="outline" title="Staking & Rewards">
       <Box pt="18px">
         {loading ? (
           <Flex justify="center" align="center" py="16px">
@@ -550,7 +534,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                 <Text mr="4px">{title}: </Text>
                 <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
               </SimpleGrid>
-              {idx === 6 && <Divider my="16px" />}
+              {idx === 4 && <Divider my="16px" />}
             </>
           ))
         )}
@@ -569,18 +553,20 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
         ) : (
           <>
             <Box>
-              {interestDistAccountInfo?.map(({ title, valueFormatted }) => (
-                <SimpleGrid
-                  columns={[1, 1, 2]}
-                  spacing={["0px", "0px", "24px"]}
-                >
-                  <Text mr="4px">{title}: </Text>
-                  <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
-                </SimpleGrid>
-              ))}
+              {interestDistAccountInfo
+                ?.slice(0, 1)
+                ?.map(({ title, valueFormatted }) => (
+                  <SimpleGrid
+                    columns={[1, 1, 2]}
+                    spacing={["0px", "0px", "24px"]}
+                  >
+                    <Text mr="4px">{title}: </Text>
+                    <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
+                  </SimpleGrid>
+                ))}
 
-              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
-                <Text mr="4px">Unclaimed INW Rewards: xxx </Text>
+              {/* <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
+                <Text mr="4px">Unclaimed INW Rewards: </Text>
                 <Text mb={["12px", "12px", "2px"]}>
                   {formatNumDynDecimal(unclaimedRewardsData?.inw)} INW
                 </Text>
@@ -606,7 +592,36 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                   )}
                   {formatNumDynDecimal(insufficientInwRewardsAmount)} INW
                 </Flex>
-              </SimpleGrid>
+              </SimpleGrid> */}
+            </Box>
+          </>
+        )}
+
+        {/* <Divider my="16px" />
+
+        {loadingInterest || loadingUnclaimed ? (
+          <Flex justify="center" align="center" py="16px">
+            <ClipLoader
+              color="#57527E"
+              loading
+              size={36}
+              speedMultiplier={1.5}
+            />
+          </Flex>
+        ) : (
+          <>
+            <Box>
+              {interestDistAccountInfo
+                ?.slice(-1)
+                ?.map(({ title, valueFormatted }) => (
+                  <SimpleGrid
+                    columns={[1, 1, 2]}
+                    spacing={["0px", "0px", "24px"]}
+                  >
+                    <Text mr="4px">{title}: </Text>
+                    <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
+                  </SimpleGrid>
+                ))}
 
               <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
                 <Text mr="4px">Unclaimed AZERO Rewards: </Text>
@@ -614,9 +629,163 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                   {formatNumDynDecimal(unclaimedRewardsData?.azero)} AZERO
                 </Text>
               </SimpleGrid>
+
+              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
+                <Text mr="4px">
+                  {insufficientInwRewardsAmount > 0
+                    ? "Excessive"
+                    : "Insufficient"}{" "}
+                  AZERO Amount:
+                </Text>
+                <Flex
+                  alignItems="center"
+                  color={
+                    insufficientAzeroRewardsAmount < 0 ? "#EA4A61" : "#8C86A5"
+                  }
+                >
+                  {insufficientAzeroRewardsAmount < 0 ? (
+                    <WarningTwoIcon color="#EA4A61" mr="8px" />
+                  ) : (
+                    <CheckCircleIcon color="lightgreen" mr="8px" />
+                  )}
+                  {formatNumDynDecimal(insufficientAzeroRewardsAmount)} AZERO
+                </Flex>
+              </SimpleGrid>
             </Box>
           </>
-        )}
+        )} */}
+        <Divider my="16px" />
+        <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "40px"]}>
+          {loadingInterest || loadingUnclaimed ? (
+            <Flex justify="center" align="center" py="16px">
+              <ClipLoader
+                color="#57527E"
+                loading
+                size={36}
+                speedMultiplier={1.5}
+              />
+            </Flex>
+          ) : (
+            <>
+              <Box>
+                {interestDistAccountInfo
+                  ?.slice(1, 2)
+                  ?.map(({ title, valueFormatted }) => (
+                    <SimpleGrid
+                      columns={[1, 1, 2]}
+                      spacing={["0px", "0px", "24px"]}
+                    >
+                      <Text mr="4px">{title}: </Text>
+                      <Text mb={["12px", "12px", "2px"]} textAlign="right">
+                        {valueFormatted}{" "}
+                      </Text>
+                    </SimpleGrid>
+                  ))}
+
+                <SimpleGrid
+                  columns={[1, 1, 2]}
+                  spacing={["0px", "0px", "24px"]}
+                >
+                  <Text mr="4px">Unclaimed INW Rewards: </Text>
+                  <Text mb={["12px", "12px", "2px"]} textAlign="right">
+                    {formatNumDynDecimal(unclaimedRewardsData?.inw)} INW
+                  </Text>
+                </SimpleGrid>
+
+                <SimpleGrid
+                  columns={[1, 1, 2]}
+                  spacing={["0px", "0px", "24px"]}
+                >
+                  <Text mr="4px">
+                    {insufficientInwRewardsAmount > 0
+                      ? "Excessive"
+                      : "Insufficient"}{" "}
+                    INW Amount:
+                  </Text>
+                  <Flex
+                    justifyContent="end"
+                    alignItems="center"
+                    color={
+                      insufficientInwRewardsAmount < 0 ? "#EA4A61" : "#8C86A5"
+                    }
+                  >
+                    {insufficientInwRewardsAmount < 0 ? (
+                      <WarningTwoIcon color="#EA4A61" mr="8px" />
+                    ) : (
+                      <CheckCircleIcon color="lightgreen" mr="8px" />
+                    )}
+                    {formatNumDynDecimal(insufficientInwRewardsAmount)} INW
+                  </Flex>
+                </SimpleGrid>
+              </Box>
+            </>
+          )}
+
+          {loadingInterest || loadingUnclaimed ? (
+            <Flex justify="center" align="center" py="16px">
+              <ClipLoader
+                color="#57527E"
+                loading
+                size={36}
+                speedMultiplier={1.5}
+              />
+            </Flex>
+          ) : (
+            <>
+              <Box>
+                {interestDistAccountInfo
+                  ?.slice(-1)
+                  ?.map(({ title, valueFormatted }) => (
+                    <SimpleGrid
+                      columns={[1, 1, 2]}
+                      spacing={["0px", "0px", "24px"]}
+                    >
+                      <Text mr="4px">{title}: </Text>
+                      <Text mb={["12px", "12px", "2px"]} textAlign="right">
+                        {valueFormatted}{" "}
+                      </Text>
+                    </SimpleGrid>
+                  ))}
+
+                <SimpleGrid
+                  columns={[1, 1, 2]}
+                  spacing={["0px", "0px", "24px"]}
+                >
+                  <Text mr="4px">Unclaimed AZERO Rewards: </Text>
+                  <Text mb={["12px", "12px", "2px"]} textAlign="right">
+                    {formatNumDynDecimal(unclaimedRewardsData?.azero)} AZERO
+                  </Text>
+                </SimpleGrid>
+
+                <SimpleGrid
+                  columns={[1, 1, 2]}
+                  spacing={["0px", "0px", "24px"]}
+                >
+                  <Text mr="4px">
+                    {insufficientInwRewardsAmount > 0
+                      ? "Excessive"
+                      : "Insufficient"}{" "}
+                    AZERO Amount:
+                  </Text>
+                  <Flex
+                    alignItems="center"
+                    justifyContent="end"
+                    color={
+                      insufficientAzeroRewardsAmount < 0 ? "#EA4A61" : "#8C86A5"
+                    }
+                  >
+                    {insufficientAzeroRewardsAmount < 0 ? (
+                      <WarningTwoIcon color="#EA4A61" mr="8px" />
+                    ) : (
+                      <CheckCircleIcon color="lightgreen" mr="8px" />
+                    )}
+                    {formatNumDynDecimal(insufficientAzeroRewardsAmount)} AZERO
+                  </Flex>
+                </SimpleGrid>
+              </Box>
+            </>
+          )}
+        </SimpleGrid>
       </Box>
 
       <SimpleGrid columns={[1, 1, 2]} w="full" spacing={["0px", "0px", "24px"]}>
@@ -1322,7 +1491,7 @@ function RewardsBalanceSection() {
   // ==============
 
   return (
-    <IWCard mb="24px" w="full" variant="outline" title="Rewards & Distribution">
+    <IWCard mb="24px" w="full" variant="outline" title="Distribution">
       {/* <Box pt="18px">
         {loadingInkContract ? (
           <Flex justify="center" align="center" py="16px">
