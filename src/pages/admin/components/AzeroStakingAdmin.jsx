@@ -1288,7 +1288,9 @@ function RewardsBalanceSection() {
         // console.log("MasterAccountBalanceAZERO", masterAccountBalanceAZERO);
 
         const { freeBal, frozenBal } = await getBalanceOfBondAddress({
-          address: process.env.REACT_APP_ADMIN_BOND_WALLET_ADDRESS,
+          address:
+            process.env.REACT_APP_ADMIN_BOND_WALLET_ADDRESS ||
+            "5ERKXxAH8gqgMPzNtRpojrpndokD96EvMUG9obfwa6uDreM6",
         });
 
         const masterAccountInfoData = [
