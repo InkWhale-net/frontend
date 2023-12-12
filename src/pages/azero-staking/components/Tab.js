@@ -230,13 +230,8 @@ function StakingInfo() {
     const fetchData = async () => {
       const lastAzeroInterestTopup = await getLastAzeroInterestTopup();
 
-      const rewardsClaimWaitingTime = await getRewardsClaimWaitingTime();
+      const nextTime = parseInt(lastAzeroInterestTopup) + tenMins + oneDay;
 
-      const nextTime =
-        parseInt(lastAzeroInterestTopup) +
-        parseInt(rewardsClaimWaitingTime) +
-        tenMins +
-        oneDay;
       setLastAzeroInterestTopupTimer(lastAzeroInterestTopup);
       setNextClaimTime(nextTime);
     };

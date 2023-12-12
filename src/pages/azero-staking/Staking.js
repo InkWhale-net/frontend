@@ -41,6 +41,11 @@ function Staking() {
       return;
     }
 
+    if (footerInfo && footerInfo[1] < amount) {
+      toast.error(`Max stake amount is ${footerInfo && footerInfo[1]} AZERO`);
+      return;
+    }
+
     await doStakeAzero(api, currentAccount, amount);
 
     delay(1000).then(() => {
