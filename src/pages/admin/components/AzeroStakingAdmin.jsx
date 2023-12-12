@@ -1286,11 +1286,12 @@ function RewardsBalanceSection() {
           address: masterAccount,
         });
         // console.log("MasterAccountBalanceAZERO", masterAccountBalanceAZERO);
+        const validatorAccountAddress =
+          process.env.REACT_APP_ADMIN_BOND_WALLET_ADDRESS ||
+          "5ERKXxAH8gqgMPzNtRpojrpndokD96EvMUG9obfwa6uDreM6";
 
         const { freeBal, frozenBal } = await getBalanceOfBondAddress({
-          address:
-            process.env.REACT_APP_ADMIN_BOND_WALLET_ADDRESS ||
-            "5ERKXxAH8gqgMPzNtRpojrpndokD96EvMUG9obfwa6uDreM6",
+          address: validatorAccountAddress,
         });
 
         const masterAccountInfoData = [
@@ -1312,12 +1313,8 @@ function RewardsBalanceSection() {
           },
           {
             title: "Validator Account Address",
-            value: process.env.REACT_APP_ADMIN_BOND_WALLET_ADDRESS,
-            valueFormatted: (
-              <AddressCopier
-                address={process.env.REACT_APP_ADMIN_BOND_WALLET_ADDRESS}
-              />
-            ),
+            value: validatorAccountAddress,
+            valueFormatted: <AddressCopier address={validatorAccountAddress} />,
             hasTooltip: true,
             tooltipContent: "Validator Account",
           },
