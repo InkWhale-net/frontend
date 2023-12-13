@@ -363,6 +363,7 @@ function StakingInfo() {
             <></>
           </>
         )}
+
         <IWCard w="full" variant="solid">
           <Stack
             w="100%"
@@ -374,7 +375,7 @@ function StakingInfo() {
               w="full"
               fontSize={["16px", "16px", "18px"]}
               isDisabled={
-                (info && !parseInt(info[0])) ||
+                !lastClaimTime ||
                 !currentAccount?.address ||
                 lastAnchored > lastAzeroInterestTopupTimer
               }
