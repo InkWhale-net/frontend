@@ -290,7 +290,8 @@ export async function getAzeroBalanceOfAddress({ api, address }) {
   }
 
   const {
-    data: { free: balance, miscFrozen },
+    data,
+    data: { free: balance, frozen },
   } = await wsApi.query.system.account(address);
 
   const [chainDecimals] = await wsApi.registry.chainDecimals;
@@ -301,7 +302,7 @@ export async function getAzeroBalanceOfAddress({ api, address }) {
     decimals: chainDecimals,
   });
 
-  const formattedStrBalMiscFrozen = formatBalance(miscFrozen, {
+  const formattedStrBalFrozen = formatBalance(frozen, {
     withSi: false,
     forceUnit: "-",
     decimals: chainDecimals,
@@ -309,7 +310,7 @@ export async function getAzeroBalanceOfAddress({ api, address }) {
 
   const formattedNumBal =
     formattedStrBal.replaceAll(",", "") * 1 -
-    formattedStrBalMiscFrozen.replaceAll(",", "") * 1;
+    formattedStrBalFrozen.replaceAll(",", "") * 1;
 
   return formattedNumBal;
 }
