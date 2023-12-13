@@ -35,14 +35,35 @@ function Staking() {
     return Number(azeroBal);
   }, [currentAccount?.balance?.azero]);
 
+  const [myStaked, setMyStaked] = useState(0);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const stakeInfo = await getStakeInfo(api, currentAccount).then((res) => {
+        if (!res) return 0;
+
+        const stakingAmount =
+          formatChainStringToNumber(res?.stakingAmount) / Math.pow(10, 12);
+        return stakingAmount?.toFixed(4) ?? 0;
+      });
+      setMyStaked(stakeInfo);
+    };
+
+    api && fetch();
+  }, [api, currentAccount]);
+
   async function handleStake() {
     if (azeroBalance < amount) {
       toast.error("Not enough AZERO balance!");
       return;
     }
 
-    if (footerInfo && footerInfo[1] < amount) {
-      toast.error(`Max stake amount is ${footerInfo && footerInfo[1]} AZERO`);
+    if (footerInfo && footerInfo[1] - parseInt(myStaked) < amount) {
+      toast.error(
+        `Max stake amount is ${formatNumDynDecimal(
+          footerInfo && footerInfo[1] - parseInt(myStaked)
+        )} AZERO`
+      );
       return;
     }
 
