@@ -154,6 +154,7 @@ function StakingInfo() {
   const { currentAccount } = useSelector((s) => s.wallet);
 
   const [info, setInfo] = useState([0, 0, 0, 0]);
+  const [lastAnchored, setLastAnchored] = useState(null);
 
   const fetchData = useCallback(
     async (isMounted) => {
@@ -161,6 +162,8 @@ function StakingInfo() {
 
       const info = await getStakeInfo(api, currentAccount);
 
+      const lastAnchored = formatChainStringToNumber(info?.lastAnchored);
+      setLastAnchored(lastAnchored);
       // {
       //   stakingAmount: '0',
       //   unclaimedAzeroReward: '110,841,577,878',
@@ -340,23 +343,26 @@ function StakingInfo() {
           </Flex>
         ))}
 
-        {formattedInfo && !formattedInfo[4].number ? (
-          ""
-        ) : Date.now() <= nextClaimTime ? (
-          <Flex w="full" justify="space-between" direction={["column"]}>
-            <Flex alignItems="center">Est. Next Claim</Flex>
-            <Box
-              color={{ base: "#57527E" }}
-              fontWeight={{ base: "bold" }}
-              fontSize={["16px", "18px"]}
-            >
-              <IWCountDown date={nextClaimTime} />
-            </Box>
-          </Flex>
+        {lastAnchored > lastAzeroInterestTopupTimer ? (
+          <>
+            {/* Claimed */}
+            <Flex w="full" justify="space-between" direction={["column"]}>
+              <Flex alignItems="center">Est. Next Claim</Flex>
+              <Box
+                color={{ base: "#57527E" }}
+                fontWeight={{ base: "bold" }}
+                fontSize={["16px", "18px"]}
+              >
+                <IWCountDown date={nextClaimTime} />
+              </Box>
+            </Flex>
+          </>
         ) : (
-          ""
+          <>
+            {/* Not claim yet */}
+            <></>
+          </>
         )}
-
         <IWCard w="full" variant="solid">
           <Stack
             w="100%"
@@ -368,11 +374,9 @@ function StakingInfo() {
               w="full"
               fontSize={["16px", "16px", "18px"]}
               isDisabled={
+                (info && !parseInt(info[0])) ||
                 !currentAccount?.address ||
-                Date.now() <= nextClaimTime ||
-                (info &&
-                  info[4] !== "0" &&
-                  info[4] >= lastAzeroInterestTopupTimer)
+                lastAnchored > lastAzeroInterestTopupTimer
               }
               onClick={() => handleClaimRewards()}
             >
@@ -380,15 +384,12 @@ function StakingInfo() {
             </Button>
           </Stack>
         </IWCard>
-
-        {Date.now() <= nextClaimTime ? (
+        {lastAnchored > lastAzeroInterestTopupTimer ? (
           <Alert status="warning">
             <AlertIcon />
             User can claim the rewards approximately every 48 hours.
           </Alert>
-        ) : (
-          ""
-        )}
+        ) : null}
       </>
     </>
   );
