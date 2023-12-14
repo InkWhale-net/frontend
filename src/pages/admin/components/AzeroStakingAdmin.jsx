@@ -71,7 +71,7 @@ import { getBalanceOfBondAddress } from "utils/contracts";
 import { doUpdateLockedStatus } from "api/azero-staking/azero-staking";
 import styles from "./style.module.scss";
 import Steps from "rc-steps";
-import { isMobile } from "react-device-detect";
+
 import { CheckIcon } from "@chakra-ui/icons";
 import { doDistributeAzero } from "api/azero-staking/azero-staking";
 
@@ -590,96 +590,10 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                     <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
                   </SimpleGrid>
                 ))}
-
-              {/* <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
-                <Text mr="4px">Unclaimed INW Rewards: </Text>
-                <Text mb={["12px", "12px", "2px"]}>
-                  {formatNumDynDecimal(unclaimedRewardsData?.inw)} INW
-                </Text>
-              </SimpleGrid>
-
-              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
-                <Text mr="4px">
-                  {insufficientInwRewardsAmount > 0
-                    ? "Excessive"
-                    : "Insufficient"}{" "}
-                  INW Amount:
-                </Text>
-                <Flex
-                  alignItems="center"
-                  color={
-                    insufficientInwRewardsAmount < 0 ? "#EA4A61" : "#8C86A5"
-                  }
-                >
-                  {insufficientInwRewardsAmount < 0 ? (
-                    <WarningTwoIcon color="#EA4A61" mr="8px" />
-                  ) : (
-                    <CheckCircleIcon color="lightgreen" mr="8px" />
-                  )}
-                  {formatNumDynDecimal(insufficientInwRewardsAmount)} INW
-                </Flex>
-              </SimpleGrid> */}
             </Box>
           </>
         )}
 
-        {/* <Divider my="16px" />
-
-        {loadingInterest || loadingUnclaimed ? (
-          <Flex justify="center" align="center" py="16px">
-            <ClipLoader
-              color="#57527E"
-              loading
-              size={36}
-              speedMultiplier={1.5}
-            />
-          </Flex>
-        ) : (
-          <>
-            <Box>
-              {interestDistAccountInfo
-                ?.slice(-1)
-                ?.map(({ title, valueFormatted }) => (
-                  <SimpleGrid
-                    columns={[1, 1, 2]}
-                    spacing={["0px", "0px", "24px"]}
-                  >
-                    <Text mr="4px">{title}: </Text>
-                    <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
-                  </SimpleGrid>
-                ))}
-
-              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
-                <Text mr="4px">Unclaimed AZERO Rewards: </Text>
-                <Text mb={["12px", "12px", "2px"]}>
-                  {formatNumDynDecimal(unclaimedRewardsData?.azero)} AZERO
-                </Text>
-              </SimpleGrid>
-
-              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
-                <Text mr="4px">
-                  {insufficientInwRewardsAmount > 0
-                    ? "Excessive"
-                    : "Insufficient"}{" "}
-                  AZERO Amount:
-                </Text>
-                <Flex
-                  alignItems="center"
-                  color={
-                    insufficientAzeroRewardsAmount < 0 ? "#EA4A61" : "#8C86A5"
-                  }
-                >
-                  {insufficientAzeroRewardsAmount < 0 ? (
-                    <WarningTwoIcon color="#EA4A61" mr="8px" />
-                  ) : (
-                    <CheckCircleIcon color="lightgreen" mr="8px" />
-                  )}
-                  {formatNumDynDecimal(insufficientAzeroRewardsAmount)} AZERO
-                </Flex>
-              </SimpleGrid>
-            </Box>
-          </>
-        )} */}
         <Divider my="16px" />
         <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "40px"]}>
           {loadingInterest || loadingUnclaimed ? (
@@ -1259,56 +1173,11 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
 }
 
 function RewardsBalanceSection() {
-  // const { api } = useAppContext();
+  const { api } = useAppContext();
   const { currentAccount } = useSelector((s) => s.wallet);
-  // const [loadingInkContract, setLoadingInkContract] = useState(true);
-  // const [inkContractInfo, setInkContractInfo] = useState([]);
 
   const [loadingMasterAccount, setLoadingMasterAccount] = useState(true);
   const [masterAccountInfo, setMasterAccountInfo] = useState([]);
-
-  // const [loadingInterest, setLoadingInterest] = useState(true);
-  // const [interestDistAccountInfo, setInterestDistAccountInfo] = useState([]);
-
-  // useEffect(() => {
-  //   let isMounted = true;
-
-  //   const fetchData = async (isMounted) => {
-  //     try {
-  //       setLoadingInkContract(true);
-
-  //       const inwContract = await getInwContract();
-  //       // console.log("interest::getInwContract", inwContract);
-
-  //       const inkContractInfoData = [
-  //         {
-  //           title: "INW Contract",
-  //           value: inwContract,
-  //           valueFormatted: <AddressCopier address={inwContract} />,
-  //           hasTooltip: true,
-  //           tooltipContent: "inwContract",
-  //         },
-  //       ];
-
-  //       if (!isMounted) {
-  //         return;
-  //       }
-
-  //       setInkContractInfo(inkContractInfoData);
-
-  //       setLoadingInkContract(false);
-  //     } catch (error) {
-  //       setLoadingInkContract(false);
-
-  //       console.log("Error", error);
-  //       toast.error("Error", error);
-  //     }
-  //   };
-
-  //   fetchData(isMounted);
-
-  //   return () => (isMounted = false);
-  // }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -1391,149 +1260,10 @@ function RewardsBalanceSection() {
     return () => (isMounted = false);
   }, []);
 
-  // useEffect(() => {
-  //   let isMounted = true;
-
-  //   const fetchData = async (isMounted) => {
-  //     try {
-  //       setLoadingInterest(true);
-
-  //       const interestDistributionContract =
-  //         await getInterestDistributionContract();
-
-  //       const interestDistributionContractBalanceAZERO =
-  //         await getAzeroBalanceOfAddress({
-  //           address: interestDistributionContract,
-  //         });
-
-  //       const interestDistributionContractBalance =
-  //         await getInwBalanceOfAddress({
-  //           address: interestDistributionContract,
-  //         });
-  //       // console.log("Staking::getInterestDistributionContract", interestDistributionContract);
-  //       // console.log("InterestDistributionContractBalanceAZERO", interestDistributionContractBalanceAZERO);
-  //       // console.log("InterestDistributionContract psp22::balanceOf INW", interestDistributionContractBalance);
-
-  //       const interestDistAccountInfoData = [
-  //         {
-  //           title: "Interest Distribution Contract",
-  //           value: interestDistributionContract,
-  //           valueFormatted: (
-  //             <AddressCopier address={interestDistributionContract} />
-  //           ),
-  //           hasTooltip: true,
-  //           tooltipContent: "interestDistributionContract",
-  //         },
-  //         {
-  //           title: "AZEROBalance",
-  //           value: interestDistributionContractBalanceAZERO,
-  //           valueFormatted: `${formatNumDynDecimal(
-  //             interestDistributionContractBalanceAZERO
-  //           )} AZERO`,
-  //           hasTooltip: true,
-  //           tooltipContent: "interestDistributionContractBalanceAZERO",
-  //         },
-  //         {
-  //           title: "INW Balance",
-  //           value: interestDistributionContractBalance,
-  //           valueFormatted: `${formatNumDynDecimal(
-  //             interestDistributionContractBalance
-  //           )} INW`,
-  //           hasTooltip: true,
-  //           tooltipContent: "interestDistributionContractBalance",
-  //         },
-  //       ];
-
-  //       if (!isMounted) {
-  //         return;
-  //       }
-
-  //       setInterestDistAccountInfo(interestDistAccountInfoData);
-  //       setLoadingInterest(false);
-  //     } catch (error) {
-  //       setLoadingInterest(false);
-
-  //       console.log("Error", error);
-  //       toast.error("Error", error);
-  //     }
-  //   };
-
-  //   fetchData(isMounted);
-
-  //   return () => (isMounted = false);
-  // }, []);
-
-  // Calc Unclaimed Rewards Data==============
-  // const [unclaimedRewardsData, setUnclaimedRewardsData] = useState({});
-  // const [loadingUnclaimed, setLoadingUnclaimed] = useState(true);
-
-  // const fetchUnclaimedRewardsData = useCallback(
-  //   async (isMounted) => {
-  //     try {
-  //       setLoadingUnclaimed(true);
-
-  //       const stakeList = await getStakeList();
-
-  //       const listInfo = await Promise.all(
-  //         stakeList.map(async (addr) => {
-  //           const info = await getStakeInfo(api, currentAccount, addr);
-
-  //           const unclaimedAzero =
-  //             formatChainStringToNumber(info?.unclaimedAzeroReward) /
-  //             Math.pow(10, 12);
-
-  //           const unclaimedInw =
-  //             formatChainStringToNumber(info?.unclaimedInwReward) /
-  //             Math.pow(10, 12);
-
-  //           return { unclaimedAzero, unclaimedInw };
-  //         })
-  //       );
-
-  //       const totalUnclaimedRewards = listInfo?.reduce(
-  //         (prev, curr) => ({
-  //           azero: prev?.azero + curr?.unclaimedAzero,
-  //           inw: prev?.inw + curr?.unclaimedInw,
-  //         }),
-  //         {
-  //           azero: 0,
-  //           inw: 0,
-  //         }
-  //       );
-
-  //       if (!isMounted) return;
-
-  //       setUnclaimedRewardsData(totalUnclaimedRewards);
-  //       setLoadingUnclaimed(false);
-  //     } catch (error) {
-  //       setLoadingUnclaimed(false);
-  //       console.log("Error", error);
-  //       toast.error("Error", error);
-  //     }
-  //   },
-  //   [api, currentAccount]
-  // );
-
-  // useEffect(() => {
-  //   let isMounted = true;
-  //   api && fetchUnclaimedRewardsData(isMounted);
-
-  //   return () => (isMounted = false);
-  // }, [api, currentAccount, fetchUnclaimedRewardsData]);
-
-  // const insufficientInwRewardsAmount =
-  //   (interestDistAccountInfo && interestDistAccountInfo[2]?.value) -
-  //   unclaimedRewardsData?.inw;
-  // console.log("insufficientInwRewardsAmount", insufficientInwRewardsAmount);
-  // ==============
   const [hasAdminRole, setHasAdminRole] = useState(false);
-  const [isLocked, setIsLocked] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      const isLocked = await getIsLocked();
-      setIsLocked(isLocked);
-
       const hasAdminRole = await execContractQuery(
         currentAccount?.address,
         "api",
@@ -1558,7 +1288,7 @@ function RewardsBalanceSection() {
     }
 
     try {
-      await doDistributeAzero();
+      await doDistributeAzero(api, currentAccount);
     } catch (error) {
       console.log("Error", error);
       toast.error("Error", error);
@@ -1567,33 +1297,6 @@ function RewardsBalanceSection() {
 
   return (
     <IWCard mb="24px" w="full" variant="outline" title="Distribution">
-      {/* <Box pt="18px">
-        {loadingInkContract ? (
-          <Flex justify="center" align="center" py="16px">
-            <ClipLoader
-              color="#57527E"
-              loading
-              size={36}
-              speedMultiplier={1.5}
-            />
-          </Flex>
-        ) : (
-          <>
-            {inkContractInfo?.map(({ title, valueFormatted }) => (
-              <SimpleGrid
-                key={title}
-                columns={[1, 1, 2]}
-                spacing={["0px", "0px", "24px"]}
-              >
-                <Text mr="4px">{title}: </Text>
-                <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
-              </SimpleGrid>
-            ))}
-            <Divider my="12px" />{" "}
-          </>
-        )}
-      </Box> */}
-
       <Box pt="18px">
         {loadingMasterAccount ? (
           <Flex justify="center" align="center" py="16px">
