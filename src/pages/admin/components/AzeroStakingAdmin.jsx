@@ -532,7 +532,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
     (interestDistAccountInfo && interestDistAccountInfo[1]?.value) -
     unclaimedRewardsData?.inw;
 
-    const insufficientAzeroRewardsAmount =
+  const insufficientAzeroRewardsAmount =
     (interestDistAccountInfo && interestDistAccountInfo[2]?.value) -
     unclaimedRewardsData?.azero;
 
@@ -1554,11 +1554,6 @@ function RewardsBalanceSection() {
     // check role
     if (!hasAdminRole) {
       toast.error("This account don't have Admin Role!");
-      return;
-    }
-
-    if (!isLocked) {
-      toast.error("Contract is not locked!");
       return;
     }
 
