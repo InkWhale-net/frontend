@@ -13,10 +13,11 @@ import {
   Spacer,
   Stack,
   Text,
+  Circle,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import {
   getAzeroStakingContract,
-  getInwBalanceOfAddress,
   getMasterAccount,
 } from "api/azero-staking/azero-staking";
 
@@ -67,16 +68,23 @@ import { getIsLocked } from "api/azero-staking/azero-staking";
 import { doUpdateAzeroApy } from "api/azero-staking/azero-staking";
 import { doUpdateInwMultiplier } from "api/azero-staking/azero-staking";
 import { getBalanceOfBondAddress } from "utils/contracts";
+import { doUpdateLockedStatus } from "api/azero-staking/azero-staking";
+import styles from "./style.module.scss";
+import Steps from "rc-steps";
+import { isMobile } from "react-device-detect";
+import { CheckIcon } from "@chakra-ui/icons";
+import { doDistributeAzero } from "api/azero-staking/azero-staking";
 
 export default function AzeroStakingAdmin() {
   const { currentAccount } = useSelector((s) => s.wallet);
 
   const [hasWithdrawalManagerRole, setHasWithdrawalManagerRole] =
     useState(false);
-
+  const [hasAdminRole, setHasAdminRole] = useState(false);
   useEffect(() => {
-    const fetchData = async () => {
-      const hasRole = await execContractQuery(
+    const fetchRoleData = async () => {
+      // WITHDRAW_TO_STAKE RoleType = 3333445727
+      const hasWithdrawRole = await execContractQuery(
         currentAccount?.address,
         "api",
         my_azero_staking.CONTRACT_ABI,
@@ -87,10 +95,24 @@ export default function AzeroStakingAdmin() {
         currentAccount?.address
       );
 
-      setHasWithdrawalManagerRole(hasRole?.toHuman()?.Ok);
+      setHasWithdrawalManagerRole(hasWithdrawRole?.toHuman()?.Ok);
+
+      // ADMINER RoleType = 3739740293
+      const hasAdminRole = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        my_azero_staking.CONTRACT_ABI,
+        my_azero_staking.CONTRACT_ADDRESS,
+        0,
+        "accessControl::hasRole",
+        3739740293,
+        currentAccount?.address
+      );
+
+      setHasAdminRole(hasAdminRole?.toHuman()?.Ok);
     };
 
-    fetchData();
+    fetchRoleData();
   }, [currentAccount?.address]);
 
   return (
@@ -98,7 +120,7 @@ export default function AzeroStakingAdmin() {
       <ContractBalanceSection
         hasWithdrawalManagerRole={hasWithdrawalManagerRole}
       />
-      <ApyAndMultiplierSection />
+      <ApyAndMultiplierSection hasAdminRole={hasAdminRole} />
       <RewardsBalanceSection />
       <WithdrawalRequestListSection />
       <ValidatorRewardsSection />
@@ -461,17 +483,20 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
             const info = await getStakeInfo(api, currentAccount, addr);
 
             const unclaimedAzero =
-              formatChainStringToNumber(info?.unclaimedAzeroReward) /
+              formatChainStringToNumber(info?.unclaimedAzeroReward || 0) /
               Math.pow(10, 12);
 
             const unclaimedInw =
-              formatChainStringToNumber(info?.unclaimedInwReward) /
+              formatChainStringToNumber(info?.unclaimedInwReward || 0) /
               Math.pow(10, 12);
 
-            return { unclaimedAzero, unclaimedInw };
+            return {
+              unclaimedAzero,
+              unclaimedInw,
+            };
           })
         );
-
+        console.log("listInfo", listInfo);
         const totalUnclaimedRewards = listInfo?.reduce(
           (prev, curr) => ({
             azero: prev?.azero + curr?.unclaimedAzero,
@@ -482,7 +507,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
             inw: 0,
           }
         );
-
+        console.log("totalUnclaimedRewards", totalUnclaimedRewards);
         if (!isMounted) return;
 
         setUnclaimedRewardsData(totalUnclaimedRewards);
@@ -507,7 +532,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
     (interestDistAccountInfo && interestDistAccountInfo[1]?.value) -
     unclaimedRewardsData?.inw;
 
-  const insufficientAzeroRewardsAmount =
+    const insufficientAzeroRewardsAmount =
     (interestDistAccountInfo && interestDistAccountInfo[2]?.value) -
     unclaimedRewardsData?.azero;
 
@@ -557,6 +582,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                 ?.slice(0, 1)
                 ?.map(({ title, valueFormatted }) => (
                   <SimpleGrid
+                    key={title}
                     columns={[1, 1, 2]}
                     spacing={["0px", "0px", "24px"]}
                   >
@@ -676,7 +702,10 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                       spacing={["0px", "0px", "24px"]}
                     >
                       <Text mr="4px">{title}: </Text>
-                      <Text mb={["12px", "12px", "2px"]} textAlign="right">
+                      <Text
+                        mb={["12px", "12px", "2px"]}
+                        textAlign={["left", "left", "right"]}
+                      >
                         {valueFormatted}{" "}
                       </Text>
                     </SimpleGrid>
@@ -687,7 +716,10 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                   spacing={["0px", "0px", "24px"]}
                 >
                   <Text mr="4px">Unclaimed INW Rewards: </Text>
-                  <Text mb={["12px", "12px", "2px"]} textAlign="right">
+                  <Text
+                    mb={["12px", "12px", "2px"]}
+                    textAlign={["left", "left", "right"]}
+                  >
                     {formatNumDynDecimal(unclaimedRewardsData?.inw)} INW
                   </Text>
                 </SimpleGrid>
@@ -703,7 +735,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                     INW Amount:
                   </Text>
                   <Flex
-                    justifyContent="end"
+                    justifyContent={["start", "start", "end"]}
                     alignItems="center"
                     color={
                       insufficientInwRewardsAmount < 0 ? "#EA4A61" : "#8C86A5"
@@ -732,7 +764,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
             </Flex>
           ) : (
             <>
-              <Box>
+              <Box mt={["24px", "24px", 0]}>
                 {interestDistAccountInfo
                   ?.slice(-1)
                   ?.map(({ title, valueFormatted }) => (
@@ -741,7 +773,10 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                       spacing={["0px", "0px", "24px"]}
                     >
                       <Text mr="4px">{title}: </Text>
-                      <Text mb={["12px", "12px", "2px"]} textAlign="right">
+                      <Text
+                        mb={["12px", "12px", "2px"]}
+                        textAlign={["left", "left", "right"]}
+                      >
                         {valueFormatted}{" "}
                       </Text>
                     </SimpleGrid>
@@ -752,7 +787,10 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                   spacing={["0px", "0px", "24px"]}
                 >
                   <Text mr="4px">Unclaimed AZERO Rewards: </Text>
-                  <Text mb={["12px", "12px", "2px"]} textAlign="right">
+                  <Text
+                    mb={["12px", "12px", "2px"]}
+                    textAlign={["left", "left", "right"]}
+                  >
                     {formatNumDynDecimal(unclaimedRewardsData?.azero)} AZERO
                   </Text>
                 </SimpleGrid>
@@ -769,7 +807,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                   </Text>
                   <Flex
                     alignItems="center"
-                    justifyContent="end"
+                    justifyContent={["start", "start", "end"]}
                     color={
                       insufficientAzeroRewardsAmount < 0 ? "#EA4A61" : "#8C86A5"
                     }
@@ -1222,7 +1260,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
 
 function RewardsBalanceSection() {
   // const { api } = useAppContext();
-  // const { currentAccount } = useSelector((s) => s.wallet);
+  const { currentAccount } = useSelector((s) => s.wallet);
   // const [loadingInkContract, setLoadingInkContract] = useState(true);
   // const [inkContractInfo, setInkContractInfo] = useState([]);
 
@@ -1319,18 +1357,18 @@ function RewardsBalanceSection() {
             tooltipContent: "Validator Account",
           },
           {
-            title: "Frozen Balance",
-            value: frozenBal,
-            valueFormatted: `${formatNumDynDecimal(frozenBal)} AZERO`,
-            hasTooltip: true,
-            tooltipContent: "frozenBal",
-          },
-          {
-            title: "Free Balance",
+            title: "Total Balance",
             value: freeBal,
             valueFormatted: `${formatNumDynDecimal(freeBal)} AZERO`,
             hasTooltip: true,
             tooltipContent: "freeBal",
+          },
+          {
+            title: " - Frozen Amount",
+            value: frozenBal,
+            valueFormatted: `${formatNumDynDecimal(frozenBal)} AZERO`,
+            hasTooltip: true,
+            tooltipContent: "frozenBal",
           },
         ];
 
@@ -1488,6 +1526,49 @@ function RewardsBalanceSection() {
   //   unclaimedRewardsData?.inw;
   // console.log("insufficientInwRewardsAmount", insufficientInwRewardsAmount);
   // ==============
+  const [hasAdminRole, setHasAdminRole] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const isLocked = await getIsLocked();
+      setIsLocked(isLocked);
+
+      const hasAdminRole = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        my_azero_staking.CONTRACT_ABI,
+        my_azero_staking.CONTRACT_ADDRESS,
+        0,
+        "accessControl::hasRole",
+        3739740293,
+        currentAccount?.address
+      );
+      setHasAdminRole(hasAdminRole.toHuman().Ok);
+    };
+
+    fetchData();
+  }, [currentAccount?.address]);
+
+  async function handleDistributeAzero() {
+    // check role
+    if (!hasAdminRole) {
+      toast.error("This account don't have Admin Role!");
+      return;
+    }
+
+    if (!isLocked) {
+      toast.error("Contract is not locked!");
+      return;
+    }
+
+    try {
+      await doDistributeAzero();
+    } catch (error) {
+      console.log("Error", error);
+      toast.error("Error", error);
+    }
+  }
 
   return (
     <IWCard mb="24px" w="full" variant="outline" title="Distribution">
@@ -1540,8 +1621,17 @@ function RewardsBalanceSection() {
                   <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
                 </SimpleGrid>
               ))}{" "}
-              <Divider my="12px" />
             </Box>
+            <Flex mt="16px">
+              <Button
+                size="sm"
+                mt={["16px", "16px", "0px"]}
+                isDisabled={!isLocked || !hasAdminRole}
+                onClick={handleDistributeAzero}
+              >
+                Distribute Azero
+              </Button>
+            </Flex>
           </>
         )}
       </Box>
@@ -1828,7 +1918,18 @@ function ValidatorRewardsSection() {
   );
 }
 
-function ApyAndMultiplierSection() {
+function stepIcon({ status, node }) {
+  const isFinish = status === "finish";
+  return !isFinish ? (
+    node
+  ) : (
+    <Circle size="38px" bg="#E8FDFF" border={"1px solid #93F0F5"} color="white">
+      <CheckIcon color={"#93F0F5"} />
+    </Circle>
+  );
+}
+
+function ApyAndMultiplierSection({ hasAdminRole }) {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { api } = useAppContext();
 
@@ -1837,7 +1938,6 @@ function ApyAndMultiplierSection() {
 
   const fetchApyAndMultiplier = useCallback(async () => {
     const apy = await getApy();
-
     // 5 ~ 5% // 500 ~500%
     setApy(apy);
     const inwMultiplier = await getInwMultiplier();
@@ -1851,28 +1951,15 @@ function ApyAndMultiplierSection() {
   }, [api, fetchApyAndMultiplier]);
 
   const [isLocked, setIsLocked] = useState(false);
-  const [hasAdminRole, setHasAdminRole] = useState(false);
+
+  const fetchLockedStatusData = useCallback(async () => {
+    const isLocked = await getIsLocked();
+    setIsLocked(isLocked);
+  }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const isLocked = await getIsLocked();
-      setIsLocked(isLocked);
-
-      const hasAdminRole = await execContractQuery(
-        currentAccount?.address,
-        "api",
-        my_azero_staking.CONTRACT_ABI,
-        my_azero_staking.CONTRACT_ADDRESS,
-        0,
-        "accessControl::hasRole",
-        3739740293,
-        currentAccount?.address
-      );
-      setHasAdminRole(hasAdminRole.toHuman().Ok);
-    };
-
-    fetchData();
-  }, [currentAccount?.address]);
+    api && fetchLockedStatusData();
+  }, [api, currentAccount.address, fetchLockedStatusData]);
 
   const [newApy, setNewApy] = useState("");
 
@@ -1887,12 +1974,17 @@ function ApyAndMultiplierSection() {
       return;
     }
 
-    await doUpdateAzeroApy(api, currentAccount, newApy * 100);
+    try {
+      await doUpdateAzeroApy(api, currentAccount, newApy * 100);
 
-    delay(1000).then(() => {
-      fetchApyAndMultiplier();
-      setNewApy("");
-    });
+      delay(1000).then(() => {
+        fetchApyAndMultiplier();
+        setNewApy("");
+      });
+    } catch (error) {
+      console.log("Error", error);
+      toast.error("Error", error);
+    }
   }
 
   const [newInwMultiplier, setNewInwMultiplier] = useState("");
@@ -1915,105 +2007,221 @@ function ApyAndMultiplierSection() {
       setNewInwMultiplier("");
     });
   }
+  // ========================
+
+  const [stepNum, setStepNum] = useState(0);
+  useEffect(() => {
+    if (isLocked) {
+      setStepNum(1);
+    }
+  }, [isLocked]);
+
+  async function handleUpdateLockedStatus(status) {
+    // check role
+    if (!hasAdminRole) {
+      toast.error("This account don't have Admin Role!");
+      return;
+    }
+
+    await doUpdateLockedStatus(api, currentAccount, status);
+
+    delay(1000).then(() => {
+      !status ? setStepNum(0) : setStepNum(1);
+      fetchLockedStatusData();
+      fetchApyAndMultiplier();
+    });
+  }
+
+  /*
+  step 1 => Unlocked
+  step 2 => Update APY & Multiplier
+  step 3 => Waiting BE update
+  step 4 => Locked
+   */
+
+  const itemSteps = [
+    {
+      title: "Lock contract",
+      description: "Before update APY & Multiplier",
+      content: <Text></Text>,
+    },
+    {
+      title: "Update APY & Multiplier",
+      description: "Update APY & Multiplier & waiting BE update",
+    },
+    {
+      title: "Unlock contract",
+      description: "After BE updated",
+    },
+  ];
+
+  const [isBigScreen] = useMediaQuery("(min-width: 480px)");
 
   return (
-    <Stack
-      w="full"
-      my="24px"
-      spacing="24px"
-      alignItems="start"
-      direction={{ base: "column", lg: "row" }}
-    >
-      {/* apy */}
-      <IWCard
-        w="full"
-        variant="outline"
-        title={
-          <Flex>
-            <Text as="span">AZERO APY</Text>
-            <Spacer />
-            <Text as="span">{formatNumDynDecimal(apy) || 0} %/year</Text>
-          </Flex>
-        }
-      >
-        <IWCard mt="16px" w="full" variant="solid">
-          <Flex flexDirection={["column-reverse", "column-reverse", "row"]}>
-            <Button
-              mx={["0px", "0px", "16px"]}
-              w={["full", "full", "40%"]}
-              mt={["16px", "16px", "0px"]}
-              isDisabled={!newApy || !hasAdminRole}
-              onClick={handleUpdateAzeroApy}
-            >
-              Update APY
-            </Button>
+    <>
+      <Stack mb="24px">
+        <Flex>
+          <Text mr="6px">Contract status: </Text>
+          <Text fontWeight="semibold"> {isLocked ? "Locked" : "Unlocked"}</Text>
+        </Flex>
 
-            <InputGroup w={["full", "full", "60%"]}>
-              <InputRightElement
-                right={["10px", "10px", "30px"]}
-                justifyContent="end"
-                children={"%/year"}
-              />
-              <Input
-                isDisabled={!hasAdminRole}
-                type="number"
-                pr="80px"
-                placeholder="0"
-                textAlign="right"
-                mx={["0px", "0px", "16px"]}
-                value={newApy}
-                onChange={({ target }) => setNewApy(target.value)}
-              />
-            </InputGroup>
-          </Flex>
-        </IWCard>
-      </IWCard>
-
-      {/* inwMultiplier */}
-      <IWCard
+        <Text fontWeight="semibold">
+          {!hasAdminRole ? "You don't have Admin Role" : "Your role is Admin"}
+        </Text>
+      </Stack>
+      <Box className={styles.step_block}>
+        <Steps
+          direction={!isBigScreen ? "vertical" : "horizontal"}
+          className={styles.step_create}
+          current={stepNum}
+          items={itemSteps}
+          stepIcon={stepIcon}
+        />
+      </Box>
+      <Stack
         w="full"
-        variant="outline"
-        title={
-          <Flex>
-            <Text as="span">INW Multiplier</Text>
-            <Spacer />
-            <Text as="span">
-              {formatNumDynDecimal(inwMultiplier) || 0} INW/day
-            </Text>
-          </Flex>
-        }
+        my="24px"
+        spacing="24px"
+        alignItems="start"
+        direction={{ base: "column", lg: "row" }}
       >
-        <IWCard mt="16px" w="full" variant="solid">
-          <Flex flexDirection={["column-reverse", "column-reverse", "row"]}>
+        {/* Update Locked Status */}
+        <IWCard
+          w="full"
+          variant="outline"
+          title={
+            <Flex fontSize="lg">
+              <Text as="span">Update status</Text>
+            </Flex>
+          }
+        >
+          <IWCard mt="16px" w="full" variant="solid">
             <Button
-              mx={["0px", "0px", "16px"]}
-              w={["full", "full", "40%"]}
+              size="sm"
+              w={["full"]}
               mt={["16px", "16px", "0px"]}
-              isDisabled={!newInwMultiplier || !hasAdminRole}
-              onClick={handleUpdateInwMultiplier}
+              isDisabled={isLocked || !hasAdminRole}
+              onClick={() => handleUpdateLockedStatus(true)}
             >
-              Update Multiplier
+              Lock
             </Button>
-            <InputGroup w={["full", "full", "60%"]}>
-              <InputRightElement
-                right={["10px", "10px", "30px"]}
-                justifyContent="end"
-                children={"INW/day"}
-              />
-              <Input
-                isDisabled={!hasAdminRole}
-                type="number"
-                pr="90px"
-                placeholder="0"
-                textAlign="right"
-                mx={["0px", "0px", "16px"]}
-                value={newInwMultiplier}
-                onChange={({ target }) => setNewInwMultiplier(target.value)}
-              />
-            </InputGroup>
-          </Flex>
+          </IWCard>
         </IWCard>
-      </IWCard>
-    </Stack>
+
+        {/* apy */}
+        <IWCard
+          w="full"
+          variant="outline"
+          title={
+            <Flex fontSize="lg">
+              <Text as="span">APY</Text>
+              <Spacer />
+              <Text as="span">{formatNumDynDecimal(apy) || 0} %/year</Text>
+            </Flex>
+          }
+        >
+          <IWCard mt="16px" w="full" variant="solid">
+            <Flex flexDirection={["column-reverse"]}>
+              <Button
+                size="sm"
+                mt={["16px", "16px", "0px"]}
+                isDisabled={!isLocked || !newApy || !hasAdminRole}
+                onClick={handleUpdateAzeroApy}
+              >
+                Update APY
+              </Button>
+
+              <InputGroup w={["full"]}>
+                <InputRightElement
+                  right={["10px", "10px", "6px"]}
+                  justifyContent="end"
+                  children={"%/year"}
+                />
+                <Input
+                  isDisabled={!isLocked || !hasAdminRole}
+                  type="number"
+                  pr="70px"
+                  placeholder="0"
+                  textAlign="right"
+                  mb={["0px", "0px", "16px"]}
+                  value={newApy}
+                  onChange={({ target }) => setNewApy(target.value)}
+                />
+              </InputGroup>
+            </Flex>
+          </IWCard>
+        </IWCard>
+
+        {/* inwMultiplier */}
+        <IWCard
+          w="full"
+          variant="outline"
+          title={
+            <Flex fontSize="lg">
+              <Text as="span">Multiplier</Text>
+              <Spacer />
+              <Text as="span">
+                {formatNumDynDecimal(inwMultiplier) || 0} INW/day
+              </Text>
+            </Flex>
+          }
+        >
+          <IWCard mt="16px" w="full" variant="solid">
+            <Flex flexDirection={["column-reverse"]}>
+              <Button
+                size="sm"
+                mt={["16px", "16px", "0px"]}
+                isDisabled={!isLocked || !newInwMultiplier || !hasAdminRole}
+                onClick={handleUpdateInwMultiplier}
+              >
+                Update Multiplier
+              </Button>
+              <InputGroup w={["full"]}>
+                <InputRightElement
+                  right={["10px", "10px", "6px"]}
+                  justifyContent="end"
+                  children={"INW/day"}
+                />
+                <Input
+                  isDisabled={!hasAdminRole}
+                  type="number"
+                  pr="80px"
+                  placeholder="0"
+                  textAlign="right"
+                  mb={["0px", "0px", "16px"]}
+                  value={newInwMultiplier}
+                  onChange={({ target }) => setNewInwMultiplier(target.value)}
+                />
+              </InputGroup>
+            </Flex>
+          </IWCard>
+        </IWCard>
+
+        {/* Update Locked Status */}
+        <IWCard
+          w="full"
+          variant="outline"
+          title={
+            <Flex>
+              <Text fontSize="lg" as="span">
+                Update status
+              </Text>
+            </Flex>
+          }
+        >
+          <IWCard mt="16px" w="full" variant="solid">
+            <Button
+              size="sm"
+              w={["full"]}
+              mt={["16px", "16px", "0px"]}
+              isDisabled={!isLocked || !hasAdminRole}
+              onClick={() => handleUpdateLockedStatus(false)}
+            >
+              Unlock
+            </Button>
+          </IWCard>
+        </IWCard>
+      </Stack>{" "}
+    </>
   );
 }
