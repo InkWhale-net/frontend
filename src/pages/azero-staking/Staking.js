@@ -67,14 +67,19 @@ function Staking() {
       return;
     }
 
-    await doStakeAzero(api, currentAccount, amount);
+    try {
+      await doStakeAzero(api, currentAccount, amount);
 
-    delay(1000).then(() => {
-      fetchData(true);
-      dispatch(fetchUserBalance({ currentAccount, api }));
-      fetchUserRequestList();
-      setAmount("");
-    });
+      delay(1000).then(() => {
+        fetchData(true);
+        dispatch(fetchUserBalance({ currentAccount, api }));
+        fetchUserRequestList();
+        setAmount("");
+      });
+    } catch (error) {
+      console.log("error", error);
+      toast.error("error", error);
+    }
   }
   const [footerInfo, setFooterInfo] = useState(null);
 
@@ -113,18 +118,23 @@ function Staking() {
 
   async function handleRequestUnstake() {
     if (footerInfo && footerInfo[2] < amount) {
-      toast.error("Not enough AZERO stakes!");
+      toast.error("Not enough AZERO unstake!");
       return;
     }
 
-    await doWithdrawRequest(api, currentAccount, amount);
+    try {
+      await doWithdrawRequest(api, currentAccount, amount);
 
-    delay(1000).then(() => {
-      fetchData(true);
-      dispatch(fetchUserBalance({ currentAccount, api }));
-      fetchUserRequestList();
-      setAmount("");
-    });
+      delay(1000).then(() => {
+        fetchData(true);
+        dispatch(fetchUserBalance({ currentAccount, api }));
+        fetchUserRequestList();
+        setAmount("");
+      });
+    } catch (error) {
+      console.log("error", error);
+      toast.error("error", error);
+    }
   }
 
   const [userRequestList, setUserRequestList] = useState([]);
