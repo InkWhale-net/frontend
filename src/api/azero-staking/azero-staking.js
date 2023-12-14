@@ -148,7 +148,11 @@ export async function getApy(api, currentAccount) {
     "azeroStakingTrait::getApy"
   );
 
-  return formatQueryResultToNumber(queryResult, 2);
+  const rs =
+    formatChainStringToNumber(queryResult?.toHuman()?.Ok) / Math.pow(10, 12);
+
+  // 5 ~ 5% // 500 ~500%
+  return rs / Math.pow(10, 2);
 }
 
 export async function getInwMultiplier(api, currentAccount) {
@@ -160,8 +164,12 @@ export async function getInwMultiplier(api, currentAccount) {
     0,
     "azeroStakingTrait::getInwMultiplier"
   );
+  const rs =
+    formatChainStringToNumber(queryResult?.toHuman()?.Ok) / Math.pow(10, 12);
 
-  return formatQueryResultToNumber(queryResult, 4);
+  // 10 ~ 10 INW/day
+  // 0.1 ~ 0.1 INW/day
+  return rs / Math.pow(10, 4);
 }
 
 export async function getStakeList(api, currentAccount) {
@@ -339,6 +347,18 @@ export async function doTopupAzeroStakeAccount(api, currentAccount, amount) {
     formatNumToBN(amount),
     "azeroStakingTrait::topupAzeroStakeAccount",
     formatNumToBN(amount)
+  );
+}
+
+export async function doUpdateLockedStatus(api, currentAccount, status) {
+  return await execContractTx(
+    currentAccount,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::setIsLocked",
+    status
   );
 }
 
@@ -618,4 +638,17 @@ export async function getAzeroMinimumBalance(api, currentAccount) {
   );
 
   return queryResult?.toHuman()?.Ok;
+}
+
+// Execute tx MY INTEREST DISTRIBUTION
+
+export async function doDistributeAzero(api, currentAccount) {
+  return await execContractQuery(
+    currentAccount?.address,
+    api,
+    my_interest_distribution.CONTRACT_ABI,
+    my_interest_distribution.CONTRACT_ADDRESS,
+    0,
+    "interestDistributionTrait::distributeAzero"
+  );
 }

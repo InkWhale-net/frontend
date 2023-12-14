@@ -1,0 +1,58 @@
+.step_create {
+  :global {
+    .rc-steps-item-content {
+      display: block;
+    }
+    .rc-steps-item-icon {
+      width: 40px;
+      height: 40px;
+      background: #e8fdff;
+      /* Border */
+
+      span {
+        font-weight: 700;
+        font-size: 16px;
+        line-height: 20px;
+        color: #57527e !important;
+        top: 7px;
+      }
+    }
+    .rc-steps-item-active {
+      .rc-steps-item-icon {
+        background: #93f0f5;
+      }
+    }
+    .rc-steps-item-title {
+      margin-top: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      line-height: 23px;
+      /* identical to box height */
+
+      /* Primary_02 */
+
+      color: #57527e;
+
+      &::after {
+        top: -1.75em;
+        left: 50px;
+      }
+    }
+
+    .rc-steps-item-description {
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 28px;
+
+      color: #8c86a5;
+      max-width: 200px !important;
+    }
+  }
+}
+
+.step_block {
+  width: 100%;
+  padding-bottom: 40px;
+  border-bottom: 1px solid #e3dff3;
+  margin-bottom: 32px;
+}
