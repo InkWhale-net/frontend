@@ -1,4 +1,4 @@
-import { formatBalance } from "@polkadot/util";
+import { BN, formatBalance } from "@polkadot/util";
 import { formatChainStringToNumber } from "utils";
 import { formatNumToBN } from "utils";
 import { formatQueryResultToNumber } from "utils";
@@ -499,7 +499,7 @@ export async function doUpdateAzeroApy(api, currentAccount, amount) {
     my_azero_staking.CONTRACT_ADDRESS,
     0,
     "azeroStakingTrait::setApy",
-    formatNumToBN(amount)
+    new BN(amount * 10 ** 0)
   );
 }
 
@@ -511,7 +511,7 @@ export async function doUpdateInwMultiplier(api, currentAccount, amount) {
     my_azero_staking.CONTRACT_ADDRESS,
     0,
     "azeroStakingTrait::setInwMultiplier",
-    formatNumToBN(amount)
+    new BN(amount * 10 ** 0)
   );
 }
 // ++++++++++++++++++++
