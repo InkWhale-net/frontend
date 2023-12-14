@@ -634,8 +634,8 @@ export async function getAzeroMinimumBalance(api, currentAccount) {
 // Execute tx MY INTEREST DISTRIBUTION
 
 export async function doDistributeAzero(api, currentAccount) {
-  return await execContractQuery(
-    currentAccount?.address,
+  return await execContractTx(
+    currentAccount,
     api,
     my_interest_distribution.CONTRACT_ABI,
     my_interest_distribution.CONTRACT_ADDRESS,
