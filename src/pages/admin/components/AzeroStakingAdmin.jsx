@@ -2029,8 +2029,8 @@ function ApyAndMultiplierSection({ hasAdminRole }) {
 
   /*
   step 1 => Unlocked
-  step 2 => Update APY & Multiplier
-  step 3 => Waiting BE update
+  step 2 => Waiting BE update
+  step 3 => Update APY & Multiplier
   step 4 => Locked
    */
 
@@ -2041,12 +2041,16 @@ function ApyAndMultiplierSection({ hasAdminRole }) {
       content: <Text></Text>,
     },
     {
+      title: "Waiting BE update",
+      description: "Waiting BE update",
+    },
+    {
       title: "Update APY & Multiplier",
-      description: "Update APY & Multiplier & waiting BE update",
+      description: "After BE updated",
     },
     {
       title: "Unlock contract",
-      description: "After BE updated",
+      description: "After APY & Multiplier updated",
     },
   ];
 
