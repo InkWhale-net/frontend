@@ -148,11 +148,7 @@ export async function getApy(api, currentAccount) {
     "azeroStakingTrait::getApy"
   );
 
-  const rs =
-    formatChainStringToNumber(queryResult?.toHuman()?.Ok) / Math.pow(10, 12);
-
-  // 5 ~ 5% // 500 ~500%
-  return rs / Math.pow(10, 2);
+  return formatQueryResultToNumber(queryResult, 2);
 }
 
 export async function getInwMultiplier(api, currentAccount) {
@@ -164,12 +160,7 @@ export async function getInwMultiplier(api, currentAccount) {
     0,
     "azeroStakingTrait::getInwMultiplier"
   );
-  const rs =
-    formatChainStringToNumber(queryResult?.toHuman()?.Ok) / Math.pow(10, 12);
-
-  // 10 ~ 10 INW/day
-  // 0.1 ~ 0.1 INW/day
-  return rs / Math.pow(10, 4);
+  return formatQueryResultToNumber(queryResult, 4);
 }
 
 export async function getStakeList(api, currentAccount) {
