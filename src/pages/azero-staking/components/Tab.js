@@ -377,7 +377,7 @@ function StakingInfo() {
               isDisabled={
                 !lastClaimTime ||
                 !currentAccount?.address ||
-                lastAnchored > lastAzeroInterestTopupTimer
+                lastAnchored >= lastAzeroInterestTopupTimer
               }
               onClick={() => handleClaimRewards()}
             >

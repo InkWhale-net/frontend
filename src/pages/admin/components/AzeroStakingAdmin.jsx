@@ -1626,7 +1626,7 @@ function RewardsBalanceSection() {
               <Button
                 size="sm"
                 mt={["16px", "16px", "0px"]}
-                isDisabled={!isLocked || !hasAdminRole}
+                isDisabled={!hasAdminRole}
                 onClick={handleDistributeAzero}
               >
                 Distribute Azero
