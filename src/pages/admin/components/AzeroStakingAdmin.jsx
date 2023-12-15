@@ -1182,6 +1182,21 @@ function RewardsBalanceSection() {
   const fetchMasterData = useCallback(async (isMounted) => {
     try {
       setLoadingMasterAccount(true);
+      let operationWalletBalance = 0;
+
+      const { status, ret: operationWalletAddress } =
+        await APICall.getOperationWallet();
+        
+      if (status !== "OK") {
+        toast.error("Failed to fetch Operation Wallet!");
+      }
+
+      if (status === "OK") {
+        operationWalletBalance = await getAzeroBalanceOfAddress({
+          address: operationWalletAddress,
+        });
+        // console.log("operationWalletBalance", operationWalletBalance);
+      }
 
       const masterAccount = await getMasterAccount();
       // console.log("interest::getMasterAccount", masterAccount);
@@ -1235,6 +1250,22 @@ function RewardsBalanceSection() {
           valueFormatted: `${formatNumDynDecimal(frozenBal)} AZERO`,
           hasTooltip: true,
           tooltipContent: "frozenBal",
+        },
+        {
+          title: "Operation Account Address",
+          value: operationWalletAddress,
+          valueFormatted: <AddressCopier address={operationWalletAddress} />,
+          hasTooltip: true,
+          tooltipContent: "operationWalletAddress",
+        },
+        {
+          title: "AZERO Balance",
+          value: operationWalletBalance,
+          valueFormatted: `${formatNumDynDecimal(
+            operationWalletBalance
+          )} AZERO`,
+          hasTooltip: true,
+          tooltipContent: "operationWalletBalance",
         },
       ];
 
