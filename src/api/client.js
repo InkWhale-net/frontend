@@ -356,7 +356,6 @@ export const APICall = {
     );
   },
 
-
   getExpirationTime: async (options) => {
     return await client(
       "POST",
@@ -379,6 +378,15 @@ export const APICall = {
     return await client(
       "POST",
       "/getEventData",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  getOperationWallet: async (options) => {
+    return await client(
+      "POST",
+      "/getOperationWallet",
       { ...options },
       "https://staking.inkwhale.net/"
     );
