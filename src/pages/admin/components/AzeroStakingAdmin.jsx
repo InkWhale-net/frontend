@@ -1179,86 +1179,86 @@ function RewardsBalanceSection() {
   const [loadingMasterAccount, setLoadingMasterAccount] = useState(true);
   const [masterAccountInfo, setMasterAccountInfo] = useState([]);
 
+  const fetchMasterData = useCallback(async (isMounted) => {
+    try {
+      setLoadingMasterAccount(true);
+
+      const masterAccount = await getMasterAccount();
+      // console.log("interest::getMasterAccount", masterAccount);
+
+      const masterAccountBalanceAZERO = await getAzeroBalanceOfAddress({
+        address: masterAccount,
+      });
+      // console.log("MasterAccountBalanceAZERO", masterAccountBalanceAZERO);
+      const validatorAccountAddress =
+        process.env.REACT_APP_ADMIN_BOND_WALLET_ADDRESS ||
+        "5ERKXxAH8gqgMPzNtRpojrpndokD96EvMUG9obfwa6uDreM6";
+
+      const { freeBal, frozenBal } = await getBalanceOfBondAddress({
+        address: validatorAccountAddress,
+      });
+
+      const masterAccountInfoData = [
+        {
+          title: "Master Account Address",
+          value: masterAccount,
+          valueFormatted: <AddressCopier address={masterAccount} />,
+          hasTooltip: true,
+          tooltipContent: "masterAccount",
+        },
+        {
+          title: "AZERO Balance",
+          value: masterAccountBalanceAZERO,
+          valueFormatted: `${formatNumDynDecimal(
+            masterAccountBalanceAZERO
+          )} AZERO`,
+          hasTooltip: true,
+          tooltipContent: "masterAccountBalanceAZERO",
+        },
+        {
+          title: "Validator Account Address",
+          value: validatorAccountAddress,
+          valueFormatted: <AddressCopier address={validatorAccountAddress} />,
+          hasTooltip: true,
+          tooltipContent: "Validator Account",
+        },
+        {
+          title: "Total Balance",
+          value: freeBal,
+          valueFormatted: `${formatNumDynDecimal(freeBal)} AZERO`,
+          hasTooltip: true,
+          tooltipContent: "freeBal",
+        },
+        {
+          title: " - Frozen Amount",
+          value: frozenBal,
+          valueFormatted: `${formatNumDynDecimal(frozenBal)} AZERO`,
+          hasTooltip: true,
+          tooltipContent: "frozenBal",
+        },
+      ];
+
+      if (!isMounted) {
+        return;
+      }
+
+      setMasterAccountInfo(masterAccountInfoData);
+      setLoadingMasterAccount(false);
+    } catch (error) {
+      setLoadingMasterAccount(false);
+
+      console.log("Error", error);
+      toast.error("Error", error);
+    }
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
 
-    const fetchData = async (isMounted) => {
-      try {
-        setLoadingMasterAccount(true);
-
-        const masterAccount = await getMasterAccount();
-        // console.log("interest::getMasterAccount", masterAccount);
-
-        const masterAccountBalanceAZERO = await getAzeroBalanceOfAddress({
-          address: masterAccount,
-        });
-        // console.log("MasterAccountBalanceAZERO", masterAccountBalanceAZERO);
-        const validatorAccountAddress =
-          process.env.REACT_APP_ADMIN_BOND_WALLET_ADDRESS ||
-          "5ERKXxAH8gqgMPzNtRpojrpndokD96EvMUG9obfwa6uDreM6";
-
-        const { freeBal, frozenBal } = await getBalanceOfBondAddress({
-          address: validatorAccountAddress,
-        });
-
-        const masterAccountInfoData = [
-          {
-            title: "Master Account Address",
-            value: masterAccount,
-            valueFormatted: <AddressCopier address={masterAccount} />,
-            hasTooltip: true,
-            tooltipContent: "masterAccount",
-          },
-          {
-            title: "AZERO Balance",
-            value: masterAccountBalanceAZERO,
-            valueFormatted: `${formatNumDynDecimal(
-              masterAccountBalanceAZERO
-            )} AZERO`,
-            hasTooltip: true,
-            tooltipContent: "masterAccountBalanceAZERO",
-          },
-          {
-            title: "Validator Account Address",
-            value: validatorAccountAddress,
-            valueFormatted: <AddressCopier address={validatorAccountAddress} />,
-            hasTooltip: true,
-            tooltipContent: "Validator Account",
-          },
-          {
-            title: "Total Balance",
-            value: freeBal,
-            valueFormatted: `${formatNumDynDecimal(freeBal)} AZERO`,
-            hasTooltip: true,
-            tooltipContent: "freeBal",
-          },
-          {
-            title: " - Frozen Amount",
-            value: frozenBal,
-            valueFormatted: `${formatNumDynDecimal(frozenBal)} AZERO`,
-            hasTooltip: true,
-            tooltipContent: "frozenBal",
-          },
-        ];
-
-        if (!isMounted) {
-          return;
-        }
-
-        setMasterAccountInfo(masterAccountInfoData);
-        setLoadingMasterAccount(false);
-      } catch (error) {
-        setLoadingMasterAccount(false);
-
-        console.log("Error", error);
-        toast.error("Error", error);
-      }
-    };
-
-    fetchData(isMounted);
+    api && fetchMasterData(isMounted);
 
     return () => (isMounted = false);
-  }, []);
+  }, [api, fetchMasterData]);
 
   const [hasAdminRole, setHasAdminRole] = useState(false);
 
@@ -1289,6 +1289,8 @@ function RewardsBalanceSection() {
 
     try {
       await doDistributeAzero(api, currentAccount);
+
+      delay(1000).then(() => fetchMasterData(true));
     } catch (error) {
       console.log("Error", error);
       toast.error("Error", error);
