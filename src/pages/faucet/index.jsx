@@ -761,112 +761,112 @@ export default function FaucetPage({ api }) {
       ),
       isDisabled: false,
     },
-    {
-      label: `${isBigScreen ? "Public Sale" : ""} No Vesting`,
-      component: (
-        <IWCard
-          w="full"
-          variant="outline"
-          title={
-            <Flex justifyContent={"space-between"}>
-              {/* <Heading as="h4" size="h4" lineHeight="25px">
-                Acquire INW Tokens
-              </Heading> */}
-              <Flex>
-                {saleInfo?.endTimeSale ? (
-                  notSaleStart ? (
-                    <>
-                      Sale start in:{" "}
-                      <Text paddingLeft={"4px"}>
-                        <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
-                      </Text>{" "}
-                    </>
-                  ) : !isSaleEnded ? (
-                    <>
-                      Sale end in:{" "}
-                      <Text paddingLeft={"4px"}>
-                        <IWCountDown date={+saleInfo?.endTimeSale} />{" "}
-                      </Text>{" "}
-                    </>
-                  ) : (
-                    <>Ended</>
-                  )
-                ) : (
-                  ""
-                )}
-              </Flex>
-            </Flex>
-          }
-        >
-          <IWCard mt="16px" w="full" variant="solid">
-            <Stack
-              w="100%"
-              spacing="20px"
-              direction={{ base: "column" }}
-              align={{ base: "column", xl: "center" }}
-            >
-              <IWInput
-                value={inwBuyAmount}
-                onChange={onChangeInwInput}
-                type="number"
-                placeholder="Enter INW amount"
-                inputRightElementIcon={
-                  <Heading as="h5" size="h5" fontWeight="semibold">
-                    INW
-                  </Heading>
-                }
-              />
+    // {
+    //   label: `${isBigScreen ? "Public Sale" : ""} No Vesting`,
+    //   component: (
+    //     <IWCard
+    //       w="full"
+    //       variant="outline"
+    //       title={
+    //         <Flex justifyContent={"space-between"}>
+    //           {/* <Heading as="h4" size="h4" lineHeight="25px">
+    //             Acquire INW Tokens
+    //           </Heading> */}
+    //           <Flex>
+    //             {saleInfo?.endTimeSale ? (
+    //               notSaleStart ? (
+    //                 <>
+    //                   Sale start in:{" "}
+    //                   <Text paddingLeft={"4px"}>
+    //                     <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
+    //                   </Text>{" "}
+    //                 </>
+    //               ) : !isSaleEnded ? (
+    //                 <>
+    //                   Sale end in:{" "}
+    //                   <Text paddingLeft={"4px"}>
+    //                     <IWCountDown date={+saleInfo?.endTimeSale} />{" "}
+    //                   </Text>{" "}
+    //                 </>
+    //               ) : (
+    //                 <>Ended</>
+    //               )
+    //             ) : (
+    //               ""
+    //             )}
+    //           </Flex>
+    //         </Flex>
+    //       }
+    //     >
+    //       <IWCard mt="16px" w="full" variant="solid">
+    //         <Stack
+    //           w="100%"
+    //           spacing="20px"
+    //           direction={{ base: "column" }}
+    //           align={{ base: "column", xl: "center" }}
+    //         >
+    //           <IWInput
+    //             value={inwBuyAmount}
+    //             onChange={onChangeInwInput}
+    //             type="number"
+    //             placeholder="Enter INW amount"
+    //             inputRightElementIcon={
+    //               <Heading as="h5" size="h5" fontWeight="semibold">
+    //                 INW
+    //               </Heading>
+    //             }
+    //           />
 
-              <IWInput
-                type="number"
-                value={azeroBuyAmount}
-                onChange={onChangeAzeroInput}
-                placeholder="Enter AZERO amount"
-                inputRightElementIcon={<AzeroLogo />}
-              />
-              {inwPrice > 0 && (
-                <Flex
-                  mt={{ base: "15px", lg: "0px" }}
-                  w="full"
-                  flexDirection={{ base: "column", lg: "row" }}
-                  justifyContent="space-between"
-                >
-                  <Text textAlign="left" fontSize="md" lineHeight="28px">
-                    Price: {inwPrice} Azero / INW
-                  </Text>
-                  <Text textAlign="left" fontSize="md" lineHeight="28px">
-                    INW Available to acquire: {availableMint}
-                  </Text>
-                </Flex>
-              )}
+    //           <IWInput
+    //             type="number"
+    //             value={azeroBuyAmount}
+    //             onChange={onChangeAzeroInput}
+    //             placeholder="Enter AZERO amount"
+    //             inputRightElementIcon={<AzeroLogo />}
+    //           />
+    //           {inwPrice > 0 && (
+    //             <Flex
+    //               mt={{ base: "15px", lg: "0px" }}
+    //               w="full"
+    //               flexDirection={{ base: "column", lg: "row" }}
+    //               justifyContent="space-between"
+    //             >
+    //               <Text textAlign="left" fontSize="md" lineHeight="28px">
+    //                 Price: {inwPrice} Azero / INW
+    //               </Text>
+    //               <Text textAlign="left" fontSize="md" lineHeight="28px">
+    //                 INW Available to acquire: {availableMint}
+    //               </Text>
+    //             </Flex>
+    //           )}
 
-              {inwBuyAmount ? (
-                <Flex
-                  mt={{ base: "15px", lg: "0px" }}
-                  w="full"
-                  justifyContent="space-between"
-                >
-                  <Text textAlign="left" fontSize="md" lineHeight="28px">
-                    You will receive full amount of INW right after the
-                    purchase.
-                  </Text>
-                </Flex>
-              ) : (
-                ""
-              )}
-              <Button
-                w="full"
-                onClick={inwPublicMintHandler}
-                disabled={disableBuyBtn}
-              >
-                Buy INW
-              </Button>
-            </Stack>
-          </IWCard>
-        </IWCard>
-      ),
-      isDisabled: false,
-    },
+    //           {inwBuyAmount ? (
+    //             <Flex
+    //               mt={{ base: "15px", lg: "0px" }}
+    //               w="full"
+    //               justifyContent="space-between"
+    //             >
+    //               <Text textAlign="left" fontSize="md" lineHeight="28px">
+    //                 You will receive full amount of INW right after the
+    //                 purchase.
+    //               </Text>
+    //             </Flex>
+    //           ) : (
+    //             ""
+    //           )}
+    //           <Button
+    //             w="full"
+    //             onClick={inwPublicMintHandler}
+    //             disabled={disableBuyBtn}
+    //           >
+    //             Buy INW
+    //           </Button>
+    //         </Stack>
+    //       </IWCard>
+    //     </IWCard>
+    //   ),
+    //   isDisabled: false,
+    // },
   ];
 
   return (
@@ -912,13 +912,69 @@ export default function FaucetPage({ api }) {
             ]}
           />
           <Box w={"full"}>
-            <SaleTab
+            {/* <SaleTab
               tabsData={tabsData}
               tabIndex={tabIndex}
               onChangeTab={(index) => {
                 setTabIndex(index);
               }}
-            />
+            /> */}
+            <>
+              <CardThreeColumn
+                title="Public Sale Vesting"
+                data={[
+                  {
+                    title: "Claimable Amount",
+                    content: `${formatNumDynDecimal(
+                      saleInfo?.unclaimAmount / 10 ** 12,
+                      2
+                    )} INW`,
+                  },
+                  {
+                    title: "Total Claimed Amount",
+                    content: `${saleInfo?.buyerInfo?.claimedAmount} INW`,
+                  },
+                  {
+                    title: "Allocation",
+                    content: `${saleInfo?.buyerInfo?.purchasedAmount} INW`,
+                  },
+                  {
+                    title: "Vesting Duration",
+                    content: `${
+                      saleInfo?.vestingDuration / 60 / 60 / 24 / 1000
+                    } days`,
+                  },
+                  {
+                    title: "Vesting Start Date/Time",
+                    content: new Date(+saleInfo?.endTimeSale).toLocaleString(
+                      "en-US"
+                    ),
+                  },
+                  {
+                    title: "Vesting End Date/Time",
+                    content: new Date(
+                      +saleInfo?.endTimeSale + +saleInfo?.vestingDuration
+                    ).toLocaleString("en-US"),
+                  },
+                ]}
+              />
+              {/* <Button
+            w="full"
+            mt="20px"
+            onClick={claimPrivateInw}
+            disabled={!(+saleInfo?.unclaimAmount > 0)}
+          >
+            Claim INW
+          </Button> */}
+              <IWCountDownClaim
+                onClick={claimPrivateInw}
+                disabled={!(+saleInfo?.unclaimAmount > 0)}
+                startDate={new Date(+saleInfo?.endTimeSale)}
+                endDate={
+                  new Date(+saleInfo?.endTimeSale + +saleInfo?.vestingDuration)
+                }
+              />
+            </>
           </Box>
         </Stack>
       </SectionContainer>
