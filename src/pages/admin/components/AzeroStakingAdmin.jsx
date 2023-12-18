@@ -1714,7 +1714,7 @@ function ApyAndMultiplierSection({ hasAdminRole }) {
 
   useEffect(() => {
     api && fetchLockedStatusData();
-  }, [api, currentAccount.address, fetchLockedStatusData]);
+  }, [api, currentAccount?.address, fetchLockedStatusData]);
 
   const [newApy, setNewApy] = useState("");
 

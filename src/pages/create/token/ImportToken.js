@@ -143,7 +143,7 @@ const ImportTokenForm = ({ api }) => {
       }
       const { signer } = await web3FromSource(currentAccount?.meta?.source);
       const { signature } = await signer.signRaw({
-        address: currentAccount.address,
+        address: currentAccount?.address,
         data: stringToHex("Sign message to import token"),
         type: "bytes",
       });
