@@ -745,7 +745,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
           {/* doWithdrawAzeroToStake */}
           <IWCard mt="16px" w="full" variant="solid">
             <Formik
-              initialValues={{ receiver: "" }}
+              initialValues={{ receiver: "", amount: "" }}
               validationSchema={() =>
                 Yup.object().shape({
                   receiver: Yup.string().required("This field is a required"),
@@ -1186,7 +1186,7 @@ function RewardsBalanceSection() {
 
       const { status, ret: operationWalletAddress } =
         await APICall.getOperationWallet();
-        
+
       if (status !== "OK") {
         toast.error("Failed to fetch Operation Wallet!");
       }
@@ -1311,10 +1311,34 @@ function RewardsBalanceSection() {
     fetchData();
   }, [currentAccount?.address]);
 
+  const [
+    interestDistributionContractBalance,
+    setInterestDistributionContractBalance,
+  ] = useState(0);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      const interestDistributionContract =
+        await getInterestDistributionContract();
+
+      const balance = await getAzeroBalanceOfAddress({
+        address: interestDistributionContract,
+      });
+
+      setInterestDistributionContractBalance(balance);
+    };
+    fetchBalance();
+  }, []);
+
   async function handleDistributeAzero() {
     // check role
     if (!hasAdminRole) {
       toast.error("This account don't have Admin Role!");
+      return;
+    }
+
+    if (interestDistributionContractBalance <= 0) {
+      toast.error("Interest Distribution Contract have no balance!");
       return;
     }
 
