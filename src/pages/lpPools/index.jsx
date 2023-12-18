@@ -9,7 +9,6 @@ import {
   HStack,
   Stack,
   Switch,
-  Tooltip,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
@@ -19,13 +18,12 @@ import { IWMobileList } from "components/table/IWMobileList";
 import { IWTable } from "components/table/IWTable";
 import { useAppContext } from "contexts/AppContext";
 import { useEffect, useMemo, useState } from "react";
-import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllNFTPools,
   fetchAllTokenPools,
 } from "redux/slices/allPoolsSlice";
-import { delay, formatTokenAmount, isPoolEnded } from "utils";
+import { delay, isPoolEnded } from "utils";
 
 export default function LPPoolsPage() {
   const dispatch = useDispatch();
@@ -87,7 +85,7 @@ export default function LPPoolsPage() {
     let ret = allNFTPoolsList;
 
     if (showMyStakedPools) {
-      ret = ret.filter((p) => p.stakeInfo);
+      ret = ret.filter((p) => +p?.stakeInfo?.stakedValue > 0);
     }
 
     if (endedPools) {

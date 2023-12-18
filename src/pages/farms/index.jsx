@@ -83,7 +83,7 @@ export default function FarmsPage() {
     let ret = allNFTPoolsList;
 
     if (showMyStakedPools) {
-      ret = ret.filter((p) => p.stakeInfo);
+      ret = ret.filter((p) => +p?.stakeInfo?.stakedValue > 0);
     }
 
     if (endedPools) {
