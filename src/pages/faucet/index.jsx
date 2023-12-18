@@ -939,7 +939,7 @@ export default function FaucetPage({ api }) {
                       : "--",
                   },
                   {
-                    title: "Allocatison",
+                    title: "Allocation",
                     content: saleInfo?.buyerInfo?.purchasedAmount
                       ? `${saleInfo?.buyerInfo?.purchasedAmount} INW`
                       : "--",
@@ -977,18 +977,14 @@ export default function FaucetPage({ api }) {
           >
             Claim INW
           </Button> */}
-              {+saleInfo?.buyerInfo?.purchasedAmount > 0 && (
-                <IWCountDownClaim
-                  onClick={claimPrivateInw}
-                  disabled={!(+saleInfo?.unclaimAmount > 0)}
-                  startDate={new Date(+saleInfo?.endTimeSale)}
-                  endDate={
-                    new Date(
-                      +saleInfo?.endTimeSale + +saleInfo?.vestingDuration
-                    )
-                  }
-                />
-              )}
+              <IWCountDownClaim
+                onClick={claimPrivateInw}
+                disabled={!(+saleInfo?.unclaimAmount > 0)}
+                startDate={new Date(+saleInfo?.endTimeSale)}
+                endDate={
+                  new Date(+saleInfo?.endTimeSale + +saleInfo?.vestingDuration)
+                }
+              />
             </>
           </Box>
         </Stack>
