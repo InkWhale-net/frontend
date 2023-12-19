@@ -81,7 +81,8 @@ export default function NavbarLinks(props) {
               }
               borderRadius="5px"
               key={title}
-              ml={{ base: "20px", md: "20px" }}
+              // ml={{ base: "20px", md: "20px" }}
+              minW={{ base: null, lg: "80px" }}
             >
               <Link
                 to={href}
@@ -159,7 +160,9 @@ export default function NavbarLinks(props) {
             p="6px 10px"
             bg={"transparent"}
             borderRadius="5px"
-            ml={{ base: "20px", md: "20px" }}
+            // ml={{ base: "20px", md: "20px" }}
+            minW={{ base: "0px", lg: "72px" }}
+            justify={{ base: "normal", lg: "center" }}
           >
             <Link
               color={"text.1"}
@@ -184,7 +187,7 @@ export default function NavbarLinks(props) {
       </Show>
 
       <Show above="md">
-        <Flex ml="30px">
+        <Flex>
           <WalletButton />
         </Flex>
       </Show>
@@ -222,7 +225,14 @@ export const GroupMenu = ({
         bg={currentAnchor === path ? "bg.1" : "transparent"}
         borderRadius="5px"
       >
-        <Flex w="full" p="6px 10px" borderRadius="5px">
+        <Flex
+          w="full"
+          p="6px 10px"
+          borderRadius="5px"
+          display="flex"
+          justify={{ base: "normal", lg: "center" }}
+          minW={{ base: "72px" }}
+        >
           <Link color={"text.1"} fontWeight="600" textDecoration="none">
             <Text fontSize="md">{title}</Text>
           </Link>
