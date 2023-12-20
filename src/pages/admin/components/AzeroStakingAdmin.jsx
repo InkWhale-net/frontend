@@ -15,6 +15,7 @@ import {
   Text,
   Circle,
   useMediaQuery,
+  Tooltip,
 } from "@chakra-ui/react";
 import {
   getAzeroStakingContract,
@@ -36,7 +37,11 @@ import { ClipLoader } from "react-spinners";
 import { formatChainStringToNumber, formatNumDynDecimal } from "utils";
 import { getAzeroBalanceOfAddress } from "utils/contracts";
 
-import { CheckCircleIcon, WarningTwoIcon } from "@chakra-ui/icons";
+import {
+  CheckCircleIcon,
+  QuestionOutlineIcon,
+  WarningTwoIcon,
+} from "@chakra-ui/icons";
 import {
   doTopupAzeroStakeAccount,
   doWithdrawAzeroEmergency,
@@ -201,21 +206,21 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                   <AddressCopier address={azeroStakingContract} />
                 </>
               ),
-              hasTooltip: true,
+              hasTooltip: false,
               tooltipContent: "azeroStakingContract",
             },
             {
               title: "Azero Balance Of Staking Contract",
               value: azeroBalance,
               valueFormatted: `${formatNumDynDecimal(azeroBalance)} AZERO`,
-              hasTooltip: true,
+              hasTooltip: false,
               tooltipContent: "azeroBalance",
             },
             {
               title: "Azero Stake Balance",
               value: azeroStakeBalance,
               valueFormatted: `${formatNumDynDecimal(azeroStakeBalance)} AZERO`,
-              hasTooltip: true,
+              hasTooltip: false,
               tooltipContent: "azeroStakeBalance",
             },
             {
@@ -223,14 +228,16 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
               value: withdrawableAzero,
               valueFormatted: `${formatNumDynDecimal(withdrawableAzero)} AZERO`,
               hasTooltip: true,
-              tooltipContent: "withdrawableAzero",
+              tooltipContent:
+                '= Azero Stake Account (A) - Azero for "Ready To Unstake" Requests (B) - Azero for Pending List Within Expiration Time (C) if A > B + C otherwise = 0',
             },
             {
               title: "Withdrawal Waiting Time",
               value: maxWaitingTime,
               valueFormatted: `${maxWaitingTime / 60000} mins`,
               hasTooltip: true,
-              tooltipContent: "maxWaitingTime",
+              tooltipContent:
+                "Waiting time for request to be withdrawable (default 48 hours)",
             },
             {
               title: "Total AZERO for pending list within expiration time",
@@ -239,7 +246,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                 formatChainStringToNumber(waitingListInfo?.totalAzero) /
                   Math.pow(10, 12)
               )} AZERO`,
-              hasTooltip: true,
+              hasTooltip: false,
               tooltipContent: "waitingListInfo?.totalAzero",
             },
             {
@@ -249,7 +256,8 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                 formatChainStringToNumber(payableAzero)
               )} AZERO`,
               hasTooltip: true,
-              tooltipContent: "payableAzero",
+              tooltipContent:
+                '= Azero Stake Account - Azero for "Ready To Unstake" Requests',
             },
             {
               title: `${
@@ -269,7 +277,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                   {formatNumDynDecimal(insufficientAzeroAmount)} AZERO
                 </Flex>
               ),
-              hasTooltip: true,
+              hasTooltip: false,
               tooltipContent: "insufficientAzeroAmount",
             },
           ];
@@ -553,15 +561,27 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
             />
           </Flex>
         ) : (
-          info?.map(({ title, valueFormatted }, idx) => (
-            <>
-              <SimpleGrid columns={[1, 1, 2]} spacing={["0px", "0px", "24px"]}>
-                <Text mr="4px">{title}: </Text>
-                <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
-              </SimpleGrid>
-              {idx === 4 && <Divider my="16px" />}
-            </>
-          ))
+          info?.map(
+            ({ title, valueFormatted, hasTooltip, tooltipContent }, idx) => (
+              <>
+                <SimpleGrid
+                  columns={[1, 1, 2]}
+                  spacing={["0px", "0px", "24px"]}
+                >
+                  <Text mr="4px">
+                    {title}{" "}
+                    {hasTooltip && (
+                      <Tooltip fontSize="md" label={tooltipContent}>
+                        <QuestionOutlineIcon ml="6px" color="text.2" />
+                      </Tooltip>
+                    )}{" "}
+                  </Text>
+                  <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
+                </SimpleGrid>
+                {idx === 4 && <Divider my="16px" />}
+              </>
+            )
+          )
         )}
 
         <Divider my="16px" />
@@ -586,7 +606,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                     columns={[1, 1, 2]}
                     spacing={["0px", "0px", "24px"]}
                   >
-                    <Text mr="4px">{title}: </Text>
+                    <Text mr="4px">{title} </Text>
                     <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
                   </SimpleGrid>
                 ))}
@@ -615,7 +635,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                       columns={[1, 1, 2]}
                       spacing={["0px", "0px", "24px"]}
                     >
-                      <Text mr="4px">{title}: </Text>
+                      <Text mr="4px">{title} </Text>
                       <Text
                         mb={["12px", "12px", "2px"]}
                         textAlign={["left", "left", "right"]}
@@ -629,7 +649,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                   columns={[1, 1, 2]}
                   spacing={["0px", "0px", "24px"]}
                 >
-                  <Text mr="4px">Unclaimed INW Rewards: </Text>
+                  <Text mr="4px">Unclaimed INW Rewards </Text>
                   <Text
                     mb={["12px", "12px", "2px"]}
                     textAlign={["left", "left", "right"]}
@@ -646,7 +666,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                     {insufficientInwRewardsAmount > 0
                       ? "Excessive"
                       : "Insufficient"}{" "}
-                    INW Amount:
+                    INW Amount
                   </Text>
                   <Flex
                     justifyContent={["start", "start", "end"]}
@@ -686,7 +706,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                       columns={[1, 1, 2]}
                       spacing={["0px", "0px", "24px"]}
                     >
-                      <Text mr="4px">{title}: </Text>
+                      <Text mr="4px">{title} </Text>
                       <Text
                         mb={["12px", "12px", "2px"]}
                         textAlign={["left", "left", "right"]}
@@ -700,7 +720,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                   columns={[1, 1, 2]}
                   spacing={["0px", "0px", "24px"]}
                 >
-                  <Text mr="4px">Unclaimed AZERO Rewards: </Text>
+                  <Text mr="4px">Unclaimed AZERO Rewards </Text>
                   <Text
                     mb={["12px", "12px", "2px"]}
                     textAlign={["left", "left", "right"]}
@@ -717,7 +737,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                     {insufficientInwRewardsAmount > 0
                       ? "Excessive"
                       : "Insufficient"}{" "}
-                    AZERO Amount:
+                    AZERO Amount
                   </Text>
                   <Flex
                     alignItems="center"
@@ -931,28 +951,10 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                             ml={[0, 1]}
                             htmlFor="topupAmount"
                           >
-                            <Text>Topup Amount</Text>
+                            <Text>Topup Stake Account</Text>
                           </FormLabel>
 
                           <InputGroup>
-                            <InputRightElement
-                              right="10px"
-                              justifyContent="end"
-                              children={
-                                <Button
-                                  isDisabled={isSubmitting}
-                                  size="sm"
-                                  onClick={() => {
-                                    form.setFieldValue(
-                                      field.name,
-                                      userAzeroBalance
-                                    );
-                                  }}
-                                >
-                                  Max
-                                </Button>
-                              }
-                            />
                             <Input
                               {...field}
                               id="topupAmount"
@@ -994,7 +996,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                           speedMultiplier={1.5}
                         />
                       ) : (
-                        "Topup Stake Account"
+                        "Topup"
                       )}
                     </Button>
                   </Flex>
@@ -1372,7 +1374,7 @@ function RewardsBalanceSection() {
                   columns={[1, 1, 2]}
                   spacing={["0px", "0px", "24px"]}
                 >
-                  <Text mr="4px">{title}: </Text>
+                  <Text mr="4px">{title} </Text>
                   <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
                 </SimpleGrid>
               ))}{" "}
@@ -1820,7 +1822,7 @@ function ApyAndMultiplierSection({ hasAdminRole }) {
     <>
       <Stack mb="24px">
         <Flex>
-          <Text mr="6px">Contract status: </Text>
+          <Text mr="6px">Contract status </Text>
           <Text fontWeight="semibold"> {isLocked ? "Locked" : "Unlocked"}</Text>
         </Flex>
 
