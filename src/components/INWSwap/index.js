@@ -57,7 +57,13 @@ export const INWSwap = () => {
             borderRadius="5px"
             ml={{ base: "20px", md: "20px" }}
           >
-            <Flex w="full" p="6px 10px" borderRadius="5px">
+            <Flex
+              w="full"
+              p="6px 10px"
+              borderRadius="5px"
+              minW={{ base: "0px", lg: "72px" }}
+              justify={{ base: "normal", lg: "center" }}
+            >
               <Link color={"text.1"} fontWeight="600" textDecoration="none">
                 <Text fontSize="md">Swap</Text>
               </Link>

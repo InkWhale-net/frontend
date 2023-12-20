@@ -450,8 +450,7 @@ const MyStakeRewardInfo = ({
         toast.error("Pool is ended!");
         return false;
       }
-
-      if (!amount || +tokenBalance?.replaceAll(",", "") < +amount) {
+      if (!amount || +formatTextAmount(tokenBalance) < +amount) {
         toast.error("Invalid Amount!");
         return false;
       }
@@ -469,9 +468,7 @@ const MyStakeRewardInfo = ({
         toast.error(`Max staking amount reached`);
         return false;
       }
-      const remainStaking = roundUp(
-        maxStakingAmount - +totalStaked?.replaceAll(",", "")
-      );
+      const remainStaking = roundUp(maxStakingAmount - totalStaked);
       if (remainStaking - +amount < 0) {
         toast.error(
           `You can not stake more than ${formatNumDynDecimal(
@@ -543,7 +540,7 @@ const MyStakeRewardInfo = ({
 
       if (
         !isOldPool &&
-        +currentAccount?.balance?.inw2?.replaceAll(",", "") < +unstakeFee
+        +formatTextAmount(currentAccount?.balance?.inw2) < +unstakeFee
       ) {
         toast.error(
           `You don't have enough INW V2. Unstake costs ${unstakeFee} INW V2!`
@@ -552,7 +549,7 @@ const MyStakeRewardInfo = ({
       }
       if (
         isOldPool &&
-        +currentAccount?.balance?.inw?.replaceAll(",", "") < +unstakeFee
+        +formatTextAmount(currentAccount?.balance?.inw) < +unstakeFee
       ) {
         toast.error(
           `You don't have enough INW. Unstake costs ${unstakeFee} INW!`
@@ -581,10 +578,7 @@ const MyStakeRewardInfo = ({
       let info = queryResult?.toHuman().Ok;
 
       const userCurrentStake =
-        formatTokenAmount(
-          info?.stakedValue?.replaceAll(",", ""),
-          +tokenDecimal
-        ) || 0;
+        formatTokenAmount(info?.stakedValue, +tokenDecimal) || 0;
       if (!(+userCurrentStake > 0)) {
         toast.error(`You musk stake first`);
         return false;
@@ -775,7 +769,10 @@ const MyStakeRewardInfo = ({
                       return;
                     }
                     setAmount(
-                      formatTokenAmount(stakeInfo?.stakedValue, tokenDecimal)
+                      formatTokenAmount(
+                        stakeInfo?.stakedValue,
+                        tokenDecimal
+                      ).toString()
                     );
                   }}
                 />

@@ -36,6 +36,7 @@ import {
 import { execContractQuery, execContractTx } from "utils/contracts";
 import pool_generator_contract from "utils/contracts/pool_generator";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { execContractTxAndCallAPI } from "utils/contracts";
 
 export default function CreateStakePoolPage({ api }) {
   const dispatch = useDispatch();
@@ -274,13 +275,19 @@ export default function CreateStakePoolPage({ api }) {
 
     await delay(3000);
     toast.success(`Step ${step}: Process...`);
-    await execContractTx(
+    await execContractTxAndCallAPI(
       currentAccount,
       "api",
       pool_generator_contract.CONTRACT_ABI,
       pool_generator_contract.CONTRACT_ADDRESS,
       0, //-> value
       "newPool",
+      async (newContractAddress) => {
+        await APICall.askBEupdate({
+          type: "pool",
+          poolContract: newContractAddress,
+        });
+      },
       currentAccount?.address,
       selectedContractAddr,
       formatNumToBN(maxStake, tokenInfor?.decimal || 12),
@@ -288,7 +295,7 @@ export default function CreateStakePoolPage({ api }) {
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
     );
-    await delay(3000);
+    await delay(1000);
 
     await APICall.askBEupdate({ type: "pool", poolContract: "new" });
 
@@ -297,7 +304,7 @@ export default function CreateStakePoolPage({ api }) {
     setMaxStake("");
     setStartTime(new Date());
     toast.promise(
-      delay(30000).then(() => {
+      delay(10000).then(() => {
         if (currentAccount) {
           dispatch(fetchUserBalance({ currentAccount, api }));
           dispatch(fetchMyStakingPools({ currentAccount }));
@@ -306,7 +313,7 @@ export default function CreateStakePoolPage({ api }) {
         fetchTokenBalance();
       }),
       {
-        loading: "Please wait 30s for the data to be updated! ",
+        loading: "Please wait 10s for the data to be updated! ",
         success: "Done !",
         error: "Could not fetch data!!!",
       }

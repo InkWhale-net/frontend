@@ -19,7 +19,7 @@ import { useAppContext } from "contexts/AppContext";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
-import { formatTokenAmount, isPoolEnded } from "utils";
+import { isPoolEnded, isPoolNotStart } from "utils";
 
 export default function PoolsPage() {
   const dispatch = useDispatch();
@@ -29,9 +29,10 @@ export default function PoolsPage() {
   const { allStakingPoolsList } = useSelector((s) => s.allPools);
 
   const [showMyStakedPools, setShowMyStakedPools] = useState(false);
+  const [endedPools, setendedPools] = useState(false);
+  const [livePools, setLivePools] = useState(false);
 
   const [sortPools, setSortPools] = useState(-1);
-  const [endedPools, setendedPools] = useState(false);
 
   const [keywords, setKeywords] = useState("");
   const [resultList, setResultList] = useState(null);
@@ -58,7 +59,7 @@ export default function PoolsPage() {
           currentAccount,
         })
       );
-  }, [currentAccount, api, dispatch, endedPools, sortPools]);
+  }, [currentAccount, api, dispatch, sortPools]);
 
   const poolsListDataFiltered = useMemo(() => {
     let ret = allStakingPoolsList;
@@ -71,8 +72,16 @@ export default function PoolsPage() {
       ret = ret.filter((p) => isPoolEnded(p?.startTime, p?.duration));
     }
 
+    if (livePools) {
+      ret = ret.filter(
+        (p) =>
+          !isPoolEnded(p?.startTime, p?.duration) &&
+          !isPoolNotStart(p?.startTime)
+      );
+    }
+
     return ret;
-  }, [allStakingPoolsList, showMyStakedPools, endedPools]);
+  }, [allStakingPoolsList, showMyStakedPools, endedPools, livePools]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -96,7 +105,7 @@ export default function PoolsPage() {
         hasTooltip: true,
         tooltipContent: `Total Value Locked: Total tokens staked into this pool`,
         label: "TVL",
-        showTooltipIconContent: true
+        showTooltipIconContent: true,
       },
       {
         name: "apy",
@@ -199,7 +208,31 @@ export default function PoolsPage() {
                   My Stake Only
                 </FormLabel>
               </FormControl>
-
+              <FormControl
+                maxW="200px"
+                display="flex"
+                alignItems="center"
+                justifyContent={{ base: "flex-end", lg: "none" }}
+              >
+                <Switch
+                  id="zero-reward-pools"
+                  isChecked={livePools}
+                  onChange={() => {
+                    const newValue = !livePools;
+                    setLivePools(newValue);
+                    if (newValue == true) setendedPools(false);
+                  }}
+                />
+                <FormLabel
+                  mb="0"
+                  ml="10px"
+                  fontWeight="400"
+                  htmlFor="zero-reward-pools"
+                  whiteSpace="nowrap"
+                >
+                  Pool Live Only
+                </FormLabel>
+              </FormControl>
               <FormControl
                 maxW="200px"
                 display="flex"
@@ -209,7 +242,11 @@ export default function PoolsPage() {
                 <Switch
                   id="zero-reward-pools"
                   isChecked={endedPools}
-                  onChange={() => setendedPools(!endedPools)}
+                  onChange={() => {
+                    const newValue = !endedPools;
+                    setendedPools(newValue);
+                    if (newValue == true) setLivePools(false);
+                  }}
                 />
                 <FormLabel
                   mb="0"

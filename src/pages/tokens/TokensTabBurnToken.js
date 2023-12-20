@@ -11,6 +11,7 @@ import { fetchUserBalance } from "redux/slices/walletSlice";
 import { delay, formatChainStringToNumber, formatNumToBN } from "utils";
 import { execContractTx } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
+import MyAccountTab from "./myAccount";
 
 const TokensTabBurnToken = ({
   mode,
@@ -76,28 +77,7 @@ const TokensTabBurnToken = ({
       alignItems="start"
       direction={{ base: "column", lg: "row" }}
     >
-      <IWCardOneColumn
-        title="My Account"
-        data={[
-          {
-            title: "Account Address",
-            content: !address ? (
-              "No account selected"
-            ) : (
-              <AddressCopier address={address} />
-            ),
-          },
-          {
-            title: "Azero Balance",
-            content: `${balance?.azero || 0} AZERO`,
-          },
-          { title: "INW Balance", content: `${balance?.inw || 0} INW` },
-          {
-            title: !tokenInfo?.title ? "" : `${tokenInfo?.title} Balance`,
-            content: `${tokenInfo?.content} ${tokenInfo?.title}`,
-          },
-        ]}
-      />
+      <MyAccountTab address={address} balance={balance} tokenInfo={tokenInfo} />
 
       <IWCard
         w="full"

@@ -23,6 +23,7 @@ import {
   fetchAllNFTPools,
   fetchAllTokenPools,
 } from "redux/slices/allPoolsSlice";
+import { isPoolNotStart } from "utils";
 import { delay, isPoolEnded } from "utils";
 
 export default function FarmsPage() {
@@ -38,6 +39,7 @@ export default function FarmsPage() {
   const [showMyStakedPools, setShowMyStakedPools] = useState(false);
 
   const [endedPools, setEndedPools] = useState(false);
+  const [livePools, setLivePools] = useState(false);
 
   const [keywords, setKeywords] = useState("");
   const [resultList, setResultList] = useState(null);
@@ -83,15 +85,22 @@ export default function FarmsPage() {
     let ret = allNFTPoolsList;
 
     if (showMyStakedPools) {
-      ret = ret.filter((p) => p.stakeInfo);
+      ret = ret.filter((p) => +p?.stakeInfo?.stakedValue > 0);
     }
 
     if (endedPools) {
       ret = ret.filter((p) => isPoolEnded(p?.startTime, p?.duration));
     }
+    if (livePools) {
+      ret = ret.filter(
+        (p) =>
+          !isPoolEnded(p?.startTime, p?.duration) &&
+          !isPoolNotStart(p?.startTime)
+      );
+    }
 
     return ret;
-  }, [allNFTPoolsList, showMyStakedPools, endedPools]);
+  }, [allNFTPoolsList, showMyStakedPools, endedPools, livePools]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -246,8 +255,38 @@ export default function FarmsPage() {
               >
                 <Switch
                   id="zero-reward-pools"
+                  isChecked={livePools}
+                  onChange={() => {
+                    const newValue = !livePools;
+                    setLivePools(newValue);
+                    if (newValue == true) setEndedPools(false);
+                  }}
+                />
+                <FormLabel
+                  mb="0"
+                  ml="10px"
+                  fontWeight="400"
+                  htmlFor="zero-reward-pools"
+                  whiteSpace="nowrap"
+                >
+                  Pool Live Only
+                </FormLabel>
+              </FormControl>
+
+              <FormControl
+                maxW="200px"
+                display="flex"
+                alignItems="center"
+                justifyContent={{ base: "flex-end", lg: "none" }}
+              >
+                <Switch
+                  id="zero-reward-pools"
                   isChecked={endedPools}
-                  onChange={() => setEndedPools(!endedPools)}
+                  onChange={() => {
+                    const newValue = !endedPools;
+                    setEndedPools(newValue);
+                    if (newValue == true) setLivePools(false);
+                  }}
                 />
                 <FormLabel
                   mb="0"

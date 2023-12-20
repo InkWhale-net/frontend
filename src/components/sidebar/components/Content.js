@@ -1,16 +1,11 @@
-import { Flex, Stack, Link, Text } from "@chakra-ui/react";
-import { INWSwap } from "components/INWSwap";
-import { TokenMenuDropdown } from "components/navbar/NavbarLinks";
-import { StakeMenuDropdown } from "components/navbar/NavbarLinks";
-import { CreateMenuDropdown } from "components/navbar/NavbarLinks";
-import { menuListData } from "components/navbar/NavbarLinks";
+import { Flex, Link, Stack, Text } from "@chakra-ui/react";
+import { GroupMenu, menuListData } from "components/navbar/NavbarLinks";
 
 import Brand from "components/sidebar/components/Brand";
 import WalletButton from "components/wallet/WalletButton";
 import { useSwapV2TokenContext } from "contexts/SwapV2TokenModalContext";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -30,7 +25,7 @@ function SidebarContent({ onClose }) {
       ? setCurrentAnchor("")
       : setCurrentAnchor(shortenUrl.replace("/", ""));
   }, []);
-
+  const groupButtonProps = { setCurrentAnchor, currentAnchor };
   return (
     <Flex direction="column" height="100%" pt="25px" borderRadius="30px">
       <Brand />
@@ -42,6 +37,21 @@ function SidebarContent({ onClose }) {
         mt="8px"
         px="20px"
       >
+        <GroupMenu
+          {...groupButtonProps}
+          title="INW Token"
+          path="/inw"
+          data={[
+            {
+              label: "Claim INW",
+              href: "/acquire-inw",
+            },
+            {
+              label: "INW V2",
+              href: "/inw-v2",
+            },
+          ]}
+        />
         {menuListData?.map(({ title, href }) => (
           <Flex
             w={"full"}
@@ -53,7 +63,7 @@ function SidebarContent({ onClose }) {
             }
             borderRadius="5px"
             key={title}
-            ml={{ base: "0px", md: "20px" }}
+            ml={{ base: "0px" }}
           >
             <Link
               to={href}
@@ -74,84 +84,57 @@ function SidebarContent({ onClose }) {
             </Link>
           </Flex>
         ))}
-
-        {/* {!currentAccount ? null : (
-          <Flex
-            _hover={{ textDecoration: "none", bg: "bg.1" }}
-            p="6px 10px"
-            bg={currentAnchor === "/account" ? "bg.1" : "transparent"}
-            borderRadius="5px"
-            ml={{ base: "20px", md: "20px" }}
-          >
-            <Link
-              to="/account"
-              as={RouterLink}
-              color={"text.1"}
-              fontWeight="600"
-              bg="transparent"
-              textDecoration="none"
-              _hover={{ textDecoration: "none", bg: "bg.1" }}
-              onClick={() => setCurrentAnchor('"/account"')}
-            >
-              <Text bg="transparent" fontSize="md">
-                My Account
-              </Text>
-            </Link>
-          </Flex>
-        )} */}
-        <TokenMenuDropdown
-          onClose={onClose}
-          setCurrentAnchor={setCurrentAnchor}
-          currentAnchor={currentAnchor}
+        <GroupMenu
+          {...groupButtonProps}
+          title="Token"
+          path="/token"
+          data={[
+            {
+              label: "Interaction",
+              href: "/tokens/interaction",
+            },
+            {
+              label: "Transactions",
+              href: "/tokens/transaction",
+            },
+          ]}
         />
-        <StakeMenuDropdown
-          onClose={onClose}
-          setCurrentAnchor={setCurrentAnchor}
-          currentAnchor={currentAnchor}
+        <GroupMenu
+          {...groupButtonProps}
+          title="Pools"
+          path="/pools"
+          data={[
+            {
+              label: "Token Pools",
+              href: "/pools",
+            },
+            { label: "Farming", href: "/farming" },
+            { label: "NFT Pools", href: "/farms" },
+          ]}
         />
-        <CreateMenuDropdown onClose={onClose} />
-        {/* <Flex
-          _hover={{ textDecoration: "none", bg: "bg.1" }}
-          p="6px 10px"
-          bg={"transparent"}
-          borderRadius="5px"
-          ml={{ base: "20px", md: "20px" }}
-        >
-          <Link
-            color={"text.1"}
-            fontWeight="600"
-            bg="transparent"
-            textDecoration="none"
-            _focus={{ borderWidth: "0px" }}
-            _hover={{ textDecoration: "none", bg: "bg.1" }}
-            onClick={() => toast.success("Coming soon!")}
-          >
-            <Text bg="transparent" fontSize="md">
-              Launchpad
-            </Text>
-          </Link>
-        </Flex> */}
-        {/* <Flex
-          _hover={{ textDecoration: "none", bg: "bg.1" }}
-          p="6px 10px"
-          bg={"transparent"}
-          borderRadius="5px"
-          ml={{ base: "20px", md: "20px" }}
-        >
-          <Link
-            color={"text.1"}
-            fontWeight="600"
-            bg="transparent"
-            textDecoration="none"
-            _focus={{ borderWidth: "0px" }}
-            _hover={{ textDecoration: "none", bg: "bg.1" }}
-            onClick={() => toast.success("Coming soon!")}
-          >
-            <Text bg="transparent" fontSize="md">
-              Orderbook Dex
-            </Text>
-          </Link>
-        </Flex> */}
+        <GroupMenu
+          {...groupButtonProps}
+          title="Create"
+          path="/create"
+          data={[
+            {
+              label: "Token",
+              href: "/create/token",
+            },
+            {
+              label: "Token Staking Pool",
+              href: "/create/stake-pool",
+            },
+            {
+              label: "Token Farming",
+              href: "/create/farming",
+            },
+            {
+              label: "NFT Staking Pool",
+              href: "/create/nft-lp",
+            },
+          ]}
+        />
         <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
           p="6px 10px"

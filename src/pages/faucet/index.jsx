@@ -353,7 +353,7 @@ export default function FaucetPage({ api }) {
             const inwTotalSupplyCap = formatQueryResultToNumber(result1);
             setInwBurn(
               +formatTextAmount(inwTotalSupplyCap) -
-                +formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
+                formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
             );
           }
         } else {
