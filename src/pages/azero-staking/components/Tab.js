@@ -18,7 +18,6 @@ import {
 } from "@chakra-ui/react";
 import { doClaimRewards } from "api/azero-staking/azero-staking";
 import { getLastAzeroInterestTopup } from "api/azero-staking/azero-staking";
-import { getRewardsClaimWaitingTime } from "api/azero-staking/azero-staking";
 import { getStakeInfo } from "api/azero-staking/azero-staking";
 import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
@@ -40,7 +39,7 @@ export default function StakingTabs({ tabsData, onChangeTab }) {
   return (
     <Stack
       w="full"
-      spacing="30px"
+      spacing="24px"
       alignItems="start"
       direction={{ base: "column", lg: "row" }}
     >
@@ -97,10 +96,10 @@ const LeftColumn = () => {
   }, [api, currentAccount]);
 
   return (
-    <VStack w={["full", "full", "full"]} maxW="380px" spacing="24px">
+    <VStack w={["full", "full", "full"]} maxW="320px" spacing="24px">
       {/* Side column */}
       <IWCardOneColumn
-        w="full"
+        minW="full"
         title="My Account"
         data={[
           ...prepareAccountInfo(currentAccount),
@@ -267,38 +266,38 @@ function StakingInfo() {
 
   const formattedInfo = [
     {
-      title: "Unclaimed AZERO",
+      title: "Estimated AZERO earnings",
       number: info && info[0],
       denom: "AZERO",
-      hasTooltip: true,
+      hasTooltip: false,
       tooltipContent: "Content of tooltip ",
     },
     {
-      title: "Unclaimed INW",
+      title: "Estimated INW earnings",
       number: info && info[1],
       denom: "INW",
-      hasTooltip: true,
+      hasTooltip: false,
       tooltipContent: "Content of tooltip ",
     },
     {
       title: "Total Claimed AZERO",
       number: info && info[2],
       denom: "AZERO",
-      hasTooltip: true,
+      hasTooltip: false,
       tooltipContent: "Content of tooltip ",
     },
     {
       title: "Total Claimed INW",
       number: info && info[3],
       denom: "INW",
-      hasTooltip: true,
+      hasTooltip: false,
       tooltipContent: "Content of tooltip ",
     },
     {
       title: "Last Claimed Time",
       number: lastClaimTime,
       denom: "",
-      hasTooltip: true,
+      hasTooltip: false,
       tooltipContent: "Content of tooltip ",
     },
   ];
@@ -306,42 +305,44 @@ function StakingInfo() {
   return (
     <>
       <>
-        {formattedInfo?.map((i) => (
-          <Flex
-            key={i?.title}
-            w="full"
-            justify="space-between"
-            direction={["column"]}
-          >
-            <Flex alignItems="center">
-              {i?.title}
-              {i?.hasTooltip && (
-                <Tooltip fontSize="md" label={i?.tooltipContent}>
-                  <QuestionOutlineIcon ml="6px" color="text.2" />
-                </Tooltip>
-              )}
-            </Flex>
-            <Box
-              color={{ base: "#57527E" }}
-              fontWeight={{ base: "bold" }}
-              fontSize={["16px", "18px"]}
+        {formattedInfo?.map((i) => {
+          return i?.number === undefined ? null : (
+            <Flex
+              key={i?.title}
+              w="full"
+              justify="space-between"
+              direction={["column"]}
             >
-              {i.title === "Last Claimed Time" ? (
-                <>
-                  {!i?.number
-                    ? "Not claim yet"
-                    : !!parseInt(i?.number)
-                    ? new Date(parseInt(i?.number)).toLocaleString("en-US")
-                    : i?.number}
-                </>
-              ) : (
-                <>
-                  {formatNumDynDecimal(i.number) || 0} {i.denom}
-                </>
-              )}
-            </Box>
-          </Flex>
-        ))}
+              <Flex alignItems="center">
+                {i?.title}
+                {i?.hasTooltip && (
+                  <Tooltip fontSize="md" label={i?.tooltipContent}>
+                    <QuestionOutlineIcon ml="6px" color="text.2" />
+                  </Tooltip>
+                )}
+              </Flex>
+              <Box
+                color={{ base: "#57527E" }}
+                fontWeight={{ base: "bold" }}
+                fontSize={["16px", "18px"]}
+              >
+                {i.title === "Last Claimed Time" ? (
+                  <>
+                    {!i?.number
+                      ? "Not claim yet"
+                      : !!parseInt(i?.number)
+                      ? new Date(parseInt(i?.number)).toLocaleString("en-US")
+                      : i?.number}
+                  </>
+                ) : (
+                  <>
+                    {formatNumDynDecimal(i.number) || 0} {i.denom}
+                  </>
+                )}
+              </Box>
+            </Flex>
+          );
+        })}
 
         {lastAnchored > lastAzeroInterestTopupTimer ? (
           <>
@@ -388,7 +389,7 @@ function StakingInfo() {
         {lastAnchored > lastAzeroInterestTopupTimer ? (
           <Alert status="warning">
             <AlertIcon />
-            User can claim the rewards approximately every 48 hours.
+            User can claim the rewards approximately every 24 hours.
           </Alert>
         ) : null}
       </>

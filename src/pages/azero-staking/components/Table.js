@@ -11,7 +11,7 @@ export default function StakingTable({ tableBody, cb }) {
     },
     {
       name: "requestStatus",
-      hasTooltip: true,
+      hasTooltip: false,
       tooltipContent: `Request Status tooltip`,
       label: "Status",
     },
@@ -35,11 +35,11 @@ export default function StakingTable({ tableBody, cb }) {
       alignItems="start"
       direction={{ base: "column" }}
     >
-      <IWTable {...tableData} mode="AZERO_STAKING" isDisableRowClick cb={cb} />
       <Alert status="warning">
         <AlertIcon />
         Note: 5 INW will be charged and burned for each claim!{" "}
       </Alert>
+      <IWTable {...tableData} mode="AZERO_STAKING" isDisableRowClick cb={cb} />
     </Stack>
   );
 }
@@ -90,16 +90,11 @@ export function ClaimRewardsTable({ tableBody }) {
 }
 
 export function TxHistoryTable({ tableBody }) {
+
   const tableHeader = [
     {
-      name: "blockNumber",
-      hasTooltip: false,
-      tooltipContent: "",
-      label: "Block Number",
-    },
-    {
       name: "requestUserAddress",
-      hasTooltip: true,
+      hasTooltip: false,
       tooltipContent: `Request Status tooltip`,
       label: "Account",
     },
@@ -138,7 +133,7 @@ export function TxHistoryTable({ tableBody }) {
   return (
     <Stack
       w="full"
-      spacing="30px"
+      spacing="24px"
       alignItems="start"
       direction={{ base: "column" }}
     >
