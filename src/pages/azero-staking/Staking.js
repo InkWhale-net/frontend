@@ -217,7 +217,7 @@ function Staking() {
               <MaxStakeButton
                 disabled={!currentAccount?.address}
                 setStakeMax={() => {
-                  setAmount(azeroBalance ?? 0);
+                  setAmount(footerInfo[1] - footerInfo[2] ?? 0);
                 }}
                 setUnstakeMax={() => setAmount(footerInfo[2] ?? 0)}
               />
@@ -265,14 +265,21 @@ function FooterInfo({ info }) {
       title: "Min staking",
       number: info && info[0],
       denom: "AZERO",
-      hasTooltip: true,
+      hasTooltip: false,
       tooltipContent: "Content of tooltip ",
     },
+    // {
+    //   title: 'Max total staking',
+    //   number: info && info[1],
+    //   denom: 'AZERO',
+    //   hasTooltip: false,
+    //   tooltipContent: 'Content of tooltip ',
+    // },
     {
-      title: "Max total staking",
-      number: info && info[1],
+      title: "Remain total staking",
+      number: info && info[1] - info[2],
       denom: "AZERO",
-      hasTooltip: true,
+      hasTooltip: false,
       tooltipContent: "Content of tooltip ",
     },
   ];

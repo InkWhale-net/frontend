@@ -208,7 +208,7 @@ function TransactionHistory() {
         ...i,
         requestId: "-",
         requestUserAddress: i.staker,
-        stakeStatus: stakeStatus.PENDING,
+        stakeStatus: "-",
         azeroAmount: formatChainStringToNumber(i.amount) / Math.pow(10, 12),
         dateTime: new Date(
           formatChainStringToNumber(i.time) * 1
@@ -225,7 +225,7 @@ function TransactionHistory() {
       const readyTxHistoryFormatted = readyTxHistory?.map((i) => ({
         ...i,
         requestUserAddress: i.user,
-        stakeStatus: stakeStatus.READY,
+        stakeStatus: "Ready",
         azeroAmount: formatChainStringToNumber(i.amount) / Math.pow(10, 12),
         dateTime: new Date(
           formatChainStringToNumber(i.time) * 1
@@ -301,7 +301,7 @@ function TransactionHistory() {
       <ClipLoader color="#57527E" loading size={36} speedMultiplier={1.5} />
     </Flex>
   ) : (
-    <Flex maxW="760px">
+    <Flex maxW="840px">
       <TxHistoryTable tableBody={txHistory} />
     </Flex>
   );

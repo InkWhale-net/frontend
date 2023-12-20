@@ -665,7 +665,7 @@ export const formatDataCellTable = (
     case "requestIndex":
       return (
         <>
-          <Text>#{itemObj[header]}</Text>
+          <Text>{itemObj[header]}</Text>
         </>
       );
 
