@@ -31,6 +31,7 @@ import {
 import TokenIcon from "components/TokenIcon";
 import AddressCopier from "components/address-copier/AddressCopier";
 import IWCountDown from "components/countdown/CountDown";
+import { AzeroLogo } from "components/icons/Icons";
 import ImageCloudFlare from "components/image-cf/ImageCF";
 import IWInput from "components/input/Input";
 import React, { useEffect, useState } from "react";
@@ -686,7 +687,10 @@ export const formatDataCellTable = (
     case "azeroAmount":
       return (
         <>
-          <Text>{formatNumDynDecimal(itemObj[header])} AZERO</Text>
+          <Text>
+            {formatNumDynDecimal(itemObj[header])}{" "}
+            <AzeroLogo w="12px" h="12px" mb="3px" />
+          </Text>
         </>
       );
 

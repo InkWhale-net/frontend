@@ -100,9 +100,9 @@ export function TxHistoryTable({ tableBody }) {
     },
     {
       name: "requestId",
-      hasTooltip: false,
-      tooltipContent: "",
-      label: "Request Id",
+      hasTooltip: true,
+      tooltipContent: "Withdrawal Request Id",
+      label: "Id",
     },
 
     {
