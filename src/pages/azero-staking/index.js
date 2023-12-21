@@ -208,7 +208,7 @@ function TransactionHistory() {
         ...i,
         requestId: "-",
         requestUserAddress: i.staker,
-        stakeStatus: "-",
+        stakeStatus: "Stake",
         azeroAmount: formatChainStringToNumber(i.amount) / Math.pow(10, 12),
         dateTime: new Date(
           formatChainStringToNumber(i.time) * 1
@@ -225,7 +225,7 @@ function TransactionHistory() {
       const readyTxHistoryFormatted = readyTxHistory?.map((i) => ({
         ...i,
         requestUserAddress: i.user,
-        stakeStatus: "Ready",
+        stakeStatus: "Request Unstake",
         azeroAmount: formatChainStringToNumber(i.amount) / Math.pow(10, 12),
         dateTime: new Date(
           formatChainStringToNumber(i.time) * 1
@@ -242,7 +242,7 @@ function TransactionHistory() {
       const unstakedTxHistoryFormatted = unstakedTxHistory?.map((i) => ({
         ...i,
         requestUserAddress: i.user,
-        stakeStatus: stakeStatus.UNSTAKED,
+        stakeStatus: "Unstaked",
         azeroAmount: formatChainStringToNumber(i.amount) / Math.pow(10, 12),
         dateTime: new Date(
           formatChainStringToNumber(i.time) * 1
@@ -259,7 +259,7 @@ function TransactionHistory() {
       const cancelledTxHistoryFormatted = cancelledTxHistory?.map((i) => ({
         ...i,
         requestUserAddress: i.user,
-        stakeStatus: stakeStatus.CANCELLED,
+        stakeStatus: "Cancelled",
         azeroAmount: formatChainStringToNumber(i.amount) / Math.pow(10, 12),
         dateTime: new Date(
           formatChainStringToNumber(i.time) * 1
