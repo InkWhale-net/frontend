@@ -147,14 +147,14 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
   const fetchData = useCallback(async (isMounted) => {
     try {
       setLoading(true);
-      const { ret } = await APICall.getExpirationTime();
-      setExpirationDuration(ret);
+      const { ret: expirationTime } = await APICall.getExpirationTime();
+      setExpirationDuration(expirationTime);
 
       const azeroStakingContract = await getAzeroStakingContract();
 
       const azeroBalance = await getAzeroBalanceOfStakingContract();
       const withdrawableAzero = await getWithdrawableAzeroToStakeToValidator(
-        ret
+        expirationTime
       );
       const azeroStakeBalance = await getAzeroStakeBalance();
 
@@ -166,9 +166,10 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
 
       const maxWaitingTime = await getMaxWaitingTime();
       const waitingListInfo = await APICall.getWaitingListInfo({
-        expirationDuration: ret,
+        expirationDuration: expirationTime,
       });
       const payableAzero = await getPayableAzero();
+      const azeroInterestBalance = await getAzeroInterestBalance();
 
       Promise.all([
         azeroStakingContract,
@@ -178,6 +179,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
         maxWaitingTime,
         waitingListInfo,
         payableAzero,
+        azeroInterestBalance,
       ]).then(
         ([
           azeroStakingContract,
@@ -210,7 +212,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
               tooltipContent: "azeroStakingContract",
             },
             {
-              title: "Azero Balance Of Staking Contract",
+              title: "Azero Balance Of Staking Contract (A)",
               value: azeroBalance,
               valueFormatted: `${formatNumDynDecimal(azeroBalance)} AZERO`,
               hasTooltip: false,
@@ -222,6 +224,34 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
               valueFormatted: `${formatNumDynDecimal(azeroStakeBalance)} AZERO`,
               hasTooltip: false,
               tooltipContent: "azeroStakeBalance",
+            },
+            {
+              title: "Azero Interest Balance",
+              value: azeroInterestBalance,
+              valueFormatted: `${formatNumDynDecimal(
+                azeroInterestBalance
+              )} AZERO`,
+              hasTooltip: false,
+              tooltipContent: "azeroInterestBalance",
+            },
+            {
+              title: "Total Stake + Interest balance (B)",
+              value: azeroInterestBalance + azeroStakeBalance,
+              valueFormatted: `${formatNumDynDecimal(
+                azeroInterestBalance + azeroStakeBalance
+              )} AZERO`,
+              hasTooltip: true,
+              tooltipContent: "Azero Stake Balance + Azero Interest Balance",
+            },
+            {
+              title: "Diff b/w (A) and (B)",
+              value: azeroBalance - azeroInterestBalance - azeroStakeBalance,
+              valueFormatted: `${formatNumDynDecimal(
+                azeroBalance - azeroInterestBalance - azeroStakeBalance
+              )} AZERO`,
+              hasTooltip: true,
+              tooltipContent:
+                "Diff b/w Staking Contract Balance (A) and Stake + Interest balance (B): A - B",
             },
             {
               title: "Withdrawable To Stake To Validator",
@@ -238,6 +268,14 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
               hasTooltip: true,
               tooltipContent:
                 "Waiting time for request to be withdrawable (default 48 hours)",
+            },
+            {
+              title: "Expiration Duration Time",
+              value: expirationTime,
+              valueFormatted: `${expirationTime / 60000} mins`,
+              hasTooltip: true,
+              tooltipContent:
+                "Duration to monitor pending request list within this duration (default 48 hours)",
             },
             {
               title: "Total AZERO for pending list within expiration time",
@@ -578,7 +616,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                   </Text>
                   <Text mb={["12px", "12px", "2px"]}>{valueFormatted} </Text>
                 </SimpleGrid>
-                {idx === 4 && <Divider my="16px" />}
+                {idx === 5 && <Divider my="16px" />}
               </>
             )
           )
