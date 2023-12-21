@@ -234,7 +234,7 @@ function TransactionHistory() {
 
       // unstakedTxHistory
       const { ret: unstakedTxHistory } = await APICall.getEventData({
-        type: 2,
+        type: 3,
         limit: 5,
         offset: 0,
       });
@@ -243,7 +243,8 @@ function TransactionHistory() {
         ...i,
         requestUserAddress: i.user,
         stakeStatus: "Unstaked",
-        azeroAmount: formatChainStringToNumber(i.amount) / Math.pow(10, 12),
+        azeroAmount:
+          formatChainStringToNumber(i.azeroAmount) / Math.pow(10, 12),
         dateTime: new Date(
           formatChainStringToNumber(i.time) * 1
         ).toLocaleString(),
@@ -251,7 +252,7 @@ function TransactionHistory() {
 
       // cancelledTxHistory
       const { ret: cancelledTxHistory } = await APICall.getEventData({
-        type: 3,
+        type: 2,
         limit: 5,
         offset: 0,
       });
@@ -266,11 +267,33 @@ function TransactionHistory() {
         ).toLocaleString(),
       }));
 
+      // claimRewardsTxHistory
+      const { ret: claimRewardsTxHistory } = await APICall.getEventData({
+        type: 4,
+        limit: 5,
+        offset: 0,
+      });
+      console.log("claimRewardsTxHistory", claimRewardsTxHistory);
+      const claimRewardsTxHistoryFormatted = claimRewardsTxHistory?.map(
+        (i) => ({
+          ...i,
+          requestId: "-",
+          requestUserAddress: i.user,
+          stakeStatus: "Claim Rewards",
+          azeroAmount:
+            formatChainStringToNumber(i.azeroAmount) / Math.pow(10, 12),
+          dateTime: new Date(
+            formatChainStringToNumber(i.time) * 1
+          ).toLocaleString(),
+        })
+      );
+
       const ret = [
         ...pendingTxHistoryFormatted,
         ...readyTxHistoryFormatted,
         ...unstakedTxHistoryFormatted,
         ...cancelledTxHistoryFormatted,
+        ...claimRewardsTxHistoryFormatted,
       ];
 
       ret.sort((a, b) => {
