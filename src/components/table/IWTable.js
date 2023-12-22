@@ -28,7 +28,7 @@ import { execContractQuery } from "utils/contracts";
 import my_azero_staking from "utils/contracts/my_azero_staking";
 import { formatNumToBN } from "utils";
 import { execContractTx } from "utils/contracts";
-import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { stakeStatus } from "constants";
 import { doCancelRequest } from "api/azero-staking/azero-staking";
 
@@ -70,10 +70,10 @@ export function IWTable({
     return Number(azeroBal);
   }, [currentAccount?.balance?.azero]);
 
-  const inwBalance = useMemo(() => {
-    const azeroBal = formatChainStringToNumber(currentAccount?.balance?.inw);
-    return Number(azeroBal);
-  }, [currentAccount?.balance?.inw]);
+  const inwBalance2 = useMemo(() => {
+    const bal = formatChainStringToNumber(currentAccount?.balance?.inw2);
+    return Number(bal);
+  }, [currentAccount?.balance?.inw2]);
 
   async function handleClaimPrincipal(index) {
     if (azeroBalance < 0.01) {
@@ -81,7 +81,7 @@ export function IWTable({
       return;
     }
 
-    if (inwBalance < 5) {
+    if (inwBalance2 < 5) {
       toast.error("Too low INW balance!");
       return;
     }
@@ -90,8 +90,8 @@ export function IWTable({
       const allowanceTokenQr = await execContractQuery(
         currentAccount?.address,
         "api",
-        psp22_contract.CONTRACT_ABI,
-        psp22_contract.CONTRACT_ADDRESS,
+        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ADDRESS,
         0, //-> value
         "psp22::allowance",
         currentAccount?.address,
@@ -109,8 +109,8 @@ export function IWTable({
         await execContractTx(
           currentAccount,
           "api",
-          psp22_contract.CONTRACT_ABI,
-          psp22_contract.CONTRACT_ADDRESS,
+          psp22_contract_v2.CONTRACT_ABI,
+          psp22_contract_v2.CONTRACT_ADDRESS,
           0, //-> value
           "psp22::approve",
           my_azero_staking.CONTRACT_ADDRESS,

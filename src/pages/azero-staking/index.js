@@ -15,10 +15,7 @@ import { formatNumDynDecimal } from "utils";
 import IWCard from "components/card/Card";
 import { APICall } from "api/client";
 import { formatChainStringToNumber } from "utils";
-import { TxHistoryTable } from "./components/Table";
-import { stakeStatus } from "constants";
 import toast from "react-hot-toast";
-import { ClipLoader } from "react-spinners";
 import { getInwMultiplier } from "api/azero-staking/azero-staking";
 import IWPaginationTable from "components/table/IWPaginationTable";
 
