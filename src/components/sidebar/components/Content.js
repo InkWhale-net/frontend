@@ -105,6 +105,10 @@ function SidebarContent({ onClose }) {
           path="/pools"
           data={[
             {
+              label: "AZERO Staking",
+              href: "/azero-staking",
+            },
+            {
               label: "Token Pools",
               href: "/pools",
             },

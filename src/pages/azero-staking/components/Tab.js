@@ -96,7 +96,11 @@ const LeftColumn = () => {
   }, [api, currentAccount]);
 
   return (
-    <VStack w={["full", "full", "full"]} maxW="320px" spacing="24px">
+    <VStack
+      w={["full", "full", "full"]}
+      maxW={["auto", "auto", "320px"]}
+      spacing="24px"
+    >
       {/* Side column */}
       <IWCardOneColumn
         minW="full"

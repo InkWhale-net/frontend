@@ -4,7 +4,14 @@ import React, { Fragment, useCallback, useEffect, useState } from "react";
 import Staking from "./Staking";
 
 import StakingTabs from "./components/Tab";
-import { Box, Flex, SimpleGrid, Stack, Tooltip } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  SimpleGrid,
+  Stack,
+  Tooltip,
+  useMediaQuery,
+} from "@chakra-ui/react";
 import { useAppContext } from "contexts/AppContext";
 import { getApy } from "api/azero-staking/azero-staking";
 import { useSelector } from "react-redux";
@@ -24,6 +31,7 @@ function AzeroStaking() {
 
   const [apy, setApy] = useState(0);
   const [inwMultiplier, setInwMultiplier] = useState(null);
+  const [isBigScreen] = useMediaQuery("(min-width: 480px)");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,12 +55,12 @@ function AzeroStaking() {
       isDisabled: false,
     },
     {
-      label: "My Transaction",
+      label: isBigScreen ? "My Transaction" : "My TX",
       component: <MyTransactionHistory />,
       isDisabled: false,
     },
     {
-      label: "Transaction History",
+      label: isBigScreen ? "Transaction History" : "TX History",
       component: <TransactionHistory />,
       isDisabled: false,
     },
