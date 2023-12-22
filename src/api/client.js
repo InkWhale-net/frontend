@@ -60,6 +60,34 @@ const clientWithGetParams = async (
   return data;
 };
 
+const clientWithRawParams = async (
+  method,
+  url,
+  options = {},
+  baseURL = process.env.REACT_APP_API_BASE_URL
+) => {
+  const headers = {
+    Accept: "*/*",
+    "Content-Type": "application/json",
+  };
+
+  let optionsJSON = JSON.stringify(options);
+
+  const { data } = await axios({
+    baseURL,
+    url,
+    method,
+    headers,
+    data: optionsJSON,
+  });
+
+  if (data?.status === "FAILED") {
+    console.log("error FAILED @ xx>>", url, data?.message);
+  }
+
+  return data;
+};
+
 export const APICall = {
   // Get list of tokens
   getTokensList: async ({ limit = 1000, offset = 0, sort = -1 }) => {
@@ -374,10 +402,20 @@ export const APICall = {
     );
   },
 
+  // clientWithRawParams
   getEventData: async (options) => {
-    return await client(
+    return await clientWithRawParams(
       "POST",
       "/getEventData",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  getMyEventData: async (options) => {
+    return await clientWithRawParams(
+      "POST",
+      "/getMyEventData",
       { ...options },
       "https://staking.inkwhale.net/"
     );

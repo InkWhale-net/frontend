@@ -119,6 +119,7 @@ const IWPaginationTable = ({
   isDisableRowClick = false,
   customURLRowClick = "",
   mutation,
+  fontSize = "18px",
 }) => {
   const table = useReactTable({
     data: tableBody ?? [],
@@ -144,7 +145,7 @@ const IWPaginationTable = ({
   }, [table.getState().pagination.pageIndex]);
 
   return (
-    <>
+    <Box width="full" fontSize={fontSize}>
       <TableContainer width="full">
         <Table variant="striped">
           {!isSmallerThanMd && (
@@ -170,40 +171,50 @@ const IWPaginationTable = ({
             </Thead>
           )}
 
-          <Tbody>
-            {!mutation?.isLoading &&
-              table.getRowModel().rows.map((row, index) => {
-                if (isSmallerThanMd)
-                  return (
-                    <ElementCard
-                      itemObj={tableBody[index]}
-                      tableHeader={table
-                        ?.getHeaderGroups()[0]
-                        .headers.map((e) => {
-                          return {
-                            label: e.column.columnDef.header,
-                            name: e.id,
-                          };
+          {totalData === 0 ? (
+            <Tr>
+              <Td colSpan={tableHeader?.length} textAlign="center">
+                <Text textAlign="center" w="full">
+                  No data found!
+                </Text>
+              </Td>
+            </Tr>
+          ) : (
+            <Tbody>
+              {!mutation?.isLoading &&
+                table.getRowModel().rows.map((row, index) => {
+                  if (isSmallerThanMd)
+                    return (
+                      <ElementCard
+                        itemObj={tableBody[index]}
+                        tableHeader={table
+                          ?.getHeaderGroups()[0]
+                          .headers.map((e) => {
+                            return {
+                              label: e.column.columnDef.header,
+                              name: e.id,
+                            };
+                          })}
+                      />
+                    );
+                  else
+                    return (
+                      <Tr key={row.id}>
+                        {row.getVisibleCells().map((cell) => {
+                          return (
+                            <Td key={cell.id}>
+                              {formatDataCellTable(
+                                tableBody[index],
+                                cell.getContext().column.id
+                              )}
+                            </Td>
+                          );
                         })}
-                    />
-                  );
-                else
-                  return (
-                    <Tr key={row.id}>
-                      {row.getVisibleCells().map((cell) => {
-                        return (
-                          <Td key={cell.id}>
-                            {formatDataCellTable(
-                              tableBody[index],
-                              cell.getContext().column.id
-                            )}
-                          </Td>
-                        );
-                      })}
-                    </Tr>
-                  );
-              })}
-          </Tbody>
+                      </Tr>
+                    );
+                })}
+            </Tbody>
+          )}
         </Table>
       </TableContainer>
       {mutation?.isLoading && (
@@ -215,88 +226,73 @@ const IWPaginationTable = ({
         />
       )}
 
-      <Box
-        sx={{
-          width: "full",
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-        }}
-      >
-        <IconButton
-          aria-label="previousPage"
-          width={"42px"}
-          height={"42px"}
-          variant={"solid"}
-          bg={"#93F0F5"}
-          borderRadius={"42px"}
-          icon={<ChevronLeftIcon size={"80px"} color="#FFF" />}
-          onClick={() => table.previousPage()}
-          isDisabled={!table.getCanPreviousPage()}
-        />
-        <IconButton
-          ml={"4px"}
-          aria-label="previousPage"
-          width={"42px"}
-          height={"42px"}
-          variant={"solid"}
-          bg={"#93F0F5"}
-          borderRadius={"42px"}
-          icon={<ChevronRightIcon size={"80px"} color="#FFF" />}
-          onClick={() => table.nextPage()}
-          isDisabled={!table.getCanNextPage()}
-        />
-        <Box sx={{ width: "64px", ml: "8px" }}>
-          <IWInput
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              textAlign: "center",
-            }}
-            type="number"
-            value={pageIndexInput}
-            onChange={(event) => {
-              setPageIndexInput(parseInt(event.target.value));
-            }}
+      {totalData === 0 ? null : (
+        <Box
+          py="12px"
+          sx={{
+            width: "full",
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+          }}
+        >
+          <IconButton
+            aria-label="previousPage"
+            width={"42px"}
+            height={"42px"}
+            variant={"solid"}
+            bg={"#93F0F5"}
+            borderRadius={"42px"}
+            icon={<ChevronLeftIcon size={"80px"} color="#FFF" />}
+            onClick={() => table.previousPage()}
+            isDisabled={!table.getCanPreviousPage()}
           />
-        </Box>{" "}
-        <Text sx={{ mr: "20px", ml: "8px" }}>of {table.getPageCount()}</Text>
-        <Button
-          disabled={
-            pageIndexInput === table.getState().pagination.pageIndex + 1
-          }
-          onClick={() => {
-            if (pageIndexInput > 0 && pageIndexInput <= table.getPageCount())
-              table.setPageIndex(pageIndexInput - 1);
-            else toast.error("invalid page number");
-          }}
-        >
-          Go
-        </Button>
-        {/*
-        <span className="flex items-center gap-1">
-          <div>Page</div>
-          <strong>
-            {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
-          </strong>
-        </span> */}
-        {/* <select
-          value={table.getState().pagination.pageSize}
-          onChange={(e) => {
-            table.setPageSize(Number(e.target.value));
-          }}
-        >
-          {[10, 20, 30, 40, 50].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize}
-            </option>
-          ))}
-        </select> */}
-        {/* {dataQuery.isFetching ? "Loading..." : null} */}
-      </Box>
-    </>
+          <IconButton
+            ml={"4px"}
+            aria-label="previousPage"
+            width={"42px"}
+            height={"42px"}
+            variant={"solid"}
+            bg={"#93F0F5"}
+            borderRadius={"42px"}
+            icon={<ChevronRightIcon size={"80px"} color="#FFF" />}
+            onClick={() => table.nextPage()}
+            isDisabled={!table.getCanNextPage()}
+          />
+
+          <Box sx={{ width: "64px", ml: "8px" }}>
+            <IWInput
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                textAlign: "center",
+              }}
+              type="number"
+              value={pageIndexInput}
+              onChange={(event) => {
+                setPageIndexInput(parseInt(event.target.value));
+              }}
+            />
+          </Box>
+
+          <Text sx={{ mr: "20px", ml: "8px" }}>of {table.getPageCount()}</Text>
+
+          <Button
+            disabled={
+              pageIndexInput === table.getState().pagination.pageIndex + 1
+            }
+            onClick={() => {
+              if (pageIndexInput > 0 && pageIndexInput <= table.getPageCount())
+                table.setPageIndex(pageIndexInput - 1);
+              else toast.error("invalid page number");
+            }}
+          >
+            Go
+          </Button>
+        </Box>
+      )}
+    </Box>
   );
 };
 
