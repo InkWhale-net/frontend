@@ -20,6 +20,7 @@ import { stakeStatus } from "constants";
 import toast from "react-hot-toast";
 import { ClipLoader } from "react-spinners";
 import { getInwMultiplier } from "api/azero-staking/azero-staking";
+import IWPaginationTable from "components/table/IWPaginationTable";
 
 function AzeroStaking() {
   const { api } = useAppContext();
@@ -46,6 +47,11 @@ function AzeroStaking() {
     {
       label: "Stake",
       component: <Staking />,
+      isDisabled: false,
+    },
+    {
+      label: "My Transaction",
+      component: <MyTransactionHistory />,
       isDisabled: false,
     },
     {
@@ -192,124 +198,72 @@ function StatsInfo({ totalApy, inwApy }) {
 function TransactionHistory() {
   const [loading, setLoading] = useState(true);
   const [txHistory, setTxHistory] = useState([]);
+  const [resultTotalPage, setResultTotalPage] = useState(0);
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 5,
+  });
 
-  const fetchAll = useCallback(async (isMounted) => {
-    try {
-      setLoading(true);
-      // pendingTxHistory
-      const { ret: pendingTxHistory } = await APICall.getEventData({
-        type: 0,
-        limit: 5,
-        offset: 0,
-      });
-      console.log("pendingTxHistory", pendingTxHistory);
+  const fetchAll = useCallback(
+    async (isMounted) => {
+      try {
+        setLoading(true);
 
-      const pendingTxHistoryFormatted = pendingTxHistory?.map((i) => ({
-        ...i,
-        requestId: "-",
-        requestUserAddress: i.staker,
-        stakeStatus: "Stake",
-        azeroAmount: formatChainStringToNumber(i.amount) / Math.pow(10, 12),
-        dateTime: new Date(
-          formatChainStringToNumber(i.time) * 1
-        ).toLocaleString(),
-      }));
+        const { ret } = await APICall.getEventData({
+          type: [0, 1, 2, 3, 4],
+          limit: 9999,
+          offset: 0,
+        });
 
-      // readyTxHistory
-      const { ret: readyTxHistory } = await APICall.getEventData({
-        type: 1,
-        limit: 5,
-        offset: 0,
-      });
-      console.log("readyTxHistory", readyTxHistory);
-      const readyTxHistoryFormatted = readyTxHistory?.map((i) => ({
-        ...i,
-        requestUserAddress: i.user,
-        stakeStatus: "Request Unstake",
-        azeroAmount: formatChainStringToNumber(i.amount) / Math.pow(10, 12),
-        dateTime: new Date(
-          formatChainStringToNumber(i.time) * 1
-        ).toLocaleString(),
-      }));
+        setResultTotalPage(Math.ceil(ret?.length / pagination?.pageSize));
 
-      // unstakedTxHistory
-      const { ret: unstakedTxHistory } = await APICall.getEventData({
-        type: 3,
-        limit: 5,
-        offset: 0,
-      });
-      console.log("unstakedTxHistory", unstakedTxHistory);
-      const unstakedTxHistoryFormatted = unstakedTxHistory?.map((i) => ({
-        ...i,
-        requestUserAddress: i.user,
-        stakeStatus: "Unstaked",
-        azeroAmount:
-          formatChainStringToNumber(i.azeroAmount) / Math.pow(10, 12),
-        dateTime: new Date(
-          formatChainStringToNumber(i.time) * 1
-        ).toLocaleString(),
-      }));
+        const { ret: txHistory } = await APICall.getEventData({
+          type: [0, 1, 2, 3, 4],
+          limit: pagination.pageSize,
+          offset: pagination.pageSize * pagination.pageIndex,
+        });
+        console.log("txHistory", txHistory);
 
-      // cancelledTxHistory
-      const { ret: cancelledTxHistory } = await APICall.getEventData({
-        type: 2,
-        limit: 5,
-        offset: 0,
-      });
-      console.log("cancelledTxHistory", cancelledTxHistory);
-      const cancelledTxHistoryFormatted = cancelledTxHistory?.map((i) => ({
-        ...i,
-        requestUserAddress: i.user,
-        stakeStatus: "Cancelled",
-        azeroAmount: formatChainStringToNumber(i.amount) / Math.pow(10, 12),
-        dateTime: new Date(
-          formatChainStringToNumber(i.time) * 1
-        ).toLocaleString(),
-      }));
-
-      // claimRewardsTxHistory
-      const { ret: claimRewardsTxHistory } = await APICall.getEventData({
-        type: 4,
-        limit: 5,
-        offset: 0,
-      });
-      console.log("claimRewardsTxHistory", claimRewardsTxHistory);
-      const claimRewardsTxHistoryFormatted = claimRewardsTxHistory?.map(
-        (i) => ({
+        const txHistoryFormatted = txHistory?.map((i) => ({
           ...i,
-          requestId: "-",
+          requestId: i.type === 0 || i.type === 4 ? "-" : i.data?.requestId,
           requestUserAddress: i.user,
-          stakeStatus: "Claim Rewards",
+          stakeStatus:
+            i.type === 0
+              ? "Stake"
+              : i.type === 1
+              ? "Request Unstake"
+              : i.type === 2
+              ? "Cancelled"
+              : i.type === 3
+              ? "Unstaked"
+              : i.type === 4
+              ? "Claim Rewards"
+              : "",
           azeroAmount:
-            formatChainStringToNumber(i.azeroAmount) / Math.pow(10, 12),
+            formatChainStringToNumber(i.data?.amount ?? i.data?.azeroAmount) /
+            Math.pow(10, 12),
           dateTime: new Date(
             formatChainStringToNumber(i.time) * 1
           ).toLocaleString(),
-        })
-      );
+        }));
 
-      const ret = [
-        ...pendingTxHistoryFormatted,
-        ...readyTxHistoryFormatted,
-        ...unstakedTxHistoryFormatted,
-        ...cancelledTxHistoryFormatted,
-        ...claimRewardsTxHistoryFormatted,
-      ];
+        txHistoryFormatted?.sort((a, b) => {
+          return b.blockNumber - a.blockNumber;
+        });
 
-      ret.sort((a, b) => {
-        return b.blockNumber - a.blockNumber;
-      });
+        if (!isMounted) return;
 
-      if (!isMounted) return;
-
-      setTxHistory(ret);
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      console.log("error", error);
-      toast.error("error", error);
-    }
-  }, []);
+        setTxHistory(txHistoryFormatted);
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        console.log("error", error);
+        toast.error("error", error);
+      }
+    },
+    [pagination.pageIndex, pagination.pageSize]
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -319,13 +273,134 @@ function TransactionHistory() {
     return () => (isMounted = false);
   }, [fetchAll]);
 
-  return loading ? (
-    <Flex justify="center" align="center" py="16px">
-      <ClipLoader color="#57527E" loading size={36} speedMultiplier={1.5} />
-    </Flex>
-  ) : (
-    <Flex maxW="840px">
-      <TxHistoryTable tableBody={txHistory} />
-    </Flex>
+  return (
+    <IWPaginationTable
+      tableBody={txHistory}
+      tableHeader={tableHeader}
+      pagination={pagination}
+      setPagination={setPagination}
+      totalData={resultTotalPage}
+      fontSize="16px"
+      mode="TX_HISTORY"
+    />
+  );
+}
+
+const tableHeader = [
+  {
+    accessorKey: "requestUserAddress",
+    header: "Account",
+  },
+  {
+    accessorKey: "requestId",
+    header: "Id",
+  },
+
+  {
+    accessorKey: "azeroAmount",
+    header: "Amount",
+  },
+  {
+    accessorKey: "stakeStatus",
+    header: "Status",
+  },
+  {
+    accessorKey: "dateTime",
+    header: "Time ",
+  },
+];
+
+function MyTransactionHistory() {
+  const { currentAccount } = useSelector((s) => s.wallet);
+
+  const [loading, setLoading] = useState(true);
+  const [txHistory, setTxHistory] = useState([]);
+  const [resultTotalPage, setResultTotalPage] = useState(0);
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 5,
+  });
+
+  const fetchAll = useCallback(
+    async (isMounted) => {
+      try {
+        setLoading(true);
+
+        const { ret } = await APICall.getMyEventData({
+          user: currentAccount?.address,
+          type: [0, 1, 2, 3, 4],
+          limit: 9999,
+          offset: 0,
+        });
+
+        setResultTotalPage(Math.ceil(ret?.length / pagination?.pageSize));
+
+        const { ret: txHistory } = await APICall.getMyEventData({
+          user: currentAccount?.address,
+          type: [0, 1, 2, 3, 4],
+          limit: pagination.pageSize,
+          offset: pagination.pageSize * pagination.pageIndex,
+        });
+        console.log("txHistory", txHistory);
+
+        const txHistoryFormatted = txHistory?.map((i) => ({
+          ...i,
+          requestId: i.type === 0 || i.type === 4 ? "-" : i.data?.requestId,
+          requestUserAddress: i.user,
+          stakeStatus:
+            i.type === 0
+              ? "Stake"
+              : i.type === 1
+              ? "Request Unstake"
+              : i.type === 2
+              ? "Cancelled"
+              : i.type === 3
+              ? "Unstaked"
+              : i.type === 4
+              ? "Claim Rewards"
+              : "",
+          azeroAmount:
+            formatChainStringToNumber(i.data?.amount ?? i.data?.azeroAmount) /
+            Math.pow(10, 12),
+          dateTime: new Date(
+            formatChainStringToNumber(i.time) * 1
+          ).toLocaleString(),
+        }));
+
+        txHistoryFormatted?.sort((a, b) => {
+          return b.blockNumber - a.blockNumber;
+        });
+
+        if (!isMounted) return;
+
+        setTxHistory(txHistoryFormatted);
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        console.log("error", error);
+        toast.error("error", error);
+      }
+    },
+    [currentAccount?.address, pagination.pageIndex, pagination.pageSize]
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetchAll(isMounted);
+
+    return () => (isMounted = false);
+  }, [fetchAll]);
+
+  return (
+    <IWPaginationTable
+      tableBody={txHistory}
+      tableHeader={tableHeader}
+      pagination={pagination}
+      setPagination={setPagination}
+      totalData={resultTotalPage}
+      fontSize="16px"
+      mode="TX_HISTORY"
+    />
   );
 }
