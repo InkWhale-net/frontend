@@ -247,7 +247,11 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
               title: "Diff b/w (A) and (B)",
               value: azeroBalance - azeroInterestBalance - azeroStakeBalance,
               valueFormatted: `${formatNumDynDecimal(
-                azeroBalance - azeroInterestBalance - azeroStakeBalance
+                (
+                  azeroBalance -
+                  azeroInterestBalance -
+                  azeroStakeBalance
+                ).toFixed(4)
               )} AZERO`,
               hasTooltip: true,
               tooltipContent:
