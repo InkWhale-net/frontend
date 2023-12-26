@@ -53,6 +53,17 @@ function Staking() {
   }, [api, currentAccount]);
 
   async function handleStake() {
+    if (footerInfo && footerInfo[0] > amount) {
+      toast.error(`Min AZERO stake is ${footerInfo && footerInfo[0]} AZERO`);
+      return;
+    }
+
+    const max = Math.min(azeroBalance, footerInfo[1] - footerInfo[2]);
+    if (max < amount) {
+      toast.error(`Max AZERO stake is ${max} AZERO`);
+      return;
+    }
+
     if (azeroBalance < amount) {
       toast.error("Not enough AZERO balance!");
       return;
@@ -117,6 +128,16 @@ function Staking() {
   // ================
 
   async function handleRequestUnstake() {
+    if (footerInfo && footerInfo[0] > amount) {
+      toast.error(`Min AZERO unstake is ${footerInfo && footerInfo[0]} AZERO`);
+      return;
+    }
+
+    if (footerInfo && footerInfo[2] < amount) {
+      toast.error(`Max AZERO unstake is ${footerInfo && footerInfo[2]} AZERO`);
+      return;
+    }
+
     if (footerInfo && footerInfo[2] < amount) {
       toast.error("Not enough AZERO unstake!");
       return;
@@ -217,7 +238,9 @@ function Staking() {
               <MaxStakeButton
                 disabled={!currentAccount?.address}
                 setStakeMax={() => {
-                  setAmount(footerInfo[1] - footerInfo[2] ?? 0);
+                  setAmount(
+                    Math.min(azeroBalance, footerInfo[1] - footerInfo[2])
+                  );
                 }}
                 setUnstakeMax={() => setAmount(footerInfo[2] ?? 0)}
               />
