@@ -4,6 +4,7 @@ import SaleInfoTab from "./components/SaleInfoTab";
 import SectionContainer from "components/container/SectionContainer";
 import Launchpad from "./components/Launchpad";
 import AzeroStakingAdmin from "./components/AzeroStakingAdmin";
+import Token from "./components/Token";
 
 export default function AdminPage() {
   const tabsData = [
@@ -20,6 +21,11 @@ export default function AdminPage() {
     {
       label: <>Azero Staking</>,
       component: <AzeroStakingAdmin />,
+      isDisabled: false,
+    },
+    {
+      label: <>Token</>,
+      component: <Token />,
       isDisabled: false,
     },
   ];

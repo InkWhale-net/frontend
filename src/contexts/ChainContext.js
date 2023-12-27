@@ -19,6 +19,8 @@ export const supportedChain = [
     icon: IconAlephzero,
     decimal: 12,
     providerURL: "wss://ws.test.azero.dev",
+    allowSwap: true,
+    allowBuy: true
   },
   {
     name: "5ireChain Testnet",
@@ -30,7 +32,6 @@ export const supportedChain = [
 ];
 export const ChainSwitchContext = createContext();
 export const ChainSwitchProvider = ({ children }) => {
-  const { api } = useAppContext();
   const [currentChainkey, switchChain] = useState(null);
   const currentChain = useMemo(() => {
     if (currentChainkey) {
@@ -42,13 +43,7 @@ export const ChainSwitchProvider = ({ children }) => {
   }, [currentChainkey]);
   const unitDecimal = useMemo(() => currentChain?.decimal || 0, [currentChain]);
   useEffect(() => {
-    const data = localStorage.getItem("currentChain");
-
-    if (data) {
-      switchChain(data);
-    } else {
-      switchChain("alephzero");
-    }
+    switchChain(process.env.REACT_APP_CHAIN)
   }, []);
   return (
     <ChainSwitchContext.Provider

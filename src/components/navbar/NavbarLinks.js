@@ -23,9 +23,11 @@ import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
 import { INWSwap } from "components/INWSwap";
 import ChainButton from "components/wallet/ChainButton";
+import { useChainContext } from "contexts/ChainContext";
 
 export default function NavbarLinks(props) {
   const { secondary } = props;
+  const { currentChain } = useChainContext();
 
   const [currentAnchor, setCurrentAnchor] = useState("");
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
@@ -185,7 +187,7 @@ export default function NavbarLinks(props) {
             </Link>
           </Flex>
         </Flex>
-        <INWSwap />
+        {currentChain?.allowSwap && <INWSwap />}
       </Show>
 
       <Show above="md">

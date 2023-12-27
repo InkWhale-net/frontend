@@ -3,6 +3,7 @@ import { GroupMenu, menuListData } from "components/navbar/NavbarLinks";
 
 import Brand from "components/sidebar/components/Brand";
 import WalletButton from "components/wallet/WalletButton";
+import { useChainContext } from "contexts/ChainContext";
 import { useSwapV2TokenContext } from "contexts/SwapV2TokenModalContext";
 import { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
@@ -13,6 +14,7 @@ function SidebarContent({ onClose }) {
   const [currentAnchor, setCurrentAnchor] = useState("");
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
   const { openSwapModal } = useSwapV2TokenContext();
+  const { currentChain } = useChainContext();
 
   useEffect(() => {
     const href = window.location.href;
@@ -37,21 +39,24 @@ function SidebarContent({ onClose }) {
         mt="8px"
         px="20px"
       >
-        <GroupMenu
-          {...groupButtonProps}
-          title="INW Token"
-          path="/inw"
-          data={[
-            {
-              label: "Claim INW",
-              href: "/acquire-inw",
-            },
-            {
-              label: "INW V2",
-              href: "/inw-v2",
-            },
-          ]}
-        />
+        {currentChain?.allowBuy && (
+          <GroupMenu
+            {...groupButtonProps}
+            title="INW Token"
+            path="/inw"
+            data={[
+              {
+                label: "Claim INW",
+                href: "/acquire-inw",
+              },
+              {
+                label: "INW V2",
+                href: "/inw-v2",
+              },
+            ]}
+          />
+        )}
+
         {menuListData?.map(({ title, href }) => (
           <Flex
             w={"full"}
@@ -156,7 +161,7 @@ function SidebarContent({ onClose }) {
             </Text>
           </Link>
         </Flex>
-        {isMobile && (
+        {isMobile && currentChain?.allowSwap && (
           <Flex
             _hover={{ textDecoration: "none", bg: "bg.1" }}
             p="6px 10px"

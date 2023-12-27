@@ -12,6 +12,9 @@ import { toastMessages } from "constants";
 
 import { APICall } from "api/client";
 import { InfiniteTable } from "components/table/InfiniteTable";
+import SaleTab from "components/tabs/SaleTab";
+import { useAppContext } from "contexts/AppContext";
+import { useChainContext } from "contexts/ChainContext";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,28 +22,24 @@ import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import {
   delay,
+  formatNumDynDecimal,
   formatNumToBN,
   formatQueryResultToNumber,
   isAddressValid,
+  moveINWToBegin,
+  roundUp,
 } from "utils";
 import {
   execContractQuery,
   execContractTx,
   execContractTxAndCallAPI,
 } from "utils/contracts";
-import azt_contract from "utils/contracts/azt_contract";
-import core_contract from "utils/contracts/core_contract";
+import {
+  psp22_standard_contract,
+  token_generator_contract,
+} from "utils/contracts/contract";
 import ImportTokenForm from "./ImportToken";
 import ImageUploadIcon from "./UploadIcon";
-import SaleTab from "components/tabs/SaleTab";
-import { roundUp } from "utils";
-import { useAppContext } from "contexts/AppContext";
-import { moveINWToBegin } from "utils";
-import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
-import { formatNumDynDecimal } from "utils";
-import { useChainContext } from "contexts/ChainContext";
-import psp22_standard from "utils/contracts/5ire/psp22_standard";
-import token_generator from "utils/contracts/5ire/token_generator";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
@@ -67,8 +66,8 @@ export default function CreateTokenPage() {
       const result = await execContractQuery(
         currentAccount?.address,
         "api",
-        token_generator.CONTRACT_ABI,
-        token_generator.CONTRACT_ADDRESS,
+        token_generator_contract.CONTRACT_ABI,
+        token_generator_contract.CONTRACT_ADDRESS,
         0,
         "tokenManagerTrait::getCreationFee"
       );
@@ -85,7 +84,7 @@ export default function CreateTokenPage() {
         let queryResult = await execContractQuery(
           currentAccount?.address,
           "api",
-          psp22_contract_v2.CONTRACT_ABI,
+          psp22_standard_contract.CONTRACT_ABI,
           e?.contractAddress,
           0,
           "psp22::totalSupply"
@@ -94,7 +93,7 @@ export default function CreateTokenPage() {
         let queryResult1 = await execContractQuery(
           currentAccount?.address,
           "api",
-          psp22_contract_v2.CONTRACT_ABI,
+          psp22_standard_contract.CONTRACT_ABI,
           e?.contractAddress,
           0,
           "psp22Metadata::tokenDecimals"
@@ -123,7 +122,8 @@ export default function CreateTokenPage() {
     if (iconIPFSUrl) {
       APICall.updateTokenIcon({
         contractAddress,
-        tokenGeneratorContractAddress: token_generator.CONTRACT_ADDRESS,
+        tokenGeneratorContractAddress:
+          token_generator_contract.CONTRACT_ADDRESS,
         tokenIconUrl: iconIPFSUrl,
       });
     }
@@ -163,22 +163,22 @@ export default function CreateTokenPage() {
     const allowanceINWQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_standard.CONTRACT_ABI,
-      psp22_standard.CONTRACT_ADDRESS,
+      psp22_standard_contract.CONTRACT_ABI,
+      psp22_standard_contract.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::allowance",
       currentAccount?.address,
-      token_generator.CONTRACT_ADDRESS
+      token_generator_contract.CONTRACT_ADDRESS
     );
     // const allowanceINWQr = await execContractQuery(
     //   currentAccount?.address,
     //   "api",
-    //   psp22_contract_v2.CONTRACT_ABI,
-    //   psp22_contract_v2.CONTRACT_ADDRESS,
+    //   psp22_standard_contract.CONTRACT_ABI,
+    //   psp22_standard_contract.CONTRACT_ADDRESS,
     //   0, //-> value
     //   "psp22::allowance",
     //   currentAccount?.address,
-    //   token_generator.CONTRACT_ADDRESS
+    //   token_generator_contract.CONTRACT_ADDRESS
     // );
     const allowanceINW = formatQueryResultToNumber(allowanceINWQr).replaceAll(
       ",",
@@ -192,11 +192,11 @@ export default function CreateTokenPage() {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_standard.CONTRACT_ABI,
-        psp22_standard.CONTRACT_ADDRESS,
+        psp22_standard_contract.CONTRACT_ABI,
+        psp22_standard_contract.CONTRACT_ADDRESS,
         0, //-> value
         "psp22::approve",
-        token_generator.CONTRACT_ADDRESS,
+        token_generator_contract.CONTRACT_ADDRESS,
         formatNumToBN(Number.MAX_SAFE_INTEGER)
       );
       if (!approve) return;
@@ -209,8 +209,8 @@ export default function CreateTokenPage() {
     await execContractTxAndCallAPI(
       currentAccount,
       "api",
-      token_generator.CONTRACT_ABI,
-      token_generator.CONTRACT_ADDRESS,
+      token_generator_contract.CONTRACT_ABI,
+      token_generator_contract.CONTRACT_ADDRESS,
       0, //-> value
       "newToken",
       updateIcon,

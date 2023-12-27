@@ -154,7 +154,7 @@ export default function SaleInfoTab() {
       query5,
     ]);
     console.log(result, result2, result3, result4);
-    setIsOwner(result5.toHuman()?.Ok === currentAccount?.address);
+    setIsOwner(result5?.toHuman()?.Ok === currentAccount?.address);
     setSaleInfo({
       endTimePrivate: result?.toHuman()?.Ok?.replaceAll(",", ""),
       endTimePublic: result2?.toHuman()?.Ok?.replaceAll(",", ""),
