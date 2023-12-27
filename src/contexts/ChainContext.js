@@ -14,8 +14,15 @@ export const supportedChain = [
     providerURL: "wss://ws.test.azero.dev",
   },
   {
-    name: "5ire",
-    key: "5irechain",
+    name: "Alephzero Testnet",
+    key: "alephzero-testnet",
+    icon: IconAlephzero,
+    decimal: 12,
+    providerURL: "wss://ws.test.azero.dev",
+  },
+  {
+    name: "5ireChain Testnet",
+    key: "5irechain-testnet",
     icon: Icon5Ire,
     decimal: 18,
     providerURL: "wss://wss-testnet.5ire.network",

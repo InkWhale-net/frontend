@@ -3,7 +3,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { formatNumDynDecimal, formatQueryResultToNumber } from "utils";
 import { execContractQuery, getAzeroBalanceOfAddress } from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
-import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract from "utils/contracts/5ire/psp22_standard";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 
 const localCurrentAccount = window?.localStorage?.getItem(
@@ -73,19 +73,18 @@ export const fetchUserBalance = createAsyncThunk(
       //thunkAPI.getState().wallet.api,
       api,
       psp22_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
+      psp22_contract.CONTRACT_ADDRESS,
       0,
       "psp22::balanceOf",
       currentAccount?.address
     );
-
     const inw = formatQueryResultToNumber(inwBalance);
     const inw2Balance = await execContractQuery(
       currentAccount?.address,
       //thunkAPI.getState().wallet.api,
       api,
-      psp22_contract_v2.CONTRACT_ABI,
-      psp22_contract_v2.CONTRACT_ADDRESS,
+      psp22_contract.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ADDRESS,
       0,
       "psp22::balanceOf",
       currentAccount?.address

@@ -18,7 +18,8 @@ import { useDispatch, useSelector } from "react-redux";
 
 import azt_contract from "utils/contracts/azt_contract";
 import private_sale from "utils/contracts/private_sale";
-import public_sale from "utils/contracts/public_sale";
+// import public_sale from "utils/contracts/public_sale";
+import public_sale from "utils/contracts/5ire/public_sale";
 
 import { APICall } from "api/client";
 import AddressCopier from "components/address-copier/AddressCopier";
@@ -47,12 +48,14 @@ import { formatTextAmount } from "utils";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import psp22_contract from "utils/contracts/psp22_contract";
 import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
+import { useChainContext } from "contexts/ChainContext";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
 
 export default function FaucetPage({ api }) {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allTokensList } = useSelector((s) => s.allPools);
+  const { unitDecimal } = useChainContext();
 
   const dispatch = useDispatch();
 
@@ -475,13 +478,15 @@ export default function FaucetPage({ api }) {
       toast.error(toastMessages.NO_WALLET);
       return;
     }
-
     await execContractTx(
       currentAccount,
       api,
       public_sale.CONTRACT_ABI,
       public_sale.CONTRACT_ADDRESS,
-      parseUnits(roundUp(inwPrice * inwBuyAmount, 4).toString(), 12), //-> value
+      parseUnits(
+        roundUp(+formatTextAmount(inwPrice) * inwBuyAmount, 4).toString(),
+        unitDecimal || 12
+      ), //-> value
       "genericTokenSaleTrait::purchase",
       formatNumToBN(inwBuyAmount) // -> token_amount, <...args>
     );
@@ -868,7 +873,7 @@ export default function FaucetPage({ api }) {
               <Button
                 w="full"
                 onClick={inwPublicMintHandler}
-                disabled={disableBuyBtn}
+                // disabled={disableBuyBtn}
               >
                 Buy INW
               </Button>

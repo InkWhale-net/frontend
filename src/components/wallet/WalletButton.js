@@ -249,7 +249,6 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
       );
     }
   }, [allAccounts]);
-
   return (
     <Menu placement="bottom-end">
       <MenuButton p="0px">
