@@ -8,6 +8,7 @@ import {
   MenuList,
   Heading,
   MenuItem,
+  Box,
 } from "@chakra-ui/react";
 import IWCard from "components/card/Card";
 
@@ -21,6 +22,7 @@ import WalletButton from "components/wallet/WalletButton";
 import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
 import { INWSwap } from "components/INWSwap";
+import ChainButton from "components/wallet/ChainButton";
 
 export default function NavbarLinks(props) {
   const { secondary } = props;
@@ -188,6 +190,7 @@ export default function NavbarLinks(props) {
 
       <Show above="md">
         <Flex>
+          <ChainButton />
           <WalletButton />
         </Flex>
       </Show>

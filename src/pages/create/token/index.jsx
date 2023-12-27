@@ -39,10 +39,12 @@ import { useAppContext } from "contexts/AppContext";
 import { moveINWToBegin } from "utils";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { formatNumDynDecimal } from "utils";
+import { useChainContext } from "contexts/ChainContext";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
   const dispatch = useDispatch();
+  const { unitDecimal } = useChainContext();
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allTokensList } = useSelector((s) => s.allPools);
   const { api } = useAppContext();
@@ -354,7 +356,9 @@ export default function CreateTokenPage() {
                 <IWInput
                   isDisabled={true}
                   value={`${
-                    formatNumDynDecimal(currentAccount?.balance?.inw2?.replaceAll(",", "")) || 0
+                    formatNumDynDecimal(
+                      currentAccount?.balance?.inw2?.replaceAll(",", "")
+                    ) || 0
                   } INW V2`}
                   label="Your INW V2 Balance"
                 />

@@ -49,12 +49,14 @@ import { delay } from "utils";
 import { initialApi } from "utils/contracts";
 import AzeroStaking from "pages/azero-staking";
 import INWV2 from "pages/faucet/inwV2";
+import { supportedChain } from "contexts/ChainContext";
+import { useChainContext } from "contexts/ChainContext";
 
-const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
 
 const App = () => {
   const dispatch = useDispatch();
+  const { currentChain } = useChainContext();
 
   const { currentAccount } = useSelector((s) => s.wallet);
   const { myStakingPoolsList, myNFTPoolsList, myTokenPoolsList } = useSelector(
@@ -77,9 +79,9 @@ const App = () => {
 
   useEffect(() => {
     const setupProvider = async () => {
-      toast(`Connecting to ${providerUrl}...`);
-      const provider = new WsProvider(providerUrl);
-
+      toast(`Connecting to ${currentChain?.providerURL}...`);
+      const provider = new WsProvider(currentChain?.providerURL);
+      console.log(currentChain?.providerURL);
       const wsApi = await ApiPromise.create({
         provider,
         rpc: jsonrpc,
@@ -102,7 +104,7 @@ const App = () => {
 
       if (!wsApi) return;
 
-      console.log(`Successfully connected to: ${providerUrl}`);
+      console.log(`Successfully connected to: ${currentChain?.providerURL}`);
       toast.success(`Successfully connected !`);
 
       setApi(wsApi);
@@ -121,12 +123,13 @@ const App = () => {
         // setLastBlockParent(lastHeader.parentHash.toRawType);
       });
     };
-
-    setupProvider().catch((error) => {
-      toast.error(toastMessages.ERR_API_CONN);
-      console.error("@_@ setupProvider error", error);
-    });
-  }, [dispatch]);
+    if (currentChain?.providerURL?.length > 0) {
+      setupProvider().catch((error) => {
+        toast.error(toastMessages.ERR_API_CONN);
+        console.error("@_@ setupProvider error", error);
+      });
+    }
+  }, [dispatch, currentChain]);
 
   useEffect(() => {
     if (api) {

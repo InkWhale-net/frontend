@@ -383,7 +383,6 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
   const [gasApproveToV1, setGasApproveToV1] = useState(0);
 
   useEffect(() => {
-    console.log("amount", amount);
     // to v2
     const fetchDataGasApproveToV2 = async () => {
       const contract = new ContractPromise(

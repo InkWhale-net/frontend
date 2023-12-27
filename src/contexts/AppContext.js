@@ -11,6 +11,7 @@ import {
   updateAccountsList,
 } from "redux/slices/walletSlice";
 import { SwapV2TokenProvider } from "./SwapV2TokenModalContext";
+import { ChainSwitchProvider } from "./ChainContext";
 
 const AppContext = createContext();
 
@@ -92,7 +93,9 @@ export const AppContextProvider = ({ children }) => {
         walletDisconnectHandler,
       }}
     >
-      <SwapV2TokenProvider>{children}</SwapV2TokenProvider>
+      <ChainSwitchProvider>
+        <SwapV2TokenProvider>{children}</SwapV2TokenProvider>
+      </ChainSwitchProvider>
     </AppContext.Provider>
   );
 };
