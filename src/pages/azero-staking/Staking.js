@@ -53,7 +53,7 @@ function Staking() {
   }, [api, currentAccount]);
 
   async function handleStake() {
-    if (footerInfo && footerInfo[0] > amount) {
+    if (footerInfo && Number(footerInfo[0]) > Number(amount)) {
       toast.error(`Min AZERO stake is ${footerInfo && footerInfo[0]} AZERO`);
       return;
     }
@@ -128,7 +128,7 @@ function Staking() {
   // ================
 
   async function handleRequestUnstake() {
-    if (footerInfo && footerInfo[0] > amount) {
+    if (footerInfo && Number(footerInfo[0]) > Number(amount)) {
       toast.error(`Min AZERO unstake is ${footerInfo && footerInfo[0]} AZERO`);
       return;
     }
