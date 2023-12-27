@@ -97,6 +97,10 @@ function SidebarContent({ onClose }) {
               label: "Transactions",
               href: "/tokens/transaction",
             },
+            {
+              label: "Token Swap",
+              href: "/tokens/swap",
+            },
           ]}
         />
         <GroupMenu

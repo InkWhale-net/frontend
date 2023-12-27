@@ -168,6 +168,25 @@ export const APICall = {
       isToOnly,
     });
   },
+  
+  getSwapTransactionHistory: async ({
+    tokenContract,
+    queryAddress,
+    limit = 10,
+    offset = 0,
+    isFromOnly = false,
+    isToOnly = false,
+  }) => {
+    return await client("POST", "/getSwapTransactionHistory", {
+      tokenContract,
+      queryAddress,
+      limit,
+      offset,
+      isFromOnly,
+      isToOnly,
+    });
+  },
+
   getLaunchpad: async ({
     keyword,
     isActive = 1,

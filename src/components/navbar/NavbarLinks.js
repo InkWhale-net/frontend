@@ -117,6 +117,10 @@ export default function NavbarLinks(props) {
                 label: "Transactions",
                 href: "/tokens/transaction",
               },
+              {
+                label: "Token Swap",
+                href: "/tokens/swap",
+              },
             ]}
           />
           <GroupMenu
