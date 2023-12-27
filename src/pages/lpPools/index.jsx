@@ -9,7 +9,6 @@ import {
   HStack,
   Stack,
   Switch,
-  Tooltip,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
@@ -19,13 +18,13 @@ import { IWMobileList } from "components/table/IWMobileList";
 import { IWTable } from "components/table/IWTable";
 import { useAppContext } from "contexts/AppContext";
 import { useEffect, useMemo, useState } from "react";
-import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllNFTPools,
   fetchAllTokenPools,
 } from "redux/slices/allPoolsSlice";
-import { delay, formatTokenAmount, isPoolEnded } from "utils";
+import { isPoolNotStart } from "utils";
+import { delay, isPoolEnded } from "utils";
 
 export default function LPPoolsPage() {
   const dispatch = useDispatch();
@@ -42,6 +41,7 @@ export default function LPPoolsPage() {
   const [showMyStakedPools, setShowMyStakedPools] = useState(false);
 
   const [endedPools, setEndedPools] = useState(false);
+  const [livePools, setLivePools] = useState(false);
 
   const [keywords, setKeywords] = useState("");
   const [resultList, setResultList] = useState(null);
@@ -93,9 +93,16 @@ export default function LPPoolsPage() {
     if (endedPools) {
       ret = ret.filter((p) => isPoolEnded(p?.startTime, p?.duration));
     }
+    if (livePools) {
+      ret = ret.filter(
+        (p) =>
+          !isPoolEnded(p?.startTime, p?.duration) &&
+          !isPoolNotStart(p?.startTime)
+      );
+    }
 
     return ret;
-  }, [allNFTPoolsList, showMyStakedPools, endedPools]);
+  }, [allNFTPoolsList, showMyStakedPools, endedPools, livePools]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -118,8 +125,16 @@ export default function LPPoolsPage() {
       ret = ret.filter((p) => isPoolEnded(p?.startTime, p?.duration));
     }
 
+    if (livePools) {
+      ret = ret.filter(
+        (p) =>
+          !isPoolEnded(p?.startTime, p?.duration) &&
+          !isPoolNotStart(p?.startTime)
+      );
+    }
+
     return ret;
-  }, [allTokenPoolsList, showMyStakedPools, endedPools]);
+  }, [allTokenPoolsList, showMyStakedPools, endedPools, livePools]);
   const tableDataToken = {
     tableHeader: [
       {
@@ -266,8 +281,37 @@ export default function LPPoolsPage() {
               >
                 <Switch
                   id="zero-reward-pools"
+                  isChecked={livePools}
+                  onChange={() => {
+                    const newValue = !livePools;
+                    setLivePools(newValue);
+                    if (newValue == true) setEndedPools(false);
+                  }}
+                />
+                <FormLabel
+                  mb="0"
+                  ml="10px"
+                  fontWeight="400"
+                  htmlFor="zero-reward-pools"
+                  whiteSpace="nowrap"
+                >
+                  Pool Live Only
+                </FormLabel>
+              </FormControl>
+              <FormControl
+                maxW="200px"
+                display="flex"
+                alignItems="center"
+                justifyContent={{ base: "flex-end", lg: "none" }}
+              >
+                <Switch
+                  id="zero-reward-pools"
                   isChecked={endedPools}
-                  onChange={() => setEndedPools(!endedPools)}
+                  onChange={() => {
+                    const newValue = !endedPools;
+                    setEndedPools(newValue);
+                    if (newValue == true) setLivePools(false);
+                  }}
                 />
                 <FormLabel
                   mb="0"
