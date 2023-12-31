@@ -3,6 +3,8 @@ import NightlyLogo from "assets/img/wallet/Nightly.jpg";
 import PolkadotjsLogo from "assets/img/wallet/PolkadotjsLogo.svg";
 import SubWalletLogo from "assets/img/wallet/SubWalletLogo.svg";
 import NovaLogo from "assets/img/wallet/nova.jpg";
+import Icon5Ire from "assets/img/chains/5irechain.png";
+import IconAlephzero from "assets/img/chains/alephzero.png";
 
 export const toastMessages = {
   NO_EXTENSION: "Your browser does NOT HAVE the required plugin.",
@@ -112,3 +114,33 @@ export const ADDRESSES_INW = {
 //       'https://addons.mozilla.org/en-US/firefox/addon/polkadot-js-extension/',
 //   },
 // ];
+
+export const supportedChain = [
+  {
+    name: "Alephzero",
+    key: "alephzero",
+    icon: IconAlephzero,
+    decimal: 12,
+    providerURL: "wss://ws.test.azero.dev",
+    unit: "AZERO",
+  },
+  {
+    name: "Alephzero Testnet",
+    key: "alephzero-testnet",
+    icon: IconAlephzero,
+    decimal: 12,
+    providerURL: "wss://ws.test.azero.dev",
+    allowSwap: true,
+    allowBuy: true,
+    haveINW2: true,
+    unit: "AZERO",
+  },
+  {
+    name: "5ireChain Testnet",
+    key: "5irechain-testnet",
+    icon: Icon5Ire,
+    decimal: 18,
+    providerURL: "wss://wss-testnet.5ire.network",
+    unit: "5IRE",
+  },
+];

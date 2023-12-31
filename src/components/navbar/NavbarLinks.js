@@ -59,22 +59,30 @@ export default function NavbarLinks(props) {
 
       <Show above="md">
         <Flex bg="transparent">
-          <GroupMenu
-            {...groupButtonProps}
-            title="INW Token"
-            path="/inw"
-            data={[
-              {
-                label: "Claim INW",
-                href: "/acquire-inw",
-              },
-              {
-                label: "INW V2",
-                href: "/inw-v2",
-              },
-            ]}
-          />
-          {menuListData?.map(({ title, href }) => (
+          {currentChain?.haveINW2 && (
+            <GroupMenu
+              {...groupButtonProps}
+              title="INW Token"
+              path="/inw"
+              data={[
+                {
+                  label: "Claim INW",
+                  href: "/acquire-inw",
+                },
+                {
+                  label: "INW V2",
+                  href: "/inw-v2",
+                },
+              ]}
+            />
+          )}
+          {[
+            !currentChain?.haveINW2 && {
+              title: "INW Token",
+              href: "/acquire-inw",
+            },
+            ...menuListData,
+          ]?.map(({ title, href }) => (
             <Flex
               _hover={{ textDecoration: "none", bg: "bg.1" }}
               p="6px 10px"

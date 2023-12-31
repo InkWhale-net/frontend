@@ -42,6 +42,9 @@ import launchpad_contract_5ire from "./5ire/launchpad_contract";
 import launchpad_contract_alephzero from "./alephzeroTestnet/launchpad_contract";
 import launchpad_contract_alephzero_testnet from "./alephzero/launchpad_contract";
 
+import psp22_standard_ob3_v1_alephzero from "./alephzeroTestnet/psp22_standard_ob3_v1";
+import psp22_standard_ob3_v1_alephzero_testnet from "./alephzero/psp22_standard_ob3_v1";
+
 export const public_sale_contract = {
   "5irechain-testnet": public_sale_5ire,
   alephzero: public_sale_alephzero,
@@ -66,7 +69,7 @@ export const pool_generator_contract = {
   "alephzero-testnet": pool_generator_alephzero_testnet,
 }[process.env.REACT_APP_CHAIN];
 
-export const pool_contract_contract = {
+export const pool_contract = {
   "5irechain-testnet": pool_contract_5ire,
   alephzero: pool_contract_alephzero,
   "alephzero-testnet": pool_contract_alephzero_testnet,
@@ -78,7 +81,7 @@ export const nft_pool_generator_contract = {
   "alephzero-testnet": nft_pool_generator_alephzero_testnet,
 }[process.env.REACT_APP_CHAIN];
 
-export const nft_pool_contract_contract = {
+export const nft_pool_contract = {
   "5irechain-testnet": nft_pool_contract_5ire,
   alephzero: nft_pool_contract_alephzero,
   "alephzero-testnet": nft_pool_contract_alephzero_testnet,
@@ -90,7 +93,7 @@ export const lp_pool_generator_contract = {
   "alephzero-testnet": lp_pool_generator_alephzero_testnet,
 }[process.env.REACT_APP_CHAIN];
 
-export const lp_pool_contract_contract = {
+export const lp_pool_contract = {
   "5irechain-testnet": lp_pool_contract_5ire,
   alephzero: lp_pool_contract_alephzero,
   "alephzero-testnet": lp_pool_contract_alephzero_testnet,
@@ -102,8 +105,14 @@ export const launchpad_generator_contract = {
   "alephzero-testnet": launchpad_generator_alephzero_testnet,
 }[process.env.REACT_APP_CHAIN];
 
-export const launchpad_contract_contract = {
+export const launchpad_contract = {
   "5irechain-testnet": launchpad_contract_5ire,
   alephzero: launchpad_contract_alephzero,
   "alephzero-testnet": launchpad_contract_alephzero_testnet,
+}[process.env.REACT_APP_CHAIN];
+
+export const psp22_standard_ob3_v1_contract = {
+  "5irechain-testnet": launchpad_contract_5ire,
+  alephzero: psp22_standard_ob3_v1_alephzero,
+  "alephzero-testnet": psp22_standard_ob3_v1_alephzero_testnet,
 }[process.env.REACT_APP_CHAIN];

@@ -1,4 +1,4 @@
-const psp22_contract = {
+const psp22_standard_ob4_v1 = {
   CONTRACT_ADDRESS: "5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX",
   CONTRACT_ABI: {
 	"source": {
@@ -2348,4 +2348,4 @@ const psp22_contract = {
   }
 };
 
-export default psp22_contract;
+export default psp22_standard_ob4_v1;

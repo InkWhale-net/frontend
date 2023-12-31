@@ -40,6 +40,7 @@ import {
 } from "utils/contracts/contract";
 import ImportTokenForm from "./ImportToken";
 import ImageUploadIcon from "./UploadIcon";
+import { formatTextAmount } from "utils";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
@@ -150,8 +151,8 @@ export default function CreateTokenPage() {
     }
 
     if (
-      +currentAccount?.balance?.inw2?.replaceAll(",", "") <
-      +createTokenFee?.replaceAll(",", "")
+      +formatTextAmount(currentAccount?.balance?.inw) <
+      +formatTextAmount(createTokenFee)
     ) {
       toast.error(
         `You don't have enough INW V2. Create Token costs ${formatNumDynDecimal(
@@ -170,16 +171,6 @@ export default function CreateTokenPage() {
       currentAccount?.address,
       token_generator_contract.CONTRACT_ADDRESS
     );
-    // const allowanceINWQr = await execContractQuery(
-    //   currentAccount?.address,
-    //   "api",
-    //   psp22_standard_contract.CONTRACT_ABI,
-    //   psp22_standard_contract.CONTRACT_ADDRESS,
-    //   0, //-> value
-    //   "psp22::allowance",
-    //   currentAccount?.address,
-    //   token_generator_contract.CONTRACT_ADDRESS
-    // );
     const allowanceINW = formatQueryResultToNumber(allowanceINWQr).replaceAll(
       ",",
       ""
@@ -224,24 +215,24 @@ export default function CreateTokenPage() {
     setTokenName("");
     setTokenSymbol("");
     setTotalSupply("");
-    await delay(1000);
+    // await delay(1000);
 
-    await APICall.askBEupdate({ type: "token", poolContract: "new" });
+    // await APICall.askBEupdate({ type: "token", poolContract: "new" });
 
-    toast.promise(
-      delay(10000).then(() => {
-        setIconIPFSUrl();
-        if (currentAccount) {
-          dispatch(fetchAllTokensList({}));
-          dispatch(fetchUserBalance({ currentAccount, api }));
-        }
-      }),
-      {
-        loading: "Please wait 10s for the data to be updated! ",
-        success: "Done !",
-        error: "Could not fetch data!!!",
-      }
-    );
+    // toast.promise(
+    //   delay(10000).then(() => {
+    //     setIconIPFSUrl();
+    //     if (currentAccount) {
+    //       dispatch(fetchAllTokensList({}));
+    //       dispatch(fetchUserBalance({ currentAccount, api }));
+    //     }
+    //   }),
+    //   {
+    //     loading: "Please wait 10s for the data to be updated! ",
+    //     success: "Done !",
+    //     error: "Could not fetch data!!!",
+    //   }
+    // );
   }
 
   const hasMorePage = useMemo(
@@ -385,6 +376,9 @@ export default function CreateTokenPage() {
                 />
               </Box>
             </SimpleGrid>
+            <Button onClick={() => {
+              APICall.askBEupdate({ type: "token", poolContract: "new" });
+            }}>denmo</Button>
             <Button
               isDisabled={
                 !(

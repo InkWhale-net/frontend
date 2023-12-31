@@ -24,13 +24,12 @@ export const formatChainStringToNumber = (str) => {
   return str.replace(/,/g, "").replace(/"/g, "");
 };
 export const formatQueryResultToNumber = (result, chainDecimals = 12) => {
-  const localDecimal = +localStorage.getItem("currencyDecimal");
   const ret = result?.toHuman()?.Ok?.replaceAll(",", "");
 
   const formattedStrBal = formatBalance(ret, {
     withSi: false,
     forceUnit: "-",
-    decimals: localDecimal || chainDecimals,
+    decimals: chainDecimals,
   });
 
   return formattedStrBal;
@@ -61,13 +60,12 @@ export function delay(sec) {
 }
 
 export const formatNumToBN = (number = 0, decimal = 12) => {
-  const localDecimal = +localStorage.getItem("currencyDecimal");
   let numberMul = 6;
   if (number > 10 ** 6) {
     numberMul = 0;
   }
   return new BN(+number * 10 ** numberMul)
-    .mul(new BN(10 ** ((localDecimal || decimal) - numberMul)))
+    .mul(new BN(10 ** (decimal - numberMul)))
     .toString();
 };
 
@@ -371,12 +369,12 @@ export const resolveAZDomainToAddress = async (domain) => {
 
 export const formatTokenAmount = (value, decimal = 12) => {
   try {
-    const ret = formatChainStringToNumber(value) / Math.pow(10, decimal);
+    // const ret = formatChainStringToNumber(value) / Math.pow(10, decimal);
 
-    // const ret2 = formatUnits(
-    //   value?.toString()?.replace(/\./g, "")?.replace(/,/g, ""),
-    //   decimal
-    // );
+    const ret = formatUnits(
+      value?.toString()?.replace(/\./g, "")?.replace(/,/g, ""),
+      decimal
+    );
 
     // console.log("ret", ret);
     // console.log("ret2", ret2);

@@ -8,7 +8,8 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { supportedChain, useChainContext } from "contexts/ChainContext";
+import { useChainContext } from "contexts/ChainContext";
+import { supportedChain } from "constants";
 
 const ChainButton = () => {
   const { currentChain, switchChain } = useChainContext();
