@@ -20,9 +20,9 @@ import {
   getPublicCurrentAccount,
 } from "utils";
 import { execContractQuery } from "utils/contracts";
-import psp22_contract from "utils/contracts/psp22_contract";
-import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
-import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
+import { psp22_contract } from "utils/contracts";
+import { psp22_contract_v2 } from "utils/contracts";
+import { swap_inw2_contract } from "utils/contracts";
 
 const INWV2 = () => {
   const [inwV2Info, setInwV2Info] = useState(null);

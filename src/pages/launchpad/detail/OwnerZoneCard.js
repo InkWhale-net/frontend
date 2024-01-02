@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { formatNumToBN, formatTokenAmount } from "utils";
 import { execContractQuery, execContractTxAndCallAPI } from "utils/contracts";
-import launchpad from "utils/contracts/launchpad";
+import { launchpad } from "utils/contracts";
 import { useModalLPDetail } from "./modal/ModelContext";
 import { formatChainStringToNumber } from "utils";
 import { delay } from "utils";

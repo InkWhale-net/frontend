@@ -28,7 +28,7 @@ import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { delay } from "utils";
 import { execContractTx } from "utils/contracts";
 import { execContractQuery } from "utils/contracts";
-import launchpad_generator from "utils/contracts/launchpad_generator";
+import { launchpad_generator } from "utils/contracts";
 
 const Launchpad = () => {
   const { currentAccount } = useSelector((s) => s.wallet);

@@ -47,7 +47,7 @@ import {
   millisecondsInADay,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import launchpad from "utils/contracts/launchpad";
+import { launchpad } from "utils/contracts";
 import * as Yup from "yup";
 import { roundToMinute } from "pages/launchpad/create/components/Phase";
 import { processStringToArray } from "pages/launchpad/create/utils";

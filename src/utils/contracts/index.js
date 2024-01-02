@@ -8,6 +8,66 @@ import { getGasLimit } from "./dryRun";
 import { BN, BN_ONE } from "@polkadot/util";
 import { delay } from "utils";
 import { web3FromSource } from "@polkadot/extension-dapp";
+
+/*
+*  import all contract abi
+*/
+const chain = process.env.REACT_APP_CHAIN;
+
+const launchpad = require(`./${chain}/launchpad_contract`).default;
+const launchpad_generator =
+  require(`./${chain}/launchpad_generator`).default;
+const lp_pool_contract = require(`./${chain}/lp_pool_contract`).default;
+const lp_pool_generator_contract =
+  require(`./${chain}/lp_pool_generator`).default;
+const nft_pool_contract = require(`./${chain}/nft_pool_contract`).default;
+const nft_pool_generator_contract =
+  require(`./${chain}/nft_pool_generator`).default;
+const pool_contract = require(`./${chain}/pool_contract`).default;
+const pool_generator_contract = require(`./${chain}/pool_generator`).default;
+const psp22_contract = require(`./${chain}/psp22_standard`).default;
+const public_sale_contract = require(`./${chain}/public_sale`).default;
+const token_generator_contract = require(`./${chain}/token_generator`).default;
+const token_standard_contract = require(`./${chain}/token_standard`).default;
+
+// TODO: double check && remove later
+const my_azero_staking = require(`./${chain}/my_azero_staking`).default;
+const private_sale = require(`./${chain}/private_sale`).default;
+const psp34_standard = require(`./${chain}/psp34_standard`).default;
+const psp22_contract_v2 = require(`./${chain}/psp22_contract_v2`).default;
+const swap_inw2_contract = require(`./${chain}/swap_inw2_contract`).default;
+const psp22_contract_old = require(`./${chain}/psp22_contract_old`).default;
+const azt_contract = require(`./${chain}/azt_contract`).default;
+const core_contract = require(`./${chain}/core_contract`).default;
+
+export {
+  launchpad,
+  launchpad_generator,
+  lp_pool_contract,
+  lp_pool_generator_contract,
+  nft_pool_contract,
+  nft_pool_generator_contract,
+  pool_contract,
+  pool_generator_contract,
+  psp22_contract,
+  public_sale_contract,
+  token_generator_contract,
+  token_standard_contract,
+  // TODO: double check && remove later
+  my_azero_staking,
+  private_sale,
+  psp34_standard,
+  psp22_contract_v2,
+  swap_inw2_contract,
+  psp22_contract_old,
+  azt_contract,
+  core_contract,
+};
+
+/*
+*  END import all contract abi
+*/
+
 const MAX_CALL_WEIGHT = new BN(5_000_000_000_000).isub(BN_ONE);
 
 let wsApi;

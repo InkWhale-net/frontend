@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { delay, formatChainStringToNumber, formatNumToBN } from "utils";
 import { execContractTx } from "utils/contracts";
-import psp22_contract from "utils/contracts/psp22_contract";
+import { psp22_contract } from "utils/contracts";
 import MyAccountTab from "./myAccount";
 
 const TokensTabBurnToken = ({

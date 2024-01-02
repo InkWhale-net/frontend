@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { formatChainStringToNumber } from "utils";
 import { formatNumDynDecimal, formatTokenAmount, roundUp } from "utils";
 import { execContractQuery } from "utils/contracts";
-import psp22_contract from "utils/contracts/psp22_contract";
+import { psp22_contract } from "utils/contracts";
 
 const Row = ({ label, value, divider = false, ...rest }) => {
   return (

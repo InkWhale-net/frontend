@@ -23,7 +23,7 @@ import {
   roundUp,
 } from "utils";
 import { execContractQuery } from "utils/contracts";
-import psp22_contract from "utils/contracts/psp22_contract";
+import { psp22_contract } from "utils/contracts";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import { formatTokenAmount } from "utils";
 import { formatTextAmount } from "utils";

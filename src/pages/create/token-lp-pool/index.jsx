@@ -35,8 +35,8 @@ import {
   roundUp,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import lp_pool_generator_contract from "utils/contracts/lp_pool_generator_contract";
-import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { lp_pool_generator_contract } from "utils/contracts";
+import { psp22_contract_v2 } from "utils/contracts";
 
 export default function CreateTokenLPPage() {
   const dispatch = useDispatch();
@@ -214,10 +214,7 @@ export default function CreateTokenLPPage() {
       return toast.error("Invalid address!");
     }
 
-    if (
-      +currentAccount?.balance?.inw2?.replaceAll(",", "") <
-      +createTokenFee
-    ) {
+    if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
         `You don't have enough INW V2. Stake costs ${formatNumDynDecimal(
           createTokenFee

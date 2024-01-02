@@ -11,7 +11,7 @@ import {
   formatTokenAmount,
 } from "utils";
 import { execContractQuery } from "utils/contracts";
-import launchpad_generator from "utils/contracts/launchpad_generator";
+import { launchpad_generator } from "utils/contracts";
 import FinishModal from "./FinishModal";
 import Phase from "./components/Phase";
 import ProjectInfor from "./components/ProjectInfor";

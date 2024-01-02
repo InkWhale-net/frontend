@@ -22,7 +22,7 @@ import {
   roundUp,
 } from "utils";
 import { execContractTx } from "utils/contracts";
-import launchpad from "utils/contracts/launchpad";
+import { launchpad } from "utils/contracts";
 
 const IWCountDown = ({ saleTime, phaseContainWL, launchpadData }) => {
   const renderer = ({ completed }) => {

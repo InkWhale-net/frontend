@@ -28,9 +28,9 @@ import { formatQueryResultToNumber } from "utils";
 import { formatNumDynDecimal, formatTokenAmount } from "utils";
 import { execContractTx } from "utils/contracts";
 import { execContractQuery } from "utils/contracts";
-import launchpad from "utils/contracts/launchpad";
-import psp22_contract from "utils/contracts/psp22_contract";
-import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { launchpad } from "utils/contracts";
+import { psp22_contract } from "utils/contracts";
+import { psp22_contract_v2 } from "utils/contracts";
 import * as Yup from "yup";
 
 const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {

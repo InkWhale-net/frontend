@@ -12,10 +12,10 @@ import {
   getEstimatedGasBatchTx,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import nft_pool_contract from "utils/contracts/nft_pool_contract";
-import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { nft_pool_contract } from "utils/contracts";
+import { psp22_contract_v2 } from "utils/contracts";
 
-import psp34_standard from "utils/contracts/psp34_standard";
+import { psp34_standard } from "utils/contracts/";
 
 export default function useBulkStake({ poolContract, NFTtokenContract }) {
   const dispatch = useDispatch();

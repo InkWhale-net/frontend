@@ -16,9 +16,8 @@ import {
   roundUp,
 } from "utils";
 import { execContractQuery } from "utils/contracts";
-import core_contract from "utils/contracts/core_contract";
-import psp22_contract from "utils/contracts/psp22_contract";
-import psp22_contract_old from "utils/contracts/psp22_contract_old";
+import {core_contract} from "utils/contracts";
+import { psp22_contract } from "utils/contracts";
 import ImageUploadIcon from "./UploadIcon";
 import { getTokenOwner } from "utils";
 import { web3FromSource } from "@polkadot/extension-dapp";

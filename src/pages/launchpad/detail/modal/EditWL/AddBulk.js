@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { delay } from "utils";
 import { execContractTx } from "utils/contracts";
-import launchpad from "utils/contracts/launchpad";
+import { launchpad } from "utils/contracts";
 import AddKycBlockpass from "./AddKycBlockpass";
 import { PhaseHeaderInfo } from ".";
 

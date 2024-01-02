@@ -33,7 +33,8 @@ import { delay } from "utils";
 import { getAzeroBalanceOfAddress } from "utils/contracts";
 import { execContractQuery } from "utils/contracts";
 
-import my_azero_staking from "utils/contracts/my_azero_staking";
+import { my_azero_staking } from "utils/contracts";
+
 const INW_NAME = "INW";
 
 export default function AzeroStakingAdmin() {

@@ -22,7 +22,7 @@ import {
   roundUp,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import launchpad from "utils/contracts/launchpad";
+import { launchpad } from "utils/contracts";
 const headerSX = {
   fontWeight: "700",
   color: "#57527E",

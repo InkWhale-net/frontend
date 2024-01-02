@@ -4,9 +4,8 @@ import { formatNumToBN } from "utils";
 import { formatQueryResultToNumber } from "utils";
 import { execContractTx } from "utils/contracts";
 import { execContractQuery } from "utils/contracts";
-import my_azero_staking from "utils/contracts/my_azero_staking";
-import psp22_contract from "utils/contracts/psp22_contract";
-// import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { my_azero_staking } from "utils/contracts";
+import { psp22_contract } from "utils/contracts";
 
 export async function getMinStakingAmount(api, currentAccount) {
   const queryResult = await execContractQuery(

@@ -16,10 +16,9 @@ import IWInput from "components/input/Input";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import azt_contract from "utils/contracts/azt_contract";
-import private_sale from "utils/contracts/private_sale";
-// import public_sale from "utils/contracts/public_sale";
-import public_sale from "utils/contracts/5ire/public_sale";
+import { azt_contract } from "utils/contracts";
+import { private_sale } from "utils/contracts";
+import { public_sale_contract } from "utils/contracts";
 
 import { APICall } from "api/client";
 import AddressCopier from "components/address-copier/AddressCopier";
@@ -45,9 +44,9 @@ import { parseUnits } from "ethers";
 import { formatTokenAmount } from "utils";
 import IWCountDownClaim from "./ClaimButton";
 import { formatTextAmount } from "utils";
-import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
-import psp22_contract from "utils/contracts/psp22_contract";
-import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
+import { psp22_contract_v2 } from "utils/contracts";
+import { psp22_contract } from "utils/contracts";
+import { swap_inw2_contract } from "utils/contracts";
 import { useChainContext } from "contexts/ChainContext";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
@@ -447,9 +446,9 @@ export default function FaucetPage({ api }) {
       getSaleInfo(private_sale);
       // getBalanceContract(private_sale);
     } else {
-      getPublicsaleInfo(public_sale);
-      getPriceInw(public_sale);
-      getBalanceContract(public_sale);
+      getPublicsaleInfo(public_sale_contract);
+      getPriceInw(public_sale_contract);
+      getBalanceContract(public_sale_contract);
     }
   };
 
@@ -481,8 +480,8 @@ export default function FaucetPage({ api }) {
     await execContractTx(
       currentAccount,
       api,
-      public_sale.CONTRACT_ABI,
-      public_sale.CONTRACT_ADDRESS,
+      public_sale_contract.CONTRACT_ABI,
+      public_sale_contract.CONTRACT_ADDRESS,
       parseUnits(
         roundUp(+formatTextAmount(inwPrice) * inwBuyAmount, 4).toString(),
         unitDecimal || 12

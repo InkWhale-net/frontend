@@ -19,9 +19,9 @@ import { formatQueryResultToNumber } from "utils";
 import { execContractTx } from "utils/contracts";
 import { execContractQuery } from "utils/contracts";
 
-import azt_contract from "utils/contracts/azt_contract";
-import private_sale_contract from "utils/contracts/private_sale";
-import public_sale_contract from "utils/contracts/public_sale";
+import {azt_contract} from "utils/contracts";
+import { private_sale } from "utils/contracts";
+import { public_sale_contract } from "utils/contracts";
 
 export default function SaleInfoTab() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -49,7 +49,7 @@ export default function SaleInfoTab() {
   const getBalanceSale = async () => {
     let balanceQrs = await Promise.all([
       getBalanceINWOfAddress(public_sale_contract.CONTRACT_ADDRESS),
-      getBalanceINWOfAddress(private_sale_contract.CONTRACT_ADDRESS),
+      getBalanceINWOfAddress(private_sale.CONTRACT_ADDRESS),
     ]);
     setBalancesContract(balanceQrs.map((el) => formatQueryResultToNumber(el)));
   };
@@ -75,7 +75,7 @@ export default function SaleInfoTab() {
       public_sale_contract.CONTRACT_ABI,
       public_sale_contract.CONTRACT_ADDRESS,
       0, //-> value
-      "genericTokenSaleTrait::burn",
+      "genericTokenSaleTrait::burn"
     );
   };
 
@@ -84,10 +84,10 @@ export default function SaleInfoTab() {
     await execContractTx(
       currentAccount,
       "api",
-      private_sale_contract.CONTRACT_ABI,
-      private_sale_contract.CONTRACT_ADDRESS,
+      private_sale.CONTRACT_ABI,
+      private_sale.CONTRACT_ADDRESS,
       0, //-> value
-      "genericTokenSaleTrait::burn",
+      "genericTokenSaleTrait::burn"
     );
   };
 
@@ -96,8 +96,8 @@ export default function SaleInfoTab() {
     await execContractTx(
       currentAccount,
       "api",
-      private_sale_contract.CONTRACT_ABI,
-      private_sale_contract.CONTRACT_ADDRESS,
+      private_sale.CONTRACT_ABI,
+      private_sale.CONTRACT_ADDRESS,
       0, //-> value
       "genericTokenSaleTrait::setEndTime",
       startTime.getTime()
@@ -108,8 +108,8 @@ export default function SaleInfoTab() {
     let query1 = execContractQuery(
       publicCurrentAccount?.address,
       "api",
-      private_sale_contract.CONTRACT_ABI,
-      private_sale_contract.CONTRACT_ADDRESS,
+      private_sale.CONTRACT_ABI,
+      private_sale.CONTRACT_ADDRESS,
       0,
       "genericTokenSaleTrait::endTime"
     );
@@ -133,16 +133,16 @@ export default function SaleInfoTab() {
     let query4 = execContractQuery(
       currentAccount?.address,
       "api",
-      private_sale_contract.CONTRACT_ABI,
-      private_sale_contract.CONTRACT_ADDRESS,
+      private_sale.CONTRACT_ABI,
+      private_sale.CONTRACT_ADDRESS,
       0,
       "adminTrait::getBalance"
     );
     let query5 = execContractQuery(
       currentAccount?.address,
       "api",
-      private_sale_contract.CONTRACT_ABI,
-      private_sale_contract.CONTRACT_ADDRESS,
+      private_sale.CONTRACT_ABI,
+      private_sale.CONTRACT_ADDRESS,
       0,
       "ownable::owner"
     );
@@ -162,7 +162,7 @@ export default function SaleInfoTab() {
         +result3?.toHuman()?.Ok?.Ok?.replaceAll(",", "") / 10 ** 12,
       withdrawablePrivate:
         +result4?.toHuman()?.Ok?.Ok?.replaceAll(",", "") / 10 ** 12,
-      ownerContract: result5.toHuman()?.Ok,
+      ownerContract: result5?.toHuman()?.Ok,
     });
   };
 
@@ -171,8 +171,8 @@ export default function SaleInfoTab() {
     await execContractTx(
       currentAccount,
       "api",
-      private_sale_contract.CONTRACT_ABI,
-      private_sale_contract.CONTRACT_ADDRESS,
+      private_sale.CONTRACT_ABI,
+      private_sale.CONTRACT_ADDRESS,
       0, //-> value
       "genericTokenSaleTrait::setInwPrice",
       pricePrivate
@@ -197,8 +197,8 @@ export default function SaleInfoTab() {
     await execContractTx(
       currentAccount,
       "api",
-      private_sale_contract.CONTRACT_ABI,
-      private_sale_contract.CONTRACT_ADDRESS,
+      private_sale.CONTRACT_ABI,
+      private_sale.CONTRACT_ADDRESS,
       0, //-> value
       "adminTrait::withdrawFee",
       formatNumToBN(saleInfo?.withdrawablePrivate),

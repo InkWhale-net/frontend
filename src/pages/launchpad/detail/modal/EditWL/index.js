@@ -46,7 +46,7 @@ import { AiFillExclamationCircle } from "react-icons/ai";
 import { useSelector } from "react-redux";
 import { formatNumDynDecimal, formatTokenAmount } from "utils";
 import { execContractQuery } from "utils/contracts";
-import launchpad from "utils/contracts/launchpad";
+import { launchpad } from "utils/contracts";
 import AddBulk from "./AddBulk";
 import AddSingleWL from "./AddSingle";
 

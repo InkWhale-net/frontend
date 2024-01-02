@@ -32,9 +32,9 @@ import {
   execContractTx,
   execContractTxAndCallAPI,
 } from "utils/contracts";
-import launchpad from "utils/contracts/launchpad";
-import launchpad_generator from "utils/contracts/launchpad_generator";
-import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { launchpad } from "utils/contracts";
+import { launchpad_generator } from "utils/contracts";
+import { psp22_contract_v2 } from "utils/contracts";
 import { useCreateLaunchpad } from "./CreateLaunchpadContext";
 import { processStringToArray } from "./utils";
 import { formatTokenAmount } from "utils";

@@ -18,8 +18,7 @@ import { useChainContext } from "contexts/ChainContext";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
-import { fetchUserBalance } from "redux/slices/walletSlice";
+
 import {
   delay,
   formatNumDynDecimal,
@@ -35,9 +34,9 @@ import {
   execContractTxAndCallAPI,
 } from "utils/contracts";
 import {
-  psp22_standard_contract,
+  psp22_contract,
   token_generator_contract,
-} from "utils/contracts/contract";
+} from "utils/contracts";
 import ImportTokenForm from "./ImportToken";
 import ImageUploadIcon from "./UploadIcon";
 import { formatTextAmount } from "utils";
@@ -73,8 +72,8 @@ export default function CreateTokenPage() {
         "tokenManagerTrait::getCreationFee"
       );
 
-      const fee = formatQueryResultToNumber(result);
-
+      const fee = formatQueryResultToNumber(result,12);
+        console.log('fee', fee)
       setCreateToken(fee?.replaceAll(",", ""));
     };
     fetchCreateTokenFee();
@@ -85,21 +84,21 @@ export default function CreateTokenPage() {
         let queryResult = await execContractQuery(
           currentAccount?.address,
           "api",
-          psp22_standard_contract.CONTRACT_ABI,
+          psp22_contract.CONTRACT_ABI,
           e?.contractAddress,
           0,
           "psp22::totalSupply"
         );
-        const rawTotalSupply = queryResult.toHuman().Ok;
+        const rawTotalSupply = queryResult?.toHuman().Ok;
         let queryResult1 = await execContractQuery(
           currentAccount?.address,
           "api",
-          psp22_standard_contract.CONTRACT_ABI,
+          psp22_contract.CONTRACT_ABI,
           e?.contractAddress,
           0,
           "psp22Metadata::tokenDecimals"
         );
-        const decimals = queryResult1.toHuman().Ok;
+        const decimals = queryResult1?.toHuman().Ok;
         const totalSupply = roundUp(
           rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
           0
@@ -164,8 +163,8 @@ export default function CreateTokenPage() {
     const allowanceINWQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_standard_contract.CONTRACT_ABI,
-      psp22_standard_contract.CONTRACT_ADDRESS,
+      psp22_contract.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::allowance",
       currentAccount?.address,
@@ -183,8 +182,8 @@ export default function CreateTokenPage() {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_standard_contract.CONTRACT_ABI,
-        psp22_standard_contract.CONTRACT_ADDRESS,
+        psp22_contract.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ADDRESS,
         0, //-> value
         "psp22::approve",
         token_generator_contract.CONTRACT_ADDRESS,

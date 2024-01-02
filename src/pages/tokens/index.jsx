@@ -18,12 +18,12 @@ import {
   roundUp,
 } from "utils";
 import { execContractQuery } from "utils/contracts";
-import psp22_contract from "utils/contracts/psp22_contract";
+import { psp22_contract } from "utils/contracts";
 import TokenInformation from "./TokenInformation";
 import TokensTabBurnToken from "./TokensTabBurnToken";
 import TokensTabCheckBalance from "./TokensTabCheckBalance";
 import TokensTabTransferToken from "./TokensTabTransferToken";
-import psp22_contract_old from "utils/contracts/psp22_contract_old";
+ 
 import { getTokenOwner } from "utils";
 import { formatTokenAmount } from "utils";
 

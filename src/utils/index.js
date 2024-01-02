@@ -14,8 +14,16 @@ import {
 import { formatUnits } from "ethers";
 import moment from "moment";
 import { execContractQuery } from "./contracts";
-import psp22_contract_old from "./contracts/psp22_contract_old";
-import psp22_contract from "./contracts/psp22_contract";
+import {psp22_contract_old} from "./contracts";
+import { psp22_contract } from "utils/contracts";
+
+const chainDecimals = {
+  alephzero: 12,
+  "alephzero-testnet": 12,
+  firechain: 18,
+  "firechain-testnet": 18,
+  astar: 12,
+};
 
 // "12,345" (string) or 12,345 (string) -> 12345 (number)
 export const formatChainStringToNumber = (str) => {
@@ -23,13 +31,15 @@ export const formatChainStringToNumber = (str) => {
 
   return str.replace(/,/g, "").replace(/"/g, "");
 };
-export const formatQueryResultToNumber = (result, chainDecimals = 12) => {
+export const formatQueryResultToNumber = (result, decimal) => {
+  const localDecimal = decimal || chainDecimals[process.env.REACT_APP_CHAIN];
+
   const ret = result?.toHuman()?.Ok?.replaceAll(",", "");
 
   const formattedStrBal = formatBalance(ret, {
     withSi: false,
     forceUnit: "-",
-    decimals: chainDecimals,
+    decimals: localDecimal,
   });
 
   return formattedStrBal;
@@ -59,13 +69,15 @@ export function delay(sec) {
   return new Promise((res) => setTimeout(res, sec));
 }
 
-export const formatNumToBN = (number = 0, decimal = 12) => {
+export const formatNumToBN = (number = 0, decimal) => {
+  const localDecimal = decimal || chainDecimals[process.env.REACT_APP_CHAIN];
+
   let numberMul = 6;
   if (number > 10 ** 6) {
     numberMul = 0;
   }
   return new BN(+number * 10 ** numberMul)
-    .mul(new BN(10 ** (decimal - numberMul)))
+    .mul(new BN(10 ** (localDecimal - numberMul)))
     .toString();
 };
 

@@ -27,7 +27,7 @@ import {
   moveINWToBegin,
 } from "utils";
 import { execContractQuery } from "utils/contracts";
-import psp22_contract from "utils/contracts/psp22_contract";
+import { psp22_contract } from "utils/contracts";
 
 import IWPaginationTable from "components/table/IWPaginationTable";
 import { useAppContext } from "contexts/AppContext";

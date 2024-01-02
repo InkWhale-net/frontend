@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { execContractQuery } from "utils/contracts";
-import psp22_contract from "utils/contracts/psp22_contract";
+import { psp22_contract } from "utils/contracts";
 import { formatTokenAmount } from "utils";
 import { formatNumDynDecimal } from "utils";
 

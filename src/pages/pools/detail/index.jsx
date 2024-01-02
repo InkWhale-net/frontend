@@ -51,10 +51,10 @@ import {
   roundUp,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import pool_contract from "utils/contracts/pool_contract";
-import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { pool_contract } from "utils/contracts";
+import { psp22_contract_v2 } from "utils/contracts";
 import { MaxStakeButton } from "./MaxStakeButton";
-import psp22_contract from "utils/contracts/psp22_contract";
+import { psp22_contract } from "utils/contracts";
 import { formatTextAmount } from "utils";
 
 export default function PoolDetailPage() {

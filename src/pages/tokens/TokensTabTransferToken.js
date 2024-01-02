@@ -19,7 +19,7 @@ import {
   isAddressValid,
 } from "utils";
 import { execContractTx } from "utils/contracts";
-import psp22_contract from "utils/contracts/psp22_contract";
+import { psp22_contract } from "utils/contracts";
 import MyAccountTab from "./myAccount";
 
 const TokensTabTransferToken = ({

@@ -34,8 +34,8 @@ import {
   roundUp,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import pool_generator_contract from "utils/contracts/pool_generator";
-import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { pool_generator_contract } from "utils/contracts/";
+import { psp22_contract_v2 } from "utils/contracts";
 import { execContractTxAndCallAPI } from "utils/contracts";
 
 export default function CreateStakePoolPage({ api }) {
@@ -134,8 +134,18 @@ export default function CreateStakePoolPage({ api }) {
         0,
         "genericPoolGeneratorTrait::getCreationFee"
       );
+      const network = process.env.REACT_APP_CHAIN;
+      console.log("network", network);
 
-      const fee = formatQueryResultToNumber(result);
+      console.log(
+        "pool_generator_contract.CONTRACT_ADDRESS",
+        pool_generator_contract.CONTRACT_ADDRESS
+      );
+
+      const fee = formatQueryResultToNumber(result, 12);
+
+      console.log("result", result.toHuman());
+      console.log("fee", fee);
       setCreateTokenFee(fee?.replaceAll(",", ""));
     };
 

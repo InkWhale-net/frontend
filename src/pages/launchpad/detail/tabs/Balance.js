@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { delay, formatTokenAmount, roundDown, roundUp } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import launchpad from "utils/contracts/launchpad";
+import { launchpad } from "utils/contracts";
 import TabLayout from "../Layout";
 import { formatChainStringToNumber } from "utils";
 import { formatNumDynDecimal } from "utils";

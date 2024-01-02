@@ -28,7 +28,7 @@ import toast from "react-hot-toast";
 import { execContractTx } from "utils/contracts";
 import { useDispatch, useSelector } from "react-redux";
 import { useAppContext } from "contexts/AppContext";
-import launchpad from "utils/contracts/launchpad";
+import { launchpad } from "utils/contracts";
 import { parseUnits } from "ethers";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { delay } from "utils";

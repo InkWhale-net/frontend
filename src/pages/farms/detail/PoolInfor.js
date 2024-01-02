@@ -10,7 +10,7 @@ import { formatTokenAmount } from "utils";
 import { roundDown } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { execContractQuery } from "utils/contracts";
-import psp22_contract from "utils/contracts/psp22_contract";
+import { psp22_contract } from "utils/contracts";
 const PoolInfo = ({
   mode,
   nftInfo,

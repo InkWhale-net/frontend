@@ -5,9 +5,9 @@ import { toast } from "react-hot-toast";
 import { formatTokenAmount } from "utils";
 import { formatChainStringToNumber } from "utils";
 import { execContractQuery } from "utils/contracts";
-import lp_pool_contract from "utils/contracts/lp_pool_contract";
-import nft_pool_contract from "utils/contracts/nft_pool_contract";
-import pool_contract from "utils/contracts/pool_contract";
+import { lp_pool_contract } from "utils/contracts";
+import { nft_pool_contract } from "utils/contracts";
+import { pool_contract } from "utils/contracts";
 import { compare } from "utils/datetime";
 
 const initialState = {

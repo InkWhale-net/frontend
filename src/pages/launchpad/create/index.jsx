@@ -10,7 +10,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { execContractQuery } from "utils/contracts";
 import { useAppContext } from "contexts/AppContext";
-import launchpad_generator from "utils/contracts/launchpad_generator";
+import { launchpad_generator } from "utils/contracts";
 import { formatTokenAmount } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { isMobile } from "react-device-detect";

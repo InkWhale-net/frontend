@@ -51,12 +51,12 @@ import {
   roundUp,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import lp_pool_contract from "utils/contracts/lp_pool_contract";
-import nft_pool_contract from "utils/contracts/nft_pool_contract";
-import pool_contract from "utils/contracts/pool_contract";
-import psp22_contract from "utils/contracts/psp22_contract";
+import { lp_pool_contract } from "utils/contracts";
+import { nft_pool_contract } from "utils/contracts";
+import { pool_contract } from "utils/contracts";
+import { psp22_contract } from "utils/contracts";
 import { useLocation } from "react-router-dom";
-import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { psp22_contract_v2 } from "utils/contracts";
 
 export default function MyPoolDetailPage() {
   const [state, setState] = useState({});

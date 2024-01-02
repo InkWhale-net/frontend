@@ -57,13 +57,13 @@ import {
   isPoolNotStart,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import lp_pool_contract from "utils/contracts/lp_pool_contract";
-import nft_pool_contract from "utils/contracts/nft_pool_contract";
-import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
-import psp34_standard from "utils/contracts/psp34_standard";
+import { lp_pool_contract } from "utils/contracts";
+import { nft_pool_contract } from "utils/contracts";
+import { psp22_contract_v2 } from "utils/contracts";
+import {psp34_standard} from "utils/contracts";
 import PoolInfo from "./PoolInfor";
 import { formatTextAmount } from "utils";
-import psp22_contract from "utils/contracts/psp22_contract";
+import { psp22_contract } from "utils/contracts";
 
 const FarmDetailPage = () => {
   const params = useParams();
