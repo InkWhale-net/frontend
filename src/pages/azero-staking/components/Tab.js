@@ -10,6 +10,7 @@ import {
 import AddressCopier from "components/address-copier/AddressCopier";
 import IWCardOneColumn from "components/card/CardOneColumn";
 import { useSelector } from "react-redux";
+import { chainDenom } from "utils";
 
 export default function StakingTabs({ tabsData, onChangeTab, ...rest }) {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -70,8 +71,10 @@ function prepareAccountInfo(currentAccount) {
       ),
     },
     {
-      title: "Azero Balance",
-      content: `${balance?.azero ?? 0} AZERO`,
+      title: `${chainDenom[process.env.REACT_APP_CHAIN]} Balance`,
+      content: `${balance?.azero ?? 0} ${
+        chainDenom[process.env.REACT_APP_CHAIN]
+      }`,
     },
     {
       title: "INW Balance",

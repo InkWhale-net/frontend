@@ -14,14 +14,21 @@ import {
 import { formatUnits } from "ethers";
 import moment from "moment";
 import { execContractQuery } from "./contracts";
-import { psp22_contract_old } from "./contracts";
 import { psp22_contract } from "utils/contracts";
 
-const chainDecimals = {
+export const chainDecimals = {
   alephzero: 12,
   "alephzero-testnet": 12,
   firechain: 18,
   "firechain-testnet": 18,
+  astar: 12,
+};
+
+export const chainDenom = {
+  alephzero: "AZERO",
+  "alephzero-testnet": "TZERO",
+  firechain: "5IRE",
+  "firechain-testnet": "5IRE",
   astar: 12,
 };
 
@@ -459,7 +466,7 @@ export const getTokenOwner = async (tokenContract) => {
   const queryOwnerOld = await execContractQuery(
     process.env.REACT_APP_PUBLIC_ADDRESS,
     "api",
-    psp22_contract_old.CONTRACT_ABI,
+    psp22_contract.CONTRACT_ABI,
     tokenContract,
     0,
     "ownable::owner"
@@ -489,3 +496,30 @@ export const handleCopy = (label, text) => {
 };
 
 export const formatTextAmount = (value) => value?.replaceAll(",", "");
+
+export const formatBNtoNum = (str = 0, decimal) => {
+  try {
+    let strNum = formatChainStringToNumber(str);
+    console.log("strNum", strNum);
+    console.log("str", str);
+    console.log("decimal", decimal);
+    const localDecimal = decimal || chainDecimals[process.env.REACT_APP_CHAIN];
+
+    let numberMul = 0;
+
+    if (decimal > 12) {
+      numberMul = 6;
+    }
+
+    const ret = new BN(strNum)
+      .div(new BN(10 ** numberMul))
+      .div(new BN(10 ** (localDecimal - numberMul)))
+      .toString();
+
+    console.log("ret", ret);
+    return ret
+  } catch (error) {
+    console.log("error message", error.message);
+    toast.error("error format number");
+  }
+};

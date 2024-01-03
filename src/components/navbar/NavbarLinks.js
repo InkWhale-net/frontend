@@ -77,10 +77,10 @@ export default function NavbarLinks(props) {
             />
           )}
           {[
-            !currentChain?.haveINW2 && {
-              title: "INW Token",
-              href: "/acquire-inw",
-            },
+            // !currentChain?.haveINW2 && {
+            //   title: "INW Token",
+            //   href: "/acquire-inw",
+            // },
             ...menuListData,
           ]?.map(({ title, href }) => (
             <Flex

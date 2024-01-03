@@ -1,8 +1,6 @@
 import { CopyIcon } from "@chakra-ui/icons";
 import { Box, Button, Heading, Stack } from "@chakra-ui/react";
-import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
-import IWCardOneColumn from "components/card/CardOneColumn";
 import IWInput from "components/input/Input";
 
 import { useState } from "react";
@@ -115,7 +113,7 @@ const TokensTabTransferToken = ({
                 setAddressFromDomain("");
                 setTransferAmount("");
               }}
-              placeholder="Address or azero.id to transfer"
+              placeholder="Address to transfer"
             />
             {addressFromDomain && transferAddress && (
               <IWInput

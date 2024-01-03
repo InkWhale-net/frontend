@@ -1,8 +1,6 @@
 import { CopyIcon } from "@chakra-ui/icons";
 import { Box, Button, Heading, Stack } from "@chakra-ui/react";
-import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
-import IWCardOneColumn from "components/card/CardOneColumn";
 import IWInput from "components/input/Input";
 
 import { useState } from "react";
@@ -96,7 +94,7 @@ const TokensTabCheckBalance = ({
                 setAddressFromDomain("");
                 setTokenBalance("");
               }}
-              placeholder="Address or azero.id you want to check balance"
+              placeholder="Address you want to check balance"
             />
             {addressFromDomain && addressCheckBalance && (
               <IWInput

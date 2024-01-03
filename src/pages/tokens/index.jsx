@@ -15,7 +15,6 @@ import {
   formatQueryResultToNumber,
   isAddressValid,
   moveINWToBegin,
-  roundUp,
 } from "utils";
 import { execContractQuery } from "utils/contracts";
 import { psp22_contract } from "utils/contracts";
@@ -23,9 +22,9 @@ import TokenInformation from "./TokenInformation";
 import TokensTabBurnToken from "./TokensTabBurnToken";
 import TokensTabCheckBalance from "./TokensTabCheckBalance";
 import TokensTabTransferToken from "./TokensTabTransferToken";
- 
+
 import { getTokenOwner } from "utils";
-import { formatTokenAmount } from "utils";
+import { formatBNtoNum } from "utils";
 
 export default function TokensPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -127,7 +126,7 @@ export default function TokensPage() {
     );
     const rawTotalSupply = queryResult3.toHuman().Ok;
 
-    const totalSupply = formatTokenAmount(rawTotalSupply, decimals);
+    const totalSupply = formatBNtoNum(rawTotalSupply, decimals);
 
     const { address: owner } = await getTokenOwner(selectedContractAddr);
     let tokenIconUrl = null;
