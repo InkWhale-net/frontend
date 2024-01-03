@@ -1350,7 +1350,7 @@ const MyStakeRewardInfoToken = ({
                       }}
                       setUnstakeMax={() => {
                         setLPTokenAmount(
-                          +formatTokenAmount(
+                          formatTokenAmount(
                             stakeInfo?.stakedValue?.toString(),
                             lptokenDecimal
                           )
