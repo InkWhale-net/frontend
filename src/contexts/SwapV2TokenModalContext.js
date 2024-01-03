@@ -1,6 +1,5 @@
 import { Box, Flex, Modal, ModalOverlay, Slide } from "@chakra-ui/react";
-import { SwapModalContent } from "components/INWSwap";
-import { createContext, useContext, useRef, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { GrClose } from "react-icons/gr";
 
@@ -16,7 +15,6 @@ export const SwapV2TokenProvider = ({ children }) => {
     setIsOpen(false);
     setIsOpenMobile(false);
   };
-  const amountRef = useRef(null);
   return (
     <SwapV2TokenContext.Provider
       value={{ openSwapModal, modalVisible: isOpen, closeSwapModal }}
@@ -39,7 +37,7 @@ export const SwapV2TokenProvider = ({ children }) => {
               <GrClose />
             </Box>
           </Flex>
-          <SwapModalContent amountRef={amountRef} isOpen={isOpenMobile} />
+          {/* <SwapModalContent amountRef={amountRef} isOpen={isOpenMobile} /> */}
         </Box>
       </Slide>
     </SwapV2TokenContext.Provider>

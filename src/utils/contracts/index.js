@@ -379,7 +379,7 @@ export const txResponseErrorHandler = async ({
   txType,
   api,
 }) => {
-  const url = `https://test.azero.dev/#/explorer/query/`;
+  const url = `https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fwss-testnet.5ire.network#/explorer/query/`;
   const statusToHuman = Object.entries(status.toHuman());
 
   if (dispatchError) {

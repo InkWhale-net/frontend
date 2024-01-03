@@ -33,13 +33,12 @@ import {
   execContractTx,
   execContractTxAndCallAPI,
 } from "utils/contracts";
-import {
-  psp22_contract,
-  token_generator_contract,
-} from "utils/contracts";
+import { psp22_contract, token_generator_contract } from "utils/contracts";
 import ImportTokenForm from "./ImportToken";
 import ImageUploadIcon from "./UploadIcon";
 import { formatTextAmount } from "utils";
+import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
+import { fetchUserBalance } from "redux/slices/walletSlice";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
@@ -72,11 +71,12 @@ export default function CreateTokenPage() {
         "tokenManagerTrait::getCreationFee"
       );
 
-      const fee = formatQueryResultToNumber(result,12);
-        console.log('fee', fee)
+      const fee = formatQueryResultToNumber(result, 12);
+
       setCreateToken(fee?.replaceAll(",", ""));
     };
-    fetchCreateTokenFee();
+
+    api && fetchCreateTokenFee();
   }, [currentAccount, api]);
   const addTotalSupply = async (_allTokensList) => {
     const processedTokenList = await Promise.all(
@@ -205,7 +205,7 @@ export default function CreateTokenPage() {
       "newToken",
       updateIcon,
       mintAddress,
-      formatNumToBN(totalSupply),
+      formatNumToBN(totalSupply, 12),
       tokenName,
       tokenSymbol,
       12 // tokenDecimal
@@ -214,24 +214,25 @@ export default function CreateTokenPage() {
     setTokenName("");
     setTokenSymbol("");
     setTotalSupply("");
-    // await delay(1000);
+    
+    await delay(1000);
 
-    // await APICall.askBEupdate({ type: "token", poolContract: "new" });
+    await APICall.askBEupdate({ type: "token", poolContract: "new" });
 
-    // toast.promise(
-    //   delay(10000).then(() => {
-    //     setIconIPFSUrl();
-    //     if (currentAccount) {
-    //       dispatch(fetchAllTokensList({}));
-    //       dispatch(fetchUserBalance({ currentAccount, api }));
-    //     }
-    //   }),
-    //   {
-    //     loading: "Please wait 10s for the data to be updated! ",
-    //     success: "Done !",
-    //     error: "Could not fetch data!!!",
-    //   }
-    // );
+    toast.promise(
+      delay(10000).then(() => {
+        setIconIPFSUrl();
+        if (currentAccount) {
+          dispatch(fetchAllTokensList({}));
+          dispatch(fetchUserBalance({ currentAccount, api }));
+        }
+      }),
+      {
+        loading: "Please wait 10s for the data to be updated! ",
+        success: "Done !",
+        error: "Could not fetch data!!!",
+      }
+    );
   }
 
   const hasMorePage = useMemo(
@@ -295,7 +296,7 @@ export default function CreateTokenPage() {
             specific address. The creation requires
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {createTokenFee && formatNumDynDecimal(createTokenFee)} INW V2
+              {createTokenFee && formatNumDynDecimal(createTokenFee)} INW
             </Text>
           </span>
           <VStack w="full" mt={4}>
@@ -358,10 +359,10 @@ export default function CreateTokenPage() {
                   isDisabled={true}
                   value={`${
                     formatNumDynDecimal(
-                      currentAccount?.balance?.inw2?.replaceAll(",", "")
+                      currentAccount?.balance?.inw?.replaceAll(",", "")
                     ) || 0
-                  } INW V2`}
-                  label="Your INW V2 Balance"
+                  } INW`}
+                  label="Your INW Balance"
                 />
               </Box>
               <Box w="full">
@@ -375,9 +376,7 @@ export default function CreateTokenPage() {
                 />
               </Box>
             </SimpleGrid>
-            <Button onClick={() => {
-              APICall.askBEupdate({ type: "token", poolContract: "new" });
-            }}>denmo</Button>
+
             <Button
               isDisabled={
                 !(

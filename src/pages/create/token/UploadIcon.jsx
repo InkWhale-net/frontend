@@ -160,7 +160,6 @@ export default function ImageUploadIcon({
             <Button
               as={Text}
               isDisabled={isDisabled}
-              fontFamily="Evogria"
               variant="outline"
               fontSize={["sm", "md"]}
               px={["16px", "32px"]}

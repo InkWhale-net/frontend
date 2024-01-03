@@ -378,7 +378,7 @@ export default function CreateNFTLPPage() {
 
   useEffect(() => {
     if (api) dispatch(fetchMyNFTPools({ currentAccount }));
-  }, [api, currentAccount]);
+  }, [api, currentAccount, dispatch]);
 
   const tableData = {
     tableHeader: [

@@ -2,7 +2,7 @@ import { decodeAddress, encodeAddress } from "@polkadot/keyring";
 import { hexToU8a, isHex } from "@polkadot/util";
 import { formatBalance } from "@polkadot/util";
 import axios from "axios";
-import BN from "bn.js";
+import { BN } from "@polkadot/util";
 import numeral from "numeral";
 import Keyring from "@polkadot/keyring";
 import { toast } from "react-hot-toast";
@@ -14,7 +14,7 @@ import {
 import { formatUnits } from "ethers";
 import moment from "moment";
 import { execContractQuery } from "./contracts";
-import {psp22_contract_old} from "./contracts";
+import { psp22_contract_old } from "./contracts";
 import { psp22_contract } from "utils/contracts";
 
 const chainDecimals = {
@@ -70,15 +70,23 @@ export function delay(sec) {
 }
 
 export const formatNumToBN = (number = 0, decimal) => {
-  const localDecimal = decimal || chainDecimals[process.env.REACT_APP_CHAIN];
+  try {
+    const localDecimal = decimal || chainDecimals[process.env.REACT_APP_CHAIN];
 
-  let numberMul = 6;
-  if (number > 10 ** 6) {
-    numberMul = 0;
+    let numberMul = 0;
+
+    if (number > 10 ** 6) {
+      numberMul = 6;
+    }
+
+    return new BN(number * 1)
+      .mul(new BN(10 ** numberMul))
+      .mul(new BN(10 ** (localDecimal - numberMul)))
+      .toString();
+  } catch (error) {
+    console.log("error message", error.message);
+    toast.error("error format number");
   }
-  return new BN(+number * 10 ** numberMul)
-    .mul(new BN(10 ** (localDecimal - numberMul)))
-    .toString();
 };
 
 export const formatNumDynDecimal = (num = 0, dec = 4) => {
@@ -350,17 +358,27 @@ export async function getEstimatedGasBatchTx(
 
 export const resolveDomain = async (address) => {
   try {
-    if (process.env.REACT_APP_NETWORK === "inkwhale-testnet") {
+    if (
+      process.env.REACT_APP_CHAIN === "inkwhale-testnet" ||
+      process.env.REACT_APP_CHAIN === "alephzero-testnet"
+    ) {
       const domains = await resolveAddressToDomain(address, {
         chainId: SupportedChainId.AlephZeroTestnet,
       });
       return domains[0];
-    } else {
+    }
+
+    if (
+      process.env.REACT_APP_CHAIN === "inkwhale" ||
+      process.env.REACT_APP_CHAIN === "alephzero"
+    ) {
       const domains = await resolveAddressToDomain(address, {
         chainId: SupportedChainId.AlephZero,
       });
       return domains[0];
     }
+
+    return addressShortener(address);
   } catch (error) {
     console.log("resolveDomain error", error);
   }

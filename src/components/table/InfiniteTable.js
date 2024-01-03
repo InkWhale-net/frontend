@@ -5,6 +5,7 @@ import {
   Flex,
   Image,
   Skeleton,
+  Square,
   Table,
   TableContainer,
   Tbody,
@@ -57,6 +58,7 @@ export function InfiniteTable({
       pathname: `${location.pathname}/${itemObj?.poolContract}`,
     });
   }
+
   return (
     <TableContainer
       w="full"
@@ -376,12 +378,15 @@ export const formatDataCellTable = (itemObj, header, mode) => {
       );
     case "tokenIconUrl":
       return itemObj[header] ? (
-        <Image
-          w="38px"
-          borderRadius={"10px"}
-          src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${itemObj[header]}`}
-          alt="logo"
-        />
+        <Square h="40px" w="40px">
+          <Image
+            h="100%"
+            w="100%"
+            borderRadius={"5px"}
+            src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${itemObj[header]}`}
+            alt="logo"
+          />
+        </Square>
       ) : (
         ""
       );
