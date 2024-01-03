@@ -520,7 +520,7 @@ const MyPoolInfo = ({
     const result = await execContractQuery(
       currentAccount?.address,
       api,
-      isOldPool ? psp22_contract.CONTRACT_ABI : psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ABI,
       tokenContract,
       0,
       "psp22::balanceOf",

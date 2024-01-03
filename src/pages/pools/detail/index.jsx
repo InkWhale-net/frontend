@@ -56,6 +56,7 @@ import { psp22_contract_v2 } from "utils/contracts";
 import { MaxStakeButton } from "./MaxStakeButton";
 import { psp22_contract } from "utils/contracts";
 import { formatTextAmount } from "utils";
+import { chainDenom } from "utils";
 
 export default function PoolDetailPage() {
   const params = useParams();
@@ -677,18 +678,16 @@ const MyStakeRewardInfo = ({
             ),
           },
           {
-            title: "AZERO Balance",
-            content: `${balance?.azero || 0} AZERO`,
+            title: `${chainDenom[process.env.REACT_APP_CHAIN]} Balance`,
+            content: `${balance?.azero || 0} ${
+              chainDenom[process.env.REACT_APP_CHAIN]
+            } Balance`,
           },
           {
-            title: isOldPool ? "INW Balance" : "INW V2 Balance",
-            content: isOldPool
-              ? `${
-                  formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
-                } INW`
-              : `${
-                  formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
-                } INW V2`,
+            title: "INW Balance",
+            content: `${
+              formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
+            } INW`,
           },
           {
             title: `${tokenSymbol} Balance`,
@@ -948,10 +947,11 @@ const formatMessageStakingPool = (
   if (action === "stake") {
     return (
       <>
-        You are staking {amount} {tokenSymbol}.<br />
-        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
-        {isOldPool ? "INW" : "INW V2."}
-        Continue?
+        You are staking {formatNumDynDecimal(amount)} {tokenSymbol}.<br />
+        Unstaking later will cost you {formatNumDynDecimal(
+          Number(unstakeFee)
+        )}{" "}
+        {isOldPool ? "INW" : "INW V2."}. Continue?
       </>
     );
   }

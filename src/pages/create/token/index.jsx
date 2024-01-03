@@ -214,7 +214,8 @@ export default function CreateTokenPage() {
     setTokenName("");
     setTokenSymbol("");
     setTotalSupply("");
-    
+    setIconIPFSUrl(null);
+
     await delay(1000);
 
     await APICall.askBEupdate({ type: "token", poolContract: "new" });

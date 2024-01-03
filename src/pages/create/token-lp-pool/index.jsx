@@ -36,7 +36,7 @@ import {
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
 import { lp_pool_generator_contract } from "utils/contracts";
-import { psp22_contract_v2 } from "utils/contracts";
+import { psp22_contract } from "utils/contracts";
 
 export default function CreateTokenLPPage() {
   const dispatch = useDispatch();
@@ -94,7 +94,7 @@ export default function CreateTokenLPPage() {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ABI,
       selectedContractAddr,
       0,
       "psp22::balanceOf",
@@ -133,7 +133,7 @@ export default function CreateTokenLPPage() {
     let queryResultLP = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ABI,
       LPtokenContract,
       0,
       "psp22::balanceOf",
@@ -238,8 +238,8 @@ export default function CreateTokenLPPage() {
     const allowanceINWQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract_v2.CONTRACT_ABI,
-      psp22_contract_v2.CONTRACT_ADDRESS,
+      psp22_contract.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::allowance",
       currentAccount?.address,
@@ -252,7 +252,7 @@ export default function CreateTokenLPPage() {
     const allowanceTokenQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ABI,
       selectedContractAddr,
       0, //-> value
       "psp22::allowance",
@@ -272,8 +272,8 @@ export default function CreateTokenLPPage() {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract_v2.CONTRACT_ABI,
-        psp22_contract_v2.CONTRACT_ADDRESS,
+        psp22_contract.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ADDRESS,
         0, //-> value
         "psp22::approve",
         lp_pool_generator_contract.CONTRACT_ADDRESS,
@@ -287,7 +287,7 @@ export default function CreateTokenLPPage() {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ABI,
         selectedContractAddr,
         0, //-> value
         "psp22::approve",

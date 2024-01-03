@@ -35,7 +35,7 @@ import {
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
 import { pool_generator_contract } from "utils/contracts/";
-import { psp22_contract_v2 } from "utils/contracts";
+import { psp22_contract } from "utils/contracts";
 import { execContractTxAndCallAPI } from "utils/contracts";
 
 export default function CreateStakePoolPage({ api }) {
@@ -76,7 +76,7 @@ export default function CreateStakePoolPage({ api }) {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ABI,
       selectedContractAddr,
       0,
       "psp22::balanceOf",
@@ -91,7 +91,7 @@ export default function CreateStakePoolPage({ api }) {
       let queryResult1 = await execContractQuery(
         currentAccount?.address,
         "api",
-        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ABI,
         selectedContractAddr,
         0,
         "psp22Metadata::tokenSymbol"
@@ -134,23 +134,14 @@ export default function CreateStakePoolPage({ api }) {
         0,
         "genericPoolGeneratorTrait::getCreationFee"
       );
-      const network = process.env.REACT_APP_CHAIN;
-      console.log("network", network);
-
-      console.log(
-        "pool_generator_contract.CONTRACT_ADDRESS",
-        pool_generator_contract.CONTRACT_ADDRESS
-      );
 
       const fee = formatQueryResultToNumber(result, 12);
 
-      console.log("result", result.toHuman());
-      console.log("fee", fee);
       setCreateTokenFee(fee?.replaceAll(",", ""));
     };
 
-    fetchCreateTokenFee();
-  }, [currentAccount]);
+    api && fetchCreateTokenFee();
+  }, [currentAccount, api]);
 
   const formatMaxStakingAmount = async (_myStakingPoolsList) => {
     setStakingPoolList(
@@ -224,8 +215,8 @@ export default function CreateStakePoolPage({ api }) {
     const allowanceINWQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract_v2.CONTRACT_ABI,
-      psp22_contract_v2.CONTRACT_ADDRESS,
+      psp22_contract.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::allowance",
       currentAccount?.address,
@@ -238,7 +229,7 @@ export default function CreateStakePoolPage({ api }) {
     const allowanceTokenQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ABI,
       selectedContractAddr,
       0, //-> value
       "psp22::allowance",
@@ -258,8 +249,8 @@ export default function CreateStakePoolPage({ api }) {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract_v2.CONTRACT_ABI,
-        psp22_contract_v2.CONTRACT_ADDRESS,
+        psp22_contract.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ADDRESS,
         0, //-> value
         "psp22::approve",
         pool_generator_contract.CONTRACT_ADDRESS,
@@ -273,7 +264,7 @@ export default function CreateStakePoolPage({ api }) {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ABI,
         selectedContractAddr,
         0, //-> value
         "psp22::approve",
@@ -402,7 +393,7 @@ export default function CreateStakePoolPage({ api }) {
             Staker earns tokens at fixed APR. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {formatNumDynDecimal(createTokenFee)} INW V2
+              {formatNumDynDecimal(createTokenFee)} INW
             </Text>
           </span>
         }
