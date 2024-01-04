@@ -220,16 +220,16 @@ export default function SaleInfoTab() {
     );
   };
 
-  useInterval(() => {
-    getBalanceSale();
-    getEndDate();
-  }, 7000);
+  // useInterval(() => {
+  //   getBalanceSale();
+  //   getEndDate();
+  // }, 7000);
 
-  useEffect(() => {
-    if (!currentAccount?.address) return;
-    getBalanceSale();
-    getEndDate();
-  }, [currentAccount]);
+  // useEffect(() => {
+  //   if (!currentAccount?.address) return;
+  //   getBalanceSale();
+  //   getEndDate();
+  // }, [currentAccount]);
 
   const styles = useStyleConfig("IWCard", { variant: "outline" });
   return (

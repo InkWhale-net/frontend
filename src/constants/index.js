@@ -122,8 +122,10 @@ export const supportedChain = [
     icon: IconAlephzero,
     decimal: 12,
     providerURL: "wss://ws.test.azero.dev",
+    haveAzeroID: true,
     unit: "AZERO",
-    url: "https://a0.inkwhale.net"
+    url: "https://a0.inkwhale.net",
+    inwName: "INW",
   },
   {
     name: "Alephzero Testnet",
@@ -134,8 +136,10 @@ export const supportedChain = [
     allowSwap: true,
     allowBuy: true,
     haveINW2: true,
+    haveAzeroID: true,
     unit: "AZERO",
-    url: "https://testnet.inkwhale.net/"
+    url: "https://testnet.inkwhale.net/",
+    inwName: "INW V2",
   },
   {
     name: "5ireChain Testnet",
@@ -144,5 +148,6 @@ export const supportedChain = [
     decimal: 18,
     providerURL: "wss://wss-testnet.5ire.network",
     unit: "5IRE",
+    inwName: "INW",
   },
 ];

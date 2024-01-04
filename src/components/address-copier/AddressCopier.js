@@ -11,12 +11,14 @@ import { CopyIcon } from "@chakra-ui/icons";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { addressShortener, resolveDomain } from "utils";
+import { useChainContext } from "contexts/ChainContext";
 
 export default function AddressCopier({
   address,
   truncated = true,
   fontWeight,
 }) {
+  const { currentChain } = useChainContext();
   const [azeroID, setAzeroID] = useState(null);
 
   const handleCopy = (label, text) => {
@@ -25,11 +27,12 @@ export default function AddressCopier({
   };
 
   useEffect(() => {
-    resolveDomain(address).then((domains) => {
-      setAzeroID(domains);
-    });
+    if (currentChain?.haveAzeroID) {
+      resolveDomain(address).then((domains) => {
+        setAzeroID(domains);
+      });
+    }
   }, [address]);
-
   if (azeroID)
     return (
       <Menu>

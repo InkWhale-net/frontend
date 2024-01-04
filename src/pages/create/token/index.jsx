@@ -39,11 +39,12 @@ import ImageUploadIcon from "./UploadIcon";
 import { formatTextAmount } from "utils";
 import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
+import { formatTokenAmount } from "utils";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
   const dispatch = useDispatch();
-  const { unitDecimal } = useChainContext();
+  const { unitDecimal, currentChain } = useChainContext();
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allTokensList } = useSelector((s) => s.allPools);
   const { api } = useAppContext();
@@ -71,9 +72,9 @@ export default function CreateTokenPage() {
         "tokenManagerTrait::getCreationFee"
       );
 
-      const fee = formatQueryResultToNumber(result, 12);
+      const fee = formatTokenAmount(result?.toHuman()?.Ok, unitDecimal);
 
-      setCreateToken(fee?.replaceAll(",", ""));
+      setCreateToken(fee);
     };
 
     api && fetchCreateTokenFee();
@@ -187,7 +188,7 @@ export default function CreateTokenPage() {
         0, //-> value
         "psp22::approve",
         token_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBN(createTokenFee)
       );
       if (!approve) return;
     }
@@ -297,7 +298,7 @@ export default function CreateTokenPage() {
             specific address. The creation requires
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {createTokenFee && formatNumDynDecimal(createTokenFee)} INW
+              {createTokenFee || 0} {currentChain?.inwName}
             </Text>
           </span>
           <VStack w="full" mt={4}>

@@ -37,15 +37,18 @@ import {
 import { execContractQuery, execContractTx } from "utils/contracts";
 import { lp_pool_generator_contract } from "utils/contracts";
 import { psp22_contract } from "utils/contracts";
+import { useChainContext } from "contexts/ChainContext";
+import { formatTextAmount } from "utils";
 
 export default function CreateTokenLPPage() {
   const dispatch = useDispatch();
   const { api } = useAppContext();
+  const { currentChain, unitDecimal } = useChainContext();
   const { currentAccount } = useSelector((s) => s.wallet);
   const { myTokenPoolsList, loading } = useSelector((s) => s.myPools);
   const { allTokensList } = useSelector((s) => s.allPools);
 
-  const [createTokenFee, setCreateTokenFee] = useState("");
+  const [createTokenFee, setCreateFee] = useState("");
 
   const [selectedContractAddr, setSelectedContractAddr] = useState("");
 
@@ -161,10 +164,12 @@ export default function CreateTokenLPPage() {
         0,
         "genericPoolGeneratorTrait::getCreationFee"
       );
+      const fee = formatTokenAmount(
+        formatTextAmount(result?.toHuman()?.Ok),
+        unitDecimal
+      );
 
-      const fee = formatQueryResultToNumber(result, 12);
-
-      setCreateTokenFee(fee?.replaceAll(",", ""));
+      setCreateFee(fee);
     };
 
     fetchCreateTokenFee();
@@ -216,9 +221,11 @@ export default function CreateTokenLPPage() {
 
     if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
-        `You don't have enough INW V2. Stake costs ${formatNumDynDecimal(
-          createTokenFee
-        )} INW V2`
+        `You don't have enough ${
+          currentChain.inwName
+        }. Stake costs ${formatNumDynDecimal(createTokenFee)} ${
+          currentChain.inwName
+        }`
       );
       return;
     }
@@ -267,7 +274,7 @@ export default function CreateTokenLPPage() {
 
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving INW V2 token...`);
+      toast.success(`Step ${step}: Approving ${currentChain.inwName} token...`);
       step++;
       let approve = await execContractTx(
         currentAccount,
@@ -392,7 +399,6 @@ export default function CreateTokenLPPage() {
   useEffect(() => {
     if (api) dispatch(fetchMyTokenPools({ currentAccount }));
   }, [api, currentAccount, dispatch]);
-
   return (
     <>
       <SectionContainer
@@ -403,7 +409,10 @@ export default function CreateTokenLPPage() {
             Stakers get rewards in selected token. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {formatNumDynDecimal(createTokenFee)} INW
+              {+createTokenFee > 1
+                ? formatNumDynDecimal(createTokenFee)
+                : createTokenFee}{" "}
+              {currentChain.inwName}
             </Text>
           </span>
         }
@@ -522,8 +531,8 @@ export default function CreateTokenLPPage() {
                   formatNumDynDecimal(
                     currentAccount?.balance?.inw2?.replaceAll(",", "")
                   ) || 0
-                } INW V2`}
-                label="Your INW V2 Balance"
+                } ${currentChain.inwName}`}
+                label={`Your ${currentChain.inwName} Balance`}
               />
             </Box>
 

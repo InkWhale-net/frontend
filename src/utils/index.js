@@ -11,7 +11,7 @@ import {
   resolveAddressToDomain,
   resolveDomainToAddress,
 } from "@azns/resolver-core";
-import { formatUnits } from "ethers";
+import { formatUnits, parseUnits } from "ethers";
 import moment from "moment";
 import { execContractQuery } from "./contracts";
 import { psp22_contract } from "utils/contracts";
@@ -90,6 +90,20 @@ export const formatNumToBN = (number = 0, decimal) => {
       .mul(new BN(10 ** numberMul))
       .mul(new BN(10 ** (localDecimal - numberMul)))
       .toString();
+  } catch (error) {
+    console.log("error message", error.message);
+    toast.error("error format number");
+  }
+};
+
+export const formatNumToBNEther = (number = 0, decimal) => {
+  try {
+    const localDecimal = decimal || chainDecimals[process.env.REACT_APP_CHAIN];
+
+    return parseUnits(
+      number?.toString(),
+      +localDecimal
+    )
   } catch (error) {
     console.log("error message", error.message);
     toast.error("error format number");

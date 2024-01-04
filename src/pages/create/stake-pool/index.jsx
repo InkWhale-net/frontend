@@ -38,15 +38,17 @@ import { pool_generator_contract } from "utils/contracts/";
 import { psp22_contract } from "utils/contracts";
 import { execContractTxAndCallAPI } from "utils/contracts";
 import { useAppContext } from "contexts/AppContext";
+import { useChainContext } from "contexts/ChainContext";
 
 export default function CreateStakePoolPage() {
   const dispatch = useDispatch();
   const { api } = useAppContext();
 
   const { currentAccount } = useSelector((s) => s.wallet);
+  const { currentChain, unitDecimal } = useChainContext();
   const { myStakingPoolsList, loading } = useSelector((s) => s.myPools);
 
-  const [createTokenFee, setCreateTokenFee] = useState("");
+  const [createTokenFee, setCreateFee] = useState("");
   const [faucetTokensList, setFaucetTokensList] = useState([]);
 
   const [selectedContractAddr, setSelectedContractAddr] = useState("");
@@ -137,8 +139,9 @@ export default function CreateStakePoolPage() {
         "genericPoolGeneratorTrait::getCreationFee"
       );
 
-      const fee = formatQueryResultToNumber(result, 12);
-      setCreateTokenFee(fee?.replaceAll(",", ""));
+      const fee = formatTokenAmount(result?.toHuman()?.Ok, unitDecimal);
+
+      setCreateFee(fee);
     };
 
     api && fetchCreateTokenFee();
@@ -191,7 +194,7 @@ export default function CreateStakePoolPage() {
 
     if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
-        `You don't have enough INW V2. Create Stake Pool costs ${createTokenFee} INW`
+        `You don't have enough ${currentChain.inwName}. Create Stake Pool costs ${createTokenFee} ${currentChain.inwName}`
       );
       return;
     }
@@ -245,7 +248,7 @@ export default function CreateStakePoolPage() {
 
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving INW token...`);
+      toast.success(`Step ${step}: Approving ${currentChain.inwName} token...`);
       step++;
       let approve = await execContractTx(
         currentAccount,
@@ -394,7 +397,10 @@ export default function CreateStakePoolPage() {
             Staker earns tokens at fixed APR. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {formatNumDynDecimal(createTokenFee)} INW
+              {+createTokenFee > 1
+                ? formatNumDynDecimal(createTokenFee)
+                : createTokenFee}{" "}
+              {currentChain.inwName}
             </Text>
           </span>
         }
@@ -479,8 +485,8 @@ export default function CreateStakePoolPage() {
                   formatNumDynDecimal(
                     currentAccount?.balance?.inw2?.replaceAll(",", "")
                   ) || 0
-                } INW`}
-                label="Your INW V2 Balance"
+                } ${currentChain.inwName}`}
+                label={`Your ${currentChain.inwName} Balance`}
               />
             </Box>
 
