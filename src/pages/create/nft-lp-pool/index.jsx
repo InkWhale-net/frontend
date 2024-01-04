@@ -39,8 +39,8 @@ import {
   execContractTx,
   execContractTxAndCallAPI,
 } from "utils/contracts";
-import {nft_pool_generator_contract} from "utils/contracts";
-import { psp22_contract_v2 } from "utils/contracts";
+import { nft_pool_generator_contract } from "utils/contracts";
+import { psp22_contract } from "utils/contracts";
 
 export default function CreateNFTLPPage() {
   const dispatch = useDispatch();
@@ -80,7 +80,7 @@ export default function CreateNFTLPPage() {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ABI,
       selectedContractAddr,
       0,
       "psp22::balanceOf",
@@ -94,7 +94,7 @@ export default function CreateNFTLPPage() {
       let queryResult1 = await execContractQuery(
         currentAccount?.address,
         "api",
-        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ABI,
         selectedContractAddr,
         0,
         "psp22Metadata::tokenSymbol"
@@ -109,7 +109,7 @@ export default function CreateNFTLPPage() {
       let queryResult1 = await execContractQuery(
         currentAccount?.address,
         "api",
-        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ABI,
         selectedContractAddr,
         0,
         "psp22Metadata::tokenDecimals"
@@ -182,8 +182,7 @@ export default function CreateNFTLPPage() {
         "genericPoolGeneratorTrait::getCreationFee"
       );
 
-      const fee = formatQueryResultToNumber(result);
-
+      const fee = formatQueryResultToNumber(result, 12);
       setCreateTokenFee(fee?.replaceAll(",", ""));
     };
     if (!currentAccount?.address) return;
@@ -235,10 +234,7 @@ export default function CreateNFTLPPage() {
       );
     }
 
-    if (
-      +currentAccount?.balance?.inw2?.replaceAll(",", "") <
-      +createTokenFee
-    ) {
+    if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
         `You don't have enough INW V2.Create Pool costs ${createTokenFee} INW V2`
       );
@@ -265,8 +261,8 @@ export default function CreateNFTLPPage() {
     const allowanceINWQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract_v2.CONTRACT_ABI,
-      psp22_contract_v2.CONTRACT_ADDRESS,
+      psp22_contract.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::allowance",
       currentAccount?.address,
@@ -279,7 +275,7 @@ export default function CreateNFTLPPage() {
     const allowanceTokenQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ABI,
       selectedContractAddr,
       0, //-> value
       "psp22::allowance",
@@ -299,8 +295,8 @@ export default function CreateNFTLPPage() {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract_v2.CONTRACT_ABI,
-        psp22_contract_v2.CONTRACT_ADDRESS,
+        psp22_contract.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ADDRESS,
         0, //-> value
         "psp22::approve",
         nft_pool_generator_contract.CONTRACT_ADDRESS,
@@ -314,7 +310,7 @@ export default function CreateNFTLPPage() {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ABI,
         selectedContractAddr,
         0, //-> value
         "psp22::approve",
@@ -448,7 +444,7 @@ export default function CreateNFTLPPage() {
             NFT Stakers get rewards in selected token. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {formatNumDynDecimal(createTokenFee)} INW V2
+              {formatNumDynDecimal(createTokenFee)} INW
             </Text>
             . This currently only works with NFTs on ArtZero platform.
           </span>

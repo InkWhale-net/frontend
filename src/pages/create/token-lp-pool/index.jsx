@@ -162,7 +162,7 @@ export default function CreateTokenLPPage() {
         "genericPoolGeneratorTrait::getCreationFee"
       );
 
-      const fee = formatQueryResultToNumber(result);
+      const fee = formatQueryResultToNumber(result, 12);
 
       setCreateTokenFee(fee?.replaceAll(",", ""));
     };
@@ -391,7 +391,7 @@ export default function CreateTokenLPPage() {
 
   useEffect(() => {
     if (api) dispatch(fetchMyTokenPools({ currentAccount }));
-  }, [api, currentAccount]);
+  }, [api, currentAccount, dispatch]);
 
   return (
     <>
@@ -403,7 +403,7 @@ export default function CreateTokenLPPage() {
             Stakers get rewards in selected token. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {formatNumDynDecimal(createTokenFee)} INW V2
+              {formatNumDynDecimal(createTokenFee)} INW
             </Text>
           </span>
         }

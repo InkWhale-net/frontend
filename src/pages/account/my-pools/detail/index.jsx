@@ -57,6 +57,7 @@ import { pool_contract } from "utils/contracts";
 import { psp22_contract } from "utils/contracts";
 import { useLocation } from "react-router-dom";
 import { psp22_contract_v2 } from "utils/contracts";
+import {chainDenom} from "utils";
 
 export default function MyPoolDetailPage() {
   const [state, setState] = useState({});
@@ -630,8 +631,10 @@ const MyPoolInfo = ({
         ),
       },
       {
-        title: "AZERO Balance",
-        content: `${balance?.azero || 0} AZERO`,
+        title: `${chainDenom[process.env.REACT_APP_CHAIN]} Balance`,
+        content: `${balance?.azero || 0} ${
+          chainDenom[process.env.REACT_APP_CHAIN]
+        }`,
       },
       {
         title: "INW Balance",

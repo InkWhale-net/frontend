@@ -37,9 +37,11 @@ import { execContractQuery, execContractTx } from "utils/contracts";
 import { pool_generator_contract } from "utils/contracts/";
 import { psp22_contract } from "utils/contracts";
 import { execContractTxAndCallAPI } from "utils/contracts";
+import { useAppContext } from "contexts/AppContext";
 
-export default function CreateStakePoolPage({ api }) {
+export default function CreateStakePoolPage() {
   const dispatch = useDispatch();
+  const { api } = useAppContext();
 
   const { currentAccount } = useSelector((s) => s.wallet);
   const { myStakingPoolsList, loading } = useSelector((s) => s.myPools);
@@ -136,7 +138,6 @@ export default function CreateStakePoolPage({ api }) {
       );
 
       const fee = formatQueryResultToNumber(result, 12);
-
       setCreateTokenFee(fee?.replaceAll(",", ""));
     };
 
