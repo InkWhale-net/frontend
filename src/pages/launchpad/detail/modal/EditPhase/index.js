@@ -717,6 +717,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                               >
                                 <IWInput
                                   type="number"
+                                  step="any"
                                   isDisabled={!isPhaseEditable}
                                   value={form.values.capAmount}
                                   onChange={({ target }) => {
@@ -759,6 +760,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                 <IWInput
                                   inputRightElementIcon={<b>%</b>}
                                   type="number"
+                                  step="any"
                                   isDisabled={!isPhaseEditable}
                                   value={form.values.immediateReleaseRate}
                                   onChange={({ target }) => {
@@ -809,6 +811,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                     !isPhaseEditable
                                   }
                                   type="number"
+                                  step="any"
                                   value={form.values.vestingLength}
                                   onChange={({ target }) =>
                                     form.setFieldValue(
@@ -852,6 +855,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                     !isPhaseEditable
                                   }
                                   type="number"
+                                  step="any"
                                   value={form.values.vestingUnit}
                                   onChange={({ target }) =>
                                     form.setFieldValue(
@@ -907,6 +911,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                   <IWInput
                                     isDisabled={!isPhaseEditable}
                                     type="number"
+                                    step="any"
                                     inputRightElementIcon={
                                       launchpadData?.token?.symbol
                                     }
