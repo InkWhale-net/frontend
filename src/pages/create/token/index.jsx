@@ -40,6 +40,7 @@ import { formatTextAmount } from "utils";
 import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { formatTokenAmount } from "utils";
+import { formatNumToBNEther } from "utils";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
@@ -188,7 +189,7 @@ export default function CreateTokenPage() {
         0, //-> value
         "psp22::approve",
         token_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(createTokenFee)
+        formatNumToBNEther(totalSupply)
       );
       if (!approve) return;
     }
@@ -196,7 +197,6 @@ export default function CreateTokenPage() {
     await delay(3000);
 
     toast.success(`Step ${step}: Processing...`);
-
     await execContractTxAndCallAPI(
       currentAccount,
       "api",
@@ -206,10 +206,10 @@ export default function CreateTokenPage() {
       "newToken",
       updateIcon,
       mintAddress,
-      formatNumToBN(totalSupply, 12),
+      formatNumToBNEther(totalSupply),
       tokenName,
       tokenSymbol,
-      12 // tokenDecimal
+      unitDecimal // tokenDecimal
     );
 
     setTokenName("");
