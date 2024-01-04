@@ -59,8 +59,7 @@ const ChainButton = () => {
                 bg: "#E8FDFF",
               }}
               onClick={() => {
-                switchChain(obj?.key);
-                onToggle();
+                window.open(obj?.url || "", "_blank");
               }}
             >
               <Image
