@@ -125,6 +125,10 @@ export default function NavbarLinks(props) {
             path="/pools"
             data={[
               {
+                label: "AZERO Staking",
+                href: "/azero-staking",
+              },
+              {
                 label: "Token Pools",
                 href: "/pools",
               },
@@ -298,3 +302,5 @@ export const GroupMenu = ({
     </Menu>
   );
 };
+
+

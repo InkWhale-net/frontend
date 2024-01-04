@@ -60,6 +60,34 @@ const clientWithGetParams = async (
   return data;
 };
 
+const clientWithRawParams = async (
+  method,
+  url,
+  options = {},
+  baseURL = process.env.REACT_APP_API_BASE_URL
+) => {
+  const headers = {
+    Accept: "*/*",
+    "Content-Type": "application/json",
+  };
+
+  let optionsJSON = JSON.stringify(options);
+
+  const { data } = await axios({
+    baseURL,
+    url,
+    method,
+    headers,
+    data: optionsJSON,
+  });
+
+  if (data?.status === "FAILED") {
+    console.log("error FAILED @ xx>>", url, data?.message);
+  }
+
+  return data;
+};
+
 export const APICall = {
   // Get list of tokens
   getTokensList: async ({ limit = 1000, offset = 0, sort = -1 }) => {
@@ -356,28 +384,47 @@ export const APICall = {
     );
   },
 
-  getAzeroWallet: async (options) => {
-    return await client(
-      "POST",
-      "/getAzeroWallet",
-      { ...options },
-      "https://staking.inkwhale.net/"
-    );
-  },
-
-  getInwWallet: async (options) => {
-    return await client(
-      "POST",
-      "/getInwWallet",
-      { ...options },
-      "https://staking.inkwhale.net/"
-    );
-  },
-
   getExpirationTime: async (options) => {
     return await client(
       "POST",
       "/getExpirationTime",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  getDistributionInfo: async (options) => {
+    return await client(
+      "POST",
+      "/getDistributionInfo",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  // clientWithRawParams
+  getEventData: async (options) => {
+    return await clientWithRawParams(
+      "POST",
+      "/getEventData",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  getMyEventData: async (options) => {
+    return await clientWithRawParams(
+      "POST",
+      "/getMyEventData",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  getOperationWallet: async (options) => {
+    return await client(
+      "POST",
+      "/getOperationWallet",
       { ...options },
       "https://staking.inkwhale.net/"
     );
