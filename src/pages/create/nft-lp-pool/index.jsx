@@ -345,7 +345,7 @@ export default function CreateNFTLPPage() {
       startTime.getTime()
     );
 
-    // await APICall.askBEupdate({ type: "nft", poolContract: "new" });
+    await APICall.askBEupdate({ type: "nft", poolContract: "new" });
     await delay(3000);
     setMultiplier("");
     setDuration("");
