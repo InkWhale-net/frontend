@@ -236,7 +236,10 @@ function Staking() {
   const maxStakingCalc =
     azeroBalance - 0.25 <= 0
       ? 0
-      : Math.min(azeroBalance - 0.25, footerInfo[1] - footerInfo[2]);
+      : Math.min(
+          azeroBalance - 0.25,
+          footerInfo && footerInfo[1] - footerInfo[2]
+        );
 
   return (
     <>
