@@ -58,9 +58,8 @@ function Staking() {
       return;
     }
 
-    const max = Math.min(azeroBalance, footerInfo[1] - footerInfo[2]);
-    if (max < amount) {
-      toast.error(`Max AZERO stake is ${max} AZERO`);
+    if (maxStakingCalc < amount) {
+      toast.error(`Max AZERO stake is ${maxStakingCalc} AZERO`);
       return;
     }
 
@@ -69,10 +68,19 @@ function Staking() {
       return;
     }
 
-    if (footerInfo && footerInfo[1] - parseInt(myStaked) < amount) {
+    if (azeroBalance < 0.25) {
+      toast.error("Low AZERO balance!");
+      return;
+    }
+
+    if (
+      footerInfo &&
+      footerInfo[1] - parseInt(myStaked) - 0.25 < amount &&
+      !!parseInt(myStaked)
+    ) {
       toast.error(
         `Max stake amount is ${formatNumDynDecimal(
-          footerInfo && footerInfo[1] - parseInt(myStaked)
+          footerInfo && footerInfo[1] - parseInt(myStaked) - 0.25
         )} AZERO`
       );
       return;
@@ -128,6 +136,11 @@ function Staking() {
   // ================
 
   async function handleRequestUnstake() {
+    if (azeroBalance < 0.25) {
+      toast.error("Low AZERO balance!");
+      return;
+    }
+
     if (footerInfo && Number(footerInfo[0]) > Number(amount)) {
       toast.error(`Min AZERO unstake is ${footerInfo && footerInfo[0]} AZERO`);
       return;
@@ -220,6 +233,11 @@ function Staking() {
     });
   }
 
+  const maxStakingCalc =
+    azeroBalance - 0.25 <= 0
+      ? 0
+      : Math.min(azeroBalance - 0.25, footerInfo[1] - footerInfo[2]);
+
   return (
     <>
       <IWCard w="full" variant="solid" mb="24px">
@@ -238,9 +256,7 @@ function Staking() {
               <MaxStakeButton
                 disabled={!currentAccount?.address}
                 setStakeMax={() => {
-                  setAmount(
-                    Math.min(azeroBalance, footerInfo[1] - footerInfo[2])
-                  );
+                  setAmount(maxStakingCalc);
                 }}
                 setUnstakeMax={() => setAmount(footerInfo[2] ?? 0)}
               />
