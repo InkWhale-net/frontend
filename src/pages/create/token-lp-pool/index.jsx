@@ -177,7 +177,7 @@ export default function CreateTokenLPPage() {
   }, [currentAccount]);
 
   const minReward = useMemo(
-    () => formatNumDynDecimal(maxStake * duration * multiplier),
+    () => maxStake * duration * multiplier,
     [maxStake, duration, multiplier]
   );
 
@@ -297,7 +297,7 @@ export default function CreateTokenLPPage() {
       );
       if (!approve) return;
     }
-    await delay(2000);
+    await delay(3000);
     toast.success(`Step ${step}: Process...`);
     await execContractTx(
       currentAccount,
@@ -310,9 +310,9 @@ export default function CreateTokenLPPage() {
       LPtokenContract,
       selectedContractAddr,
       formatNumToBNEther(maxStake, tokenLPSymbol?.decimal || 12),
-      Number(multiplier * 1000000),
-      roundUp(duration * 24 * 60 * 60 * 1000, 0),
-      startTime.getTime()
+      Number(+multiplier * 1000000).toString(),
+      roundUp(duration * 24 * 60 * 60 * 1000, 0).toString(),
+      startTime.getTime().toString()
     );
     await APICall.askBEupdate({ type: "lp", poolContract: "new" });
     setMultiplier("");
