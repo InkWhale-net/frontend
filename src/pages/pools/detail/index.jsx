@@ -348,9 +348,7 @@ const MyStakeRewardInfo = ({
       const result = await execContractQuery(
         currentAccount?.address,
         api,
-        isOldPool
-          ? psp22_contract.CONTRACT_ABI
-          : psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ABI,
         tokenContract,
         0,
         "psp22::balanceOf",
@@ -493,9 +491,7 @@ const MyStakeRewardInfo = ({
       let approve = await execContractTx(
         currentAccount,
         api,
-        isOldPool
-          ? psp22_contract.CONTRACT_ABI
-          : psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ABI,
         tokenContract,
         0, //-> value
         "psp22::approve",
@@ -605,10 +601,8 @@ const MyStakeRewardInfo = ({
     let approve = await execContractTx(
       currentAccount,
       api,
-      isOldPool ? psp22_contract.CONTRACT_ABI : psp22_contract_v2.CONTRACT_ABI,
-      isOldPool
-        ? psp22_contract.CONTRACT_ADDRESS
-        : psp22_contract_v2.CONTRACT_ADDRESS,
+      psp22_contract.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::approve",
       poolContract,
@@ -718,8 +712,8 @@ const MyStakeRewardInfo = ({
             }`,
           },
           {
-            title: "My Unclaimed Rewards ",
-            content: `${unclaimedReward}`,
+            title: "My Unclaimed Rewards",
+            content: `${formatNumDynDecimal(unclaimedReward, 8)}`,
           },
         ]}
       >
@@ -862,7 +856,7 @@ const PoolInfo = (props) => {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      isOldPool ? psp22_contract.CONTRACT_ABI : psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ABI,
       tokenContract,
       0,
       "psp22::totalSupply"

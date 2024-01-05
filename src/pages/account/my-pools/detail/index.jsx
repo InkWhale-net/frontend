@@ -57,7 +57,7 @@ import { pool_contract } from "utils/contracts";
 import { psp22_contract } from "utils/contracts";
 import { useLocation } from "react-router-dom";
 import { psp22_contract_v2 } from "utils/contracts";
-import {chainDenom} from "utils";
+import { chainDenom } from "utils";
 
 export default function MyPoolDetailPage() {
   const [state, setState] = useState({});
@@ -699,9 +699,7 @@ const MyPoolInfo = ({
       let approve = await execContractTx(
         currentAccount,
         api,
-        isOldPool
-          ? psp22_contract.CONTRACT_ABI
-          : psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ABI,
         tokenContract,
         0, //-> value
         "psp22::approve",

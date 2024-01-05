@@ -282,7 +282,7 @@ export default function CreateTokenLPPage() {
       tokenSymbol?.decimal
     );
     let step = 1;
-    if (allowanceToken < minReward) {
+    if (+allowanceToken < +minReward) {
       toast.success(`Step ${step}: Approving ${tokenSymbol?.symbol} token...`);
       step++;
       let approve = await execContractTx(

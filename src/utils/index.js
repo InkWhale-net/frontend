@@ -90,7 +90,7 @@ export const formatNumToBN = (number = 0, decimal) => {
 
     let numberMul = 0;
 
-    if (number > 10 ** 6) {
+    if (number > 10 ** 6 || localDecimal >= 12) {
       numberMul = 6;
     }
 

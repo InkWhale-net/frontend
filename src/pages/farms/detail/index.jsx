@@ -60,7 +60,7 @@ import { execContractQuery, execContractTx } from "utils/contracts";
 import { lp_pool_contract } from "utils/contracts";
 import { nft_pool_contract } from "utils/contracts";
 import { psp22_contract_v2 } from "utils/contracts";
-import {psp34_standard} from "utils/contracts";
+import { psp34_standard } from "utils/contracts";
 import PoolInfo from "./PoolInfor";
 import { formatTextAmount } from "utils";
 import { psp22_contract } from "utils/contracts";
@@ -141,7 +141,7 @@ const FarmDetailPage = () => {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      isOldPool ? psp22_contract.CONTRACT_ABI : psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ABI,
       currentNFTPool?.tokenContract,
       0,
       "psp22::totalSupply"
@@ -483,7 +483,7 @@ const MyStakeRewardInfoNFT = ({
     const result = await execContractQuery(
       currentAccount?.address,
       "api",
-      isOldPool ? psp22_contract.CONTRACT_ABI : psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ABI,
       tokenContract,
       0,
       "psp22::balanceOf",
@@ -776,10 +776,8 @@ const MyStakeRewardInfoNFT = ({
     let approve = await execContractTx(
       currentAccount,
       "api",
-      isOldPool ? psp22_contract.CONTRACT_ABI : psp22_contract_v2.CONTRACT_ABI,
-      isOldPool
-        ? psp22_contract.CONTRACT_ADDRESS
-        : psp22_contract_v2.CONTRACT_ADDRESS,
+      psp22_contract.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::approve",
       poolContract,
@@ -1001,7 +999,7 @@ const MyStakeRewardInfoToken = ({
     const result = await execContractQuery(
       currentAccount?.address,
       "api",
-      isOldPool ? psp22_contract.CONTRACT_ABI : psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ABI,
       tokenContract,
       0,
       "psp22::balanceOf",
@@ -1013,7 +1011,7 @@ const MyStakeRewardInfoToken = ({
     const resultLP = await execContractQuery(
       currentAccount?.address,
       "api",
-      isOldPool ? psp22_contract.CONTRACT_ABI : psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ABI,
       lptokenContract,
       0,
       "psp22::balanceOf",
@@ -1161,7 +1159,7 @@ const MyStakeRewardInfoToken = ({
     let approve = await execContractTx(
       currentAccount,
       "api",
-      isOldPool ? psp22_contract.CONTRACT_ABI : psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ABI,
       lptokenContract,
       0, //-> value
       "psp22::approve",
@@ -1249,10 +1247,8 @@ const MyStakeRewardInfoToken = ({
     let approve = await execContractTx(
       currentAccount,
       "api",
-      isOldPool ? psp22_contract.CONTRACT_ABI : psp22_contract_v2.CONTRACT_ABI,
-      isOldPool
-        ? psp22_contract.CONTRACT_ADDRESS
-        : psp22_contract_v2.CONTRACT_ADDRESS,
+      psp22_contract.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::approve",
       poolContract,

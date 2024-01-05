@@ -158,10 +158,12 @@ export default function CreateStakePoolPage() {
       }))
     );
   };
+
   useEffect(() => {
     if (myStakingPoolsList) formatMaxStakingAmount(myStakingPoolsList);
     else dispatch(fetchMyStakingPools({ currentAccount }));
   }, [myStakingPoolsList]);
+
   async function createStakingPoolHandler() {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
@@ -194,7 +196,7 @@ export default function CreateStakePoolPage() {
 
     if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
-        `You don't have enough ${currentChain.inwName}. Create Stake Pool costs ${createTokenFee} ${currentChain.inwName}`
+        `You don't have enough ${currentChain?.inwName}. Create Stake Pool costs ${createTokenFee} ${currentChain?.inwName}`
       );
       return;
     }
@@ -248,7 +250,7 @@ export default function CreateStakePoolPage() {
 
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving ${currentChain.inwName} token...`);
+      toast.success(`Step ${step}: Approving ${currentChain?.inwName} token...`);
       step++;
       let approve = await execContractTx(
         currentAccount,
@@ -258,10 +260,11 @@ export default function CreateStakePoolPage() {
         0, //-> value
         "psp22::approve",
         pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBN(createTokenFee)
       );
       if (!approve) return;
     }
+
     if (allowanceToken < minReward.replaceAll(",", "")) {
       toast.success(`Step ${step}: Approving ${tokenSymbol} token...`);
       step++;
@@ -273,7 +276,7 @@ export default function CreateStakePoolPage() {
         0, //-> value
         "psp22::approve",
         pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBN(minReward)
       );
       if (!approve) return;
     }
@@ -400,7 +403,7 @@ export default function CreateStakePoolPage() {
               {+createTokenFee > 1
                 ? formatNumDynDecimal(createTokenFee)
                 : createTokenFee}{" "}
-              {currentChain.inwName}
+              {currentChain?.inwName}
             </Text>
           </span>
         }
@@ -485,8 +488,8 @@ export default function CreateStakePoolPage() {
                   formatNumDynDecimal(
                     currentAccount?.balance?.inw2?.replaceAll(",", "")
                   ) || 0
-                } ${currentChain.inwName}`}
-                label={`Your ${currentChain.inwName} Balance`}
+                } ${currentChain?.inwName}`}
+                label={`Your ${currentChain?.inwName} Balance`}
               />
             </Box>
 
