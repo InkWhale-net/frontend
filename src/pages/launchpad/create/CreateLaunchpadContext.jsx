@@ -173,14 +173,13 @@ const CreateLaunchpadContextProvider = (props) => {
         "launchpadGeneratorTrait::getCreationFee"
       );
       const fee = result.toHuman().Ok;
-
       if (
         !(
-          +formatTextAmount(currentAccount?.balance?.inw2) >
-          formatTokenAmount(fee, 12)
+          +formatTextAmount(currentAccount?.balance?.inw) >
+          formatTokenAmount(fee, 18)
         )
       ) {
-        toast.error(`Low INW V2 balance`);
+        toast.error(`Low INW balance`);
         return;
       }
       // check wallet connect?
