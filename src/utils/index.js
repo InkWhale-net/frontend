@@ -52,6 +52,14 @@ export const formatQueryResultToNumber = (result, decimal) => {
   return formattedStrBal;
 };
 
+export const formatQueryResultToNumberEthers = (result, decimal) => {
+  const localDecimal = decimal || chainDecimals[process.env.REACT_APP_CHAIN];
+
+  const ret = formatTextAmount(result?.toHuman()?.Ok);
+
+  return formatTokenAmount(ret, localDecimal);
+};
+
 export const addressShortener = (addr = "", digits = 5) => {
   digits = 2 * digits >= addr.length ? addr.length : digits;
   return `${addr.substring(0, digits)}...${addr.slice(-digits)}`;

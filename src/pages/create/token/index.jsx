@@ -39,6 +39,7 @@ import {
 } from "utils/contracts";
 import ImportTokenForm from "./ImportToken";
 import ImageUploadIcon from "./UploadIcon";
+import { ethers, formatEther, formatUnits } from "ethers";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
@@ -90,6 +91,7 @@ export default function CreateTokenPage() {
           "psp22::totalSupply"
         );
         const rawTotalSupply = queryResult?.toHuman().Ok;
+
         return {
           ...e,
           totalSupply: formatTokenAmount(rawTotalSupply, e?.decimal),

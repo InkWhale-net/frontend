@@ -1,4 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { formatTokenAmount } from "utils";
+import { formatQueryResultToNumberEthers } from "utils";
+import { chainDecimals } from "utils";
 
 import { formatNumDynDecimal, formatQueryResultToNumber } from "utils";
 import { execContractQuery, getAzeroBalanceOfAddress } from "utils/contracts";
@@ -66,7 +69,7 @@ export const fetchUserBalance = createAsyncThunk(
   "wallet/fetchUserBalance",
   async ({ currentAccount, api }, thunkAPI) => {
     // TODO: check can fix warning about storing api on redux?
-    const inwBalance = await execContractQuery(
+    const inwBalanceQuery = await execContractQuery(
       currentAccount?.address,
       //thunkAPI.getState().wallet.api,
       api,
@@ -76,7 +79,6 @@ export const fetchUserBalance = createAsyncThunk(
       "psp22::balanceOf",
       currentAccount?.address
     );
-    const inw = formatQueryResultToNumber(inwBalance);
     const inw2Balance = await execContractQuery(
       currentAccount?.address,
       //thunkAPI.getState().wallet.api,
@@ -96,7 +98,14 @@ export const fetchUserBalance = createAsyncThunk(
     });
 
     const azero = formatNumDynDecimal(azeroBalance);
-    return { inw, inw2, azero };
+    return {
+      inw: formatQueryResultToNumberEthers(
+        inwBalanceQuery,
+        chainDecimals[process.env.REACT_APP_CHAIN]
+      ),
+      inw2,
+      azero,
+    };
   }
 );
 
