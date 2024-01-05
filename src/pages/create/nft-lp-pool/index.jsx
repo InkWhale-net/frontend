@@ -240,7 +240,7 @@ export default function CreateNFTLPPage() {
 
     if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
-        `You don't have enough ${currentChain.inwName}.Create Pool costs ${createTokenFee} ${currentChain.inwName}`
+        `You don't have enough ${currentChain?.inwName}.Create Pool costs ${createTokenFee} ${currentChain?.inwName}`
       );
       return;
     }
@@ -294,7 +294,7 @@ export default function CreateNFTLPPage() {
 
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving ${currentChain.inwName} token...`);
+      toast.success(`Step ${step}: Approving ${currentChain?.inwName} token...`);
       step++;
       let approve = await execContractTx(
         currentAccount,
@@ -451,7 +451,7 @@ export default function CreateNFTLPPage() {
               {+createTokenFee > 1
                 ? formatNumDynDecimal(createTokenFee)
                 : createTokenFee}{" "}
-              {currentChain.inwName}
+              {currentChain?.inwName}
             </Text>
             . This currently only works with NFTs on ArtZero platform.
           </span>
@@ -605,8 +605,8 @@ export default function CreateNFTLPPage() {
                   formatNumDynDecimal(
                     currentAccount?.balance?.inw2?.replaceAll(",", "")
                   ) || 0
-                } ${currentChain.inwName}`}
-                label={`Your ${currentChain.inwName} Balance`}
+                } ${currentChain?.inwName}`}
+                label={`Your ${currentChain?.inwName} Balance`}
               />
             </Box>
 

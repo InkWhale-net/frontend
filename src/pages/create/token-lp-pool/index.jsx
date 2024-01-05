@@ -222,9 +222,9 @@ export default function CreateTokenLPPage() {
     if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
         `You don't have enough ${
-          currentChain.inwName
+          currentChain?.inwName
         }. Stake costs ${formatNumDynDecimal(createTokenFee)} ${
-          currentChain.inwName
+          currentChain?.inwName
         }`
       );
       return;
@@ -274,7 +274,7 @@ export default function CreateTokenLPPage() {
 
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving ${currentChain.inwName} token...`);
+      toast.success(`Step ${step}: Approving ${currentChain?.inwName} token...`);
       step++;
       let approve = await execContractTx(
         currentAccount,
@@ -412,7 +412,7 @@ export default function CreateTokenLPPage() {
               {+createTokenFee > 1
                 ? formatNumDynDecimal(createTokenFee)
                 : createTokenFee}{" "}
-              {currentChain.inwName}
+              {currentChain?.inwName}
             </Text>
           </span>
         }
@@ -531,8 +531,8 @@ export default function CreateTokenLPPage() {
                   formatNumDynDecimal(
                     currentAccount?.balance?.inw2?.replaceAll(",", "")
                   ) || 0
-                } ${currentChain.inwName}`}
-                label={`Your ${currentChain.inwName} Balance`}
+                } ${currentChain?.inwName}`}
+                label={`Your ${currentChain?.inwName} Balance`}
               />
             </Box>
 
