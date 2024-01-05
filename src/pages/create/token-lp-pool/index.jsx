@@ -4,7 +4,6 @@ import {
   Flex,
   Heading,
   SimpleGrid,
-  Stack,
   Text,
   Tooltip,
   VStack,
@@ -18,6 +17,7 @@ import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
 import { toastMessages } from "constants";
 import { useAppContext } from "contexts/AppContext";
+import { useChainContext } from "contexts/ChainContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DateTimePicker from "react-datetime-picker";
 import { toast } from "react-hot-toast";
@@ -28,17 +28,19 @@ import {
   addressShortener,
   delay,
   formatNumDynDecimal,
-  formatNumToBN,
-  formatQueryResultToNumber,
+  formatNumToBNEther,
+  formatQueryResultToNumberEthers,
+  formatTextAmount,
   formatTokenAmount,
   isAddressValid,
   roundUp,
 } from "utils";
-import { execContractQuery, execContractTx } from "utils/contracts";
-import { lp_pool_generator_contract } from "utils/contracts";
-import { psp22_contract } from "utils/contracts";
-import { useChainContext } from "contexts/ChainContext";
-import { formatTextAmount } from "utils";
+import {
+  execContractQuery,
+  execContractTx,
+  lp_pool_generator_contract,
+  psp22_contract,
+} from "utils/contracts";
 
 export default function CreateTokenLPPage() {
   const dispatch = useDispatch();
@@ -104,8 +106,9 @@ export default function CreateTokenLPPage() {
       currentAccount?.address
     );
 
-    const bal = formatQueryResultToNumber(queryResult, tokenSymbol?.decimal);
-    setTokenBalance(bal);
+    setTokenBalance(
+      formatQueryResultToNumberEthers(queryResult, tokenSymbol?.decimal)
+    );
   }, [currentAccount, selectedContractAddr, tokenSymbol]);
 
   const tokenLPSymbol = useMemo(() => {
@@ -143,11 +146,9 @@ export default function CreateTokenLPPage() {
       currentAccount?.address
     );
 
-    const balLP = formatQueryResultToNumber(
-      queryResultLP,
-      tokenLPSymbol?.decimal
+    setLPTokenBalance(
+      formatQueryResultToNumberEthers(queryResultLP, tokenLPSymbol?.decimal)
     );
-    setLPTokenBalance(balLP);
   }, [LPtokenContract, currentAccount, tokenLPSymbol]);
 
   useEffect(() => {
@@ -218,30 +219,25 @@ export default function CreateTokenLPPage() {
     ) {
       return toast.error("Invalid address!");
     }
-
-    if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
+    if (+currentAccount?.balance?.inw < +createTokenFee) {
       toast.error(
         `You don't have enough ${
-          currentChain.inwName
+          currentChain?.inwName
         }. Stake costs ${formatNumDynDecimal(createTokenFee)} ${
-          currentChain.inwName
+          currentChain?.inwName
         }`
       );
       return;
     }
-
-    if (
-      parseInt(tokenBalance?.replaceAll(",", "")) <
-      minReward?.replaceAll(",", "")
-    ) {
+    if (+tokenBalance < +minReward) {
       toast.error(
         `You don't have enough ${tokenSymbol?.symbol} to topup the reward`
       );
       return;
     }
-
     //Approve
     toast.success("Step 1: Approving...");
+    //Approve INW
     const allowanceINWQr = await execContractQuery(
       currentAccount?.address,
       "api",
@@ -252,10 +248,25 @@ export default function CreateTokenLPPage() {
       currentAccount?.address,
       lp_pool_generator_contract.CONTRACT_ADDRESS
     );
-    const allowanceINW = formatQueryResultToNumber(allowanceINWQr).replaceAll(
-      ",",
-      ""
-    );
+    const allowanceINW = formatQueryResultToNumberEthers(allowanceINWQr);
+    if (+allowanceINW < +createTokenFee) {
+      toast.success(
+        `Step ${step}: Approving ${currentChain?.inwName} token...`
+      );
+      step++;
+      let approve = await execContractTx(
+        currentAccount,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        psp22_contract.CONTRACT_ADDRESS,
+        0, //-> value
+        "psp22::approve",
+        lp_pool_generator_contract.CONTRACT_ADDRESS,
+        formatNumToBNEther(+createTokenFee - +allowanceINW)
+      );
+      if (!approve) return;
+    }
+    // Allow reward
     const allowanceTokenQr = await execContractQuery(
       currentAccount?.address,
       "api",
@@ -266,29 +277,12 @@ export default function CreateTokenLPPage() {
       currentAccount?.address,
       lp_pool_generator_contract.CONTRACT_ADDRESS
     );
-    const allowanceToken = formatQueryResultToNumber(
+    const allowanceToken = formatQueryResultToNumberEthers(
       allowanceTokenQr,
       tokenSymbol?.decimal
-    ).replaceAll(",", "");
+    );
     let step = 1;
-
-    //Approve
-    if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving ${currentChain.inwName} token...`);
-      step++;
-      let approve = await execContractTx(
-        currentAccount,
-        "api",
-        psp22_contract.CONTRACT_ABI,
-        psp22_contract.CONTRACT_ADDRESS,
-        0, //-> value
-        "psp22::approve",
-        lp_pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
-      );
-      if (!approve) return;
-    }
-    if (allowanceToken < minReward.replaceAll(",", "")) {
+    if (allowanceToken < minReward) {
       toast.success(`Step ${step}: Approving ${tokenSymbol?.symbol} token...`);
       step++;
       let approve = await execContractTx(
@@ -299,12 +293,11 @@ export default function CreateTokenLPPage() {
         0, //-> value
         "psp22::approve",
         lp_pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBNEther(+minReward - +allowanceToken, tokenSymbol?.decimal)
       );
       if (!approve) return;
     }
-
-    await delay(1000);
+    await delay(2000);
     toast.success(`Step ${step}: Process...`);
     await execContractTx(
       currentAccount,
@@ -316,7 +309,7 @@ export default function CreateTokenLPPage() {
       currentAccount?.address,
       LPtokenContract,
       selectedContractAddr,
-      formatNumToBN(maxStake, tokenLPSymbol?.decimal || 12),
+      formatNumToBNEther(maxStake, tokenLPSymbol?.decimal || 12),
       Number(multiplier * 1000000),
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
@@ -412,7 +405,7 @@ export default function CreateTokenLPPage() {
               {+createTokenFee > 1
                 ? formatNumDynDecimal(createTokenFee)
                 : createTokenFee}{" "}
-              {currentChain.inwName}
+              {currentChain?.inwName}
             </Text>
           </span>
         }
@@ -446,7 +439,6 @@ export default function CreateTokenLPPage() {
                 }))}
               ></SelectSearch>
             </Box>
-
             <Box w="full">
               <IWInput
                 onChange={({ target }) => setLPTokenContract(target.value)}
@@ -455,6 +447,18 @@ export default function CreateTokenLPPage() {
                 label="or enter token contract address"
               />
             </Box>
+            <IWInput
+              isDisabled
+              value={`${LPtokenBalance || 0}`}
+              // label={`Your ${tokenLPSymbol || "Token"} Balance`}
+              label={`Token Balance`}
+              inputRightElementIcon={
+                <Heading as="h5" size="h5" fontWeight="semibold">
+                  {tokenLPSymbol?.symbol}
+                </Heading>
+              }
+            />
+            <Box></Box>
 
             <Box w="full">
               <Heading as="h4" size="h4" mb="12px">
@@ -486,6 +490,18 @@ export default function CreateTokenLPPage() {
                 label="or enter token contract address"
               />
             </Box>
+            <IWInput
+              isDisabled
+              label={`Reward Token Balance`}
+              value={`${tokenBalance || 0}`}
+              // label={`Your ${tokenSymbol || "Token"} Balance`}
+              inputRightElementIcon={
+                <Heading as="h5" size="h5" fontWeight="semibold">
+                  {tokenSymbol?.symbol}
+                </Heading>
+              }
+            />
+            <Box></Box>
 
             <Box w="full">
               <IWInput
@@ -500,8 +516,10 @@ export default function CreateTokenLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.azero || 0} AZERO`}
-                label="Your AZERO Balance"
+                value={`${currentAccount?.balance?.azero || 0} ${
+                  currentChain?.unit
+                }`}
+                label={`Your ${currentChain?.unit} Balance`}
               />
             </Box>
             <Box w="full">
@@ -531,8 +549,8 @@ export default function CreateTokenLPPage() {
                   formatNumDynDecimal(
                     currentAccount?.balance?.inw2?.replaceAll(",", "")
                   ) || 0
-                } ${currentChain.inwName}`}
-                label={`Your ${currentChain.inwName} Balance`}
+                } ${currentChain?.inwName}`}
+                label={`Your ${currentChain?.inwName} Balance`}
               />
             </Box>
 
@@ -555,7 +573,7 @@ export default function CreateTokenLPPage() {
                 onChange={({ target }) => setMultiplier(target.value)}
               />
             </Box>
-
+            {/* 
             <Box w="full">
               <Stack
                 spacing="10px"
@@ -564,30 +582,9 @@ export default function CreateTokenLPPage() {
                 alignItems="end"
                 w="full"
               >
-                <IWInput
-                  isDisabled
-                  value={`${LPtokenBalance || 0}`}
-                  // label={`Your ${tokenLPSymbol || "Token"} Balance`}
-                  label={`Your Token Balance`}
-                  inputRightElementIcon={
-                    <Heading as="h5" size="h5" fontWeight="semibold">
-                      {tokenLPSymbol?.symbol}
-                    </Heading>
-                  }
-                />
-                <IWInput
-                  ml={{ lg: "10px" }}
-                  isDisabled
-                  value={`${tokenBalance || 0}`}
-                  // label={`Your ${tokenSymbol || "Token"} Balance`}
-                  inputRightElementIcon={
-                    <Heading as="h5" size="h5" fontWeight="semibold">
-                      {tokenSymbol?.symbol}
-                    </Heading>
-                  }
-                />
+                
               </Stack>
-            </Box>
+            </Box> */}
             <Box w="full">
               <IWInput
                 value={maxStake}
