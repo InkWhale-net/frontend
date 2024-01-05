@@ -100,10 +100,7 @@ export const formatNumToBNEther = (number = 0, decimal) => {
   try {
     const localDecimal = decimal || chainDecimals[process.env.REACT_APP_CHAIN];
 
-    return parseUnits(
-      number?.toString(),
-      +localDecimal
-    )
+    return parseUnits(number?.toString(), +localDecimal).toString();
   } catch (error) {
     console.log("error message", error.message);
     toast.error("error format number");
@@ -531,7 +528,7 @@ export const formatBNtoNum = (str = 0, decimal) => {
       .toString();
 
     console.log("ret", ret);
-    return ret
+    return ret;
   } catch (error) {
     console.log("error message", error.message);
     toast.error("error format number");

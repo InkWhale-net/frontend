@@ -19,28 +19,26 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 
+import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
+import { fetchUserBalance } from "redux/slices/walletSlice";
 import {
   delay,
   formatNumDynDecimal,
-  formatNumToBN,
-  formatQueryResultToNumber,
+  formatNumToBNEther,
+  formatTextAmount,
+  formatTokenAmount,
   isAddressValid,
   moveINWToBegin,
-  roundUp,
 } from "utils";
 import {
   execContractQuery,
   execContractTx,
   execContractTxAndCallAPI,
+  psp22_contract,
+  token_generator_contract,
 } from "utils/contracts";
-import { psp22_contract, token_generator_contract } from "utils/contracts";
 import ImportTokenForm from "./ImportToken";
 import ImageUploadIcon from "./UploadIcon";
-import { formatTextAmount } from "utils";
-import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
-import { fetchUserBalance } from "redux/slices/walletSlice";
-import { formatTokenAmount } from "utils";
-import { formatNumToBNEther } from "utils";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
@@ -92,23 +90,9 @@ export default function CreateTokenPage() {
           "psp22::totalSupply"
         );
         const rawTotalSupply = queryResult?.toHuman().Ok;
-        let queryResult1 = await execContractQuery(
-          currentAccount?.address,
-          "api",
-          psp22_contract.CONTRACT_ABI,
-          e?.contractAddress,
-          0,
-          "psp22Metadata::tokenDecimals"
-        );
-        const decimals = queryResult1?.toHuman().Ok;
-        const totalSupply = roundUp(
-          rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
-          0
-        );
-        await delay(50);
         return {
           ...e,
-          totalSupply,
+          totalSupply: formatTokenAmount(rawTotalSupply, e?.decimal),
         };
       })
     );
@@ -172,13 +156,13 @@ export default function CreateTokenPage() {
       currentAccount?.address,
       token_generator_contract.CONTRACT_ADDRESS
     );
-    const allowanceINW = formatQueryResultToNumber(allowanceINWQr).replaceAll(
-      ",",
-      ""
+    const allowanceINW = formatTokenAmount(
+      allowanceINWQr.toHuman().Ok,
+      unitDecimal
     );
     let step = 1;
     //Approve
-    if (+allowanceINW < +createTokenFee?.replaceAll(",", "")) {
+    if (+allowanceINW < +createTokenFee) {
       toast.success(`Step ${step}: Approving...`);
       step++;
       let approve = await execContractTx(
@@ -194,8 +178,7 @@ export default function CreateTokenPage() {
       if (!approve) return;
     }
 
-    await delay(3000);
-
+    await delay(2000);
     toast.success(`Step ${step}: Processing...`);
     await execContractTxAndCallAPI(
       currentAccount,
