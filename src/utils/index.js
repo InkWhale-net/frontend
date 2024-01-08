@@ -130,6 +130,21 @@ export const formatNumDynDecimal = (num = 0, dec = 4) => {
   return intPart + `${dotIdx === -1 ? "" : `.${decPart}`}`;
 };
 
+export const formatNumDynDecimalEthers = (num = 0, dec = 4) => {
+  const number = parseInt(num * 10 ** dec) / 10 ** dec;
+  const numStr = number.toString();
+  const dotIdx = numStr.indexOf(".");
+
+  if (dotIdx === -1) {
+    return numeral(numStr).format("0,0");
+  }
+
+  const intPart = numeral(numStr.slice(0, dotIdx)).format("0,0");
+  const decPart = numStr.slice(dotIdx + 1, numStr.length);
+
+  return intPart + `${dotIdx === -1 ? "" : `.${decPart}`}`;
+};
+
 // new func to getImage source from CloudFlare
 export async function getCloudFlareImage(imageHash = "", size = 500) {
   const fallbackURL = `${

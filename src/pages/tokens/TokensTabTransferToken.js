@@ -7,17 +7,16 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import { addressShortener } from "utils";
-import { handleCopy } from "utils";
-import { resolveAZDomainToAddress } from "utils";
 import {
+  addressShortener,
   delay,
-  formatChainStringToNumber,
-  formatNumToBN,
+  formatNumToBNEther,
+  formatTextAmount,
+  handleCopy,
   isAddressValid,
+  resolveAZDomainToAddress,
 } from "utils";
-import { execContractTx } from "utils/contracts";
-import { psp22_contract } from "utils/contracts";
+import { execContractTx, psp22_contract } from "utils/contracts";
 import MyAccountTab from "./myAccount";
 
 const TokensTabTransferToken = ({
@@ -54,7 +53,7 @@ const TokensTabTransferToken = ({
       toast.error("Please enter amount to transfer!");
       return;
     }
-    if (+transferAmount > formatChainStringToNumber(tokenInfo?.content)) {
+    if (+transferAmount > +formatTextAmount(tokenInfo?.content)) {
       toast.error(
         `You don't have enough ${tokenInfo?.title} tokens to transfer!`
       );
@@ -73,7 +72,7 @@ const TokensTabTransferToken = ({
       0, //-> value
       "psp22::transfer",
       resolvedAddress ? resolvedAddress : transferAddress,
-      formatNumToBN(transferAmount, tokenInfo?.decimals),
+      formatNumToBNEther(transferAmount, tokenInfo?.decimals),
       []
     );
 

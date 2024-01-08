@@ -64,6 +64,7 @@ import { psp34_standard } from "utils/contracts";
 import PoolInfo from "./PoolInfor";
 import { formatTextAmount } from "utils";
 import { psp22_contract } from "utils/contracts";
+import { formatQueryResultToNumberEthers } from "utils";
 
 const FarmDetailPage = () => {
   const params = useParams();
@@ -490,7 +491,7 @@ const MyStakeRewardInfoNFT = ({
       currentAccount?.address
     );
 
-    const balance = formatQueryResultToNumber(result, tokenDecimal);
+    const balance = formatQueryResultToNumberEthers(result, tokenDecimal);
     setTokenBalance(balance);
   }, [currentAccount?.address, currentAccount?.balance, tokenContract]);
 

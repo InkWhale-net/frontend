@@ -10,13 +10,12 @@ import { delay } from "utils";
 import { web3FromSource } from "@polkadot/extension-dapp";
 
 /*
-*  import all contract abi
-*/
+ *  import all contract abi
+ */
 const chain = process.env.REACT_APP_CHAIN;
 
 const launchpad = require(`./${chain}/launchpad_contract`).default;
-const launchpad_generator =
-  require(`./${chain}/launchpad_generator`).default;
+const launchpad_generator = require(`./${chain}/launchpad_generator`).default;
 const lp_pool_contract = require(`./${chain}/lp_pool_contract`).default;
 const lp_pool_generator_contract =
   require(`./${chain}/lp_pool_generator`).default;
@@ -65,8 +64,8 @@ export {
 };
 
 /*
-*  END import all contract abi
-*/
+ *  END import all contract abi
+ */
 
 const MAX_CALL_WEIGHT = new BN(5_000_000_000_000).isub(BN_ONE);
 
@@ -221,13 +220,34 @@ export async function execContractTx(
           toast(`Processing ...`);
         }
 
-        events.forEach(({ event: { method } }) => {
-          if (method === "ExtrinsicSuccess" && status.type === "Finalized") {
-            toast.success("Successful!");
-          } else if (method === "ExtrinsicFailed") {
-            toast.error(`${toastMessages.CUSTOM} ${method}.`);
+        events.forEach(
+          ({
+            event: {
+              data: [error, info],
+              method,
+            },
+          }) => {
+            try {
+              if (error.isModule) {
+                // for module errors, we have the section indexed, lookup
+                const decoded = api.registry.findMetaError(error.asModule);
+                const { docs, method, section } = decoded;
+
+                console.log(`${section}.${method}: ${docs.join(" ")}`);
+              } else {
+                // Other, CannotLookup, BadOrigin, no extra info
+                console.log(error.toString());
+              }
+            } catch (error) {
+              console.log(error);
+            }
+            if (method === "ExtrinsicSuccess" && status.type === "Finalized") {
+              toast.success("Successful!");
+            } else if (method === "ExtrinsicFailed") {
+              toast.error(`${toastMessages.CUSTOM} ${method}.`);
+            }
           }
-        });
+        );
       }
     )
     .then((unsub) => (unsubscribe = unsub))

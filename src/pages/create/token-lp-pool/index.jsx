@@ -182,6 +182,7 @@ export default function CreateTokenLPPage() {
   );
 
   async function createTokenLPHandler() {
+    let step = 1;
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
       return;
@@ -248,7 +249,7 @@ export default function CreateTokenLPPage() {
       currentAccount?.address,
       lp_pool_generator_contract.CONTRACT_ADDRESS
     );
-    const allowanceINW = formatQueryResultToNumberEthers(allowanceINWQr);
+    const allowanceINW = formatQueryResultToNumberEthers(allowanceINWQr, 12);
     if (+allowanceINW < +createTokenFee) {
       toast.success(
         `Step ${step}: Approving ${currentChain?.inwName} token...`
@@ -262,10 +263,11 @@ export default function CreateTokenLPPage() {
         0, //-> value
         "psp22::approve",
         lp_pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBNEther(+createTokenFee - +allowanceINW)
+        formatNumToBNEther(+createTokenFee - +allowanceINW, 12)
       );
       if (!approve) return;
     }
+    console.log("allowanceINW", allowanceINW);
     // Allow reward
     const allowanceTokenQr = await execContractQuery(
       currentAccount?.address,
@@ -281,7 +283,6 @@ export default function CreateTokenLPPage() {
       allowanceTokenQr,
       tokenSymbol?.decimal
     );
-    let step = 1;
     if (+allowanceToken < +minReward) {
       toast.success(`Step ${step}: Approving ${tokenSymbol?.symbol} token...`);
       step++;
@@ -297,7 +298,7 @@ export default function CreateTokenLPPage() {
       );
       if (!approve) return;
     }
-    await delay(3000);
+    await delay(5000);
     toast.success(`Step ${step}: Process...`);
     await execContractTx(
       currentAccount,
@@ -314,31 +315,31 @@ export default function CreateTokenLPPage() {
       roundUp(duration * 24 * 60 * 60 * 1000, 0).toString(),
       startTime.getTime().toString()
     );
-    await APICall.askBEupdate({ type: "lp", poolContract: "new" });
-    setMultiplier("");
-    setDuration("");
-    setStartTime(new Date());
-    setSelectedContractAddr("");
-    setLPTokenContract("");
+    // await APICall.askBEupdate({ type: "lp", poolContract: "new" });
+    // setMultiplier("");
+    // setDuration("");
+    // setStartTime(new Date());
+    // setSelectedContractAddr("");
+    // setLPTokenContract("");
 
-    await delay(3000);
+    // await delay(3000);
 
-    toast.promise(
-      delay(10000).then(() => {
-        if (currentAccount) {
-          dispatch(fetchMyTokenPools({ currentAccount }));
-          dispatch(fetchUserBalance({ currentAccount, api }));
-        }
+    // toast.promise(
+    //   delay(10000).then(() => {
+    //     if (currentAccount) {
+    //       dispatch(fetchMyTokenPools({ currentAccount }));
+    //       dispatch(fetchUserBalance({ currentAccount, api }));
+    //     }
 
-        fetchTokenBalance();
-        fetchLPTokenBalance();
-      }),
-      {
-        loading: "Please wait up to 10s for the data to be updated! ",
-        success: "Done !",
-        error: "Could not fetch data!!!",
-      }
-    );
+    //     fetchTokenBalance();
+    //     fetchLPTokenBalance();
+    //   }),
+    //   {
+    //     loading: "Please wait up to 10s for the data to be updated! ",
+    //     success: "Done !",
+    //     error: "Could not fetch data!!!",
+    //   }
+    // );
   }
 
   const tableData = {
