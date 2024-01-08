@@ -1,5 +1,5 @@
 const public_sale_contract = {
-	CONTRACT_ADDRESS: "5EkWQe4sjdRQqNnjeejZfHWSg63pqZtzn9ZXsfUu2uZsBuLf",
+	CONTRACT_ADDRESS: "5C8zUSULJ9pkdkRRjm57mrquBJUfq6BLgsJoF4zmBGxHyNrU",
 	CONTRACT_ABI: {
 		"source": {
 		  "hash": "0x92886ce4494f3daf188891888a0ca051bc8c35991b0a3e7707e909b1d7715a5f",
@@ -2422,6 +2422,5 @@ const public_sale_contract = {
 		"version": "4"
 	  }
   };
-  
+
   export default public_sale_contract;
-  
