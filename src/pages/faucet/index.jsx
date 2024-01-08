@@ -631,10 +631,10 @@ export default function FaucetPage({ api }) {
                       </>
                     ) : !isSaleEnded ? (
                       <>
-                        Ends in:{" "}
+                        {/* Ends in:{" "}
                         <Text paddingLeft={"4px"}>
                           <IWCountDown date={+saleInfo?.endTimeSale} />{" "}
-                        </Text>{" "}
+                        </Text>{" "} */}
                       </>
                     ) : (
                       <>Ended</>
