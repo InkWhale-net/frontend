@@ -620,7 +620,7 @@ export default function FaucetPage({ api }) {
             variant="outline"
             title={
               <Flex justifyContent={"space-between"}>
-                <Flex>
+                {/* <Flex>
                   {saleInfo?.endTimeSale ? (
                     notSaleStart ? (
                       <>
@@ -631,10 +631,10 @@ export default function FaucetPage({ api }) {
                       </>
                     ) : !isSaleEnded ? (
                       <>
-                        {/* Ends in:{" "}
+                        Ends in:{" "}
                         <Text paddingLeft={"4px"}>
                           <IWCountDown date={+saleInfo?.endTimeSale} />{" "}
-                        </Text>{" "} */}
+                        </Text>{" "}
                       </>
                     ) : (
                       <>Ended</>
@@ -642,7 +642,7 @@ export default function FaucetPage({ api }) {
                   ) : (
                     ""
                   )}
-                </Flex>
+                </Flex> */}
               </Flex>
             }
           >
