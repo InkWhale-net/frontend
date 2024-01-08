@@ -250,6 +250,7 @@ export default function FaucetPage({ api }) {
       query9,
       query10,
     ]);
+
     const leftAmount =
       +balanceTotalInwQr?.toHuman().Ok?.replaceAll(",", "") -
       +balancePurchaseInwQr?.toHuman().Ok?.replaceAll(",", "");
@@ -417,9 +418,19 @@ export default function FaucetPage({ api }) {
       0,
       "genericTokenSaleTrait::endTime"
     );
+    let queryStartTime = await execContractQuery(
+      publicCurrentAccount?.address,
+      api,
+      token.CONTRACT_ABI,
+      token.CONTRACT_ADDRESS,
+      0,
+      "genericTokenSaleTrait::startTime"
+    );
+
     setSaleInfo({
       ...saleInfo,
       endTimeSale: endTime?.toHuman()?.Ok?.replaceAll(",", ""),
+      startTimeSale: queryStartTime?.toHuman()?.Ok?.replaceAll(",", ""),
     });
   };
 
@@ -427,9 +438,9 @@ export default function FaucetPage({ api }) {
     getInwMintingCapAndTotalSupply();
   }, [api, getInwMintingCapAndTotalSupply]);
 
-  const getInfo = () => {
-    if (tabIndex === 0) {
-      getPriceInw(private_sale);
+  const getInfo = useCallback(() => {
+    if (tabIndex === 1) {
+      // getPriceInw(private_sale);
       getSaleInfo(private_sale);
       // getBalanceContract(private_sale);
     } else {
@@ -437,13 +448,14 @@ export default function FaucetPage({ api }) {
       getPriceInw(public_sale);
       getBalanceContract(public_sale);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabIndex]);
 
   useEffect(() => {
     if (!(api && publicCurrentAccount?.address)) return;
-    getInfo();
+    api && getInfo();
     resetField();
-  }, [tabIndex]);
+  }, [tabIndex, api]);
 
   useEffect(() => {
     if (!(api && publicCurrentAccount?.address)) return;
@@ -596,6 +608,115 @@ export default function FaucetPage({ api }) {
   const [isBigScreen] = useMediaQuery("(min-width: 480px)");
 
   const tabsData = [
+    {
+      label: "Acquire INW",
+      component: (
+        <>
+          <Text mb="12px" ml="2px">
+            Acquire INW tokens to use the platform
+          </Text>
+          <IWCard
+            w="full"
+            variant="outline"
+            title={
+              <Flex justifyContent={"space-between"}>
+                <Flex>
+                  {saleInfo?.endTimeSale ? (
+                    notSaleStart ? (
+                      <>
+                        Sale start in:{" "}
+                        <Text paddingLeft={"4px"}>
+                          <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
+                        </Text>{" "}
+                      </>
+                    ) : !isSaleEnded ? (
+                      <>
+                        Ends in:{" "}
+                        <Text paddingLeft={"4px"}>
+                          <IWCountDown date={+saleInfo?.endTimeSale} />{" "}
+                        </Text>{" "}
+                      </>
+                    ) : (
+                      <>Ended</>
+                    )
+                  ) : (
+                    ""
+                  )}
+                </Flex>
+              </Flex>
+            }
+          >
+            <IWCard mt="16px" w="full" variant="solid">
+              <Stack
+                w="100%"
+                spacing="20px"
+                direction={{ base: "column" }}
+                align={{ base: "column", xl: "center" }}
+              >
+                <IWInput
+                  value={inwBuyAmount}
+                  onChange={onChangeInwInput}
+                  type="number"
+                  placeholder="Enter INW amount"
+                  inputRightElementIcon={
+                    <Heading as="h5" size="h5" fontWeight="semibold">
+                      INW
+                    </Heading>
+                  }
+                />
+
+                <IWInput
+                  type="number"
+                  value={azeroBuyAmount}
+                  onChange={onChangeAzeroInput}
+                  placeholder="Enter AZERO amount"
+                  inputRightElementIcon={<AzeroLogo />}
+                />
+                {inwPrice > 0 && (
+                  <Flex
+                    mt={{ base: "15px", lg: "0px" }}
+                    w="full"
+                    flexDirection={{ base: "column", lg: "row" }}
+                    justifyContent="space-between"
+                  >
+                    <Text textAlign="left" fontSize="md" lineHeight="28px">
+                      Rate: {inwPrice} Azero / INW
+                    </Text>
+                    {/* <Text textAlign="left" fontSize="md" lineHeight="28px">
+                      INW Available to acquire: {availableMint}
+                    </Text> */}
+                    {console.log(availableMint)}
+                  </Flex>
+                )}
+
+                {/* {inwBuyAmount ? (
+                  <Flex
+                    mt={{ base: "15px", lg: "0px" }}
+                    w="full"
+                    justifyContent="space-between"
+                  >
+                    <Text textAlign="left" fontSize="md" lineHeight="28px">
+                      You will receive full amount of INW right after the
+                      purchase.
+                    </Text>
+                  </Flex>
+                ) : (
+                  ""
+                )} */}
+                <Button
+                  w="full"
+                  onClick={inwPublicMintHandler}
+                  disabled={disableBuyBtn}
+                >
+                  Acquire INW
+                </Button>
+              </Stack>
+            </IWCard>
+          </IWCard>
+        </>
+      ),
+      isDisabled: false,
+    },
     {
       label: <>Claim INW</>,
       component: (
@@ -765,114 +886,6 @@ export default function FaucetPage({ api }) {
             />
           </>
           {/* )} */}
-        </>
-      ),
-      isDisabled: false,
-    },
-    {
-      label: "Acquire INW",
-      component: (
-        <>
-          <Text mb="12px" ml="2px">
-            Last chance to acquire INW tokens before listing on DEX and CEX
-          </Text>
-          <IWCard
-            w="full"
-            variant="outline"
-            title={
-              <Flex justifyContent={"space-between"}>
-                <Flex>
-                  {saleInfo?.endTimeSale ? (
-                    notSaleStart ? (
-                      <>
-                        Sale start in:{" "}
-                        <Text paddingLeft={"4px"}>
-                          <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
-                        </Text>{" "}
-                      </>
-                    ) : !isSaleEnded ? (
-                      <>
-                        Sale end in:{" "}
-                        <Text paddingLeft={"4px"}>
-                          <IWCountDown date={+saleInfo?.endTimeSale} />{" "}
-                        </Text>{" "}
-                      </>
-                    ) : (
-                      <>Ended</>
-                    )
-                  ) : (
-                    ""
-                  )}
-                </Flex>
-              </Flex>
-            }
-          >
-            <IWCard mt="16px" w="full" variant="solid">
-              <Stack
-                w="100%"
-                spacing="20px"
-                direction={{ base: "column" }}
-                align={{ base: "column", xl: "center" }}
-              >
-                <IWInput
-                  value={inwBuyAmount}
-                  onChange={onChangeInwInput}
-                  type="number"
-                  placeholder="Enter INW amount"
-                  inputRightElementIcon={
-                    <Heading as="h5" size="h5" fontWeight="semibold">
-                      INW
-                    </Heading>
-                  }
-                />
-
-                <IWInput
-                  type="number"
-                  value={azeroBuyAmount}
-                  onChange={onChangeAzeroInput}
-                  placeholder="Enter AZERO amount"
-                  inputRightElementIcon={<AzeroLogo />}
-                />
-                {inwPrice > 0 && (
-                  <Flex
-                    mt={{ base: "15px", lg: "0px" }}
-                    w="full"
-                    flexDirection={{ base: "column", lg: "row" }}
-                    justifyContent="space-between"
-                  >
-                    <Text textAlign="left" fontSize="md" lineHeight="28px">
-                      Price: {inwPrice} Azero / INW
-                    </Text>
-                    {/* <Text textAlign="left" fontSize="md" lineHeight="28px">
-                      INW Available to acquire: {availableMint}
-                    </Text> */}
-                  </Flex>
-                )}
-
-                {inwBuyAmount ? (
-                  <Flex
-                    mt={{ base: "15px", lg: "0px" }}
-                    w="full"
-                    justifyContent="space-between"
-                  >
-                    <Text textAlign="left" fontSize="md" lineHeight="28px">
-                      You will receive full amount of INW right after the
-                      purchase.
-                    </Text>
-                  </Flex>
-                ) : (
-                  ""
-                )}
-                <Button
-                  w="full"
-                  onClick={inwPublicMintHandler}
-                  disabled={disableBuyBtn}
-                >
-                  Buy INW
-                </Button>
-              </Stack>
-            </IWCard>
-          </IWCard>
         </>
       ),
       isDisabled: false,
