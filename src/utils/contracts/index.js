@@ -233,10 +233,10 @@ export async function execContractTx(
                 const decoded = api.registry.findMetaError(error.asModule);
                 const { docs, method, section } = decoded;
 
-                console.log(`${section}.${method}: ${docs.join(" ")}`);
+                console.log(`Debug ${section}.${method}: ${docs.join(" ")}`);
               } else {
                 // Other, CannotLookup, BadOrigin, no extra info
-                console.log(error.toString());
+                console.log('Debug 123' + error.toString());
               }
             } catch (error) {
               console.log(error);
