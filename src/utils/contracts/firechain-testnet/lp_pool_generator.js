@@ -1,5 +1,5 @@
 const nft_pool_contract = {
-  CONTRACT_ADDRESS: "5Dg65RAvaFePGFM8XigoMvdGZXFqxDG5kG7tBRj5GQjcusn5",
+  CONTRACT_ADDRESS: "5CuLL8CBBuDtCKbw5SUS974PZKLVBk3pyutX17We3KzUTQhY",
   CONTRACT_ABI: {
     "source": {
       "hash": "0x9de450172d67cfcca492a8aa2658bee27035d2e6414959680202a1e185e618e2",
