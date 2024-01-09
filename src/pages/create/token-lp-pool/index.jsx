@@ -249,7 +249,7 @@ export default function CreateTokenLPPage() {
       currentAccount?.address,
       lp_pool_generator_contract.CONTRACT_ADDRESS
     );
-    const allowanceINW = formatQueryResultToNumberEthers(allowanceINWQr, 12);
+    const allowanceINW = formatQueryResultToNumberEthers(allowanceINWQr, 18);
     if (+allowanceINW < +createTokenFee) {
       toast.success(
         `Step ${step}: Approving ${currentChain?.inwName} token...`
@@ -263,7 +263,7 @@ export default function CreateTokenLPPage() {
         0, //-> value
         "psp22::approve",
         lp_pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBNEther(createTokenFee, 12)
+        formatNumToBNEther(createTokenFee, 18)
       );
       if (!approve) return;
     }
@@ -310,7 +310,7 @@ export default function CreateTokenLPPage() {
       currentAccount?.address,
       LPtokenContract,
       selectedContractAddr,
-      formatNumToBNEther(maxStake, tokenLPSymbol?.decimal || 12),
+      formatNumToBNEther(maxStake, tokenLPSymbol?.decimal || 18),
       Number(+multiplier * 1000000).toString(),
       roundUp(duration * 24 * 60 * 60 * 1000, 0).toString(),
       startTime.getTime().toString()

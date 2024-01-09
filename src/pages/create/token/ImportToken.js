@@ -1,6 +1,7 @@
 import { Box, Button, Heading, SimpleGrid, VStack } from "@chakra-ui/react";
 import IWInput from "components/input/Input";
 
+import { web3FromSource } from "@polkadot/extension-dapp";
 import { stringToHex } from "@polkadot/util";
 import { APICall } from "api/client";
 import { useState } from "react";
@@ -12,15 +13,16 @@ import {
   delay,
   formatNumDynDecimal,
   formatQueryResultToNumber,
+  getTokenOwner,
   isAddressValid,
   roundUp,
 } from "utils";
-import { execContractQuery } from "utils/contracts";
-import {core_contract} from "utils/contracts";
-import { psp22_contract } from "utils/contracts";
+import {
+  execContractQuery,
+  psp22_contract,
+  token_generator_contract,
+} from "utils/contracts";
 import ImageUploadIcon from "./UploadIcon";
-import { getTokenOwner } from "utils";
-import { web3FromSource } from "@polkadot/extension-dapp";
 
 const ImportTokenForm = ({ api }) => {
   const dispatch = useDispatch();
@@ -133,13 +135,13 @@ const ImportTokenForm = ({ api }) => {
         toast.error("Please connect wallet for full-function using!");
       }
 
-      const { address: tokenOwnerAddress, isNew: isNewVersionOP } =
-        await getTokenOwner(tokenAddress);
+      // const { address: tokenOwnerAddress, isNew: isNewVersionOP } =
+      //   await getTokenOwner(tokenAddress);
 
-      if (tokenOwnerAddress != currentAccount?.address) {
-        toast.error("You must be the owner of the token contract to continue");
-        return;
-      }
+      // if (tokenOwnerAddress != currentAccount?.address) {
+      //   toast.error("You must be the owner of the token contract to continue");
+      //   return;
+      // }
       const { signer } = await web3FromSource(currentAccount?.meta?.source);
       const { signature } = await signer.signRaw({
         address: currentAccount.address,
@@ -155,18 +157,22 @@ const ImportTokenForm = ({ api }) => {
         "psp22Metadata::tokenDecimals"
       );
       const tokenDecimal = queryResult1.toHuman().Ok;
-
+      console.log(
+        "token_generator_contract.CONTRACT_ADDRESS",
+        token_generator_contract.CONTRACT_ADDRESS
+      );
       if (importIconIPFSUrl) {
         const { status, message } = await APICall.importToken({
           tokenAddress,
-          tokenGeneratorContractAddress: core_contract.CONTRACT_ADDRESS,
+          tokenGeneratorContractAddress:
+            token_generator_contract.CONTRACT_ADDRESS,
           tokenIconUrl: importIconIPFSUrl,
           name: tokenInfo?.name,
           symbol: tokenInfo?.title,
           decimal: tokenDecimal,
-          creator: tokenOwnerAddress,
+          creator: "",
           signature,
-          isNew: isNewVersionOP,
+          isNew: true,
         });
         if (status === "OK") {
           setTokenInfo(null);
