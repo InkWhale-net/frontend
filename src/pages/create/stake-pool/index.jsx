@@ -39,6 +39,10 @@ import { psp22_contract } from "utils/contracts";
 import { execContractTxAndCallAPI } from "utils/contracts";
 import { useAppContext } from "contexts/AppContext";
 import { useChainContext } from "contexts/ChainContext";
+import { formatQueryResultToNumberEthers } from "utils";
+import { formatTextAmount } from "utils";
+import { formatNumToBNEther } from "utils";
+import { useMutation } from "react-query";
 
 export default function CreateStakePoolPage() {
   const dispatch = useDispatch();
@@ -163,8 +167,13 @@ export default function CreateStakePoolPage() {
     if (myStakingPoolsList) formatMaxStakingAmount(myStakingPoolsList);
     else dispatch(fetchMyStakingPools({ currentAccount }));
   }, [myStakingPoolsList]);
-
+  const { isLoading, mutate } = useMutation(async () => {
+    return new Promise(async (resolve) => {
+      resolve(createStakingPoolHandler());
+    });
+  });
   async function createStakingPoolHandler() {
+    let step = 1;
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
       return;
@@ -209,123 +218,159 @@ export default function CreateStakePoolPage() {
     endDate?.setDate(startTime?.getDate() + parseInt(duration));
     if (!!endDate) {
       const currentDate = new Date();
-      if (startTime < currentDate || endDate < currentDate) {
-        toast.error(`Pool can not start or end in the past`);
+      if (endDate < currentDate) {
+        toast.error(`Pool can not end in the past`);
         return;
       }
     } else {
       toast.error(`Invalid start Date & Time`);
       return;
     }
-
-    const allowanceINWQr = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      psp22_contract.CONTRACT_ADDRESS,
-      0, //-> value
-      "psp22::allowance",
-      currentAccount?.address,
-      pool_generator_contract.CONTRACT_ADDRESS
-    );
-    const allowanceINW = formatQueryResultToNumber(allowanceINWQr).replaceAll(
-      ",",
-      ""
-    );
-    const allowanceTokenQr = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      selectedContractAddr,
-      0, //-> value
-      "psp22::allowance",
-      currentAccount?.address,
-      pool_generator_contract.CONTRACT_ADDRESS
-    );
-    const allowanceToken = formatQueryResultToNumber(
-      allowanceTokenQr,
-      tokenInfor?.decimal
-    ).replaceAll(",", "");
-    let step = 1;
-
-    //Approve
-    if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving ${currentChain?.inwName} token...`);
-      step++;
-      let approve = await execContractTx(
-        currentAccount,
-        "api",
-        psp22_contract.CONTRACT_ABI,
-        psp22_contract.CONTRACT_ADDRESS,
-        0, //-> value
-        "psp22::approve",
-        pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(createTokenFee)
-      );
-      if (!approve) return;
-    }
-
-    if (allowanceToken < minReward.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving ${tokenSymbol} token...`);
-      step++;
-      let approve = await execContractTx(
-        currentAccount,
-        "api",
-        psp22_contract.CONTRACT_ABI,
-        selectedContractAddr,
-        0, //-> value
-        "psp22::approve",
-        pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(minReward)
-      );
-      if (!approve) return;
-    }
-
-    await delay(3000);
-    toast.success(`Step ${step}: Process...`);
-    await execContractTxAndCallAPI(
-      currentAccount,
-      "api",
-      pool_generator_contract.CONTRACT_ABI,
-      pool_generator_contract.CONTRACT_ADDRESS,
-      0, //-> value
-      "newPool",
-      async (newContractAddress) => {
-        await APICall.askBEupdate({
-          type: "pool",
-          poolContract: newContractAddress,
-        });
-      },
-      currentAccount?.address,
-      selectedContractAddr,
-      formatNumToBN(maxStake, tokenInfor?.decimal || 12),
-      parseInt(apy * 100),
-      roundUp(duration * 24 * 60 * 60 * 1000, 0),
-      startTime.getTime()
-    );
-    await delay(1000);
-
-    await APICall.askBEupdate({ type: "pool", poolContract: "new" });
-
-    setApy("");
-    setDuration("");
-    setMaxStake("");
-    setStartTime(new Date());
-    toast.promise(
-      delay(10000).then(() => {
-        if (currentAccount) {
-          dispatch(fetchUserBalance({ currentAccount, api }));
-          dispatch(fetchMyStakingPools({ currentAccount }));
+    try {
+      await new Promise(async (resolve, reject) => {
+        // approve inw fee
+        try {
+          const allowanceINWQr = await execContractQuery(
+            currentAccount?.address,
+            "api",
+            psp22_contract.CONTRACT_ABI,
+            psp22_contract.CONTRACT_ADDRESS,
+            0, //-> value
+            "psp22::allowance",
+            currentAccount?.address,
+            pool_generator_contract.CONTRACT_ADDRESS
+          );
+          const allowanceINW = formatQueryResultToNumberEthers(allowanceINWQr);
+          if (+allowanceINW < +createTokenFee) {
+            toast(`Step ${step}: Approving ${currentChain?.inwName} token...`);
+            step++;
+            let approve = await execContractTxAndCallAPI(
+              currentAccount,
+              "api",
+              psp22_contract.CONTRACT_ABI,
+              psp22_contract.CONTRACT_ADDRESS,
+              0, //-> value
+              "psp22::approve",
+              async () => {
+                resolve();
+              },
+              pool_generator_contract.CONTRACT_ADDRESS,
+              formatNumToBNEther(createTokenFee)
+            );
+            if (!approve) reject("Approve fee fail");
+          } else resolve();
+        } catch (error) {
+          console.log(error);
+          toast.error(error);
+          reject("Approve fee fail");
         }
+      });
+      await new Promise(async (resolve, reject) => {
+        try {
+          const allowanceTokenQr = await execContractQuery(
+            currentAccount?.address,
+            "api",
+            psp22_contract.CONTRACT_ABI,
+            selectedContractAddr,
+            0, //-> value
+            "psp22::allowance",
+            currentAccount?.address,
+            pool_generator_contract.CONTRACT_ADDRESS
+          );
+          const allowanceToken = formatQueryResultToNumberEthers(
+            allowanceTokenQr,
+            tokenInfor?.decimal
+          );
+          if (+allowanceToken < +formatTextAmount(minReward)) {
+            toast(`Step ${step}: Approving ${tokenSymbol} token...`);
+            step++;
+            let approve = await execContractTxAndCallAPI(
+              currentAccount,
+              "api",
+              psp22_contract.CONTRACT_ABI,
+              selectedContractAddr,
+              0, //-> value
+              "psp22::approve",
+              async () => {
+                resolve();
+              },
+              pool_generator_contract.CONTRACT_ADDRESS,
+              formatNumToBNEther(formatTextAmount(minReward))
+            );
+            if (!approve) {
+              reject("Approve fail");
+              return;
+            }
+          } else resolve();
+        } catch (error) {
+          console.log(error);
+          toast.error(error);
+          reject("Approve fail");
+        }
+      });
+      await delay(1000);
+      toast(`Step ${step}: Process...`);
+      console.log(
+        currentAccount?.address,
+        selectedContractAddr,
+        formatNumToBN(maxStake, tokenInfor?.decimal || 12),
+        parseInt(apy * 100),
+        roundUp(duration * 24 * 60 * 60 * 1000, 0),
+        startTime.getTime()
+      );
+      await new Promise(async (resolve, reject) => {
+        try {
+          const result = await execContractTxAndCallAPI(
+            currentAccount,
+            "api",
+            pool_generator_contract.CONTRACT_ABI,
+            pool_generator_contract.CONTRACT_ADDRESS,
+            0, //-> value
+            "newPool",
+            async (newContractAddress) => {
+              await APICall.askBEupdate({
+                type: "pool",
+                poolContract: newContractAddress,
+              });
+              await delay(1000);
+              // await APICall.askBEupdate({ type: "pool", poolContract: "new" });
+              setApy("");
+              setDuration("");
+              setMaxStake("");
+              setStartTime(new Date());
+              toast.promise(
+                delay(10000).then(() => {
+                  resolve();
+                  if (currentAccount) {
+                    dispatch(fetchUserBalance({ currentAccount, api }));
+                    dispatch(fetchMyStakingPools({ currentAccount }));
+                  }
 
-        fetchTokenBalance();
-      }),
-      {
-        loading: "Please wait 10s for the data to be updated! ",
-        success: "Done !",
-        error: "Could not fetch data!!!",
-      }
-    );
+                  fetchTokenBalance();
+                }),
+                {
+                  loading: "Please wait 10s for the data to be updated! ",
+                  success: "Done !",
+                  error: "Could not fetch data!!!",
+                }
+              );
+            },
+            currentAccount?.address,
+            selectedContractAddr,
+            formatNumToBN(maxStake, tokenInfor?.decimal || 12),
+            parseInt(apy * 100),
+            roundUp(duration * 24 * 60 * 60 * 1000, 0),
+            startTime.getTime()
+          );
+          if (!result) reject("New Pool fail");
+        } catch (error) {
+          reject(error);
+        }
+      });
+    } catch (error) {
+      console.log(error);
+      // toast.error(error);
+    }
   }
 
   const minReward = useMemo(
@@ -553,9 +598,10 @@ export default function CreateStakePoolPage() {
           </SimpleGrid>
 
           <Button
+            isLoading={isLoading}
             w="full"
             maxW={{ lg: "220px" }}
-            onClick={createStakingPoolHandler}
+            onClick={() => mutate()}
           >
             Create{" "}
           </Button>

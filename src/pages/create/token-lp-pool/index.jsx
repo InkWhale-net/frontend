@@ -319,53 +319,59 @@ export default function CreateTokenLPPage() {
         if (!approve) return;
       } else resolve();
     });
-    // await delay(1000);
-    // toast(`Process create...`);
-    // await execContractTxAndCallAPI(
-    //   currentAccount,
-    //   "api",
-    //   lp_pool_generator_contract.CONTRACT_ABI,
-    //   lp_pool_generator_contract.CONTRACT_ADDRESS,
-    //   0, //-> value
-    //   "newPool",
-    //   async (newContractAddress) => {
-    //     await APICall.askBEupdate({
-    //       type: "lp",
-    //       poolContract: newContractAddress,
-    //     });
-    //     setMultiplier("");
-    //     setDuration("");
-    //     setStartTime(new Date());
-    //     setSelectedContractAddr("");
-    //     setLPTokenContract("");
+    await delay(1000);
+    toast(`Process create...`);
+    await new Promise(async (resolve, reject) => {
+      try {
+        await execContractTxAndCallAPI(
+          currentAccount,
+          "api",
+          lp_pool_generator_contract.CONTRACT_ABI,
+          lp_pool_generator_contract.CONTRACT_ADDRESS,
+          0, //-> value
+          "newPool",
+          async (newContractAddress) => {
+            await APICall.askBEupdate({
+              type: "lp",
+              poolContract: newContractAddress,
+            });
+            setMultiplier("");
+            setDuration("");
+            setStartTime(new Date());
+            setSelectedContractAddr("");
+            setLPTokenContract("");
+            toast.promise(
+              delay(10000).then(() => {
+                resolve();
+                if (currentAccount) {
+                  dispatch(fetchMyTokenPools({ currentAccount }));
+                  dispatch(fetchUserBalance({ currentAccount, api }));
+                }
 
-    //     await delay(3000);
-
-    //     toast.promise(
-    //       delay(10000).then(() => {
-    //         if (currentAccount) {
-    //           dispatch(fetchMyTokenPools({ currentAccount }));
-    //           dispatch(fetchUserBalance({ currentAccount, api }));
-    //         }
-
-    //         fetchTokenBalance();
-    //         fetchLPTokenBalance();
-    //       }),
-    //       {
-    //         loading: "Please wait up to 10s for the data to be updated! ",
-    //         success: "Done !",
-    //         error: "Could not fetch data!!!",
-    //       }
-    //     );
-    //   },
-    //   currentAccount?.address,
-    //   LPtokenContract,
-    //   selectedContractAddr,
-    //   formatNumToBNEther(maxStake, tokenLPSymbol?.decimal || 18),
-    //   Number(+multiplier * 1000000).toString(),
-    //   roundUp(duration * 24 * 60 * 60 * 1000, 0).toString(),
-    //   startTime.getTime().toString()
-    // );
+                fetchTokenBalance();
+                fetchLPTokenBalance();
+              }),
+              {
+                loading: "Please wait up to 10s for the data to be updated! ",
+                success: "Done !",
+                error: "Could not fetch data!!!",
+              }
+            );
+          },
+          currentAccount?.address,
+          LPtokenContract,
+          selectedContractAddr,
+          formatNumToBNEther(maxStake, tokenLPSymbol?.decimal || 18),
+          Number(+multiplier * 1000000).toString(),
+          roundUp(duration * 24 * 60 * 60 * 1000, 0).toString(),
+          startTime.getTime().toString()
+        );
+      } catch (error) {
+        console.log(error);
+        toast.error(error);
+        reject(error);
+      }
+    });
   }
 
   const tableData = {
