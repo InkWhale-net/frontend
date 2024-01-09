@@ -41,6 +41,8 @@ import {
   lp_pool_generator_contract,
   psp22_contract,
 } from "utils/contracts";
+import { execContractTxAndCallAPI } from "utils/contracts";
+import { useMutation } from "react-query";
 
 export default function CreateTokenLPPage() {
   const dispatch = useDispatch();
@@ -180,7 +182,11 @@ export default function CreateTokenLPPage() {
     () => maxStake * duration * multiplier,
     [maxStake, duration, multiplier]
   );
-
+  const { isLoading, mutate } = useMutation(async () => {
+    return new Promise(async (resolve) => {
+      resolve(createTokenLPHandler());
+    });
+  });
   async function createTokenLPHandler() {
     let step = 1;
     if (!currentAccount) {
@@ -237,76 +243,123 @@ export default function CreateTokenLPPage() {
       return;
     }
     //Approve
-    toast.success("Step 1: Approving...");
     //Approve INW
-    const allowanceINWQr = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      psp22_contract.CONTRACT_ADDRESS,
-      0, //-> value
-      "psp22::allowance",
-      currentAccount?.address,
-      lp_pool_generator_contract.CONTRACT_ADDRESS
-    );
-    const allowanceINW = formatQueryResultToNumberEthers(allowanceINWQr, 18);
-    if (+allowanceINW < +createTokenFee) {
-      toast.success(
-        `Step ${step}: Approving ${currentChain?.inwName} token...`
-      );
-      step++;
-      let approve = await execContractTx(
-        currentAccount,
-        "api",
-        psp22_contract.CONTRACT_ABI,
-        psp22_contract.CONTRACT_ADDRESS,
-        0, //-> value
-        "psp22::approve",
-        lp_pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBNEther(createTokenFee, 18)
-      );
-      if (!approve) return;
-    }
-    // console.log("allowanceINW", allowanceINW);
+    await new Promise(async (resolve, reject) => {
+      try {
+        toast("Step 1: Approving INW...");
+        const allowanceINWQr = await execContractQuery(
+          currentAccount?.address,
+          "api",
+          psp22_contract.CONTRACT_ABI,
+          psp22_contract.CONTRACT_ADDRESS,
+          0, //-> value
+          "psp22::allowance",
+          currentAccount?.address,
+          lp_pool_generator_contract.CONTRACT_ADDRESS
+        );
+        const allowanceINW = formatQueryResultToNumberEthers(
+          allowanceINWQr,
+          18
+        );
+        if (+allowanceINW < +createTokenFee) {
+          toast.success(
+            `Step ${step}: Approving ${currentChain?.inwName} token...`
+          );
+          step++;
+          let approve = await execContractTxAndCallAPI(
+            currentAccount,
+            "api",
+            async () => {
+              resolve();
+            },
+            psp22_contract.CONTRACT_ABI,
+            psp22_contract.CONTRACT_ADDRESS,
+            0, //-> value
+            "psp22::approve",
+            lp_pool_generator_contract.CONTRACT_ADDRESS,
+            formatNumToBNEther(createTokenFee, 18)
+          );
+          // if (!approve) reject();
+        } else resolve();
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
     // Allow reward
-    const allowanceTokenQr = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      selectedContractAddr,
-      0, //-> value
-      "psp22::allowance",
-      currentAccount?.address,
-      lp_pool_generator_contract.CONTRACT_ADDRESS
-    );
-    const allowanceToken = formatQueryResultToNumberEthers(
-      allowanceTokenQr,
-      tokenSymbol?.decimal
-    );
-    if (+allowanceToken < +minReward) {
-      toast.success(`Step ${step}: Approving ${tokenSymbol?.symbol} token...`);
-      step++;
-      let approve = await execContractTx(
-        currentAccount,
+    await new Promise(async (resolve, reject) => {
+      const allowanceTokenQr = await execContractQuery(
+        currentAccount?.address,
         "api",
         psp22_contract.CONTRACT_ABI,
         selectedContractAddr,
         0, //-> value
-        "psp22::approve",
-        lp_pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBNEther(+minReward - +allowanceToken, tokenSymbol?.decimal)
+        "psp22::allowance",
+        currentAccount?.address,
+        lp_pool_generator_contract.CONTRACT_ADDRESS
       );
-      if (!approve) return;
-    }
-    await delay(5000);
-    toast.success(`Step ${step}: Process...`);
-    await execContractTx(
+      const allowanceToken = formatQueryResultToNumberEthers(
+        allowanceTokenQr,
+        tokenSymbol?.decimal
+      );
+      if (+allowanceToken < +minReward) {
+        toast(`Step ${step}: Approving ${tokenSymbol?.symbol} token...`);
+        step++;
+        let approve = await execContractTxAndCallAPI(
+          currentAccount,
+          "api",
+          psp22_contract.CONTRACT_ABI,
+          selectedContractAddr,
+          0, //-> value
+          "psp22::approve",
+          async () => {
+            resolve();
+          },
+          lp_pool_generator_contract.CONTRACT_ADDRESS,
+          formatNumToBNEther(+minReward - +allowanceToken, tokenSymbol?.decimal)
+        );
+        if (!approve) return;
+      } else resolve();
+    });
+    await delay(1000);
+    toast(`Process create...`);
+    await execContractTxAndCallAPI(
       currentAccount,
       "api",
       lp_pool_generator_contract.CONTRACT_ABI,
       lp_pool_generator_contract.CONTRACT_ADDRESS,
       0, //-> value
       "newPool",
+      async (newContractAddress) => {
+        await APICall.askBEupdate({
+          type: "lp",
+          poolContract: newContractAddress,
+        });
+        setMultiplier("");
+        setDuration("");
+        setStartTime(new Date());
+        setSelectedContractAddr("");
+        setLPTokenContract("");
+
+        await delay(3000);
+
+        toast.promise(
+          delay(10000).then(() => {
+            if (currentAccount) {
+              dispatch(fetchMyTokenPools({ currentAccount }));
+              dispatch(fetchUserBalance({ currentAccount, api }));
+            }
+
+            fetchTokenBalance();
+            fetchLPTokenBalance();
+          }),
+          {
+            loading: "Please wait up to 10s for the data to be updated! ",
+            success: "Done !",
+            error: "Could not fetch data!!!",
+          }
+        );
+      },
       currentAccount?.address,
       LPtokenContract,
       selectedContractAddr,
@@ -315,31 +368,6 @@ export default function CreateTokenLPPage() {
       roundUp(duration * 24 * 60 * 60 * 1000, 0).toString(),
       startTime.getTime().toString()
     );
-    // await APICall.askBEupdate({ type: "lp", poolContract: "new" });
-    // setMultiplier("");
-    // setDuration("");
-    // setStartTime(new Date());
-    // setSelectedContractAddr("");
-    // setLPTokenContract("");
-
-    // await delay(3000);
-
-    // toast.promise(
-    //   delay(10000).then(() => {
-    //     if (currentAccount) {
-    //       dispatch(fetchMyTokenPools({ currentAccount }));
-    //       dispatch(fetchUserBalance({ currentAccount, api }));
-    //     }
-
-    //     fetchTokenBalance();
-    //     fetchLPTokenBalance();
-    //   }),
-    //   {
-    //     loading: "Please wait up to 10s for the data to be updated! ",
-    //     success: "Done !",
-    //     error: "Could not fetch data!!!",
-    //   }
-    // );
   }
 
   const tableData = {
@@ -632,7 +660,8 @@ export default function CreateTokenLPPage() {
           <Button
             w="full"
             maxW={{ lg: "260px" }}
-            onClick={createTokenLPHandler}
+            isLoading={isLoading}
+            onClick={() => mutate()}
           >
             Create Pool
           </Button>
