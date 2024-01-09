@@ -65,11 +65,13 @@ import PoolInfo from "./PoolInfor";
 import { formatTextAmount } from "utils";
 import { psp22_contract } from "utils/contracts";
 import { formatQueryResultToNumberEthers } from "utils";
+import { useChainContext } from "contexts/ChainContext";
 
 const FarmDetailPage = () => {
   const params = useParams();
 
   const { currentAccount } = useSelector((s) => s.wallet);
+  const { currentChain } = useChainContext();
   const { allNFTPoolsList, allTokenPoolsList } = useSelector((s) => s.allPools);
   const [refetchData, setRefetchData] = useState();
   const { api } = useAppContext();
@@ -442,6 +444,7 @@ const MyStakeRewardInfoNFT = ({
   const dispatch = useDispatch();
 
   const { currentAccount, api } = useSelector((s) => s.wallet);
+  const { currentChain } = useChainContext();
 
   const [unstakeFee, setUnstakeFee] = useState(0);
 
@@ -491,7 +494,7 @@ const MyStakeRewardInfoNFT = ({
       currentAccount?.address
     );
 
-    const balance = formatQueryResultToNumberEthers(result, tokenDecimal);
+    const balance = +formatQueryResultToNumberEthers(result, tokenDecimal);
     setTokenBalance(balance);
   }, [currentAccount?.address, currentAccount?.balance, tokenContract]);
 
@@ -866,8 +869,8 @@ const MyStakeRewardInfoNFT = ({
               ),
             },
             {
-              title: "AZERO Balance",
-              content: `${balance?.azero || 0} AZERO`,
+              title: `${currentChain?.unit} Balance`,
+              content: `${balance?.azero || 0} ${currentChain?.unit}`,
             },
             {
               title: isOldPool ? "INW Balance" : "INW V2 Balance",
@@ -881,7 +884,7 @@ const MyStakeRewardInfoNFT = ({
             },
             {
               title: `${tokenSymbol} Balance`,
-              content: `${tokenBalance || 0} ${tokenSymbol}`,
+              content: `${formatNumDynDecimal(tokenBalance) || 0} ${tokenSymbol}`,
             },
           ]}
         />
@@ -961,6 +964,7 @@ const MyStakeRewardInfoToken = ({
 }) => {
   const dispatch = useDispatch();
   const { currentAccount, api } = useSelector((s) => s.wallet);
+  const { currentChain } = useChainContext();
 
   const [unstakeFee, setUnstakeFee] = useState(0);
 
@@ -1007,7 +1011,7 @@ const MyStakeRewardInfoToken = ({
       currentAccount?.address
     );
 
-    const balance = formatQueryResultToNumber(result, tokenDecimal);
+    const balance = formatQueryResultToNumberEthers(result, tokenDecimal);
     setTokenBalance(balance);
     const resultLP = await execContractQuery(
       currentAccount?.address,
@@ -1018,8 +1022,7 @@ const MyStakeRewardInfoToken = ({
       "psp22::balanceOf",
       currentAccount?.address
     );
-
-    const balanceLP = formatQueryResultToNumber(resultLP, lptokenDecimal);
+    const balanceLP = formatQueryResultToNumberEthers(resultLP, lptokenDecimal);
     setLPTokenBalance(formatChainStringToNumber(balanceLP));
   }, [currentAccount?.address, lptokenContract, tokenContract]);
 
@@ -1333,8 +1336,8 @@ const MyStakeRewardInfoToken = ({
               ),
             },
             {
-              title: "AZERO Balance",
-              content: `${balance?.azero || 0} AZERO`,
+              title: `${currentChain?.unit} Balance`,
+              content: `${balance?.azero || 0} ${currentChain?.unit}`,
             },
             {
               title: isOldPool ? "INW Balance" : "INW V2 Balance",
@@ -1348,7 +1351,9 @@ const MyStakeRewardInfoToken = ({
             },
             {
               title: `${tokenSymbol} Balance`,
-              content: `${tokenBalance || 0} ${tokenSymbol}`,
+              content: `${
+                formatNumDynDecimal(tokenBalance) || 0
+              } ${tokenSymbol}`,
             },
             {
               title: `${lptokenSymbol} Balance`,
