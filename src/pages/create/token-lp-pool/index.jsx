@@ -263,11 +263,11 @@ export default function CreateTokenLPPage() {
         0, //-> value
         "psp22::approve",
         lp_pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBNEther(+createTokenFee - +allowanceINW, 12)
+        formatNumToBNEther(createTokenFee, 12)
       );
       if (!approve) return;
     }
-    console.log("allowanceINW", allowanceINW);
+    // console.log("allowanceINW", allowanceINW);
     // Allow reward
     const allowanceTokenQr = await execContractQuery(
       currentAccount?.address,
