@@ -41,7 +41,11 @@ function Staking() {
   useEffect(() => {
     const fetch = async () => {
       const stakeInfo = await getStakeInfo(api, currentAccount).then((res) => {
-        if (!res) return 0;
+        if (!res)
+          return {
+            stakingAmount: 0,
+            maxUnstakingAmount: 0,
+          };
 
         const stakingAmount =
           formatChainStringToNumber(res?.stakingAmount) / Math.pow(10, 12);
@@ -81,18 +85,27 @@ function Staking() {
       toast.error("Low AZERO balance!");
       return;
     }
+    const availableStakeAmount =
+      footerInfo && footerInfo[1] - parseInt(myStaked);
 
-    if (
-      footerInfo &&
-      footerInfo[1] - parseInt(myStaked) - 0.25 < amount &&
-      !!parseInt(myStaked)
-    ) {
-      toast.error(
-        `Max stake amount is ${formatNumDynDecimal(
-          footerInfo && footerInfo[1] - parseInt(myStaked) - 0.25
-        )} AZERO`
-      );
-      return;
+    if (availableStakeAmount >= azeroBalance) {
+      if (availableStakeAmount - 0.25 < amount) {
+        toast.error(
+          `Max stake amount is ${formatNumDynDecimal(
+            availableStakeAmount - 0.25
+          )} AZERO`
+        );
+        return;
+      }
+    } else {
+      if (availableStakeAmount < amount) {
+        toast.error(
+          `Max stake amount is ${formatNumDynDecimal(
+            availableStakeAmount
+          )} AZERO`
+        );
+        return;
+      }
     }
 
     try {
