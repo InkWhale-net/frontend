@@ -391,9 +391,13 @@ function StakingInfo() {
           </Stack>
         </IWCard>
         {lastAnchored > lastAzeroInterestTopupTimer ? (
-          <Alert status="warning">
+          <Alert
+            status="warning"
+            fontSize={"16px"}
+            style={{ lineHeight: "normal" }}
+          >
             <AlertIcon />
-            User can claim the rewards approximately every 24 hours.
+            User can claim the rewards approx every 24 hours.
           </Alert>
         ) : null}
       </>

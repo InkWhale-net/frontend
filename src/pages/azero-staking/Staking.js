@@ -36,6 +36,7 @@ function Staking() {
   }, [currentAccount?.balance?.azero]);
 
   const [myStaked, setMyStaked] = useState(0);
+  const [maxUnstaking, setMaxUnstaking] = useState(0);
 
   useEffect(() => {
     const fetch = async () => {
@@ -44,9 +45,17 @@ function Staking() {
 
         const stakingAmount =
           formatChainStringToNumber(res?.stakingAmount) / Math.pow(10, 12);
-        return stakingAmount?.toFixed(4) ?? 0;
+        const withdrawalRequestAmount =
+          formatChainStringToNumber(res?.withdrawalRequestAmount) /
+          Math.pow(10, 12);
+        return {
+          stakingAmount: stakingAmount?.toFixed(4) ?? 0,
+          maxUnstakingAmount: stakingAmount - withdrawalRequestAmount,
+        };
       });
-      setMyStaked(stakeInfo);
+
+      setMyStaked(stakeInfo?.stakingAmount);
+      setMaxUnstaking(stakeInfo?.maxUnstakingAmount);
     };
 
     api && fetch();
@@ -146,12 +155,12 @@ function Staking() {
       return;
     }
 
-    if (footerInfo && footerInfo[2] < amount) {
-      toast.error(`Max AZERO unstake is ${footerInfo && footerInfo[2]} AZERO`);
+    if (maxUnstaking < amount) {
+      toast.error(`Max AZERO unstake is ${maxUnstaking} AZERO`);
       return;
     }
 
-    if (footerInfo && footerInfo[2] < amount) {
+    if (maxUnstaking < amount) {
       toast.error("Not enough AZERO unstake!");
       return;
     }
@@ -261,7 +270,7 @@ function Staking() {
                 setStakeMax={() => {
                   setAmount(maxStakingCalc);
                 }}
-                setUnstakeMax={() => setAmount(footerInfo[2] ?? 0)}
+                setUnstakeMax={() => setAmount(maxUnstaking)}
               />
             }
           />
