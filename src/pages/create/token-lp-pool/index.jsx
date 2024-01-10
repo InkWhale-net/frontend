@@ -606,7 +606,7 @@ export default function CreateTokenLPPage() {
                 onChange={({ target }) => setMultiplier(target.value)}
               />
             </Box>
-            {/* 
+            {/*
             <Box w="full">
               <Stack
                 spacing="10px"
@@ -615,7 +615,7 @@ export default function CreateTokenLPPage() {
                 alignItems="end"
                 w="full"
               >
-                
+              
               </Stack>
             </Box> */}
             <Box w="full">

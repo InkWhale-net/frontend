@@ -18,11 +18,11 @@ export default function AdminPage() {
       component: <Launchpad />,
       isDisabled: false,
     },
-    {
-      label: <>Azero Staking</>,
-      component: <AzeroStakingAdmin />,
-      isDisabled: false,
-    },
+    // {
+    //   label: <>Azero Staking</>,
+    //   component: <AzeroStakingAdmin />,
+    //   isDisabled: false,
+    // },
     {
       label: <>Token</>,
       component: <Token />,

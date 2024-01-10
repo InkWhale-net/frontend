@@ -139,9 +139,21 @@ export default function MyPoolDetailPage() {
     const item = myTokenPoolsList?.find(
       (p) => p?.poolContract === params?.contractAddress
     );
+
     if (item) {
       setState({ mode: "TOKEN_FARM" });
     }
+
+    const lptokenTotalSupply = formatTokenAmount(
+      item?.lptokenTotalSupply,
+      +item?.lptokenDecimal
+    );
+
+    const tokenTotalSupply = formatTokenAmount(
+      item?.tokenTotalSupply,
+      +item?.tokenDecimal
+    );
+
     if (item)
       return {
         ...item,
@@ -149,6 +161,8 @@ export default function MyPoolDetailPage() {
           item?.totalStaked,
           +item?.lptokenDecimal
         ),
+        lptokenTotalSupply,
+        tokenTotalSupply,
       };
   }, [myTokenPoolsList, params]);
 
