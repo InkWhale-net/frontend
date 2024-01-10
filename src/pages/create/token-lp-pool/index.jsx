@@ -21,6 +21,7 @@ import { useChainContext } from "contexts/ChainContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DateTimePicker from "react-datetime-picker";
 import { toast } from "react-hot-toast";
+import { useMutation } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMyTokenPools } from "redux/slices/myPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
@@ -37,12 +38,10 @@ import {
 } from "utils";
 import {
   execContractQuery,
-  execContractTx,
+  execContractTxAndCallAPI,
   lp_pool_generator_contract,
   psp22_contract,
 } from "utils/contracts";
-import { execContractTxAndCallAPI } from "utils/contracts";
-import { useMutation } from "react-query";
 
 export default function CreateTokenLPPage() {
   const dispatch = useDispatch();
@@ -415,9 +414,11 @@ export default function CreateTokenLPPage() {
     ],
 
     tableBody: myTokenPoolsList?.map((e) => {
+      console.log(e);
       return {
         ...e,
         totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
+        rewardPool: formatTokenAmount(e?.rewardPool, e?.lptokenDecimal)
       };
     }),
   };
@@ -484,14 +485,18 @@ export default function CreateTokenLPPage() {
               isDisabled
               value={`${LPtokenBalance || 0}`}
               // label={`Your ${tokenLPSymbol || "Token"} Balance`}
-              label={`Token Balance`}
+              label={`Token To Stake Balance`}
               inputRightElementIcon={
                 <Heading as="h5" size="h5" fontWeight="semibold">
                   {tokenLPSymbol?.symbol}
                 </Heading>
               }
             />
-            <Box></Box>
+            <IWInput
+              isDisabled
+              value={tokenLPSymbol?.decimal}
+              label={`Decimal`}
+            />
 
             <Box w="full">
               <Heading as="h4" size="h4" mb="12px">
@@ -534,7 +539,11 @@ export default function CreateTokenLPPage() {
                 </Heading>
               }
             />
-            <Box></Box>
+            <IWInput
+              isDisabled
+              value={tokenSymbol?.decimal}
+              label={`Decimal`}
+            />
 
             <Box w="full">
               <IWInput
@@ -668,6 +677,19 @@ export default function CreateTokenLPPage() {
             onClick={() => mutate()}
           >
             Create Pool
+          </Button>
+          <Button
+            w="full"
+            maxW={{ lg: "260px" }}
+            isLoading={isLoading}
+            onClick={() => {
+              APICall.askBEupdate({
+                type: "lp",
+                poolContract: "new",
+              });
+            }}
+          >
+            updasda
           </Button>
         </VStack>
       </SectionContainer>

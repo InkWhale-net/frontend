@@ -23,6 +23,7 @@ import {
   fetchAllNFTPools,
   fetchAllTokenPools,
 } from "redux/slices/allPoolsSlice";
+import { formatTokenAmount } from "utils";
 import { isPoolNotStart } from "utils";
 import { delay, isPoolEnded } from "utils";
 
@@ -133,7 +134,11 @@ export default function LPPoolsPage() {
       );
     }
 
-    return ret;
+    return ret?.map((e) => ({
+      ...e,
+      totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
+      rewardPool: formatTokenAmount(e?.rewardPool, e?.lptokenDecimal),
+    }));
   }, [allTokenPoolsList, showMyStakedPools, endedPools, livePools]);
   const tableDataToken = {
     tableHeader: [
