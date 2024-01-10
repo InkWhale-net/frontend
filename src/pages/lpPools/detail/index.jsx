@@ -1205,12 +1205,13 @@ const MyStakeRewardInfoToken = ({
             fetchTokenBalance();
             toast.promise(
               delay(10000).then(() => {
+                resolve();
                 if (currentAccount) {
                   dispatch(fetchAllTokenPools({ currentAccount }));
                   dispatch(fetchUserBalance({ currentAccount, api }));
                 }
+
                 setLPTokenAmount("");
-                resolve();
               }),
               {
                 loading: "Please wait up to 10s for the data to be updated! ",
@@ -1240,6 +1241,7 @@ const MyStakeRewardInfoToken = ({
       toast.error(toastMessages.NO_WALLET);
       return;
     }
+
     if (
       !isOldPool &&
       +formatTextAmount(currentAccount?.balance?.inw2) <
@@ -1250,6 +1252,7 @@ const MyStakeRewardInfoToken = ({
       );
       return;
     }
+    return;
     if (
       isOldPool &&
       +formatTextAmount(currentAccount?.balance?.inw) <
@@ -1259,81 +1262,69 @@ const MyStakeRewardInfoToken = ({
       return;
     }
 
-    if (!(+LPTokenAmount > 0)) {
+    if (!LPTokenAmount || LPTokenAmount < 0 || LPTokenAmount === "0") {
       toast.error("Invalid Amount!");
       return;
     }
     if (
-      +formatTokenAmount(stakeInfo?.stakedValue, lptokenDecimal) <
-      +LPTokenAmount
+      formatTokenAmount(stakeInfo?.stakedValue?.toString(), +lptokenDecimal) <
+      LPTokenAmount
     ) {
       toast.error("There is not enough balance!");
       return;
     }
+
     //Approve
-    await new Promise(async (resolve, reject) => {
-      try {
-        toast("Step 1: Approving...");
-        let approve = await execContractTxAndCallAPI(
-          currentAccount,
-          "api",
-          psp22_contract.CONTRACT_ABI,
-          psp22_contract.CONTRACT_ADDRESS,
-          0, //-> value
-          "psp22::approve",
-          async () => resolve(),
-          poolContract,
-          formatNumToBNEther(unstakeFee)
-        );
+    toast("Step 1: Approving...");
 
-        if (!approve) reject("Approve fail");
-      } catch (error) {
-        console.log(error);
-        reject("Approve fail");
+    let approve = await execContractTx(
+      currentAccount,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ADDRESS,
+      0, //-> value
+      "psp22::approve",
+      poolContract,
+      formatNumToBN(unstakeFee)
+    );
+
+    if (!approve) return;
+
+    await delay(3000);
+
+    toast("Step 2: Process...");
+
+    await execContractTx(
+      currentAccount,
+      "api",
+      lp_pool_contract.CONTRACT_ABI,
+      poolContract,
+      0, //-> value
+      "unstake",
+      formatNumToBN(LPTokenAmount, lptokenDecimal)
+    );
+
+    await APICall.askBEupdate({ type: "lp", poolContract });
+
+    await delay(3000);
+    fetchUserStakeInfo();
+    fetchTokenBalance();
+
+    toast.promise(
+      delay(10000).then(() => {
+        if (currentAccount) {
+          dispatch(fetchAllTokenPools({ currentAccount }));
+          dispatch(fetchUserBalance({ currentAccount, api }));
+        }
+
+        setLPTokenAmount("");
+      }),
+      {
+        loading: "Please wait up to 10s for the data to be updated! ",
+        success: "Done !",
+        error: "Could not fetch data!!!",
       }
-    });
-    await delay(500);
-
-    await new Promise(async (resolve, reject) => {
-      try {
-        toast("Step 2: Process...");
-        const result = await execContractTxAndCallAPI(
-          currentAccount,
-          "api",
-          lp_pool_contract.CONTRACT_ABI,
-          poolContract,
-          0, //-> value
-          "unstake",
-          async (data) => {
-            await APICall.askBEupdate({ type: "lp", poolContract });
-            await delay(500);
-            fetchUserStakeInfo();
-            fetchTokenBalance();
-            toast.promise(
-              delay(10000).then(() => {
-                if (currentAccount) {
-                  dispatch(fetchAllTokenPools({ currentAccount }));
-                  dispatch(fetchUserBalance({ currentAccount, api }));
-                }
-
-                setLPTokenAmount("");
-                resolve();
-              }),
-              {
-                loading: "Please wait up to 10s for the data to be updated! ",
-                success: "Done !",
-                error: "Could not fetch data!!!",
-              }
-            );
-          },
-          formatNumToBNEther(LPTokenAmount, lptokenDecimal)
-        );
-        if (!result) reject("Unstake fail");
-      } catch (error) {
-        console.log(error);
-        reject("Unstake fail");
-      }
-    });
+    );
   }
 
   const [unclaimedRewardToken, setUnclaimedRewardToken] = useState(0);
@@ -1527,7 +1518,6 @@ const MyStakeRewardInfoToken = ({
                   )}
                 />
                 <ConfirmModal
-                  isLoading={unStakeLPMutation.isLoading}
                   disableBtn={
                     !(
                       formatTokenAmount(

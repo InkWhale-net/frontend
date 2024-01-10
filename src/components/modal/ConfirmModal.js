@@ -23,6 +23,7 @@ export default function ConfirmModal({
   children,
   disableBtn,
   onValidate,
+  isLoading,
   ...rest
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -37,6 +38,7 @@ export default function ConfirmModal({
   return (
     <>
       <Button
+        isLoading={isLoading}
         onClick={() => onProcess()}
         w="full"
         disabled={disableBtn}

@@ -134,11 +134,7 @@ export default function LPPoolsPage() {
       );
     }
 
-    return ret?.map((e) => ({
-      ...e,
-      totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
-      rewardPool: formatTokenAmount(e?.rewardPool, e?.lptokenDecimal),
-    }));
+    return ret;
   }, [allTokenPoolsList, showMyStakedPools, endedPools, livePools]);
   const tableDataToken = {
     tableHeader: [
