@@ -34,32 +34,32 @@ import { toastMessages } from "constants";
 import { useAppContext } from "contexts/AppContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
+import { useMutation } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import {
   calcUnclaimedReward,
+  chainDenom,
   delay,
   formatChainStringToNumber,
   formatNumDynDecimal,
-  formatNumToBN,
+  formatNumToBNEther,
   formatQueryResultToNumber,
+  formatTextAmount,
   formatTokenAmount,
   isPoolEnded,
   isPoolNotStart,
   roundUp,
 } from "utils";
-import { execContractQuery, execContractTx } from "utils/contracts";
-import { pool_contract } from "utils/contracts";
-import { psp22_contract_v2 } from "utils/contracts";
+import {
+  execContractQuery,
+  execContractTxAndCallAPI,
+  pool_contract,
+  psp22_contract,
+} from "utils/contracts";
 import { MaxStakeButton } from "./MaxStakeButton";
-import { psp22_contract } from "utils/contracts";
-import { formatTextAmount } from "utils";
-import { chainDenom } from "utils";
-import { useMutation } from "react-query";
-import { execContractTxAndCallAPI } from "utils/contracts";
-import { formatNumToBNEther } from "utils";
 
 export default function PoolDetailPage() {
   const params = useParams();
@@ -403,40 +403,47 @@ const MyStakeRewardInfo = ({
     fetchFee();
   }, [api, currentAccount?.address, currentAccount?.balance, poolContract]);
 
+  const claimMutation = useMutation(async () => {
+    try {
+      return await handleClaimRewards();
+    } catch (error) {
+      console.error("Error in claimMutation:", error);
+      throw error;
+    }
+  });
   async function handleClaimRewards() {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
       return;
     }
+    await new Promise(async (resolve, reject) => {
+      try {
+        const result = await execContractTxAndCallAPI(
+          currentAccount,
+          api,
+          pool_contract.CONTRACT_ABI,
+          poolContract,
+          0, //-> value
+          "claimReward",
+          async () => {
+            await APICall.askBEupdate({ type: "pool", poolContract });
+            await delay(500);
+            fetchUserStakeInfo();
+            fetchTokenBalance();
 
-    // if (stakeInfo?.unclaimedReward < 0) {
-    //   toast.error("No reward tokens!");
-    //   return;
-    // }
-    try {
-      await execContractTx(
-        currentAccount,
-        api,
-        pool_contract.CONTRACT_ABI,
-        poolContract,
-        0, //-> value
-        "claimReward"
-      );
-
-      await APICall.askBEupdate({ type: "pool", poolContract });
-    } catch (error) {
-      console.log(error);
-    }
-
-    await delay(2000);
-
-    fetchUserStakeInfo();
-    fetchTokenBalance();
-
-    await delay(6000).then(() => {
-      if (currentAccount) {
-        dispatch(fetchAllStakingPools({ currentAccount }));
-        dispatch(fetchUserBalance({ currentAccount, api }));
+            await delay(2000).then(() => {
+              if (currentAccount) {
+                dispatch(fetchAllStakingPools({ currentAccount }));
+                dispatch(fetchUserBalance({ currentAccount, api }));
+              }
+              resolve();
+            });
+          }
+        );
+        if (!result) reject();
+      } catch (error) {
+        reject("Reject fail");
+        console.log(error);
       }
     });
   }
@@ -765,11 +772,12 @@ const MyStakeRewardInfo = ({
         ]}
       >
         <ConfirmModal
+          isLoading={claimMutation.isLoading}
           action="claim"
           buttonVariant="primary"
           buttonLabel="Claim Rewards"
-          disableBtn={!(+unclaimedReward > 0)}
-          onClick={handleClaimRewards}
+          disableBtn={!(+unclaimedReward > 0) || claimMutation.isLoading}
+          onClick={() => claimMutation.mutate()}
           message="Claim All Rewards. Continue?"
         />
 
