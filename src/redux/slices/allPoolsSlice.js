@@ -196,6 +196,7 @@ export const fetchAllNFTPools = createAsyncThunk(
             stakeInfo,
             maxStakingAmount,
             isMaxStakingAmount: +maxStakingAmount == +nftLP?.totalStaked,
+            rewardPool: formatTokenAmount(nftLP?.rewardPool, nftLP?.tokenDecimal),
           };
         })
       );
