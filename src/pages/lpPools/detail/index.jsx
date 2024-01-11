@@ -1252,7 +1252,6 @@ const MyStakeRewardInfoToken = ({
       );
       return;
     }
-    return;
     if (
       isOldPool &&
       +formatTextAmount(currentAccount?.balance?.inw) <
@@ -1275,56 +1274,67 @@ const MyStakeRewardInfoToken = ({
     }
 
     //Approve
-    toast("Step 1: Approving...");
-
-    let approve = await execContractTx(
-      currentAccount,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      psp22_contract.CONTRACT_ADDRESS,
-      0, //-> value
-      "psp22::approve",
-      poolContract,
-      formatNumToBN(unstakeFee)
-    );
-
-    if (!approve) return;
-
-    await delay(3000);
-
-    toast("Step 2: Process...");
-
-    await execContractTx(
-      currentAccount,
-      "api",
-      lp_pool_contract.CONTRACT_ABI,
-      poolContract,
-      0, //-> value
-      "unstake",
-      formatNumToBN(LPTokenAmount, lptokenDecimal)
-    );
-
-    await APICall.askBEupdate({ type: "lp", poolContract });
-
-    await delay(3000);
-    fetchUserStakeInfo();
-    fetchTokenBalance();
-
-    toast.promise(
-      delay(10000).then(() => {
-        if (currentAccount) {
-          dispatch(fetchAllTokenPools({ currentAccount }));
-          dispatch(fetchUserBalance({ currentAccount, api }));
-        }
-
-        setLPTokenAmount("");
-      }),
-      {
-        loading: "Please wait up to 10s for the data to be updated! ",
-        success: "Done !",
-        error: "Could not fetch data!!!",
+    await new Promise(async (resolve, reject) => {
+      try {
+        toast("Step 1: Approving...");
+        let approve = await execContractTxAndCallAPI(
+          currentAccount,
+          "api",
+          psp22_contract.CONTRACT_ABI,
+          psp22_contract.CONTRACT_ADDRESS,
+          0, //-> value
+          "psp22::approve",
+          async () => resolve(),
+          poolContract,
+          formatNumToBN(unstakeFee)
+        );
+        if (!approve) reject("Approve fail");
+      } catch (error) {
+        console.log(error);
+        reject("Approve fail");
       }
-    );
+    });
+    await delay(500);
+    await new Promise(async (resolve, reject) => {
+      try {
+        toast("Step 2: Process...");
+        const result = await execContractTxAndCallAPI(
+          currentAccount,
+          "api",
+          lp_pool_contract.CONTRACT_ABI,
+          poolContract,
+          0, //-> value
+          "unstake",
+          async () => {
+            await APICall.askBEupdate({ type: "lp", poolContract });
+            await delay(500);
+            fetchUserStakeInfo();
+            fetchTokenBalance();
+
+            toast.promise(
+              delay(5000).then(() => {
+                if (currentAccount) {
+                  dispatch(fetchAllTokenPools({ currentAccount }));
+                  dispatch(fetchUserBalance({ currentAccount, api }));
+                }
+                setLPTokenAmount("");
+                resolve();
+              }),
+              {
+                loading: "Please wait up to 5s for the data to be updated! ",
+                success: "Done !",
+                error: "Could not fetch data!!!",
+              }
+            );
+          },
+          formatNumToBN(LPTokenAmount, lptokenDecimal)
+        );
+        if (!result) reject("Process fail");
+      } catch (error) {
+        console.log(error);
+        reject("Process fail");
+      }
+    });
   }
 
   const [unclaimedRewardToken, setUnclaimedRewardToken] = useState(0);

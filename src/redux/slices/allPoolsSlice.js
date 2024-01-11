@@ -122,9 +122,9 @@ export const fetchAllStakingPools = createAsyncThunk(
               ),
             };
           }
-
           return {
             ...pool,
+            rewardPool: formatTokenAmount(pool?.rewardPool, tokenDecimal),
             stakeInfo,
             totalStaked,
             maxStakingAmount,
@@ -268,7 +268,10 @@ export const fetchAllTokenPools = createAsyncThunk(
               stakeInfo,
               maxStakingAmount,
               totalStaked,
-              rewardPool: formatTokenAmount(tokenLP?.rewardPool, tokenLP?.lptokenDecimal),
+              rewardPool: formatTokenAmount(
+                tokenLP?.rewardPool,
+                tokenLP?.lptokenDecimal
+              ),
               isMaxStakingAmount: maxStakingAmount == totalStaked,
             };
           })

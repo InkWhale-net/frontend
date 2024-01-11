@@ -345,6 +345,7 @@ export const formatDataCellTable = (
     case "rewardPool":
       return (
         <>
+          {/* <Text>{itemObj[header]}</Text> */}
           <Text>{formatNumDynDecimal(itemObj[header], 2)}</Text>
         </>
       );

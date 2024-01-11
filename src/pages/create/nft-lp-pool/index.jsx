@@ -43,6 +43,7 @@ import { nft_pool_generator_contract } from "utils/contracts";
 import { psp22_contract } from "utils/contracts";
 import { useChainContext } from "contexts/ChainContext";
 import { formatTokenAmount } from "utils";
+import { useMutation } from "react-query";
 
 export default function CreateNFTLPPage() {
   const dispatch = useDispatch();
@@ -193,6 +194,15 @@ export default function CreateNFTLPPage() {
     fetchCreateTokenFee();
   }, [currentAccount]);
 
+  const { mutate, isLoading } = useMutation(async () => {
+    try {
+      return await createNFTLPHandler();
+    } catch (error) {
+      console.error("Error in stakeLPMutation:", error);
+      throw error;
+    }
+  });
+
   async function createNFTLPHandler() {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
@@ -294,7 +304,9 @@ export default function CreateNFTLPPage() {
 
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving ${currentChain?.inwName} token...`);
+      toast.success(
+        `Step ${step}: Approving ${currentChain?.inwName} token...`
+      );
       step++;
       let approve = await execContractTx(
         currentAccount,

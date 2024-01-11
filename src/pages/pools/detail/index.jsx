@@ -57,6 +57,9 @@ import { MaxStakeButton } from "./MaxStakeButton";
 import { psp22_contract } from "utils/contracts";
 import { formatTextAmount } from "utils";
 import { chainDenom } from "utils";
+import { useMutation } from "react-query";
+import { execContractTxAndCallAPI } from "utils/contracts";
+import { formatNumToBNEther } from "utils";
 
 export default function PoolDetailPage() {
   const params = useParams();
@@ -482,51 +485,73 @@ const MyStakeRewardInfo = ({
       toast.error(`Unknow error`);
     }
   }
-
+  const stakeMutation = useMutation(async () => {
+    try {
+      return await handleStake();
+    } catch (error) {
+      console.error("Error in stakeMutation:", error);
+      throw error;
+    }
+  });
   async function handleStake() {
     try {
       //Approve
-      toast("Step 1: Approving...");
-
-      let approve = await execContractTx(
-        currentAccount,
-        api,
-        psp22_contract.CONTRACT_ABI,
-        tokenContract,
-        0, //-> value
-        "psp22::approve",
-        poolContract,
-        formatNumToBN(amount, tokenDecimal)
-      );
-      if (!approve) return;
-
-      await delay(3000);
-
-      toast("Step 2: Process...");
-      await execContractTx(
-        currentAccount,
-        api,
-        pool_contract.CONTRACT_ABI,
-        poolContract,
-        0, //-> value
-        "stake",
-        formatNumToBN(amount, tokenDecimal)
-      );
-
-      await APICall.askBEupdate({ type: "pool", poolContract });
+      await new Promise(async (resolve, reject) => {
+        try {
+          toast("Step 1: Approving...");
+          let approve = await execContractTxAndCallAPI(
+            currentAccount,
+            api,
+            psp22_contract.CONTRACT_ABI,
+            tokenContract,
+            0, //-> value
+            "psp22::approve",
+            async () => {
+              resolve();
+            },
+            poolContract,
+            formatNumToBNEther(amount, tokenDecimal)
+          );
+          if (!approve) reject("Approve fail");
+        } catch (error) {
+          console.log(error);
+          reject("Approve fail");
+        }
+      });
+      await delay(500);
+      await new Promise(async (resolve, reject) => {
+        try {
+          toast("Step 2: Process...");
+          const result = await execContractTxAndCallAPI(
+            currentAccount,
+            api,
+            pool_contract.CONTRACT_ABI,
+            poolContract,
+            0, //-> value
+            "stake",
+            async () => {
+              await APICall.askBEupdate({ type: "pool", poolContract });
+              await delay(5000).then(() => {
+                if (currentAccount) {
+                  dispatch(fetchAllStakingPools({ currentAccount }));
+                  dispatch(fetchUserBalance({ currentAccount, api }));
+                }
+                fetchUserStakeInfo();
+                fetchTokenBalance();
+                setAmount("");
+              });
+            },
+            formatNumToBNEther(amount, tokenDecimal)
+          );
+          if (!result) reject("Process fail");
+        } catch (error) {
+          console.log(error);
+          reject("Process fail");
+        }
+      });
     } catch (error) {
       console.log(error);
     }
-
-    await delay(6000).then(() => {
-      if (currentAccount) {
-        dispatch(fetchAllStakingPools({ currentAccount }));
-        dispatch(fetchUserBalance({ currentAccount, api }));
-      }
-      fetchUserStakeInfo();
-      fetchTokenBalance();
-      setAmount("");
-    });
   }
   async function onValidateUnstake() {
     try {
@@ -782,6 +807,7 @@ const MyStakeRewardInfo = ({
               justifyContent="space-between"
             >
               <ConfirmModal
+                isLoading={stakeMutation.isLoading}
                 action="stake"
                 buttonVariant="primary"
                 buttonLabel="Stake"
@@ -790,9 +816,10 @@ const MyStakeRewardInfo = ({
                   !Number(amount) ||
                   isPoolEnded(startTime, duration) ||
                   isPoolNotStart(startTime) ||
-                  !(remainStaking > 0)
+                  !(remainStaking > 0) ||
+                  stakeMutation.isLoading
                 }
-                onClick={handleStake}
+                onClick={() => stakeMutation.mutate()}
                 message={formatMessageStakingPool(
                   "stake",
                   amount,
