@@ -75,7 +75,8 @@ export default function MyPoolsPage() {
     tableBody: myStakingPoolsList?.map((e) => {
       return {
         ...e,
-        totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
+        totalStaked: formatTokenAmount(e?.totalStaked, e?.tokenDecimal),
+        rewardPool: formatTokenAmount(e?.rewardPool, e?.tokenDecimal),
       };
     }),
   };

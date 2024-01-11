@@ -498,8 +498,8 @@ export const formatDataCellTable = (
       return (
         <>
           <Text>
-            {/* {formatNumDynDecimal(itemObj[header])} {itemObj?.tokenSymbol} */}
-            {itemObj[header]}
+            {formatNumDynDecimal(itemObj[header])} {itemObj?.tokenSymbol}
+            {/* {itemObj[header]} */}
           </Text>
         </>
       );

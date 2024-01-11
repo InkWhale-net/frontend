@@ -106,7 +106,7 @@ const FarmDetailPage = () => {
       0,
       "genericPoolContractTrait::inwContract"
     );
-    const inwContract = queryResult.toHuman().Ok;
+    const inwContract = queryResult?.toHuman()?.Ok;
     setIsOldPool(inwContract == psp22_contract.CONTRACT_ADDRESS);
   };
 

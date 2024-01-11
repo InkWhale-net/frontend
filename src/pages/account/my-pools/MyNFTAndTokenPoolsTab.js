@@ -64,7 +64,10 @@ const MyNFTAndTokenPoolsTab = ({ mode }) => {
       },
     ],
 
-    tableBody: myNFTPoolsList,
+    tableBody: myNFTPoolsList?.map((i) => ({
+      ...i,
+      rewardPool: formatTokenAmount(i.rewardPool, i.tokenDecimal),
+    })),
   };
 
   const tableDataToken = {

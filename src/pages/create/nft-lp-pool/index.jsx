@@ -434,6 +434,7 @@ export default function CreateNFTLPPage() {
 
     tableBody: myNFTPoolsList?.map((e) => ({
       ...e,
+      rewardPool: formatTokenAmount(e.rewardPool, e.tokenDecimal),
       maxStakingAmount: formatNumDynDecimal(e?.maxStakingAmount),
     })),
   };

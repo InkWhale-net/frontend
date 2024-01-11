@@ -104,7 +104,7 @@ export default function MyPoolDetailPage() {
       0,
       "genericPoolContractTrait::inwContract"
     );
-    const inwContract = queryResult.toHuman().Ok;
+    const inwContract = queryResult?.toHuman()?.Ok;
     setIsOldPool(inwContract == psp22_contract.CONTRACT_ADDRESS);
   };
   useEffect(() => {
@@ -119,7 +119,15 @@ export default function MyPoolDetailPage() {
     if (item) {
       setState({ mode: "NFT_FARM" });
     }
-    return item;
+
+    return {
+      ...item,
+      tokenTotalSupply: formatTokenAmount(
+        item?.tokenTotalSupply,
+        item?.tokenDecimal
+      ),
+      rewardPool: formatTokenAmount(item?.rewardPool, item?.tokenDecimal),
+    };
   }, [myNFTPoolsList, params]);
 
   const fetchIsOldPoolNFT = async () => {
@@ -131,7 +139,7 @@ export default function MyPoolDetailPage() {
       0,
       "genericPoolContractTrait::inwContract"
     );
-    const inwContract = queryResult.toHuman().Ok;
+    const inwContract = queryResult?.toHuman()?.Ok;
     setIsOldPool(inwContract == psp22_contract.CONTRACT_ADDRESS);
   };
 
@@ -158,7 +166,6 @@ export default function MyPoolDetailPage() {
       item?.tokenTotalSupply,
       +item?.tokenDecimal
     );
-
     if (item)
       return {
         ...item,
@@ -253,11 +260,14 @@ export default function MyPoolDetailPage() {
       ...currentStakingPool,
       totalStaked: formatTokenAmount(
         currentStakingPool?.totalStaked,
-        +currentStakingPool?.lptokenDecimal
+        +currentStakingPool?.tokenDecimal
+      ),
+      rewardPool: formatTokenAmount(
+        currentStakingPool?.rewardPool,
+        +currentStakingPool?.tokenDecimal
       ),
     },
   };
-
   const tokenPoolCardData = {
     cardHeaderList: [
       {
@@ -657,7 +667,7 @@ const MyPoolInfo = ({
       },
       {
         title: "INW Balance",
-        content: `${balance?.inw || 0} INW`,
+        content: `${formatNumDynDecimal(balance?.inw || 0)} INW`,
       },
       {
         title: `${tokenSymbol} Balance`,
@@ -1025,7 +1035,7 @@ const MyPoolInfo = ({
                   mode === "STAKING_POOL"
                     ? `${apy / 100}%`
                     : mode === "NFT_FARM"
-                    ? `${(multiplier / 10 ** 12).toFixed(2)}`
+                    ? `${formatTokenAmount(multiplier, tokenDecimal)}`
                     : mode === "TOKEN_FARM"
                     ? `${multiplier.toFixed(2)}`
                     : `${apy / 100}%`,
@@ -1040,7 +1050,10 @@ const MyPoolInfo = ({
               },
               {
                 title: "Reward Pool",
-                content: `${formatNumDynDecimal(rewardPool, 2)} ${tokenSymbol}`,
+                content: `${formatNumDynDecimal(
+                  formatTokenAmount(rewardPool, tokenDecimal),
+                  2
+                )} ${tokenSymbol}`,
               },
               {
                 title: "Withdrawble Amount",

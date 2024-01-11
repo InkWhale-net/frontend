@@ -433,7 +433,10 @@ export default function CreateStakePoolPage() {
       },
     ],
 
-    tableBody: stakingPoolList,
+    tableBody: stakingPoolList?.map((i) => ({
+      ...i,
+      rewardPool: formatTokenAmount(i.rewardPool, i.tokenDecimal),
+    })),
   };
   return (
     <>
