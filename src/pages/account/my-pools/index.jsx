@@ -126,9 +126,12 @@ export default function MyPoolsPage() {
       },
     ],
 
-    tableBody: allTokensList?.filter(
-      (el) => el.creator === currentAccount?.address
-    ),
+    tableBody: allTokensList
+      ?.filter((el) => el.creator === currentAccount?.address)
+      .map((i) => ({
+        ...i,
+        totalSupply: formatTokenAmount(i.totalSupply, i.decimal),
+      })),
   };
   useEffect(() => {
     if (currentAccount && api)
