@@ -18,6 +18,7 @@ import {
 } from "utils";
 import { execContractTx, psp22_contract } from "utils/contracts";
 import MyAccountTab from "./myAccount";
+import { FINALIZED_TIME } from "constants";
 
 const TokensTabTransferToken = ({
   mode,
@@ -76,7 +77,7 @@ const TokensTabTransferToken = ({
       []
     );
 
-    await delay(2000).then(() => {
+    await delay(FINALIZED_TIME).then(() => {
       setTransferAddress("");
       setTransferAmount("");
       loadTokenInfo();

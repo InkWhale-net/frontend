@@ -151,3 +151,5 @@ export const supportedChain = [
     inwName: "INW",
   },
 ];
+
+export const FINALIZED_TIME = 6000;

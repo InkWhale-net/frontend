@@ -675,7 +675,7 @@ const MyStakeRewardInfo = ({
             title: `${chainDenom[process.env.REACT_APP_CHAIN]} Balance`,
             content: `${balance?.azero || 0} ${
               chainDenom[process.env.REACT_APP_CHAIN]
-            } Balance`,
+            }`,
           },
           {
             title: "INW Balance",

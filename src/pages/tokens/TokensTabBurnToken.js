@@ -1,7 +1,5 @@
 import { Button, Heading, Stack } from "@chakra-ui/react";
-import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
-import IWCardOneColumn from "components/card/CardOneColumn";
 import IWInput from "components/input/Input";
 
 import { useState } from "react";
@@ -12,6 +10,7 @@ import { delay, formatChainStringToNumber, formatNumToBN } from "utils";
 import { execContractTx } from "utils/contracts";
 import { psp22_contract } from "utils/contracts";
 import MyAccountTab from "./myAccount";
+import { FINALIZED_TIME } from "constants";
 
 const TokensTabBurnToken = ({
   mode,
@@ -63,7 +62,7 @@ const TokensTabBurnToken = ({
       formatNumToBN(burnAmount, parseInt(tokenInfo?.decimals))
     );
 
-    await delay(2000).then(() => {
+    await delay(FINALIZED_TIME).then(() => {
       setBurnAmount("");
       loadTokenInfo();
       dispatch(fetchUserBalance({ currentAccount, api }));
