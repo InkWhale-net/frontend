@@ -786,11 +786,12 @@ const MyStakeRewardInfo = ({
                       setAmount(0);
                       return;
                     }
+
                     setAmount(
                       formatTokenAmount(
                         stakeInfo?.stakedValue,
                         tokenDecimal
-                      ).toString()
+                      )?.toString()
                     );
                   }}
                 />

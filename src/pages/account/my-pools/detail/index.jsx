@@ -316,9 +316,12 @@ export default function MyPoolDetailPage() {
 
     cardValue: {
       ...currentTokenPool,
+      rewardPool: formatTokenAmount(
+        currentTokenPool?.rewardPool,
+        currentTokenPool?.tokenDecimal
+      ),
     },
   };
-
   const nftPoolCardData = {
     cardHeaderList: [
       {
