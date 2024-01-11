@@ -87,7 +87,12 @@ export default function MyPoolDetailPage() {
     if (item) {
       setState({ mode: "STAKING_POOL" });
     }
-    return item;
+    const tokenTotalSupply = formatTokenAmount(
+      item?.tokenTotalSupply,
+      item?.tokenDecimal
+    );
+
+    return { ...item, tokenTotalSupply };
   }, [myStakingPoolsList, params]);
 
   const fetchIsOldStakingPool = async () => {
