@@ -493,6 +493,14 @@ const MyStakeRewardInfo = ({
       throw error;
     }
   });
+  const unStakeMutation = useMutation(async () => {
+    try {
+      return await handleUnstake();
+    } catch (error) {
+      console.error("Error in UnStakeMutation:", error);
+      throw error;
+    }
+  });
   async function handleStake() {
     try {
       //Approve
@@ -539,6 +547,7 @@ const MyStakeRewardInfo = ({
                 fetchUserStakeInfo();
                 fetchTokenBalance();
                 setAmount("");
+                resolve();
               });
             },
             formatNumToBNEther(amount, tokenDecimal)
@@ -621,45 +630,58 @@ const MyStakeRewardInfo = ({
   }
   async function handleUnstake() {
     //Approve
-    toast("Step 1: Approving...");
-
-    let approve = await execContractTx(
-      currentAccount,
-      api,
-      psp22_contract.CONTRACT_ABI,
-      psp22_contract.CONTRACT_ADDRESS,
-      0, //-> value
-      "psp22::approve",
-      poolContract,
-      formatNumToBN(unstakeFee)
-    );
-
-    if (!approve) return;
-
-    await delay(3000);
-
-    toast("Step 2: Process...");
-
-    await execContractTx(
-      currentAccount,
-      api,
-      pool_contract.CONTRACT_ABI,
-      poolContract,
-      0, //-> value
-      "unstake",
-      formatNumToBN(amount, tokenDecimal)
-    );
-
-    await APICall.askBEupdate({ type: "pool", poolContract });
-
-    await delay(6000).then(() => {
-      if (currentAccount) {
-        dispatch(fetchAllStakingPools({ currentAccount }));
-        dispatch(fetchUserBalance({ currentAccount, api }));
+    await new Promise(async (resolve, reject) => {
+      try {
+        toast("Step 1: Approving...");
+        let approve = await execContractTxAndCallAPI(
+          currentAccount,
+          api,
+          psp22_contract.CONTRACT_ABI,
+          psp22_contract.CONTRACT_ADDRESS,
+          0, //-> value
+          "psp22::approve",
+          async () => resolve(),
+          poolContract,
+          formatNumToBNEther(unstakeFee)
+        );
+        if (!approve) reject("Approve fail");
+      } catch (error) {
+        console.log(error);
+        reject("Approve fail");
       }
-      fetchUserStakeInfo();
-      fetchTokenBalance();
-      setAmount("");
+    });
+    await delay(500);
+
+    await new Promise(async (resolve, reject) => {
+      try {
+        toast("Step 2: Process...");
+        const result = await execContractTxAndCallAPI(
+          currentAccount,
+          api,
+          pool_contract.CONTRACT_ABI,
+          poolContract,
+          0, //-> value
+          "unstake",
+          async () => {
+            await APICall.askBEupdate({ type: "pool", poolContract });
+            await delay(5000).then(() => {
+              if (currentAccount) {
+                dispatch(fetchAllStakingPools({ currentAccount }));
+                dispatch(fetchUserBalance({ currentAccount, api }));
+              }
+              fetchUserStakeInfo();
+              fetchTokenBalance();
+              setAmount("");
+              resolve();
+            });
+          },
+          formatNumToBNEther(amount, tokenDecimal)
+        );
+        if (!result) reject("Approve fail");
+      } catch (error) {
+        console.log(error);
+        reject("Process fail");
+      }
     });
   }
 
@@ -830,11 +852,16 @@ const MyStakeRewardInfo = ({
               />
 
               <ConfirmModal
+                isLoading={unStakeMutation.isLoading}
                 action="unstake"
                 buttonVariant="primary"
                 buttonLabel="Unstake"
-                disableBtn={!Number(amount) || !(totalStaked > 0)}
-                onClick={handleUnstake}
+                disableBtn={
+                  !(+amount > 0) ||
+                  !(totalStaked > 0) ||
+                  unStakeMutation.isLoading
+                }
+                onClick={() => unStakeMutation.mutate()}
                 onValidate={onValidateUnstake}
                 message={formatMessageStakingPool(
                   "unstake",
