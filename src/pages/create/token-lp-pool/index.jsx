@@ -678,19 +678,6 @@ export default function CreateTokenLPPage() {
           >
             Create Pool
           </Button>
-          <Button
-            w="full"
-            maxW={{ lg: "260px" }}
-            isLoading={isLoading}
-            onClick={() => {
-              APICall.askBEupdate({
-                type: "lp",
-                poolContract: "new",
-              });
-            }}
-          >
-            updasda
-          </Button>
         </VStack>
       </SectionContainer>
 
