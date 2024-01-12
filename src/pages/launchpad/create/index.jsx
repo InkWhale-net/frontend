@@ -38,7 +38,7 @@ function CreateLaunchpadLayout() {
       "launchpadGeneratorTrait::getCreationFee"
     );
     const fee = result.toHuman().Ok;
-    setCreateFee(formatNumDynDecimal(formatTokenAmount(fee, 12)));
+    setCreateFee(formatNumDynDecimal(formatTokenAmount(fee, 18)));
   };
 
   useEffect(() => {
@@ -52,7 +52,7 @@ function CreateLaunchpadLayout() {
       description={
         <>
           The premier destination to launch your PSP22 token on Aleph Zero
-          Network. This action requires {createFee} INW2.
+          Network. This action requires {createFee} INW.
         </>
       }
     >

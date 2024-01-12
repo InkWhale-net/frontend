@@ -82,8 +82,8 @@ const BalanceCard = ({ launchpadData }) => {
           }}
         />
         <Row label="INW" value={currentAccount?.balance?.inw} />
-        <Row label="INW2" value={currentAccount?.balance?.inw2} />
-        <Row label="AZERO" value={currentAccount?.balance?.azero} />
+        {/* <Row label="INW2" value={currentAccount?.balance?.inw2} /> */}
+        <Row label="5IRE" value={currentAccount?.balance?.azero} />
 
         <Row
           label={launchpadData?.projectInfo?.token?.symbol}
