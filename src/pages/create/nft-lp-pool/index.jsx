@@ -44,6 +44,9 @@ import { psp22_contract } from "utils/contracts";
 import { useChainContext } from "contexts/ChainContext";
 import { formatTokenAmount } from "utils";
 import { useMutation } from "react-query";
+import { formatQueryResultToNumberEthers } from "utils";
+import { formatTextAmount } from "utils";
+import { formatNumToBNEther } from "utils";
 
 export default function CreateNFTLPPage() {
   const dispatch = useDispatch();
@@ -263,123 +266,136 @@ export default function CreateNFTLPPage() {
     endDate?.setDate(startTime?.getDate() + parseInt(duration));
     if (!!endDate) {
       const currentDate = new Date();
-      if (startTime < currentDate || endDate < currentDate) {
-        toast.error(`Pool can not start or end in the past`);
+      if (endDate < currentDate) {
+        toast.error(`Pool can not end in the past`);
         return;
       }
     } else {
       toast.error(`Invalid start Date & Time`);
       return;
     }
-
-    const allowanceINWQr = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      psp22_contract.CONTRACT_ADDRESS,
-      0, //-> value
-      "psp22::allowance",
-      currentAccount?.address,
-      nft_pool_generator_contract.CONTRACT_ADDRESS
-    );
-    const allowanceINW = formatQueryResultToNumber(allowanceINWQr).replaceAll(
-      ",",
-      ""
-    );
-    const allowanceTokenQr = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      selectedContractAddr,
-      0, //-> value
-      "psp22::allowance",
-      currentAccount?.address,
-      nft_pool_generator_contract.CONTRACT_ADDRESS
-    );
-    const allowanceToken = formatQueryResultToNumber(
-      allowanceTokenQr,
-      selectedTokenDecimal
-    ).replaceAll(",", "");
-    let step = 1;
-
-    //Approve
-    if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success(
-        `Step ${step}: Approving ${currentChain?.inwName} token...`
-      );
-      step++;
-      let approve = await execContractTx(
-        currentAccount,
-        "api",
-        psp22_contract.CONTRACT_ABI,
-        psp22_contract.CONTRACT_ADDRESS,
-        0, //-> value
-        "psp22::approve",
-        nft_pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
-      );
-      if (!approve) return;
-    }
-    if (allowanceToken < minReward.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving ${tokenSymbol} token...`);
-      step++;
-      let approve = await execContractTx(
-        currentAccount,
-        "api",
-        psp22_contract.CONTRACT_ABI,
-        selectedContractAddr,
-        0, //-> value
-        "psp22::approve",
-        nft_pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
-      );
-      if (!approve) return;
-    }
-
-    await delay(3000);
-
-    toast.success(`Step ${step}: Process ...`);
-
-    await execContractTxAndCallAPI(
-      currentAccount,
-      "api",
-      nft_pool_generator_contract.CONTRACT_ABI,
-      nft_pool_generator_contract.CONTRACT_ADDRESS,
-      0, //-> value
-      "newPool",
-      () => APICall.askBEupdate({ type: "nft", poolContract: "new" }),
-      currentAccount?.address,
-      selectedCollectionAddr,
-      selectedContractAddr,
-      maxStake,
-      formatNumToBN(multiplier, selectedTokenDecimal),
-      roundUp(duration * 24 * 60 * 60 * 1000, 0),
-      startTime.getTime()
-    );
-
-    await APICall.askBEupdate({ type: "nft", poolContract: "new" });
-    await delay(3000);
-    setMultiplier("");
-    setDuration("");
-    setStartTime(new Date());
-    // setSelectedContractAddr("");
-    // setSelectedCollectionAddr("");
-
-    toast.promise(
-      delay(10000).then(() => {
-        if (currentAccount) {
-          dispatch(fetchMyNFTPools({ currentAccount }));
-          dispatch(fetchUserBalance({ currentAccount, api }));
-        }
-
-        fetchTokenBalance();
-      }),
-      {
-        loading: "Please wait 10s for the data to be updated! ",
-        success: "Done !",
-        error: "Could not fetch data!!!",
+    // approve fee
+    await new Promise(async (resolve, reject) => {
+      try {
+        const allowanceINWQr = await execContractQuery(
+          currentAccount?.address,
+          "api",
+          psp22_contract.CONTRACT_ABI,
+          psp22_contract.CONTRACT_ADDRESS,
+          0, //-> value
+          "psp22::allowance",
+          currentAccount?.address,
+          nft_pool_generator_contract.CONTRACT_ADDRESS
+        );
+        const allowanceINW = formatQueryResultToNumberEthers(allowanceINWQr)
+        if (+allowanceINW < +formatTextAmount(createTokenFee)) {
+          toast(
+            `Approving ${currentChain?.inwName} token...`
+          );
+          let approve = await execContractTxAndCallAPI(
+            currentAccount,
+            "api",
+            psp22_contract.CONTRACT_ABI,
+            psp22_contract.CONTRACT_ADDRESS,
+            0, //-> value
+            "psp22::approve",
+            async () => resolve(),
+            nft_pool_generator_contract.CONTRACT_ADDRESS,
+            formatNumToBNEther(createTokenFee)
+          );
+          if (!approve) reject("Approve fail");
+        } else resolve()
+      } catch (error) {
+        console.log(error);
+        reject("Approve fail")
       }
-    );
+    })
+    // approve reward pool
+    await new Promise(async (resolve, reject) => {
+      try {
+        const allowanceTokenQr = await execContractQuery(
+          currentAccount?.address,
+          "api",
+          psp22_contract.CONTRACT_ABI,
+          selectedContractAddr,
+          0, //-> value
+          "psp22::allowance",
+          currentAccount?.address,
+          nft_pool_generator_contract.CONTRACT_ADDRESS
+        );
+        const allowanceToken = formatQueryResultToNumberEthers(allowanceTokenQr, selectedTokenDecimal)
+        if (+allowanceToken < +formatTextAmount(minReward)) {
+          toast(`Approving ${tokenSymbol} token...`);
+          let approve = await execContractTxAndCallAPI(
+            currentAccount,
+            "api",
+            psp22_contract.CONTRACT_ABI,
+            selectedContractAddr,
+            0, //-> value
+            "psp22::approve",
+            async () => resolve(),
+            nft_pool_generator_contract.CONTRACT_ADDRESS,
+            formatNumToBNEther(formatTextAmount(minReward), selectedTokenDecimal)
+          );
+          if (!approve) reject("Approve fail");
+        } else resolve()
+      } catch (error) {
+        console.log(error);
+        reject("Approve fail")
+      }
+    })
+    await delay(500);
+    toast(`Process ...`);
+    await new Promise(async (resolve, reject) => {
+      try {
+        const result = await execContractTxAndCallAPI(
+          currentAccount,
+          "api",
+          nft_pool_generator_contract.CONTRACT_ABI,
+          nft_pool_generator_contract.CONTRACT_ADDRESS,
+          0, //-> value
+          "newPool",
+          async (newContractAddress) => {
+            console.log("newContractAddress", newContractAddress);
+            APICall.askBEupdate({ type: "nft", poolContract: "new" })
+            await delay(1000);
+            setMultiplier("");
+            setDuration("");
+            setStartTime(new Date());
+            setSelectedContractAddr("");
+            setSelectedCollectionAddr("");
+            setMaxStake("")
+            toast.promise(
+              delay(10000).then(() => {
+                if (currentAccount) {
+                  dispatch(fetchMyNFTPools({ currentAccount }));
+                  dispatch(fetchUserBalance({ currentAccount, api }));
+                }
+
+                fetchTokenBalance();
+                resolve()
+              }),
+              {
+                loading: "Please wait 10s for the data to be updated! ",
+                success: "Done !",
+                error: "Could not fetch data!!!",
+              }
+            );
+          },
+          currentAccount?.address,
+          selectedCollectionAddr,
+          selectedContractAddr,
+          maxStake,
+          formatNumToBN(multiplier, selectedTokenDecimal),
+          roundUp(duration * 24 * 60 * 60 * 1000, 0),
+          startTime.getTime()
+        )
+        if (!result) reject("Process reject fail")
+      } catch (error) {
+        console.log(error);
+        reject("Process reject fail")
+      }
+    })
   }
   const { myNFTPoolsList, loading } = useSelector((s) => s.myPools);
 
@@ -560,9 +576,8 @@ export default function CreateNFTLPPage() {
                 }}
                 options={faucetTokensList?.map((token, idx) => ({
                   value: token?.contractAddress,
-                  label: `${token?.symbol} (${
-                    token?.name
-                  }) - ${addressShortener(token?.contractAddress)}`,
+                  label: `${token?.symbol} (${token?.name
+                    }) - ${addressShortener(token?.contractAddress)}`,
                 }))}
               ></SelectSearch>
             </Box>
@@ -614,11 +629,10 @@ export default function CreateNFTLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${
-                  formatNumDynDecimal(
-                    currentAccount?.balance?.inw2?.replaceAll(",", "")
-                  ) || 0
-                } ${currentChain?.inwName}`}
+                value={`${formatNumDynDecimal(
+                  currentAccount?.balance?.inw2?.replaceAll(",", "")
+                ) || 0
+                  } ${currentChain?.inwName}`}
                 label={`Your ${currentChain?.inwName} Balance`}
               />
             </Box>
@@ -697,7 +711,7 @@ export default function CreateNFTLPPage() {
             </Box>
           </SimpleGrid>
 
-          <Button w="full" maxW={{ lg: "260px" }} onClick={createNFTLPHandler}>
+          <Button isLoading={isLoading} disabled={isLoading} w="full" maxW={{ lg: "260px" }} onClick={() => mutate()}>
             Create NFT Staking Pool
           </Button>
         </VStack>
