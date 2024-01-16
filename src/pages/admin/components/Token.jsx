@@ -1,16 +1,9 @@
 import { Button } from "@chakra-ui/react";
-import { BN } from "@polkadot/util";
 import SectionContainer from "components/container/SectionContainer";
 import { useAppContext } from "contexts/AppContext";
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { formatNumToBNEther } from "utils";
-import { formatNumToBN } from "utils";
-import { token_generator_contract } from "utils/contracts";
-import { psp22_contract } from "utils/contracts";
-import { execContractQuery } from "utils/contracts";
-import { execContractTx } from "utils/contracts";
+import { execContractTx, psp22_contract } from "utils/contracts";
 
 const Token = () => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -27,7 +20,6 @@ const Token = () => {
     //   // currentAccount.address,
     //   formatNumToBNEther(1)
     // );
-    console.log(formatNumToBNEther(1).toString());
     // execContractTx(
     //   {
     //     ...currentAccount,
@@ -41,15 +33,25 @@ const Token = () => {
     //   formatNumToBNEther(1)
     // );
 
-    // const queryResult = await execContractQuery(
-    //   currentAccount?.address,
+    const queryResult = await execContractTx(
+      currentAccount,
+      api,
+      psp22_contract.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ADDRESS,
+      0,
+      "psp22Mintable::mint",
+      currentAccount.address,
+      "10000000000000000000"
+    );
+    // const queryResult = await execContractTx(
+    //   currentAccount,
     //   api,
     //   psp22_contract.CONTRACT_ABI,
     //   psp22_contract.CONTRACT_ADDRESS,
     //   0,
-    //   "psp22Mintable::mint",
+    //   "accessControl::grantRole",
+    //   "4254773782",
     //   currentAccount.address,
-    //   formatNumToBN(1000000)
     // );
   };
   return (
