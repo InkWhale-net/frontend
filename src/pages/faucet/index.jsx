@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import {
   Box,
   Button,
@@ -49,105 +48,106 @@ import { psp22_contract_v2 } from "utils/contracts";
 import { psp22_contract } from "utils/contracts";
 import { swap_inw2_contract } from "utils/contracts";
 import { useChainContext } from "contexts/ChainContext";
+import {formatNumToBNEther} from "utils";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
 
 export default function FaucetPage({ api }) {
-  // const { currentAccount } = useSelector((s) => s.wallet);
-  // const { allTokensList } = useSelector((s) => s.allPools);
-  // const { unitDecimal } = useChainContext();
+  const { currentAccount } = useSelector((s) => s.wallet);
+  const { allTokensList } = useSelector((s) => s.allPools);
+  const { unitDecimal } = useChainContext();
 
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-  // const inwBalance = currentAccount?.balance?.inw ?? 0;
-  // const azeroBalance = currentAccount?.balance?.azero ?? 0;
-  // const [selectedContractAddress, setSelectedContractAddress] = useState(null);
+  const inwBalance = currentAccount?.balance?.inw ?? 0;
+  const azeroBalance = currentAccount?.balance?.azero ?? 0;
+  const [selectedContractAddress, setSelectedContractAddress] = useState(null);
 
-  // const [inwTotalSupply, setInwTotalSupply] = useState(0);
-  // const [availableMint, setAvailableMint] = useState("");
-  // const [inwBuyAmount, setInwBuyAmount] = useState("");
-  // const [azeroBuyAmount, setAzeroBuyAmount] = useState("");
-  // const [inwInCur, setInwInCur] = useState(0);
-  // const [swappedV2Amount, setSwappedV2Amount] = useState(0);
-  // const [inwPrice, setInwPrice] = useState(0);
-  // const [tabIndex, setTabIndex] = useState(0);
-  // const [saleInfo, setSaleInfo] = useState({});
-  // const [inwBurn, setInwBurn] = useState(0);
+  const [inwTotalSupply, setInwTotalSupply] = useState(0);
+  const [availableMint, setAvailableMint] = useState("");
+  const [inwBuyAmount, setInwBuyAmount] = useState("");
+  const [azeroBuyAmount, setAzeroBuyAmount] = useState("");
+  const [inwInCur, setInwInCur] = useState(0);
+  const [swappedV2Amount, setSwappedV2Amount] = useState(0);
+  const [inwPrice, setInwPrice] = useState(0);
+  const [tabIndex, setTabIndex] = useState(0);
+  const [saleInfo, setSaleInfo] = useState({});
+  const [inwBurn, setInwBurn] = useState(0);
 
-  // const [accountInfo, setAccountInfo] = useState(null);
-  // // eslint-disable-next-line no-unused-vars
-  // const [accountInfoLoading, setAccountInfoLoading] = useState(false);
-  // const publicCurrentAccount = getPublicCurrentAccount();
+  const [accountInfo, setAccountInfo] = useState(null);
+  // eslint-disable-next-line no-unused-vars
+  const [accountInfoLoading, setAccountInfoLoading] = useState(false);
+  const publicCurrentAccount = getPublicCurrentAccount();
 
-  // const prepareAccountInfoData = useCallback(() => {
-  //   setAccountInfoLoading(true);
+  const prepareAccountInfoData = useCallback(() => {
+    setAccountInfoLoading(true);
 
-  //   const fetch = async () => {
-  //     let ret = [
-  //       {
-  //         title: "Account Address",
-  //         content: !currentAccount?.address ? (
-  //           "No account selected"
-  //         ) : (
-  //           <AddressCopier address={currentAccount?.address} />
-  //         ),
-  //       },
-  //       { title: "Azero Balance", content: `${azeroBalance} AZERO` },
-  //       { title: "INW Balance", content: `${inwBalance} INW` },
-  //     ];
+    const fetch = async () => {
+      let ret = [
+        {
+          title: "Account Address",
+          content: !currentAccount?.address ? (
+            "No account selected"
+          ) : (
+            <AddressCopier address={currentAccount?.address} />
+          ),
+        },
+        { title: "Azero Balance", content: `${azeroBalance} AZERO` },
+        { title: "INW Balance", content: `${inwBalance} INW` },
+      ];
 
-  //     try {
-  //       if (selectedContractAddress) {
-  //         let balance = await execContractQuery(
-  //           currentAccount?.address,
-  //           api,
-  //           azt_contract.CONTRACT_ABI,
-  //           selectedContractAddress,
-  //           0,
-  //           "psp22::balanceOf",
-  //           currentAccount?.address
-  //         );
+      try {
+        if (selectedContractAddress) {
+          let balance = await execContractQuery(
+            currentAccount?.address,
+            api,
+            azt_contract.CONTRACT_ABI,
+            selectedContractAddress,
+            0,
+            "psp22::balanceOf",
+            currentAccount?.address
+          );
 
-  //         const symbol = allTokensList.find(
-  //           (item) => item.contractAddress === selectedContractAddress
-  //         )?.symbol;
+          const symbol = allTokensList.find(
+            (item) => item.contractAddress === selectedContractAddress
+          )?.symbol;
 
-  //         ret.push({
-  //           title: `${symbol} Balance`,
-  //           content: `${formatQueryResultToNumber(balance)} ${symbol}`,
-  //         });
-  //       }
-  //       setAccountInfoLoading(false);
-  //       setAccountInfo((prev) => {
-  //         return ret;
-  //       });
-  //     } catch (error) {
-  //       setAccountInfoLoading(false);
-  //       toast.error(error.message);
-  //       console.log("error", error);
-  //     }
-  //   };
-  //   fetch();
-  // }, [
-  //   api,
-  //   azeroBalance,
-  //   currentAccount?.address,
-  //   allTokensList,
-  //   selectedContractAddress,
-  //   inwBalance,
-  // ]);
+          ret.push({
+            title: `${symbol} Balance`,
+            content: `${formatQueryResultToNumber(balance)} ${symbol}`,
+          });
+        }
+        setAccountInfoLoading(false);
+        setAccountInfo((prev) => {
+          return ret;
+        });
+      } catch (error) {
+        setAccountInfoLoading(false);
+        toast.error(error.message);
+        console.log("error", error);
+      }
+    };
+    fetch();
+  }, [
+    api,
+    azeroBalance,
+    currentAccount?.address,
+    allTokensList,
+    selectedContractAddress,
+    inwBalance,
+  ]);
 
-  // const getPriceInw = async (token) => {
-  //   let price = await execContractQuery(
-  //     publicCurrentAccount?.address,
-  //     api,
-  //     token.CONTRACT_ABI,
-  //     token.CONTRACT_ADDRESS,
-  //     0,
-  //     "genericTokenSaleTrait::inwPrice"
-  //   );
-  //   setInwPrice(formatQueryResultToNumber(price));
-  // };
+  const getPriceInw = async (token) => {
+    let price = await execContractQuery(
+      publicCurrentAccount?.address,
+      api,
+      token.CONTRACT_ABI,
+      token.CONTRACT_ADDRESS,
+      0,
+      "genericTokenSaleTrait::inwPrice"
+    );
+    setInwPrice(formatQueryResultToNumber(price));
+  };
 
   // const getSaleInfo = async (token) => {
   //   let query1 = execContractQuery(
@@ -262,7 +262,9 @@ export default function FaucetPage({ api }) {
   //     +balanceTotalInwQr?.toHuman().Ok?.replaceAll(",", "") -
   //     +balancePurchaseInwQr?.toHuman().Ok?.replaceAll(",", "");
   //   const result = endTime?.toHuman()?.Ok?.replaceAll(",", "");
+  //   console.log('result', result)
   //   const startTime = startTimeQr?.toHuman()?.Ok?.replaceAll(",", "");
+  //   console.log('startTime', startTime)
   //   const result2 = buyInfoQr?.toHuman()?.Ok;
   //   const result3 = balanceTotalInwQr?.toHuman()?.Ok;
   //   const buyInfo = {
@@ -297,597 +299,604 @@ export default function FaucetPage({ api }) {
   //   });
   // };
 
-  // useEffect(() => {
-  //   prepareAccountInfoData();
-  // }, [prepareAccountInfoData]);
+  useEffect(() => {
+    prepareAccountInfoData();
+  }, [prepareAccountInfoData]);
 
-  // const getBalanceINWOfAddress = (address) => {
-  //   return execContractQuery(
-  //     publicCurrentAccount?.address,
-  //     api,
-  //     azt_contract.CONTRACT_ABI,
-  //     azt_contract.CONTRACT_ADDRESS,
-  //     0,
-  //     "psp22::balanceOf",
-  //     address
-  //   );
-  // };
+  const getBalanceINWOfAddress = (address) => {
+    return execContractQuery(
+      publicCurrentAccount?.address,
+      api,
+      azt_contract.CONTRACT_ABI,
+      azt_contract.CONTRACT_ADDRESS,
+      0,
+      "psp22::balanceOf",
+      address
+    );
+  };
 
-  // const getInwMintingCapAndTotalSupply = useCallback(async () => {
-  //   if (!api) {
-  //     setInwTotalSupply(0);
-  //     return;
-  //   }
-  //   try {
-  //     if (!inwTotalSupply) {
-  //       const INWTotalSupplyResponse = await APICall.getINWTotalSupply();
-  //       if (INWTotalSupplyResponse?.status === "OK") {
-  //         setInwTotalSupply(
-  //           formatNumDynDecimal(
-  //             roundUp(
-  //               formatTokenAmount(
-  //                 INWTotalSupplyResponse?.ret?.totalSupply,
-  //                 12
-  //               ) || 0,
-  //               4
-  //             )
-  //           )
-  //         );
-  //         const queryContractBalance = await execContractQuery(
-  //           publicCurrentAccount?.address,
-  //           api,
-  //           psp22_contract_v2.CONTRACT_ABI,
-  //           psp22_contract.CONTRACT_ADDRESS,
-  //           0,
-  //           "psp22::balanceOf",
-  //           swap_inw2_contract.CONTRACT_ADDRESS
-  //         );
-  //         const contractBalance = queryContractBalance?.toHuman()?.Ok;
-  //         setSwappedV2Amount(formatTokenAmount(contractBalance, 12));
-  //         if (!inwBurn) {
-  //           let result1 = await execContractQuery(
-  //             process.env.REACT_APP_PUBLIC_ADDRESS,
-  //             api,
-  //             azt_contract.CONTRACT_ABI,
-  //             azt_contract.CONTRACT_ADDRESS,
-  //             0,
-  //             "psp22Capped::cap"
-  //           );
-  //           const inwTotalSupplyCap = formatQueryResultToNumber(result1);
-  //           setInwBurn(
-  //             +formatTextAmount(inwTotalSupplyCap) -
-  //               formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
-  //           );
-  //         }
-  //       } else {
-  //         toast.error("Get In inCirculation fail");
-  //       }
-  //     }
+  const getInwMintingCapAndTotalSupply = useCallback(async () => {
+    if (!api) {
+      setInwTotalSupply(0);
+      return;
+    }
+    try {
+      if (!inwTotalSupply) {
+        const INWTotalSupplyResponse = await APICall.getINWTotalSupply();
+        if (INWTotalSupplyResponse?.status === "OK") {
+          setInwTotalSupply(
+            formatNumDynDecimal(
+              roundUp(
+                formatTokenAmount(
+                  INWTotalSupplyResponse?.ret?.totalSupply,
+                  12
+                ) || 0,
+                4
+              )
+            )
+          );
+          const queryContractBalance = await execContractQuery(
+            publicCurrentAccount?.address,
+            api,
+            psp22_contract_v2.CONTRACT_ABI,
+            psp22_contract.CONTRACT_ADDRESS,
+            0,
+            "psp22::balanceOf",
+            swap_inw2_contract.CONTRACT_ADDRESS
+          );
+          const contractBalance = queryContractBalance?.toHuman()?.Ok;
+          setSwappedV2Amount(formatTokenAmount(contractBalance, 12));
+          if (!inwBurn) {
+            let result1 = await execContractQuery(
+              process.env.REACT_APP_PUBLIC_ADDRESS,
+              api,
+              azt_contract.CONTRACT_ABI,
+              azt_contract.CONTRACT_ADDRESS,
+              0,
+              "psp22Capped::cap"
+            );
+            const inwTotalSupplyCap = formatQueryResultToNumber(result1);
+            setInwBurn(
+              +formatTextAmount(inwTotalSupplyCap) -
+                formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
+            );
+          }
+        } else {
+          toast.error("Get In inCirculation fail");
+        }
+      }
 
-  //     if (!inwInCur) {
-  //       const INWInCirculationResponse = await APICall.getINWInCirculation();
-  //       if (INWInCirculationResponse?.status === "OK") {
-  //         setInwInCur(
-  //           formatNumDynDecimal(INWInCirculationResponse.ret.inCirculation, 2)
-  //         );
-  //       } else {
-  //         toast.error("Get In inCirculation fail");
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.error("unknow error");
-  //   }
-  // }, [api]);
+      if (!inwInCur) {
+        const INWInCirculationResponse = await APICall.getINWInCirculation();
+        if (INWInCirculationResponse?.status === "OK") {
+          setInwInCur(
+            formatNumDynDecimal(INWInCirculationResponse.ret.inCirculation, 2)
+          );
+        } else {
+          toast.error("Get In inCirculation fail");
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("unknow error");
+    }
+  }, [api]);
 
-  // const isSaleEnded = useMemo(
-  //   () => Date.now() >= saleInfo?.endTimeSale,
-  //   [saleInfo?.endTimeSale]
-  // );
+  const isSaleEnded = useMemo(
+    () => Date.now() >= saleInfo?.endTimeSale,
+    [saleInfo?.endTimeSale]
+  );
 
-  // const notSaleStart = useMemo(
-  //   () => Date.now() < saleInfo?.startTimeSale,
-  //   [saleInfo?.startTimeSale]
-  // );
+  const notSaleStart = useMemo(
+    () => Date.now() < saleInfo?.startTimeSale,
+    [saleInfo?.startTimeSale]
+  );
 
-  // const disableBuyBtn = useMemo(() => {
-  //   return (
-  //     inwBuyAmount * parseFloat(inwPrice) >=
-  //       formatChainStringToNumber(azeroBalance) ||
-  //     isSaleEnded ||
-  //     notSaleStart ||
-  //     availableMint?.replaceAll(",", "") < +inwBuyAmount ||
-  //     !(inwBuyAmount > 0)
-  //   );
-  // }, [
-  //   azeroBalance,
-  //   inwBuyAmount,
-  //   inwPrice,
-  //   notSaleStart,
-  //   isSaleEnded,
-  //   availableMint,
-  // ]);
+  const disableBuyBtn = useMemo(() => {
+    return (
+      inwBuyAmount * parseFloat(inwPrice) >=
+        formatChainStringToNumber(azeroBalance) ||
+      isSaleEnded ||
+      notSaleStart ||
+      availableMint?.replaceAll(",", "") < +inwBuyAmount ||
+      !(inwBuyAmount > 0)
+    );
+  }, [
+    azeroBalance,
+    inwBuyAmount,
+    inwPrice,
+    notSaleStart,
+    isSaleEnded,
+    availableMint,
+  ]);
 
-  // const getBalanceContract = async (token) => {
-  //   let balance = await execContractQuery(
-  //     publicCurrentAccount?.address,
-  //     api,
-  //     azt_contract.CONTRACT_ABI,
-  //     azt_contract.CONTRACT_ADDRESS,
-  //     0,
-  //     "psp22::balanceOf",
-  //     token.CONTRACT_ADDRESS
-  //   );
-  //   setAvailableMint(
-  //     formatQueryResultToNumber(balance).replace(".0000", ".00")
-  //   );
-  // };
-  // const getPublicsaleInfo = async (token) => {
-  //   let endTime = await execContractQuery(
-  //     publicCurrentAccount?.address,
-  //     api,
-  //     token.CONTRACT_ABI,
-  //     token.CONTRACT_ADDRESS,
-  //     0,
-  //     "genericTokenSaleTrait::endTime"
-  //   );
-  //   setSaleInfo({
-  //     ...saleInfo,
-  //     endTimeSale: endTime?.toHuman()?.Ok?.replaceAll(",", ""),
-  //   });
-  // };
+  const getBalanceContract = async (token) => {
+    let balance = await execContractQuery(
+      publicCurrentAccount?.address,
+      api,
+      psp22_contract.CONTRACT_ABI,
+      psp22_contract.CONTRACT_ADDRESS,
+      0,
+      "psp22::balanceOf",
+      token.CONTRACT_ADDRESS
+    );
+    setAvailableMint(
+      formatQueryResultToNumber(balance, 18).replace(".0000", ".00")
+    );
+  };
+  const getPublicsaleInfo = async (token) => {
+    let endTime = await execContractQuery(
+      publicCurrentAccount?.address,
+      api,
+      token.CONTRACT_ABI,
+      token.CONTRACT_ADDRESS,
+      0,
+      "genericTokenSaleTrait::endTime"
+    );
+    const time = endTime.toHuman().Ok.replaceAll(",", "");
+    console.log("endTime", time);
 
-  // useEffect(() => {
-  //   getInwMintingCapAndTotalSupply();
-  // }, [api, getInwMintingCapAndTotalSupply]);
+    const date = new Date(Number(time)).toLocaleString("en-US");
+    console.log("date", date);
 
-  // const getInfo = () => {
-  //   if (tabIndex === 0) {
-  //     getPriceInw(private_sale);
-  //     getSaleInfo(private_sale);
-  //     // getBalanceContract(private_sale);
-  //   } else {
-  //     getPublicsaleInfo(public_sale_contract);
-  //     getPriceInw(public_sale_contract);
-  //     getBalanceContract(public_sale_contract);
-  //   }
-  // };
+    setSaleInfo({
+      ...saleInfo,
+      endTimeSale: endTime?.toHuman()?.Ok?.replaceAll(",", ""),
+    });
+  };
 
-  // useEffect(() => {
-  //   if (!(api && publicCurrentAccount?.address)) return;
-  //   getInfo();
-  //   resetField();
-  // }, [tabIndex]);
+  useEffect(() => {
+    getInwMintingCapAndTotalSupply();
+  }, [api, getInwMintingCapAndTotalSupply]);
 
-  // useEffect(() => {
-  //   if (!(api && publicCurrentAccount?.address)) return;
-  //   getInfo();
-  // }, [api, currentAccount]);
+  const getInfo = () => {
+    // if (tabIndex === 0) {
+    //   getPriceInw(private_sale);
+    //   getSaleInfo(private_sale);
+    //   // getBalanceContract(private_sale);
+    // } else {
+    getPublicsaleInfo(public_sale_contract);
+    getPriceInw(public_sale_contract);
+    getBalanceContract(public_sale_contract);
+    // }
+  };
 
-  // useInterval(() => {
-  //   getInfo();
-  // }, 7000);
+  useEffect(() => {
+    if (!(api && publicCurrentAccount?.address)) return;
+    getInfo();
+    resetField();
+  }, [tabIndex]);
 
-  // const inwPublicMintHandler = async () => {
-  //   if (!api) {
-  //     toast.error(toastMessages.ERR_API_CONN);
-  //     return;
-  //   }
+  useEffect(() => {
+    if (!(api && publicCurrentAccount?.address)) return;
+    getInfo();
+  }, [api, currentAccount]);
 
-  //   if (!currentAccount) {
-  //     toast.error(toastMessages.NO_WALLET);
-  //     return;
-  //   }
-  //   await execContractTx(
-  //     currentAccount,
-  //     api,
-  //     public_sale_contract.CONTRACT_ABI,
-  //     public_sale_contract.CONTRACT_ADDRESS,
-  //     parseUnits(
-  //       roundUp(+formatTextAmount(inwPrice) * inwBuyAmount, 4).toString(),
-  //       unitDecimal || 12
-  //     ), //-> value
-  //     "genericTokenSaleTrait::purchase",
-  //     formatNumToBN(inwBuyAmount) // -> token_amount, <...args>
-  //   );
+  useInterval(() => {
+    getInfo();
+  }, 7000);
 
-  //   await delay(5000);
-  //   resetField();
-  //   toast.promise(
-  //     delay(1000).then(() => {
-  //       if (currentAccount) {
-  //         dispatch(fetchUserBalance({ currentAccount, api }));
-  //       }
+  const inwPublicMintHandler = async () => {
+    if (!api) {
+      toast.error(toastMessages.ERR_API_CONN);
+      return;
+    }
 
-  //       getInwMintingCapAndTotalSupply();
-  //       getInfo();
-  //     }),
-  //     {
-  //       loading: "Fetching new data ... ",
-  //       success: "Done !",
-  //       error: "Could not fetch data!!!",
-  //     }
-  //   );
-  // };
+    if (!currentAccount) {
+      toast.error(toastMessages.NO_WALLET);
+      return;
+    }
+    await execContractTx(
+      currentAccount,
+      api,
+      public_sale_contract.CONTRACT_ABI,
+      public_sale_contract.CONTRACT_ADDRESS,
+      parseUnits(
+        roundUp(+formatTextAmount(inwPrice) * inwBuyAmount, 4).toString(),
+        unitDecimal || 12
+      ), //-> value
+      "genericTokenSaleTrait::purchase",
+      formatNumToBNEther(inwBuyAmount) // -> token_amount, <...args>
+    );
 
-  // const inwPrivateMintHandler = async () => {
-  //   console.log(inwPrice, inwBuyAmount);
-  //   if (!api) {
-  //     toast.error(toastMessages.ERR_API_CONN);
-  //     return;
-  //   }
+    await delay(5000);
+    resetField();
+    toast.promise(
+      delay(1000).then(() => {
+        if (currentAccount) {
+          dispatch(fetchUserBalance({ currentAccount, api }));
+        }
 
-  //   if (!currentAccount) {
-  //     toast.error(toastMessages.NO_WALLET);
-  //     return;
-  //   }
-  //   await execContractTx(
-  //     currentAccount,
-  //     api,
-  //     private_sale.CONTRACT_ABI,
-  //     private_sale.CONTRACT_ADDRESS,
-  //     parseUnits(roundUp(inwPrice * inwBuyAmount, 4).toString(), 12), //-> value
-  //     "genericTokenSaleTrait::purchase",
-  //     formatNumToBN(inwBuyAmount) // -> token_amount, <...args>
-  //   );
+        getInwMintingCapAndTotalSupply();
+        getInfo();
+      }),
+      {
+        loading: "Fetching new data ... ",
+        success: "Done !",
+        error: "Could not fetch data!!!",
+      }
+    );
+  };
 
-  //   await delay(5000);
-  //   resetField();
-  //   toast.promise(
-  //     delay(1000).then(() => {
-  //       if (currentAccount) {
-  //         dispatch(fetchUserBalance({ currentAccount, api }));
-  //       }
+  const inwPrivateMintHandler = async () => {
+    console.log(inwPrice, inwBuyAmount);
+    if (!api) {
+      toast.error(toastMessages.ERR_API_CONN);
+      return;
+    }
 
-  //       getInwMintingCapAndTotalSupply();
-  //       getInfo();
-  //     }),
-  //     {
-  //       loading: "Fetching new data ... ",
-  //       success: "Done !",
-  //       error: "Could not fetch data!!!",
-  //     }
-  //   );
-  // };
+    if (!currentAccount) {
+      toast.error(toastMessages.NO_WALLET);
+      return;
+    }
+    await execContractTx(
+      currentAccount,
+      api,
+      private_sale.CONTRACT_ABI,
+      private_sale.CONTRACT_ADDRESS,
+      parseUnits(roundUp(inwPrice * inwBuyAmount, 4).toString(), 12), //-> value
+      "genericTokenSaleTrait::purchase",
+      formatNumToBN(inwBuyAmount) // -> token_amount, <...args>
+    );
 
-  // const claimPrivateInw = async () => {
-  //   if (!api) {
-  //     toast.error(toastMessages.ERR_API_CONN);
-  //     return;
-  //   }
+    await delay(5000);
+    resetField();
+    toast.promise(
+      delay(1000).then(() => {
+        if (currentAccount) {
+          dispatch(fetchUserBalance({ currentAccount, api }));
+        }
 
-  //   if (!currentAccount) {
-  //     toast.error(toastMessages.NO_WALLET);
-  //     return;
-  //   }
+        getInwMintingCapAndTotalSupply();
+        getInfo();
+      }),
+      {
+        loading: "Fetching new data ... ",
+        success: "Done !",
+        error: "Could not fetch data!!!",
+      }
+    );
+  };
 
-  //   await execContractTx(
-  //     currentAccount,
-  //     api,
-  //     private_sale.CONTRACT_ABI,
-  //     private_sale.CONTRACT_ADDRESS,
-  //     0, //-> value
-  //     "genericTokenSaleTrait::claim"
-  //   );
+  const claimPrivateInw = async () => {
+    if (!api) {
+      toast.error(toastMessages.ERR_API_CONN);
+      return;
+    }
 
-  //   await delay(5000);
+    if (!currentAccount) {
+      toast.error(toastMessages.NO_WALLET);
+      return;
+    }
 
-  //   toast.promise(
-  //     delay(1000).then(() => {
-  //       if (currentAccount) {
-  //         dispatch(fetchUserBalance({ currentAccount, api }));
-  //       }
+    await execContractTx(
+      currentAccount,
+      api,
+      private_sale.CONTRACT_ABI,
+      private_sale.CONTRACT_ADDRESS,
+      0, //-> value
+      "genericTokenSaleTrait::claim"
+    );
 
-  //       getInwMintingCapAndTotalSupply();
-  //       getInfo();
-  //     }),
-  //     {
-  //       loading: "Fetching new data ... ",
-  //       success: "Done !",
-  //       error: "Could not fetch data!!!",
-  //     }
-  //   );
-  // };
+    await delay(5000);
 
-  // const checkNumeric = (text) => /^\d*(\.\d*)?$/.test(text);
-  // const onChangeAzeroInput = ({ target }) => {
-  //   if (checkNumeric(target.value) == true) {
-  //     setAzeroBuyAmount(target.value);
-  //     setInwBuyAmount(roundDown(target.value / parseFloat(inwPrice)));
-  //   }
-  // };
+    toast.promise(
+      delay(1000).then(() => {
+        if (currentAccount) {
+          dispatch(fetchUserBalance({ currentAccount, api }));
+        }
 
-  // const onChangeInwInput = ({ target }) => {
-  //   if (checkNumeric(target.value) == true) {
-  //     setInwBuyAmount(target.value);
-  //     setAzeroBuyAmount(roundUp(target.value * parseFloat(inwPrice)));
-  //   }
-  // };
+        getInwMintingCapAndTotalSupply();
+        getInfo();
+      }),
+      {
+        loading: "Fetching new data ... ",
+        success: "Done !",
+        error: "Could not fetch data!!!",
+      }
+    );
+  };
 
-  // const resetField = () => {
-  //   setInwBuyAmount("");
-  //   setAzeroBuyAmount("");
-  // };
+  const checkNumeric = (text) => /^\d*(\.\d*)?$/.test(text);
+  const onChangeAzeroInput = ({ target }) => {
+    if (checkNumeric(target.value) == true) {
+      setAzeroBuyAmount(target.value);
+      setInwBuyAmount(roundDown(target.value / parseFloat(inwPrice)));
+    }
+  };
 
-  // const [isBigScreen] = useMediaQuery("(min-width: 480px)");
+  const onChangeInwInput = ({ target }) => {
+    if (checkNumeric(target.value) == true) {
+      setInwBuyAmount(target.value);
+      setAzeroBuyAmount(roundUp(target.value * parseFloat(inwPrice)));
+    }
+  };
 
-  // const tabsData = [
-  //   {
-  //     label: <>Public Sale with Vesting</>,
-  //     component: !isSaleEnded ? (
-  //       <IWCard
-  //         w="full"
-  //         variant="outline"
-  //         title={
-  //           <Flex justifyContent={"space-between"}>
-  //             {/* <Heading as="h4" size="h4" lineHeight="25px">
-  //               Acquire INW Tokens
-  //             </Heading> */}
-  //             <Flex>
-  //               {saleInfo?.endTimeSale ? (
-  //                 notSaleStart ? (
-  //                   <>
-  //                     Sale starts in:{" "}
-  //                     <Text paddingLeft={"4px"}>
-  //                       <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
-  //                     </Text>{" "}
-  //                   </>
-  //                 ) : !isSaleEnded ? (
-  //                   <>
-  //                     Sale end in:{" "}
-  //                     <Text paddingLeft={"4px"}>
-  //                       <IWCountDown date={+saleInfo?.endTimeSale} />{" "}
-  //                     </Text>{" "}
-  //                   </>
-  //                 ) : (
-  //                   <>Ended</>
-  //                 )
-  //               ) : (
-  //                 ""
-  //               )}
-  //             </Flex>
-  //           </Flex>
-  //         }
-  //       >
-  //         <IWCard mt="16px" w="full" variant="solid">
-  //           <Stack
-  //             w="100%"
-  //             spacing="20px"
-  //             direction={{ base: "column" }}
-  //             align={{ base: "column", xl: "center" }}
-  //           >
-  //             <IWInput
-  //               value={inwBuyAmount}
-  //               onChange={onChangeInwInput}
-  //               type="number"
-  //               placeholder="Enter INW amount"
-  //               inputRightElementIcon={
-  //                 <Heading as="h5" size="h5" fontWeight="semibold">
-  //                   INW
-  //                 </Heading>
-  //               }
-  //             />
+  const resetField = () => {
+    setInwBuyAmount("");
+    setAzeroBuyAmount("");
+  };
 
-  //             <IWInput
-  //               type="number"
-  //               value={azeroBuyAmount}
-  //               onChange={onChangeAzeroInput}
-  //               placeholder="Enter AZERO amount"
-  //               inputRightElementIcon={<AzeroLogo />}
-  //             />
-  //             {inwPrice > 0 && (
-  //               <Flex
-  //                 mt={{ base: "15px", lg: "0px" }}
-  //                 w="full"
-  //                 flexDirection={{ base: "column", lg: "row" }}
-  //                 justifyContent="space-between"
-  //               >
-  //                 <Text textAlign="left" fontSize="md" lineHeight="28px">
-  //                   Price: {inwPrice} Azero / INW
-  //                 </Text>
-  //                 <Text textAlign="left" fontSize="md" lineHeight="28px">
-  //                   INW Available to acquire: {availableMint}
-  //                 </Text>
-  //               </Flex>
-  //             )}
-  //             {inwBuyAmount ? (
-  //               <Flex
-  //                 mt={{ base: "15px", lg: "0px" }}
-  //                 w="full"
-  //                 justifyContent="space-between"
-  //               >
-  //                 <Text textAlign="left" fontSize="md" lineHeight="28px">
-  //                   You will receive {roundUp((inwBuyAmount * 5) / 100)} INW (5%
-  //                   of total purchase) and the rest will be claimable every day
-  //                   during 18-month vesting period. Vesting period starts after
-  //                   public sale ends.
-  //                   {/* , then linear vesting over the next 24 months */}
-  //                 </Text>
-  //               </Flex>
-  //             ) : (
-  //               ""
-  //             )}
-  //             <Button
-  //               w="full"
-  //               onClick={inwPrivateMintHandler}
-  //               disabled={disableBuyBtn}
-  //             >
-  //               Buy INW
-  //             </Button>
-  //           </Stack>
-  //         </IWCard>
-  //       </IWCard>
-  //     ) : (
-  //       <>
-  //         <CardThreeColumn
-  //           title="Public Sale Vesting"
-  //           data={[
-  //             {
-  //               title: "Claimable Amount",
-  //               content: `${formatNumDynDecimal(
-  //                 saleInfo?.unclaimAmount / 10 ** 12,
-  //                 2
-  //               )} INW`,
-  //             },
-  //             {
-  //               title: "Total Claimed Amount",
-  //               content: `${saleInfo?.buyerInfo?.claimedAmount} INW`,
-  //             },
-  //             {
-  //               title: "Allocation",
-  //               content: `${saleInfo?.buyerInfo?.purchasedAmount} INW`,
-  //             },
-  //             {
-  //               title: "Vesting Duration",
-  //               content: `${
-  //                 saleInfo?.vestingDuration / 60 / 60 / 24 / 1000
-  //               } days`,
-  //             },
-  //             {
-  //               title: "Vesting Start Date/Time",
-  //               content: new Date(+saleInfo?.endTimeSale).toLocaleString(
-  //                 "en-US"
-  //               ),
-  //             },
-  //             {
-  //               title: "Vesting End Date/Time",
-  //               content: new Date(
-  //                 +saleInfo?.endTimeSale + +saleInfo?.vestingDuration
-  //               ).toLocaleString("en-US"),
-  //             },
-  //           ]}
-  //         />
-  //         {/* <Button
-  //           w="full"
-  //           mt="20px"
-  //           onClick={claimPrivateInw}
-  //           disabled={!(+saleInfo?.unclaimAmount > 0)}
-  //         >
-  //           Claim INW
-  //         </Button> */}
-  //         <IWCountDownClaim
-  //           onClick={claimPrivateInw}
-  //           disabled={!(+saleInfo?.unclaimAmount > 0)}
-  //           startDate={new Date(+saleInfo?.endTimeSale)}
-  //           endDate={
-  //             new Date(+saleInfo?.endTimeSale + +saleInfo?.vestingDuration)
-  //           }
-  //         />
-  //       </>
-  //     ),
-  //     isDisabled: false,
-  //   },
-  //   {
-  //     label: `${isBigScreen ? "Public Sale" : ""} No Vesting`,
-  //     component: (
-  //       <IWCard
-  //         w="full"
-  //         variant="outline"
-  //         title={
-  //           <Flex justifyContent={"space-between"}>
-  //             {/* <Heading as="h4" size="h4" lineHeight="25px">
-  //               Acquire INW Tokens
-  //             </Heading> */}
-  //             <Flex>
-  //               {saleInfo?.endTimeSale ? (
-  //                 notSaleStart ? (
-  //                   <>
-  //                     Sale starts in:{" "}
-  //                     <Text paddingLeft={"4px"}>
-  //                       <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
-  //                     </Text>{" "}
-  //                   </>
-  //                 ) : !isSaleEnded ? (
-  //                   <>
-  //                     Sale end in:{" "}
-  //                     <Text paddingLeft={"4px"}>
-  //                       <IWCountDown date={+saleInfo?.endTimeSale} />{" "}
-  //                     </Text>{" "}
-  //                   </>
-  //                 ) : (
-  //                   <>Ended</>
-  //                 )
-  //               ) : (
-  //                 ""
-  //               )}
-  //             </Flex>
-  //           </Flex>
-  //         }
-  //       >
-  //         <IWCard mt="16px" w="full" variant="solid">
-  //           <Stack
-  //             w="100%"
-  //             spacing="20px"
-  //             direction={{ base: "column" }}
-  //             align={{ base: "column", xl: "center" }}
-  //           >
-  //             <IWInput
-  //               value={inwBuyAmount}
-  //               onChange={onChangeInwInput}
-  //               type="number"
-  //               placeholder="Enter INW amount"
-  //               inputRightElementIcon={
-  //                 <Heading as="h5" size="h5" fontWeight="semibold">
-  //                   INW
-  //                 </Heading>
-  //               }
-  //             />
+  const [isBigScreen] = useMediaQuery("(min-width: 480px)");
 
-  //             <IWInput
-  //               type="number"
-  //               value={azeroBuyAmount}
-  //               onChange={onChangeAzeroInput}
-  //               placeholder="Enter AZERO amount"
-  //               inputRightElementIcon={<AzeroLogo />}
-  //             />
-  //             {inwPrice > 0 && (
-  //               <Flex
-  //                 mt={{ base: "15px", lg: "0px" }}
-  //                 w="full"
-  //                 flexDirection={{ base: "column", lg: "row" }}
-  //                 justifyContent="space-between"
-  //               >
-  //                 <Text textAlign="left" fontSize="md" lineHeight="28px">
-  //                   Price: {inwPrice} Azero / INW
-  //                 </Text>
-  //                 <Text textAlign="left" fontSize="md" lineHeight="28px">
-  //                   INW Available to acquire: {availableMint}
-  //                 </Text>
-  //               </Flex>
-  //             )}
+  const tabsData = [
+    // {
+    //   label: <>Public Sale with Vesting</>,
+    //   component: !isSaleEnded ? (
+    //     <IWCard
+    //       w="full"
+    //       variant="outline"
+    //       title={
+    //         <Flex justifyContent={"space-between"}>
+    //           {/* <Heading as="h4" size="h4" lineHeight="25px">
+    //             Acquire INW Tokens
+    //           </Heading> */}
+    //           <Flex>
+    //             {saleInfo?.endTimeSale ? (
+    //               notSaleStart ? (
+    //                 <>
+    //                   Sale starts in:{" "}
+    //                   <Text paddingLeft={"4px"}>
+    //                     <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
+    //                   </Text>{" "}
+    //                 </>
+    //               ) : !isSaleEnded ? (
+    //                 <>
+    //                   Sale end in:{" "}
+    //                   <Text paddingLeft={"4px"}>
+    //                     <IWCountDown date={+saleInfo?.endTimeSale} />{" "}
+    //                   </Text>{" "}
+    //                 </>
+    //               ) : (
+    //                 <>Ended</>
+    //               )
+    //             ) : (
+    //               ""
+    //             )}
+    //           </Flex>
+    //         </Flex>
+    //       }
+    //     >
+    //       <IWCard mt="16px" w="full" variant="solid">
+    //         <Stack
+    //           w="100%"
+    //           spacing="20px"
+    //           direction={{ base: "column" }}
+    //           align={{ base: "column", xl: "center" }}
+    //         >
+    //           <IWInput
+    //             value={inwBuyAmount}
+    //             onChange={onChangeInwInput}
+    //             type="number"
+    //             placeholder="Enter INW amount"
+    //             inputRightElementIcon={
+    //               <Heading as="h5" size="h5" fontWeight="semibold">
+    //                 INW
+    //               </Heading>
+    //             }
+    //           />
 
-  //             {inwBuyAmount ? (
-  //               <Flex
-  //                 mt={{ base: "15px", lg: "0px" }}
-  //                 w="full"
-  //                 justifyContent="space-between"
-  //               >
-  //                 <Text textAlign="left" fontSize="md" lineHeight="28px">
-  //                   You will receive full amount of INW right after the
-  //                   purchase.
-  //                 </Text>
-  //               </Flex>
-  //             ) : (
-  //               ""
-  //             )}
-  //             <Button
-  //               w="full"
-  //               onClick={inwPublicMintHandler}
-  //               // disabled={disableBuyBtn}
-  //             >
-  //               Buy INW
-  //             </Button>
-  //           </Stack>
-  //         </IWCard>
-  //       </IWCard>
-  //     ),
-  //     isDisabled: false,
-  //   },
-  // ];
+    //           <IWInput
+    //             type="number"
+    //             value={azeroBuyAmount}
+    //             onChange={onChangeAzeroInput}
+    //             placeholder="Enter AZERO amount"
+    //             inputRightElementIcon={<AzeroLogo />}
+    //           />
+    //           {inwPrice > 0 && (
+    //             <Flex
+    //               mt={{ base: "15px", lg: "0px" }}
+    //               w="full"
+    //               flexDirection={{ base: "column", lg: "row" }}
+    //               justifyContent="space-between"
+    //             >
+    //               <Text textAlign="left" fontSize="md" lineHeight="28px">
+    //                 Price: {inwPrice} Azero / INW
+    //               </Text>
+    //               <Text textAlign="left" fontSize="md" lineHeight="28px">
+    //                 INW Available to acquire: {availableMint}
+    //               </Text>
+    //             </Flex>
+    //           )}
+    //           {inwBuyAmount ? (
+    //             <Flex
+    //               mt={{ base: "15px", lg: "0px" }}
+    //               w="full"
+    //               justifyContent="space-between"
+    //             >
+    //               <Text textAlign="left" fontSize="md" lineHeight="28px">
+    //                 You will receive {roundUp((inwBuyAmount * 5) / 100)} INW (5%
+    //                 of total purchase) and the rest will be claimable every day
+    //                 during 18-month vesting period. Vesting period starts after
+    //                 public sale ends.
+    //                 {/* , then linear vesting over the next 24 months */}
+    //               </Text>
+    //             </Flex>
+    //           ) : (
+    //             ""
+    //           )}
+    //           <Button
+    //             w="full"
+    //             onClick={inwPrivateMintHandler}
+    //             disabled={disableBuyBtn}
+    //           >
+    //             Buy INW
+    //           </Button>
+    //         </Stack>
+    //       </IWCard>
+    //     </IWCard>
+    //   ) : (
+    //     <>
+    //       <CardThreeColumn
+    //         title="Public Sale Vesting"
+    //         data={[
+    //           {
+    //             title: "Claimable Amount",
+    //             content: `${formatNumDynDecimal(
+    //               saleInfo?.unclaimAmount / 10 ** 12,
+    //               2
+    //             )} INW`,
+    //           },
+    //           {
+    //             title: "Total Claimed Amount",
+    //             content: `${saleInfo?.buyerInfo?.claimedAmount} INW`,
+    //           },
+    //           {
+    //             title: "Allocation",
+    //             content: `${saleInfo?.buyerInfo?.purchasedAmount} INW`,
+    //           },
+    //           {
+    //             title: "Vesting Duration",
+    //             content: `${
+    //               saleInfo?.vestingDuration / 60 / 60 / 24 / 1000
+    //             } days`,
+    //           },
+    //           {
+    //             title: "Vesting Start Date/Time",
+    //             content: new Date(+saleInfo?.endTimeSale).toLocaleString(
+    //               "en-US"
+    //             ),
+    //           },
+    //           {
+    //             title: "Vesting End Date/Time",
+    //             content: new Date(
+    //               +saleInfo?.endTimeSale + +saleInfo?.vestingDuration
+    //             ).toLocaleString("en-US"),
+    //           },
+    //         ]}
+    //       />
+    //       {/* <Button
+    //         w="full"
+    //         mt="20px"
+    //         onClick={claimPrivateInw}
+    //         disabled={!(+saleInfo?.unclaimAmount > 0)}
+    //       >
+    //         Claim INW
+    //       </Button> */}
+    //       <IWCountDownClaim
+    //         onClick={claimPrivateInw}
+    //         disabled={!(+saleInfo?.unclaimAmount > 0)}
+    //         startDate={new Date(+saleInfo?.endTimeSale)}
+    //         endDate={
+    //           new Date(+saleInfo?.endTimeSale + +saleInfo?.vestingDuration)
+    //         }
+    //       />
+    //     </>
+    //   ),
+    //   isDisabled: false,
+    // },
+    {
+      label: `${isBigScreen ? "Public Sale" : ""} No Vesting`,
+      component: (
+        <IWCard
+          w="full"
+          variant="outline"
+          title={
+            <Flex justifyContent={"space-between"}>
+              {/* <Heading as="h4" size="h4" lineHeight="25px">
+                Acquire INW Tokens
+              </Heading> */}
+              {console.log("saleInfo", saleInfo)}
+              <Flex>
+                {saleInfo?.endTimeSale ? (
+                  notSaleStart ? (
+                    <>
+                      Sale starts in:{" "}
+                      <Text paddingLeft={"4px"}>
+                        <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
+                      </Text>{" "}
+                    </>
+                  ) : !isSaleEnded ? (
+                    <>
+                      Sale end in:{" "}
+                      <Text paddingLeft={"4px"}>
+                        <IWCountDown date={+saleInfo?.endTimeSale} />{" "}
+                      </Text>{" "}
+                    </>
+                  ) : (
+                    <>Ended</>
+                  )
+                ) : (
+                  ""
+                )}
+              </Flex>
+            </Flex>
+          }
+        >
+          <IWCard mt="16px" w="full" variant="solid">
+            <Stack
+              w="100%"
+              spacing="20px"
+              direction={{ base: "column" }}
+              align={{ base: "column", xl: "center" }}
+            >
+              <IWInput
+                value={inwBuyAmount}
+                onChange={onChangeInwInput}
+                type="number"
+                placeholder="Enter INW amount"
+                inputRightElementIcon={
+                  <Heading as="h5" size="h5" fontWeight="semibold">
+                    INW
+                  </Heading>
+                }
+              />
+
+              <IWInput
+                type="number"
+                value={azeroBuyAmount}
+                onChange={onChangeAzeroInput}
+                placeholder="Enter 5IRE amount"
+                // inputRightElementIcon={<AzeroLogo />}
+              />
+              {inwPrice > 0 && (
+                <Flex
+                  mt={{ base: "15px", lg: "0px" }}
+                  w="full"
+                  flexDirection={{ base: "column", lg: "row" }}
+                  justifyContent="space-between"
+                >
+                  <Text textAlign="left" fontSize="md" lineHeight="28px">
+                    Price: {inwPrice} 5IRE / INW
+                  </Text>
+                  <Text textAlign="left" fontSize="md" lineHeight="28px">
+                    INW Available to acquire: {availableMint}
+                  </Text>
+                </Flex>
+              )}
+
+              {inwBuyAmount ? (
+                <Flex
+                  mt={{ base: "15px", lg: "0px" }}
+                  w="full"
+                  justifyContent="space-between"
+                >
+                  <Text textAlign="left" fontSize="md" lineHeight="28px">
+                    You will receive full amount of INW right after the
+                    purchase.
+                  </Text>
+                </Flex>
+              ) : (
+                ""
+              )}
+              <Button
+                w="full"
+                onClick={inwPublicMintHandler}
+                // disabled={disableBuyBtn}
+              >
+                Buy INW
+              </Button>
+            </Stack>
+          </IWCard>
+        </IWCard>
+      ),
+      isDisabled: false,
+    },
+  ];
 
   return (
     <>
-      {/* <SectionContainer
+      <SectionContainer
         mt={{ base: "0px", xl: "8px" }}
         title="INW Tokens"
         description={
@@ -903,7 +912,7 @@ export default function FaucetPage({ api }) {
           alignItems="start"
           direction={{ base: "column", lg: "row" }}
         >
-          <IWCardOneColumn
+          {/* <IWCardOneColumn
             title="Ink Whale Token (INW)"
             data={[
               {
@@ -930,7 +939,7 @@ export default function FaucetPage({ api }) {
               },
               { title: "Your Balance: ", content: `${inwBalance} INW` },
             ]}
-          />
+          /> */}
           <Box w={"full"}>
             <SaleTab
               tabsData={tabsData}
@@ -941,7 +950,7 @@ export default function FaucetPage({ api }) {
             />
           </Box>
         </Stack>
-      </SectionContainer> */}
+      </SectionContainer>
     </>
   );
 }

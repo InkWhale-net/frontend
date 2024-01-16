@@ -55,7 +55,7 @@ export default function Default(props) {
                   textAlign={"center"}
                 >
                   {" "}
-                  Platform TVL: {formatNumDynDecimal(TVL?.tvlInAzero, 2)} AZERO (${formatNumDynDecimal(TVL?.tvlInUSD, 2)})
+                  Platform TVL: {formatNumDynDecimal(TVL?.tvlInAzero, 2)} 5IRE (${formatNumDynDecimal(TVL?.tvlInUSD, 2)})
                 </Text>
               </Box>
               <Navbar

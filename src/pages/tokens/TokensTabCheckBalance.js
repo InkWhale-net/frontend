@@ -78,7 +78,7 @@ const TokensTabCheckBalance = ({
       <IWCard
         w="full"
         variant="outline"
-        title={`Enter any address or azero.id to check ${tokenInfo?.title} balance`}
+        title={`Enter any address to check ${tokenInfo?.title} balance`}
       >
         <IWCard mt="16px" w="full" variant="solid">
           <Stack
