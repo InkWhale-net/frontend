@@ -1,3 +1,4 @@
+import { BN, BN_QUINTILL } from "@polkadot/util";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import { APICall } from "api/client";
@@ -106,6 +107,7 @@ export const fetchAllStakingPools = createAsyncThunk(
             pool?.totalStaked,
             tokenDecimal
           );
+
           const maxStakingAmount = formatTokenAmount(
             pool.maxStakingAmount,
             tokenDecimal
@@ -196,7 +198,10 @@ export const fetchAllNFTPools = createAsyncThunk(
             stakeInfo,
             maxStakingAmount,
             isMaxStakingAmount: +maxStakingAmount == +nftLP?.totalStaked,
-            rewardPool: formatTokenAmount(nftLP?.rewardPool, nftLP?.tokenDecimal),
+            rewardPool: formatTokenAmount(
+              nftLP?.rewardPool,
+              nftLP?.tokenDecimal
+            ),
           };
         })
       );

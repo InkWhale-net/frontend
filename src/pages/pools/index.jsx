@@ -27,7 +27,7 @@ export default function PoolsPage() {
 
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allStakingPoolsList } = useSelector((s) => s.allPools);
-
+  console.log('allStakingPoolsList', allStakingPoolsList)
   const [showMyStakedPools, setShowMyStakedPools] = useState(false);
   const [endedPools, setendedPools] = useState(false);
   const [livePools, setLivePools] = useState(false);

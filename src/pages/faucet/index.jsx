@@ -48,7 +48,7 @@ import { psp22_contract_v2 } from "utils/contracts";
 import { psp22_contract } from "utils/contracts";
 import { swap_inw2_contract } from "utils/contracts";
 import { useChainContext } from "contexts/ChainContext";
-import {formatNumToBNEther} from "utils";
+import { formatNumToBNEther } from "utils";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
 
@@ -338,7 +338,7 @@ export default function FaucetPage({ api }) {
           const queryContractBalance = await execContractQuery(
             publicCurrentAccount?.address,
             api,
-            psp22_contract_v2.CONTRACT_ABI,
+            psp22_contract.CONTRACT_ABI,
             psp22_contract.CONTRACT_ADDRESS,
             0,
             "psp22::balanceOf",
@@ -433,11 +433,6 @@ export default function FaucetPage({ api }) {
       0,
       "genericTokenSaleTrait::endTime"
     );
-    const time = endTime.toHuman().Ok.replaceAll(",", "");
-    console.log("endTime", time);
-
-    const date = new Date(Number(time)).toLocaleString("en-US");
-    console.log("date", date);
 
     setSaleInfo({
       ...saleInfo,
@@ -445,9 +440,9 @@ export default function FaucetPage({ api }) {
     });
   };
 
-  useEffect(() => {
-    getInwMintingCapAndTotalSupply();
-  }, [api, getInwMintingCapAndTotalSupply]);
+  // useEffect(() => {
+  //   getInwMintingCapAndTotalSupply();
+  // }, [api, getInwMintingCapAndTotalSupply]);
 
   const getInfo = () => {
     // if (tabIndex === 0) {
@@ -507,7 +502,7 @@ export default function FaucetPage({ api }) {
           dispatch(fetchUserBalance({ currentAccount, api }));
         }
 
-        getInwMintingCapAndTotalSupply();
+        // getInwMintingCapAndTotalSupply();
         getInfo();
       }),
       {
