@@ -664,7 +664,7 @@ const MyPoolInfo = ({
 
   const setMaxReward = () => {
     if (roundUp(withdrawbleAm) > 0.0001) {
-      setAmount(withdrawbleAm);
+      setAmount(withdrawbleAm.toFixed(3));
     }
   };
 
