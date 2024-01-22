@@ -302,7 +302,7 @@ export const moveINWToBegin = (tokensList) => {
     tokensList.unshift(element);
   }
   return tokensList.filter(
-    (e) => !!e?.contractAddress && e?.contractAddress !== "undefined"
+    (e) => !!e?.index && !!e?.contractAddress && e?.contractAddress !== "undefined"
   );
 };
 
