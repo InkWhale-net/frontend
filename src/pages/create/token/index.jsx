@@ -300,7 +300,11 @@ export default function CreateTokenPage() {
                   value={tokenName}
                   label="Token Name"
                   placeholder="Token Name"
-                  onChange={({ target }) => setTokenName(target.value)}
+                  onChange={({ target }) => {
+                    if (/^[a-zA-Z0-9]*$/.test(target.value)) {
+                      setTokenName(target.value);
+                    }
+                  }}
                 />
               </Box>
               <Box w={{ base: "full" }}>
@@ -318,7 +322,11 @@ export default function CreateTokenPage() {
                   value={tokenSymbol}
                   label="Token Symbol"
                   placeholder="Token Symbol"
-                  onChange={({ target }) => setTokenSymbol(target.value)}
+                  onChange={({ target }) => {
+                    if (/^[a-zA-Z0-9]*$/.test(target.value)) {
+                      setTokenSymbol(target.value);
+                    }
+                  }}
                 />
               </Box>
               <Box w={{ base: "full" }}>
