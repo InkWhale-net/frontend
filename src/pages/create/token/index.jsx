@@ -351,7 +351,7 @@ export default function CreateTokenPage() {
                   value={totalSupply}
                   label="Total Supply"
                   placeholder="0"
-                  onChange={(value) => setTotalSupply(value)}
+                  onChange={({ target }) => setTotalSupply(target.value)}
                 />
               </Box>
               <Box w={{ base: "full" }}>
