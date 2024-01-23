@@ -265,8 +265,9 @@ function StakingInfo() {
     });
   }
 
+  // Total Claimed AZERO ~ info[2]
   const lastClaimTime =
-    info && (parseInt(info[4]) === 0 ? "Not claim yet" : info[4]);
+    info && (parseInt(info[2]) === 0 ? "Not claim yet" : info[4]);
 
   const formattedInfo = [
     {
