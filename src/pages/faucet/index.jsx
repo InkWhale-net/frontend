@@ -40,7 +40,7 @@ import {
   roundUp,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import { parseUnits } from "ethers";
+import { formatUnits, parseUnits } from "ethers";
 import { formatTokenAmount } from "utils";
 import IWCountDownClaim from "./ClaimButton";
 import { formatTextAmount } from "utils";
@@ -49,6 +49,8 @@ import { psp22_contract } from "utils/contracts";
 import { swap_inw2_contract } from "utils/contracts";
 import { useChainContext } from "contexts/ChainContext";
 import { formatNumToBNEther } from "utils";
+import { formatQueryResultToNumberEthers } from "utils";
+import { BN } from "@polkadot/util";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
 
@@ -146,7 +148,7 @@ export default function FaucetPage({ api }) {
       0,
       "genericTokenSaleTrait::inwPrice"
     );
-    setInwPrice(formatQueryResultToNumber(price));
+    setInwPrice(+formatQueryResultToNumberEthers(price));
   };
 
   // const getSaleInfo = async (token) => {
@@ -358,7 +360,7 @@ export default function FaucetPage({ api }) {
             const inwTotalSupplyCap = formatQueryResultToNumber(result1);
             setInwBurn(
               +formatTextAmount(inwTotalSupplyCap) -
-                formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
+              formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
             );
           }
         } else {
@@ -395,7 +397,7 @@ export default function FaucetPage({ api }) {
   const disableBuyBtn = useMemo(() => {
     return (
       inwBuyAmount * parseFloat(inwPrice) >=
-        formatChainStringToNumber(azeroBalance) ||
+      formatChainStringToNumber(azeroBalance) ||
       isSaleEnded ||
       notSaleStart ||
       availableMint?.replaceAll(",", "") < +inwBuyAmount ||
@@ -596,6 +598,8 @@ export default function FaucetPage({ api }) {
   const onChangeAzeroInput = ({ target }) => {
     if (checkNumeric(target.value) == true) {
       setAzeroBuyAmount(target.value);
+      const value = new BN(target.value)
+      const price = new BN(inwPrice * (10 ** 3))
       setInwBuyAmount(roundDown(target.value / parseFloat(inwPrice)));
     }
   };
@@ -603,7 +607,9 @@ export default function FaucetPage({ api }) {
   const onChangeInwInput = ({ target }) => {
     if (checkNumeric(target.value) == true) {
       setInwBuyAmount(target.value);
-      setAzeroBuyAmount(roundUp(target.value * parseFloat(inwPrice)));
+      const value = new BN(target.value)
+      const price = new BN(inwPrice * (10 ** 3))
+      setAzeroBuyAmount(+formatUnits(value.mul(price).toString(), 3));
     }
   };
 
@@ -791,7 +797,6 @@ export default function FaucetPage({ api }) {
               {/* <Heading as="h4" size="h4" lineHeight="25px">
                 Acquire INW Tokens
               </Heading> */}
-              {console.log("saleInfo", saleInfo)}
               <Flex>
                 {saleInfo?.endTimeSale ? (
                   notSaleStart ? (
@@ -842,7 +847,7 @@ export default function FaucetPage({ api }) {
                 value={azeroBuyAmount}
                 onChange={onChangeAzeroInput}
                 placeholder="Enter 5IRE amount"
-                // inputRightElementIcon={<AzeroLogo />}
+              // inputRightElementIcon={<AzeroLogo />}
               />
               {inwPrice > 0 && (
                 <Flex
@@ -877,7 +882,7 @@ export default function FaucetPage({ api }) {
               <Button
                 w="full"
                 onClick={inwPublicMintHandler}
-                // disabled={disableBuyBtn}
+              // disabled={disableBuyBtn}
               >
                 Buy INW
               </Button>
