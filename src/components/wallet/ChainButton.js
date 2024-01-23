@@ -15,8 +15,8 @@ const ChainButton = () => {
   const { currentChain, switchChain } = useChainContext();
   const { isOpen, onToggle } = useDisclosure();
   return (
-    <Menu placement="bottom-end" isOpen={isOpen}>
-      <MenuButton onClick={() => onToggle()}>
+    <Menu placement="bottom-end">
+      <MenuButton>
         <Box
           sx={{
             h: "52px",
@@ -46,7 +46,7 @@ const ChainButton = () => {
       >
         <Flex flexDirection="column" p="20px">
           <Text sx={{ fontWeight: "bold" }}>Select chain</Text>
-          {supportedChain.map((obj, index) => (
+          {supportedChain.filter(e => e?.key != currentChain?.key).map((obj, index) => (
             <Flex
               sx={{
                 py: "4px",
