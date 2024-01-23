@@ -662,8 +662,8 @@ export default function CreateNFTLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${tokenBalance || 0} ${tokenSymbol || ""}`}
-                label={`Your ${tokenSymbol || "Token"} Balance`}
+                value={`${tokenBalance || 0}`}
+                label={`Your ${tokenSymbol?.toUpperCase() || "Token"} Balance`}
               />
             </Box>
             <Box w="full">
@@ -693,7 +693,7 @@ export default function CreateNFTLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${minReward || 0} ${tokenSymbol || ""}`}
+                value={`${minReward || 0} ${tokenSymbol?.toUpperCase() || ""}`}
                 label={
                   <>
                     Total Rewards
