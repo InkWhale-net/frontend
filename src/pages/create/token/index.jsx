@@ -349,7 +349,7 @@ export default function CreateTokenPage() {
                 <IWInput
                   type="number"
                   value={totalSupply}
-                  label="Total Supply asd"
+                  label="Total Supply"
                   placeholder="0"
                   onChange={(value) => setTotalSupply(value)}
                 />
