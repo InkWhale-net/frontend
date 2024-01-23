@@ -488,10 +488,7 @@ export default function FaucetPage({ api }) {
       api,
       public_sale_contract.CONTRACT_ABI,
       public_sale_contract.CONTRACT_ADDRESS,
-      parseUnits(
-        roundUp(+formatTextAmount(inwPrice) * inwBuyAmount, 4).toString(),
-        unitDecimal || 12
-      ), //-> value
+      formatNumToBNEther(azeroBuyAmount), //-> value
       "genericTokenSaleTrait::purchase",
       formatNumToBNEther(inwBuyAmount) // -> token_amount, <...args>
     );
