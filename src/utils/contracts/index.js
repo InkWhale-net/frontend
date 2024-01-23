@@ -177,9 +177,9 @@ export async function execContractTx(
     wsApi,
     address: caller?.address,
   });
-
+  const chainUnit = localStorage.getItem("currencyUnit")
   if (azeroBalance < 0.005) {
-    toast.error("You don’t have enough azero for transaction fee!");
+    toast.error(`You don’t have enough ${chainUnit || "azero"} for transaction fee!`);
     return;
   }
 
@@ -277,9 +277,9 @@ export async function execContractTxAndCallAPI(
   });
 
   // console.log("azeroBalance = ", azeroBalance);
-
+  const chainUnit = localStorage.getItem("currencyUnit")
   if (azeroBalance < 0.005) {
-    toast.error("You don’t have enough azero for transaction fee!");
+    toast.error(`You don’t have enough ${chainUnit || "azero"} for transaction fee!`);
     return;
   }
 

@@ -9,6 +9,7 @@ export const ChainSwitchProvider = ({ children }) => {
       const data = supportedChain.find((e) => e?.key == currentChainkey);
       localStorage.setItem("currentChain", data?.key);
       localStorage.setItem("currencyDecimal", data?.decimal);
+      localStorage.setItem("currencyUnit", data?.unit);
       return data;
     }
   }, [currentChainkey]);
