@@ -116,18 +116,22 @@ export const formatNumToBNEther = (number = 0, decimal) => {
 };
 
 export const formatNumDynDecimal = (num = 0, dec = 4) => {
-  const number = parseInt(num * 10 ** dec) / 10 ** dec;
-  const numStr = number.toString();
-  const dotIdx = numStr.indexOf(".");
+  // const number = parseInt(num * 10 ** dec) / 10 ** dec;
+  // const numStr = number.toString();
+  // const dotIdx = numStr.indexOf(".");
 
-  if (dotIdx === -1) {
-    return numeral(numStr).format("0,0");
-  }
+  // if (dotIdx === -1) {
+  //   return numeral(numStr).format("0,0");
+  // }
 
-  const intPart = numeral(numStr.slice(0, dotIdx)).format("0,0");
-  const decPart = numStr.slice(dotIdx + 1, numStr.length);
+  // const intPart = numeral(numStr.slice(0, dotIdx)).format("0,0");
+  // const decPart = numStr.slice(dotIdx + 1, numStr.length);
 
-  return intPart + `${dotIdx === -1 ? "" : `.${decPart}`}`;
+  // return intPart + `${dotIdx === -1 ? "" : `.${decPart}`}`;
+  let parts = num.toString().split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  return parts.join('.');
 };
 
 export const formatNumDynDecimalEthers = (num = 0, dec = 4) => {
