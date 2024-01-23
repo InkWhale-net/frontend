@@ -37,7 +37,7 @@ export default function StakingTable({ tableBody, cb }) {
     >
       <Alert status="warning">
         <AlertIcon />
-        Note: 5 INW will be charged and burned for each claim!{" "}
+        Note: A fee of 5 INW will be charged and burned for each claim.{" "}
       </Alert>
       <IWTable {...tableData} mode="AZERO_STAKING" isDisableRowClick cb={cb} />
     </Stack>

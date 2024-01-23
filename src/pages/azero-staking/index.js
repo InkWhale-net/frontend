@@ -235,15 +235,15 @@ function TransactionHistory() {
           requestUserAddress: i.user,
           stakeStatus:
             i.type === 0
-              ? "Stake"
+              ? "Staked"
               : i.type === 1
-              ? "Request Unstake"
+              ? "Requested Unstake"
               : i.type === 2
               ? "Cancelled"
               : i.type === 3
               ? "Unstaked"
               : i.type === 4
-              ? "Claim Rewards"
+              ? "Claimed Rewards"
               : "",
           azeroAmount:
             formatChainStringToNumber(i.data?.amount ?? i.data?.azeroAmount) /

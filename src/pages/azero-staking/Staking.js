@@ -72,7 +72,9 @@ function Staking() {
     }
 
     if (maxStakingCalc < amount) {
-      toast.error(`Max AZERO stake is ${maxStakingCalc} AZERO`);
+      toast.error(
+        `Max AZERO stake is ${formatNumDynDecimal(maxStakingCalc)} AZERO`
+      );
       return;
     }
 
@@ -169,7 +171,9 @@ function Staking() {
     }
 
     if (maxUnstaking < amount) {
-      toast.error(`Max AZERO unstake is ${maxUnstaking} AZERO`);
+      toast.error(
+        `Max AZERO unstake is ${formatNumDynDecimal(maxUnstaking)} AZERO`
+      );
       return;
     }
 
@@ -313,7 +317,7 @@ function Staking() {
       </IWCard>
 
       <Heading as="h3" size="h3" mb="16px">
-        My Unstake History
+        My Unstaking History
       </Heading>
 
       <StakingTable tableBody={userRequestList} cb={handleCallback} />
@@ -340,7 +344,7 @@ function FooterInfo({ info }) {
     //   tooltipContent: 'Content of tooltip ',
     // },
     {
-      title: "Remain total staking",
+      title: "Remaining total staking",
       number: info && info[1] - info[2],
       denom: "AZERO",
       hasTooltip: false,
