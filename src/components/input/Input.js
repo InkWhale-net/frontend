@@ -26,8 +26,8 @@ function IWInput(props) {
   const onChangeInput = (valueString) => {
     if (type === "number") {
       const num = valueString?.target?.value?.replace(/[^0-9]/g, "");
-
-      onChange(num);
+      valueString.target.value = num;
+      onChange(valueString);
     } else {
       if (maxLength > 0) {
         const slicedValue = valueString.target.value.slice(0, maxLength);
