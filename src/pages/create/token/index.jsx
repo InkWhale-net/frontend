@@ -349,13 +349,9 @@ export default function CreateTokenPage() {
                 <IWInput
                   type="number"
                   value={totalSupply}
-                  label="Total Supply"
+                  label="Total Supply asd"
                   placeholder="0"
-                  onChange={({ target }) => {
-                    if (/^\d+$/.test(target.value)) {
-                      setTotalSupply(target.value);
-                    }
-                  }}
+                  onChange={(value) => setTotalSupply(value)}
                 />
               </Box>
               <Box w={{ base: "full" }}>
