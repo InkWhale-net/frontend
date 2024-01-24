@@ -418,7 +418,7 @@ export default function CreateTokenLPPage() {
       return {
         ...e,
         totalStaked: formatTokenAmount(e?.totalStaked, e?.lptokenDecimal),
-        rewardPool: formatTokenAmount(e?.rewardPool, e?.lptokenDecimal)
+        rewardPool: formatTokenAmount(e?.rewardPool, e?.lptokenDecimal),
       };
     }),
   };
@@ -484,13 +484,9 @@ export default function CreateTokenLPPage() {
             <IWInput
               isDisabled
               value={`${LPtokenBalance || 0}`}
-              // label={`Your ${tokenLPSymbol || "Token"} Balance`}
-              label={`Token To Stake Balance`}
-              inputRightElementIcon={
-                <Heading as="h5" size="h5" fontWeight="semibold">
-                  {tokenLPSymbol?.symbol}
-                </Heading>
-              }
+              label={`Your ${
+                tokenLPSymbol?.symbol?.toUpperCase() || "Token"
+              }  Balance`}
             />
             <IWInput
               isDisabled
@@ -530,14 +526,10 @@ export default function CreateTokenLPPage() {
             </Box>
             <IWInput
               isDisabled
-              label={`Reward Token Balance`}
               value={`${tokenBalance || 0}`}
-              // label={`Your ${tokenSymbol || "Token"} Balance`}
-              inputRightElementIcon={
-                <Heading as="h5" size="h5" fontWeight="semibold">
-                  {tokenSymbol?.symbol}
-                </Heading>
-              }
+              label={`Your ${
+                tokenSymbol?.symbol?.toUpperCase() || "Token"
+              } Balance`}
             />
             <IWInput
               isDisabled
@@ -635,7 +627,9 @@ export default function CreateTokenLPPage() {
                 label={
                   <>
                     Total Staking Cap{" "}
-                    {tokenLPSymbol?.symbol ? `(${tokenLPSymbol?.symbol})` : ""}{" "}
+                    {tokenLPSymbol?.symbol
+                      ? `(${tokenLPSymbol?.symbol?.toUpperCase()})`
+                      : ""}{" "}
                     <Tooltip
                       fontSize="smaller"
                       label={
@@ -652,7 +646,9 @@ export default function CreateTokenLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${minReward || 0} ${tokenSymbol?.symbol || ""}`}
+                value={`${minReward || 0} ${
+                  tokenSymbol?.symbol?.toUpperCase() || ""
+                }`}
                 label={
                   <>
                     Total Rewards
