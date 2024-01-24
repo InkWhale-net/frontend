@@ -40,6 +40,8 @@ import {
 import ImportTokenForm from "./ImportToken";
 import ImageUploadIcon from "./UploadIcon";
 import { ethers, formatEther, formatUnits } from "ethers";
+import { useMutation } from "react-query";
+import { formatQueryResultToNumberEthers } from "utils";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
@@ -116,7 +118,11 @@ export default function CreateTokenPage() {
       });
     }
   };
-
+  const { isLoading, mutate } = useMutation(async () => {
+    return new Promise(async (resolve) => {
+      resolve(createNewToken());
+    });
+  })
   async function createNewToken() {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
@@ -142,84 +148,101 @@ export default function CreateTokenPage() {
       +formatTextAmount(createTokenFee)
     ) {
       toast.error(
-        `You don't have enough INW V2. Create Token costs ${formatNumDynDecimal(
+        `You don't have enough ${currentChain?.inwName}. Create Token costs ${formatNumDynDecimal(
           createTokenFee
-        )} INW V2`
+        )} ${currentChain?.inwName}`
       );
       return;
     }
-    const allowanceINWQr = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      psp22_contract.CONTRACT_ADDRESS,
-      0, //-> value
-      "psp22::allowance",
-      currentAccount?.address,
-      token_generator_contract.CONTRACT_ADDRESS
-    );
-    const allowanceINW = formatTokenAmount(
-      allowanceINWQr.toHuman().Ok,
-      unitDecimal
-    );
     let step = 1;
     //Approve
-    if (+allowanceINW < +createTokenFee) {
-      toast.success(`Step ${step}: Approving...`);
-      step++;
-      let approve = await execContractTx(
-        currentAccount,
-        "api",
-        psp22_contract.CONTRACT_ABI,
-        psp22_contract.CONTRACT_ADDRESS,
-        0, //-> value
-        "psp22::approve",
-        token_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBNEther(totalSupply)
-      );
-      if (!approve) return;
-    }
+    await new Promise(async (resolve, reject) => {
+      try {
+        const allowanceINWQr = await execContractQuery(
+          currentAccount?.address,
+          "api",
+          psp22_contract.CONTRACT_ABI,
+          psp22_contract.CONTRACT_ADDRESS,
+          0, //-> value
+          "psp22::allowance",
+          currentAccount?.address,
+          token_generator_contract.CONTRACT_ADDRESS
+        );
+        const allowanceINW = formatQueryResultToNumberEthers(
+          allowanceINWQr,
+          unitDecimal
+        );
+        if (+allowanceINW < +createTokenFee) {
+          toast(`Step ${step}: Approving...`);
+          step++;
+          let approve = await execContractTxAndCallAPI(
+            currentAccount,
+            "api",
+            psp22_contract.CONTRACT_ABI,
+            psp22_contract.CONTRACT_ADDRESS,
+            0, //-> value
+            "psp22::approve",
+            async () => resolve(),
+            token_generator_contract.CONTRACT_ADDRESS,
+            formatNumToBNEther(totalSupply)
+          );
+          if (!approve) reject("APPROVE FAIL");
+        } else resolve()
 
-    await delay(2000);
-    toast.success(`Step ${step}: Processing...`);
-    await execContractTxAndCallAPI(
-      currentAccount,
-      "api",
-      token_generator_contract.CONTRACT_ABI,
-      token_generator_contract.CONTRACT_ADDRESS,
-      0, //-> value
-      "newToken",
-      updateIcon,
-      mintAddress,
-      formatNumToBNEther(totalSupply),
-      tokenName,
-      tokenSymbol,
-      unitDecimal // tokenDecimal
-    );
-
-    setTokenName("");
-    setTokenSymbol("");
-    setTotalSupply("");
-    setIconIPFSUrl(null);
-
-    await delay(1000);
-
-    await APICall.askBEupdate({ type: "token", poolContract: "new" });
-
-    toast.promise(
-      delay(10000).then(() => {
-        setIconIPFSUrl();
-        if (currentAccount) {
-          dispatch(fetchAllTokensList({}));
-          dispatch(fetchUserBalance({ currentAccount, api }));
-        }
-      }),
-      {
-        loading: "Please wait 10s for the data to be updated! ",
-        success: "Done !",
-        error: "Could not fetch data!!!",
+      } catch (error) {
+        console.log(error);
+        reject("APPROVE FAIL")
       }
-    );
+    })
+    await delay(200);
+    toast(`Step ${step}: Processing...`);
+    await new Promise(async (resolve, reject) => {
+      try {
+        const result = await execContractTxAndCallAPI(
+          currentAccount,
+          "api",
+          token_generator_contract.CONTRACT_ABI,
+          token_generator_contract.CONTRACT_ADDRESS,
+          0, //-> value
+          "newToken",
+          async (newContractAddress) => {
+            await updateIcon(newContractAddress)
+            await delay(1000);
+            await APICall.askBEupdate({ type: "token", poolContract: "new" });
+            setTokenName("");
+            setTokenSymbol("");
+            setTotalSupply("");
+            setIconIPFSUrl(null);
+
+
+            toast.promise(
+              delay(10000).then(() => {
+                setIconIPFSUrl();
+                if (currentAccount) {
+                  dispatch(fetchAllTokensList({}));
+                  dispatch(fetchUserBalance({ currentAccount, api }));
+                }
+                resolve()
+              }),
+              {
+                loading: "Please wait 10s for the data to be updated! ",
+                success: "Done !",
+                error: "Could not fetch data!!!",
+              }
+            );
+          },
+          mintAddress,
+          formatNumToBNEther(totalSupply),
+          tokenName,
+          tokenSymbol,
+          unitDecimal // tokenDecimal
+        );
+        if (!result) reject("PROCESS FAIL")
+      } catch (error) {
+        console.log(error);
+        reject("PROCESS FAIL")
+      }
+    })
   }
 
   const hasMorePage = useMemo(
@@ -348,11 +371,10 @@ export default function CreateTokenPage() {
               <Box w={{ base: "full" }}>
                 <IWInput
                   isDisabled={true}
-                  value={`${
-                    formatNumDynDecimal(
-                      currentAccount?.balance?.inw?.replaceAll(",", "")
-                    ) || 0
-                  } INW`}
+                  value={`${formatNumDynDecimal(
+                    currentAccount?.balance?.inw?.replaceAll(",", "")
+                  ) || 0
+                    } INW`}
                   label="Your INW Balance"
                 />
               </Box>
@@ -378,9 +400,11 @@ export default function CreateTokenPage() {
                   !!mintAddress
                 )
               }
+              isLoading={isLoading}
+              disabled={isLoading}
               w="full"
               maxW={{ lg: "170px" }}
-              onClick={createNewToken}
+              onClick={() => mutate()}
             >
               Create Token
             </Button>

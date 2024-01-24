@@ -507,8 +507,8 @@ export default function CreateStakePoolPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.azero || 0} AZERO`}
-                label="Your AZERO Balance"
+                value={`${currentAccount?.balance?.azero || 0} ${currentChain?.unit || "AZERO"}`}
+                label={`Your ${currentChain?.unit || "AZERO"} Balance`}
               />
             </Box>
             <Box w="full">
