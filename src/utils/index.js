@@ -11,12 +11,18 @@ import {
   resolveAddressToDomain,
   resolveDomainToAddress,
 } from "@azns/resolver-core";
-import { formatUnits } from "ethers";
+import { formatUnits, parseUnits } from "ethers";
 import moment from "moment";
 import { execContractQuery } from "./contracts";
 import psp22_contract_old from "./contracts/psp22_contract_old";
 import psp22_contract from "./contracts/psp22_contract";
-
+export const chainDecimals = {
+  alephzero: 12,
+  "alephzero-testnet": 12,
+  firechain: 18,
+  "firechain-testnet": 18,
+  astar: 12,
+};
 // "12,345" (string) or 12,345 (string) -> 12345 (number)
 export const formatChainStringToNumber = (str) => {
   if (typeof str !== "string") return str;
@@ -59,36 +65,67 @@ export function delay(sec) {
   return new Promise((res) => setTimeout(res, sec));
 }
 
-export const formatNumToBN = (number = 0, decimal = 12) => {
-  let numberMul = 6;
-  if (number > 10 ** 6) {
-    numberMul = 0;
+export const formatNumToBN = (number = 0, decimal) => {
+  try {
+    const localDecimal = decimal || chainDecimals[process.env.REACT_APP_CHAIN];
+
+    let numberMul = 0;
+
+    if (number > 10 ** 6 || localDecimal >= 12) {
+      numberMul = 6;
+    }
+
+    return new BN(number * 1)
+      .mul(new BN(10 ** numberMul))
+      .mul(new BN(10 ** (localDecimal - numberMul)))
+      .toString();
+  } catch (error) {
+    console.log("error message", error.message);
+    toast.error("error format number");
   }
-  return new BN(+number * 10 ** numberMul)
-    .mul(new BN(10 ** (decimal - numberMul)))
-    .toString();
 };
 
-export const formatNumDynDecimal = (num = 0, dec = 4) => {
-  const number = parseInt(num * 10 ** dec) / 10 ** dec;
-  const numStr = number.toString();
-  const dotIdx = numStr.indexOf(".");
+export const formatNumToBNEther = (number = 0, decimal) => {
+  try {
+    const localDecimal = decimal || chainDecimals[process.env.REACT_APP_CHAIN];
 
-  if (dotIdx === -1) {
-    return numeral(numStr).format("0,0");
+    return parseUnits(number?.toString(), +localDecimal).toString();
+  } catch (error) {
+    console.log("error message", error.message);
+    toast.error("error format number");
   }
+};
 
-  const intPart = numeral(numStr.slice(0, dotIdx)).format("0,0");
-  const decPart = numStr.slice(dotIdx + 1, numStr.length);
 
-  return intPart + `${dotIdx === -1 ? "" : `.${decPart}`}`;
+export const formatNumDynDecimal = (num = 0, dec = 4) => {
+  // const number = parseInt(num * 10 ** dec) / 10 ** dec;
+  // const numStr = number.toString();
+  // const dotIdx = numStr.indexOf(".");
+
+  // if (dotIdx === -1) {
+  //   return numeral(numStr).format("0,0");
+  // }
+
+  // const intPart = numeral(numStr.slice(0, dotIdx)).format("0,0");
+  // const decPart = numStr.slice(dotIdx + 1, numStr.length);
+
+  // return intPart + `${dotIdx === -1 ? "" : `.${decPart}`}`;
+  try {
+    const raw = formatTextAmount(num.toString())
+    let parts = raw.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    return parts.join('.');
+  } catch (error) {
+    console.log(error);
+    return num
+  }
 };
 
 // new func to getImage source from CloudFlare
 export async function getCloudFlareImage(imageHash = "", size = 500) {
-  const fallbackURL = `${
-    process.env.REACT_APP_IPFS_PUBLIC_URL
-  }/${imageHash.replace("ipfs://", "")}`;
+  const fallbackURL = `${process.env.REACT_APP_IPFS_PUBLIC_URL
+    }/${imageHash.replace("ipfs://", "")}`;
 
   const ret = `${process.env.REACT_APP_ARTZERO_API_BASE_URL}/getImage?input=${imageHash}&size=${size}&url=${fallbackURL}`;
 
@@ -448,8 +485,8 @@ export const getTokenOwner = async (tokenContract) => {
     isNew: queryOwnerNew?.toHuman()?.Ok
       ? true
       : queryOwnerOld?.toHuman()?.Ok
-      ? false
-      : null,
+        ? false
+        : null,
   };
 };
 

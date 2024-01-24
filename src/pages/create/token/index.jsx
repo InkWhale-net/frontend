@@ -39,6 +39,7 @@ import { useAppContext } from "contexts/AppContext";
 import { moveINWToBegin } from "utils";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { formatNumDynDecimal } from "utils";
+import { formatNumToBNEther } from "utils";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
@@ -173,7 +174,7 @@ export default function CreateTokenPage() {
     );
     let step = 1;
     //Approve
-    if (+allowanceINW < +createTokenFee?.replaceAll(",", "")) {
+    if (+allowanceINW < +createTokenFee) {
       toast.success(`Step ${step}: Approving...`);
       step++;
       let approve = await execContractTx(
@@ -184,7 +185,7 @@ export default function CreateTokenPage() {
         0, //-> value
         "psp22::approve",
         core_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBNEther(createTokenFee)
       );
       if (!approve) return;
     }
@@ -192,7 +193,7 @@ export default function CreateTokenPage() {
     await delay(3000);
 
     toast.success(`Step ${step}: Processing...`);
-
+    
     await execContractTxAndCallAPI(
       currentAccount,
       "api",
@@ -202,7 +203,7 @@ export default function CreateTokenPage() {
       "newToken",
       updateIcon,
       mintAddress,
-      formatNumToBN(totalSupply),
+      formatNumToBNEther(totalSupply),
       tokenName,
       tokenSymbol,
       12 // tokenDecimal
