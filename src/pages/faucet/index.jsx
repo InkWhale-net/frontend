@@ -51,8 +51,9 @@ import { useChainContext } from "contexts/ChainContext";
 import { formatNumToBNEther } from "utils";
 import { formatQueryResultToNumberEthers } from "utils";
 import { BN } from "@polkadot/util";
+import { formatNumDynDecimalEthers } from "utils";
 
-const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
+const inwContractAddress = psp22_contract.CONTRACT_ADDRESS;
 
 export default function FaucetPage({ api }) {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -337,30 +338,31 @@ export default function FaucetPage({ api }) {
               )
             )
           );
-          const queryContractBalance = await execContractQuery(
-            publicCurrentAccount?.address,
-            api,
-            psp22_contract.CONTRACT_ABI,
-            psp22_contract.CONTRACT_ADDRESS,
-            0,
-            "psp22::balanceOf",
-            swap_inw2_contract.CONTRACT_ADDRESS
-          );
-          const contractBalance = queryContractBalance?.toHuman()?.Ok;
-          setSwappedV2Amount(formatTokenAmount(contractBalance, 12));
+          // const queryContractBalance = await execContractQuery(
+          //   publicCurrentAccount?.address,
+          //   api,
+          //   psp22_contract.CONTRACT_ABI,
+          //   psp22_contract.CONTRACT_ADDRESS,
+          //   0,
+          //   "psp22::balanceOf",
+          //   swap_inw2_contract.CONTRACT_ADDRESS
+          // );
+          // const contractBalance = queryContractBalance?.toHuman()?.Ok;
+          // setSwappedV2Amount(formatTokenAmount(contractBalance, 12));
           if (!inwBurn) {
             let result1 = await execContractQuery(
               process.env.REACT_APP_PUBLIC_ADDRESS,
               api,
-              azt_contract.CONTRACT_ABI,
-              azt_contract.CONTRACT_ADDRESS,
+              psp22_contract.CONTRACT_ABI,
+              psp22_contract.CONTRACT_ADDRESS,
               0,
               "psp22Capped::cap"
             );
             const inwTotalSupplyCap = formatQueryResultToNumber(result1);
+
             setInwBurn(
               +formatTextAmount(inwTotalSupplyCap) -
-              formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
+                formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
             );
           }
         } else {
@@ -397,7 +399,7 @@ export default function FaucetPage({ api }) {
   const disableBuyBtn = useMemo(() => {
     return (
       inwBuyAmount * parseFloat(inwPrice) >=
-      formatChainStringToNumber(azeroBalance) ||
+        formatChainStringToNumber(azeroBalance) ||
       isSaleEnded ||
       notSaleStart ||
       availableMint?.replaceAll(",", "") < +inwBuyAmount ||
@@ -442,9 +444,9 @@ export default function FaucetPage({ api }) {
     });
   };
 
-  // useEffect(() => {
-  //   getInwMintingCapAndTotalSupply();
-  // }, [api, getInwMintingCapAndTotalSupply]);
+  useEffect(() => {
+    getInwMintingCapAndTotalSupply();
+  }, [api, getInwMintingCapAndTotalSupply]);
 
   const getInfo = () => {
     // if (tabIndex === 0) {
@@ -501,7 +503,7 @@ export default function FaucetPage({ api }) {
           dispatch(fetchUserBalance({ currentAccount, api }));
         }
 
-        // getInwMintingCapAndTotalSupply();
+        getInwMintingCapAndTotalSupply();
         getInfo();
       }),
       {
@@ -595,8 +597,8 @@ export default function FaucetPage({ api }) {
   const onChangeAzeroInput = ({ target }) => {
     if (checkNumeric(target.value) == true) {
       setAzeroBuyAmount(target.value);
-      const value = new BN(target.value)
-      const price = new BN(inwPrice * (10 ** 3))
+      const value = new BN(target.value);
+      const price = new BN(inwPrice * 10 ** 3);
       setInwBuyAmount(roundDown(target.value / parseFloat(inwPrice)));
     }
   };
@@ -604,8 +606,8 @@ export default function FaucetPage({ api }) {
   const onChangeInwInput = ({ target }) => {
     if (checkNumeric(target.value) == true) {
       setInwBuyAmount(target.value);
-      const value = new BN(target.value)
-      const price = new BN(inwPrice * (10 ** 3))
+      const value = new BN(target.value);
+      const price = new BN(inwPrice * 10 ** 3);
       setAzeroBuyAmount(+formatUnits(value.mul(price).toString(), 3));
     }
   };
@@ -844,7 +846,7 @@ export default function FaucetPage({ api }) {
                 value={azeroBuyAmount}
                 onChange={onChangeAzeroInput}
                 placeholder="Enter 5IRE amount"
-              // inputRightElementIcon={<AzeroLogo />}
+                // inputRightElementIcon={<AzeroLogo />}
               />
               {inwPrice > 0 && (
                 <Flex
@@ -879,7 +881,7 @@ export default function FaucetPage({ api }) {
               <Button
                 w="full"
                 onClick={inwPublicMintHandler}
-              // disabled={disableBuyBtn}
+                // disabled={disableBuyBtn}
               >
                 Buy INW
               </Button>
@@ -909,7 +911,7 @@ export default function FaucetPage({ api }) {
           alignItems="start"
           direction={{ base: "column", lg: "row" }}
         >
-          {/* <IWCardOneColumn
+          <IWCardOneColumn
             title="Ink Whale Token (INW)"
             data={[
               {
@@ -918,25 +920,28 @@ export default function FaucetPage({ api }) {
               },
               { title: "Total Supply", content: `${inwTotalSupply} INW` },
               { title: "In Circulation ", content: `${inwInCur} INW` },
+              // {
+              //   title: "Total Swap To INW V2 ",
+              //   content: `${formatNumDynDecimal(swappedV2Amount)} INW`,
+              // },
+              // {
+              //   title: "Total Burned ",
+              //   content: `${formatNumDynDecimal(inwBurn)} INW`,
+              // },
+              // {
+              //   title: "Your Vesting Amount ",
+              //   content: `${formatNumDynDecimal(
+              //     (+saleInfo?.buyerInfo?.purchasedAmount?.replaceAll(",", "") *
+              //       95) /
+              //       100 || 0
+              //   )} INW`,
+              // },
               {
-                title: "Total Swap To INW V2 ",
-                content: `${formatNumDynDecimal(swappedV2Amount)} INW`,
+                title: "Your Balance: ",
+                content: `${formatNumDynDecimalEthers(inwBalance)} INW`,
               },
-              {
-                title: "Total Burned ",
-                content: `${formatNumDynDecimal(inwBurn)} INW`,
-              },
-              {
-                title: "Your Vesting Amount ",
-                content: `${formatNumDynDecimal(
-                  (+saleInfo?.buyerInfo?.purchasedAmount?.replaceAll(",", "") *
-                    95) /
-                    100 || 0
-                )} INW`,
-              },
-              { title: "Your Balance: ", content: `${inwBalance} INW` },
             ]}
-          /> */}
+          />
           <Box w={"full"}>
             <SaleTab
               tabsData={tabsData}

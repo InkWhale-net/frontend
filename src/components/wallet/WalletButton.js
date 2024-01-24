@@ -26,7 +26,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { updateAccountsList } from "redux/slices/walletSlice";
-import { addressShortener } from "utils";
+import { addressShortener, formatNumDynDecimalEthers } from "utils";
 
 import AddressCopier from "components/address-copier/AddressCopier";
 import { supportWallets } from "constants";
@@ -299,7 +299,7 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
             },
             {
               title: "INW Balance",
-              content: formatNumDynDecimal(
+              content: formatNumDynDecimalEthers(
                 currentAccount?.balance?.inw?.replaceAll(",", "")
               ),
             },
