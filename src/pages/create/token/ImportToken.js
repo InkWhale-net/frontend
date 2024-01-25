@@ -18,7 +18,6 @@ import {
 import { execContractQuery } from "utils/contracts";
 import core_contract from "utils/contracts/core_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
-import psp22_contract_old from "utils/contracts/psp22_contract_old";
 import ImageUploadIcon from "./UploadIcon";
 import { getTokenOwner } from "utils";
 import { web3FromSource } from "@polkadot/extension-dapp";
