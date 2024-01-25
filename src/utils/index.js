@@ -111,12 +111,12 @@ export const formatNumDynDecimal = (num = 0, dec = 4) => {
 
   // return intPart + `${dotIdx === -1 ? "" : `.${decPart}`}`;
   try {
-    const raw = formatTextAmount(num.toString())
-    let parts = raw.split('.');
+    const raw = formatTextAmount(num?.toString())
+    let parts = raw?.split('.');
     if (parts?.length > 1) {
-      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-      parts[1] = parts[1].slice(0, dec)
-      return parts.join('.');
+      parts[0] = parts[0]?.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      parts[1] = parts[1]?.slice(0, dec)
+      return parts?.join('.');
     } else return num?.toString()
   } catch (error) {
     console.log(error);

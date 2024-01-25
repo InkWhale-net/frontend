@@ -233,6 +233,8 @@ export async function getWithdrawalRequestList(api, currentAccount) {
 // Execute tx
 
 export async function doStakeAzero(api, currentAccount, amount) {
+  console.log("amount", amount);
+  console.log("formatNumToBN(amount)", formatNumToBN(amount));
   return await execContractTx(
     currentAccount,
     api,
