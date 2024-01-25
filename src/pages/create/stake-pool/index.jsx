@@ -202,15 +202,13 @@ export default function CreateStakePoolPage() {
     if (!isAddressValid(selectedContractAddr)) {
       return toast.error("Invalid address!");
     }
-
     if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
         `You don't have enough ${currentChain?.inwName}. Create Stake Pool costs ${createTokenFee} ${currentChain?.inwName}`
       );
       return;
     }
-
-    if (+tokenBalance?.replaceAll(",", "") < +minReward?.replaceAll(",", "")) {
+    if (+tokenBalance?.replaceAll(",", "") < minReward) {
       toast.error(`You don't have enough ${tokenSymbol} to topup the reward`);
       return;
     }
@@ -240,7 +238,7 @@ export default function CreateStakePoolPage() {
             currentAccount?.address,
             pool_generator_contract.CONTRACT_ADDRESS
           );
-          const allowanceINW = formatQueryResultToNumberEthers(allowanceINWQr);
+          const allowanceINW = formatQueryResultToNumberEthers(allowanceINWQr, 18);
           if (+allowanceINW < +createTokenFee) {
             toast(`Step ${step}: Approving ${currentChain?.inwName} token...`);
             step++;
@@ -281,7 +279,7 @@ export default function CreateStakePoolPage() {
             allowanceTokenQr,
             tokenInfor?.decimal
           );
-          if (+allowanceToken < +formatTextAmount(minReward)) {
+          if (+allowanceToken < minReward) {
             toast(`Step ${step}: Approving ${tokenSymbol} token...`);
             step++;
             let approve = await execContractTxAndCallAPI(
@@ -295,7 +293,7 @@ export default function CreateStakePoolPage() {
                 resolve();
               },
               pool_generator_contract.CONTRACT_ADDRESS,
-              formatNumToBNEther(formatTextAmount(minReward))
+              formatNumToBNEther(minReward)
             );
             if (!approve) {
               reject("Approve fail");
@@ -310,14 +308,14 @@ export default function CreateStakePoolPage() {
       });
       await delay(1000);
       toast(`Step ${step}: Process...`);
-      console.log(
-        currentAccount?.address,
-        selectedContractAddr,
-        formatNumToBN(maxStake, tokenInfor?.decimal || 12),
-        parseInt(apy * 100),
-        roundUp(duration * 24 * 60 * 60 * 1000, 0),
-        startTime.getTime()
-      );
+      // console.log(
+      //   currentAccount?.address,
+      //   selectedContractAddr,
+      //   formatNumToBN(maxStake, tokenInfor?.decimal || 12),
+      //   parseInt(apy * 100),
+      //   roundUp(duration * 24 * 60 * 60 * 1000, 0),
+      //   startTime.getTime()
+      // );
       await new Promise(async (resolve, reject) => {
         try {
           const result = await execContractTxAndCallAPI(
@@ -374,7 +372,7 @@ export default function CreateStakePoolPage() {
   }
 
   const minReward = useMemo(
-    () => formatNumDynDecimal((maxStake * duration * apy) / 100 / 365),
+    () => roundUp((maxStake * duration * apy) / 100 / 365, 10),
     [maxStake, duration, apy]
   );
 
@@ -479,9 +477,8 @@ export default function CreateStakePoolPage() {
                 }}
                 options={faucetTokensList?.map((token, idx) => ({
                   value: token?.contractAddress,
-                  label: `${token?.symbol} (${
-                    token?.name
-                  }) - ${addressShortener(token?.contractAddress)}`,
+                  label: `${token?.symbol} (${token?.name
+                    }) - ${addressShortener(token?.contractAddress)}`,
                 }))}
               ></SelectSearch>
             </Box>
@@ -532,11 +529,10 @@ export default function CreateStakePoolPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${
-                  formatNumDynDecimal(
-                    currentAccount?.balance?.inw2?.replaceAll(",", "")
-                  ) || 0
-                } ${currentChain?.inwName}`}
+                value={`${formatNumDynDecimal(
+                  currentAccount?.balance?.inw2?.replaceAll(",", "")
+                ) || 0
+                  } ${currentChain?.inwName}`}
                 label={`Your ${currentChain?.inwName} Balance`}
               />
             </Box>
@@ -582,7 +578,7 @@ export default function CreateStakePoolPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${minReward || 0} ${tokenSymbol || ""}`}
+                value={`${formatNumDynDecimal(minReward) || 0} ${tokenSymbol || ""}`}
                 label={
                   <>
                     Total Rewards
