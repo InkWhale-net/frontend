@@ -3,6 +3,7 @@ import { Link, Stack } from "@chakra-ui/react";
 import AddressCopier from "components/address-copier/AddressCopier";
 import { NFTBannerCard } from "components/card/Card";
 import CardTwoColumn from "components/card/CardTwoColumn";
+import { useChainContext } from "contexts/ChainContext";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -33,6 +34,7 @@ const PoolInfo = ({
   ...rest
 }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
+  const { currentChain } = useChainContext();
   const cardDataPoolInfo = {
     cardHeaderList: [
       {
@@ -70,7 +72,7 @@ const PoolInfo = ({
           {nftInfo?.name}
         </Link>
       ),
-      volume: `${formatNumDynDecimal(nftInfo?.volume)} AZERO`,
+      volume: `${formatNumDynDecimal(nftInfo?.volume)} ${currentChain?.unit}`,
       totalSupply: `${nftInfo?.nft_count} NFT${nftInfo?.nft_count > 1 && "s"}`,
       royaltyFee: `${(nftInfo?.royaltyFee / 100).toFixed(2)}%`,
     },

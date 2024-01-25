@@ -1,20 +1,18 @@
-import { decodeAddress, encodeAddress } from "@polkadot/keyring";
-import { hexToU8a, isHex } from "@polkadot/util";
-import { formatBalance } from "@polkadot/util";
-import axios from "axios";
-import { BN } from "@polkadot/util";
-import numeral from "numeral";
-import Keyring from "@polkadot/keyring";
-import { toast } from "react-hot-toast";
 import {
   SupportedChainId,
   resolveAddressToDomain,
   resolveDomainToAddress,
 } from "@azns/resolver-core";
+import Keyring, { decodeAddress, encodeAddress } from "@polkadot/keyring";
+import { BN, formatBalance, hexToU8a, isHex } from "@polkadot/util";
+import axios from "axios";
 import { formatUnits, parseUnits } from "ethers";
 import moment from "moment";
+import numeral from "numeral";
+import { toast } from "react-hot-toast";
 import { execContractQuery } from "./contracts";
 import { psp22_contract } from "utils/contracts";
+
 
 export const chainDecimals = {
   alephzero: 12,
@@ -128,32 +126,25 @@ export const formatNumDynDecimal = (num = 0, dec = 4) => {
   // const decPart = numStr.slice(dotIdx + 1, numStr.length);
 
   // return intPart + `${dotIdx === -1 ? "" : `.${decPart}`}`;
-  let parts = num.toString().split('.');
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
-  return parts.join('.');
-};
-
-export const formatNumDynDecimalEthers = (num = 0, dec = 4) => {
-  const number = parseInt(num * 10 ** dec) / 10 ** dec;
-  const numStr = number.toString();
-  const dotIdx = numStr.indexOf(".");
-
-  if (dotIdx === -1) {
-    return numeral(numStr).format("0,0");
+  try {
+    const raw = formatTextAmount(num?.toString())
+    let parts = raw?.split('.');
+    if (parts?.length > 1 && +parts?.[1] > 0) {
+      parts[0] = parts[0]?.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      parts[1] = ((roundDown(+`0.${parts[1]}`).toString()).split("."))[1]
+      return parts?.join('.');
+    } 
+    else return parts?.[0]?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  } catch (error) {
+    console.log(error);
+    return num?.toString();
   }
-
-  const intPart = numeral(numStr.slice(0, dotIdx)).format("0,0");
-  const decPart = numStr.slice(dotIdx + 1, numStr.length);
-
-  return intPart + `${dotIdx === -1 ? "" : `.${decPart}`}`;
 };
 
 // new func to getImage source from CloudFlare
 export async function getCloudFlareImage(imageHash = "", size = 500) {
-  const fallbackURL = `${
-    process.env.REACT_APP_IPFS_PUBLIC_URL
-  }/${imageHash.replace("ipfs://", "")}`;
+  const fallbackURL = `${process.env.REACT_APP_IPFS_PUBLIC_URL
+    }/${imageHash.replace("ipfs://", "")}`;
 
   const ret = `${process.env.REACT_APP_ARTZERO_API_BASE_URL}/getImage?input=${imageHash}&size=${size}&url=${fallbackURL}`;
 
@@ -523,8 +514,8 @@ export const getTokenOwner = async (tokenContract) => {
     isNew: queryOwnerNew?.toHuman()?.Ok
       ? true
       : queryOwnerOld?.toHuman()?.Ok
-      ? false
-      : null,
+        ? false
+        : null,
   };
 };
 

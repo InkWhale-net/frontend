@@ -227,10 +227,8 @@ export default function CreateTokenLPPage() {
     }
     if (+currentAccount?.balance?.inw < +createTokenFee) {
       toast.error(
-        `You don't have enough ${
-          currentChain?.inwName
-        }. Stake costs ${formatNumDynDecimal(createTokenFee)} ${
-          currentChain?.inwName
+        `You don't have enough ${currentChain?.inwName
+        }. Stake costs ${formatNumDynDecimal(createTokenFee)} ${currentChain?.inwName
         }`
       );
       return;
@@ -467,9 +465,8 @@ export default function CreateTokenLPPage() {
                 }}
                 options={faucetTokensList?.map((token, idx) => ({
                   value: token?.contractAddress,
-                  label: `${token?.symbol} (${
-                    token?.name
-                  }) - ${addressShortener(token?.contractAddress)}`,
+                  label: `${token?.symbol} (${token?.name
+                    }) - ${addressShortener(token?.contractAddress)}`,
                 }))}
               ></SelectSearch>
             </Box>
@@ -484,9 +481,8 @@ export default function CreateTokenLPPage() {
             <IWInput
               isDisabled
               value={`${LPtokenBalance || 0}`}
-              label={`Your ${
-                tokenLPSymbol?.symbol?.toUpperCase() || "Token"
-              }  Balance`}
+              label={`Your ${tokenLPSymbol?.symbol?.toUpperCase() || "Token"
+                }  Balance`}
             />
             <IWInput
               isDisabled
@@ -509,9 +505,8 @@ export default function CreateTokenLPPage() {
                 }}
                 options={pairTokenList?.map((token, idx) => ({
                   value: token?.contractAddress,
-                  label: `${token?.symbol} (${
-                    token?.name
-                  }) - ${addressShortener(token?.contractAddress)}`,
+                  label: `${token?.symbol} (${token?.name
+                    }) - ${addressShortener(token?.contractAddress)}`,
                 }))}
               ></SelectSearch>
             </Box>
@@ -527,9 +522,8 @@ export default function CreateTokenLPPage() {
             <IWInput
               isDisabled
               value={`${tokenBalance || 0}`}
-              label={`Your ${
-                tokenSymbol?.symbol?.toUpperCase() || "Token"
-              } Balance`}
+              label={`Your ${tokenSymbol?.symbol?.toUpperCase() || "Token"
+                } Balance`}
             />
             <IWInput
               isDisabled
@@ -550,9 +544,8 @@ export default function CreateTokenLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.azero || 0} ${
-                  currentChain?.unit
-                }`}
+                value={`${currentAccount?.balance?.azero || 0} ${currentChain?.unit
+                  }`}
                 label={`Your ${currentChain?.unit} Balance`}
               />
             </Box>
@@ -577,11 +570,10 @@ export default function CreateTokenLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${
-                  formatNumDynDecimal(
-                    currentAccount?.balance?.inw2?.replaceAll(",", "")
-                  ) || 0
-                } ${currentChain?.inwName}`}
+                value={`${formatNumDynDecimal(
+                  currentAccount?.balance?.inw2?.replaceAll(",", "")
+                ) || 0
+                  } ${currentChain?.inwName}`}
                 label={`Your ${currentChain?.inwName} Balance`}
               />
             </Box>
@@ -644,9 +636,8 @@ export default function CreateTokenLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${minReward || 0} ${
-                  tokenSymbol?.symbol?.toUpperCase() || ""
-                }`}
+                value={`${minReward || 0} ${tokenSymbol?.symbol?.toUpperCase() || ""
+                  }`}
                 label={
                   <>
                     Total Rewards

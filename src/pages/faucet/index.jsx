@@ -51,7 +51,6 @@ import { useChainContext } from "contexts/ChainContext";
 import { formatNumToBNEther } from "utils";
 import { formatQueryResultToNumberEthers } from "utils";
 import { BN } from "@polkadot/util";
-import { formatNumDynDecimalEthers } from "utils";
 
 const inwContractAddress = psp22_contract.CONTRACT_ADDRESS;
 
@@ -938,7 +937,7 @@ export default function FaucetPage({ api }) {
               // },
               {
                 title: "Your Balance: ",
-                content: `${formatNumDynDecimalEthers(inwBalance)} INW`,
+                content: `${formatNumDynDecimal(inwBalance)} INW`,
               },
             ]}
           />

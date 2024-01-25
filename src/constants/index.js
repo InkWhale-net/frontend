@@ -85,6 +85,21 @@ export const ADDRESSES_INW = {
   INW_TEAM: "5DtKc7qBE3fmGLHWGbqtYdvhBxkWpTfPfvGABsoqTVyesLsQ",
 };
 
+/*
+  pub status: u8
+  0: waiting,
+  1: is Ready to unstake,
+  2: unstaked,
+  3: cancelled
+ */
+
+export const stakeStatus = {
+  PENDING: "Pending",
+  READY: "Ready To Unstake",
+  UNSTAKED: "Unstaked",
+  CANCELLED: "Cancelled",
+};
+
 // export const IPFS_BASE_URL = 'https://artzeronft.infura-ipfs.io/ipfs';
 
 // export const SUPPORTED_WALLET_LIST = [

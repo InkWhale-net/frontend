@@ -26,7 +26,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { updateAccountsList } from "redux/slices/walletSlice";
-import { addressShortener, formatNumDynDecimalEthers } from "utils";
+import { addressShortener, formatNumDynDecimal } from "utils";
 
 import AddressCopier from "components/address-copier/AddressCopier";
 import { supportWallets } from "constants";
@@ -38,7 +38,6 @@ import { resolveDomain } from "utils";
 import WalletModal from "./WalletModal";
 import useLongPress from "./useLongPress";
 import toast from "react-hot-toast";
-import { formatNumDynDecimal } from "utils";
 import { useChainContext } from "contexts/ChainContext";
 
 export default function WalletButton({ onCloseSidebar }) {
@@ -299,7 +298,7 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
             },
             {
               title: "INW Balance",
-              content: formatNumDynDecimalEthers(
+              content: formatNumDynDecimal(
                 currentAccount?.balance?.inw?.replaceAll(",", "")
               ),
             },

@@ -2,6 +2,7 @@ import { Portal, Box, useDisclosure, Text } from "@chakra-ui/react";
 import Footer from "components/footer/FooterLandingPage.js";
 
 import Navbar from "components/navbar/Navbar.js";
+import { useChainContext } from "contexts/ChainContext";
 import { SidebarContext } from "contexts/SidebarContext";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
@@ -11,6 +12,7 @@ export default function Default(props) {
   const { children, ...rest } = props;
 
   const { TVL } = useSelector((s) => s.stats);
+  const { currentChain } = useChainContext();
 
   const [fixed] = useState(false);
   const [toggleSidebar, setToggleSidebar] = useState(false);
@@ -55,7 +57,7 @@ export default function Default(props) {
                   textAlign={"center"}
                 >
                   {" "}
-                  Platform TVL: {formatNumDynDecimal(TVL?.tvlInAzero, 2)} 5IRE (${formatNumDynDecimal(TVL?.tvlInUSD, 2)})
+                  Platform TVL: {formatNumDynDecimal(TVL?.tvlInAzero, 2)} {currentChain?.unit} (${formatNumDynDecimal(TVL?.tvlInUSD, 2)})
                 </Text>
               </Box>
               <Navbar

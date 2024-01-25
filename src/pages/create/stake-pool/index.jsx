@@ -16,9 +16,12 @@ import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
 import { toastMessages } from "constants";
+import { useAppContext } from "contexts/AppContext";
+import { useChainContext } from "contexts/ChainContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DateTimePicker from "react-datetime-picker";
 import { toast } from "react-hot-toast";
+import { useMutation } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMyStakingPools } from "redux/slices/myPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
@@ -27,22 +30,16 @@ import {
   delay,
   formatNumDynDecimal,
   formatNumToBN,
+  formatNumToBNEther,
   formatQueryResultToNumber,
+  formatQueryResultToNumberEthers,
   formatTokenAmount,
   isAddressValid,
   moveINWToBegin,
   roundUp,
 } from "utils";
-import { execContractQuery, execContractTx } from "utils/contracts";
+import { execContractQuery, execContractTxAndCallAPI, psp22_contract } from "utils/contracts";
 import { pool_generator_contract } from "utils/contracts/";
-import { psp22_contract } from "utils/contracts";
-import { execContractTxAndCallAPI } from "utils/contracts";
-import { useAppContext } from "contexts/AppContext";
-import { useChainContext } from "contexts/ChainContext";
-import { formatQueryResultToNumberEthers } from "utils";
-import { formatTextAmount } from "utils";
-import { formatNumToBNEther } from "utils";
-import { useMutation } from "react-query";
 
 export default function CreateStakePoolPage() {
   const dispatch = useDispatch();
