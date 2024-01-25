@@ -39,13 +39,14 @@ import WalletModal from "./WalletModal";
 import useLongPress from "./useLongPress";
 import toast from "react-hot-toast";
 import { formatNumDynDecimal } from "utils";
+import { useChainContext } from "contexts/ChainContext";
 
 export default function WalletButton({ onCloseSidebar }) {
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { currentAccount, allAccounts } = useSelector((state) => state.wallet);
 
-  const loadListAccount = async () => {};
+  const loadListAccount = async () => { };
   useEffect(() => {
     if (currentAccount) {
       loadListAccount();
@@ -235,7 +236,7 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
   const [domain, setDomain] = useState(null);
   const { currentAccount, allAccounts } = useSelector((state) => state.wallet);
   const { walletDisconnectHandler } = useAppContext();
-
+  const { currentChain } = useChainContext();
   useEffect(() => {
     resolveDomain(currentAccount?.address).then((domainValue) =>
       setDomain(domainValue)
@@ -293,37 +294,42 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
           </IWCard>
 
           {[
-            { title: "AZERO Balance", content: currentAccount?.balance?.azero },
+            {
+              title: `${currentChain?.unit} Balance`,
+              content: currentAccount?.balance?.azero,
+            },
             {
               title: "INW Balance",
               content: formatNumDynDecimal(
                 currentAccount?.balance?.inw?.replaceAll(",", "")
               ),
             },
-            {
+            currentChain?.haveINW2 && {
               title: "INW V2 Balance",
               content: formatNumDynDecimal(
                 currentAccount?.balance?.inw2?.replaceAll(",", "")
               ),
             },
-          ].map(({ title, content }, idx) => {
-            return (
-              <IWCard
-                key={idx}
-                mb="12px"
-                variant="menu"
-                minW={{ base: "full", lg: "350px" }}
-              >
-                <Flex justify={{ base: "space-between" }}>
-                  <Text>{title}</Text>
+          ]
+            .filter((e) => e)
+            .map(({ title, content }, idx) => {
+              return (
+                <IWCard
+                  key={idx}
+                  mb="12px"
+                  variant="menu"
+                  minW={{ base: "full", lg: "350px" }}
+                >
+                  <Flex justify={{ base: "space-between" }}>
+                    <Text>{title}</Text>
 
-                  <Heading as="h4" size="h4">
-                    {content}
-                  </Heading>
-                </Flex>
-              </IWCard>
-            );
-          })}
+                    <Heading as="h4" size="h4">
+                      {content}
+                    </Heading>
+                  </Flex>
+                </IWCard>
+              );
+            })}
 
           <Flex
             w="full"

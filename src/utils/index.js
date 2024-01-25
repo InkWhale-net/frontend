@@ -1,22 +1,19 @@
-import { decodeAddress, encodeAddress } from "@polkadot/keyring";
-import { hexToU8a, isHex } from "@polkadot/util";
-import { formatBalance } from "@polkadot/util";
-import axios from "axios";
-import BN from "bn.js";
-import numeral from "numeral";
-import Keyring from "@polkadot/keyring";
-import { toast } from "react-hot-toast";
 import {
   SupportedChainId,
   resolveAddressToDomain,
   resolveDomainToAddress,
 } from "@azns/resolver-core";
+import Keyring, { decodeAddress, encodeAddress } from "@polkadot/keyring";
+import { BN, formatBalance, hexToU8a, isHex } from "@polkadot/util";
+import axios from "axios";
 import { formatUnits, parseUnits } from "ethers";
 import moment from "moment";
+import numeral from "numeral";
+import { toast } from "react-hot-toast";
 import { execContractQuery } from "./contracts";
-import psp22_contract_old from "./contracts/psp22_contract_old";
 import psp22_contract from "./contracts/psp22_contract";
 import psp22_contract_v2 from "./contracts/psp22_contract_V2";
+import psp22_contract_old from "./contracts/psp22_contract_old";
 export const chainDecimals = {
   alephzero: 12,
   "alephzero-testnet": 12,
@@ -24,22 +21,41 @@ export const chainDecimals = {
   "firechain-testnet": 18,
   astar: 12,
 };
+
+export const chainDenom = {
+  alephzero: "AZERO",
+  "alephzero-testnet": "TZERO",
+  firechain: "5IRE",
+  "firechain-testnet": "5IRE",
+  astar: 12,
+};
+
 // "12,345" (string) or 12,345 (string) -> 12345 (number)
 export const formatChainStringToNumber = (str) => {
   if (typeof str !== "string") return str;
 
   return str.replace(/,/g, "").replace(/"/g, "");
 };
-export const formatQueryResultToNumber = (result, chainDecimals = 12) => {
+export const formatQueryResultToNumber = (result, decimal) => {
+  const localDecimal = decimal || chainDecimals[process.env.REACT_APP_CHAIN];
+
   const ret = result?.toHuman()?.Ok?.replaceAll(",", "");
 
   const formattedStrBal = formatBalance(ret, {
     withSi: false,
     forceUnit: "-",
-    decimals: chainDecimals,
+    decimals: localDecimal,
   });
 
   return formattedStrBal;
+};
+
+export const formatQueryResultToNumberEthers = (result, decimal) => {
+  const localDecimal = decimal || chainDecimals[process.env.REACT_APP_CHAIN];
+
+  const ret = formatTextAmount(result?.toHuman()?.Ok);
+
+  return formatTokenAmount(ret, localDecimal);
 };
 
 export const addressShortener = (addr = "", digits = 5) => {

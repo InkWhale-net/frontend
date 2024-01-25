@@ -18,6 +18,7 @@ import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
 import { toastMessages } from "constants";
 import { useAppContext } from "contexts/AppContext";
+import { useChainContext } from "contexts/ChainContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DateTimePicker from "react-datetime-picker";
 import { toast } from "react-hot-toast";
@@ -41,6 +42,7 @@ import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 export default function CreateTokenLPPage() {
   const dispatch = useDispatch();
   const { api } = useAppContext();
+  const { currentChain, unitDecimal } = useChainContext();
   const { currentAccount } = useSelector((s) => s.wallet);
   const { myTokenPoolsList, loading } = useSelector((s) => s.myPools);
   const { allTokensList } = useSelector((s) => s.allPools);
@@ -219,9 +221,9 @@ export default function CreateTokenLPPage() {
       +createTokenFee
     ) {
       toast.error(
-        `You don't have enough INW V2. Stake costs ${formatNumDynDecimal(
-          createTokenFee
-        )} INW V2`
+        `You don't have enough ${currentChain?.inwName
+        }. Stake costs ${formatNumDynDecimal(createTokenFee)} ${currentChain?.inwName
+        }`
       );
       return;
     }
@@ -270,7 +272,7 @@ export default function CreateTokenLPPage() {
 
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving INW V2 token...`);
+      toast(`Step ${step}: Approving ${tokenSymbol?.symbol} token...`);
       step++;
       let approve = await execContractTx(
         currentAccount,
@@ -406,7 +408,10 @@ export default function CreateTokenLPPage() {
             Stakers get rewards in selected token. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {formatNumDynDecimal(createTokenFee)} INW V2
+              {+createTokenFee > 1
+                ? formatNumDynDecimal(createTokenFee)
+                : createTokenFee}{" "}
+              {currentChain?.inwName}
             </Text>
           </span>
         }
@@ -434,9 +439,8 @@ export default function CreateTokenLPPage() {
                 }}
                 options={faucetTokensList?.map((token, idx) => ({
                   value: token?.contractAddress,
-                  label: `${token?.symbol} (${
-                    token?.name
-                  }) - ${addressShortener(token?.contractAddress)}`,
+                  label: `${token?.symbol} (${token?.name
+                    }) - ${addressShortener(token?.contractAddress)}`,
                 }))}
               ></SelectSearch>
             </Box>
@@ -465,9 +469,8 @@ export default function CreateTokenLPPage() {
                 }}
                 options={pairTokenList?.map((token, idx) => ({
                   value: token?.contractAddress,
-                  label: `${token?.symbol} (${
-                    token?.name
-                  }) - ${addressShortener(token?.contractAddress)}`,
+                  label: `${token?.symbol} (${token?.name
+                    }) - ${addressShortener(token?.contractAddress)}`,
                 }))}
               ></SelectSearch>
             </Box>
@@ -494,8 +497,9 @@ export default function CreateTokenLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.azero || 0} AZERO`}
-                label="Your AZERO Balance"
+                value={`${currentAccount?.balance?.azero || 0} ${currentChain?.unit
+                  }`}
+                label={`Your ${currentChain?.unit} Balance`}
               />
             </Box>
             <Box w="full">
@@ -520,13 +524,10 @@ export default function CreateTokenLPPage() {
 
             <Box w="full">
               <IWInput
-                isDisabled={true}
-                value={`${
-                  formatNumDynDecimal(
-                    currentAccount?.balance?.inw2?.replaceAll(",", "")
-                  ) || 0
-                } INW V2`}
-                label="Your INW V2 Balance"
+                isDisabled
+                value={`${LPtokenBalance || 0}`}
+                label={`Your ${tokenLPSymbol?.symbol?.toUpperCase() || "Token"
+                  }  Balance`}
               />
             </Box>
 

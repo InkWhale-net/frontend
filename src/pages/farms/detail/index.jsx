@@ -64,6 +64,7 @@ import psp34_standard from "utils/contracts/psp34_standard";
 import PoolInfo from "./PoolInfor";
 import { formatTextAmount } from "utils";
 import psp22_contract from "utils/contracts/psp22_contract";
+import { useChainContext } from "contexts/ChainContext";
 
 const FarmDetailPage = () => {
   const params = useParams();
@@ -196,17 +197,17 @@ const FarmDetailPage = () => {
               ? "Max Staking Amount reached"
               : "Total Value Locked: Total NFT staked into this pool"
             : currentTokenPool?.isMaxStakingAmount
-            ? "Max Staking Amount reached"
-            : "Total Value Locked: Total tokens staked into this pool",
+              ? "Max Staking Amount reached"
+              : "Total Value Locked: Total tokens staked into this pool",
         label: "TVL",
         tooltipIcon:
           farmMode == "NFT_FARM"
             ? currentNFTPool?.isMaxStakingAmount && (
-                <AiOutlineExclamationCircle ml="6px" color="text.1" />
-              )
+              <AiOutlineExclamationCircle ml="6px" color="text.1" />
+            )
             : currentTokenPool?.isMaxStakingAmount && (
-                <AiOutlineExclamationCircle ml="6px" color="text.1" />
-              ),
+              <AiOutlineExclamationCircle ml="6px" color="text.1" />
+            ),
       },
       {
         name: "rewardPool",
@@ -217,9 +218,8 @@ const FarmDetailPage = () => {
       {
         name: "multiplier",
         hasTooltip: true,
-        tooltipContent: `Multiplier determines how many reward tokens will the staker receive per 1 ${
-          farmMode === "NFT_FARM" ? "NFT" : "token"
-        } in 24 hours.`,
+        tooltipContent: `Multiplier determines how many reward tokens will the staker receive per 1 ${farmMode === "NFT_FARM" ? "NFT" : "token"
+          } in 24 hours.`,
         label: "Multiplier",
       },
       {
@@ -317,13 +317,12 @@ const FarmDetailPage = () => {
       </Show>
 
       <SectionContainer
-        title={`${
-          farmMode === "NFT_FARM"
-            ? "NFT Staking Pool"
-            : farmMode === "TOKEN_FARM"
+        title={`${farmMode === "NFT_FARM"
+          ? "NFT Staking Pool"
+          : farmMode === "TOKEN_FARM"
             ? "Token Farming"
             : null
-        }`}
+          }`}
       >
         <Stack
           w="full"
@@ -441,6 +440,7 @@ const MyStakeRewardInfoNFT = ({
   const dispatch = useDispatch();
 
   const { currentAccount, api } = useSelector((s) => s.wallet);
+  const { currentChain } = useChainContext();
 
   const [unstakeFee, setUnstakeFee] = useState(0);
 
@@ -754,19 +754,21 @@ const MyStakeRewardInfoNFT = ({
     if (
       !isOldPool &&
       +formatTextAmount(currentAccount?.balance?.inw2) <
-        +formatTextAmount(unstakeFee)
+      +formatTextAmount(unstakeFee)
     ) {
       toast.error(
-        `You don't have enough INW V2. Unstake costs ${unstakeFee} INW V2`
+        `You don't have enough ${currentChain?.inwName}. Unstake costs ${unstakeFee} ${currentChain?.inwName}`
       );
       return;
     }
     if (
       isOldPool &&
       +formatTextAmount(currentAccount?.balance?.inw) <
-        +formatTextAmount(unstakeFee)
+      +formatTextAmount(unstakeFee)
     ) {
-      toast.error(`You don't have enough INW. Unstake costs ${unstakeFee} INW`);
+      toast.error(
+        `You don't have enough ${currentChain?.inwName}. Unstake costs ${unstakeFee} ${currentChain?.inwName}`
+      );
       return;
     }
 
@@ -867,18 +869,18 @@ const MyStakeRewardInfoNFT = ({
               ),
             },
             {
-              title: "AZERO Balance",
-              content: `${balance?.azero || 0} AZERO`,
+              title: `${currentChain?.unit} Balance`,
+              content: `${balance?.azero || 0} ${currentChain?.unit}`,
             },
             {
-              title: isOldPool ? "INW Balance" : "INW V2 Balance",
+              title: isOldPool
+                ? "INW Balance"
+                : `${currentChain?.inwName} Balance`,
               content: isOldPool
-                ? `${
-                    formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
-                  } INW`
-                : `${
-                    formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
-                  } INW V2`,
+                ? `${formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
+                } INW`
+                : `${formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
+                } ${currentChain?.inwName}`,
             },
             {
               title: `${tokenSymbol} Balance`,
@@ -895,15 +897,14 @@ const MyStakeRewardInfoNFT = ({
             },
             {
               title: "Last Claim",
-              content: `${
-                !currentAccount
-                  ? "No account selected"
-                  : !stakeInfo?.lastRewardUpdate
+              content: `${!currentAccount
+                ? "No account selected"
+                : !stakeInfo?.lastRewardUpdate
                   ? "Not claimed yet"
                   : new Date(stakeInfo?.lastRewardUpdate).toLocaleString(
-                      "en-US"
-                    )
-              }`,
+                    "en-US"
+                  )
+                }`,
             },
             {
               title: "My Unclaimed Rewards ",
@@ -925,7 +926,7 @@ const MyStakeRewardInfoNFT = ({
       {mode === "NFT_FARM" ? (
         <SectionContainer
           px="0px"
-          // mt={{ base: "-38px", xl: "-48px" }}
+        // mt={{ base: "-38px", xl: "-48px" }}
         >
           <IWTabs
             tabsData={tabsNFTData}
@@ -962,6 +963,7 @@ const MyStakeRewardInfoToken = ({
 }) => {
   const dispatch = useDispatch();
   const { currentAccount, api } = useSelector((s) => s.wallet);
+  const { currentChain } = useChainContext();
 
   const [unstakeFee, setUnstakeFee] = useState(0);
 
@@ -1215,19 +1217,21 @@ const MyStakeRewardInfoToken = ({
     if (
       !isOldPool &&
       +formatTextAmount(currentAccount?.balance?.inw2) <
-        +formatTextAmount(unstakeFee)
+      +formatTextAmount(unstakeFee)
     ) {
       toast.error(
-        `You don't have enough INW V2. Unstake costs ${unstakeFee} INW V2`
+        `You don't have enough ${currentChain?.inwName}. Unstake costs ${unstakeFee} ${currentChain?.inwName}`
       );
       return;
     }
     if (
       isOldPool &&
       +formatTextAmount(currentAccount?.balance?.inw) <
-        +formatTextAmount(unstakeFee)
+      +formatTextAmount(unstakeFee)
     ) {
-      toast.error(`You don't have enough INW. Unstake costs ${unstakeFee} INW`);
+      toast.error(
+        `You don't have enough ${currentChain?.inwName}. Unstake costs ${unstakeFee} ${currentChain?.inwName}`
+      );
       return;
     }
 
@@ -1336,18 +1340,18 @@ const MyStakeRewardInfoToken = ({
               ),
             },
             {
-              title: "AZERO Balance",
-              content: `${balance?.azero || 0} AZERO`,
+              title: `${currentChain?.unit} Balance`,
+              content: `${balance?.azero || 0} ${currentChain?.unit}`,
             },
             {
-              title: isOldPool ? "INW Balance" : "INW V2 Balance",
+              title: isOldPool
+                ? "INW Balance"
+                : `${currentChain?.inwName} Balance`,
               content: isOldPool
-                ? `${
-                    formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
-                  } INW`
-                : `${
-                    formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
-                  } INW V2`,
+                ? `${formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
+                } INW`
+                : `${formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
+                } ${currentChain?.inwName}`,
             },
             {
               title: `${tokenSymbol} Balance`,
@@ -1355,9 +1359,8 @@ const MyStakeRewardInfoToken = ({
             },
             {
               title: `${lptokenSymbol} Balance`,
-              content: `${
-                formatNumDynDecimal(LPtokenBalance) || 0
-              } ${lptokenSymbol}`,
+              content: `${formatNumDynDecimal(LPtokenBalance) || 0
+                } ${lptokenSymbol}`,
             },
           ]}
         />
@@ -1375,15 +1378,14 @@ const MyStakeRewardInfoToken = ({
             },
             {
               title: "Last Claim",
-              content: `${
-                !currentAccount
-                  ? "No account selected"
-                  : !stakeInfo?.lastRewardUpdate
+              content: `${!currentAccount
+                ? "No account selected"
+                : !stakeInfo?.lastRewardUpdate
                   ? "Not claimed yet"
                   : new Date(stakeInfo?.lastRewardUpdate).toLocaleString(
-                      "en-US"
-                    )
-              }`,
+                    "en-US"
+                  )
+                }`,
             },
             {
               title: "My Unclaimed Rewards ",

@@ -37,14 +37,16 @@ import { execContractQuery, execContractTx } from "utils/contracts";
 import pool_generator_contract from "utils/contracts/pool_generator";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { execContractTxAndCallAPI } from "utils/contracts";
+import { useChainContext } from "contexts/ChainContext";
 
 export default function CreateStakePoolPage({ api }) {
   const dispatch = useDispatch();
 
   const { currentAccount } = useSelector((s) => s.wallet);
+  const { currentChain, unitDecimal } = useChainContext();
   const { myStakingPoolsList, loading } = useSelector((s) => s.myPools);
 
-  const [createTokenFee, setCreateTokenFee] = useState("");
+  const [createTokenFee, setCreateFee] = useState("");
   const [faucetTokensList, setFaucetTokensList] = useState([]);
 
   const [selectedContractAddr, setSelectedContractAddr] = useState("");
@@ -135,8 +137,9 @@ export default function CreateStakePoolPage({ api }) {
         "genericPoolGeneratorTrait::getCreationFee"
       );
 
-      const fee = formatQueryResultToNumber(result);
-      setCreateTokenFee(fee?.replaceAll(",", ""));
+      const fee = formatTokenAmount(result?.toHuman()?.Ok, unitDecimal);
+
+      setCreateFee(fee);
     };
 
     fetchCreateTokenFee();
@@ -189,7 +192,7 @@ export default function CreateStakePoolPage({ api }) {
 
     if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
-        `You don't have enough INW V2. Create Stake Pool costs ${createTokenFee} INW`
+        `You don't have enough ${currentChain?.inwName}. Create Stake Pool costs ${createTokenFee} ${currentChain?.inwName}`
       );
       return;
     }
@@ -392,7 +395,10 @@ export default function CreateStakePoolPage({ api }) {
             Staker earns tokens at fixed APR. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {formatNumDynDecimal(createTokenFee)} INW V2
+              {+createTokenFee > 1
+                ? formatNumDynDecimal(createTokenFee)
+                : createTokenFee}{" "}
+              {currentChain?.inwName}
             </Text>
           </span>
         }
@@ -420,9 +426,8 @@ export default function CreateStakePoolPage({ api }) {
                 }}
                 options={faucetTokensList?.map((token, idx) => ({
                   value: token?.contractAddress,
-                  label: `${token?.symbol} (${
-                    token?.name
-                  }) - ${addressShortener(token?.contractAddress)}`,
+                  label: `${token?.symbol} (${token?.name
+                    }) - ${addressShortener(token?.contractAddress)}`,
                 }))}
               ></SelectSearch>
             </Box>
@@ -448,8 +453,8 @@ export default function CreateStakePoolPage({ api }) {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.azero || 0} AZERO`}
-                label="Your AZERO Balance"
+                value={`${currentAccount?.balance?.azero || 0} ${currentChain?.unit || "AZERO"}`}
+                label={`Your ${currentChain?.unit || "AZERO"} Balance`}
               />
             </Box>
             <Box w="full">
@@ -473,12 +478,11 @@ export default function CreateStakePoolPage({ api }) {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${
-                  formatNumDynDecimal(
-                    currentAccount?.balance?.inw2?.replaceAll(",", "")
-                  ) || 0
-                } INW`}
-                label="Your INW V2 Balance"
+                value={`${formatNumDynDecimal(
+                  currentAccount?.balance?.inw2?.replaceAll(",", "")
+                ) || 0
+                  } ${currentChain?.inwName}`}
+                label={`Your ${currentChain?.inwName} Balance`}
               />
             </Box>
 

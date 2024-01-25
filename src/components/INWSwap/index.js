@@ -36,6 +36,7 @@ import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
 import "./styles.css";
 import { execContractTx } from "./utils";
 import { getSwapGasLimit } from "utils/contracts/dryRun";
+import { useChainContext } from "contexts/ChainContext";
 
 export const INWSwap = () => {
   const amountRef = useRef(null);
@@ -106,6 +107,7 @@ const supportedToken = [
 ];
 
 export const SwapModalContent = ({ isOpen, amountRef }) => {
+  const { currentChain } = useChainContext();
   const [amount, setAmount] = useState("");
   const [amountV2, setAmountV2] = useState("");
   const [fromToken, setFromToken] = useState(supportedToken[0]);
@@ -477,7 +479,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
   return (
     <Box minW={!isMobile && "400px"} px="12px">
       <Flex className="balance-container">
-        <Text>Azero balance</Text>
+        <Text>{currentChain?.unit} balance</Text>
         <Text className="balance-value">{getBalance("azero")}</Text>
       </Flex>
 
@@ -604,12 +606,12 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
           <Stack>
             {step === 1 ? (
               <Text mr="4px">
-                Step 1: Approve Estimated Gas: {gasApproveToV2.toFixed(8)} Azero
+                Step 1: Approve Estimated Gas: {gasApproveToV2.toFixed(8)} {currentChain?.unit}
               </Text>
             ) : null}
             {step === 2 ? (
               <Text mr="4px">
-                Step 2: Swap Estimated Gas: {gasSwapToV2.toFixed(8)} Azero
+                Step 2: Swap Estimated Gas: {gasSwapToV2.toFixed(8)} {currentChain?.unit}
               </Text>
             ) : null}
           </Stack>
@@ -617,12 +619,12 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
           <Stack>
             {step === 1 ? (
               <Text mr="4px">
-                Step 1: Approve Estimated Gas: {gasApproveToV1.toFixed(8)} Azero
+                Step 1: Approve Estimated Gas: {gasApproveToV1.toFixed(8)} {currentChain?.unit}
               </Text>
             ) : null}
             {step === 2 ? (
               <Text mr="4px">
-                Step 2: Swap Estimated Gas: {gasSwapToV1.toFixed(8)} Azero
+                Step 2: Swap Estimated Gas: {gasSwapToV1.toFixed(8)} {currentChain?.unit}
               </Text>
             ) : null}
           </Stack>
