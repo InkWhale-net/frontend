@@ -36,13 +36,13 @@ const TokensTabBurnToken = ({
     }
 
     if (burnAmount === 0 || !burnAmount) {
-      toast.error("Please enter amount to transfer!");
+      toast.error("Please enter amount to burn!");
       return;
     }
 
     if (+burnAmount > +formatChainStringToNumber(tokenInfo?.content)) {
       toast.error(
-        `You don't have enough ${tokenInfo?.title} tokens to transfer!`
+        `You don't have enough ${tokenInfo?.title} tokens to burn!`
       );
       return;
     }
