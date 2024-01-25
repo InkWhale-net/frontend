@@ -113,11 +113,11 @@ export const formatNumDynDecimal = (num = 0, dec = 4) => {
   try {
     const raw = formatTextAmount(num?.toString())
     let parts = raw?.split('.');
-    if (parts?.length > 1) {
+    if (parts?.length > 1 && +parts?.[1] > 0) {
       parts[0] = parts[0]?.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-      parts[1] = parts[1]?.slice(0, dec)
+      parts[1] = ((roundDown(+`0.${parts[1]}`).toString()).split("."))[1]
       return parts?.join('.');
-    } else return num?.toString()
+    } else return parts[0]?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   } catch (error) {
     console.log(error);
     return num?.toString()
