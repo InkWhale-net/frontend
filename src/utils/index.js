@@ -16,6 +16,7 @@ import moment from "moment";
 import { execContractQuery } from "./contracts";
 import psp22_contract_old from "./contracts/psp22_contract_old";
 import psp22_contract from "./contracts/psp22_contract";
+import psp22_contract_v2 from "./contracts/psp22_contract_V2";
 export const chainDecimals = {
   alephzero: 12,
   "alephzero-testnet": 12,
@@ -96,7 +97,6 @@ export const formatNumToBNEther = (number = 0, decimal) => {
   }
 };
 
-
 export const formatNumDynDecimal = (num = 0, dec = 4) => {
   // const number = parseInt(num * 10 ** dec) / 10 ** dec;
   // const numStr = number.toString();
@@ -111,23 +111,24 @@ export const formatNumDynDecimal = (num = 0, dec = 4) => {
 
   // return intPart + `${dotIdx === -1 ? "" : `.${decPart}`}`;
   try {
-    const raw = formatTextAmount(num?.toString())
-    let parts = raw?.split('.');
+    const raw = formatTextAmount(num?.toString());
+    let parts = raw?.split(".");
     if (parts?.length > 1) {
-      parts[0] = parts[0]?.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-      parts[1] = parts[1]?.slice(0, dec)
-      return parts?.join('.');
-    } else return num?.toString()
+      parts[0] = parts[0]?.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      parts[1] = parts[1]?.slice(0, dec);
+      return parts?.join(".");
+    } else return num?.toString();
   } catch (error) {
     console.log(error);
-    return num?.toString()
+    return num?.toString();
   }
 };
 
 // new func to getImage source from CloudFlare
 export async function getCloudFlareImage(imageHash = "", size = 500) {
-  const fallbackURL = `${process.env.REACT_APP_IPFS_PUBLIC_URL
-    }/${imageHash.replace("ipfs://", "")}`;
+  const fallbackURL = `${
+    process.env.REACT_APP_IPFS_PUBLIC_URL
+  }/${imageHash.replace("ipfs://", "")}`;
 
   const ret = `${process.env.REACT_APP_ARTZERO_API_BASE_URL}/getImage?input=${imageHash}&size=${size}&url=${fallbackURL}`;
 
@@ -271,9 +272,15 @@ export const getPublicCurrentAccount = () => {
 };
 
 export const moveINWToBegin = (tokensList) => {
+  const INW2Index = tokensList.findIndex(
+    (element) => element?.contractAddress === psp22_contract_v2.CONTRACT_ADDRESS
+  );
+  if (INW2Index > -1) {
+    const element = tokensList.splice(INW2Index, 1)[0];
+    tokensList.unshift(element);
+  }
   const INWIndex = tokensList.findIndex(
-    (element) =>
-      element?.contractAddress === process.env.REACT_APP_INW_TOKEN_ADDRESS
+    (element) => element?.contractAddress === psp22_contract.CONTRACT_ADDRESS
   );
   if (INWIndex > -1) {
     const element = tokensList.splice(INWIndex, 1)[0];
@@ -487,8 +494,8 @@ export const getTokenOwner = async (tokenContract) => {
     isNew: queryOwnerNew?.toHuman()?.Ok
       ? true
       : queryOwnerOld?.toHuman()?.Ok
-        ? false
-        : null,
+      ? false
+      : null,
   };
 };
 
