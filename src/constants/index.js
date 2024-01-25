@@ -137,7 +137,7 @@ export const supportedChain = [
     allowBuy: true,
     haveINW2: true,
     haveAzeroID: true,
-    unit: "AZERO",
+    unit: "TZERO",
     url: "https://testnet.inkwhale.net/",
     inwName: "INW V2",
   },
