@@ -117,11 +117,21 @@ export const APICall = {
 
   // get INW total supply
   getINWTotalSupply: async () => {
-    return await client("POST", "/getINWTotalSupply", {});
+    return await client(
+      "POST",
+      "/getINWTotalSupply",
+      {},
+      "https://api-testnet.inkwhale.net"
+    );
   },
 
   getINWInCirculation: async () => {
-    return await client("POST", "/getINWInCirculation", {});
+    return await client(
+      "POST",
+      "/getINWInCirculation",
+      {},
+      "https://api-testnet.inkwhale.net"
+    );
   },
   getTransactionHistory: async ({
     tokenContract,

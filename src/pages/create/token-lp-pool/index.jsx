@@ -567,8 +567,6 @@ export default function CreateTokenLPPage() {
                 borderRadius="5px"
               >
                 <DateTimePicker
-                  disableClock
-                  disableCalendar
                   locale="en-EN"
                   value={startTime}
                   onChange={setStartTime}
@@ -616,7 +614,7 @@ export default function CreateTokenLPPage() {
                 alignItems="end"
                 w="full"
               >
-              
+
               </Stack>
             </Box> */}
             <Box w="full">

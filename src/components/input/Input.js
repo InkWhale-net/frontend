@@ -25,8 +25,8 @@ function IWInput(props) {
   // const styles = useStyleConfig("Input", { variant });
   const onChangeInput = (valueString) => {
     if (type === "number") {
-      const num = valueString?.target?.value?.replace(/[^0-9]/g, "");
-      valueString.target.value = num;
+      // const num = valueString?.target?.value?.replace(/[^0-9]/g, "");
+      // valueString.target.value = num;
       onChange(valueString);
     } else {
       if (maxLength > 0) {
@@ -36,6 +36,12 @@ function IWInput(props) {
           target: { ...valueString.target, value: slicedValue },
         });
       } else onChange(valueString);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "e" || e.key === "-") {
+      type === "number" && e.preventDefault();
     }
   };
 
@@ -59,7 +65,8 @@ function IWInput(props) {
         <Input
           {...rest}
           onChange={onChangeInput}
-          // type={type}
+          type={type}
+          onKeyDown={handleKeyDown}
           id={id}
           onWheel={(e) => e.target.blur()}
           min={0}
