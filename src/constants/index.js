@@ -121,7 +121,7 @@ export const supportedChain = [
     key: "alephzero",
     icon: IconAlephzero,
     decimal: 12,
-    providerURL: "wss://ws.test.azero.dev",
+    providerURL: "wss://ws.azero.dev",
     haveAzeroID: true,
     unit: "AZERO",
     url: "https://a0.inkwhale.net",
