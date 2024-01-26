@@ -1,5 +1,5 @@
 const launchpad_generator = {
-  CONTRACT_ADDRESS: "5G1GXng7S9fdLjtyzjbwZoDSmV4gv13Ctj8MX631ZkjeBnEe",
+  CONTRACT_ADDRESS: "5EMt4G9vRdvkXhdyXyveCSQKcS6vuqVFwKSjnsw8wm3tS3fP",
   CONTRACT_ABI: {
     source: {
       hash: "0x738a9bd1dbe2e78cfdc6e8ad26ce2fc1b1ea52cb465417fc226d3ddd69e868c9",
