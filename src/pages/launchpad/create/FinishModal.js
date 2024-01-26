@@ -281,7 +281,7 @@ const FinishModal = ({}) => {
             +launchpadData?.token?.decimals
           );
 
-          if (+formatTextAmount(allowanceToken) < +launchpadData?.totalSupply) {
+          if (+allowanceToken < +launchpadData?.totalSupply) {
             let approve = await execContractTx(
               currentAccount,
               "api",
