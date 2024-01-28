@@ -328,7 +328,7 @@ const FinishModal = ({}) => {
               poolContract: "new",
             });
             toast.promise(
-              delay(10000).then(() => {
+              delay(15000).then(() => {
                 dispatch(fetchLaunchpads({}));
                 history.push("/launchpad");
               }),
