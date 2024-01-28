@@ -63,7 +63,6 @@ function IWInput(props) {
           />
         )}
         <Input
-          {...rest}
           onChange={onChangeInput}
           type={type}
           onKeyDown={handleKeyDown}
@@ -71,6 +70,7 @@ function IWInput(props) {
           onWheel={(e) => e.target.blur()}
           min={0}
           placeholder={placeholder}
+          {...rest}
         />{" "}
       </InputGroup>
     </FormControl>

@@ -10,7 +10,6 @@ import {
 import IWCard from "components/card/Card";
 import IWCardOneColumn from "components/card/CardOneColumn";
 import SectionContainer from "components/container/SectionContainer";
-import { AzeroLogo } from "components/icons/Icons";
 import IWInput from "components/input/Input";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -22,7 +21,6 @@ import { public_sale_contract } from "utils/contracts";
 
 import { APICall } from "api/client";
 import AddressCopier from "components/address-copier/AddressCopier";
-import CardThreeColumn from "components/card/CardThreeColumn";
 import IWCountDown from "components/countdown/CountDown";
 import SaleTab from "components/tabs/SaleTab";
 import { toastMessages } from "constants";
@@ -36,21 +34,22 @@ import {
   formatNumToBN,
   formatQueryResultToNumber,
   getPublicCurrentAccount,
-  roundDown,
   roundUp,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import { formatUnits, parseUnits } from "ethers";
+import { parseUnits } from "ethers";
 import { formatTokenAmount } from "utils";
-import IWCountDownClaim from "./ClaimButton";
 import { formatTextAmount } from "utils";
-import { psp22_contract_v2 } from "utils/contracts";
 import { psp22_contract } from "utils/contracts";
-import { swap_inw2_contract } from "utils/contracts";
 import { useChainContext } from "contexts/ChainContext";
 import { formatNumToBNEther } from "utils";
 import { formatQueryResultToNumberEthers } from "utils";
-import { BN } from "@polkadot/util";
+import {
+  BN,
+  BN_BILLION,
+  BN_MILLION,
+  BN_THOUSAND,
+} from "@polkadot/util";
 
 const inwContractAddress = psp22_contract.CONTRACT_ADDRESS;
 
@@ -593,21 +592,61 @@ export default function FaucetPage({ api }) {
   };
 
   const checkNumeric = (text) => /^\d*(\.\d*)?$/.test(text);
+  const DECIMALS = 3;
+
   const onChangeAzeroInput = ({ target }) => {
-    if (checkNumeric(target.value) == true) {
+    if (checkNumeric(target.value) === true) {
+      if (target?.value > 0 && target?.value < Math.pow(10, -DECIMALS)) {
+        toast.error(`Min allowed is ${Math.pow(10, -DECIMALS)} INW`);
+        return;
+      }
+
+      const maxAllowedBuy = Math.min(
+        parseFloat(formatChainStringToNumber(azeroBalance) - 0.25),
+        parseFloat(formatChainStringToNumber(availableMint) * inwPrice)
+      );
+
+      if (target?.value > maxAllowedBuy) {
+        toast.error(`Max allowed is ${maxAllowedBuy} 5IRE`);
+        return;
+      }
+
       setAzeroBuyAmount(target.value);
-      const value = new BN(target.value);
-      const price = new BN(inwPrice * 10 ** 3);
-      setInwBuyAmount(roundDown(target.value / parseFloat(inwPrice)));
+
+      const inwBuyAmount =
+        (new BN(target?.value * 10 ** DECIMALS) /
+          new BN(inwPrice * BN_MILLION)) *
+        new BN(BN_THOUSAND);
+
+      setInwBuyAmount(inwBuyAmount);
     }
   };
 
   const onChangeInwInput = ({ target }) => {
-    if (checkNumeric(target.value) == true) {
-      setInwBuyAmount(target.value);
-      const value = new BN(target.value);
-      const price = new BN(inwPrice * 10 ** 3);
-      setAzeroBuyAmount(+formatUnits(value.mul(price).toString(), 3));
+    if (checkNumeric(target?.value) === true) {
+      if (target?.value > 0 && target?.value < Math.pow(10, -DECIMALS)) {
+        toast.error(`Min buy is ${Math.pow(10, -DECIMALS)} INW`);
+        return;
+      }
+
+      const maxInwBuy = Math.min(
+        parseFloat((formatChainStringToNumber(azeroBalance) - 0.25) / inwPrice),
+        parseFloat(formatChainStringToNumber(availableMint))
+      );
+
+      if (target?.value > maxInwBuy) {
+        toast.error(`Max buy is ${maxInwBuy} INW`);
+        return;
+      }
+
+      setInwBuyAmount(target?.value);
+
+      const azeroBuyAmount =
+        (new BN(target?.value * 10 ** DECIMALS) *
+          new BN(inwPrice * BN_MILLION)) /
+        new BN(BN_BILLION);
+
+      setAzeroBuyAmount(azeroBuyAmount);
     }
   };
 
@@ -880,7 +919,7 @@ export default function FaucetPage({ api }) {
               <Button
                 w="full"
                 onClick={inwPublicMintHandler}
-                // disabled={disableBuyBtn}
+                disabled={disableBuyBtn}
               >
                 Buy INW
               </Button>
