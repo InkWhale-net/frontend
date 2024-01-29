@@ -333,6 +333,8 @@ export default function CreateStakePoolPage() {
               setDuration("");
               setMaxStake("");
               setStartTime(new Date());
+              setSelectedContractAddr("");
+
               toast.promise(
                 delay(10000).then(() => {
                   resolve();
