@@ -45,7 +45,7 @@ export async function getTotalStakers(api, currentAccount) {
     "azeroStakingTrait::getTotalStakers"
   );
 
-  return formatQueryResultToNumber(queryResult, 0);
+  return queryResult?.toHuman()?.Ok;
 }
 
 export async function getAzeroBalanceOfStakingContract(api, currentAccount) {
