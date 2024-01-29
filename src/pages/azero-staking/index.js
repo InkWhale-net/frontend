@@ -1,9 +1,9 @@
 import SectionContainer from "components/container/SectionContainer";
 
-import React, { Fragment, useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import Staking from "./Staking";
 
-import StakingTabs from "./components/Tab";
+import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import {
   Box,
   Flex,
@@ -12,19 +12,16 @@ import {
   Tooltip,
   useMediaQuery,
 } from "@chakra-ui/react";
-import { useAppContext } from "contexts/AppContext";
-import { getApy } from "api/azero-staking/azero-staking";
-import { useSelector } from "react-redux";
-import { getTotalAzeroStaked } from "api/azero-staking/azero-staking";
-import { getTotalStakers } from "api/azero-staking/azero-staking";
-import { QuestionOutlineIcon } from "@chakra-ui/icons";
-import { formatNumDynDecimal } from "utils";
-import IWCard from "components/card/Card";
+import { getApy, getInwMultiplier, getTotalAzeroStaked, getTotalStakers } from "api/azero-staking/azero-staking";
 import { APICall } from "api/client";
-import { formatChainStringToNumber } from "utils";
-import toast from "react-hot-toast";
-import { getInwMultiplier } from "api/azero-staking/azero-staking";
+import IWCard from "components/card/Card";
 import IWPaginationTable from "components/table/IWPaginationTable";
+import { appChain } from "constants";
+import { useAppContext } from "contexts/AppContext";
+import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
+import { formatChainStringToNumber, formatNumDynDecimal } from "utils";
+import StakingTabs from "./components/Tab";
 
 function AzeroStaking() {
   const { api } = useAppContext();
@@ -72,8 +69,8 @@ function AzeroStaking() {
   return (
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
-      title="Azero Staking"
-      description={`Stake AZERO to earn ${formatNumDynDecimal(
+      title={`${appChain?.unit} Staking`}
+      description={`Stake ${appChain?.unit} to earn ${formatNumDynDecimal(
         totalApy
       )}% APY and up to 48 hours unstaking.`}
     >
@@ -125,7 +122,7 @@ function StatsInfo({ totalApy, inwApy }) {
           label={
             <Stack p="8px">
               <SimpleGrid columns={2}>
-                <Flex>AZERO Rewards APY</Flex>
+                <Flex>{appChain?.unit} Rewards APY</Flex>
                 <Flex justifyContent="right">
                   {formatNumDynDecimal(info && info[0])}%
                 </Flex>
@@ -150,7 +147,7 @@ function StatsInfo({ totalApy, inwApy }) {
     {
       title: "TVL",
       number: info && info[1],
-      denom: "AZERO",
+      denom: appChain?.unit,
       hasTooltip: true,
       tooltipContent: "Total Staked (incl. pending withdrawal)",
     },
@@ -237,14 +234,14 @@ function TransactionHistory() {
             i.type === 0
               ? "Staked"
               : i.type === 1
-              ? "Requested Unstake"
-              : i.type === 2
-              ? "Cancelled"
-              : i.type === 3
-              ? "Unstaked"
-              : i.type === 4
-              ? "Claimed Rewards"
-              : "",
+                ? "Requested Unstake"
+                : i.type === 2
+                  ? "Cancelled"
+                  : i.type === 3
+                    ? "Unstaked"
+                    : i.type === 4
+                      ? "Claimed Rewards"
+                      : "",
           azeroAmount:
             formatChainStringToNumber(i.data?.amount ?? i.data?.azeroAmount) /
             Math.pow(10, 12),
@@ -356,14 +353,14 @@ function MyTransactionHistory() {
             i.type === 0
               ? "Staked"
               : i.type === 1
-              ? "Requested Unstake"
-              : i.type === 2
-              ? "Cancelled"
-              : i.type === 3
-              ? "Unstaked"
-              : i.type === 4
-              ? "Claimed Rewards"
-              : "",
+                ? "Requested Unstake"
+                : i.type === 2
+                  ? "Cancelled"
+                  : i.type === 3
+                    ? "Unstaked"
+                    : i.type === 4
+                      ? "Claimed Rewards"
+                      : "",
           azeroAmount:
             formatChainStringToNumber(i.data?.amount ?? i.data?.azeroAmount) /
             Math.pow(10, 12),

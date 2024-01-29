@@ -31,6 +31,7 @@ import { execContractTx } from "utils/contracts";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { stakeStatus } from "constants";
 import { doCancelRequest } from "api/azero-staking/azero-staking";
+import { appChain } from "constants";
 
 export function IWTable({
   tableHeader,
@@ -77,12 +78,12 @@ export function IWTable({
 
   async function handleClaimPrincipal(index) {
     if (azeroBalance < 0.01) {
-      toast.error("Too low AZERO balance!");
+      toast.error(`Too low ${appChain?.unit} balance!`);
       return;
     }
 
     if (inwBalance2 < 5) {
-      toast.error("Too low INW balance!");
+      toast.error(`Too low ${appChain?.inwName} balance!`);
       return;
     }
     try {
@@ -145,7 +146,7 @@ export function IWTable({
     }
 
     if (azeroBalance < 0.01) {
-      toast.error("Too low AZERO balance!");
+      toast.error(`Too low ${appChain?.unit} balance!`);
       return;
     }
 

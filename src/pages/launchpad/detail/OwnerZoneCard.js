@@ -12,6 +12,7 @@ import { delay } from "utils";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { formatNumDynDecimal } from "utils";
 import { AzeroLogo } from "components/icons/Icons";
+import { appChain } from "constants";
 
 const OwnerZoneCard = ({ launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -137,7 +138,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
       return toast.error("Balance is zero!");
     }
 
-    toast.success(`Withdrawing ${ownerBalance.toFixed(4)} AZERO...`);
+    toast.success(`Withdrawing ${ownerBalance.toFixed(4)} ${appChain?.unit}...`);
 
     await execContractTxAndCallAPI(
       currentAccount,
@@ -185,7 +186,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
       (prev, curr) =>
         prev +
         formatChainStringToNumber(curr.purchasedAmount) /
-          Math.pow(10, tokenDecimal),
+        Math.pow(10, tokenDecimal),
       0
     );
     return { ...p, totalSoldAmount };
@@ -303,7 +304,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         onClick={ownerWithdrawHandler}
         isDisabled={ownerBalance < 0.0001}
       >
-        Withdraw AZERO
+        Withdraw {appChain?.unit}
       </Button>
 
       <Divider />

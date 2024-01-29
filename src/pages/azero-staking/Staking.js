@@ -1,27 +1,19 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import { Box, Button, Flex, Heading, Stack, Tooltip } from "@chakra-ui/react";
-import { getStakeInfo } from "api/azero-staking/azero-staking";
-import { doWithdrawRequest } from "api/azero-staking/azero-staking";
-import { doStakeAzero } from "api/azero-staking/azero-staking";
-import {
-  getMinStakingAmount,
-  getMaxTotalStakingAmount,
-} from "api/azero-staking/azero-staking";
+import { doStakeAzero, doWithdrawRequest, getMaxTotalStakingAmount, getMinStakingAmount, getStakeInfo } from "api/azero-staking/azero-staking";
 import IWCard from "components/card/Card";
 import IWInput from "components/input/Input";
 import { useAppContext } from "contexts/AppContext";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import { formatNumDynDecimal } from "utils";
-import { delay } from "utils";
-import { formatChainStringToNumber } from "utils";
+import { delay, formatChainStringToNumber, formatNumDynDecimal } from "utils";
 import StakingTable from "./components/Table";
 
 import { getWithdrawalRequestListByUser } from "api/azero-staking/azero-staking";
+import { appChain, stakeStatus } from "constants";
 import { MaxStakeButton } from "pages/pools/detail/MaxStakeButton";
-import { stakeStatus } from "constants";
 
 function Staking() {
   const { api } = useAppContext();
@@ -67,24 +59,24 @@ function Staking() {
 
   async function handleStake() {
     if (footerInfo && Number(footerInfo[0]) > Number(amount)) {
-      toast.error(`Min AZERO stake is ${footerInfo && footerInfo[0]} AZERO`);
+      toast.error(`Min ${appChain?.unit} stake is ${footerInfo && footerInfo[0]} ${appChain?.unit}`);
       return;
     }
 
     if (maxStakingCalc < amount) {
       toast.error(
-        `Max AZERO stake is ${formatNumDynDecimal(maxStakingCalc)} AZERO`
+        `Max ${appChain?.unit} stake is ${formatNumDynDecimal(maxStakingCalc)} ${appChain?.unit}`
       );
       return;
     }
 
     if (azeroBalance < amount) {
-      toast.error("Not enough AZERO balance!");
+      toast.error(`Not enough ${appChain?.unit} balance!`);
       return;
     }
 
     if (azeroBalance < 0.25) {
-      toast.error("Low AZERO balance!");
+      toast.error(`Low  ${appChain?.unit} balance!`);
       return;
     }
     const availableStakeAmount =
@@ -95,7 +87,7 @@ function Staking() {
         toast.error(
           `Max stake amount is ${formatNumDynDecimal(
             availableStakeAmount - 0.25
-          )} AZERO`
+          )} ${appChain?.unit}`
         );
         return;
       }
@@ -104,7 +96,7 @@ function Staking() {
         toast.error(
           `Max stake amount is ${formatNumDynDecimal(
             availableStakeAmount
-          )} AZERO`
+          )} ${appChain?.unit}`
         );
         return;
       }
@@ -161,24 +153,24 @@ function Staking() {
 
   async function handleRequestUnstake() {
     if (azeroBalance < 0.25) {
-      toast.error("Low AZERO balance!");
+      toast.error(`Low ${appChain?.unit} balance!`);
       return;
     }
 
     if (footerInfo && Number(footerInfo[0]) > Number(amount)) {
-      toast.error(`Min AZERO unstake is ${footerInfo && footerInfo[0]} AZERO`);
+      toast.error(`Min ${appChain?.unit} unstake is ${footerInfo && footerInfo[0]} ${appChain?.unit}`);
       return;
     }
 
     if (maxUnstaking < amount) {
       toast.error(
-        `Max AZERO unstake is ${formatNumDynDecimal(maxUnstaking)} AZERO`
+        `Max ${appChain?.unit} unstake is ${formatNumDynDecimal(maxUnstaking)} ${appChain?.unit}`
       );
       return;
     }
 
     if (maxUnstaking < amount) {
-      toast.error("Not enough AZERO unstake!");
+      toast.error(`Not enough ${appChain?.unit} unstake!`);
       return;
     }
 
@@ -263,9 +255,9 @@ function Staking() {
     azeroBalance - 0.25 <= 0
       ? 0
       : Math.min(
-          azeroBalance - 0.25,
-          footerInfo && footerInfo[1] - footerInfo[2]
-        );
+        azeroBalance - 0.25,
+        footerInfo && footerInfo[1] - footerInfo[2]
+      );
 
   return (
     <>
@@ -332,7 +324,7 @@ function FooterInfo({ info }) {
     {
       title: "Min staking",
       number: info && info[0],
-      denom: "AZERO",
+      denom: appChain?.unit,
       hasTooltip: false,
       tooltipContent: "Content of tooltip ",
     },
@@ -346,7 +338,7 @@ function FooterInfo({ info }) {
     {
       title: "Remaining total staking",
       number: info && info[1] - info[2],
-      denom: "AZERO",
+      denom: appChain?.unit,
       hasTooltip: false,
       tooltipContent: "Content of tooltip ",
     },

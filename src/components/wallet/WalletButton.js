@@ -39,7 +39,7 @@ import WalletModal from "./WalletModal";
 import useLongPress from "./useLongPress";
 import toast from "react-hot-toast";
 import { formatNumDynDecimal } from "utils";
-import { useChainContext } from "contexts/ChainContext";
+import { appChain } from "constants";
 
 export default function WalletButton({ onCloseSidebar }) {
   const dispatch = useDispatch();
@@ -236,7 +236,7 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
   const [domain, setDomain] = useState(null);
   const { currentAccount, allAccounts } = useSelector((state) => state.wallet);
   const { walletDisconnectHandler } = useAppContext();
-  const { currentChain } = useChainContext();
+  
   useEffect(() => {
     resolveDomain(currentAccount?.address).then((domainValue) =>
       setDomain(domainValue)
@@ -295,7 +295,7 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
 
           {[
             {
-              title: `${currentChain?.unit} Balance`,
+              title: `${appChain?.unit} Balance`,
               content: currentAccount?.balance?.azero,
             },
             {
@@ -304,7 +304,7 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
                 currentAccount?.balance?.inw?.replaceAll(",", "")
               ),
             },
-            currentChain?.haveINW2 && {
+            appChain?.haveINW2 && {
               title: "INW V2 Balance",
               content: formatNumDynDecimal(
                 currentAccount?.balance?.inw2?.replaceAll(",", "")

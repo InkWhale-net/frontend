@@ -16,21 +16,18 @@ import {
   VStack,
   useInterval,
 } from "@chakra-ui/react";
-import { doClaimRewards } from "api/azero-staking/azero-staking";
-import { getLastAzeroInterestTopup } from "api/azero-staking/azero-staking";
-import { getStakeInfo } from "api/azero-staking/azero-staking";
+import { doClaimRewards, getLastAzeroInterestTopup, getStakeInfo } from "api/azero-staking/azero-staking";
 import AddressCopier from "components/address-copier/AddressCopier";
 import IWCard from "components/card/Card";
 import IWCardOneColumn from "components/card/CardOneColumn";
 import IWCountDown from "components/countdown/CountDown";
+import { appChain } from "constants";
 import { useAppContext } from "contexts/AppContext";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import { delay } from "utils";
-import { formatNumDynDecimal } from "utils";
-import { formatChainStringToNumber } from "utils";
+import { delay, formatChainStringToNumber, formatNumDynDecimal } from "utils";
 
 const oneDay = 1000 * 60 * 60 * 24;
 const tenMins = 1000 * 60 * 10;
@@ -109,7 +106,7 @@ const LeftColumn = () => {
           ...prepareAccountInfo(currentAccount),
           {
             title: "My Staked",
-            content: `${formatNumDynDecimal(myStaked) ?? 0} AZERO`,
+            content: `${formatNumDynDecimal(myStaked) ?? 0} ${appChain?.unit}`,
           },
         ]}
       />
@@ -130,7 +127,6 @@ const LeftColumn = () => {
 
 function prepareAccountInfo(currentAccount) {
   const { address, balance } = currentAccount || {};
-
   return [
     {
       title: "Account Address",
@@ -141,8 +137,8 @@ function prepareAccountInfo(currentAccount) {
       ),
     },
     {
-      title: "Azero Balance",
-      content: `${balance?.azero ?? 0} AZERO`,
+      title: `${appChain?.unit} Balance`,
+      content: `${balance?.azero ?? 0} ${appChain?.unit}`,
     },
     {
       title: "INW Balance",
@@ -252,7 +248,7 @@ function StakingInfo() {
     }
 
     if (parseInt(info[4]) !== 0 && info[4] >= lastAzeroInterestTopupTimer) {
-      console.log("Wait until there is a new top-ups for azero interest ");
+      console.log(`Wait until there is a new top-ups for ${appChain?.unit} interest`);
       toast.error("Invalid Time To Claim Rewards!");
       return;
     }
@@ -271,9 +267,9 @@ function StakingInfo() {
 
   const formattedInfo = [
     {
-      title: "Estimated AZERO earnings",
+      title: `Estimated ${appChain?.unit} earnings`,
       number: info && info[0],
-      denom: "AZERO",
+      denom: appChain?.unit,
       hasTooltip: false,
       tooltipContent: "Content of tooltip ",
     },
@@ -285,9 +281,9 @@ function StakingInfo() {
       tooltipContent: "Content of tooltip ",
     },
     {
-      title: "Total Claimed AZERO",
+      title: `Total Claimed ${appChain?.unit}`,
       number: info && info[2],
-      denom: "AZERO",
+      denom: appChain?.unit,
       hasTooltip: false,
       tooltipContent: "Content of tooltip ",
     },
@@ -336,8 +332,8 @@ function StakingInfo() {
                     {!i?.number
                       ? "Not claim yet"
                       : !!parseInt(i?.number)
-                      ? new Date(parseInt(i?.number)).toLocaleString("en-US")
-                      : i?.number}
+                        ? new Date(parseInt(i?.number)).toLocaleString("en-US")
+                        : i?.number}
                   </>
                 ) : (
                   <>

@@ -64,7 +64,7 @@ import psp34_standard from "utils/contracts/psp34_standard";
 import PoolInfo from "./PoolInfor";
 import { formatTextAmount } from "utils";
 import psp22_contract from "utils/contracts/psp22_contract";
-import { useChainContext } from "contexts/ChainContext";
+import { appChain } from "constants";
 
 const FarmDetailPage = () => {
   const params = useParams();
@@ -440,8 +440,6 @@ const MyStakeRewardInfoNFT = ({
   const dispatch = useDispatch();
 
   const { currentAccount, api } = useSelector((s) => s.wallet);
-  const { currentChain } = useChainContext();
-
   const [unstakeFee, setUnstakeFee] = useState(0);
 
   const [stakeInfo, setStakeInfo] = useState(null);
@@ -757,7 +755,7 @@ const MyStakeRewardInfoNFT = ({
       +formatTextAmount(unstakeFee)
     ) {
       toast.error(
-        `You don't have enough ${currentChain?.inwName}. Unstake costs ${unstakeFee} ${currentChain?.inwName}`
+        `You don't have enough ${appChain?.inwName}. Unstake costs ${unstakeFee} ${appChain?.inwName}`
       );
       return;
     }
@@ -767,7 +765,7 @@ const MyStakeRewardInfoNFT = ({
       +formatTextAmount(unstakeFee)
     ) {
       toast.error(
-        `You don't have enough ${currentChain?.inwName}. Unstake costs ${unstakeFee} ${currentChain?.inwName}`
+        `You don't have enough ${appChain?.inwName}. Unstake costs ${unstakeFee} ${appChain?.inwName}`
       );
       return;
     }
@@ -869,18 +867,18 @@ const MyStakeRewardInfoNFT = ({
               ),
             },
             {
-              title: `${currentChain?.unit} Balance`,
-              content: `${balance?.azero || 0} ${currentChain?.unit}`,
+              title: `${appChain?.unit} Balance`,
+              content: `${balance?.azero || 0} ${appChain?.unit}`,
             },
             {
               title: isOldPool
                 ? "INW Balance"
-                : `${currentChain?.inwName} Balance`,
+                : `${appChain?.inwName} Balance`,
               content: isOldPool
                 ? `${formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
                 } INW`
                 : `${formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
-                } ${currentChain?.inwName}`,
+                } ${appChain?.inwName}`,
             },
             {
               title: `${tokenSymbol} Balance`,
@@ -963,7 +961,6 @@ const MyStakeRewardInfoToken = ({
 }) => {
   const dispatch = useDispatch();
   const { currentAccount, api } = useSelector((s) => s.wallet);
-  const { currentChain } = useChainContext();
 
   const [unstakeFee, setUnstakeFee] = useState(0);
 
@@ -1220,7 +1217,7 @@ const MyStakeRewardInfoToken = ({
       +formatTextAmount(unstakeFee)
     ) {
       toast.error(
-        `You don't have enough ${currentChain?.inwName}. Unstake costs ${unstakeFee} ${currentChain?.inwName}`
+        `You don't have enough ${appChain?.inwName}. Unstake costs ${unstakeFee} ${appChain?.inwName}`
       );
       return;
     }
@@ -1230,7 +1227,7 @@ const MyStakeRewardInfoToken = ({
       +formatTextAmount(unstakeFee)
     ) {
       toast.error(
-        `You don't have enough ${currentChain?.inwName}. Unstake costs ${unstakeFee} ${currentChain?.inwName}`
+        `You don't have enough ${appChain?.inwName}. Unstake costs ${unstakeFee} ${appChain?.inwName}`
       );
       return;
     }
@@ -1340,18 +1337,18 @@ const MyStakeRewardInfoToken = ({
               ),
             },
             {
-              title: `${currentChain?.unit} Balance`,
-              content: `${balance?.azero || 0} ${currentChain?.unit}`,
+              title: `${appChain?.unit} Balance`,
+              content: `${balance?.azero || 0} ${appChain?.unit}`,
             },
             {
               title: isOldPool
                 ? "INW Balance"
-                : `${currentChain?.inwName} Balance`,
+                : `${appChain?.inwName} Balance`,
               content: isOldPool
                 ? `${formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
                 } INW`
                 : `${formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
-                } ${currentChain?.inwName}`,
+                } ${appChain?.inwName}`,
             },
             {
               title: `${tokenSymbol} Balance`,

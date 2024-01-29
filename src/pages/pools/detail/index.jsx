@@ -56,6 +56,7 @@ import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { MaxStakeButton } from "./MaxStakeButton";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { formatTextAmount } from "utils";
+import { appChain } from "constants";
 
 export default function PoolDetailPage() {
   const params = useParams();
@@ -677,24 +678,21 @@ const MyStakeRewardInfo = ({
             ),
           },
           {
-            title: "AZERO Balance",
-            content: `${balance?.azero || 0} AZERO`,
+            title: `${appChain?.unit} Balance`,
+            content: `${balance?.azero || 0} ${appChain?.unit}`,
           },
           {
             title: isOldPool ? "INW Balance" : "INW V2 Balance",
             content: isOldPool
-              ? `${
-                  formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
-                } INW`
-              : `${
-                  formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
-                } INW V2`,
+              ? `${formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
+              } INW`
+              : `${formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
+              } INW V2`,
           },
           {
             title: `${tokenSymbol} Balance`,
-            content: `${
-              formatNumDynDecimal(tokenBalance?.replaceAll(",", "")) || 0
-            } ${tokenSymbol}`,
+            content: `${formatNumDynDecimal(tokenBalance?.replaceAll(",", "")) || 0
+              } ${tokenSymbol}`,
           },
         ]}
       />
@@ -710,13 +708,12 @@ const MyStakeRewardInfo = ({
           },
           {
             title: "Last Claim",
-            content: `${
-              !currentAccount
+            content: `${!currentAccount
                 ? "No account selected"
                 : !stakeInfo?.lastRewardUpdate
-                ? "Not claimed yet"
-                : new Date(stakeInfo?.lastRewardUpdate).toLocaleString("en-US")
-            }`,
+                  ? "Not claimed yet"
+                  : new Date(stakeInfo?.lastRewardUpdate).toLocaleString("en-US")
+              }`,
           },
           {
             title: "My Unclaimed Rewards ",
@@ -777,7 +774,7 @@ const MyStakeRewardInfo = ({
                   }}
                 />
               }
-              // isDisabled={!(remainStaking > 0)}
+            // isDisabled={!(remainStaking > 0)}
             />
 
             <HStack

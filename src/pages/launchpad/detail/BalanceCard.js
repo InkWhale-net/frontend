@@ -1,4 +1,5 @@
 import { Box, Divider, Heading, Text } from "@chakra-ui/react";
+import { appChain } from "constants";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { formatChainStringToNumber } from "utils";
@@ -82,8 +83,8 @@ const BalanceCard = ({ launchpadData }) => {
           }}
         />
         <Row label="INW" value={currentAccount?.balance?.inw} />
-        <Row label="INW2" value={currentAccount?.balance?.inw2} />
-        <Row label="AZERO" value={currentAccount?.balance?.azero} />
+        <Row label={appChain?.inwName} value={currentAccount?.balance?.inw2} />
+        <Row label={appChain?.unit} value={currentAccount?.balance?.azero} />
 
         <Row
           label={launchpadData?.projectInfo?.token?.symbol}

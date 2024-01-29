@@ -21,10 +21,10 @@ import WalletButton from "components/wallet/WalletButton";
 import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
 import { INWSwap } from "components/INWSwap";
+import { appChain } from "constants";
 
 export default function NavbarLinks(props) {
   const { secondary } = props;
-
   const [currentAnchor, setCurrentAnchor] = useState("");
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
 
@@ -125,7 +125,7 @@ export default function NavbarLinks(props) {
             path="/pools"
             data={[
               {
-                label: "AZERO Staking",
+                label: `${appChain?.unit} Staking`,
                 href: "/azero-staking",
               },
               {

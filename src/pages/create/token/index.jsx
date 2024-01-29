@@ -40,6 +40,7 @@ import { moveINWToBegin } from "utils";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { formatNumDynDecimal } from "utils";
 import { formatNumToBNEther } from "utils";
+import { appChain } from "constants";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
@@ -193,7 +194,7 @@ export default function CreateTokenPage() {
     await delay(3000);
 
     toast.success(`Step ${step}: Processing...`);
-    
+
     await execContractTxAndCallAPI(
       currentAccount,
       "api",
@@ -342,8 +343,8 @@ export default function CreateTokenPage() {
               <Box w={{ base: "full" }}>
                 <IWInput
                   isDisabled={true}
-                  value={`${currentAccount?.balance?.azero || 0} AZERO`}
-                  label="Your Azero Balance"
+                  value={`${currentAccount?.balance?.azero || 0} ${appChain?.unit}`}
+                  label={`Your ${appChain?.unit} Balance`}
                 />
               </Box>
               <Box w={{ base: "full" }}>
@@ -358,11 +359,10 @@ export default function CreateTokenPage() {
               <Box w={{ base: "full" }}>
                 <IWInput
                   isDisabled={true}
-                  value={`${
-                    formatNumDynDecimal(
-                      currentAccount?.balance?.inw2?.replaceAll(",", "")
-                    ) || 0
-                  } INW V2`}
+                  value={`${formatNumDynDecimal(
+                    currentAccount?.balance?.inw2?.replaceAll(",", "")
+                  ) || 0
+                    } INW V2`}
                   label="Your INW V2 Balance"
                 />
               </Box>

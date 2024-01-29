@@ -14,6 +14,7 @@ import { execContractQuery } from "./contracts";
 import psp22_contract from "./contracts/psp22_contract";
 import psp22_contract_v2 from "./contracts/psp22_contract_V2";
 import psp22_contract_old from "./contracts/psp22_contract_old";
+import { appChain } from "constants";
 export const chainDecimals = {
   alephzero: 12,
   "alephzero-testnet": 12,
@@ -133,7 +134,7 @@ export const formatNumDynDecimal = (num = 0, dec = 4) => {
       parts[0] = parts[0]?.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
       parts[1] = ((roundDown(+`0.${parts[1]}`).toString()).split("."))[1]
       return parts?.join('.');
-    } 
+    }
     else return parts?.[0]?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   } catch (error) {
     console.log(error);
@@ -143,9 +144,8 @@ export const formatNumDynDecimal = (num = 0, dec = 4) => {
 
 // new func to getImage source from CloudFlare
 export async function getCloudFlareImage(imageHash = "", size = 500) {
-  const fallbackURL = `${
-    process.env.REACT_APP_IPFS_PUBLIC_URL
-  }/${imageHash.replace("ipfs://", "")}`;
+  const fallbackURL = `${process.env.REACT_APP_IPFS_PUBLIC_URL
+    }/${imageHash.replace("ipfs://", "")}`;
 
   const ret = `${process.env.REACT_APP_ARTZERO_API_BASE_URL}/getImage?input=${imageHash}&size=${size}&url=${fallbackURL}`;
 
@@ -418,15 +418,17 @@ export const resolveDomain = async (address) => {
 };
 
 export const resolveAZDomainToAddress = async (domain) => {
-  try {
-    const { address, error } = await resolveDomainToAddress(domain, {
-      chainId: SupportedChainId.AlephZero,
-    });
-    // Print result
-    if (error) console.log(error.message);
-    else return address;
-  } catch (error) {
-    console.log(error);
+  if (appChain?.haveAzeroID) {
+    try {
+      const { address, error } = await resolveDomainToAddress(domain, {
+        chainId: SupportedChainId.AlephZero,
+      });
+      // Print result
+      if (error) console.log(error.message);
+      else return address;
+    } catch (error) {
+      console.log(error);
+    }
   }
 };
 
@@ -511,8 +513,8 @@ export const getTokenOwner = async (tokenContract) => {
     isNew: queryOwnerNew?.toHuman()?.Ok
       ? true
       : queryOwnerOld?.toHuman()?.Ok
-      ? false
-      : null,
+        ? false
+        : null,
   };
 };
 

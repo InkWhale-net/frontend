@@ -47,6 +47,7 @@ import { formatTextAmount } from "utils";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import psp22_contract from "utils/contracts/psp22_contract";
 import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
+import { appChain } from "constants";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
 
@@ -89,7 +90,7 @@ export default function FaucetPage({ api }) {
             <AddressCopier address={currentAccount?.address} />
           ),
         },
-        { title: "Azero Balance", content: `${azeroBalance} AZERO` },
+        { title: `${appChain?.unit} Balance`, content: `${azeroBalance} ${appChain?.unit}` },
         { title: "INW Balance", content: `${inwBalance} INW` },
       ];
 
@@ -288,7 +289,7 @@ export default function FaucetPage({ api }) {
       unclaimAmount: unclaimAmount?.toHuman()?.Ok?.Ok?.replaceAll(",", "") || 0,
       burnedAmount: isBurnedQr?.toHuman()?.Ok
         ? result3?.replaceAll(",", "") -
-          +totalPuchaedQr?.toHuman()?.Ok?.replaceAll(",", "")
+        +totalPuchaedQr?.toHuman()?.Ok?.replaceAll(",", "")
         : 0,
       vestingDuration: vestingDuration?.toHuman()?.Ok?.replaceAll(",", "") || 0,
     });
@@ -353,7 +354,7 @@ export default function FaucetPage({ api }) {
             const inwTotalSupplyCap = formatQueryResultToNumber(result1);
             setInwBurn(
               +formatTextAmount(inwTotalSupplyCap) -
-                formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
+              formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
             );
           }
         } else {
@@ -390,7 +391,7 @@ export default function FaucetPage({ api }) {
   const disableBuyBtn = useMemo(() => {
     return (
       inwBuyAmount * parseFloat(inwPrice) >=
-        formatChainStringToNumber(azeroBalance) ||
+      formatChainStringToNumber(azeroBalance) ||
       isSaleEnded ||
       notSaleStart ||
       availableMint?.replaceAll(",", "") < +inwBuyAmount ||
@@ -667,7 +668,7 @@ export default function FaucetPage({ api }) {
                 type="number"
                 value={azeroBuyAmount}
                 onChange={onChangeAzeroInput}
-                placeholder="Enter AZERO amount"
+                placeholder={`Enter ${appChain?.unit} amount`}
                 inputRightElementIcon={<AzeroLogo />}
               />
               {inwPrice > 0 && (
@@ -678,7 +679,7 @@ export default function FaucetPage({ api }) {
                   justifyContent="space-between"
                 >
                   <Text textAlign="left" fontSize="md" lineHeight="28px">
-                    Price: {inwPrice} Azero / INW
+                    Price: {inwPrice} {appChain?.unit} / INW
                   </Text>
                   <Text textAlign="left" fontSize="md" lineHeight="28px">
                     INW Available to acquire: {availableMint}
@@ -734,9 +735,8 @@ export default function FaucetPage({ api }) {
               },
               {
                 title: "Vesting Duration",
-                content: `${
-                  saleInfo?.vestingDuration / 60 / 60 / 24 / 1000
-                } days`,
+                content: `${saleInfo?.vestingDuration / 60 / 60 / 24 / 1000
+                  } days`,
               },
               {
                 title: "Vesting Start Date/Time",
@@ -832,7 +832,7 @@ export default function FaucetPage({ api }) {
                 type="number"
                 value={azeroBuyAmount}
                 onChange={onChangeAzeroInput}
-                placeholder="Enter AZERO amount"
+                placeholder={`Enter ${appChain?.unit} amount`}
                 inputRightElementIcon={<AzeroLogo />}
               />
               {inwPrice > 0 && (
@@ -843,7 +843,7 @@ export default function FaucetPage({ api }) {
                   justifyContent="space-between"
                 >
                   <Text textAlign="left" fontSize="md" lineHeight="28px">
-                    Price: {inwPrice} Azero / INW
+                    Price: {inwPrice} {appChain?.unit} / INW
                   </Text>
                   <Text textAlign="left" fontSize="md" lineHeight="28px">
                     INW Available to acquire: {availableMint}
@@ -920,7 +920,7 @@ export default function FaucetPage({ api }) {
                 content: `${formatNumDynDecimal(
                   (+saleInfo?.buyerInfo?.purchasedAmount?.replaceAll(",", "") *
                     95) /
-                    100 || 0
+                  100 || 0
                 )} INW`,
               },
               { title: "Your Balance: ", content: `${inwBalance} INW` },

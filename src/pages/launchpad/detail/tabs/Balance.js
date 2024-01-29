@@ -10,6 +10,7 @@ import launchpad from "utils/contracts/launchpad";
 import TabLayout from "../Layout";
 import { formatChainStringToNumber } from "utils";
 import { formatNumDynDecimal } from "utils";
+import { appChain } from "constants";
 
 const Row = ({ label, value, divider = false, ...rest }) => {
   return (
@@ -56,7 +57,7 @@ const PhaseTag = ({ data, launchpadData }) => {
           purchasedAmount *
           (1 -
             parseFloat(data?.immediateReleaseRate?.replaceAll(/,/g, "")) /
-              10000);
+            10000);
         const claimUnit = roundDown(vestingAmount / claimNumberOfTime);
 
         const claimedAmount =
@@ -121,7 +122,7 @@ const PhaseTag = ({ data, launchpadData }) => {
           purchasedAmount *
           (1 -
             parseFloat(data?.immediateReleaseRate.replaceAll(/,/g, "")) /
-              10000);
+            10000);
         const claimUnit = roundDown(vestingAmount / claimNumberOfTime);
 
         const claimedAmount =
@@ -309,28 +310,25 @@ const PhaseTag = ({ data, launchpadData }) => {
         <Row
           label="Total Purchased"
           value={
-            `${formatNumDynDecimal(publicBalance?.purchasedAmount) || 0} ${
-              token?.symbol
+            `${formatNumDynDecimal(publicBalance?.purchasedAmount) || 0} ${token?.symbol
             }` || 0
           }
         />
         <Row
           label="Public price"
-          value={`${formatNumDynDecimal(publicPhaseInfo) || 0} AZERO` || 0}
+          value={`${formatNumDynDecimal(publicPhaseInfo) || 0} ${appChain?.unit}` || 0}
         />
         <Row
           label="Total Vesting"
           value={
-            `${formatNumDynDecimal(publicBalance?.vestingAmount) || 0} ${
-              token?.symbol
+            `${formatNumDynDecimal(publicBalance?.vestingAmount) || 0} ${token?.symbol
             }` || 0
           }
         />
         <Row
           label="Claimed"
           value={
-            `${formatNumDynDecimal(publicBalance?.claimedAmount) || 0} ${
-              token?.symbol
+            `${formatNumDynDecimal(publicBalance?.claimedAmount) || 0} ${token?.symbol
             }` || 0
           }
         />
@@ -368,29 +366,26 @@ const PhaseTag = ({ data, launchpadData }) => {
         />
         <Row
           label="Whitelist Price"
-          value={`${formatNumDynDecimal(WLBalance?.price) || 0} AZERO` || 0}
+          value={`${formatNumDynDecimal(WLBalance?.price) || 0} ${appChain?.unit}` || 0}
         />
         <Row
           label="Total Purchased"
           value={
-            `${formatNumDynDecimal(WLBalance?.purchasedAmount) || 0} ${
-              token?.symbol
+            `${formatNumDynDecimal(WLBalance?.purchasedAmount) || 0} ${token?.symbol
             }` || 0
           }
         />
         <Row
           label="Total Vesting"
           value={
-            `${formatNumDynDecimal(WLBalance?.vestingAmount) || 0} ${
-              token?.symbol
+            `${formatNumDynDecimal(WLBalance?.vestingAmount) || 0} ${token?.symbol
             }` || 0
           }
         />
         <Row
           label="Claimed"
           value={
-            `${formatNumDynDecimal(WLBalance?.claimedAmount) || 0} ${
-              token?.symbol
+            `${formatNumDynDecimal(WLBalance?.claimedAmount) || 0} ${token?.symbol
             }` || 0
           }
         />

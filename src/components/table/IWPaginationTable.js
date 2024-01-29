@@ -34,6 +34,7 @@ import IWCountDown from "components/countdown/CountDown";
 import { AzeroLogo } from "components/icons/Icons";
 import ImageCloudFlare from "components/image-cf/ImageCF";
 import IWInput from "components/input/Input";
+import { appChain } from "constants";
 import React, { useEffect, useState } from "react";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import { toast } from "react-hot-toast";
@@ -669,7 +670,7 @@ export const formatDataCellTable = (
     case "withdrawalAmount":
       return (
         <>
-          <Text>{formatNumDynDecimal(itemObj[header])} AZERO</Text>
+          <Text>{formatNumDynDecimal(itemObj[header])} {appChain?.unit}</Text>
         </>
       );
 
@@ -693,22 +694,22 @@ export const formatDataCellTable = (
     case "interestAccount":
       return (
         <>
-          <Text>{formatNumDynDecimal(itemObj[header])} AZERO</Text>
+          <Text>{formatNumDynDecimal(itemObj[header])} {appChain?.unit}</Text>
         </>
       );
 
     case "masterAccount":
       return (
         <>
-          <Text>{formatNumDynDecimal(itemObj[header])} AZERO</Text>
+          <Text>{formatNumDynDecimal(itemObj[header])} {appChain?.unit}</Text>
         </>
       );
 
     case "azeroReward":
       return (
         <>
-          <Text>{formatNumDynDecimal(itemObj[header], 6)} AZERO</Text>
-          <Text>{formatNumDynDecimal(itemObj["inwReward"], 6)} INW</Text>
+          <Text>{formatNumDynDecimal(itemObj[header], 6)} {appChain?.unit}</Text>
+          <Text>{formatNumDynDecimal(itemObj["inwReward"], 6)} {appChain?.inwName}</Text>
         </>
       );
 

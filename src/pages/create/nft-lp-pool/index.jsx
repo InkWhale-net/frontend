@@ -41,6 +41,7 @@ import {
 } from "utils/contracts";
 import nft_pool_generator_contract from "utils/contracts/nft_pool_generator_contract";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { appChain } from "constants";
 
 export default function CreateNFTLPPage() {
   const dispatch = useDispatch();
@@ -542,9 +543,8 @@ export default function CreateNFTLPPage() {
                 }}
                 options={faucetTokensList?.map((token, idx) => ({
                   value: token?.contractAddress,
-                  label: `${token?.symbol} (${
-                    token?.name
-                  }) - ${addressShortener(token?.contractAddress)}`,
+                  label: `${token?.symbol} (${token?.name
+                    }) - ${addressShortener(token?.contractAddress)}`,
                 }))}
               ></SelectSearch>
             </Box>
@@ -571,8 +571,8 @@ export default function CreateNFTLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.azero || 0} AZERO`}
-                label="Your AZERO Balance"
+                value={`${currentAccount?.balance?.azero || 0} ${appChain?.unit}`}
+                label={`Your ${appChain?.unit} Balance`}
               />
             </Box>
             <Box w="full">
@@ -596,11 +596,10 @@ export default function CreateNFTLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${
-                  formatNumDynDecimal(
-                    currentAccount?.balance?.inw2?.replaceAll(",", "")
-                  ) || 0
-                } INW`}
+                value={`${formatNumDynDecimal(
+                  currentAccount?.balance?.inw2?.replaceAll(",", "")
+                ) || 0
+                  } INW`}
                 label="Your INW V2 Balance"
               />
             </Box>

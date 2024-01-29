@@ -18,7 +18,6 @@ import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
 import { toastMessages } from "constants";
 import { useAppContext } from "contexts/AppContext";
-import { useChainContext } from "contexts/ChainContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DateTimePicker from "react-datetime-picker";
 import { toast } from "react-hot-toast";
@@ -38,11 +37,11 @@ import {
 import { execContractQuery, execContractTx } from "utils/contracts";
 import lp_pool_generator_contract from "utils/contracts/lp_pool_generator_contract";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { appChain } from "constants";
 
 export default function CreateTokenLPPage() {
   const dispatch = useDispatch();
   const { api } = useAppContext();
-  const { currentChain, unitDecimal } = useChainContext();
   const { currentAccount } = useSelector((s) => s.wallet);
   const { myTokenPoolsList, loading } = useSelector((s) => s.myPools);
   const { allTokensList } = useSelector((s) => s.allPools);
@@ -219,9 +218,9 @@ export default function CreateTokenLPPage() {
     if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
         `You don't have enough ${
-          currentChain?.inwName
+          appChain?.inwName
         }. Stake costs ${formatNumDynDecimal(createTokenFee)} ${
-          currentChain?.inwName
+          appChain?.inwName
         }`
       );
       return;
@@ -412,7 +411,7 @@ export default function CreateTokenLPPage() {
               {+createTokenFee > 1
                 ? formatNumDynDecimal(createTokenFee)
                 : createTokenFee}{" "}
-              {currentChain?.inwName}
+              {appChain?.inwName}
             </Text>
           </span>
         }
@@ -501,9 +500,9 @@ export default function CreateTokenLPPage() {
               <IWInput
                 isDisabled={true}
                 value={`${currentAccount?.balance?.azero || 0} ${
-                  currentChain?.unit
+                  appChain?.unit
                 }`}
-                label={`Your ${currentChain?.unit} Balance`}
+                label={`Your ${appChain?.unit} Balance`}
               />
             </Box>
             <Box w="full">
