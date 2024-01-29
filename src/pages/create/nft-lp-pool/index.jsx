@@ -41,18 +41,17 @@ import {
 } from "utils/contracts";
 import { nft_pool_generator_contract } from "utils/contracts";
 import { psp22_contract } from "utils/contracts";
-import { useChainContext } from "contexts/ChainContext";
 import { formatTokenAmount } from "utils";
 import { useMutation } from "react-query";
 import { formatQueryResultToNumberEthers } from "utils";
 import { formatTextAmount } from "utils";
 import { formatNumToBNEther } from "utils";
+import { appChain } from "constants";
 
 export default function CreateNFTLPPage() {
   const dispatch = useDispatch();
   const { api } = useAppContext();
   const { currentAccount } = useSelector((s) => s.wallet);
-  const { currentChain, unitDecimal } = useChainContext();
 
   const [createTokenFee, setCreateTokenFee] = useState("");
 
@@ -189,7 +188,7 @@ export default function CreateNFTLPPage() {
         "genericPoolGeneratorTrait::getCreationFee"
       );
 
-      const fee = formatTokenAmount(result?.toHuman()?.Ok, unitDecimal);
+      const fee = formatTokenAmount(result?.toHuman()?.Ok, appChain?.decimal);
 
       setCreateTokenFee(fee);
     };
@@ -253,7 +252,7 @@ export default function CreateNFTLPPage() {
 
     if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
-        `You don't have enough ${currentChain?.inwName}.Create Pool costs ${createTokenFee} ${currentChain?.inwName}`
+        `You don't have enough ${appChain?.inwName}.Create Pool costs ${createTokenFee} ${appChain?.inwName}`
       );
       return;
     }
@@ -290,7 +289,7 @@ export default function CreateNFTLPPage() {
         const allowanceINW = formatQueryResultToNumberEthers(allowanceINWQr)
         if (+allowanceINW < +formatTextAmount(createTokenFee)) {
           toast(
-            `Approving ${currentChain?.inwName} token...`
+            `Approving ${appChain?.inwName} token...`
           );
           let approve = await execContractTxAndCallAPI(
             currentAccount,
@@ -480,7 +479,7 @@ export default function CreateNFTLPPage() {
               {+createTokenFee > 1
                 ? formatNumDynDecimal(createTokenFee)
                 : createTokenFee}{" "}
-              {currentChain?.inwName}
+              {appChain?.inwName}
             </Text>
             . This currently only works with NFTs on ArtZero platform.
           </span>
@@ -604,8 +603,8 @@ export default function CreateNFTLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.azero || 0} AZERO`}
-                label="Your AZERO Balance"
+                value={`${currentAccount?.balance?.azero || 0} ${appChain?.unit}`}
+                label={`Your ${appChain?.unit} Balance`}
               />
             </Box>
             <Box w="full">
@@ -632,8 +631,8 @@ export default function CreateNFTLPPage() {
                 value={`${formatNumDynDecimal(
                   currentAccount?.balance?.inw2?.replaceAll(",", "")
                 ) || 0
-                  } ${currentChain?.inwName}`}
-                label={`Your ${currentChain?.inwName} Balance`}
+                  } ${appChain?.inwName}`}
+                label={`Your ${appChain?.inwName} Balance`}
               />
             </Box>
 

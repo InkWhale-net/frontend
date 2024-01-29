@@ -14,7 +14,6 @@ import { APICall } from "api/client";
 import { InfiniteTable } from "components/table/InfiniteTable";
 import SaleTab from "components/tabs/SaleTab";
 import { useAppContext } from "contexts/AppContext";
-import { useChainContext } from "contexts/ChainContext";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
@@ -42,11 +41,11 @@ import ImageUploadIcon from "./UploadIcon";
 import { ethers, formatEther, formatUnits } from "ethers";
 import { useMutation } from "react-query";
 import { formatQueryResultToNumberEthers } from "utils";
+import { appChain } from "constants";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
   const dispatch = useDispatch();
-  const { unitDecimal, currentChain } = useChainContext();
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allTokensList } = useSelector((s) => s.allPools);
   const { api } = useAppContext();
@@ -74,7 +73,7 @@ export default function CreateTokenPage() {
         "tokenManagerTrait::getCreationFee"
       );
 
-      const fee = formatTokenAmount(result?.toHuman()?.Ok, unitDecimal);
+      const fee = formatTokenAmount(result?.toHuman()?.Ok, appChain?.decimal);
 
       setCreateToken(fee);
     };
@@ -148,9 +147,9 @@ export default function CreateTokenPage() {
       +formatTextAmount(createTokenFee)
     ) {
       toast.error(
-        `You don't have enough ${currentChain?.inwName}. Create Token costs ${formatNumDynDecimal(
+        `You don't have enough ${appChain?.inwName}. Create Token costs ${formatNumDynDecimal(
           createTokenFee
-        )} ${currentChain?.inwName}`
+        )} ${appChain?.inwName}`
       );
       return;
     }
@@ -170,7 +169,7 @@ export default function CreateTokenPage() {
         );
         const allowanceINW = formatQueryResultToNumberEthers(
           allowanceINWQr,
-          unitDecimal
+          appChain?.decimal
         );
         if (+allowanceINW < +createTokenFee) {
           toast(`Step ${step}: Approving...`);
@@ -235,7 +234,7 @@ export default function CreateTokenPage() {
           formatNumToBNEther(totalSupply),
           tokenName,
           tokenSymbol,
-          unitDecimal // tokenDecimal
+          appChain?.decimal // tokenDecimal
         );
         if (!result) reject("PROCESS FAIL")
       } catch (error) {
@@ -306,7 +305,7 @@ export default function CreateTokenPage() {
             specific address. The creation requires
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {createTokenFee || 0} {currentChain?.inwName}
+              {createTokenFee || 0} {appChain?.inwName}
             </Text>
           </span>
           <VStack w="full" mt={4}>
@@ -355,8 +354,8 @@ export default function CreateTokenPage() {
               <Box w={{ base: "full" }}>
                 <IWInput
                   isDisabled={true}
-                  value={`${currentAccount?.balance?.azero || 0} AZERO`}
-                  label="Your Azero Balance"
+                  value={`${currentAccount?.balance?.azero || 0} ${appChain?.unit}`}
+                  label={`Your ${appChain?.unit} Balance`}
                 />
               </Box>
               <Box w={{ base: "full" }}>

@@ -3,18 +3,17 @@ import { GroupMenu, menuListData } from "components/navbar/NavbarLinks";
 
 import Brand from "components/sidebar/components/Brand";
 import WalletButton from "components/wallet/WalletButton";
-import { useChainContext } from "contexts/ChainContext";
 import { useSwapV2TokenContext } from "contexts/SwapV2TokenModalContext";
 import { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { useSelector } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
+import { appChain } from "constants";
 
 function SidebarContent({ onClose }) {
   const [currentAnchor, setCurrentAnchor] = useState("");
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
   const { openSwapModal } = useSwapV2TokenContext();
-  const { currentChain } = useChainContext();
 
   useEffect(() => {
     const href = window.location.href;
@@ -39,7 +38,7 @@ function SidebarContent({ onClose }) {
         mt="8px"
         px="20px"
       >
-        {currentChain?.allowBuy && (
+        {appChain?.allowBuy && (
           <GroupMenu
             {...groupButtonProps}
             title="INW Token"
@@ -109,6 +108,10 @@ function SidebarContent({ onClose }) {
           title="Pools"
           path="/pools"
           data={[
+            // {
+            //   label: "AZERO Staking",
+            //   href: "/azero-staking",
+            // },
             {
               label: "Token Pools",
               href: "/pools",
@@ -161,7 +164,7 @@ function SidebarContent({ onClose }) {
             </Text>
           </Link>
         </Flex>
-        {isMobile && currentChain?.allowSwap && (
+        {isMobile && appChain?.allowSwap && (
           <Flex
             _hover={{ textDecoration: "none", bg: "bg.1" }}
             p="6px 10px"

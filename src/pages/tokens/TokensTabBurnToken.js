@@ -10,6 +10,7 @@ import { delay, formatChainStringToNumber, formatNumToBN } from "utils";
 import { execContractTx } from "utils/contracts";
 import { psp22_contract } from "utils/contracts";
 import MyAccountTab from "./myAccount";
+import { appChain } from "constants";
 import { FINALIZED_TIME } from "constants";
 
 const TokensTabBurnToken = ({
@@ -48,7 +49,7 @@ const TokensTabBurnToken = ({
     }
 
     if (balance?.azero < 0.05) {
-      toast.error("Low Azero balance!");
+      toast.error(`Low ${appChain?.unit} balance!`);
       return;
     }
     await execContractTx(

@@ -8,11 +8,10 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useChainContext } from "contexts/ChainContext";
 import { supportedChain } from "constants";
+import { appChain } from "constants";
 
 const ChainButton = () => {
-  const { currentChain, switchChain } = useChainContext();
   const { isOpen, onToggle } = useDisclosure();
   return (
     <Menu placement="bottom-end">
@@ -32,7 +31,7 @@ const ChainButton = () => {
         >
           <Image
             sx={{ w: "28px", height: "28px" }}
-            src={currentChain?.icon}
+            src={appChain?.icon}
             alt="logo-chain"
           />
         </Box>
@@ -46,7 +45,7 @@ const ChainButton = () => {
       >
         <Flex flexDirection="column" p="20px">
           <Text sx={{ fontWeight: "bold" }}>Select chain</Text>
-          {supportedChain.filter(e => e?.key != currentChain?.key).map((obj, index) => (
+          {supportedChain.filter(e => e?.key != appChain?.key).map((obj, index) => (
             <Flex
               sx={{
                 py: "4px",

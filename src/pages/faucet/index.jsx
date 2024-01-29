@@ -41,7 +41,6 @@ import { parseUnits } from "ethers";
 import { formatTokenAmount } from "utils";
 import { formatTextAmount } from "utils";
 import { psp22_contract } from "utils/contracts";
-import { useChainContext } from "contexts/ChainContext";
 import { formatNumToBNEther } from "utils";
 import { formatQueryResultToNumberEthers } from "utils";
 import {
@@ -56,7 +55,6 @@ const inwContractAddress = psp22_contract.CONTRACT_ADDRESS;
 export default function FaucetPage({ api }) {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allTokensList } = useSelector((s) => s.allPools);
-  const { unitDecimal } = useChainContext();
 
   const dispatch = useDispatch();
 

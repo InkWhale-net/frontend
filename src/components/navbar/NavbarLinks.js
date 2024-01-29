@@ -22,13 +22,11 @@ import WalletButton from "components/wallet/WalletButton";
 import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
 import { INWSwap } from "components/INWSwap";
+import { appChain } from "constants";
 import ChainButton from "components/wallet/ChainButton";
-import { useChainContext } from "contexts/ChainContext";
 
 export default function NavbarLinks(props) {
   const { secondary } = props;
-  const { currentChain } = useChainContext();
-
   const [currentAnchor, setCurrentAnchor] = useState("");
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
 
@@ -59,7 +57,7 @@ export default function NavbarLinks(props) {
 
       <Show above="md">
         <Flex bg="transparent">
-          {currentChain?.haveINW2 && (
+          {appChain?.haveINW2 && (
             <GroupMenu
               {...groupButtonProps}
               title="INW Token"
@@ -77,7 +75,7 @@ export default function NavbarLinks(props) {
             />
           )}
           {[
-            !currentChain?.haveINW2 && {
+            !appChain?.haveINW2 && {
               title: "Acquire INW",
               href: "/acquire-inw",
             },
@@ -195,7 +193,7 @@ export default function NavbarLinks(props) {
             </Link>
           </Flex>
         </Flex>
-        {currentChain?.allowSwap && <INWSwap />}
+        {appChain?.allowSwap && <INWSwap />}
       </Show>
 
       <Show above="md">
