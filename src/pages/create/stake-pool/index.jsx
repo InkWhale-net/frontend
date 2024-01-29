@@ -306,6 +306,8 @@ export default function CreateStakePoolPage({ api }) {
     setDuration("");
     setMaxStake("");
     setStartTime(new Date());
+    setSelectedContractAddr("");
+
     toast.promise(
       delay(10000).then(() => {
         if (currentAccount) {
@@ -426,8 +428,9 @@ export default function CreateStakePoolPage({ api }) {
                 }}
                 options={faucetTokensList?.map((token, idx) => ({
                   value: token?.contractAddress,
-                  label: `${token?.symbol} (${token?.name
-                    }) - ${addressShortener(token?.contractAddress)}`,
+                  label: `${token?.symbol} (${
+                    token?.name
+                  }) - ${addressShortener(token?.contractAddress)}`,
                 }))}
               ></SelectSearch>
             </Box>
@@ -453,7 +456,9 @@ export default function CreateStakePoolPage({ api }) {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.azero || 0} ${currentChain?.unit || "AZERO"}`}
+                value={`${currentAccount?.balance?.azero || 0} ${
+                  currentChain?.unit || "AZERO"
+                }`}
                 label={`Your ${currentChain?.unit || "AZERO"} Balance`}
               />
             </Box>
@@ -478,10 +483,11 @@ export default function CreateStakePoolPage({ api }) {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${formatNumDynDecimal(
-                  currentAccount?.balance?.inw2?.replaceAll(",", "")
-                ) || 0
-                  } ${currentChain?.inwName}`}
+                value={`${
+                  formatNumDynDecimal(
+                    currentAccount?.balance?.inw2?.replaceAll(",", "")
+                  ) || 0
+                } ${currentChain?.inwName}`}
                 label={`Your ${currentChain?.inwName} Balance`}
               />
             </Box>

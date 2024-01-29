@@ -235,10 +235,7 @@ export default function CreateNFTLPPage() {
       );
     }
 
-    if (
-      +currentAccount?.balance?.inw2?.replaceAll(",", "") <
-      +createTokenFee
-    ) {
+    if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
         `You don't have enough INW V2.Create Pool costs ${createTokenFee} INW V2`
       );
@@ -345,13 +342,14 @@ export default function CreateNFTLPPage() {
       startTime.getTime()
     );
 
-    // await APICall.askBEupdate({ type: "nft", poolContract: "new" });
+    await APICall.askBEupdate({ type: "nft", poolContract: "new" });
     await delay(3000);
     setMultiplier("");
     setDuration("");
     setStartTime(new Date());
-    // setSelectedContractAddr("");
-    // setSelectedCollectionAddr("");
+    setSelectedContractAddr("");
+    setSelectedCollectionAddr("");
+    setMaxStake("");
 
     toast.promise(
       delay(10000).then(() => {
