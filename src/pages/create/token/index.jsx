@@ -383,7 +383,7 @@ export default function CreateTokenPage() {
                   !!iconIPFSUrl &&
                   !!tokenName &&
                   !!tokenSymbol &&
-                  !!totalSupply &&
+                  +totalSupply > 0 &&
                   !!mintAddress
                 )
               }
