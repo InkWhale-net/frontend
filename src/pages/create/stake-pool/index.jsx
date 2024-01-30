@@ -38,7 +38,11 @@ import {
   moveINWToBegin,
   roundUp,
 } from "utils";
-import { execContractQuery, execContractTxAndCallAPI, psp22_contract } from "utils/contracts";
+import {
+  execContractQuery,
+  execContractTxAndCallAPI,
+  psp22_contract,
+} from "utils/contracts";
 import { pool_generator_contract } from "utils/contracts/";
 
 export default function CreateStakePoolPage() {
@@ -235,7 +239,10 @@ export default function CreateStakePoolPage() {
             currentAccount?.address,
             pool_generator_contract.CONTRACT_ADDRESS
           );
-          const allowanceINW = formatQueryResultToNumberEthers(allowanceINWQr, 18);
+          const allowanceINW = formatQueryResultToNumberEthers(
+            allowanceINWQr,
+            18
+          );
           if (+allowanceINW < +createTokenFee) {
             toast(`Step ${step}: Approving ${currentChain?.inwName} token...`);
             step++;
@@ -435,6 +442,19 @@ export default function CreateStakePoolPage() {
       rewardPool: formatTokenAmount(i.rewardPool, i.tokenDecimal),
     })),
   };
+
+  const firstSearchValue = useMemo(() => {
+    const ret = faucetTokensList
+      ?.filter((item) => item.contractAddress === selectedContractAddr)
+      .map((token) => ({
+        value: token?.contractAddress,
+        label: `${token?.symbol} (${token?.name}) - ${addressShortener(
+          token?.contractAddress
+        )}`,
+      }));
+    return ret?.length === 0 ? null : ret[0];
+  }, [faucetTokensList, selectedContractAddr]);
+
   return (
     <>
       <SectionContainer
@@ -466,18 +486,18 @@ export default function CreateStakePoolPage() {
                 Select Token
               </Heading>
               <SelectSearch
+                value={firstSearchValue}
                 name="token"
                 placeholder="Select Token..."
                 closeMenuOnSelect={true}
                 // filterOption={filterOptions}
                 isSearchable
-                onChange={({ value }) => {
-                  setSelectedContractAddr(value);
-                }}
+                onChange={(data) => setSelectedContractAddr(data?.value ?? "")}
                 options={faucetTokensList?.map((token, idx) => ({
                   value: token?.contractAddress,
-                  label: `${token?.symbol} (${token?.name
-                    }) - ${addressShortener(token?.contractAddress)}`,
+                  label: `${token?.symbol} (${
+                    token?.name
+                  }) - ${addressShortener(token?.contractAddress)}`,
                 }))}
               ></SelectSearch>
             </Box>
@@ -503,7 +523,9 @@ export default function CreateStakePoolPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.azero || 0} ${currentChain?.unit || "AZERO"}`}
+                value={`${currentAccount?.balance?.azero || 0} ${
+                  currentChain?.unit || "AZERO"
+                }`}
                 label={`Your ${currentChain?.unit || "AZERO"} Balance`}
               />
             </Box>
@@ -528,10 +550,11 @@ export default function CreateStakePoolPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${formatNumDynDecimal(
-                  currentAccount?.balance?.inw2?.replaceAll(",", "")
-                ) || 0
-                  } ${currentChain?.inwName}`}
+                value={`${
+                  formatNumDynDecimal(
+                    currentAccount?.balance?.inw2?.replaceAll(",", "")
+                  ) || 0
+                } ${currentChain?.inwName}`}
                 label={`Your ${currentChain?.inwName} Balance`}
               />
             </Box>
@@ -577,7 +600,9 @@ export default function CreateStakePoolPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${formatNumDynDecimal(minReward) || 0} ${tokenSymbol || ""}`}
+                value={`${formatNumDynDecimal(minReward) || 0} ${
+                  tokenSymbol || ""
+                }`}
                 label={
                   <>
                     Total Rewards
