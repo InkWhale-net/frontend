@@ -437,6 +437,33 @@ export default function CreateNFTLPPage() {
     })),
   };
 
+  const firstSearchValue = useMemo(() => {
+    const ret = collectionList
+      ?.filter((item) => item?.nftContractAddress === selectedCollectionAddr)
+      ?.map((token, idx) => ({
+        value: token?.name,
+        nftContractAddress: token?.nftContractAddress,
+        label: `${token?.name} - ${addressShortener(
+          token?.nftContractAddress
+        )}`,
+      }));
+
+    return ret?.length === 0 ? null : ret[0];
+  }, [collectionList, selectedCollectionAddr]);
+
+  const secondSearchValue = useMemo(() => {
+    const ret = faucetTokensList
+      ?.filter((item) => item.contractAddress === selectedContractAddr)
+      .map((token) => ({
+        value: token?.contractAddress,
+        label: `${token?.symbol} (${token?.name}) - ${addressShortener(
+          token?.contractAddress
+        )}`,
+      }));
+
+    return ret?.length === 0 ? null : ret[0];
+  }, [faucetTokensList, selectedContractAddr]);
+
   return (
     <>
       <SectionContainer
@@ -483,6 +510,7 @@ export default function CreateNFTLPPage() {
               </Select> */}
 
               <SelectSearch
+                value={firstSearchValue}
                 name="collection"
                 placeholder="Select Collection..."
                 closeMenuOnSelect={true}
@@ -506,7 +534,6 @@ export default function CreateNFTLPPage() {
                   setSelectedCollectionAddr(target.value)
                 }
                 value={selectedCollectionAddr}
-                isDisabled
                 placeholder="Contract Address"
                 label="Collection contract address"
               />
@@ -533,6 +560,7 @@ export default function CreateNFTLPPage() {
               </Select> */}
 
               <SelectSearch
+                value={secondSearchValue}
                 name="token"
                 placeholder="Select Token..."
                 closeMenuOnSelect={true}
@@ -543,8 +571,9 @@ export default function CreateNFTLPPage() {
                 }}
                 options={faucetTokensList?.map((token, idx) => ({
                   value: token?.contractAddress,
-                  label: `${token?.symbol} (${token?.name
-                    }) - ${addressShortener(token?.contractAddress)}`,
+                  label: `${token?.symbol} (${
+                    token?.name
+                  }) - ${addressShortener(token?.contractAddress)}`,
                 }))}
               ></SelectSearch>
             </Box>
@@ -571,7 +600,9 @@ export default function CreateNFTLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.azero || 0} ${appChain?.unit}`}
+                value={`${currentAccount?.balance?.azero || 0} ${
+                  appChain?.unit
+                }`}
                 label={`Your ${appChain?.unit} Balance`}
               />
             </Box>
@@ -596,10 +627,11 @@ export default function CreateNFTLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${formatNumDynDecimal(
-                  currentAccount?.balance?.inw2?.replaceAll(",", "")
-                ) || 0
-                  } INW`}
+                value={`${
+                  formatNumDynDecimal(
+                    currentAccount?.balance?.inw2?.replaceAll(",", "")
+                  ) || 0
+                } INW`}
                 label="Your INW V2 Balance"
               />
             </Box>

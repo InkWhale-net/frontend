@@ -242,9 +242,9 @@ export default function CreateStakePoolPage({ api }) {
       tokenInfor?.decimal
     ).replaceAll(",", "");
     let step = 1;
-
+    console.log("createTokenFee", createTokenFee);
     //Approve
-    if (allowanceINW < createTokenFee.replaceAll(",", "")) {
+    if (allowanceINW < createTokenFee) {
       toast.success(`Step ${step}: Approving INW token...`);
       step++;
       let approve = await execContractTx(
@@ -386,6 +386,19 @@ export default function CreateStakePoolPage({ api }) {
 
     tableBody: stakingPoolList,
   };
+
+  const firstSearchValue = useMemo(() => {
+    const ret = faucetTokensList
+      ?.filter((item) => item.contractAddress === selectedContractAddr)
+      .map((token) => ({
+        value: token?.contractAddress,
+        label: `${token?.symbol} (${token?.name}) - ${addressShortener(
+          token?.contractAddress
+        )}`,
+      }));
+    return ret?.length === 0 ? null : ret[0];
+  }, [faucetTokensList, selectedContractAddr]);
+
   return (
     <>
       <SectionContainer
@@ -417,18 +430,18 @@ export default function CreateStakePoolPage({ api }) {
                 Select Token
               </Heading>
               <SelectSearch
+                value={firstSearchValue}
                 name="token"
                 placeholder="Select Token..."
                 closeMenuOnSelect={true}
                 // filterOption={filterOptions}
                 isSearchable
-                onChange={({ value }) => {
-                  setSelectedContractAddr(value);
-                }}
+                onChange={(data) => setSelectedContractAddr(data?.value ?? "")}
                 options={faucetTokensList?.map((token, idx) => ({
                   value: token?.contractAddress,
-                  label: `${token?.symbol} (${token?.name
-                    }) - ${addressShortener(token?.contractAddress)}`,
+                  label: `${token?.symbol} (${
+                    token?.name
+                  }) - ${addressShortener(token?.contractAddress)}`,
                 }))}
               ></SelectSearch>
             </Box>
@@ -454,7 +467,9 @@ export default function CreateStakePoolPage({ api }) {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.azero || 0} ${appChain?.unit}`}
+                value={`${currentAccount?.balance?.azero || 0} ${
+                  appChain?.unit
+                }`}
                 label={`Your ${appChain?.unit} Balance`}
               />
             </Box>
@@ -479,10 +494,11 @@ export default function CreateStakePoolPage({ api }) {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${formatNumDynDecimal(
-                  currentAccount?.balance?.inw2?.replaceAll(",", "")
-                ) || 0
-                  } ${appChain?.inwName}`}
+                value={`${
+                  formatNumDynDecimal(
+                    currentAccount?.balance?.inw2?.replaceAll(",", "")
+                  ) || 0
+                } ${appChain?.inwName}`}
                 label={`Your ${appChain?.inwName} Balance`}
               />
             </Box>

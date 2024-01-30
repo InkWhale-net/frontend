@@ -80,7 +80,7 @@ export default function CreateTokenLPPage() {
   );
 
   const fetchTokenBalance = useCallback(async () => {
-    if (!selectedContractAddr) return;
+    if (!selectedContractAddr) return setTokenBalance(0);
 
     if (!currentAccount) {
       toast.error("Please connect wallet!");
@@ -119,7 +119,7 @@ export default function CreateTokenLPPage() {
   }, [fetchTokenBalance]);
 
   const fetchLPTokenBalance = useCallback(async () => {
-    if (!LPtokenContract) return;
+    if (!LPtokenContract) return setLPTokenBalance(0);
 
     if (!currentAccount) {
       toast.error("Please connect wallet!");
@@ -396,7 +396,33 @@ export default function CreateTokenLPPage() {
 
   useEffect(() => {
     if (api) dispatch(fetchMyTokenPools({ currentAccount }));
-  }, [api, currentAccount]);
+  }, [api, currentAccount, dispatch]);
+
+  const firstSearchValue = useMemo(() => {
+    const ret = faucetTokensList
+      ?.filter((item) => item.contractAddress === LPtokenContract)
+      .map((token) => ({
+        value: token?.contractAddress,
+        label: `${token?.symbol} (${token?.name}) - ${addressShortener(
+          token?.contractAddress
+        )}`,
+      }));
+
+    return ret?.length === 0 ? null : ret[0];
+  }, [faucetTokensList, LPtokenContract]);
+
+  const secondSearchValue = useMemo(() => {
+    const ret = pairTokenList
+      ?.filter((item) => item.contractAddress === selectedContractAddr)
+      .map((token) => ({
+        value: token?.contractAddress,
+        label: `${token?.symbol} (${token?.name}) - ${addressShortener(
+          token?.contractAddress
+        )}`,
+      }));
+
+    return ret?.length === 0 ? null : ret[0];
+  }, [pairTokenList, selectedContractAddr]);
 
   return (
     <>
@@ -429,6 +455,7 @@ export default function CreateTokenLPPage() {
                 Select Token To Stake
               </Heading>
               <SelectSearch
+                value={firstSearchValue}
                 name="token"
                 placeholder="Select Token..."
                 closeMenuOnSelect={true}
@@ -455,11 +482,26 @@ export default function CreateTokenLPPage() {
               />
             </Box>
 
+            <IWInput
+              isDisabled
+              value={`${LPtokenBalance || 0}`}
+              label={`Your ${
+                tokenLPSymbol?.symbol?.toUpperCase() || "Token"
+              }  Balance`}
+            />
+
+            <IWInput
+              isDisabled
+              value={tokenLPSymbol?.decimal ?? 0}
+              label={`Decimal`}
+            />
+
             <Box w="full">
               <Heading as="h4" size="h4" mb="12px">
                 Select Token To Reward Stakers
               </Heading>
               <SelectSearch
+                value={secondSearchValue}
                 name="token"
                 placeholder="Select Token..."
                 closeMenuOnSelect={true}
@@ -485,6 +527,18 @@ export default function CreateTokenLPPage() {
                 label="or enter token contract address"
               />
             </Box>
+            <IWInput
+              isDisabled
+              value={`${tokenBalance || 0}`}
+              label={`Your ${
+                tokenSymbol?.symbol?.toUpperCase() || "Token"
+              } Balance`}
+            />
+            <IWInput
+              isDisabled
+              value={tokenSymbol?.decimal ?? 0}
+              label={`Decimal`}
+            />
 
             <Box w="full">
               <IWInput
@@ -555,38 +609,6 @@ export default function CreateTokenLPPage() {
               />
             </Box>
 
-            <Box w="full">
-              <Stack
-                spacing="10px"
-                flexDirection={{ base: "column", lg: "row" }}
-                justifyContent="space-between"
-                alignItems="end"
-                w="full"
-              >
-                <IWInput
-                  isDisabled
-                  value={`${LPtokenBalance || 0}`}
-                  // label={`Your ${tokenLPSymbol || "Token"} Balance`}
-                  label={`Your Token Balance`}
-                  inputRightElementIcon={
-                    <Heading as="h5" size="h5" fontWeight="semibold">
-                      {tokenLPSymbol?.symbol}
-                    </Heading>
-                  }
-                />
-                <IWInput
-                  ml={{ lg: "10px" }}
-                  isDisabled
-                  value={`${tokenBalance || 0}`}
-                  // label={`Your ${tokenSymbol || "Token"} Balance`}
-                  inputRightElementIcon={
-                    <Heading as="h5" size="h5" fontWeight="semibold">
-                      {tokenSymbol?.symbol}
-                    </Heading>
-                  }
-                />
-              </Stack>
-            </Box>
             <Box w="full">
               <IWInput
                 value={maxStake}
