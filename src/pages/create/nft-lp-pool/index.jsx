@@ -286,7 +286,7 @@ export default function CreateNFTLPPage() {
           currentAccount?.address,
           nft_pool_generator_contract.CONTRACT_ADDRESS
         );
-        const allowanceINW = formatQueryResultToNumberEthers(allowanceINWQr)
+        const allowanceINW = formatQueryResultToNumberEthers(allowanceINWQr);
         if (+allowanceINW < +formatTextAmount(createTokenFee)) {
           toast(
             `Approving ${appChain?.inwName} token...`
@@ -303,12 +303,12 @@ export default function CreateNFTLPPage() {
             formatNumToBNEther(createTokenFee)
           );
           if (!approve) reject("Approve fail");
-        } else resolve()
+        } else resolve();
       } catch (error) {
         console.log(error);
-        reject("Approve fail")
+        reject("Approve fail");
       }
-    })
+    });
     // approve reward pool
     await new Promise(async (resolve, reject) => {
       try {
@@ -322,7 +322,10 @@ export default function CreateNFTLPPage() {
           currentAccount?.address,
           nft_pool_generator_contract.CONTRACT_ADDRESS
         );
-        const allowanceToken = formatQueryResultToNumberEthers(allowanceTokenQr, selectedTokenDecimal)
+        const allowanceToken = formatQueryResultToNumberEthers(
+          allowanceTokenQr,
+          selectedTokenDecimal
+        );
         if (+allowanceToken < +formatTextAmount(minReward)) {
           toast(`Approving ${tokenSymbol} token...`);
           let approve = await execContractTxAndCallAPI(
@@ -334,15 +337,18 @@ export default function CreateNFTLPPage() {
             "psp22::approve",
             async () => resolve(),
             nft_pool_generator_contract.CONTRACT_ADDRESS,
-            formatNumToBNEther(formatTextAmount(minReward), selectedTokenDecimal)
+            formatNumToBNEther(
+              formatTextAmount(minReward),
+              selectedTokenDecimal
+            )
           );
           if (!approve) reject("Approve fail");
-        } else resolve()
+        } else resolve();
       } catch (error) {
         console.log(error);
-        reject("Approve fail")
+        reject("Approve fail");
       }
-    })
+    });
     await delay(500);
     toast(`Process ...`);
     await new Promise(async (resolve, reject) => {
@@ -356,14 +362,14 @@ export default function CreateNFTLPPage() {
           "newPool",
           async (newContractAddress) => {
             console.log("newContractAddress", newContractAddress);
-            APICall.askBEupdate({ type: "nft", poolContract: "new" })
+            APICall.askBEupdate({ type: "nft", poolContract: "new" });
             await delay(1000);
             setMultiplier("");
             setDuration("");
             setStartTime(new Date());
             setSelectedContractAddr("");
             setSelectedCollectionAddr("");
-            setMaxStake("")
+            setMaxStake("");
             toast.promise(
               delay(10000).then(() => {
                 if (currentAccount) {
@@ -372,7 +378,7 @@ export default function CreateNFTLPPage() {
                 }
 
                 fetchTokenBalance();
-                resolve()
+                resolve();
               }),
               {
                 loading: "Please wait 10s for the data to be updated! ",
@@ -388,13 +394,13 @@ export default function CreateNFTLPPage() {
           formatNumToBN(multiplier, selectedTokenDecimal),
           roundUp(duration * 24 * 60 * 60 * 1000, 0),
           startTime.getTime()
-        )
-        if (!result) reject("Process reject fail")
+        );
+        if (!result) reject("Process reject fail");
       } catch (error) {
         console.log(error);
-        reject("Process reject fail")
+        reject("Process reject fail");
       }
-    })
+    });
   }
   const { myNFTPoolsList, loading } = useSelector((s) => s.myPools);
 
@@ -466,6 +472,33 @@ export default function CreateNFTLPPage() {
     })),
   };
 
+  const firstSearchValue = useMemo(() => {
+    const ret = collectionList
+      ?.filter((item) => item?.nftContractAddress === selectedCollectionAddr)
+      ?.map((token, idx) => ({
+        value: token?.name,
+        nftContractAddress: token?.nftContractAddress,
+        label: `${token?.name} - ${addressShortener(
+          token?.nftContractAddress
+        )}`,
+      }));
+
+    return ret?.length === 0 ? null : ret[0];
+  }, [collectionList, selectedCollectionAddr]);
+
+  const secondSearchValue = useMemo(() => {
+    const ret = faucetTokensList
+      ?.filter((item) => item.contractAddress === selectedContractAddr)
+      .map((token) => ({
+        value: token?.contractAddress,
+        label: `${token?.symbol} (${token?.name}) - ${addressShortener(
+          token?.contractAddress
+        )}`,
+      }));
+
+    return ret?.length === 0 ? null : ret[0];
+  }, [faucetTokensList, selectedContractAddr]);
+
   return (
     <>
       <SectionContainer
@@ -515,10 +548,12 @@ export default function CreateNFTLPPage() {
               </Select> */}
 
               <SelectSearch
+                value={firstSearchValue}
                 name="collection"
                 placeholder="Select Collection..."
                 closeMenuOnSelect={true}
                 isSearchable
+
                 onChange={(selected) => {
                   setSelectedCollectionAddr(selected.nftContractAddress);
                 }}
@@ -538,7 +573,6 @@ export default function CreateNFTLPPage() {
                   setSelectedCollectionAddr(target.value)
                 }
                 value={selectedCollectionAddr}
-                isDisabled
                 placeholder="Contract Address"
                 label="Collection contract address"
               />
@@ -565,18 +599,21 @@ export default function CreateNFTLPPage() {
               </Select> */}
 
               <SelectSearch
+                value={secondSearchValue}
                 name="token"
                 placeholder="Select Token..."
                 closeMenuOnSelect={true}
                 // filterOption={filterOptions}
                 isSearchable
+
                 onChange={({ value }) => {
                   setSelectedContractAddr(value);
                 }}
                 options={faucetTokensList?.map((token, idx) => ({
                   value: token?.contractAddress,
-                  label: `${token?.symbol} (${token?.name
-                    }) - ${addressShortener(token?.contractAddress)}`,
+                  label: `${token?.symbol} (${
+                    token?.name
+                  }) - ${addressShortener(token?.contractAddress)}`,
                 }))}
               ></SelectSearch>
             </Box>
@@ -710,7 +747,13 @@ export default function CreateNFTLPPage() {
             </Box>
           </SimpleGrid>
 
-          <Button isLoading={isLoading} disabled={isLoading} w="full" maxW={{ lg: "260px" }} onClick={() => mutate()}>
+          <Button
+            isLoading={isLoading}
+            disabled={isLoading}
+            w="full"
+            maxW={{ lg: "260px" }}
+            onClick={() => mutate()}
+          >
             Create NFT Staking Pool
           </Button>
         </VStack>

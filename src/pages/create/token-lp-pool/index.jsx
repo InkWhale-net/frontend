@@ -84,7 +84,7 @@ export default function CreateTokenLPPage() {
   );
 
   const fetchTokenBalance = useCallback(async () => {
-    if (!selectedContractAddr) return;
+    if (!selectedContractAddr) return setTokenBalance(0);
 
     if (!currentAccount) {
       toast.error("Please connect wallet!");
@@ -124,7 +124,7 @@ export default function CreateTokenLPPage() {
   }, [fetchTokenBalance]);
 
   const fetchLPTokenBalance = useCallback(async () => {
-    if (!LPtokenContract) return;
+    if (!LPtokenContract) return setLPTokenBalance(0);
 
     if (!currentAccount) {
       toast.error("Please connect wallet!");
@@ -427,6 +427,33 @@ export default function CreateTokenLPPage() {
   useEffect(() => {
     if (api) dispatch(fetchMyTokenPools({ currentAccount }));
   }, [api, currentAccount, dispatch]);
+
+  const firstSearchValue = useMemo(() => {
+    const ret = faucetTokensList
+      ?.filter((item) => item.contractAddress === LPtokenContract)
+      .map((token) => ({
+        value: token?.contractAddress,
+        label: `${token?.symbol} (${token?.name}) - ${addressShortener(
+          token?.contractAddress
+        )}`,
+      }));
+
+    return ret?.length === 0 ? null : ret[0];
+  }, [faucetTokensList, LPtokenContract]);
+
+  const secondSearchValue = useMemo(() => {
+    const ret = pairTokenList
+      ?.filter((item) => item.contractAddress === selectedContractAddr)
+      .map((token) => ({
+        value: token?.contractAddress,
+        label: `${token?.symbol} (${token?.name}) - ${addressShortener(
+          token?.contractAddress
+        )}`,
+      }));
+
+    return ret?.length === 0 ? null : ret[0];
+  }, [pairTokenList, selectedContractAddr]);
+
   return (
     <>
       <SectionContainer
@@ -458,6 +485,7 @@ export default function CreateTokenLPPage() {
                 Select Token To Stake
               </Heading>
               <SelectSearch
+                value={firstSearchValue}
                 name="token"
                 placeholder="Select Token..."
                 closeMenuOnSelect={true}
@@ -489,9 +517,10 @@ export default function CreateTokenLPPage() {
                 tokenLPSymbol?.symbol?.toUpperCase() || "Token"
               }  Balance`}
             />
+
             <IWInput
               isDisabled
-              value={tokenLPSymbol?.decimal}
+              value={tokenLPSymbol?.decimal ?? 0}
               label={`Decimal`}
             />
 
@@ -500,6 +529,7 @@ export default function CreateTokenLPPage() {
                 Select Token To Reward Stakers
               </Heading>
               <SelectSearch
+                value={secondSearchValue}
                 name="token"
                 placeholder="Select Token..."
                 closeMenuOnSelect={true}
@@ -534,7 +564,7 @@ export default function CreateTokenLPPage() {
             />
             <IWInput
               isDisabled
-              value={tokenSymbol?.decimal}
+              value={tokenSymbol?.decimal ?? 0}
               label={`Decimal`}
             />
 
