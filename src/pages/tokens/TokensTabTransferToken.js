@@ -18,6 +18,7 @@ import {
 } from "utils";
 import { execContractTx, psp22_contract } from "utils/contracts";
 import MyAccountTab from "./myAccount";
+import { appChain } from "constants";
 import { FINALIZED_TIME } from "constants";
 
 const TokensTabTransferToken = ({
@@ -61,7 +62,7 @@ const TokensTabTransferToken = ({
       return;
     }
     if (balance?.azero < 0.05) {
-      toast.error("Low Azero balance!");
+      toast.error(`Low ${appChain?.unit} balance!`);
       return;
     }
 
@@ -113,7 +114,7 @@ const TokensTabTransferToken = ({
                 setAddressFromDomain("");
                 setTransferAmount("");
               }}
-              placeholder="Address to transfer"
+              placeholder={`Address${appChain?.haveAzeroID ? " or azero.id" : ""} to transfer`}
             />
             {addressFromDomain && transferAddress && (
               <IWInput

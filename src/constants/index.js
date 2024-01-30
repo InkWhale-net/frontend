@@ -166,5 +166,5 @@ export const supportedChain = [
     inwName: "INW",
   },
 ];
-
+export const appChain = supportedChain.find(e => e?.key == process.env.REACT_APP_CHAIN)
 export const FINALIZED_TIME = 6000;

@@ -17,7 +17,6 @@ import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
 import { toastMessages } from "constants";
 import { useAppContext } from "contexts/AppContext";
-import { useChainContext } from "contexts/ChainContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DateTimePicker from "react-datetime-picker";
 import { toast } from "react-hot-toast";
@@ -42,11 +41,11 @@ import {
   lp_pool_generator_contract,
   psp22_contract,
 } from "utils/contracts";
+import { appChain } from "constants";
 
 export default function CreateTokenLPPage() {
   const dispatch = useDispatch();
   const { api } = useAppContext();
-  const { currentChain, unitDecimal } = useChainContext();
   const { currentAccount } = useSelector((s) => s.wallet);
   const { myTokenPoolsList, loading } = useSelector((s) => s.myPools);
   const { allTokensList } = useSelector((s) => s.allPools);
@@ -168,7 +167,7 @@ export default function CreateTokenLPPage() {
       );
       const fee = formatTokenAmount(
         formatTextAmount(result?.toHuman()?.Ok),
-        unitDecimal
+        appChain?.decimal
       );
 
       setCreateFee(fee);
@@ -228,9 +227,9 @@ export default function CreateTokenLPPage() {
     if (+currentAccount?.balance?.inw < +createTokenFee) {
       toast.error(
         `You don't have enough ${
-          currentChain?.inwName
+          appChain?.inwName
         }. Stake costs ${formatNumDynDecimal(createTokenFee)} ${
-          currentChain?.inwName
+          appChain?.inwName
         }`
       );
       return;
@@ -261,7 +260,7 @@ export default function CreateTokenLPPage() {
         );
         console.log("allowanceINW", allowanceINW);
         if (+allowanceINW < +createTokenFee) {
-          toast(`Approving ${currentChain?.inwName} token...`);
+          toast(`Approving ${appChain?.inwName} token...`);
           let approve = await execContractTxAndCallAPI(
             currentAccount,
             "api",
@@ -468,7 +467,7 @@ export default function CreateTokenLPPage() {
               {+createTokenFee > 1
                 ? formatNumDynDecimal(createTokenFee)
                 : createTokenFee}{" "}
-              {currentChain?.inwName}
+              {appChain?.inwName}
             </Text>
           </span>
         }
@@ -583,9 +582,9 @@ export default function CreateTokenLPPage() {
               <IWInput
                 isDisabled={true}
                 value={`${currentAccount?.balance?.azero || 0} ${
-                  currentChain?.unit
+                  appChain?.unit
                 }`}
-                label={`Your ${currentChain?.unit} Balance`}
+                label={`Your ${appChain?.unit} Balance`}
               />
             </Box>
             <Box w="full">
@@ -613,8 +612,8 @@ export default function CreateTokenLPPage() {
                   formatNumDynDecimal(
                     currentAccount?.balance?.inw2?.replaceAll(",", "")
                   ) || 0
-                } ${currentChain?.inwName}`}
-                label={`Your ${currentChain?.inwName} Balance`}
+                } ${appChain?.inwName}`}
+                label={`Your ${appChain?.inwName} Balance`}
               />
             </Box>
 

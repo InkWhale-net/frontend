@@ -16,6 +16,7 @@ import {
 import { execContractQuery } from "utils/contracts";
 import { psp22_contract } from "utils/contracts";
 import MyAccountTab from "./myAccount";
+import { appChain } from "constants";
 const TokensTabCheckBalance = ({
   mode,
   address,
@@ -78,7 +79,7 @@ const TokensTabCheckBalance = ({
       <IWCard
         w="full"
         variant="outline"
-        title={`Enter any address to check ${tokenInfo?.title} balance`}
+        title={`Enter any address${appChain?.haveAzeroID ? " or azero.id" : ""} to check ${tokenInfo?.title} balance`}
       >
         <IWCard mt="16px" w="full" variant="solid">
           <Stack
@@ -94,7 +95,7 @@ const TokensTabCheckBalance = ({
                 setAddressFromDomain("");
                 setTokenBalance("");
               }}
-              placeholder="Address you want to check balance"
+              placeholder={`Address${appChain?.haveAzeroID ? " or azero.id" : ""} you want to check balance`}
             />
             {addressFromDomain && addressCheckBalance && (
               <IWInput

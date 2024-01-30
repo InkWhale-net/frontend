@@ -29,7 +29,7 @@ import { updateAccountsList } from "redux/slices/walletSlice";
 import { addressShortener, formatNumDynDecimal } from "utils";
 
 import AddressCopier from "components/address-copier/AddressCopier";
-import { supportWallets } from "constants";
+import { appChain, supportWallets } from "constants";
 import { useAppContext } from "contexts/AppContext";
 import { useMemo } from "react";
 import { isMobile } from "react-device-detect";
@@ -37,8 +37,6 @@ import { setCurrentAccount } from "redux/slices/walletSlice";
 import { resolveDomain } from "utils";
 import WalletModal from "./WalletModal";
 import useLongPress from "./useLongPress";
-import toast from "react-hot-toast";
-import { useChainContext } from "contexts/ChainContext";
 
 export default function WalletButton({ onCloseSidebar }) {
   const dispatch = useDispatch();
@@ -235,7 +233,7 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
   const [domain, setDomain] = useState(null);
   const { currentAccount, allAccounts } = useSelector((state) => state.wallet);
   const { walletDisconnectHandler } = useAppContext();
-  const { currentChain } = useChainContext();
+  
   useEffect(() => {
     resolveDomain(currentAccount?.address).then((domainValue) =>
       setDomain(domainValue)
@@ -249,6 +247,7 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
       );
     }
   }, [allAccounts]);
+  
   return (
     <Menu placement="bottom-end">
       <MenuButton p="0px">
@@ -293,7 +292,7 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
 
           {[
             {
-              title: `${currentChain?.unit} Balance`,
+              title: `${appChain?.unit} Balance`,
               content: currentAccount?.balance?.azero,
             },
             {
@@ -302,7 +301,7 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
                 currentAccount?.balance?.inw?.replaceAll(",", "")
               ),
             },
-            currentChain?.haveINW2 && {
+            appChain?.haveINW2 && {
               title: "INW V2 Balance",
               content: formatNumDynDecimal(
                 currentAccount?.balance?.inw2?.replaceAll(",", "")
