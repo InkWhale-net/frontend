@@ -164,16 +164,17 @@ function StakingInfo() {
       const lastAnchored = formatChainStringToNumber(info?.lastAnchored);
       setLastAnchored(lastAnchored);
       // {
-      //   stakingAmount: '0',
-      //   unclaimedAzeroReward: '110,841,577,878',
-      //   claimedAzeroReward: '0',
-      //   unclaimedInwReward: '80,914,351,851,850',
-      //   claimedInwReward: '0',
-      //   lastUpdated: '1,701,422,400,000',
-      //   lastUnclaimedAzeroReward: '110,841,577,878',
-      //   lastUnclaimedInwReward: '80,914,351,851,850',
-      //   lastAnchored: '1,701,333,524,000',
-      //   lastRewardsClaimed: '0'
+      //   stakingAmount: '49,500,000,000,000,000',
+      //   unclaimedAzeroReward: '14,995,447,683,282',
+      //   claimedAzeroReward: '130,101,374,593,301',
+      //   unclaimedInwReward: '1,016,477,132,245,370',
+      //   claimedInwReward: '8,819,014,606,361,569',
+      //   lastUpdated: '1,706,665,945,000',
+      //   lastUnclaimedAzeroReward: '6,223,183,128,488',
+      //   lastUnclaimedInwReward: '421,842,913,495,370',
+      //   lastAnchored: '1,706,586,106,000',
+      //   lastRewardsClaimed: '1,706,586,106,000',
+      //   withdrawalRequestAmount: '0'
       // }
 
       if (!info) {

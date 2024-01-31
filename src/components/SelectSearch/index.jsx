@@ -278,7 +278,7 @@ const ChakraReactSelect = ({
   isInvalid,
   ...props
 }) => {
-  console.log("props", props);
+
   const chakraTheme = useTheme();
 
   // Combine the props passed into the component with the props
