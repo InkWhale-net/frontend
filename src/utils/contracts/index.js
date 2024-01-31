@@ -236,7 +236,7 @@ export async function execContractTx(
                 console.log(`Debug ${section}.${method}: ${docs.join(" ")}`);
               } else {
                 // Other, CannotLookup, BadOrigin, no extra info
-                console.log('Debug 123' + error.toString());
+                // console.log('Debug 123' + error.toString());
               }
             } catch (error) {
               console.log(error);

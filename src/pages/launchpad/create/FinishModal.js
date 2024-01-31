@@ -247,12 +247,14 @@ const FinishModal = ({}) => {
               formatNumToBN(createTokenFee.replaceAll(",", ""))
             );
 
-            if (approve) {
-              setActiveStep((prev) => prev + 1);
-            } else {
-              setIsError(true);
-              return;
-            }
+            await delay(8000).then(() => {
+              if (approve) {
+                setActiveStep((prev) => prev + 1);
+              } else {
+                setIsError(true);
+                return;
+              }
+            });
           } else setActiveStep((prev) => prev + 1);
         } catch (error) {
           setIsError(true);
@@ -295,12 +297,15 @@ const FinishModal = ({}) => {
                 launchpadData?.token?.decimals
               )
             );
-            if (approve) {
-              setActiveStep((prev) => prev + 1);
-            } else {
-              setIsError(true);
-              return;
-            }
+
+            delay(8000).then(() => {
+              if (approve) {
+                setActiveStep((prev) => prev + 1);
+              } else {
+                setIsError(true);
+                return;
+              }
+            });
           } else setActiveStep((prev) => prev + 1);
         } catch (error) {
           setIsError(true);
