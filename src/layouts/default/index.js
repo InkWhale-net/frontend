@@ -47,6 +47,7 @@ export default function Default(props) {
                 position={"fixed"}
                 top={0}
                 width={"100%"}
+                zIndex={9999}
                 background={"#EDC1F5"}
               >
                 <Text
@@ -56,7 +57,8 @@ export default function Default(props) {
                   textAlign={"center"}
                 >
                   {" "}
-                  Platform TVL: {formatNumDynDecimal(TVL?.tvlInAzero, 2)} {appChain?.unit} (${formatNumDynDecimal(TVL?.tvlInUSD, 2)})
+                  Platform TVL: {formatNumDynDecimal(TVL?.tvlInAzero, 2)}{" "}
+                  {appChain?.unit} (${formatNumDynDecimal(TVL?.tvlInUSD, 2)})
                 </Text>
               </Box>
               <Navbar
