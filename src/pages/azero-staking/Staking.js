@@ -1,6 +1,12 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import { Box, Button, Flex, Heading, Stack, Tooltip } from "@chakra-ui/react";
-import { doStakeAzero, doWithdrawRequest, getMaxTotalStakingAmount, getMinStakingAmount, getStakeInfo } from "api/azero-staking/azero-staking";
+import {
+  doStakeAzero,
+  doWithdrawRequest,
+  getMaxTotalStakingAmount,
+  getMinStakingAmount,
+  getStakeInfo,
+} from "api/azero-staking/azero-staking";
 import IWCard from "components/card/Card";
 import IWInput from "components/input/Input";
 import { useAppContext } from "contexts/AppContext";
@@ -59,13 +65,19 @@ function Staking() {
 
   async function handleStake() {
     if (footerInfo && Number(footerInfo[0]) > Number(amount)) {
-      toast.error(`Min ${appChain?.unit} stake is ${footerInfo && footerInfo[0]} ${appChain?.unit}`);
+      toast.error(
+        `Min ${appChain?.unit} stake is ${footerInfo && footerInfo[0]} ${
+          appChain?.unit
+        }`
+      );
       return;
     }
 
     if (maxStakingCalc < amount) {
       toast.error(
-        `Max ${appChain?.unit} stake is ${formatNumDynDecimal(maxStakingCalc)} ${appChain?.unit}`
+        `Max ${appChain?.unit} stake is ${formatNumDynDecimal(
+          maxStakingCalc
+        )} ${appChain?.unit}`
       );
       return;
     }
@@ -94,9 +106,9 @@ function Staking() {
     } else {
       if (availableStakeAmount < amount) {
         toast.error(
-          `Max stake amount is ${formatNumDynDecimal(
-            availableStakeAmount
-          )} ${appChain?.unit}`
+          `Max stake amount is ${formatNumDynDecimal(availableStakeAmount)} ${
+            appChain?.unit
+          }`
         );
         return;
       }
@@ -158,13 +170,19 @@ function Staking() {
     }
 
     if (footerInfo && Number(footerInfo[0]) > Number(amount)) {
-      toast.error(`Min ${appChain?.unit} unstake is ${footerInfo && footerInfo[0]} ${appChain?.unit}`);
+      toast.error(
+        `Min ${appChain?.unit} unstake is ${footerInfo && footerInfo[0]} ${
+          appChain?.unit
+        }`
+      );
       return;
     }
 
     if (maxUnstaking < amount) {
       toast.error(
-        `Max ${appChain?.unit} unstake is ${formatNumDynDecimal(maxUnstaking)} ${appChain?.unit}`
+        `Max ${appChain?.unit} unstake is ${formatNumDynDecimal(
+          maxUnstaking
+        )} ${appChain?.unit}`
       );
       return;
     }
@@ -255,9 +273,9 @@ function Staking() {
     azeroBalance - 0.25 <= 0
       ? 0
       : Math.min(
-        azeroBalance - 0.25,
-        footerInfo && footerInfo[1] - footerInfo[2]
-      );
+          azeroBalance - 0.25,
+          footerInfo && footerInfo[1] - footerInfo[2]
+        )?.toFixed(4);
 
   return (
     <>

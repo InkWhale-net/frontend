@@ -4,7 +4,12 @@ import {
   resolveDomainToAddress,
 } from "@azns/resolver-core";
 import Keyring, { decodeAddress, encodeAddress } from "@polkadot/keyring";
-import { BN, formatBalance, hexToU8a, isHex } from "@polkadot/util";
+import {
+  BN,
+  formatBalance,
+  hexToU8a,
+  isHex,
+} from "@polkadot/util";
 import axios from "axios";
 import { formatUnits, parseUnits } from "ethers";
 import moment from "moment";
@@ -93,9 +98,10 @@ export const formatNumToBN = (number = 0, decimal) => {
       numberMul = 6;
     }
 
-    return new BN(number * 1)
+    return new BN(number * 10 ** 4)
       .mul(new BN(10 ** numberMul))
       .mul(new BN(10 ** (localDecimal - numberMul)))
+      .div(new BN(10 ** 4))
       .toString();
   } catch (error) {
     console.log("error message", error.message);
@@ -513,8 +519,8 @@ export const getTokenOwner = async (tokenContract) => {
     isNew: queryOwnerNew?.toHuman()?.Ok
       ? true
       : queryOwnerOld?.toHuman()?.Ok
-        ? false
-        : null,
+      ? false
+      : null,
   };
 };
 
