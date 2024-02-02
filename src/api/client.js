@@ -137,6 +137,15 @@ export const APICall = {
       isNew,
     });
   },
+  updateDoxxed: async ({
+    contractAddress,
+    newValue,
+  }) => {
+    return await client("POST", "/updateDoxxed", {
+      contractAddress,
+      newValue,
+    });
+  },
   getTokenInfor: async ({ tokenAddress }) => {
     return await client("POST", "/getTokenInfor", {
       tokenAddress,

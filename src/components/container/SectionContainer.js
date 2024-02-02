@@ -7,13 +7,14 @@ function SectionContainer({
   description,
   scrollRef,
   right,
+  maxW,
   ...rest
 }) {
   return (
     <Flex
       direction="column"
       w="full"
-      maxW="1440px"
+      maxW={maxW || "1440px"}
       mx="auto"
       my="0px"
       py={{ base: "20px", xl: "40px" }}
