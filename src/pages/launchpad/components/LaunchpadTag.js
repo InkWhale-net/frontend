@@ -14,6 +14,7 @@ import {
 } from "components/countdown/StatusWithCountDown";
 import { useHistory } from "react-router-dom";
 import {
+  DoxxedTag,
   EndStatusTag,
   LiveStatusTag,
   RequireKyc,
@@ -132,8 +133,6 @@ const LaunchpadTag = ({ launchpadData }) => {
         }}
       >
         <div style={{ position: "relative" }}>
-          {console.log('process.env.REACT_APP_IPFS_PUBLIC_URL', process.env.REACT_APP_IPFS_PUBLIC_URL)}
-          {console.log('projectInfo?.projectInfor?.headerImage', projectInfo?.projectInfor?.headerImage)}
           <Image
             fit={"cover"}
             h="160px"
@@ -162,6 +161,15 @@ const LaunchpadTag = ({ launchpadData }) => {
               upcomingRender={<UpcomingStatusTag />}
               endRender={<EndStatusTag />}
             />
+          </Flex>
+          <Flex
+            style={{
+              position: "absolute",
+              right: "4px",
+              bottom: "8px",
+            }}
+          >
+            {launchpadData?.isDoxxed && <DoxxedTag />}
           </Flex>
 
           <div
