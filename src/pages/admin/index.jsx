@@ -1,5 +1,5 @@
 import IWTabs from "components/tabs/IWTabs";
-import React, {  } from "react";
+import React, { } from "react";
 import SaleInfoTab from "./components/SaleInfoTab";
 import SectionContainer from "components/container/SectionContainer";
 import Launchpad from "./components/Launchpad";
@@ -31,7 +31,7 @@ export default function AdminPage() {
   ];
 
   return (
-    <SectionContainer mt={{ base: "0px", xl: "20px" }}>
+    <SectionContainer maxW="1800px" mt={{ base: "0px", xl: "20px" }}>
       <IWTabs tabsData={tabsData} />
     </SectionContainer>
   );
