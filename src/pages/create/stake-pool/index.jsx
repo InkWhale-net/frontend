@@ -216,8 +216,8 @@ export default function CreateStakePoolPage() {
     endDate?.setDate(startTime?.getDate() + parseInt(duration));
     if (!!endDate) {
       const currentDate = new Date();
-      if (endDate < currentDate) {
-        toast.error(`Pool can not end in the past`);
+      if (startTime < currentDate) {
+        toast.error(`Pool can not start in the past`);
         return;
       }
     } else {
