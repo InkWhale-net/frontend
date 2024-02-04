@@ -419,7 +419,7 @@ export const resolveDomain = async (address) => {
       return domains[0];
     }
   } catch (error) {
-    console.log("resolveDomain error", error);
+    // console.log("resolveDomain error", error);
   }
 };
 

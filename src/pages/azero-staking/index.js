@@ -7,12 +7,19 @@ import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import {
   Box,
   Flex,
+  Input,
   SimpleGrid,
   Stack,
+  Text,
   Tooltip,
   useMediaQuery,
 } from "@chakra-ui/react";
-import { getApy, getInwMultiplier, getTotalAzeroStaked, getTotalStakers } from "api/azero-staking/azero-staking";
+import {
+  getApy,
+  getInwMultiplier,
+  getTotalAzeroStaked,
+  getTotalStakers,
+} from "api/azero-staking/azero-staking";
 import { APICall } from "api/client";
 import IWCard from "components/card/Card";
 import IWPaginationTable from "components/table/IWPaginationTable";
@@ -22,6 +29,8 @@ import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { formatChainStringToNumber, formatNumDynDecimal } from "utils";
 import StakingTabs from "./components/Tab";
+import { useSearchWalletAddress } from "./useSearchWalletAddress";
+import { ClipLoader } from "react-spinners";
 
 function AzeroStaking() {
   const { api } = useAppContext();
@@ -198,94 +207,7 @@ function StatsInfo({ totalApy, inwApy }) {
 }
 
 function TransactionHistory() {
-  const [loading, setLoading] = useState(true);
-  const [txHistory, setTxHistory] = useState([]);
-  const [resultTotalPage, setResultTotalPage] = useState(0);
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 5,
-  });
-
-  const fetchAll = useCallback(
-    async (isMounted) => {
-      try {
-        setLoading(true);
-
-        const { ret } = await APICall.getEventData({
-          type: [0, 1, 2, 3, 4],
-          limit: 9999,
-          offset: 0,
-        });
-
-        setResultTotalPage(Math.ceil(ret?.length / pagination?.pageSize));
-
-        const { ret: txHistory } = await APICall.getEventData({
-          type: [0, 1, 2, 3, 4],
-          limit: pagination.pageSize,
-          offset: pagination.pageSize * pagination.pageIndex,
-        });
-        console.log("txHistory", txHistory);
-
-        const txHistoryFormatted = txHistory?.map((i) => ({
-          ...i,
-          requestId: i.type === 0 || i.type === 4 ? "-" : i.data?.requestId,
-          requestUserAddress: i.user,
-          stakeStatus:
-            i.type === 0
-              ? "Staked"
-              : i.type === 1
-                ? "Requested Unstake"
-                : i.type === 2
-                  ? "Cancelled"
-                  : i.type === 3
-                    ? "Unstaked"
-                    : i.type === 4
-                      ? "Claimed Rewards"
-                      : "",
-          azeroAmount:
-            formatChainStringToNumber(i.data?.amount ?? i.data?.azeroAmount) /
-            Math.pow(10, 12),
-          dateTime: new Date(
-            formatChainStringToNumber(i.time) * 1
-          ).toLocaleString(),
-        }));
-
-        txHistoryFormatted?.sort((a, b) => {
-          return b.blockNumber - a.blockNumber;
-        });
-
-        if (!isMounted) return;
-
-        setTxHistory(txHistoryFormatted);
-        setLoading(false);
-      } catch (error) {
-        setLoading(false);
-        console.log("error", error);
-        toast.error("error", error);
-      }
-    },
-    [pagination.pageIndex, pagination.pageSize]
-  );
-
-  useEffect(() => {
-    let isMounted = true;
-
-    fetchAll(isMounted);
-
-    return () => (isMounted = false);
-  }, [fetchAll]);
-
-  return (
-    <IWPaginationTable
-      tableBody={txHistory}
-      tableHeader={tableHeader}
-      pagination={pagination}
-      setPagination={setPagination}
-      totalData={resultTotalPage}
-      fontSize="16px"
-      mode="TX_HISTORY"
-    />
-  );
+  return <SearchWalletAddressInput />;
 }
 
 const tableHeader = [
@@ -320,7 +242,7 @@ function MyTransactionHistory() {
   const [resultTotalPage, setResultTotalPage] = useState(0);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 5,
+    pageSize: 20,
   });
 
   const fetchAll = useCallback(
@@ -343,7 +265,6 @@ function MyTransactionHistory() {
           limit: pagination.pageSize,
           offset: pagination.pageSize * pagination.pageIndex,
         });
-        console.log("txHistory", txHistory);
 
         const txHistoryFormatted = txHistory?.map((i) => ({
           ...i,
@@ -353,14 +274,14 @@ function MyTransactionHistory() {
             i.type === 0
               ? "Staked"
               : i.type === 1
-                ? "Requested Unstake"
-                : i.type === 2
-                  ? "Cancelled"
-                  : i.type === 3
-                    ? "Unstaked"
-                    : i.type === 4
-                      ? "Claimed Rewards"
-                      : "",
+              ? "Requested Unstake"
+              : i.type === 2
+              ? "Cancelled"
+              : i.type === 3
+              ? "Unstaked"
+              : i.type === 4
+              ? "Claimed Rewards"
+              : "",
           azeroAmount:
             formatChainStringToNumber(i.data?.amount ?? i.data?.azeroAmount) /
             Math.pow(10, 12),
@@ -404,5 +325,63 @@ function MyTransactionHistory() {
       fontSize="16px"
       mode="TX_HISTORY"
     />
+  );
+}
+
+function SearchWalletAddressInput() {
+  const {
+    setSearchQuery,
+    fetchWalletAddress,
+    resultTotalPage,
+    setPagination,
+    pagination,
+    searchResults,
+    loading,
+    searchQuery,
+  } = useSearchWalletAddress();
+
+  const handleChange = (e) => {
+    setSearchQuery(e?.target?.value);
+    setPagination({
+      pageIndex: 0,
+      pageSize: 20,
+    });
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      fetchWalletAddress();
+    }
+  };
+
+  return (
+    <>
+      <Flex alignItems="center">
+        <Text mr="8px">Address:</Text>
+        <Input
+          type="text"
+          value={searchQuery}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Enter your wallet address here..."
+        />
+      </Flex>
+
+      {loading ? (
+        <Flex justify="center" align="center" py="16px">
+          <ClipLoader color="#57527E" loading size={36} speedMultiplier={1.5} />
+        </Flex>
+      ) : (
+        <IWPaginationTable
+          tableBody={searchResults}
+          tableHeader={tableHeader}
+          pagination={pagination}
+          setPagination={setPagination}
+          totalData={resultTotalPage}
+          fontSize="16px"
+          mode="TX_HISTORY"
+        />
+      )}
+    </>
   );
 }

@@ -383,7 +383,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
   const [gasApproveToV1, setGasApproveToV1] = useState(0);
 
   useEffect(() => {
-    console.log("amount", amount);
+    // console.log("amount", amount);
     // to v2
     const fetchDataGasApproveToV2 = async () => {
       const contract = new ContractPromise(
@@ -401,7 +401,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         [swap_inw2_contract.CONTRACT_ADDRESS, formatNumToBN(amount)]
       );
 
-      console.log("Gas Approve To V2", gasLimitResult * 1.688);
+      // console.log("Gas Approve To V2", gasLimitResult * 1.688);
       setGasApproveToV2(gasLimitResult * 1.688);
     };
 
@@ -422,7 +422,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         { value: 0 },
         [formatNumToBN(amount)]
       );
-      console.log("Gas Swap To V2", gasLimitResult * 1.05);
+      // console.log("Gas Swap To V2", gasLimitResult * 1.05);
       setGasSwapToV2(gasLimitResult * 1.05);
     };
 
@@ -445,7 +445,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         [swap_inw2_contract.CONTRACT_ADDRESS, formatNumToBN(amount)]
       );
 
-      console.log("fetchDataGasApproveToV1", gasLimitResult * 1.688);
+      // console.log("fetchDataGasApproveToV1", gasLimitResult * 1.688);
       setGasApproveToV1(gasLimitResult * 1.688);
     };
 
@@ -466,7 +466,7 @@ export const SwapModalContent = ({ isOpen, amountRef }) => {
         { value: 0 },
         [formatNumToBN(amount)]
       );
-      console.log("fetchDataGasSwapToV1", gasLimitResult * 1.05);
+      // console.log("fetchDataGasSwapToV1", gasLimitResult * 1.05);
       setGasSwapToV1(gasLimitResult * 1.05);
     };
 
