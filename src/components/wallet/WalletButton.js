@@ -29,18 +29,14 @@ import { updateAccountsList } from "redux/slices/walletSlice";
 import { addressShortener } from "utils";
 
 import AddressCopier from "components/address-copier/AddressCopier";
-import { supportWallets } from "constants";
+import { appChain, supportWallets } from "constants";
 import { useAppContext } from "contexts/AppContext";
 import { useMemo } from "react";
 import { isMobile } from "react-device-detect";
 import { setCurrentAccount } from "redux/slices/walletSlice";
-import { resolveDomain } from "utils";
+import { formatNumDynDecimal, resolveDomain } from "utils";
 import WalletModal from "./WalletModal";
 import useLongPress from "./useLongPress";
-import toast from "react-hot-toast";
-import { formatNumDynDecimal } from "utils";
-import { appChain } from "constants";
-
 export default function WalletButton({ onCloseSidebar }) {
   const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();

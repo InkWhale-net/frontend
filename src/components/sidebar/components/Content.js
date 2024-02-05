@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { useSelector } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
+import { appChain } from "constants";
 
 function SidebarContent({ onClose }) {
   const [currentAnchor, setCurrentAnchor] = useState("");
@@ -37,21 +38,24 @@ function SidebarContent({ onClose }) {
         mt="8px"
         px="20px"
       >
-        <GroupMenu
-          {...groupButtonProps}
-          title="INW Token"
-          path="/inw"
-          data={[
-            {
-              label: "Claim INW",
-              href: "/acquire-inw",
-            },
-            {
-              label: "INW V2",
-              href: "/inw-v2",
-            },
-          ]}
-        />
+        {appChain?.allowBuy && (
+          <GroupMenu
+            {...groupButtonProps}
+            title="INW Token"
+            path="/inw"
+            data={[
+              {
+                label: "Claim INW",
+                href: "/acquire-inw",
+              },
+              {
+                label: "INW V2",
+                href: "/inw-v2",
+              },
+            ]}
+          />
+        )}
+
         {menuListData?.map(({ title, href }) => (
           <Flex
             w={"full"}
@@ -160,7 +164,7 @@ function SidebarContent({ onClose }) {
             </Text>
           </Link>
         </Flex>
-        {isMobile && (
+        {isMobile && appChain?.allowSwap && (
           <Flex
             _hover={{ textDecoration: "none", bg: "bg.1" }}
             p="6px 10px"
