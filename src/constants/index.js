@@ -164,7 +164,10 @@ export const supportedChain = [
     providerURL: "wss://wss-testnet.5ire.network",
     unit: "5IRE",
     inwName: "INW",
+    url: "https://5iretest.inkwhale.net/",
   },
 ];
-export const appChain = supportedChain.find(e => e?.key == process.env.REACT_APP_CHAIN)
+export const appChain = supportedChain.find(
+  (e) => e?.key == process.env.REACT_APP_CHAIN
+);
 export const FINALIZED_TIME = 6000;

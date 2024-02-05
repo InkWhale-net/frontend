@@ -22,6 +22,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
 import { INWSwap } from "components/INWSwap";
 import { appChain } from "constants";
+import ChainButton from "components/wallet/ChainButton";
 
 export default function NavbarLinks(props) {
   const { secondary } = props;
@@ -187,11 +188,12 @@ export default function NavbarLinks(props) {
             </Link>
           </Flex>
         </Flex>
-        <INWSwap />
+        {appChain?.allowSwap && <INWSwap />}
       </Show>
 
       <Show above="md">
         <Flex>
+          <ChainButton />
           <WalletButton />
         </Flex>
       </Show>
@@ -302,5 +304,3 @@ export const GroupMenu = ({
     </Menu>
   );
 };
-
-
