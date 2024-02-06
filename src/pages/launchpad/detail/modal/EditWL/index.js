@@ -56,19 +56,26 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   const [selectedPhase, setSelectedPhase] = useState(0);
   const [selectedMode, setSelectedMode] = useState(0);
   const [availableTokenAmount, setAvailableTokenAmount] = useState(0);
-  const [queries, setQueries] = useState(null);
+  const [queries, setQueries] = useState("");
   const tokenDecimal = parseInt(launchpadData?.projectInfo?.token?.decimals);
   const [selectedWL, setSelectedWL] = useState(null);
 
   const whitelist = useMemo(() => {
-    return launchpadData?.phaseList[selectedPhase]?.whitelist?.map((e) => ({
+    let ret = launchpadData?.phaseList[selectedPhase]?.whitelist?.map((e) => ({
       ...e,
       amount: formatTokenAmount(e?.amount, tokenDecimal),
       purchasedAmount: formatTokenAmount(e?.purchasedAmount, tokenDecimal),
       claimedAmount: formatTokenAmount(e?.claimedAmount, tokenDecimal),
       price: formatTokenAmount(e?.price, 12),
     }));
-  }, [launchpadData?.phaseList, selectedPhase, tokenDecimal]);
+    if (queries?.keyword === "") {
+      return ret;
+    } else {
+      ret = ret.filter((item) => item.account === queries?.keyword);
+      return ret;
+    }
+  }, [launchpadData?.phaseList, queries?.keyword, selectedPhase, tokenDecimal]);
+
   const fetchPhaseData = async () => {
     const result = await execContractQuery(
       currentAccount?.address,
@@ -82,6 +89,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
 
     setAvailableTokenAmount(formatTokenAmount(availableAmount, tokenDecimal));
   };
+
   const tableData = {
     columns: [
       {
@@ -107,6 +115,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     ],
     data: whitelist || [],
   };
+
   const isPhaseEditable = useMemo(() => {
     if (selectedPhase >= 0) {
       const phaseData = launchpadData?.phaseList[selectedPhase];
@@ -272,6 +281,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                   size="md"
                   onChange={({ target }) => {
                     setSelectedPhase(target.value);
+                    setQueries({ keyword: "" });
                   }}
                   value={selectedPhase}
                 >
@@ -366,16 +376,18 @@ function EditWhitelist({
       </Box>
 
       <Box sx={{ flex: 1, pt: "30px" }}>
-        {/* <IWInput
-          size="md"
-          value={queries?.keyword}
-          width={{ base: "full" }}
-          onChange={({ target }) =>
-            setQueries({ ...queries, keyword: target.value })
-          }
-          placeholder="Search"
-          inputRightElementIcon={<SearchIcon color="#57527E" />}
-        /> */}
+        <Flex mb="16px">
+          <IWInput
+            size="md"
+            value={queries?.keyword}
+            width={{ base: "full" }}
+            onChange={({ target }) =>
+              setQueries({ ...queries, keyword: target.value })
+            }
+            placeholder="Search"
+            inputRightElementIcon={<SearchIcon color="#57527E" />}
+          />
+        </Flex>
         <TableContainer
           // mt="18px"
           width="full"
@@ -582,14 +594,7 @@ function KycTabs({ tabsData, setSelectedMode, selectedMode }) {
       alignItems="start"
       direction={{ base: "column", lg: "row" }}
     >
-      <Tabs
-        onChange={(e) => {
-          console.log("e", e);
-          setSelectedMode(e);
-        }}
-        isLazy
-        w="full"
-      >
+      <Tabs onChange={(e) => setSelectedMode(e)} isLazy w="full">
         <TabList>
           {tabsData?.map(({ label }, idx) => (
             <Tab
