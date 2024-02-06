@@ -139,6 +139,7 @@ export const supportedChain = [
     providerURL: "wss://ws.azero.dev",
     haveAzeroID: true,
     unit: "AZERO",
+    // unitIcon
     url: "https://a0.inkwhale.net",
     inwName: "INW",
   },
