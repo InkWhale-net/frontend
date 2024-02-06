@@ -323,7 +323,7 @@ export default function CreateTokenPage() {
                   label="Token Name"
                   placeholder="Token Name"
                   onChange={({ target }) => {
-                    if (/^[a-zA-Z0-9]*$/.test(target.value)) {
+                    if (/^[a-zA-Z0-9\s]*$/.test(target.value)) {
                       setTokenName(target.value);
                     }
                   }}
