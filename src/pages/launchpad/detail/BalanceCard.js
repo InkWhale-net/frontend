@@ -47,7 +47,7 @@ const BalanceCard = ({ launchpadData }) => {
           roundUp(
             formatTokenAmount(
               tokenBalance,
-              parseInt(launchpadData.projectInfo.token.decimals)
+              parseInt(launchpadData?.projectInfo?.token?.decimals)
             )
           )
         )
