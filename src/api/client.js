@@ -389,7 +389,7 @@ export const APICall = {
       "POST",
       "/getWaitingListInfoWithinExpirationDuration",
       { ...options },
-      "https://staking.inkwhale.net/"
+      "https://staking-internal.inkwhale.net/"
     );
   },
 
@@ -398,7 +398,7 @@ export const APICall = {
       "POST",
       "/getExpirationTime",
       { ...options },
-      "https://staking.inkwhale.net/"
+      "https://staking-internal.inkwhale.net/"
     );
   },
 
@@ -407,7 +407,7 @@ export const APICall = {
       "POST",
       "/getDistributionInfo",
       { ...options },
-      "https://staking.inkwhale.net/"
+      "https://staking-internal.inkwhale.net/"
     );
   },
 
@@ -417,7 +417,7 @@ export const APICall = {
       "POST",
       "/getEventData",
       { ...options },
-      "https://staking.inkwhale.net/"
+      "https://staking-internal.inkwhale.net/"
     );
   },
 
@@ -426,7 +426,7 @@ export const APICall = {
       "POST",
       "/getMyEventData",
       { ...options },
-      "https://staking.inkwhale.net/"
+      "https://staking-internal.inkwhale.net/"
     );
   },
 
@@ -435,7 +435,7 @@ export const APICall = {
       "POST",
       "/getOperationWallet",
       { ...options },
-      "https://staking.inkwhale.net/"
+      "https://staking-internal.inkwhale.net/"
     );
   },
 };
