@@ -30,7 +30,6 @@ const ProjectInfor = () => {
     description: launchpadData?.projectInfor?.description || "",
     avatarImage: launchpadData?.projectInfor?.avatarImage || "",
     featureImage: launchpadData?.projectInfor?.featureImage || "",
-    headerImage: launchpadData?.projectInfor?.headerImage || "",
     youtubeUrl: launchpadData?.projectInfor?.youtubeUrl || "",
     website: launchpadData?.projectInfor?.website || "",
     twitter: launchpadData?.projectInfor?.twitter || "",
@@ -43,7 +42,6 @@ const ProjectInfor = () => {
     description: Yup.string().required("Description is required"),
     avatarImage: Yup.string().required("This field is required"),
     featureImage: Yup.string().required("This field is required"),
-    headerImage: Yup.string().required("This field is required"),
     youtubeUrl: Yup.string().matches(
       /^(https:\/\/www\.youtube\.com\/embed\/[A-Za-z0-9_-]+)$/,
       "Invalid YouTube Embed URL format"
@@ -131,33 +129,6 @@ const ProjectInfor = () => {
                   iconUrl={projectInfor?.featureImage}
                   setImageIPFSUrl={(value) =>
                     form.setFieldValue("featureImage", value)
-                  }
-                />
-              </FormControl>
-            )}
-          </Field>
-          <Field name="headerImage">
-            {({ form }) => (
-              <FormControl isInvalid={form.errors.headerImage}>
-                <UploadImage
-                  errorLabel={form.errors.headerImage}
-                  label="Header Image"
-                  keyInput={`project-infor-3`}
-                  previewSize={{ width: "180px", height: "120px" }}
-                  limitedSize={{
-                    width: "1920",
-                    height: "600",
-                  }}
-                  previewUrl={projectInfor?.previewHeaderImage}
-                  updatePreviewImage={(value) =>
-                    setProjectInfor((prev) => ({
-                      ...prev,
-                      previewHeaderImage: value,
-                    }))
-                  }
-                  iconUrl={projectInfor?.headerImage}
-                  setImageIPFSUrl={(value) =>
-                    form.setFieldValue("headerImage", value)
                   }
                 />
               </FormControl>
