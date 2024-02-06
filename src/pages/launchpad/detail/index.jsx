@@ -22,7 +22,7 @@ import PhaseInformation from "./tabs/Phase";
 import BalanceTab from "./tabs/Balance";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { ChevronRightIcon } from "@chakra-ui/icons";
-import ModalDetailContextProvider from "./modal/ModelContext";
+import ModalDetailContextProvider from "./modal/ModalContext";
 import { useEffect } from "react";
 import { useAppContext } from "contexts/AppContext";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
