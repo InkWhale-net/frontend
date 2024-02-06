@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { formatNumToBN, formatTokenAmount } from "utils";
 import { execContractQuery, execContractTxAndCallAPI } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
-import { useModalLPDetail } from "./modal/ModelContext";
+import { useModalLPDetail } from "./modal/ModalContext";
 import { formatChainStringToNumber } from "utils";
 import { delay } from "utils";
 import { fetchUserBalance } from "redux/slices/walletSlice";
@@ -22,6 +22,10 @@ const OwnerZoneCard = ({ launchpadData }) => {
     showPhaseModal,
     showEditInforModal,
     showEditTotalSupply,
+    showWithdrawAzeroVisible,
+    withdrawAzeroVisible,
+    updateOwnerBalance,
+    updateUnsoldToken,
   } = useModalLPDetail();
   const tokenDecimal = parseInt(launchpadData?.projectInfo?.token?.decimals);
 
@@ -42,7 +46,10 @@ const OwnerZoneCard = ({ launchpadData }) => {
     );
 
     const ret = queryResult?.toHuman().Ok?.Ok;
-    setOwnerBalance(parseInt(ret?.replaceAll(",", ""), 10) / 10 ** 12);
+    const ownerBL =
+      parseInt(ret?.replaceAll(",", ""), 10) / 10 ** appChain?.decimal;
+    setOwnerBalance(ownerBL);
+    updateOwnerBalance(ownerBL);
     const fetchUnsoldToken = await execContractQuery(
       currentAccount?.address,
       "api",
@@ -81,6 +88,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
     currentAccount?.address,
     fetchBalance,
     launchpadData?.launchpadContract,
+    withdrawAzeroVisible,
   ]);
   const ownerWithdrawUnsoldHandler = async () => {
     const endTime = launchpadData?.endTime?.replaceAll(",", "");
@@ -137,20 +145,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
     if (ownerBalance < 0.0001) {
       return toast.error("Balance is zero!");
     }
-
-    toast.success(`Withdrawing ${ownerBalance.toFixed(4)} ${appChain?.unit}...`);
-
-    await execContractTxAndCallAPI(
-      currentAccount,
-      "api",
-      launchpad.CONTRACT_ABI,
-      launchpadData?.launchpadContract,
-      0,
-      "launchpadContractTrait::withdraw",
-      fetchBalance,
-      formatNumToBN(ownerBalance),
-      currentAccount?.address
-    );
+    await showWithdrawAzeroVisible();
   };
   const fetchOwnerData = useCallback(async () => {
     // const totalTokenSold = launchpadData?.phaseList?.map(async (acc, phase) => {
@@ -186,7 +181,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
       (prev, curr) =>
         prev +
         formatChainStringToNumber(curr.purchasedAmount) /
-        Math.pow(10, tokenDecimal),
+          Math.pow(10, tokenDecimal),
       0
     );
     return { ...p, totalSoldAmount };
