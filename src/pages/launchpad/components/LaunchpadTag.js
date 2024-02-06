@@ -143,7 +143,7 @@ const LaunchpadTag = ({ launchpadData }) => {
             objectPosition="center"
             filter="brightness(0.4)"
             borderRadius="4px"
-            src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${projectInfo?.projectInfor?.headerImage}`}
+            src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${projectInfo?.projectInfor?.featureImage}`}
           />
           <Flex
             style={{

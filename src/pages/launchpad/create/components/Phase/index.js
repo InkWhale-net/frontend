@@ -387,7 +387,7 @@ const Phase = () => {
             >
               Required KYC
             </Heading>
-            <Field name="headerImage">
+            <Field name="requireKyc">
               {({ form }) => (
                 <Switch
                   sx={{ mt: "4px", ml: "16px" }}

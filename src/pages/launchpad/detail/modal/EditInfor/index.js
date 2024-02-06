@@ -36,7 +36,6 @@ const EditInfor = ({ visible, setVisible, launchpadData }) => {
         ...launchpadData?.projectInfo?.projectInfor,
         previewAvatar: null,
         previewFeatureImage: null,
-        previewHeaderImage: null,
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
@@ -93,7 +92,6 @@ const EditInfor = ({ visible, setVisible, launchpadData }) => {
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Update Project Information</ModalHeader>
-
         <ModalCloseButton onClick={() => setVisible(false)} />
         <ModalBody sx={{ pb: "28px", maxHeight: "80vh", overflow: "auto" }}>
           <SimpleGrid
@@ -145,32 +143,6 @@ const EditInfor = ({ visible, setVisible, launchpadData }) => {
               iconUrl={projectInfor?.featureImage}
               setImageIPFSUrl={(value) =>
                 setProjectInfor((prev) => ({ ...prev, featureImage: value }))
-              }
-            />
-            <UploadImage
-              isDisabled={
-                !(projectInfor?.avatarImage && projectInfor?.featureImage)
-              }
-              label="Header Image"
-              keyInput={`project-infor-3`}
-              previewSize={{ width: "180px", height: "120px" }}
-              limitedSize={{
-                width: "1920",
-                height: "600",
-              }}
-              previewUrl={
-                projectInfor?.previewHeaderImage ||
-                `${process.env.REACT_APP_IPFS_PUBLIC_URL}/${projectInfor?.headerImage}`
-              }
-              updatePreviewImage={(value) =>
-                setProjectInfor((prev) => ({
-                  ...prev,
-                  previewHeaderImage: value,
-                }))
-              }
-              iconUrl={projectInfor?.headerImage}
-              setImageIPFSUrl={(value) =>
-                setProjectInfor((prev) => ({ ...prev, headerImage: value }))
               }
             />
           </SimpleGrid>

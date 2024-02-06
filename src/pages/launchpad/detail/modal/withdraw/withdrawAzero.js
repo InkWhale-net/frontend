@@ -100,30 +100,20 @@ const WithdrawAzero = ({
             phase?.phaseID
           );
           const publicInfo = queryResult?.toHuman()?.Ok;
-          const queryResult2 = await execContractQuery(
-            currentAccount?.address,
-            api,
-            launchpad.CONTRACT_ABI,
-            launchpadData?.launchpadContract,
-            0,
-            "launchpadContractTrait::getPublicSalePrice",
-            phase?.phaseID
-          );
-          const tokenPricee = formatTokenAmount(
-            queryResult2?.toHuman()?.Ok,
-            appChain?.decimal
-          );
-          const totalPurchasedAmountPhase = formatTokenAmount(
-            publicInfo?.totalPurchasedAmount,
-            launchpadData?.projectInfo?.token?.decimals
-          );
-          return {
-            totalAmount: formatTokenAmount(
-              publicInfo?.totalAmount,
+          const totalPurchasedAmountPhase =
+            publicInfo?.totalPurchasedAmount &&
+            formatTokenAmount(
+              publicInfo?.totalPurchasedAmount,
               launchpadData?.projectInfo?.token?.decimals
-            ),
+            );
+          return {
+            totalAmount:
+              publicInfo?.totalAmount &&
+              formatTokenAmount(
+                publicInfo?.totalAmount,
+                launchpadData?.projectInfo?.token?.decimals
+              ),
             totalPurchasedAmount: totalPurchasedAmountPhase,
-            azeroAmount: tokenPricee * totalPurchasedAmountPhase * (1 - txRate),
           };
         })
       );
@@ -140,32 +130,21 @@ const WithdrawAzero = ({
             phase?.phaseID
           );
           const WLInfo = queryResult?.toHuman()?.Ok;
-          console.log(WLInfo);
-          // const queryResult2 = await execContractQuery(
-          //   currentAccount?.address,
-          //   api,
-          //   launchpad.CONTRACT_ABI,
-          //   launchpadData?.launchpadContract,
-          //   0,
-          //   "launchpadContractTrait::getPublicSalePrice",
-          //   phase?.phaseID
-          // );
-          // const tokenPricee = formatTokenAmount(
-          //   queryResult2?.toHuman()?.Ok,
-          //   appChain?.decimal
-          // );
-          // const totalPurchasedAmountPhase = formatTokenAmount(
-          //   publicInfo?.totalPurchasedAmount,
-          //   launchpadData?.projectInfo?.token?.decimals
-          // );
-          // return {
-          //   totalAmount: formatTokenAmount(
-          //     publicInfo?.totalAmount,
-          //     launchpadData?.projectInfo?.token?.decimals
-          //   ),
-          //   totalPurchasedAmount: totalPurchasedAmountPhase,
-          //   azeroAmount: tokenPricee * totalPurchasedAmountPhase * (1 - txRate),
-          // };
+          const totalPurchasedAmountPhase =
+            WLInfo?.totalPurchasedAmount &&
+            formatTokenAmount(
+              WLInfo?.totalPurchasedAmount,
+              launchpadData?.projectInfo?.token?.decimals
+            );
+          return {
+            totalAmount:
+              WLInfo?.totalAmount &&
+              formatTokenAmount(
+                WLInfo?.totalAmount,
+                launchpadData?.projectInfo?.token?.decimals
+              ),
+            totalPurchasedAmount: totalPurchasedAmountPhase,
+          };
         })
       );
       setWhiteListSale(WLSaleData);
@@ -205,26 +184,25 @@ const WithdrawAzero = ({
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Withdraw {appChain?.unit}</ModalHeader>
+          <ModalHeader color="#57527E">Withdraw {appChain?.unit}</ModalHeader>
           <Box px="24px">
             {phases?.map((obj, index) => {
               return (
-                <Box>
+                <Box mt={index > 0 && "20px"}>
                   <Text
                     sx={{
                       fontWeight: 700,
                       color: "#57527E",
                     }}
                   >
-                    {obj?.name}
+                    {obj?.name?.toUpperCase()}
                   </Text>
-                  <Divider />
+                  <Box h="1px" bg="rgba(0, 0, 0, 0.2)" />
                   <Text fontWeight={700}>Public sale</Text>
                   <SimpleGrid columns={2}>
                     <Box>
                       <Text>Total sale amount</Text>
                       <Text>Total purchased amount</Text>
-                      <Text>Total {appChain?.unit}</Text>
                     </Box>
                     <Box>
                       <Text>
@@ -236,9 +214,24 @@ const WithdrawAzero = ({
                           publicSale[index]?.totalPurchasedAmount
                         ) || "-"}
                       </Text>
+                    </Box>
+                  </SimpleGrid>
+                  <Text fontWeight={700}>Whitelist sale</Text>
+                  <SimpleGrid columns={2}>
+                    <Box>
+                      <Text>Total sale amount</Text>
+                      <Text>Total purchased amount</Text>
+                    </Box>
+                    <Box>
                       <Text>
-                        {formatNumDynDecimal(publicSale[index]?.azeroAmount) ||
-                          "-"}
+                        {formatNumDynDecimal(
+                          whitelistSale[index]?.totalAmount
+                        ) || "-"}
+                      </Text>
+                      <Text>
+                        {formatNumDynDecimal(
+                          whitelistSale?.[index]?.totalPurchasedAmount
+                        ) || "-"}
                       </Text>
                     </Box>
                   </SimpleGrid>
@@ -246,6 +239,18 @@ const WithdrawAzero = ({
               );
             })}
           </Box>
+          <Box px="24px">
+            <Box h="1px" bg="rgba(0, 0, 0, 0.2)" my="8px" />
+            <SimpleGrid columns={2}>
+              <Box>
+                <Text>{appChain?.unit} Balance</Text>
+              </Box>
+              <Box>
+                <Text>{formatNumDynDecimal(ownerBalance) || "-"}</Text>
+              </Box>
+            </SimpleGrid>
+          </Box>
+
           <Button
             sx={{
               mx: "24px",
