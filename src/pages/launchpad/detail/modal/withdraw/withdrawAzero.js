@@ -9,20 +9,25 @@ import {
   SimpleGrid,
   Text,
 } from "@chakra-ui/react";
+import { BN, BN_BILLION, BN_MILLION } from "@polkadot/util";
 import { appChain } from "constants";
 import { useAppContext } from "contexts/AppContext";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useMutation } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchUserBalance } from "redux/slices/walletSlice";
 import { formatTokenAmount } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { formatNumToBNEther } from "utils";
+import { multipleFloat } from "utils";
+import { formatQueryResultToNumberEthers } from "utils";
 import { formatChainStringToNumber } from "utils";
 import { execContractTxAndCallAPI } from "utils/contracts";
 import { execContractQuery } from "utils/contracts";
 import { launchpad } from "utils/contracts";
 
+const DECIMALS = 3;
 const WithdrawAzero = ({
   visible,
   setVisible,
@@ -35,47 +40,7 @@ const WithdrawAzero = ({
   const [publicSale, setPublicSale] = useState([]);
   const [whitelistSale, setWhiteListSale] = useState([]);
   const phases = launchpadData?.phaseList;
-
-  const [availableTokenAmount, setAvailableTokenAmount] = useState(0);
-
   const tokenDecimal = parseInt(launchpadData?.projectInfo?.token?.decimals);
-  const isPhaseStart =
-    Date.now() > formatChainStringToNumber(launchpadData?.startTime);
-  const isOwner = launchpadData?.owner === currentAccount?.address;
-  const tokenSymbol = launchpadData?.projectInfo?.token?.symbol;
-  const tokenAddress = launchpadData?.projectInfo?.token?.tokenAddress;
-
-  // const totalSupply =
-  //   formatChainStringToNumber(launchpadData?.totalSupply) /
-  //   Math.pow(10, tokenDecimal);
-
-  // const fetchPhaseData = async () => {
-  //   const result = await execContractQuery(
-  //     currentAccount?.address,
-  //     api,
-  //     launchpad.CONTRACT_ABI,
-  //     launchpadData?.launchpadContract,
-  //     0,
-  //     "launchpadContractTrait::getAvailableTokenAmount"
-  //   );
-  //   const availableAmount = result.toHuman().Ok;
-  //   setAvailableTokenAmount(formatTokenAmount(availableAmount, tokenDecimal));
-  // };
-
-  // useEffect(() => {
-  //   if (!visible) {
-  //     // setOnCreateNew(false);
-  //     // setNewData(null);
-  //     // setSelectedPhaseIndex(-1);
-  //   } else {
-  //     if (launchpadData) fetchPhaseData();
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [visible, launchpadData]);
-
-  // const minAllowed = totalSupply - availableTokenAmount;
-
-  // const [tokenBalance, setTokenBalance] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -106,6 +71,19 @@ const WithdrawAzero = ({
               publicInfo?.totalPurchasedAmount,
               launchpadData?.projectInfo?.token?.decimals
             );
+          const queryResult2 = await execContractQuery(
+            currentAccount?.address,
+            api,
+            launchpad.CONTRACT_ABI,
+            launchpadData?.launchpadContract,
+            0,
+            "launchpadContractTrait::getPublicSalePrice",
+            phase?.phaseID
+          );
+          const tokenPricee = formatTokenAmount(
+            queryResult2?.toHuman()?.Ok,
+            appChain?.decimal
+          );
           return {
             totalAmount:
               publicInfo?.totalAmount &&
@@ -114,6 +92,10 @@ const WithdrawAzero = ({
                 launchpadData?.projectInfo?.token?.decimals
               ),
             totalPurchasedAmount: totalPurchasedAmountPhase,
+            azeroAmount: multipleFloat(
+              multipleFloat(tokenPricee, totalPurchasedAmountPhase),
+              1 - txRate
+            ),
           };
         })
       );
@@ -136,6 +118,58 @@ const WithdrawAzero = ({
               WLInfo?.totalPurchasedAmount,
               launchpadData?.projectInfo?.token?.decimals
             );
+          const queryCountWL = await execContractQuery(
+            currentAccount?.address,
+            api,
+            launchpad.CONTRACT_ABI,
+            launchpadData?.launchpadContract,
+            0,
+            "launchpadContractTrait::getWhitelistAccountCount",
+            phase?.phaseID
+          );
+          const countWL = queryCountWL?.toHuman()?.Ok;
+          const WLList = await Promise.all(
+            new Array(+countWL).fill(0).map(async (e, index) => {
+              const queryWLAccount = await execContractQuery(
+                currentAccount?.address,
+                api,
+                launchpad.CONTRACT_ABI,
+                launchpadData?.launchpadContract,
+                0,
+                "launchpadContractTrait::getWhitelistAccount",
+                phase?.phaseID,
+                index
+              );
+              const WLAccount = queryWLAccount?.toHuman()?.Ok;
+              const queryWLAccountDetail = await execContractQuery(
+                currentAccount?.address,
+                api,
+                launchpad.CONTRACT_ABI,
+                launchpadData?.launchpadContract,
+                0,
+                "launchpadContractTrait::getWhitelistBuyer",
+                phase?.phaseID,
+                WLAccount
+              );
+              const WLAccountDetail = queryWLAccountDetail?.toHuman()?.Ok;
+              const formatedAccountBuyer = {
+                price: formatTokenAmount(
+                  WLAccountDetail?.price,
+                  appChain?.decimals
+                ),
+                purchasedAmount: formatTokenAmount(
+                  WLAccountDetail?.purchasedAmount,
+                  tokenDecimal
+                ),
+              };
+              return formatedAccountBuyer;
+            })
+          );
+          const totalSaledAzero = WLList.reduce((acc, current) => {
+            return (
+              acc + multipleFloat(current?.price, current?.purchasedAmount)
+            );
+          }, 0);
           return {
             totalAmount:
               WLInfo?.totalAmount &&
@@ -144,33 +178,42 @@ const WithdrawAzero = ({
                 launchpadData?.projectInfo?.token?.decimals
               ),
             totalPurchasedAmount: totalPurchasedAmountPhase,
+            azeroAmount: multipleFloat(totalSaledAzero, 1 - txRate),
           };
         })
       );
       setWhiteListSale(WLSaleData);
-      // const
-      // setTokenBalance(tokenBal);
     };
     visible && fetchData();
   }, [visible]);
   const ownerWithdrawMutation = useMutation(async () => {
     return new Promise(async (resolve, reject) => {
-      toast(`Withdrawing ${ownerBalance} ${appChain?.unit}...`);
-
-      await execContractTxAndCallAPI(
-        currentAccount,
-        "api",
-        launchpad.CONTRACT_ABI,
-        launchpadData?.launchpadContract,
-        0,
-        "launchpadContractTrait::withdraw",
-        () => {
-          setVisible(false);
+      try {
+        if (ownerBalance < 0.0001) {
           resolve();
-        },
-        formatNumToBNEther(ownerBalance),
-        currentAccount?.address
-      );
+          return toast.error("Balance is zero!");
+        }
+        toast(`Withdrawing ${ownerBalance} ${appChain?.unit}...`);
+
+        const result = await execContractTxAndCallAPI(
+          currentAccount,
+          "api",
+          launchpad.CONTRACT_ABI,
+          launchpadData?.launchpadContract,
+          0,
+          "launchpadContractTrait::withdraw",
+          async () => {
+            dispatch(fetchUserBalance({ currentAccount, api }));
+            await setVisible(false);
+            resolve();
+          },
+          formatNumToBNEther(ownerBalance),
+          currentAccount?.address
+        );
+        if (!result) reject("WITHDRAW FAIL");
+      } catch (error) {
+        reject("WITHDRAW FAIL");
+      }
     });
   });
 
@@ -179,11 +222,16 @@ const WithdrawAzero = ({
       <Modal
         isOpen={visible}
         isCentered
-        size="xl"
+        size="4xl"
         onClose={() => setVisible(false)}
       >
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent
+          sx={{
+            maxH: "calc(100vh - 100px)",
+          }}
+          overflow="auto"
+        >
           <ModalHeader color="#57527E">Withdraw {appChain?.unit}</ModalHeader>
           <Box px="24px">
             {phases?.map((obj, index) => {
@@ -203,6 +251,7 @@ const WithdrawAzero = ({
                     <Box>
                       <Text>Total sale amount</Text>
                       <Text>Total purchased amount</Text>
+                      <Text>Total {appChain?.unit} amount</Text>
                     </Box>
                     <Box>
                       <Text>
@@ -214,6 +263,10 @@ const WithdrawAzero = ({
                           publicSale[index]?.totalPurchasedAmount
                         ) || "-"}
                       </Text>
+                      <Text>
+                        {formatNumDynDecimal(publicSale[index]?.azeroAmount) ||
+                          "-"}
+                      </Text>
                     </Box>
                   </SimpleGrid>
                   <Text fontWeight={700}>Whitelist sale</Text>
@@ -221,6 +274,7 @@ const WithdrawAzero = ({
                     <Box>
                       <Text>Total sale amount</Text>
                       <Text>Total purchased amount</Text>
+                      <Text>Total {appChain?.unit} amount</Text>
                     </Box>
                     <Box>
                       <Text>
@@ -233,6 +287,11 @@ const WithdrawAzero = ({
                           whitelistSale?.[index]?.totalPurchasedAmount
                         ) || "-"}
                       </Text>
+                      <Text>
+                        {formatNumDynDecimal(
+                          whitelistSale[index]?.azeroAmount
+                        ) || "-"}
+                      </Text>
                     </Box>
                   </SimpleGrid>
                 </Box>
@@ -243,7 +302,7 @@ const WithdrawAzero = ({
             <Box h="1px" bg="rgba(0, 0, 0, 0.2)" my="8px" />
             <SimpleGrid columns={2}>
               <Box>
-                <Text>{appChain?.unit} Balance</Text>
+                <Text>Launchpad {appChain?.unit} Balance</Text>
               </Box>
               <Box>
                 <Text>{formatNumDynDecimal(ownerBalance) || "-"}</Text>
@@ -255,6 +314,7 @@ const WithdrawAzero = ({
             sx={{
               mx: "24px",
               my: "12px",
+              minH: "40px",
             }}
             isLoading={ownerWithdrawMutation.isLoading}
             isDisabled={ownerWithdrawMutation.isLoading}

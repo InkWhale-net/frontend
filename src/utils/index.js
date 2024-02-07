@@ -4,7 +4,14 @@ import {
   resolveDomainToAddress,
 } from "@azns/resolver-core";
 import Keyring, { decodeAddress, encodeAddress } from "@polkadot/keyring";
-import { BN, formatBalance, hexToU8a, isHex } from "@polkadot/util";
+import {
+  BN,
+  BN_BILLION,
+  BN_MILLION,
+  formatBalance,
+  hexToU8a,
+  isHex,
+} from "@polkadot/util";
 import axios from "axios";
 import { formatUnits, parseUnits } from "ethers";
 import moment from "moment";
@@ -550,5 +557,16 @@ export const formatBNtoNum = (str = 0, decimal) => {
   } catch (error) {
     console.log("error message", error.message);
     toast.error("error format number");
+  }
+};
+export const multipleFloat = (value1, value2, decimal = 3) => {
+  try {
+    return (
+      (new BN(+value1 * 10 ** decimal) * new BN(+value2 * BN_MILLION)) /
+      new BN(BN_BILLION)
+    );
+  } catch (error) {
+    console.log(error);
+    return 0;
   }
 };
