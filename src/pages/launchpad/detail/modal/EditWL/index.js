@@ -49,6 +49,7 @@ import { execContractQuery } from "utils/contracts";
 import { launchpad } from "utils/contracts";
 import AddBulk from "./AddBulk";
 import AddSingleWL from "./AddSingle";
+import { appChain } from "constants";
 
 const EditWL = ({ visible, setVisible, launchpadData }) => {
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
@@ -59,21 +60,64 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   const [queries, setQueries] = useState("");
   const tokenDecimal = parseInt(launchpadData?.projectInfo?.token?.decimals);
   const [selectedWL, setSelectedWL] = useState(null);
-
-  const whitelist = useMemo(() => {
-    let ret = launchpadData?.phaseList[selectedPhase]?.whitelist?.map((e) => ({
-      ...e,
-      amount: formatTokenAmount(e?.amount, tokenDecimal),
-      purchasedAmount: formatTokenAmount(e?.purchasedAmount, tokenDecimal),
-      claimedAmount: formatTokenAmount(e?.claimedAmount, tokenDecimal),
-      price: formatTokenAmount(e?.price, 12),
-    }));
-    if (queries?.keyword === "") {
-      return ret;
-    } else {
-      ret = ret.filter((item) => item.account === queries?.keyword);
-      return ret;
-    }
+  const [whitelist, setWL] = useState([]);
+  useEffect(() => {
+    (async () => {
+      const queryCountWL = await execContractQuery(
+        currentAccount?.address,
+        api,
+        launchpad.CONTRACT_ABI,
+        launchpadData?.launchpadContract,
+        0,
+        "launchpadContractTrait::getWhitelistAccountCount",
+        selectedPhase
+      );
+      const countWL = queryCountWL?.toHuman()?.Ok;
+      const WLList = await Promise.all(
+        new Array(+countWL).fill(0).map(async (e, index) => {
+          const queryWLAccount = await execContractQuery(
+            currentAccount?.address,
+            api,
+            launchpad.CONTRACT_ABI,
+            launchpadData?.launchpadContract,
+            0,
+            "launchpadContractTrait::getWhitelistAccount",
+            selectedPhase,
+            index
+          );
+          const WLAccount = queryWLAccount?.toHuman()?.Ok;
+          const queryWLAccountDetail = await execContractQuery(
+            currentAccount?.address,
+            api,
+            launchpad.CONTRACT_ABI,
+            launchpadData?.launchpadContract,
+            0,
+            "launchpadContractTrait::getWhitelistBuyer",
+            selectedPhase,
+            WLAccount
+          );
+          const WLAccountDetail = queryWLAccountDetail?.toHuman()?.Ok;
+          const formatedAccountBuyer = {
+            account: WLAccount,
+            amount: formatTokenAmount(WLAccountDetail?.amount, tokenDecimal),
+            price: formatTokenAmount(
+              WLAccountDetail?.price,
+              appChain?.decimals
+            ),
+            purchasedAmount: formatTokenAmount(
+              WLAccountDetail?.purchasedAmount,
+              tokenDecimal
+            ),
+            claimedAmount: formatTokenAmount(
+              WLAccountDetail?.claimedAmount,
+              tokenDecimal
+            ),
+          };
+          return formatedAccountBuyer;
+        })
+      );
+      setWL(WLList);
+    })();
   }, [launchpadData?.phaseList, queries?.keyword, selectedPhase, tokenDecimal]);
 
   const fetchPhaseData = async () => {
