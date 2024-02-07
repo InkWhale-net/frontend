@@ -141,12 +141,6 @@ const OwnerZoneCard = ({ launchpadData }) => {
     );
     fetchBalance();
   };
-  const ownerWithdrawHandler = async () => {
-    if (ownerBalance < 0.0001) {
-      return toast.error("Balance is zero!");
-    }
-    await showWithdrawAzeroVisible();
-  };
   const fetchOwnerData = useCallback(async () => {
     // const totalTokenSold = launchpadData?.phaseList?.map(async (acc, phase) => {
     //   const publicSaleInfor = await execContractQuery(
@@ -296,8 +290,8 @@ const OwnerZoneCard = ({ launchpadData }) => {
         w="full"
         height="40px"
         variant="outline"
-        onClick={ownerWithdrawHandler}
-        isDisabled={ownerBalance < 0.0001}
+        onClick={() => showWithdrawAzeroVisible()}
+        // isDisabled={ownerBalance < 0.0001}
       >
         Withdraw {appChain?.unit}
       </Button>

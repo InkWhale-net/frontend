@@ -6,6 +6,8 @@ import {
 import Keyring, { decodeAddress, encodeAddress } from "@polkadot/keyring";
 import {
   BN,
+  BN_BILLION,
+  BN_MILLION,
   formatBalance,
   hexToU8a,
   isHex,
@@ -530,3 +532,14 @@ export const handleCopy = (label, text) => {
 };
 
 export const formatTextAmount = (value) => value?.replaceAll(",", "");
+export const multipleFloat = (value1, value2, decimal = 3) => {
+  try {
+    return (
+      (new BN(+value1 * 10 ** decimal) * new BN(+value2 * BN_MILLION)) /
+      new BN(BN_BILLION)
+    );
+  } catch (error) {
+    console.log(error);
+    return 0;
+  }
+};
