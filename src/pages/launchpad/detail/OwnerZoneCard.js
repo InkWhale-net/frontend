@@ -293,7 +293,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         onClick={() => showWithdrawAzeroVisible()}
         // isDisabled={ownerBalance < 0.0001}
       >
-        Withdraw AZERO
+        Withdraw {appChain?.unit}
       </Button>
 
       <Divider />
