@@ -4,6 +4,7 @@ import { APICall } from "api/client";
 import { useAppContext } from "contexts/AppContext";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
+import {batchTxResponseErrorHandler} from "utils";
 import {
   delay,
   formatNumToBN,
@@ -136,15 +137,15 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
             handleBulkStaking(updateData);
           }
         }
-        // batchTxResponseErrorHandler({
-        //   status,
-        //   dispatchError,
-        //   dispatch,
-        //   txType: "APPROVE_MULTI_LISTING",
-        //   api,
-        //   currentAccount,
-        //   isApprovalTx: true,
-        // });
+        batchTxResponseErrorHandler({
+          status,
+          dispatchError,
+          dispatch,
+          txType: "APPROVE_MULTI_STAKE",
+          api,
+          currentAccount,
+          isApprovalTx: true,
+        });
       })
       .then((unsub) => (unsubscribe = unsub))
       .catch((error) => toast.error(error.message || "Unknow error occured"));
@@ -239,6 +240,15 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
               );
             }
             updateData();
+            batchTxResponseErrorHandler({
+              status,
+              dispatchError,
+              dispatch,
+              txType: "MULTI_STAKE",
+              api,
+              currentAccount,
+              isApprovalTx: true,
+            });
           }
         }
       )
@@ -363,6 +373,15 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
               );
             }
             updateData();
+            batchTxResponseErrorHandler({
+              status,
+              dispatchError,
+              dispatch,
+              txType: "MULTI_UNSTAKE",
+              api,
+              currentAccount,
+              isApprovalTx: true,
+            });
           }
         }
       )
