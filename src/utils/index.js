@@ -291,14 +291,16 @@ export async function getGasLimitBulkAction(
     storageDepositLimit ?? null,
     abiMessage.value.toU8a(args)
   );
+  console.log("gasRequired", message, gasRequired.toHuman());
 
   const refTime = gasRequired.refTime.toHuman().replaceAll(",", "");
   const proofSize = gasRequired.proofSize.toHuman().replaceAll(",", "");
 
   const gasRequiredAdjust = api.registry.createType("WeightV2", {
-    refTime: new BN(refTime * 10 ** 0).mul(new BN(2)),
-    proofSize: new BN(proofSize * 10 ** 0).mul(new BN(2)),
+    refTime: new BN(refTime * 10 ** 0).mul(new BN(1)),
+    proofSize: new BN(proofSize * 10 ** 0).mul(new BN(1)),
   });
+  console.log("gasRequiredAdjust", message, gasRequiredAdjust.toHuman());
 
   return { ok: true, value: gasRequiredAdjust };
 }
