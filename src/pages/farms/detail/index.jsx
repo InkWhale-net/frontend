@@ -698,11 +698,24 @@ const MyStakeRewardInfoNFT = ({
 
     await delay(3000);
 
-    toast.promise({
-      loading: "Please wait up to 10s for the data to be updated! ",
-      success: "Done !",
-      error: "Could not fetch data!!!",
-    });
+    toast.promise(
+      delay(10000).then(() => {
+        if (currentAccount) {
+          dispatch(fetchAllNFTPools({ currentAccount }));
+          dispatch(fetchUserBalance({ currentAccount, api }));
+        }
+
+        fetchUserStakeInfo();
+        fetchTokenBalance();
+        fetchAvailableNFT();
+        fetchStakedNFT();
+      }),
+      {
+        loading: "Please wait up to 10s for the data to be updated! ",
+        success: "Done !",
+        error: "Could not fetch data!!!",
+      }
+    );
   }
 
   async function unstakeNftHandler(tokenID) {
