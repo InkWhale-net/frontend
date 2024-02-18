@@ -14,6 +14,7 @@ import launchpad_generator from "utils/contracts/launchpad_generator";
 import { formatTokenAmount } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { isMobile } from "react-device-detect";
+import { appChain } from "constants";
 
 function CreateLaunchpadLayout() {
   const {
@@ -29,16 +30,20 @@ function CreateLaunchpadLayout() {
   const { api } = useAppContext();
 
   const getCreateFee = async () => {
-    const result = await execContractQuery(
-      currentAccount?.address,
-      api,
-      launchpad_generator.CONTRACT_ABI,
-      launchpad_generator.CONTRACT_ADDRESS,
-      0,
-      "launchpadGeneratorTrait::getCreationFee"
-    );
-    const fee = result.toHuman().Ok;
-    setCreateFee(formatNumDynDecimal(formatTokenAmount(fee, 12)));
+    try {
+      const result = await execContractQuery(
+        currentAccount?.address,
+        api,
+        launchpad_generator.CONTRACT_ABI,
+        launchpad_generator.CONTRACT_ADDRESS,
+        0,
+        "launchpadGeneratorTrait::getCreationFee"
+      );
+      const fee = result.toHuman().Ok;
+      setCreateFee(formatNumDynDecimal(formatTokenAmount(fee, appChain?.decimal)));
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
