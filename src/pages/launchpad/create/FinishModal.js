@@ -94,170 +94,60 @@ const FinishModal = ({}) => {
   const [newLpAddress, setNewLpAddress] = useState(null);
   const dispatch = useDispatch();
   const history = useHistory();
-
-  const bulkAddingWhitelist = async (launchpadContractAddress) => {
-    return new Promise(async (resolve, reject) => {
-      // const phaseQuery = await execContractQuery(
-      //   currentAccount?.address,
-      //   api,
-      //   launchpad.CONTRACT_ABI,
-      //   // createdLaunchpadContract,
-      //   launchpadContractAddress,
-      //   0, //-> value
-      //   "launchpadContractTrait::getTotalPhase"
-      // );
-      // const totalPhase = phaseQuery.toHuman()?.Ok;
-      const whitelist = launchpadData?.phase
-        ?.map((e) => {
-          if (e?.whiteList) return processStringToArray(e?.whiteList);
-        })
-        .filter((e) => e);
-      if (whitelist?.length > 0) {
-        // DO batch add whitelist
-        let addWhitelistTxAll;
-        const value = 0;
-        const launchpadContract = new ContractPromise(
-          api,
-          launchpad.CONTRACT_ABI,
-          launchpadContractAddress
-        );
-        const { signer } = await web3FromSource(currentAccount?.meta?.source);
-        const gasLimit = await getEstimatedGasBatchTx(
-          currentAccount?.address,
-          launchpadContract,
-          value,
-          "launchpadContractTrait::addMultiWhitelists",
-          0,
-          whitelist[0].map((e) => e?.address),
-          whitelist[0].map((e) =>
-            parseUnits(
-              e?.amount.toString(),
-              parseInt(launchpadData?.token.decimals)
-            )
-          ),
-          whitelist[0].map((e) => parseUnits(e?.price.toString(), 12))
-        );
-        await Promise.all(
-          whitelist.map(async (info, index) => {
-            const ret = launchpadContract.tx[
-              "launchpadContractTrait::addMultiWhitelists"
-            ](
-              { gasLimit, value },
-              index,
-              info.map((e) => e?.address),
-              info.map((e) =>
-                parseUnits(
-                  e?.amount?.toString(),
-                  parseInt(launchpadData?.token.decimals)
-                )
-              ),
-              info.map((e) => parseUnits(e?.price?.toString(), 12))
-            );
-
-            return ret;
-          })
-        ).then((res) => (addWhitelistTxAll = res));
-
-        await api.tx.utility
-          .batch(addWhitelistTxAll)
-          .signAndSend(
-            currentAccount?.address,
-            { signer },
-            async ({ events, status, dispatchError }) => {
-              if (status?.isFinalized) {
-                let totalSuccessTxCount = null;
-
-                events.forEach(
-                  async ({
-                    event,
-                    event: { data, method, section, ...rest },
-                  }) => {
-                    if (api.events.utility?.BatchInterrupted.is(event)) {
-                      totalSuccessTxCount = data[0]?.toString();
-                    }
-
-                    if (api.events.utility?.BatchCompleted.is(event)) {
-                      toast.success(
-                        whitelist?.length == 1
-                          ? "Address has been successfully added to the whitelist"
-                          : "Addresses have been successfully added to the whitelist"
-                      );
-                    }
-                  }
-                );
-
-                // eslint-disable-next-line no-extra-boolean-cast
-                if (!!totalSuccessTxCount) {
-                  toast.error(
-                    whitelist?.length == 1
-                      ? "Adding whitelist not successfully!                "
-                      : `Bulk adding are not fully successful! ${totalSuccessTxCount} adding completed successfully`
-                  );
-                }
-                // updateData();
-              }
-            }
-          )
-          .then((unsub) => {
-            setActiveStep((prev) => prev + 1);
-            resolve(unsub);
-          })
-          .catch((error) => {
-            toast.error("Adding whitelist fail", error?.message);
-            reject(error);
-          });
-      } else {
-        setActiveStep((prev) => prev + 1);
-        toast("No whitelist found");
-        resolve(-1);
-      }
-    });
-  };
-
   const stepList = [
     {
       label: "Approve INW",
       callback: async () => {
         try {
-          if (activeStep != 0) return;
-          const allowanceINWQr = await execContractQuery(
-            currentAccount?.address,
-            "api",
-            psp22_contract.CONTRACT_ABI,
-            psp22_contract.CONTRACT_ADDRESS,
-            0, //-> value
-            "psp22::allowance",
-            currentAccount?.address,
-            launchpad_generator.CONTRACT_ADDRESS
-          );
+          await new Promise(async (resolve, reject) => {
+            try {
+              if (activeStep != 0) reject("Approve INW fail");
+              const allowanceINWQr = await execContractQuery(
+                currentAccount?.address,
+                "api",
+                psp22_contract.CONTRACT_ABI,
+                psp22_contract.CONTRACT_ADDRESS,
+                0, //-> value
+                "psp22::allowance",
+                currentAccount?.address,
+                launchpad_generator.CONTRACT_ADDRESS
+              );
 
-          const allowanceINW = allowanceINWQr.toHuman().Ok;
-          if (
-            formatTokenAmount(formatTextAmount(allowanceINW), 12) <
-            +formatTextAmount(createTokenFee)
-          ) {
-            let approve = await execContractTx(
-              currentAccount,
-              "api",
-              psp22_contract.CONTRACT_ABI,
-              psp22_contract.CONTRACT_ADDRESS,
-              0, //-> value
-              "psp22::approve",
-              launchpad_generator.CONTRACT_ADDRESS,
-              formatNumToBN(createTokenFee.replaceAll(",", ""))
-            );
+              const allowanceINW = allowanceINWQr.toHuman().Ok;
+              if (
+                formatTokenAmount(formatTextAmount(allowanceINW), 12) <
+                +formatTextAmount(createTokenFee)
+              ) {
+                let approve = await execContractTxAndCallAPI(
+                  currentAccount,
+                  "api",
+                  psp22_contract.CONTRACT_ABI,
+                  psp22_contract.CONTRACT_ADDRESS,
+                  0, //-> value
+                  "psp22::approve",
+                  async () => {
+                    setActiveStep((prev) => prev + 1);
+                    resolve();
+                  },
+                  launchpad_generator.CONTRACT_ADDRESS,
+                  formatNumToBN(createTokenFee.replaceAll(",", ""))
+                );
 
-            await delay(8000).then(() => {
-              if (approve) {
-                setActiveStep((prev) => prev + 1);
+                if (!approve) {
+                  setIsError(true);
+                  reject("Approve INW fail");
+                }
               } else {
-                setIsError(true);
-                return;
+                setActiveStep((prev) => prev + 1);
+                resolve();
               }
-            });
-          } else setActiveStep((prev) => prev + 1);
+            } catch (error) {
+              setIsError(true);
+              console.log(error);
+              reject("Approve INW fail");
+            }
+          });
         } catch (error) {
-          setIsError(true);
           console.log(error);
         }
       },
@@ -266,49 +156,58 @@ const FinishModal = ({}) => {
       label: "Approve token",
       callback: async () => {
         try {
-          if (activeStep != 1) return;
-          const allowanceTokenQr = await execContractQuery(
-            currentAccount?.address,
-            "api",
-            psp22_contract.CONTRACT_ABI,
-            launchpadData?.token?.tokenAddress,
-            0, //-> value
-            "psp22::allowance",
-            currentAccount?.address,
-            launchpad_generator.CONTRACT_ADDRESS
-          );
+          await new Promise(async (resolve, reject) => {
+            try {
+              if (activeStep != 1) reject("Approve Token fail");
+              const allowanceTokenQr = await execContractQuery(
+                currentAccount?.address,
+                "api",
+                psp22_contract.CONTRACT_ABI,
+                launchpadData?.token?.tokenAddress,
+                0, //-> value
+                "psp22::allowance",
+                currentAccount?.address,
+                launchpad_generator.CONTRACT_ADDRESS
+              );
 
-          const allowanceToken = formatTokenAmount(
-            formatTextAmount(allowanceTokenQr?.toHuman().Ok),
-            +launchpadData?.token?.decimals
-          );
+              const allowanceToken = formatTokenAmount(
+                formatTextAmount(allowanceTokenQr?.toHuman().Ok),
+                +launchpadData?.token?.decimals
+              );
 
-          if (+formatTextAmount(allowanceToken) < +launchpadData?.totalSupply) {
-            let approve = await execContractTx(
-              currentAccount,
-              "api",
-              psp22_contract.CONTRACT_ABI,
-              launchpadData?.token?.tokenAddress,
-              0, //-> value
-              "psp22::approve",
-              launchpad_generator.CONTRACT_ADDRESS,
-              formatNumToBN(
-                launchpadData?.totalSupply,
-                launchpadData?.token?.decimals
-              )
-            );
-
-            delay(8000).then(() => {
-              if (approve) {
-                setActiveStep((prev) => prev + 1);
+              if (+allowanceToken < +launchpadData?.totalSupply) {
+                let approve = await execContractTxAndCallAPI(
+                  currentAccount,
+                  "api",
+                  psp22_contract.CONTRACT_ABI,
+                  launchpadData?.token?.tokenAddress,
+                  0, //-> value
+                  "psp22::approve",
+                  async () => {
+                    setActiveStep((prev) => prev + 1);
+                    resolve();
+                  },
+                  launchpad_generator.CONTRACT_ADDRESS,
+                  formatNumToBN(
+                    launchpadData?.totalSupply,
+                    launchpadData?.token?.decimals
+                  )
+                );
+                if (!approve) {
+                  setIsError(true);
+                  reject("Approve Token fail");
+                }
               } else {
-                setIsError(true);
-                return;
+                setActiveStep((prev) => prev + 1);
+                resolve();
               }
-            });
-          } else setActiveStep((prev) => prev + 1);
+            } catch (error) {
+              setIsError(true);
+              console.log(error);
+              reject("Approve Token fail");
+            }
+          });
         } catch (error) {
-          setIsError(true);
           console.log(error);
         }
       },
@@ -317,111 +216,103 @@ const FinishModal = ({}) => {
       label: "Create launchpad",
       callback: async () => {
         try {
-          if (activeStep != 2) return;
-          const project_info_ipfs = await ipfsClient.add(
-            JSON.stringify(launchpadData)
-          );
-          // ===================================
-          const callbackFn = async (newContractAddress) => {
-            setNewLpAddress(newContractAddress);
-            setActiveStep((prev) => prev + 1);
-            await new Promise(async (resolve) => {
-              resolve(bulkAddingWhitelist(newLpAddress));
-            });
-            await APICall.askBEupdate({
-              type: "launchpad",
-              poolContract: "new",
-            });
-            toast.promise(
-              delay(10000).then(() => {
-                dispatch(fetchLaunchpads({}));
-                history.push("/launchpad");
-              }),
-              {
-                loading: "Please wait up to 10s for the data to be updated! ",
-                success:
-                  "Thank you for submitting. Your Project has been created successfully. It will need enabling by our team. We will get in touch with you within the next 48 hours. In the meantime, you can navigate to My Project page to check status of your project.",
-                error: "Could not fetch data!!!",
+          await new Promise(async (resolve, reject) => {
+            try {
+              if (activeStep != 2) reject("Process create fail");
+              const project_info_ipfs = await ipfsClient.add(
+                JSON.stringify(launchpadData)
+              );
+              // ===================================
+              const callbackFn = async (newContractAddress) => {
+                setNewLpAddress(newContractAddress);
+                await APICall.askBEupdate({
+                  type: "launchpad",
+                  poolContract: newContractAddress,
+                });
+                toast.promise(
+                  delay(10000).then(() => {
+                    dispatch(fetchLaunchpads({}));
+                    history.push("/launchpad");
+                    resolve();
+                  }),
+                  {
+                    loading:
+                      "Please wait up to 10s for the data to be updated! ",
+                    success:
+                      "Thank you for submitting. Your Project has been created successfully. It will need enabling by our team. We will get in touch with you within the next 48 hours. In the meantime, you can navigate to My Project page to check status of your project.",
+                    error: "Could not fetch data!!!",
+                  }
+                );
+              };
+
+              const totalSupply = parseUnits(
+                launchpadData?.totalSupply.toString(),
+                parseInt(launchpadData?.token.decimals)
+              );
+
+              const phasesVector = launchpadData.phase.map((p) => {
+                const decimals = launchpadData?.token.decimals;
+                const capAmount = p.capAmount ?? 0;
+                const publicAmount = p?.allowPublicSale
+                  ? p?.phasePublicAmount.toString().replaceAll(",", "")
+                  : 0;
+                const publicPrice = p?.allowPublicSale
+                  ? p?.phasePublicPrice.toString().replaceAll(",", "")
+                  : 0;
+
+                const phase = {
+                  name: p.name,
+                  startTime: p?.startDate?.getTime().toString(),
+                  endTime: p?.endDate?.getTime(),
+                  immediateReleaseRate: parseInt(
+                    (parseFloat(p?.immediateReleaseRate) * 100).toFixed()
+                  ).toString(),
+                  vestingDuration:
+                    parseFloat(p?.immediateReleaseRate) == 100
+                      ? 0
+                      : dayToMilisecond(parseFloat(p?.vestingLength)),
+
+                  vestingUnit:
+                    parseFloat(p?.immediateReleaseRate) == 100
+                      ? 1
+                      : dayToMilisecond(parseFloat(p?.vestingUnit)),
+                  capAmount: formatNumToBN(capAmount, decimals),
+                  isPublic: p.allowPublicSale,
+                  publicAmount: formatNumToBN(publicAmount, decimals),
+                  publicPrice: formatNumToBN(publicPrice),
+                };
+
+                return api.createType("PhaseInput", phase);
+              });
+
+              const result = await execContractTxAndCallAPI(
+                currentAccount,
+                "api",
+                launchpad_generator.CONTRACT_ABI,
+                launchpad_generator.CONTRACT_ADDRESS,
+                0, //-> value
+                "newLaunchpad",
+                callbackFn,
+                project_info_ipfs.path,
+                launchpadData?.token?.tokenAddress,
+                totalSupply,
+                phasesVector
+              );
+              if (!result) {
+                setIsError(true);
+                reject("Process create fail");
               }
-            );
-          };
-
-          const totalSupply = parseUnits(
-            launchpadData?.totalSupply.toString(),
-            parseInt(launchpadData?.token.decimals)
-          );
-
-          const phasesVector = launchpadData.phase.map((p) => {
-            const decimals = launchpadData?.token.decimals;
-            const capAmount = p.capAmount ?? 0;
-            const publicAmount = p?.allowPublicSale
-              ? p?.phasePublicAmount.toString().replaceAll(",", "")
-              : 0;
-            const publicPrice = p?.allowPublicSale
-              ? p?.phasePublicPrice.toString().replaceAll(",", "")
-              : 0;
-
-            const phase = {
-              name: p.name,
-              startTime: p?.startDate?.getTime().toString(),
-              endTime: p?.endDate?.getTime(),
-              immediateReleaseRate: parseInt(
-                (parseFloat(p?.immediateReleaseRate) * 100).toFixed()
-              ).toString(),
-              vestingDuration:
-                parseFloat(p?.immediateReleaseRate) == 100
-                  ? 0
-                  : dayToMilisecond(parseFloat(p?.vestingLength)),
-
-              vestingUnit:
-                parseFloat(p?.immediateReleaseRate) == 100
-                  ? 1
-                  : dayToMilisecond(parseFloat(p?.vestingUnit)),
-              capAmount: formatNumToBN(capAmount, decimals),
-              isPublic: p.allowPublicSale,
-              publicAmount: formatNumToBN(publicAmount, decimals),
-              publicPrice: formatNumToBN(publicPrice),
-            };
-
-            return api.createType("PhaseInput", phase);
+            } catch (error) {
+              setIsError(true);
+              console.log(error);
+              reject("Process create fail");
+            }
           });
-
-          const result = await execContractTxAndCallAPI(
-            currentAccount,
-            "api",
-            launchpad_generator.CONTRACT_ABI,
-            launchpad_generator.CONTRACT_ADDRESS,
-            0, //-> value
-            "newLaunchpad",
-            callbackFn,
-            project_info_ipfs.path,
-            launchpadData?.token?.tokenAddress,
-            totalSupply,
-            phasesVector
-          );
-          if (!result) {
-            setIsError(true);
-            return;
-          }
         } catch (error) {
-          setIsError(true);
           console.log(error);
         }
       },
     },
-    // {
-    //   label: "Setup whitelist",
-    //   callback: async () => {
-    //     // try {
-    //     //   if (activeStep != 3 || !newLpAddress) return;
-    //     //   toast("Please wait for adding whitelist...");
-    //     //   await delay(100);
-    //     // } catch (error) {
-    //     //   setIsError(true);
-    //     //   console.log(error);
-    //     // }
-    //   },
-    // },
   ];
   useEffect(() => {
     if (visible) {
