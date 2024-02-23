@@ -49,6 +49,7 @@ import { execContractQuery } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 import AddBulk from "./AddBulk";
 import AddSingleWL from "./AddSingle";
+import { appChain } from "constants";
 
 const EditWL = ({ visible, setVisible, launchpadData }) => {
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
@@ -56,19 +57,69 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   const [selectedPhase, setSelectedPhase] = useState(0);
   const [selectedMode, setSelectedMode] = useState(0);
   const [availableTokenAmount, setAvailableTokenAmount] = useState(0);
-  const [queries, setQueries] = useState(null);
+  const [queries, setQueries] = useState("");
   const tokenDecimal = parseInt(launchpadData?.projectInfo?.token?.decimals);
   const [selectedWL, setSelectedWL] = useState(null);
+  const [whitelist, setWL] = useState([]);
+  useEffect(() => {
+    (async () => {
+      const queryCountWL = await execContractQuery(
+        currentAccount?.address,
+        api,
+        launchpad.CONTRACT_ABI,
+        launchpadData?.launchpadContract,
+        0,
+        "launchpadContractTrait::getWhitelistAccountCount",
+        selectedPhase
+      );
+      const countWL = queryCountWL?.toHuman()?.Ok;
+      const WLList = await Promise.all(
+        new Array(+countWL).fill(0).map(async (e, index) => {
+          const queryWLAccount = await execContractQuery(
+            currentAccount?.address,
+            api,
+            launchpad.CONTRACT_ABI,
+            launchpadData?.launchpadContract,
+            0,
+            "launchpadContractTrait::getWhitelistAccount",
+            selectedPhase,
+            index
+          );
+          const WLAccount = queryWLAccount?.toHuman()?.Ok;
+          const queryWLAccountDetail = await execContractQuery(
+            currentAccount?.address,
+            api,
+            launchpad.CONTRACT_ABI,
+            launchpadData?.launchpadContract,
+            0,
+            "launchpadContractTrait::getWhitelistBuyer",
+            selectedPhase,
+            WLAccount
+          );
+          const WLAccountDetail = queryWLAccountDetail?.toHuman()?.Ok;
+          const formatedAccountBuyer = {
+            account: WLAccount,
+            amount: formatTokenAmount(WLAccountDetail?.amount, tokenDecimal),
+            price: formatTokenAmount(
+              WLAccountDetail?.price,
+              appChain?.decimals
+            ),
+            purchasedAmount: formatTokenAmount(
+              WLAccountDetail?.purchasedAmount,
+              tokenDecimal
+            ),
+            claimedAmount: formatTokenAmount(
+              WLAccountDetail?.claimedAmount,
+              tokenDecimal
+            ),
+          };
+          return formatedAccountBuyer;
+        })
+      );
+      setWL(WLList);
+    })();
+  }, [launchpadData?.phaseList, queries?.keyword, selectedPhase, tokenDecimal]);
 
-  const whitelist = useMemo(() => {
-    return launchpadData?.phaseList[selectedPhase]?.whitelist?.map((e) => ({
-      ...e,
-      amount: formatTokenAmount(e?.amount, tokenDecimal),
-      purchasedAmount: formatTokenAmount(e?.purchasedAmount, tokenDecimal),
-      claimedAmount: formatTokenAmount(e?.claimedAmount, tokenDecimal),
-      price: formatTokenAmount(e?.price, 12),
-    }));
-  }, [launchpadData?.phaseList, selectedPhase, tokenDecimal]);
   const fetchPhaseData = async () => {
     const result = await execContractQuery(
       currentAccount?.address,
@@ -82,6 +133,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
 
     setAvailableTokenAmount(formatTokenAmount(availableAmount, tokenDecimal));
   };
+
   const tableData = {
     columns: [
       {
@@ -107,6 +159,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     ],
     data: whitelist || [],
   };
+
   const isPhaseEditable = useMemo(() => {
     if (selectedPhase >= 0) {
       const phaseData = launchpadData?.phaseList[selectedPhase];
@@ -272,6 +325,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                   size="md"
                   onChange={({ target }) => {
                     setSelectedPhase(target.value);
+                    setQueries({ keyword: "" });
                   }}
                   value={selectedPhase}
                 >
@@ -366,16 +420,18 @@ function EditWhitelist({
       </Box>
 
       <Box sx={{ flex: 1, pt: "30px" }}>
-        {/* <IWInput
-          size="md"
-          value={queries?.keyword}
-          width={{ base: "full" }}
-          onChange={({ target }) =>
-            setQueries({ ...queries, keyword: target.value })
-          }
-          placeholder="Search"
-          inputRightElementIcon={<SearchIcon color="#57527E" />}
-        /> */}
+        <Flex mb="16px">
+          <IWInput
+            size="md"
+            value={queries?.keyword}
+            width={{ base: "full" }}
+            onChange={({ target }) =>
+              setQueries({ ...queries, keyword: target.value })
+            }
+            placeholder="Search"
+            inputRightElementIcon={<SearchIcon color="#57527E" />}
+          />
+        </Flex>
         <TableContainer
           // mt="18px"
           width="full"
@@ -582,14 +638,7 @@ function KycTabs({ tabsData, setSelectedMode, selectedMode }) {
       alignItems="start"
       direction={{ base: "column", lg: "row" }}
     >
-      <Tabs
-        onChange={(e) => {
-          console.log("e", e);
-          setSelectedMode(e);
-        }}
-        isLazy
-        w="full"
-      >
+      <Tabs onChange={(e) => setSelectedMode(e)} isLazy w="full">
         <TabList>
           {tabsData?.map(({ label }, idx) => (
             <Tab

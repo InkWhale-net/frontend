@@ -12,7 +12,7 @@ import { isPoolEnded } from "utils";
 import { isPoolNotStart } from "utils";
 import { formatTextAmount } from "utils";
 
-const MAX_NFT_ACTION = 5;
+const MAX_NFT_ACTION = 4;
 
 const NFTGroup = ({
   mode,

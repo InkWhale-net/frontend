@@ -6,6 +6,8 @@ import {
 import Keyring, { decodeAddress, encodeAddress } from "@polkadot/keyring";
 import {
   BN,
+  BN_BILLION,
+  BN_MILLION,
   formatBalance,
   hexToU8a,
   isHex,
@@ -134,14 +136,13 @@ export const formatNumDynDecimal = (num = 0, dec = 4) => {
 
   // return intPart + `${dotIdx === -1 ? "" : `.${decPart}`}`;
   try {
-    const raw = formatTextAmount(num?.toString())
-    let parts = raw?.split('.');
+    const raw = formatTextAmount(num?.toString());
+    let parts = raw?.split(".");
     if (parts?.length > 1 && +parts?.[1] > 0) {
-      parts[0] = parts[0]?.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-      parts[1] = ((roundDown(+`0.${parts[1]}`).toString()).split("."))[1]
-      return parts?.join('.');
-    }
-    else return parts?.[0]?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+      parts[0] = parts[0]?.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      parts[1] = roundDown(+`0.${parts[1]}`).toString().split(".")[1];
+      return parts?.join(".");
+    } else return parts?.[0]?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   } catch (error) {
     console.log(error);
     return num?.toString();
@@ -150,8 +151,9 @@ export const formatNumDynDecimal = (num = 0, dec = 4) => {
 
 // new func to getImage source from CloudFlare
 export async function getCloudFlareImage(imageHash = "", size = 500) {
-  const fallbackURL = `${process.env.REACT_APP_IPFS_PUBLIC_URL
-    }/${imageHash.replace("ipfs://", "")}`;
+  const fallbackURL = `${
+    process.env.REACT_APP_IPFS_PUBLIC_URL
+  }/${imageHash.replace("ipfs://", "")}`;
 
   const ret = `${process.env.REACT_APP_ARTZERO_API_BASE_URL}/getImage?input=${imageHash}&size=${size}&url=${fallbackURL}`;
 
@@ -360,14 +362,16 @@ export async function getGasLimitBulkAction(
     storageDepositLimit ?? null,
     abiMessage.value.toU8a(args)
   );
+  console.log("gasRequired", message, gasRequired.toHuman());
 
   const refTime = gasRequired.refTime.toHuman().replaceAll(",", "");
   const proofSize = gasRequired.proofSize.toHuman().replaceAll(",", "");
 
   const gasRequiredAdjust = api.registry.createType("WeightV2", {
-    refTime: new BN(refTime * 10 ** 0).mul(new BN(2)),
-    proofSize: new BN(proofSize * 10 ** 0).mul(new BN(2)),
+    refTime: new BN(refTime * 10 ** 0).mul(new BN(1)),
+    proofSize: new BN(proofSize * 10 ** 0).mul(new BN(1)),
   });
+  console.log("gasRequiredAdjust", message, gasRequiredAdjust.toHuman());
 
   return { ok: true, value: gasRequiredAdjust };
 }
@@ -530,3 +534,205 @@ export const handleCopy = (label, text) => {
 };
 
 export const formatTextAmount = (value) => value?.replaceAll(",", "");
+export const multipleFloat = (value1, value2, decimal = 3) => {
+  try {
+    return (
+      (new BN(+value1 * 10 ** decimal) * new BN(+value2 * BN_MILLION)) /
+      new BN(BN_BILLION)
+    );
+  } catch (error) {
+    console.log(error);
+    return 0;
+  }
+};
+
+// Only use for batch transaction
+export const batchTxResponseErrorHandler = async ({
+  status,
+  dispatchError,
+  dispatch,
+  txType,
+  type,
+  api,
+  caller_account,
+  isApprovalTx = false,
+}) => {
+  const url = `https://test.azero.dev/#/explorer/query/`;
+  const statusToHuman = Object.entries(status.toHuman());
+
+  if (dispatchError) {
+    if (dispatchError.isModule) {
+      toast.error(`There is some error with your request... ..`);
+      // return toast.error(`${section}.${name}: ${docs.join(" ")}`);
+
+      // FOR DEV ONLY FALSE CASE
+      // if (process.env.NODE_ENV === "development") {
+      if (statusToHuman[0][0] === "Finalized") {
+        // const decoded = api.registry.findMetaError(dispatchError.asModule);
+        // const { docs, name, section } = decoded;
+
+        // console.table({
+        //   txType,
+        //   Event: "dispatchError",
+        //   section,
+        //   name,
+        //   docs: docs.join(" "),
+        // });
+
+        const apiAt = await api.at(statusToHuman[0][1]);
+        const allEventsRecords = await apiAt.query.system.events();
+
+        const data = {
+          ContractCall: txType,
+          Reserved: 0,
+          ReserveRepatriated: 0,
+          FeePaid: 0,
+          TotalCharge: 0,
+          TxHash: "",
+        };
+
+        // Transfer Event
+        allEventsRecords.forEach(({ event }, index) => {
+          // if (api.events.balances?.Transfer.is(event)) {
+          //   console.table({
+          //     Event: "balances.Transfer (-)",
+          //     From: event.data[0].toHuman(),
+          //     To: event.data[1].toHuman(),
+          //     Amount: event.data[2].toHuman(),
+          //   });
+          // }
+
+          if (api.events.transactionPayment?.TransactionFeePaid.is(event)) {
+            data.FeePaid = -event.data[1]?.toString() / 10 ** 12;
+
+            // console.table({
+            //   Event: "transactionPayment?.TransactionFeePaid (-)",
+            //   Amount: event.data[1]?.toHuman(),
+            // });
+          }
+
+          if (api.events.balances?.Reserved.is(event)) {
+            data.Reserved = -event.data[1]?.toString() / 10 ** 12;
+
+            // console.table({
+            //   Event: "balances?.Reserved (-)",
+            //   Amount: event.data[1]?.toHuman(),
+            // });
+          }
+
+          if (api.events.balances?.ReserveRepatriated.is(event)) {
+            data.ReserveRepatriated = event.data[2]?.toString() / 10 ** 12;
+
+            // console.table({
+            //   Event: "balances?.ReserveRepatriated (+)",
+            //   Amount: event.data[2].toHuman(),
+            // });
+          }
+        });
+
+        // const { data: balance } = await api.query.system.account(
+        //   caller_account?.address
+        // );
+
+        // console.table({
+        //   "Balance END":
+        //     balance.free.toHuman().slice(0, -16) +
+        //     "." +
+        //     balance.free.toHuman().slice(-15, -8),
+        // });
+        data.TxHash = statusToHuman[0][1];
+
+        data.TotalCharge =
+          data.FeePaid + data.Reserved + data.ReserveRepatriated;
+
+        console.log("Err tx fee: ", data);
+
+        console.log("Err Tx finalized at ", `${url}${statusToHuman[0][1]}`);
+      }
+      // }
+    } else {
+      console.log("dispatchError.toString()", dispatchError.toString());
+      return toast.error(dispatchError.toString());
+    }
+  }
+
+  if (!dispatchError && status) {
+    if (Object.keys(status.toHuman())[0] === "0") {
+    } else {
+      // FOR DEV ONLY SUCCESS CASE
+      // if (process.env.NODE_ENV === "development") {
+      if (statusToHuman[0][0] === "Finalized") {
+        const apiAt = await api.at(statusToHuman[0][1]);
+        const allEventsRecords = await apiAt.query.system.events();
+
+        const data = {
+          ContractCall: txType,
+          Reserved: 0,
+          ReserveRepatriated: 0,
+          FeePaid: 0,
+          TotalCharge: 0,
+          TxHash: "",
+        };
+
+        // Transfer Event
+        allEventsRecords.forEach(({ event }, index) => {
+          // if (api.events.balances?.Transfer.is(event)) {
+          //   console.table({
+          //     Event: "balances.Transfer (-)",
+          //     From: event.data[0].toHuman(),
+          //     To: event.data[1].toHuman(),
+          //     Amount: event.data[2].toHuman(),
+          //   });
+          // }
+          if (api.events.transactionPayment?.TransactionFeePaid.is(event)) {
+            data.FeePaid = -event.data[1]?.toString() / 10 ** 12;
+
+            // console.table({
+            //   Event: "transactionPayment?.TransactionFeePaid (-)",
+            //   Amount: event.data[1]?.toHuman(),
+            // });
+          }
+
+          if (api.events.balances?.Reserved.is(event)) {
+            data.Reserved = -event.data[1]?.toString() / 10 ** 12;
+
+            // console.table({
+            //   Event: "balances?.Reserved (-)",
+            //   Amount: event.data[1]?.toHuman(),
+            // });
+          }
+
+          if (api.events.balances?.ReserveRepatriated.is(event)) {
+            data.ReserveRepatriated = event.data[2]?.toString() / 10 ** 12;
+
+            // console.table({
+            //   Event: "balances?.ReserveRepatriated (+)",
+            //   Amount: event.data[2].toHuman(),
+            // });
+          }
+        });
+
+        // const { data: balance } = await api.query.system.account(
+        //   caller_account?.address
+        // );
+
+        // console.table({
+        //   "Balance END":
+        //     balance.free.toHuman().slice(0, -16) +
+        //     "." +
+        //     balance.free.toHuman().slice(-15, -8),
+        // });
+
+        data.TxHash = statusToHuman[0][1];
+
+        data.TotalCharge =
+          data.FeePaid + data.Reserved + data.ReserveRepatriated;
+
+        console.log("Success tx fee: ", data);
+
+        console.log("Tx finalized at ", `${url}${statusToHuman[0][1]}`);
+      }
+      // }
+    }
+  }
+};
