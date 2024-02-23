@@ -1,5 +1,5 @@
 const my_azero_staking = {
-  CONTRACT_ADDRESS: "5GMGBBbBjaFKsP6KerX8y2y7zSAbKgPJJwsqi5RHPGL7yiVb",
+  CONTRACT_ADDRESS: "5FDm3Pu5RfJcrSBRzwJ42ijZBXmzCLTm6GrJoCdcwVDUhRwv",
   CONTRACT_ABI: {
     "source": {
       "hash": "0x235c49ad77d40cf03dc61423164e2b2b733a1863d99eea0972a6f9fc1f155efc",

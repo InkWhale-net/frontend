@@ -1,5 +1,5 @@
 const my_interest_distribution = {
-  CONTRACT_ADDRESS: "5DCN4HRkvhLk44KEEHqEq5rStJc64gf38Bq4wNa6Hkxb7wgr",
+  CONTRACT_ADDRESS: "5DWz3dzzzRVyS9uz97LjXr3bz9hyV3ztg1T2pg9kTLtfVZo1",
   CONTRACT_ABI: {
     source: {
       hash: "0xaef5079f4fdafed91357458d785a60bfd367e65fb33ed36a4ac142eeb9eea90a",
