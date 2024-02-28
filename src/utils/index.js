@@ -409,33 +409,41 @@ export async function getEstimatedGasBatchTx(
   return ret;
 }
 
+const chainId =
+  appChain?.key === "alephzero-testnet"
+    ? SupportedChainId.AlephZeroTestnet
+    : appChain?.key === "alephzero"
+    ? SupportedChainId.AlephZero
+    : null;
+
 export const resolveDomain = async (address) => {
+  if (!chainId) return address;
+
   try {
-    if (process.env.REACT_APP_NETWORK === "inkwhale-testnet") {
-      const domains = await resolveAddressToDomain(address, {
-        chainId: SupportedChainId.AlephZeroTestnet,
-      });
-      return domains[0];
-    } else {
-      const domains = await resolveAddressToDomain(address, {
-        chainId: SupportedChainId.AlephZero,
-      });
-      return domains[0];
-    }
+    const { primaryDomain, error } = await resolveAddressToDomain(address, {
+      chainId,
+    });
+    
+    if (error) throw Error(error?.message || "Resolve failed");
+
+    return primaryDomain;
   } catch (error) {
-    // console.log("resolveDomain error", error);
+    console.log("resolveDomain error", error);
   }
 };
 
 export const resolveAZDomainToAddress = async (domain) => {
+  if (!chainId) return domain;
+
   if (appChain?.haveAzeroID) {
     try {
       const { address, error } = await resolveDomainToAddress(domain, {
-        chainId: SupportedChainId.AlephZero,
+        chainId,
       });
-      // Print result
-      if (error) console.log(error.message);
-      else return address;
+
+      if (error) throw Error(error?.message || "Resolve failed");
+
+      return address;
     } catch (error) {
       console.log(error);
     }

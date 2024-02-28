@@ -169,6 +169,6 @@ export const supportedChain = [
   },
 ];
 export const appChain = supportedChain.find(
-  (e) => e?.key == process.env.REACT_APP_CHAIN
+  (e) => e?.key === process.env.REACT_APP_CHAIN
 );
 export const FINALIZED_TIME = 6000;
