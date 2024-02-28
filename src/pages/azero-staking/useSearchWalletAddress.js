@@ -1,6 +1,7 @@
 import { APICall } from "api/client";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { resolveAZDomainToAddress } from "utils";
 import { formatChainStringToNumber } from "utils";
 
 const useSearchWalletAddress = () => {
@@ -14,39 +15,42 @@ const useSearchWalletAddress = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
-  const fetchWalletAddress = useCallback(async () => {
-    try {
-      setLoading(true);
+  const fetchWalletAddress = useCallback(
+    async (address) => {
+      try {
+        setLoading(true);
 
-      const { ret } = await APICall.getMyEventData({
-        user: searchQuery,
-        type: [0, 1, 2, 3, 4],
-        offset: 0,
-      });
+        const { ret } = await APICall.getMyEventData({
+          user: address,
+          type: [0, 1, 2, 3, 4],
+          offset: 0,
+        });
 
-      setResultTotalPage(Math.ceil(ret?.length / pagination?.pageSize));
+        setResultTotalPage(Math.ceil(ret?.length / pagination?.pageSize));
 
-      const { ret: txHistory } = await APICall.getMyEventData({
-        user: searchQuery,
-        type: [0, 1, 2, 3, 4],
-        limit: pagination.pageSize,
-        offset: pagination.pageSize * pagination.pageIndex,
-      });
+        const { ret: txHistory } = await APICall.getMyEventData({
+          user: address,
+          type: [0, 1, 2, 3, 4],
+          limit: pagination.pageSize,
+          offset: pagination.pageSize * pagination.pageIndex,
+        });
 
-      const txHistoryFormatted = txHistory?.map((i) => formatEvent(i));
+        const txHistoryFormatted = txHistory?.map((i) => formatEvent(i));
 
-      txHistoryFormatted?.sort((a, b) => {
-        return b.blockNumber - a.blockNumber;
-      });
+        txHistoryFormatted?.sort((a, b) => {
+          return b.blockNumber - a.blockNumber;
+        });
 
-      setSearchResults(txHistoryFormatted);
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      console.log("error", error);
-      toast.error("Fetch Wallet Address Error", error);
-    }
-  }, [pagination.pageIndex, pagination.pageSize, searchQuery]);
+        setSearchResults(txHistoryFormatted);
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        console.log("error", error);
+        toast.error("Fetch Wallet Address Error", error);
+      }
+    },
+    [pagination.pageIndex, pagination.pageSize]
+  );
 
   const fetchAll = useCallback(async () => {
     try {
@@ -82,13 +86,27 @@ const useSearchWalletAddress = () => {
   }, [pagination.pageIndex, pagination.pageSize]);
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
+    const timeoutId = setTimeout(async () => {
       if (searchQuery === "") {
         fetchAll();
       } else {
-        fetchWalletAddress();
+        if (
+          searchQuery?.toLowerCase()?.includes(".tzero") ||
+          searchQuery?.toLowerCase()?.includes(".azero")
+        ) {
+          try {
+            const address = await resolveAZDomainToAddress(searchQuery);
+            console.log('searchQuery', searchQuery)
+            console.log('address', address)
+            await fetchWalletAddress(address);
+          } catch (error) {
+            toast.error(error);
+          }
+        } else {
+          await fetchWalletAddress(searchQuery);
+        }
       }
-    }, 1000);
+    }, 500);
 
     return () => clearTimeout(timeoutId);
   }, [fetchAll, fetchWalletAddress, searchQuery]);
