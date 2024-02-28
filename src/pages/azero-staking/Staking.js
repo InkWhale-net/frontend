@@ -73,7 +73,7 @@ function Staking() {
       return;
     }
 
-    if (maxStakingCalc < amount) {
+    if (maxStakingCalc < Number(amount)) {
       toast.error(
         `Max ${appChain?.unit} stake is ${formatNumDynDecimal(
           maxStakingCalc
@@ -82,7 +82,7 @@ function Staking() {
       return;
     }
 
-    if (azeroBalance < amount) {
+    if (azeroBalance < Number(amount)) {
       toast.error(`Not enough ${appChain?.unit} balance!`);
       return;
     }
@@ -95,7 +95,7 @@ function Staking() {
       footerInfo && footerInfo[1] - parseInt(myStaked);
 
     if (availableStakeAmount >= azeroBalance) {
-      if (availableStakeAmount - 0.25 < amount) {
+      if (availableStakeAmount - 0.25 < Number(amount)) {
         toast.error(
           `Max stake amount is ${formatNumDynDecimal(
             availableStakeAmount - 0.25
@@ -104,7 +104,7 @@ function Staking() {
         return;
       }
     } else {
-      if (availableStakeAmount < amount) {
+      if (availableStakeAmount < Number(amount)) {
         toast.error(
           `Max stake amount is ${formatNumDynDecimal(availableStakeAmount)} ${
             appChain?.unit
@@ -178,7 +178,7 @@ function Staking() {
       return;
     }
 
-    if (maxUnstaking < amount) {
+    if (maxUnstaking < Number(amount)) {
       toast.error(
         `Max ${appChain?.unit} unstake is ${formatNumDynDecimal(
           maxUnstaking
@@ -187,13 +187,13 @@ function Staking() {
       return;
     }
 
-    if (maxUnstaking < amount) {
+    if (maxUnstaking < Number(amount)) {
       toast.error(`Not enough ${appChain?.unit} unstake!`);
       return;
     }
 
     try {
-      await doWithdrawRequest(api, currentAccount, amount);
+      await doWithdrawRequest(api, currentAccount, Number(amount));
 
       delay(1000).then(() => {
         fetchData(true);
