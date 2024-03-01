@@ -5,6 +5,7 @@ import SubWalletLogo from "assets/img/wallet/SubWalletLogo.svg";
 import NovaLogo from "assets/img/wallet/nova.jpg";
 import Icon5Ire from "assets/img/chains/5irechain.png";
 import IconAlephzero from "assets/img/chains/alephzero.png";
+import FireLogo from "assets/img/wallet/FireWallet.png";
 
 export const toastMessages = {
   NO_EXTENSION: "Your browser does NOT HAVE the required plugin.",
@@ -55,6 +56,14 @@ export const supportWallets = [
     extensionName: "Nightly",
     icon: NightlyLogo,
     downloadUrl: `https://wallet.nightly.app/download`,
+  },
+  {
+    name: "5ire Wallet",
+    title: "5ire-wallet",
+    icon: FireLogo,
+    extensionName: "5ire-wallet",
+    downloadUrl:
+      "https://chromewebstore.google.com/detail/5ire-wallet/keenhcnmdmjjhincpilijphpiohdppno",
   },
 ];
 
@@ -167,5 +176,8 @@ export const supportedChain = [
     inwName: "INW",
   },
 ];
-export const appChain = supportedChain.find(e => e?.key == process.env.REACT_APP_CHAIN)
+
+export const appChain = supportedChain.find(
+  (e) => e?.key === process.env.REACT_APP_CHAIN
+);
 export const FINALIZED_TIME = 6000;

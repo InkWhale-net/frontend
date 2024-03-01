@@ -161,6 +161,12 @@ export async function execContractQuery(
   }
 }
 
+let signer;
+
+export const setContractsSigner = (adapter) => {
+  signer = adapter?.signer;
+};
+
 export async function execContractTx(
   caller, // -> currentAccount Object
   api,
@@ -177,16 +183,18 @@ export async function execContractTx(
     wsApi,
     address: caller?.address,
   });
-  const chainUnit = localStorage.getItem("currencyUnit")
+  const chainUnit = localStorage.getItem("currencyUnit");
   if (azeroBalance < 0.005) {
-    toast.error(`You don’t have enough ${chainUnit || "azero"} for transaction fee!`);
+    toast.error(
+      `You don’t have enough ${chainUnit || "azero"} for transaction fee!`
+    );
     return;
   }
 
   const contract = new ContractPromise(wsApi, contractAbi, contractAddress);
 
   let unsubscribe;
-  const { signer } = await web3FromSource(caller?.meta?.source);
+
   const gasLimitResult = await getGasLimit(
     wsApi,
     caller?.address,
@@ -277,17 +285,17 @@ export async function execContractTxAndCallAPI(
   });
 
   // console.log("azeroBalance = ", azeroBalance);
-  const chainUnit = localStorage.getItem("currencyUnit")
+  const chainUnit = localStorage.getItem("currencyUnit");
   if (azeroBalance < 0.005) {
-    toast.error(`You don’t have enough ${chainUnit || "azero"} for transaction fee!`);
+    toast.error(
+      `You don’t have enough ${chainUnit || "azero"} for transaction fee!`
+    );
     return;
   }
 
   const contract = new ContractPromise(wsApi, contractAbi, contractAddress);
 
   let unsubscribe;
-
-  const { signer } = await web3FromSource(caller?.meta?.source);
 
   const gasLimitResult = await getGasLimit(
     wsApi,

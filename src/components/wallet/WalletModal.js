@@ -26,6 +26,12 @@ export default function WalletModal({ isOpen, onClose }) {
   function onClickHandler(account) {
     dispatch(setCurrentAccount(account));
     localStorage.setItem("localCurrentAccount", JSON.stringify(account));
+    localStorage.setItem(
+      "selectedExt",
+      JSON.stringify(
+        supportWallets.find((e) => e?.extensionName === account?.meta?.source)
+      )
+    );
     onClose();
   }
   const currentWallet = useMemo(() => {

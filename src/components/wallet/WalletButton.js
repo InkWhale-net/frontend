@@ -86,11 +86,21 @@ const WalletNotConnect = ({ onClose }) => {
 
   const connectWallet = async (ext) => {
     if (onClose) onClose();
+
     const accounts = await walletConnectHandler(ext);
+
     if (accounts?.length > 0) {
       dispatch(updateAccountsList(accounts));
       dispatch(setCurrentAccount(accounts[0]));
       localStorage.setItem("localCurrentAccount", JSON.stringify(accounts[0]));
+      localStorage.setItem(
+        "selectedExt",
+        JSON.stringify(
+          supportWallets.find(
+            (e) => e?.extensionName === accounts[0]?.meta?.source
+          )
+        )
+      );
     }
   };
 
@@ -233,7 +243,7 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
   const [domain, setDomain] = useState(null);
   const { currentAccount, allAccounts } = useSelector((state) => state.wallet);
   const { walletDisconnectHandler } = useAppContext();
-  
+
   useEffect(() => {
     resolveDomain(currentAccount?.address).then((domainValue) =>
       setDomain(domainValue)
@@ -243,11 +253,11 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
   const currentWallet = useMemo(() => {
     if (currentAccount) {
       return supportWallets.find(
-        (e) => e?.extensionName == currentAccount?.meta?.source
+        (e) => e?.extensionName === currentAccount?.meta?.source
       );
     }
   }, [allAccounts]);
-  
+
   return (
     <Menu placement="bottom-end">
       <MenuButton p="0px">

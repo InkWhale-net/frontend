@@ -11,6 +11,8 @@ import {
   updateAccountsList,
 } from "redux/slices/walletSlice";
 import { SwapV2TokenProvider } from "./SwapV2TokenModalContext";
+import { setContractsSigner } from "utils/contracts";
+import { web3FromSource } from "@polkadot/extension-dapp";
 
 const AppContext = createContext();
 
@@ -19,70 +21,92 @@ export const AppContextProvider = ({ children }) => {
   const [api, setApi] = useState(null);
   const dispatch = useDispatch();
 
-  const loadAccounts = async () => {
-    try {
-      await web3Enable(process.env.REACT_APP_NAME);
-      const currentExt = currentAccount?.meta?.source;
-      const accounts = await web3Accounts();
-      const connectedAccount = accounts?.filter(
-        (e) => e?.meta?.source == currentExt
-      );
-      dispatch(updateAccountsList(connectedAccount));
-    } catch (error) {
-      walletDisconnectHandler();
-      console.log(error);
-    }
-  };
   const walletConnectHandler = async (selectedExt) => {
     try {
-      const extentions = await web3Enable(process.env.REACT_APP_NAME);
-      const extData = extentions.find(
-        (e) => e?.name == selectedExt.extensionName
-      );
-      if (extData) {
-        const accounts = await web3Accounts();
-        const connectedAccount = accounts?.filter(
-          (e) => e?.meta?.source == selectedExt.extensionName
-        );
-        return connectedAccount?.length > 0 ? connectedAccount : [];
+      if (selectedExt?.extensionName === "5ire-wallet") {
+        const addressList = await window?.fire?.connect();
+
+        const connectedAccount = [
+          {
+            address: addressList?.nativeAddress,
+            meta: { name: "default", source: "5ire-wallet" },
+          },
+        ];
+        setContractsSigner({ signer: window.fire });
+
+        return connectedAccount;
       } else {
-        toast.error(
-          <Text>
-            {toastMessages.NO_EXTENSION} You may download {selectedExt?.name}{" "}
-            &nbsp;
-            <Link
-              isExternal
-              rel="noreferrer"
-              target="_blank"
-              href={selectedExt?.downloadUrl}
-            >
-              Here
-            </Link>
-          </Text>
+        const extensions = await web3Enable(process.env.REACT_APP_NAME);
+
+        const extData = extensions.find(
+          (e) => e?.name === selectedExt?.extensionName
         );
-        return [];
+
+        if (extData) {
+          const accounts = await web3Accounts();
+
+          const connectedAccount = accounts?.filter(
+            (e) => e?.meta?.source === selectedExt.extensionName
+          );
+
+          const { signer } = await web3FromSource(
+            connectedAccount[0]?.meta?.source
+          );
+
+          setContractsSigner({ signer });
+
+          return connectedAccount?.length > 0 ? connectedAccount : [];
+        } else {
+          toast.error(
+            <Text>
+              {toastMessages.NO_EXTENSION} You may download {selectedExt?.name}{" "}
+              &nbsp;
+              <Link
+                isExternal
+                rel="noreferrer"
+                target="_blank"
+                href={selectedExt?.downloadUrl}
+              >
+                Here
+              </Link>
+            </Text>
+          );
+          return [];
+        }
       }
     } catch (error) {
       walletDisconnectHandler();
       console.log(error);
+      toast.error(error);
     }
   };
+
   const walletDisconnectHandler = async () => {
     try {
       dispatch(disconnectCurrentAccount());
       dispatch(logOutMyPools());
       localStorage.removeItem("localCurrentAccount");
+      localStorage.removeItem("selectedExt");
     } catch (error) {
       console.log(error);
     }
   };
+
   useEffect(() => {
     if (!currentAccount?.balance && api && currentAccount) {
       dispatch(fetchUserBalance({ currentAccount, api }));
     }
-    if (currentAccount && api) loadAccounts();
+
+    try {
+      const selectedExt = JSON.parse(localStorage?.getItem("selectedExt"));
+      walletConnectHandler(selectedExt);
+    } catch (e) {
+      console.log(e);
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [api, currentAccount]);
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
