@@ -39,16 +39,8 @@ import WalletModal from "./WalletModal";
 import useLongPress from "./useLongPress";
 
 export default function WalletButton({ onCloseSidebar }) {
-  const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { currentAccount, allAccounts } = useSelector((state) => state.wallet);
-
-  const loadListAccount = async () => {};
-  useEffect(() => {
-    if (currentAccount) {
-      loadListAccount();
-    } else dispatch(updateAccountsList([]));
-  }, [currentAccount]);
 
   const onClickSwitch = async () => {
     if (currentAccount && allAccounts?.length > 1) onOpen();
