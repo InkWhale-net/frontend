@@ -101,6 +101,10 @@ function SidebarContent({ onClose }) {
               label: "Transactions",
               href: "/tokens/transaction",
             },
+            {
+              label: "CommonFi Token Swap",
+              href: "/tokens/swap",
+            },
           ]}
         />
         <GroupMenu
