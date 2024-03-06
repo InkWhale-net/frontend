@@ -219,12 +219,14 @@ const IWPaginationTable = ({
         </Table>
       </TableContainer>
       {mutation?.isLoading && (
-        <CircularProgress
-          alignSelf={"center"}
-          isIndeterminate
-          size={"40px"}
-          color="#93F0F5"
-        />
+        <Flex py="24px" justifyContent="center" w="full">
+          <CircularProgress
+            alignSelf={"center"}
+            isIndeterminate
+            size={"40px"}
+            color="#93F0F5"
+          />
+        </Flex>
       )}
 
       {totalData === 0 ? null : (
@@ -670,7 +672,9 @@ export const formatDataCellTable = (
     case "withdrawalAmount":
       return (
         <>
-          <Text>{formatNumDynDecimal(itemObj[header])} {appChain?.unit}</Text>
+          <Text>
+            {formatNumDynDecimal(itemObj[header])} {appChain?.unit}
+          </Text>
         </>
       );
 
@@ -694,22 +698,30 @@ export const formatDataCellTable = (
     case "interestAccount":
       return (
         <>
-          <Text>{formatNumDynDecimal(itemObj[header])} {appChain?.unit}</Text>
+          <Text>
+            {formatNumDynDecimal(itemObj[header])} {appChain?.unit}
+          </Text>
         </>
       );
 
     case "masterAccount":
       return (
         <>
-          <Text>{formatNumDynDecimal(itemObj[header])} {appChain?.unit}</Text>
+          <Text>
+            {formatNumDynDecimal(itemObj[header])} {appChain?.unit}
+          </Text>
         </>
       );
 
     case "azeroReward":
       return (
         <>
-          <Text>{formatNumDynDecimal(itemObj[header], 6)} {appChain?.unit}</Text>
-          <Text>{formatNumDynDecimal(itemObj["inwReward"], 6)} {appChain?.inwName}</Text>
+          <Text>
+            {formatNumDynDecimal(itemObj[header], 6)} {appChain?.unit}
+          </Text>
+          <Text>
+            {formatNumDynDecimal(itemObj["inwReward"], 6)} {appChain?.inwName}
+          </Text>
         </>
       );
 

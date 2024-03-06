@@ -337,7 +337,7 @@ export default function TokensSwapPage() {
               onChange={({ target }) =>
                 setKeywords({ ...keywords, queryAddress: target.value })
               }
-              placeholder="Search with From/To"
+              placeholder="Search user address"
             />
             {!isSmallerThanMd && (
               <Button
