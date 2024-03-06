@@ -15,11 +15,7 @@ import IWInput from "components/input/Input";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { AiOutlineClear } from "react-icons/ai";
-import { useSelector } from "react-redux";
-import {
-  addressShortener,
-  moveINWToBegin,
-} from "utils";
+import { addressShortener, moveINWToBegin } from "utils";
 
 import IWPaginationTable from "components/table/IWPaginationTable";
 import { useAppContext } from "contexts/AppContext";
@@ -177,8 +173,8 @@ export default function TokensSwapPage() {
                   blockNum: txObj.blockNumber,
                   tokenIn: `${
                     formatChainStringToNumber(txObj.amountIn) /
-                    Math.pow(10, tokenInInfo.tokenDecimals)
-                  } ${tokenInInfo.tokenSymbol}`,
+                    Math.pow(10, tokenInInfo?.tokenDecimals)
+                  } ${tokenInInfo?.tokenSymbol}`,
                   tokenOut: txObj.amountOut,
                   blockNumber: timeEvent,
                 };
@@ -191,12 +187,12 @@ export default function TokensSwapPage() {
                 blockNum: txObj.blockNumber,
                 tokenIn: `${
                   formatChainStringToNumber(txObj.amountIn) /
-                  Math.pow(10, tokenInInfo.tokenDecimals)
-                } ${tokenInInfo.tokenSymbol}`,
+                  Math.pow(10, tokenInInfo?.tokenDecimals)
+                } ${tokenInInfo?.tokenSymbol}`,
                 tokenOut: `${
                   formatChainStringToNumber(txObj.amountOut) /
-                  Math.pow(10, tokenOutInfo.tokenDecimals)
-                } ${tokenOutInfo.tokenSymbol}`,
+                  Math.pow(10, tokenOutInfo?.tokenDecimals)
+                } ${tokenOutInfo?.tokenSymbol}`,
                 blockNumber: timeEvent,
               };
             }
@@ -545,4 +541,47 @@ const commonFiTokenList = [
     icon: "",
     tokenAddress: "5H8UXMbPdVTCbsYQWBGuVj4k6XDo75wqQ8QdeRbwziQYcTdc",
   },
+  // {
+  //   tokenSymbol: "5Fr...JvLS",
+  //   tokenDecimals: 12,
+  //   icon: "",
+  //   tokenAddress: "5Fru4JSQvcU6aWfAB6kWu2QFgh77h1Ta3nwzJtb9VsSqJvLS",
+  // },
+  // {
+  //   tokenSymbol: "5FM...m564",
+  //   tokenDecimals: 12,
+  //   icon: "",
+  //   tokenAddress: "5FMejSikS3JKnJKpmsUzUEVQQM2ASZotK2FujMqcve4bm564",
+  // },
+  // {
+  //   tokenSymbol: "5G5...o51d",
+  //   tokenDecimals: 12,
+  //   icon: "",
+  //   tokenAddress: "5G5acjZfa9A3bREG2z8seirNkubXC3g5wNBA5koZ7wdwo51d",
+  // },
+  // {
+  //   tokenSymbol: "5EH...sNQK",
+  //   tokenDecimals: 12,
+  //   icon: "",
+  //   tokenAddress: "5EHcwukpFCu9YRjrmdfaaEDnLR2ywXevXtFpHe4yMPsJsNQK",
+  // },
+  // {
+  //   tokenSymbol: "5EM...ruGj",
+  //   tokenDecimals: 12,
+  //   icon: "",
+  //   tokenAddress: "5EMCxD8rshqod96YbUhqJKZLXKubMEaH5WbCiZGXauGoruGj",
+  // },
+  // {
+  //   tokenSymbol: "5FJ...f1yi",
+  //   tokenDecimals: 12,
+  //   icon: "",
+  //   tokenAddress: "5FJSU17mLH1c8wnRj4FheTdMW7Etx5AdorLw7atkm9Pbf1yi",
+  // },
+  // {
+  //   tokenSymbol: "5CJ...AjLZ",
+  //   tokenDecimals: 12,
+  //   icon: "",
+  //   tokenAddress: "5CJ5FKNcp2QVBKYqdv6Lq4dKnUL8GxDh1hrJBstijaPwAjLZ",
+  // },
+
 ];
