@@ -115,8 +115,16 @@ export default function NavbarLinks(props) {
                 href: "/tokens/interaction",
               },
               {
+                label: "Bridge/Swap",
+                href: "/tokens/bridge",
+              },
+              {
                 label: "Transactions",
                 href: "/tokens/transaction",
+              },
+              {
+                label: "CommonFi Token Swap",
+                href: "/tokens/swap",
               },
             ]}
           />
@@ -188,7 +196,7 @@ export default function NavbarLinks(props) {
             </Link>
           </Flex>
         </Flex>
-        {appChain?.allowSwap && <INWSwap />}
+        {/* {appChain?.allowSwap && <INWSwap />} */}
       </Show>
 
       <Show above="md">

@@ -137,10 +137,7 @@ export const APICall = {
       isNew,
     });
   },
-  updateDoxxed: async ({
-    contractAddress,
-    newValue,
-  }) => {
+  updateDoxxed: async ({ contractAddress, newValue }) => {
     return await client("POST", "/updateDoxxed", {
       contractAddress,
       newValue,
@@ -177,6 +174,25 @@ export const APICall = {
       isToOnly,
     });
   },
+
+  getSwapTransactionHistory: async ({
+    tokenContract,
+    queryAddress,
+    limit = 10,
+    offset = 0,
+    isFromOnly = true,
+    isToOnly = true,
+  }) => {
+    return await client("POST", "/getSwapTransactionHistory", {
+      tokenContract,
+      queryAddress,
+      limit,
+      offset,
+      isFromOnly,
+      isToOnly,
+    });
+  },
+
   getLaunchpad: async ({
     keyword,
     isActive = 1,

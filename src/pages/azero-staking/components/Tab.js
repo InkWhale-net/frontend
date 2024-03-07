@@ -141,8 +141,8 @@ function prepareAccountInfo(currentAccount) {
       content: `${balance?.azero ?? 0} ${appChain?.unit}`,
     },
     {
-      title: "INW Balance",
-      content: `${balance?.inw ?? 0} INW`,
+      title: "INW V2 Balance",
+      content: `${balance?.inw2 ?? 0} INW`,
     },
   ];
 }

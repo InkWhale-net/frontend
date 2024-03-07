@@ -156,6 +156,7 @@ export const supportedChain = [
     unit: "TZERO",
     url: "https://testnet.inkwhale.net/",
     inwName: "INW V2",
+    bridgeTo: ["firechain-testnet"]
   },
   {
     name: "5ireChain Testnet",
@@ -166,6 +167,7 @@ export const supportedChain = [
     unit: "5IRE",
     inwName: "INW",
     url: "https://5iretest.inkwhale.net/",
+    bridgeTo: ["alephzero-testnet"]
   },
 ];
 export const appChain = supportedChain.find(
