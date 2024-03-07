@@ -115,6 +115,10 @@ export default function NavbarLinks(props) {
                 href: "/tokens/interaction",
               },
               {
+                label: "Bridge/Swap",
+                href: "/tokens/bridge",
+              },
+              {
                 label: "Transactions",
                 href: "/tokens/transaction",
               },
@@ -192,7 +196,7 @@ export default function NavbarLinks(props) {
             </Link>
           </Flex>
         </Flex>
-        {appChain?.allowSwap && <INWSwap />}
+        {/* {appChain?.allowSwap && <INWSwap />} */}
       </Show>
 
       <Show above="md">
