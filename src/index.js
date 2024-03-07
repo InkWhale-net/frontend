@@ -49,6 +49,7 @@ import { delay } from "utils";
 import { initialApi } from "utils/contracts";
 import AzeroStaking from "pages/azero-staking";
 import INWV2 from "pages/faucet/inwV2";
+import BridgePage from "pages/account/bridge";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -220,6 +221,7 @@ const App = () => {
           <Route exact path={`/admin`} component={AdminPage} />
           <Route exact path={`/azero-staking`} component={AzeroStaking} />
           <Route exact path={`/inw-v2`} component={INWV2} />
+          <Route exact path={`/tokens/bridge`} component={BridgePage} />
           <Route>
             <FaucetPage api={api} />
           </Route>
