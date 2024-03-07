@@ -122,6 +122,10 @@ export default function NavbarLinks(props) {
                 label: "Transactions",
                 href: "/tokens/transaction",
               },
+              {
+                label: "CommonFi Token Swap",
+                href: "/tokens/swap",
+              },
             ]}
           />
           <GroupMenu

@@ -8,6 +8,7 @@ import CreateStakePoolPage from "pages/create/stake-pool";
 import MyBalancePage from "pages/account/my-balance";
 import CreateNFTLPPage from "pages/create/nft-lp-pool";
 import CreateTokenLPPage from "pages/create/token-lp-pool";
+import TokensSwapPage from "pages/tokens/swap";
 
 const routes = [
   {
@@ -34,6 +35,11 @@ const routes = [
     layout: "/default",
     path: "/tokens/transaction",
     component: TokensTransactionPage,
+  },
+  {
+    layout: "/default",
+    path: "/tokens/swap",
+    component: TokensSwapPage,
   },
   {
     layout: "/default",
