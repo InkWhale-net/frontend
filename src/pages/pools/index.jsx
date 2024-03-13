@@ -17,6 +17,7 @@ import { IWMobileList } from "components/table/IWMobileList";
 import { IWTable } from "components/table/IWTable";
 import { useAppContext } from "contexts/AppContext";
 import { useEffect, useMemo, useState } from "react";
+import { isMobile } from "react-device-detect";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
 import { isPoolEnded, isPoolNotStart } from "utils";
@@ -40,7 +41,7 @@ export default function PoolsPage() {
   const getSearchResult = () => {
     const result =
       poolsListDataFiltered?.filter((el) =>
-        el.tokenSymbol.toLowerCase().includes(keywords.trim().toLowerCase())
+        el?.tokenSymbol?.toLowerCase()?.includes(keywords?.trim()?.toLowerCase())
       ) || [];
     if (!result?.length && !keywords) {
       setResultList();
@@ -182,6 +183,7 @@ export default function PoolsPage() {
             <Box
               display="flex"
               justifyContent={{ base: "flex-start", lg: "flex-end" }}
+              flexDirection={isMobile ? "column" : "row"}
               marginTop={{ base: "20px", lg: "none" }}
             >
               <FormControl
@@ -212,7 +214,7 @@ export default function PoolsPage() {
                 maxW="200px"
                 display="flex"
                 alignItems="center"
-                justifyContent={{ base: "flex-end", lg: "none" }}
+                justifyContent={isMobile ? null : "flex-end"}
               >
                 <Switch
                   id="zero-reward-pools"
@@ -237,7 +239,7 @@ export default function PoolsPage() {
                 maxW="200px"
                 display="flex"
                 alignItems="center"
-                justifyContent={{ base: "flex-end", lg: "none" }}
+                justifyContent={isMobile ? null : "flex-end"}
               >
                 <Switch
                   id="zero-reward-pools"

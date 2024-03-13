@@ -114,10 +114,10 @@ export default function NavbarLinks(props) {
                 label: "Interaction",
                 href: "/tokens/interaction",
               },
-              {
-                label: "Bridge/Swap",
-                href: "/tokens/bridge",
-              },
+              // {
+              //   label: "Bridge/Swap",
+              //   href: "/tokens/bridge",
+              // },
               {
                 label: "Transactions",
                 href: "/tokens/transaction",

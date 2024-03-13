@@ -46,9 +46,9 @@ export default function FarmsPage() {
   const isSmallerThanMd = useBreakpointValue({ base: true, md: false });
   const searchCondition = (el) => {
     return (
-      el.tokenSymbol.toLowerCase().includes(keywords.trim().toLowerCase()) ||
-      el.tokenName.toLowerCase().includes(keywords.trim().toLowerCase()) ||
-      el?.nftInfo?.name.toLowerCase().includes(keywords.trim().toLowerCase())
+      el?.tokenSymbol?.toLowerCase().includes(keywords.trim().toLowerCase()) ||
+      el?.tokenName?.toLowerCase().includes(keywords.trim().toLowerCase()) ||
+      el?.nftInfo?.name?.toLowerCase().includes(keywords.trim().toLowerCase())
     );
   };
 

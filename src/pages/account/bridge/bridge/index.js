@@ -9,6 +9,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  SimpleGrid,
   Stack,
   Text,
 } from "@chakra-ui/react";
@@ -39,6 +40,11 @@ import "./styles.css";
 
 import { execContractTx } from "./utils";
 import { supportedChain } from "constants";
+import azero_manager_bridge from "utils/contracts/azero_manager_bridge";
+import { formatNumToBNEther } from "utils";
+import { APICall } from "api/client";
+import { IWTable } from "components/table/IWTable";
+import { addressShortener } from "utils";
 // const supportedToken = [
 //   {
 //     token: "inw",
@@ -68,7 +74,6 @@ const BridgeTab = ({ amountRef }) => {
   const inw2Balance = +currentAccount?.balance?.inw2?.replaceAll(",", "");
 
   const [step, setStep] = useState(1);
-  
 
   const dispatch = useDispatch();
   const swapToTokenv2 = async () => {
@@ -91,47 +96,46 @@ const BridgeTab = ({ amountRef }) => {
         currentAccount?.address,
         api,
         psp22_contract.CONTRACT_ABI,
-        process.env.REACT_APP_INW_TOKEN_ADDRESS,
+        psp22_contract.CONTRACT_ADDRESS,
         0, //-> value
         "psp22::allowance",
         currentAccount?.address,
-        swap_inw2_contract.CONTRACT_ADDRESS
+        azero_manager_bridge.CONTRACT_ADDRESS
       );
       const allowanceINW = formatQueryResultToNumber(
         allowanceTokenQr
       ).replaceAll(",", "");
 
       console.log("allowanceINW", allowanceINW);
-
       if (+allowanceINW < +amount) {
         setStep(1);
         let approve = await execContractTx(
           currentAccount,
           api,
           psp22_contract.CONTRACT_ABI,
-          process.env.REACT_APP_INW_TOKEN_ADDRESS,
+          psp22_contract.CONTRACT_ADDRESS,
           0, //-> value
           "psp22::approve",
-          2,
-          swap_inw2_contract.CONTRACT_ADDRESS,
+          3,
+          azero_manager_bridge.CONTRACT_ADDRESS,
           formatNumToBN(amount)
         );
         if (!approve) return;
       }
-
       await delay(1500).then(async () => {
         setStep(2);
 
         toast("Step2: Swap...");
+        console.log(formatNumToBNEther(amount));
         await execContractTx(
           currentAccount,
           api,
-          swap_inw2_contract.CONTRACT_ABI,
-          swap_inw2_contract.CONTRACT_ADDRESS,
+          azero_manager_bridge.CONTRACT_ABI,
+          azero_manager_bridge.CONTRACT_ADDRESS,
           0,
-          "inwSwapTrait::swap",
-          2,
-          formatNumToBN(amount)
+          "createNewTransaction",
+          3,
+          formatNumToBNEther(amount)
         );
       });
 
@@ -232,13 +236,14 @@ const BridgeTab = ({ amountRef }) => {
     }
   };
   const { isLoading, mutate } = useMutation(async () => {
-    // return new Promise((resolve) => {
-    //   if (fromToken.token == "inw") {
-    //     resolve(swapToTokenv2());
-    //   } else {
-    //     resolve(swapToTokenv1());
-    //   }
-    // });
+    return new Promise((resolve) => {
+      resolve(swapToTokenv2());
+      // if (fromToken.token == "inw") {
+      //   resolve(swapToTokenv2());
+      // } else {
+      //   resolve(swapToTokenv1());
+      // }
+    });
   }, "swap-to-inw-v2");
 
   //   useEffect(() => {
@@ -294,7 +299,6 @@ const BridgeTab = ({ amountRef }) => {
     //       1.05
     //     );
     //   }
-
     //   if (!gasLimitResultSwap.ok) {
     //     console.log(gasLimitResultSwap.error);
     //     return;
@@ -309,19 +313,20 @@ const BridgeTab = ({ amountRef }) => {
     // }
   };
   const onChangeValue = (newValue) => {
-    // try {
-    //   if (fromToken.token == "inw") {
-    //     const valueToUpdate = +newValue > inwBalance ? inwBalance : +newValue;
-    //     setAmount(valueToUpdate);
-    //     fetchGas(valueToUpdate);
-    //   } else {
-    //     const valueToUpdate = +newValue > inw2Balance ? inw2Balance : +newValue;
-    //     setAmount(valueToUpdate);
-    //     fetchGas(valueToUpdate);
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    try {
+      setAmount(newValue);
+      // if (fromToken.token == "inw") {
+      //   const valueToUpdate = +newValue > inwBalance ? inwBalance : +newValue;
+      //   setAmount(valueToUpdate);
+      //   fetchGas(valueToUpdate);
+      // } else {
+      //   const valueToUpdate = +newValue > inw2Balance ? inw2Balance : +newValue;
+      //   setAmount(valueToUpdate);
+      //   fetchGas(valueToUpdate);
+      // }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   // ==================================
@@ -330,101 +335,163 @@ const BridgeTab = ({ amountRef }) => {
 
   const [gasSwapToV1, setGasSwapToV1] = useState(0);
   const [gasApproveToV1, setGasApproveToV1] = useState(0);
+  const [transactionHistory, setTransactionHistory] = useState([]);
 
+  // useEffect(() => {
+  //   // console.log("amount", amount);
+  //   // to v2
+  //   const fetchDataGasApproveToV2 = async () => {
+  //     const contract = new ContractPromise(
+  //       api,
+  //       psp22_contract.CONTRACT_ABI,
+  //       process.env.REACT_APP_INW_TOKEN_ADDRESS
+  //     );
+
+  //     const gasLimitResult = await getSwapGasLimit(
+  //       api,
+  //       currentAccount?.address,
+  //       "psp22::approve",
+  //       contract,
+  //       { value: 0 },
+  //       [swap_inw2_contract.CONTRACT_ADDRESS, formatNumToBN(amount)]
+  //     );
+
+  //     // console.log("Gas Approve To V2", gasLimitResult * 1.688);
+  //     setGasApproveToV2(gasLimitResult * 1.688);
+  //   };
+
+  //   fetchDataGasApproveToV2();
+
+  //   const fetchDataGasSwapToV2 = async () => {
+  //     const contract = new ContractPromise(
+  //       api,
+  //       swap_inw2_contract.CONTRACT_ABI,
+  //       swap_inw2_contract.CONTRACT_ADDRESS
+  //     );
+
+  //     const gasLimitResult = await getSwapGasLimit(
+  //       api,
+  //       currentAccount?.address,
+  //       "inwSwapTrait::swap",
+  //       contract,
+  //       { value: 0 },
+  //       [formatNumToBN(amount)]
+  //     );
+  //     // console.log("Gas Swap To V2", gasLimitResult * 1.05);
+  //     setGasSwapToV2(gasLimitResult * 1.05);
+  //   };
+
+  //   fetchDataGasSwapToV2();
+
+  //   // to v1
+  //   const fetchDataGasApproveToV1 = async () => {
+  //     const contract = new ContractPromise(
+  //       api,
+  //       psp22_contract_v2.CONTRACT_ABI,
+  //       psp22_contract_v2.CONTRACT_ADDRESS
+  //     );
+
+  //     const gasLimitResult = await getSwapGasLimit(
+  //       api,
+  //       currentAccount?.address,
+  //       "psp22::approve",
+  //       contract,
+  //       { value: 0 },
+  //       [swap_inw2_contract.CONTRACT_ADDRESS, formatNumToBN(amount)]
+  //     );
+
+  //     // console.log("fetchDataGasApproveToV1", gasLimitResult * 1.688);
+  //     setGasApproveToV1(gasLimitResult * 1.688);
+  //   };
+
+  //   fetchDataGasApproveToV1();
+
+  //   const fetchDataGasSwapToV1 = async () => {
+  //     const contract = new ContractPromise(
+  //       api,
+  //       swap_inw2_contract.CONTRACT_ABI,
+  //       swap_inw2_contract.CONTRACT_ADDRESS
+  //     );
+
+  //     const gasLimitResult = await getSwapGasLimit(
+  //       api,
+  //       currentAccount?.address,
+  //       "inwSwapTrait::swapInwV2ToV1",
+  //       contract,
+  //       { value: 0 },
+  //       [formatNumToBN(amount)]
+  //     );
+  //     // console.log("fetchDataGasSwapToV1", gasLimitResult * 1.05);
+  //     setGasSwapToV1(gasLimitResult * 1.05);
+  //   };
+
+  //   fetchDataGasSwapToV1();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [amount, api, currentAccount?.address, amount, step]);
   useEffect(() => {
-    // console.log("amount", amount);
-    // to v2
-    const fetchDataGasApproveToV2 = async () => {
-      const contract = new ContractPromise(
-        api,
-        psp22_contract.CONTRACT_ABI,
-        process.env.REACT_APP_INW_TOKEN_ADDRESS
-      );
+    (async () => {
+      setTransactionHistory((await APICall.getBridgeHistory()) || []);
+    })();
+  }, [api, currentAccount]);
+  const tableData = {
+    tableHeader: [
+      {
+        name: "id",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "ID",
+      },
+      {
+        name: "bridgestatus",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "status",
+      },
+      {
+        name: "account",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "Trader",
+      },
+      {
+        name: "from",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "From",
+      },
+      {
+        name: "to",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "To",
+      },
+      {
+        name: "amount",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "Amount",
+      },
+      {
+        name: "blockNumber",
+        hasTooltip: false,
+        tooltipContent: "",
+        label: "Block",
+      },
+    ],
 
-      const gasLimitResult = await getSwapGasLimit(
-        api,
-        currentAccount?.address,
-        "psp22::approve",
-        contract,
-        { value: 0 },
-        [swap_inw2_contract.CONTRACT_ADDRESS, formatNumToBN(amount)]
-      );
-
-      // console.log("Gas Approve To V2", gasLimitResult * 1.688);
-      setGasApproveToV2(gasLimitResult * 1.688);
-    };
-
-    fetchDataGasApproveToV2();
-
-    const fetchDataGasSwapToV2 = async () => {
-      const contract = new ContractPromise(
-        api,
-        swap_inw2_contract.CONTRACT_ABI,
-        swap_inw2_contract.CONTRACT_ADDRESS
-      );
-
-      const gasLimitResult = await getSwapGasLimit(
-        api,
-        currentAccount?.address,
-        "inwSwapTrait::swap",
-        contract,
-        { value: 0 },
-        [formatNumToBN(amount)]
-      );
-      // console.log("Gas Swap To V2", gasLimitResult * 1.05);
-      setGasSwapToV2(gasLimitResult * 1.05);
-    };
-
-    fetchDataGasSwapToV2();
-
-    // to v1
-    const fetchDataGasApproveToV1 = async () => {
-      const contract = new ContractPromise(
-        api,
-        psp22_contract_v2.CONTRACT_ABI,
-        psp22_contract_v2.CONTRACT_ADDRESS
-      );
-
-      const gasLimitResult = await getSwapGasLimit(
-        api,
-        currentAccount?.address,
-        "psp22::approve",
-        contract,
-        { value: 0 },
-        [swap_inw2_contract.CONTRACT_ADDRESS, formatNumToBN(amount)]
-      );
-
-      // console.log("fetchDataGasApproveToV1", gasLimitResult * 1.688);
-      setGasApproveToV1(gasLimitResult * 1.688);
-    };
-
-    fetchDataGasApproveToV1();
-
-    const fetchDataGasSwapToV1 = async () => {
-      const contract = new ContractPromise(
-        api,
-        swap_inw2_contract.CONTRACT_ABI,
-        swap_inw2_contract.CONTRACT_ADDRESS
-      );
-
-      const gasLimitResult = await getSwapGasLimit(
-        api,
-        currentAccount?.address,
-        "inwSwapTrait::swapInwV2ToV1",
-        contract,
-        { value: 0 },
-        [formatNumToBN(amount)]
-      );
-      // console.log("fetchDataGasSwapToV1", gasLimitResult * 1.05);
-      setGasSwapToV1(gasLimitResult * 1.05);
-    };
-
-    fetchDataGasSwapToV1();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount, api, currentAccount?.address, amount, step]);
+    tableBody: transactionHistory.map((e) => ({
+      ...e,
+      id: e?.transactionId,
+      from: "AlephZero Testnet",
+      to: "5ire Testnet",
+      amount: formatTokenAmount(e?.amount, 12),
+      account: e?.trader,
+      bridgestatus: e?.status
+    })),
+  };
   return (
-    <Flex justify="center">
-      <Box minW={!isMobile && "600px"} maxW="600px" px="12px">
+    <Flex>
+      <Box minW={!isMobile && "512px"} maxW="512px" px="12px">
         <Flex className="balance-container">
           <Text>{appChain?.unit} balance</Text>
           <Text className="balance-value">{getBalance("azero")}</Text>
@@ -611,6 +678,12 @@ const BridgeTab = ({ amountRef }) => {
         >
           Bridge
         </Button>
+      </Box>
+      <Box>
+        <Text fontWeight={700} fontSize={24} color="#57527e">
+          History
+        </Text>
+        <IWTable {...tableData} />
       </Box>
     </Flex>
   );

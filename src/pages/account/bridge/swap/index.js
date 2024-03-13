@@ -3,7 +3,6 @@ import {
   Button,
   Flex,
   Input,
-  Link,
   Menu,
   MenuButton,
   MenuItem,
@@ -14,8 +13,7 @@ import {
 import { ContractPromise } from "@polkadot/api-contract";
 import { appChain } from "constants";
 import { useAppContext } from "contexts/AppContext";
-import { useSwapV2TokenContext } from "contexts/SwapV2TokenModalContext";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
 import toast from "react-hot-toast";
 import { FaChevronDown } from "react-icons/fa";

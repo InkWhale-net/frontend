@@ -454,6 +454,14 @@ export const APICall = {
       "https://staking.inkwhale.net/"
     );
   },
+  getBridgeHistory: async (options) => {
+    return await client(
+      "GET",
+      "/bridge/history",
+      { ...options },
+      process.env.REACT_APP_BRIDGE_BE_URL
+    );
+  }
 };
 
 const projectId = process.env.REACT_APP_IPFS_PROJECT_ID;
