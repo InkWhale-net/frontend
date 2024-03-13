@@ -341,6 +341,18 @@ export async function doTopupAzeroStakeAccount(api, currentAccount, amount) {
   );
 }
 
+export async function doTopupInwInterestAccount(api, currentAccount, amount) {
+  return await execContractTx(
+    currentAccount,
+    api,
+    my_azero_staking.CONTRACT_ABI,
+    my_azero_staking.CONTRACT_ADDRESS,
+    0,
+    "azeroStakingTrait::topupInwInterestAccount",
+    formatNumToBN(amount)
+  );
+}
+
 export async function doUpdateLockedStatus(api, currentAccount, status) {
   return await execContractTx(
     currentAccount,

@@ -79,6 +79,11 @@ import Steps from "rc-steps";
 
 import { CheckIcon } from "@chakra-ui/icons";
 import { doDistributeAzero } from "api/azero-staking/azero-staking";
+import { doTopupInwInterestAccount } from "api/azero-staking/azero-staking";
+import { formatQueryResultToNumber } from "utils";
+import { execContractTx } from "utils/contracts";
+import { formatNumToBN } from "utils";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 
 export default function AzeroStakingAdmin() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -143,6 +148,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
   const [expirationDuration, setExpirationDuration] = useState(0);
 
   const userAzeroBalance = currentAccount?.balance?.azero?.replaceAll(",", "");
+  const userInw2Balance = currentAccount?.balance?.inw2?.replaceAll(",", "");
 
   const fetchData = useCallback(async (isMounted) => {
     try {
@@ -453,69 +459,131 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
       toast.error("Error", error);
     }
   }
+
+  async function handleTopupInwInterestAccount({ topupAmount }) {
+    if (!topupAmount) {
+      toast.error("Invalid input!");
+      return;
+    }
+
+    if (parseFloat(userInw2Balance) < parseFloat(topupAmount)) {
+      toast.error(`Amount must be less than ${userInw2Balance} INW2`);
+      return;
+    }
+
+    // =========================APPROVAL===================
+
+    toast("Approving...");
+
+    const allowanceTokenQr = await execContractQuery(
+      currentAccount?.address,
+      api,
+      psp22_contract_v2.CONTRACT_ABI,
+      "5HgJNiF2bJkjqZ8M7HRdSuJ9Ho5EJhnpipEtF69FTo2XX1Hu", // INW 2 contract addr
+      0, //-> value
+      "psp22::allowance",
+      currentAccount?.address,
+      my_azero_staking.CONTRACT_ADDRESS
+    );
+
+    const allowanceINW = formatQueryResultToNumber(allowanceTokenQr).replaceAll(
+      ",",
+      ""
+    );
+
+    if (parseFloat(allowanceINW) < parseFloat(topupAmount)) {
+      await execContractTx(
+        currentAccount,
+        api,
+        psp22_contract_v2.CONTRACT_ABI,
+        "5HgJNiF2bJkjqZ8M7HRdSuJ9Ho5EJhnpipEtF69FTo2XX1Hu", // INW 2 contract addr
+        0, //-> value
+        "psp22::approve",
+        my_azero_staking.CONTRACT_ADDRESS,
+        formatNumToBN(parseFloat(topupAmount))
+      );
+    }
+
+    // =========================END APPROVAL===================
+
+    await delay(1200).then(async () => {
+      toast("Topup...");
+
+      try {
+        await doTopupInwInterestAccount(api, currentAccount, topupAmount);
+
+        delay(1000).then(() => {
+          fetchData(true);
+          fetchDataInwInterest(true);
+          dispatch(fetchUserBalance({ currentAccount, api }));
+        });
+      } catch (error) {
+        console.log("Error", error);
+        toast.error("Error", error);
+      }
+    });
+  }
   // rewards section
   const [loadingInterest, setLoadingInterest] = useState(true);
   const [interestDistAccountInfo, setInterestDistAccountInfo] = useState([]);
 
+  const fetchDataInwInterest = useCallback(async (isMounted) => {
+    try {
+      setLoadingInterest(true);
+
+      const interestDistributionContract =
+        await getInterestDistributionContract();
+
+      const inwInterestBalance = await getInwInterestBalance();
+      const azeroInterestBalance = await getAzeroInterestBalance();
+
+      const interestDistAccountInfoData = [
+        {
+          title: "Interest Distribution Contract",
+          value: interestDistributionContract,
+          valueFormatted: (
+            <AddressCopier address={interestDistributionContract} />
+          ),
+          hasTooltip: true,
+          tooltipContent: "interestDistributionContract",
+        },
+        {
+          title: "INW Interest Balance",
+          value: inwInterestBalance,
+          valueFormatted: `${formatNumDynDecimal(inwInterestBalance)} INW`,
+          hasTooltip: true,
+          tooltipContent: "inwInterestBalance",
+        },
+        {
+          title: "AZERO Interest Balance",
+          value: azeroInterestBalance,
+          valueFormatted: `${formatNumDynDecimal(azeroInterestBalance)} AZERO`,
+          hasTooltip: true,
+          tooltipContent: "azeroInterestBalance",
+        },
+      ];
+
+      if (!isMounted) {
+        return;
+      }
+
+      setInterestDistAccountInfo(interestDistAccountInfoData);
+      setLoadingInterest(false);
+    } catch (error) {
+      setLoadingInterest(false);
+
+      console.log("Error", error);
+      toast.error("Error", error);
+    }
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
 
-    const fetchData = async (isMounted) => {
-      try {
-        setLoadingInterest(true);
-
-        const interestDistributionContract =
-          await getInterestDistributionContract();
-
-        const inwInterestBalance = await getInwInterestBalance();
-        const azeroInterestBalance = await getAzeroInterestBalance();
-
-        const interestDistAccountInfoData = [
-          {
-            title: "Interest Distribution Contract",
-            value: interestDistributionContract,
-            valueFormatted: (
-              <AddressCopier address={interestDistributionContract} />
-            ),
-            hasTooltip: true,
-            tooltipContent: "interestDistributionContract",
-          },
-          {
-            title: "INW Interest Balance",
-            value: inwInterestBalance,
-            valueFormatted: `${formatNumDynDecimal(inwInterestBalance)} INW`,
-            hasTooltip: true,
-            tooltipContent: "inwInterestBalance",
-          },
-          {
-            title: "AZERO Interest Balance",
-            value: azeroInterestBalance,
-            valueFormatted: `${formatNumDynDecimal(
-              azeroInterestBalance
-            )} AZERO`,
-            hasTooltip: true,
-            tooltipContent: "azeroInterestBalance",
-          },
-        ];
-
-        if (!isMounted) {
-          return;
-        }
-
-        setInterestDistAccountInfo(interestDistAccountInfoData);
-        setLoadingInterest(false);
-      } catch (error) {
-        setLoadingInterest(false);
-
-        console.log("Error", error);
-        toast.error("Error", error);
-      }
-    };
-
-    fetchData(isMounted);
+    fetchDataInwInterest(isMounted);
 
     return () => (isMounted = false);
-  }, []);
+  }, [fetchDataInwInterest]);
 
   // Calc Unclaimed Rewards Data==============
   const [unclaimedRewardsData, setUnclaimedRewardsData] = useState({});
@@ -776,7 +844,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                   spacing={["0px", "0px", "24px"]}
                 >
                   <Text mr="4px">
-                    {insufficientInwRewardsAmount > 0
+                    {insufficientAzeroRewardsAmount > 0
                       ? "Excessive"
                       : "Insufficient"}{" "}
                     AZERO Amount
@@ -962,7 +1030,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
               initialValues={{ topupAmount: "" }}
               validationSchema={() =>
                 Yup.object().shape({
-                  topupAmount: Yup.number("Amount Emergency must be a number.")
+                  topupAmount: Yup.number("Topup Amount must be a number.")
                     .max(
                       userAzeroBalance,
                       `Topup Amount must be less than or equal to ${userAzeroBalance} AZERO`
@@ -1008,6 +1076,97 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
                               placeholder="0"
                               type="number"
                               max={userAzeroBalance}
+                            />
+                          </InputGroup>
+                          <Text
+                            h="20px"
+                            color="red"
+                            textAlign="left"
+                            fontSize="14px"
+                            lineHeight="22px"
+                          >
+                            {meta.touched && meta.error ? meta.error : null}
+                          </Text>
+                        </FormControl>
+                      )}
+                    </Field>
+
+                    <Button
+                      mt={["16px", "16px", "38px"]}
+                      ml={["0px", "0px", "8px"]}
+                      isDisabled={!(dirty && isValid) || isSubmitting}
+                      type="submit"
+                      w={["full"]}
+                    >
+                      {isSubmitting ? (
+                        <ClipLoader
+                          color="#57527E"
+                          loading
+                          size={18}
+                          speedMultiplier={1.5}
+                        />
+                      ) : (
+                        "Topup"
+                      )}
+                    </Button>
+                  </Flex>
+                </Form>
+              )}
+            </Formik>
+          </IWCard>
+
+          {/* topup_inw_interest_account */}
+          <IWCard mt="16px" w="full" variant="solid">
+            <Formik
+              initialValues={{ topupAmount: "" }}
+              validationSchema={() =>
+                Yup.object().shape({
+                  topupAmount: Yup.number("Topup Amount must be a number.")
+                    .max(
+                      userInw2Balance,
+                      `Topup Amount must be less than or equal to ${userInw2Balance} INW2`
+                    )
+                    .required("This field is a required"),
+                })
+              }
+              onSubmit={async (values, formHelper) => {
+                await handleTopupInwInterestAccount(values);
+                formHelper.resetForm();
+              }}
+            >
+              {({ dirty, isValid, isSubmitting }) => (
+                <Form>
+                  <Flex
+                    flexDirection={["column", "column", "row"]}
+                    alignItems="start"
+                  >
+                    <Field name="topupAmount">
+                      {({ field, form, meta }) => (
+                        <FormControl
+                          isRequired
+                          id="topupAmount"
+                          alignItems="center"
+                        >
+                          <FormLabel
+                            display="flex"
+                            ml={[0, 1]}
+                            htmlFor="topupAmount"
+                          >
+                            <Text>Topup INW2 Interest Account</Text>
+                          </FormLabel>
+
+                          <InputGroup>
+                            <Input
+                              {...field}
+                              id="topupINWInterestAmount"
+                              isDisabled={isSubmitting}
+                              onChange={({ target }) => {
+                                form.setFieldValue(field.name, target.value);
+                              }}
+                              value={form.values.topupAmount}
+                              placeholder="0"
+                              type="number"
+                              max={userInw2Balance}
                             />
                           </InputGroup>
                           <Text
