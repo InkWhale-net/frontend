@@ -457,7 +457,7 @@ export const APICall = {
   getBridgeHistory: async (options) => {
     return await client(
       "GET",
-      "/bridge/history",
+      "/transaction/history",
       { ...options },
       process.env.REACT_APP_BRIDGE_BE_URL
     );

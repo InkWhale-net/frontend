@@ -118,7 +118,7 @@ const BridgeTab = ({ amountRef }) => {
           "psp22::approve",
           3,
           azero_manager_bridge.CONTRACT_ADDRESS,
-          formatNumToBN(amount)
+          formatNumToBNEther(amount)
         );
         if (!approve) return;
       }
@@ -135,7 +135,8 @@ const BridgeTab = ({ amountRef }) => {
           0,
           "createNewTransaction",
           3,
-          formatNumToBNEther(amount)
+          formatNumToBNEther(amount),
+          currentAccount?.address
         );
       });
 
@@ -226,6 +227,7 @@ const BridgeTab = ({ amountRef }) => {
         if (currentAccount) {
           dispatch(fetchUserBalance({ currentAccount, api }));
         }
+        fetchHistory();
         setAmount("");
         setGas(0);
       });
@@ -428,10 +430,16 @@ const BridgeTab = ({ amountRef }) => {
   //   fetchDataGasSwapToV1();
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [amount, api, currentAccount?.address, amount, step]);
+  const fetchHistory = async () => {
+    try {
+      const resp = await APICall.getBridgeHistory();
+      setTransactionHistory(resp || []);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
-    (async () => {
-      setTransactionHistory((await APICall.getBridgeHistory()) || []);
-    })();
+    fetchHistory();
   }, [api, currentAccount]);
   const tableData = {
     tableHeader: [
@@ -486,15 +494,19 @@ const BridgeTab = ({ amountRef }) => {
       to: "5ire Testnet",
       amount: formatTokenAmount(e?.amount, 12),
       account: e?.trader,
-      bridgestatus: e?.status
+      bridgestatus: e?.status,
     })),
   };
   return (
-    <Flex>
+    <Flex direction="column" align="center">
       <Box minW={!isMobile && "512px"} maxW="512px" px="12px">
         <Flex className="balance-container">
           <Text>{appChain?.unit} balance</Text>
           <Text className="balance-value">{getBalance("azero")}</Text>
+        </Flex>
+        <Flex className="balance-container">
+          <Text>{appChain?.inwName} balance</Text>
+          <Text className="balance-value">{getBalance("inw2")}</Text>
         </Flex>
 
         <Flex justify="space-between" mt="4px">
@@ -679,8 +691,8 @@ const BridgeTab = ({ amountRef }) => {
           Bridge
         </Button>
       </Box>
-      <Box>
-        <Text fontWeight={700} fontSize={24} color="#57527e">
+      <Box mt="24px">
+        <Text my="16px" fontWeight={700} fontSize={24} color="#57527e">
           History
         </Text>
         <IWTable {...tableData} />
