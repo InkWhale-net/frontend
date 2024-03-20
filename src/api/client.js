@@ -454,7 +454,7 @@ export const APICall = {
       "https://staking.inkwhale.net/"
     );
   },
-  getBridgeHistory: async (options) => {
+  getTransactionOfBridge: async (options) => {
     return await client(
       "GET",
       "/transaction/history",
