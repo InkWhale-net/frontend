@@ -31,7 +31,7 @@ import { getGasLimit, getSwapGasLimit } from "utils/contracts/dryRun";
 import { useMutation } from "react-query";
 import { execContractQuery } from "utils/contracts";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
-
+import { useAppContext } from "contexts/AppContext";
 const supportedToken = [
   {
     token: "inw",
@@ -52,8 +52,8 @@ const TokensTabSwapToken = ({
   loadTokenInfo,
   ...rest
 }) => {
-  
-  const { currentAccount, api } = useSelector((s) => s.wallet);
+  const { api } = useAppContext();
+  const { currentAccount } = useSelector((s) => s.wallet);
   const dispatch = useDispatch();
 
   const [amount, setAmount] = useState("");
@@ -92,6 +92,7 @@ const TokensTabSwapToken = ({
         setGas(0);
         return;
       }
+      console.log('swap_inw2_contract.CONTRACT_ADDRESS', swap_inw2_contract.CONTRACT_ADDRESS);
       const contract = new ContractPromise(
         api,
         swap_inw2_contract.CONTRACT_ABI,
