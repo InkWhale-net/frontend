@@ -157,10 +157,164 @@ const TokensTabSwapToken = ({
   const [gasSwapToV1, setGasSwapToV1] = useState(0);
   const [gasApproveToV1, setGasApproveToV1] = useState(0);
   const swapToTokenv2 = async () => {
-    setStep(2);
+    try {
+      if (!currentAccount) {
+        return toast.error("Please connect wallet!");
+      }
+      if (!(+amount > 0)) {
+        toast.error("Please enter valid amount!");
+        return;
+      }
+      if (+inwBalance < +amount) {
+        toast.error(
+          `Maximum swap amount is ${formatNumDynDecimal(inwBalance)}`
+        );
+        return;
+      }
+      toast("Step1: Approve...");
+      const allowanceTokenQr = await execContractQuery(
+        currentAccount?.address,
+        api,
+        psp22_contract.CONTRACT_ABI,
+        process.env.REACT_APP_INW_TOKEN_ADDRESS,
+        0, //-> value
+        "psp22::allowance",
+        currentAccount?.address,
+        swap_inw2_contract.CONTRACT_ADDRESS
+      );
+      const allowanceINW = formatQueryResultToNumber(
+        allowanceTokenQr
+      ).replaceAll(",", "");
+
+      console.log("allowanceINW", allowanceINW);
+
+      if (+allowanceINW < +amount) {
+        setStep(1);
+        let approve = await execContractTx(
+          currentAccount,
+          api,
+          psp22_contract.CONTRACT_ABI,
+          process.env.REACT_APP_INW_TOKEN_ADDRESS,
+          0, //-> value
+          "psp22::approve",
+          2,
+          swap_inw2_contract.CONTRACT_ADDRESS,
+          formatNumToBN(amount)
+        );
+        if (!approve) return;
+      }
+
+      await delay(1500).then(async () => {
+        setStep(2);
+
+        toast("Step2: Swap...");
+        await execContractTx(
+          currentAccount,
+          api,
+          swap_inw2_contract.CONTRACT_ABI,
+          swap_inw2_contract.CONTRACT_ADDRESS,
+          0,
+          "inwSwapTrait::swap",
+          2,
+          formatNumToBN(amount)
+        );
+      });
+
+      await delay(1500).then(() => {
+        setStep(1);
+
+        if (currentAccount) {
+          dispatch(fetchUserBalance({ currentAccount, api }));
+        }
+        setAmount("");
+        setGas(0);
+      });
+    } catch (error) {
+      setStep(1);
+
+      console.log(error);
+    }
   };
   const swapToTokenv1 = async () => {
-    setStep(2);
+    try {
+      if (!currentAccount) {
+        return toast.error("Please connect wallet!");
+      }
+      if (!(+amount > 0)) {
+        toast.error("Please enter valid amount!");
+        return;
+      }
+      if (+inw2Balance < +amount) {
+        toast.error(
+          `Maximum swap amount is ${formatNumDynDecimal(inw2Balance)}`
+        );
+        return;
+      }
+      const allowanceTokenQr = await execContractQuery(
+        currentAccount?.address,
+        api,
+        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ADDRESS,
+        0, //-> value
+        "psp22::allowance",
+        currentAccount?.address,
+        swap_inw2_contract.CONTRACT_ADDRESS
+      );
+      const allowanceINW = formatQueryResultToNumber(
+        allowanceTokenQr
+      ).replaceAll(",", "");
+
+      console.log("allowanceINW", allowanceINW);
+
+      if (+allowanceINW < +amount) {
+        toast("Step1: Approve...");
+
+        setStep(1);
+
+        let approve = await execContractTx(
+          currentAccount,
+          api,
+          psp22_contract_v2.CONTRACT_ABI,
+          psp22_contract_v2.CONTRACT_ADDRESS,
+          0, //-> value
+          "psp22::approve",
+          2,
+          swap_inw2_contract.CONTRACT_ADDRESS,
+          formatNumToBN(amount)
+        );
+        if (!approve) return;
+      }
+
+      await delay(1500).then(async () => {
+        setStep(2);
+
+        toast("Step2: Swap...");
+        await execContractTx(
+          currentAccount,
+          api,
+          swap_inw2_contract.CONTRACT_ABI,
+          swap_inw2_contract.CONTRACT_ADDRESS,
+          0,
+          "inwSwapTrait::swapInwV2ToV1",
+          2,
+          formatNumToBN(amount)
+        );
+      });
+
+      await delay(1500).then(() => {
+        setStep(1);
+
+        if (currentAccount) {
+          dispatch(fetchUserBalance({ currentAccount, api }));
+        }
+        setAmount("");
+        setGas(0);
+      });
+    } catch (error) {
+      setStep(1);
+
+      console.log(error);
+    }
   };
 
   return (
