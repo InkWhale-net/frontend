@@ -1,98 +1,34 @@
-import {
-  Box,
-  Button,
-  Heading,
-  IconButton,
-  SimpleGrid,
-  Stack,
-  useBreakpointValue,
-} from "@chakra-ui/react";
+import { Box, Button, Heading, Show, Stack } from "@chakra-ui/react";
 import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
+import IWCard from "components/card/Card";
 import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
-
+import IWTabs from "components/tabs/IWTabs";
+import TokenInformation from "./TokenInformation";
+import TokensTabSwapToken from "./TokensTabSwapToken";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
-import { AiOutlineClear } from "react-icons/ai";
-import { addressShortener, moveINWToBegin } from "utils";
-
-import IWPaginationTable from "components/table/IWPaginationTable";
-import { useAppContext } from "contexts/AppContext";
-import { useMutation } from "react-query";
-import { getTimestamp, roundUp } from "utils";
-import { formatChainStringToNumber } from "utils";
+import { useSelector } from "react-redux";
+import {
+  addressShortener,
+  formatNumDynDecimal,
+  formatQueryResultToNumber,
+  isAddressValid,
+  moveINWToBegin,
+  roundUp,
+} from "utils";
+import { execContractQuery } from "utils/contracts";
+import psp22_contract from "utils/contracts/psp22_contract";
+import { getTokenOwner } from "utils";
+import { formatTokenAmount } from "utils";
 
 export default function TokensSwapPage() {
+  const { currentAccount } = useSelector((s) => s.wallet);
 
-  const { api } = useAppContext();
-  const [transactions, setTransactions] = useState([]);
-  const [totalPage, setTotalPage] = useState(0);
-  const isSmallerThanMd = useBreakpointValue({ base: true, md: false });
-  const [tokenAddressSearch, setTokenAddressSearch] = useState("");
-  const [{ pageIndex, pageSize }, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
-  const pagination = useMemo(
-    () => ({
-      pageIndex,
-      pageSize,
-    }),
-    [pageIndex, pageSize]
-  );
-
-  const [keywords, setKeywords] = useState({
-    queryAddress: "",
-    fromOnly: false,
-    toOnly: false,
-  });
-  const [, setFaucetTokensList] = useState([]);
   const [selectedContractAddr, setSelectedContractAddr] = useState(null);
-
-  const selectedToken = useMemo(
-    () =>
-      commonFiTokenList?.find((el) => el.tokenAddress === selectedContractAddr),
-    [selectedContractAddr]
-  );
-
-  useEffect(() => {
-    setKeywords({
-      queryAddress: "",
-      fromOnly: false,
-      toOnly: false,
-    });
-    if (pagination?.pageIndex !== 0) {
-      setPagination({ pageIndex: 0, pageSize: 10 });
-    } else {
-      if (selectedToken)
-        tokenTransactionMutation.mutate(selectedToken?.tokenAddress, keywords);
-      else tokenTransactionMutation.mutate();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedToken]);
-
-  useEffect(() => {
-    if (!(tokenAddressSearch?.length > 0)) {
-      setKeywords({
-        queryAddress: "",
-        fromOnly: false,
-        toOnly: false,
-      });
-      if (pagination?.pageIndex !== 0) {
-        setPagination({ pageIndex: 0, pageSize: 10 });
-      } else {
-        tokenTransactionMutation.mutate();
-      }
-    }
-  }, [tokenAddressSearch]);
-
-  useEffect(() => {
-    if (!(keywords?.queryAddress?.length > 0))
-      tokenTransactionMutation.mutate(selectedToken?.tokenAddress);
-    setKeywords({ ...keywords, fromOnly: false, toOnly: false });
-  }, [keywords?.queryAddress]);
+  const [faucetTokensList, setFaucetTokensList] = useState([]);
+  const [tokenInfo, setTokenInfo] = useState({ title: "", content: "" });
 
   useEffect(() => {
     let isUnmounted = false;
@@ -111,477 +47,215 @@ export default function TokensSwapPage() {
   }, []);
 
   useEffect(() => {
-    tokenTransactionMutation.mutate(selectedToken?.tokenAddress, keywords);
-  }, [pageIndex, pageSize, api]);
-
-  const [cacheTokenMetadata, setCacheTokenMetadata] = useState([]);
-
-  const filterTokenCache = (list) => {
-    return Object.values(
-      list.reduce((acc, obj) => {
-        const tokenContract = obj.tokenContract;
-        if (!acc[tokenContract]) {
-          acc[tokenContract] = obj;
-        }
-        return acc;
-      }, {})
-    );
-  };
-
-  const tokenTransactionMutation = useMutation(async () => {
-    await new Promise(async (resolve) => {
-      if (!api) return;
-      let queryBody = {};
-      const tokenMetadata = [...cacheTokenMetadata];
-      if (tokenAddressSearch || selectedToken?.tokenAddress)
-        queryBody.tokenContract =
-          tokenAddressSearch || selectedToken?.tokenAddress;
-      if (keywords?.queryAddress)
-        queryBody.queryAddress = keywords?.queryAddress;
-      if (keywords?.fromOnly) queryBody.isFromOnly = keywords?.fromOnly;
-      if (keywords?.toOnly) queryBody.isToOnly = keywords?.toOnly;
-
-      queryBody.limit = pageSize;
-      queryBody.offset = pageIndex * pageSize;
-
-      const { ret, status, message } = await APICall.getSwapTransactionHistory(
-        queryBody
-      );
-
-      setTotalPage(roundUp(ret?.total / 10, 0));
-
-      if (status === "OK") {
-        const transactionList = await Promise.all(
-          ret?.dataArray?.map(async (txObj) => {
-            if (txObj.method.includes("router::swapExact")) {
-
-              const tokenInInfo = commonFiTokenList.find(
-                (item) => item.tokenAddress === txObj.tokenPathIn
-              );
-
-              const tokenOutInfo = commonFiTokenList.find(
-                (item) => item.tokenAddress === txObj.tokenPathOut
-              );
-
-              const timeEvent = await getTimestamp(api, txObj?.blockNumber);
-
-              if (txObj.method === "router::swapExactTokensForNative") {
-                return {
-                  ...txObj,
-                  type: "Common Fi",
-                  account: txObj.toAddress,
-                  blockNum: txObj.blockNumber,
-                  tokenIn: `${
-                    formatChainStringToNumber(txObj.amountIn) /
-                    Math.pow(10, tokenInInfo?.tokenDecimals)
-                  } ${tokenInInfo?.tokenSymbol}`,
-                  tokenOut: txObj.amountOut,
-                  blockNumber: timeEvent,
-                };
-              }
-
-              return {
-                ...txObj,
-                type: "Common Fi",
-                account: txObj.toAddress,
-                blockNum: txObj.blockNumber,
-                tokenIn: `${
-                  formatChainStringToNumber(txObj.amountIn) /
-                  Math.pow(10, tokenInInfo?.tokenDecimals)
-                } ${tokenInInfo?.tokenSymbol}`,
-                tokenOut: `${
-                  formatChainStringToNumber(txObj.amountOut) /
-                  Math.pow(10, tokenOutInfo?.tokenDecimals)
-                } ${tokenOutInfo?.tokenSymbol}`,
-                blockNumber: timeEvent,
-              };
-            }
-          })
-        );
-        setCacheTokenMetadata(filterTokenCache(tokenMetadata));
-        setTransactions(transactionList.filter((e) => e));
-      } else {
-        toast.error(message);
+    const delayDebounceFn = setTimeout(() => {
+      if (selectedContractAddr) {
+        loadTokenInfo();
       }
-      resolve();
-    });
-  }, "query-token-tx");
+    }, 500);
 
-  const tableData = {
-    tableHeader: [
-      {
-        accessorKey: "type",
-        header: "DEX",
-      },
-      {
-        accessorKey: "blockNum",
-        header: "block Num",
-      },
-      {
-        accessorKey: "account",
-        header: "User address",
-      },
-      {
-        accessorKey: "tokenIn",
-        header: "From",
-      },
-      {
-        accessorKey: "tokenOut",
-        header: "To",
-      },
-      {
-        accessorKey: "blockNumber",
-        header: "Time",
-      },
-    ],
-    tableBody: transactions || [],
-  };
+    return () => clearTimeout(delayDebounceFn);
+  }, [selectedContractAddr, currentAccount]);
+
+  const selectedToken = useMemo(
+    () =>
+      faucetTokensList?.find(
+        (el) => el.contractAddress === selectedContractAddr
+      ),
+    [selectedContractAddr, faucetTokensList]
+  );
+
+    async function loadTokenInfo() {
+    if (!currentAccount) {
+      toast.error("Please connect wallet!");
+      return setTokenInfo({ title: "", content: "" });
+    }
+
+    if (!isAddressValid(selectedContractAddr)) {
+      toast.error("Invalid address!");
+      return;
+    }
+
+    let queryResult = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      selectedContractAddr,
+      0,
+      "psp22::balanceOf",
+      currentAccount?.address
+    );
+    let queryResult4 = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      selectedContractAddr,
+      0,
+      "psp22Metadata::tokenDecimals"
+    );
+    const decimals = queryResult4.toHuman().Ok;
+    const balance = formatQueryResultToNumber(queryResult, parseInt(decimals));
+
+    let queryResult1 = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      selectedContractAddr,
+      0,
+      "psp22Metadata::tokenSymbol"
+    );
+    const tokenSymbol = queryResult1.toHuman().Ok;
+    let queryResult2 = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      selectedContractAddr,
+      0,
+      "psp22Metadata::tokenName"
+    );
+    const tokenName = queryResult2.toHuman().Ok;
+    let queryResult3 = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      selectedContractAddr,
+      0,
+      "psp22::totalSupply"
+    );
+    const rawTotalSupply = queryResult3.toHuman().Ok;
+
+    const totalSupply = formatTokenAmount(rawTotalSupply, decimals);
+
+    const { address: owner } = await getTokenOwner(selectedContractAddr);
+    let tokenIconUrl = null;
+    try {
+      const { status, ret } = await APICall.getTokenInfor({
+        tokenAddress: selectedContractAddr,
+      });
+      if (status === "OK") {
+        tokenIconUrl = ret?.tokenIconUrl;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
+    setTokenInfo((prev) => {
+      return {
+        ...prev,
+        title: tokenSymbol,
+        content: balance,
+        name: tokenName,
+        totalSupply: formatNumDynDecimal(totalSupply, 4),
+        decimals,
+        owner,
+        tokenIconUrl,
+        address: selectedContractAddr,
+      };
+    });
+  }
+
+  const tabsData = [
+    {
+        label: (
+          <>
+            Swap<Show above="md"> Token</Show>
+          </>
+        ),
+        component: (
+          <TokensTabSwapToken
+            mode="SWAP_TOKEN"
+            {...currentAccount}
+            tokenInfo={tokenInfo}
+            selectedContractAddr={selectedContractAddr}
+            loadTokenInfo={loadTokenInfo}
+          />
+        ),
+        isDisabled: false,
+    },
+    tokenInfo?.title && {
+      label: <>Token Info</>,
+      component: <TokenInformation tokenInfo={tokenInfo} />,
+      isDisabled: false,
+    },
+  ];
 
   return (
     <>
       <SectionContainer
         mt={{ base: "0px", xl: "20px" }}
-        title="Common Fi Swap Transaction History"
-        description={<span>Sync in progress</span>}
+        title="Swap Token"
+        description={
+          <span>Check token information, swap token to new version.</span>
+        }
       >
-        <SimpleGrid
-          w="full"
-          columns={{ base: 1, lg: 2 }}
-          spacingX={{ lg: "20px" }}
-          spacingY={{ base: "20px", lg: "32px" }}
-          mb={{ base: "30px" }}
-          alignItems="flex-end"
-        >
-          <Box w="full" pr={{ lg: "10px" }}>
-            <Heading as="h4" size="h4" mb="12px">
-              Token Contract Address
-            </Heading>
-
-            <Box display={{ base: "flex" }} alignItems={{ base: "flex-end" }}>
-              <Box display="flex" flex={1} flexDirection="column">
-                <SelectSearch
-                  inputValue={tokenAddressSearch}
-                  onInputChange={(value) => {
-                    if (value?.length > 0) setTokenAddressSearch(value);
-                  }}
-                  noOptionsMessage={() => (
-                    <div
-                      style={{ cursor: "pointer" }}
-                      onClick={() => {
-                        if (pagination?.pageIndex !== 0) {
-                          setPagination({ pageIndex: 0, pageSize: 10 });
-                        } else {
-                          tokenTransactionMutation.mutate(
-                            selectedToken?.tokenAddress,
-                            keywords
-                          );
-                        }
-                      }}
-                    >{`Search token "${tokenAddressSearch}"`}</div>
-                  )}
-                  name="token"
-                  placeholder={tokenAddressSearch?.length > 0 || "All token"}
-                  closeMenuOnSelect={true}
-                  value={
-                    selectedToken
-                      ? {
-                          value: selectedToken?.tokenAddress,
-                          label: `${selectedToken?.tokenSymbol} (${
-                            selectedToken?.tokenSymbol
-                          }) - ${addressShortener(
-                            selectedToken?.tokenAddress
-                          )}`,
-                        }
-                      : ""
-                  }
-                  isSearchable
-                  onChange={({ value }) => {
-                    console.log("value", value);
-                    setSelectedContractAddr(value);
-                  }}
-                  options={[
-                    {
-                      label: "All token",
-                    },
-                    ...commonFiTokenList?.map((token, idx) => ({
-                      value: token?.tokenAddress,
-                      label: `${token?.tokenSymbol} (${
-                        token?.tokenSymbol
-                      }) - ${addressShortener(token?.tokenAddress)}`,
-                    })),
-                  ]}
-                />
-              </Box>
-
-              {tokenAddressSearch?.length > 0 && (
-                <IconButton
-                  aria-label="Clear"
-                  variant="link"
-                  width={"42px"}
-                  height={"42px"}
-                  marginTop={"16px"}
-                  icon={<AiOutlineClear />}
-                  onClick={() => setTokenAddressSearch("")}
-                />
-              )}
-            </Box>
-          </Box>
-          <Box sx={{ display: "flex", pl: "10px" }}>
-            <IWInput
-              value={keywords?.queryAddress}
-              width={{ base: "full" }}
-              onChange={({ target }) =>
-                setKeywords({ ...keywords, queryAddress: target.value })
-              }
-              placeholder="Search user address"
-            />
-            {!isSmallerThanMd && (
-              <Button
-                sx={{ ml: "10px" }}
-                isDisabled={false}
-                onClick={() => {
-                  if (pagination?.pageIndex !== 0) {
-                    setPagination({ pageIndex: 0, pageSize: 10 });
-                  } else {
-                    tokenTransactionMutation.mutate(
-                      tokenAddressSearch || selectedToken?.tokenAddress,
-                      keywords
-                    );
-                  }
-                }}
-              >
-                Load
-              </Button>
-            )}
-          </Box>
-        </SimpleGrid>
         <Stack
           w="full"
           spacing="30px"
           alignItems="start"
           direction={{ base: "column" }}
         >
-          {/* <Box
-            display="flex"
-            justifyContent={{ base: "flex-start", lg: "flex-end" }}
-            marginTop={{ base: "20px", lg: "none" }}
-          >
-            <FormControl
-              maxW={{
-                base: "200px",
-                lg: "205px",
-              }}
-              display="flex"
-              alignItems="center"
+          <IWCard mt="16px" w="full" variant="solid">
+            <Stack
+              w="full"
+              spacing="20px"
+              alignItems={{ base: "end" }}
+              flexDirection={{ base: "column", lg: "row" }}
             >
-              <Switch
-                id="from-only"
-                isDisabled={
-                  !(keywords?.queryAddress && currentAccount?.address)
-                }
-                isChecked={keywords?.fromOnly}
-                onChange={() => {
-                  if (keywords?.fromOnly === false)
-                    setKeywords({
-                      ...keywords,
-                      fromOnly: true,
-                      toOnly: false,
-                    });
-                  else
-                    setKeywords({
-                      ...keywords,
-                      fromOnly: false,
-                    });
-                }}
-              />
-              <FormLabel
-                htmlFor="my-stake"
-                mb="0"
-                ml="10px"
-                fontWeight="400"
-                whiteSpace="nowrap"
-              >
-                From Address only
-              </FormLabel>
-            </FormControl>
+              <Box w="full" pr={{ lg: "10px" }}>
+                <Heading as="h4" size="h4" mb="12px">
+                  Token Contract Address
+                </Heading>
+                <SelectSearch
+                  name="token"
+                  placeholder="Select Token..."
+                  closeMenuOnSelect={true}
+                  // filterOption={filterOptions}
+                  value={
+                    selectedToken
+                      ? {
+                          value: selectedToken?.contractAddress,
+                          label: `${selectedToken?.symbol} (${
+                            selectedToken?.name
+                          }) - ${addressShortener(
+                            selectedToken?.contractAddress
+                          )}`,
+                        }
+                      : ""
+                  }
+                  isSearchable
+                  onChange={({ value }) => {
+                    setSelectedContractAddr(value);
+                  }}
+                  options={faucetTokensList?.map((token, idx) => ({
+                    value: token?.contractAddress,
+                    label: `${token?.symbol} (${
+                      token?.name
+                    }) - ${addressShortener(token?.contractAddress)}`,
+                  }))}
+                ></SelectSearch>
+              </Box>
+              <Box w="full" pr={{ lg: "20px" }}>
+                <IWInput
+                  onChange={({ target }) =>
+                    setSelectedContractAddr(target.value)
+                  }
+                  value={selectedContractAddr}
+                  placeholder="Address to check"
+                  label="or enter token contract address"
+                />
+              </Box>
 
-            <FormControl
-              maxW="200px"
-              display="flex"
-              alignItems="center"
-              justifyContent={{ base: "flex-end", lg: "none" }}
-            >
-              <Switch
-                id="to-only"
-                isDisabled={
-                  !(keywords?.queryAddress && currentAccount?.address)
-                }
-                isChecked={keywords?.toOnly}
-                onChange={() => {
-                  if (keywords?.toOnly === false)
-                    setKeywords({
-                      ...keywords,
-                      fromOnly: false,
-                      toOnly: true,
-                    });
-                  else
-                    setKeywords({
-                      ...keywords,
-                      toOnly: false,
-                    });
-                }}
-              />
-              <FormLabel
-                mb="0"
-                ml="10px"
-                fontWeight="400"
-                htmlFor="zero-reward-pools"
-                whiteSpace="nowrap"
+              <Button
+                onClick={loadTokenInfo}
+                w="full"
+                maxW={{ base: "full", lg: "190px" }}
               >
-                To Address Only
-              </FormLabel>
-            </FormControl>
-          </Box> */}
-          {/* {isSmallerThanMd && (
-            <Button
-              width={"full"}
-              isDisabled={false}
-              onClick={() => {
-                //
-                if (pagination?.pageIndex !== 0) {
-                  setPagination({ pageIndex: 0, pageSize: 10 });
-                } else {
-                  tokenTransactionMutation.mutate(
-                    selectedToken?.tokenAddress,
-                    keywords
-                  );
-                }
-              }}
-            >
-              Load
-            </Button>
-          )} */}
-          <IWPaginationTable
-            {...tableData}
-            pagination={pagination}
-            setPagination={setPagination}
-            totalData={totalPage}
-            mutation={tokenTransactionMutation}
-          />
+                Load
+              </Button>
+            </Stack>
+          </IWCard>
+          <IWTabs tabsData={tabsData.filter((e) => !!e)} />
         </Stack>
       </SectionContainer>
     </>
   );
 }
-
-const commonFiTokenList = [
-  {
-    tokenSymbol: "TZERO",
-    tokenDecimals: 12,
-    icon: "",
-    tokenAddress: "5EFDb7mKbougLtr5dnwd5KDfZ3wK55JPGPLiryKq4uRMPR46",
-  },
-  {
-    tokenSymbol: "FIR",
-    tokenDecimals: 12,
-    icon: "",
-    tokenAddress: "5CVGYujZnkBvNsUypdMuEYT2qRzFWhZHufteSfYguQMLkaE3",
-  },
-  {
-    tokenSymbol: "PAP",
-    tokenDecimals: 12,
-    icon: "",
-    tokenAddress: "5FDkUXLExhgFT92UQvMQVG8H4Z4Ku4Mx9heUYpchxZMdY7LD",
-  },
-  {
-    tokenSymbol: "PLA",
-    tokenDecimals: 12,
-    icon: "",
-    tokenAddress: "5DgnLZDNJ2bN4AcG4PzGMDdpL5ukd1kttmuMjXYNCG91vCkX",
-  },
-  {
-    tokenSymbol: "WAT",
-    tokenDecimals: 12,
-    icon: "",
-    tokenAddress: "5GkV8efVcUhZ2PRkP6bNzJ9ATVh32uJMY89zMiK5rkA49yfU",
-  },
-  {
-    tokenSymbol: "WIN",
-    tokenDecimals: 12,
-    icon: "",
-    tokenAddress: "5F84uFXvpEn4n6fAyRbP6mg32YHy8R4KEokZfFMW1svNTmbZ",
-  },
-  {
-    tokenSymbol: "ELE",
-    tokenDecimals: 12,
-    icon: "",
-    tokenAddress: "5DuyRY19RZsxnyffwKRSox8rj5VUHf49fHLjUcZpfnwFrYGZ",
-  },
-  {
-    tokenSymbol: "ICE",
-    tokenDecimals: 12,
-    icon: "",
-    tokenAddress: "5E3bkdogtK4ro2vC5vKP7QDJRzw38kHqXp5p5BiurQ9hBSbF",
-  },
-  {
-    tokenSymbol: "STE",
-    tokenDecimals: 12,
-    icon: "",
-    tokenAddress: "5CnV23shYarqBGZVmzuCxJvbd2TwxvQsjgAxoeGnhu2Zkxkp",
-  },
-  {
-    tokenSymbol: "STO",
-    tokenDecimals: 12,
-    icon: "",
-    tokenAddress: "5D5W2iUTvWs3mVSLDCdnNU3pTJyUHpiCeTEp9td4Hk3jwPqt",
-  },
-  {
-    tokenSymbol: "WOO",
-    tokenDecimals: 12,
-    icon: "",
-    tokenAddress: "5H8UXMbPdVTCbsYQWBGuVj4k6XDo75wqQ8QdeRbwziQYcTdc",
-  },
-  // {
-  //   tokenSymbol: "5Fr...JvLS",
-  //   tokenDecimals: 12,
-  //   icon: "",
-  //   tokenAddress: "5Fru4JSQvcU6aWfAB6kWu2QFgh77h1Ta3nwzJtb9VsSqJvLS",
-  // },
-  // {
-  //   tokenSymbol: "5FM...m564",
-  //   tokenDecimals: 12,
-  //   icon: "",
-  //   tokenAddress: "5FMejSikS3JKnJKpmsUzUEVQQM2ASZotK2FujMqcve4bm564",
-  // },
-  // {
-  //   tokenSymbol: "5G5...o51d",
-  //   tokenDecimals: 12,
-  //   icon: "",
-  //   tokenAddress: "5G5acjZfa9A3bREG2z8seirNkubXC3g5wNBA5koZ7wdwo51d",
-  // },
-  // {
-  //   tokenSymbol: "5EH...sNQK",
-  //   tokenDecimals: 12,
-  //   icon: "",
-  //   tokenAddress: "5EHcwukpFCu9YRjrmdfaaEDnLR2ywXevXtFpHe4yMPsJsNQK",
-  // },
-  // {
-  //   tokenSymbol: "5EM...ruGj",
-  //   tokenDecimals: 12,
-  //   icon: "",
-  //   tokenAddress: "5EMCxD8rshqod96YbUhqJKZLXKubMEaH5WbCiZGXauGoruGj",
-  // },
-  // {
-  //   tokenSymbol: "5FJ...f1yi",
-  //   tokenDecimals: 12,
-  //   icon: "",
-  //   tokenAddress: "5FJSU17mLH1c8wnRj4FheTdMW7Etx5AdorLw7atkm9Pbf1yi",
-  // },
-  // {
-  //   tokenSymbol: "5CJ...AjLZ",
-  //   tokenDecimals: 12,
-  //   icon: "",
-  //   tokenAddress: "5CJ5FKNcp2QVBKYqdv6Lq4dKnUL8GxDh1hrJBstijaPwAjLZ",
-  // },
-
-];

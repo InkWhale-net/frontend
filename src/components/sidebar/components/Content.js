@@ -102,8 +102,12 @@ function SidebarContent({ onClose }) {
               href: "/tokens/transaction",
             },
             {
+              label: "Swap Tokens",
+              href: "/tokens/transaction",
+            },
+            {
               label: "CommonFi Token Swap",
-              href: "/tokens/swap",
+              href: "/tokens/swap/history",
             },
           ]}
         />
