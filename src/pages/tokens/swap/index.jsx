@@ -22,6 +22,7 @@ import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { getTokenOwner } from "utils";
 import { formatTokenAmount } from "utils";
+import { appChain, swapableTokens } from "constants";
 
 export default function TokensSwapPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -29,7 +30,8 @@ export default function TokensSwapPage() {
   const [selectedContractAddr, setSelectedContractAddr] = useState(null);
   const [faucetTokensList, setFaucetTokensList] = useState([]);
   const [tokenInfo, setTokenInfo] = useState({ title: "", content: "" });
-
+  const [supportedToken, setSupportedToken] = useState([]);
+  const [swapTokenContractAddress, setSwapTokenContractAddress] = useState(null);
   useEffect(() => {
     let isUnmounted = false;
     const getFaucetTokensListData = async () => {
@@ -137,6 +139,18 @@ export default function TokensSwapPage() {
     } catch (error) {
       console.log(error);
     }
+    setSupportedToken([]);
+    setSwapTokenContractAddress(null);
+    for (const swapableToken of swapableTokens) {
+      if (swapableToken.contract_address == selectedContractAddr) {
+        let supportedToken = [
+          {version: "1.0", token: swapableToken.token, name: swapableToken.name, contractAddress: swapableToken.contract_address},
+          {version: "2.0", token: swapableToken.token_version_2, name: swapableToken.name_version_2, contractAddress: swapableToken.contract_address_2},
+        ];
+        setSupportedToken(supportedToken);
+        setSwapTokenContractAddress(swapableToken.swap_contract_address);
+      }
+    }
 
     setTokenInfo((prev) => {
       return {
@@ -154,26 +168,28 @@ export default function TokensSwapPage() {
   }
 
   const tabsData = [
-    {
-        label: (
-          <>
-            Swap<Show above="md"> Token</Show>
-          </>
-        ),
-        component: (
-          <TokensTabSwapToken
-            mode="SWAP_TOKEN"
-            {...currentAccount}
-            tokenInfo={tokenInfo}
-            selectedContractAddr={selectedContractAddr}
-            loadTokenInfo={loadTokenInfo}
-          />
-        ),
-        isDisabled: false,
-    },
     tokenInfo?.title && {
       label: <>Token Info</>,
       component: <TokenInformation tokenInfo={tokenInfo} />,
+      isDisabled: false,
+    },
+    tokenInfo?.title && {
+      label: (
+        <>
+          Swap<Show above="md"> Token</Show>
+        </>
+      ),
+      component: (
+        <TokensTabSwapToken
+          mode="SWAP_TOKEN"
+          {...currentAccount}
+          tokenInfo={tokenInfo}
+          selectedContractAddr={selectedContractAddr}
+          loadTokenInfo={loadTokenInfo}
+          supportedToken={supportedToken}
+          swapTokenContractAddress={swapTokenContractAddress}
+        />
+      ),
       isDisabled: false,
     },
   ];

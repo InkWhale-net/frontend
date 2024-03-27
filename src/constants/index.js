@@ -170,6 +170,19 @@ export const supportedChain = [
     bridgeTo: ["alephzero-testnet"]
   },
 ];
+
+export const swapableTokens = [
+  {
+    token: "tiou",
+    name: "TIOU",
+    contract_address: "5ENmRm7Bz3rjHPt5suJHz7Zo427PFhQxLaV5pR4qVSxzrQw9",
+    token_version_2: "tiou2",
+    name_version_2: "TIOU V2",
+    contract_address_2: "5CYbBpWCx7ENUiqgjSBDbuZfdDEERftsRLpx5vF71YYDwgSs",
+    swap_contract_address: "5CjM73FkyTpR8UwbpoQq9yYF2Xnw8BYaL9WcCNLskmwP9rrB"
+  }
+];
+ 
 export const appChain = supportedChain.find(
   (e) => e?.key === process.env.REACT_APP_CHAIN
 );

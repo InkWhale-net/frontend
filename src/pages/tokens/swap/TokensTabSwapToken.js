@@ -21,27 +21,18 @@ import { delay, formatChainStringToNumber, formatNumDynDecimal,
   formatNumToBN,
   formatQueryResultToNumber,
   formatTokenAmount, } from "utils";
-import { execContractTx } from "utils/contracts";
-import psp22_contract from "utils/contracts/psp22_contract";
+import { execContractTx } from "./utils.js";
+
 import MyAccountTab from "./myAccount";
-import { appChain } from "constants";
+import { appChain, swapableTokens } from "constants";
 import { FaChevronDown } from "react-icons/fa";
 import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
 import { getGasLimit, getSwapGasLimit } from "utils/contracts/dryRun";
 import { useMutation } from "react-query";
 import { execContractQuery } from "utils/contracts";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import psp22_contract from "utils/contracts/psp22_contract";
 import { useAppContext } from "contexts/AppContext";
-const supportedToken = [
-  {
-    token: "inw",
-    name: "INW",
-  },
-  {
-    token: "inw2",
-    name: "INW V2",
-  },
-];
 
 const TokensTabSwapToken = ({
   mode,
@@ -50,6 +41,8 @@ const TokensTabSwapToken = ({
   tokenInfo,
   selectedContractAddr,
   loadTokenInfo,
+  supportedToken,
+  swapTokenContractAddress,
   ...rest
 }) => {
   const { api } = useAppContext();
@@ -70,7 +63,7 @@ const TokensTabSwapToken = ({
   const [step, setStep] = useState(1);
   const { isLoading, mutate } = useMutation(async () => {
     return new Promise((resolve) => {
-      if (fromToken.token == "inw") {
+      if (fromToken.version == "1.0") {
         resolve(swapToTokenv2());
       } else {
         resolve(swapToTokenv1());
@@ -79,7 +72,7 @@ const TokensTabSwapToken = ({
   }, "swap-to-inw-v2");
 
   const updateMaxAmount = () => {
-    const _value = fromToken.token == "inw" ? inwBalance : inw2Balance;
+    const _value = fromToken.version == "1.0" ? inwBalance : inw2Balance;
     setAmount(_value);
     fetchGas(_value);
   };
@@ -92,14 +85,14 @@ const TokensTabSwapToken = ({
         setGas(0);
         return;
       }
-      console.log('swap_inw2_contract.CONTRACT_ADDRESS', swap_inw2_contract.CONTRACT_ADDRESS);
+      
       const contract = new ContractPromise(
         api,
         swap_inw2_contract.CONTRACT_ABI,
-        swap_inw2_contract.CONTRACT_ADDRESS
+        swapTokenContractAddress
       );
       let gasLimitResultSwap;
-      if (fromToken.token == "inw") {
+      if (fromToken.version == "1.0") {
         gasLimitResultSwap = await getGasLimit(
           api,
           currentAccount?.address,
@@ -136,7 +129,7 @@ const TokensTabSwapToken = ({
   };
   const onChangeValue = (newValue) => {
     try {
-      if (fromToken.token == "inw") {
+      if (fromToken.version == "1.0") {
         const valueToUpdate = +newValue > inwBalance ? inwBalance : +newValue;
         setAmount(valueToUpdate);
         fetchGas(valueToUpdate);
@@ -176,11 +169,11 @@ const TokensTabSwapToken = ({
         currentAccount?.address,
         api,
         psp22_contract.CONTRACT_ABI,
-        process.env.REACT_APP_INW_TOKEN_ADDRESS,
+        supportedToken[0].contractAddress,
         0, //-> value
         "psp22::allowance",
         currentAccount?.address,
-        swap_inw2_contract.CONTRACT_ADDRESS
+        swapTokenContractAddress
       );
       const allowanceINW = formatQueryResultToNumber(
         allowanceTokenQr
@@ -194,11 +187,11 @@ const TokensTabSwapToken = ({
           currentAccount,
           api,
           psp22_contract.CONTRACT_ABI,
-          process.env.REACT_APP_INW_TOKEN_ADDRESS,
+          supportedToken[0].contractAddress,
           0, //-> value
           "psp22::approve",
           2,
-          swap_inw2_contract.CONTRACT_ADDRESS,
+          swapTokenContractAddress,
           formatNumToBN(amount)
         );
         if (!approve) return;
@@ -212,7 +205,7 @@ const TokensTabSwapToken = ({
           currentAccount,
           api,
           swap_inw2_contract.CONTRACT_ABI,
-          swap_inw2_contract.CONTRACT_ADDRESS,
+          swapTokenContractAddress,
           0,
           "inwSwapTrait::swap",
           2,
@@ -254,11 +247,11 @@ const TokensTabSwapToken = ({
         currentAccount?.address,
         api,
         psp22_contract_v2.CONTRACT_ABI,
-        psp22_contract_v2.CONTRACT_ADDRESS,
+        supportedToken[1].contractAddress,
         0, //-> value
         "psp22::allowance",
         currentAccount?.address,
-        swap_inw2_contract.CONTRACT_ADDRESS
+        swapTokenContractAddress
       );
       const allowanceINW = formatQueryResultToNumber(
         allowanceTokenQr
@@ -275,11 +268,11 @@ const TokensTabSwapToken = ({
           currentAccount,
           api,
           psp22_contract_v2.CONTRACT_ABI,
-          psp22_contract_v2.CONTRACT_ADDRESS,
+          supportedToken[1].contractAddress,
           0, //-> value
           "psp22::approve",
           2,
-          swap_inw2_contract.CONTRACT_ADDRESS,
+          swapTokenContractAddress,
           formatNumToBN(amount)
         );
         if (!approve) return;
@@ -293,7 +286,7 @@ const TokensTabSwapToken = ({
           currentAccount,
           api,
           swap_inw2_contract.CONTRACT_ABI,
-          swap_inw2_contract.CONTRACT_ADDRESS,
+          swapTokenContractAddress,
           0,
           "inwSwapTrait::swapInwV2ToV1",
           2,
@@ -347,12 +340,12 @@ const TokensTabSwapToken = ({
                     <MenuItem
                       key={`token-${index}`}
                       onClick={() => {
-                        switch (e.token) {
-                          case "inw":
+                        switch (e.version) {
+                          case "1.0":
                             setFromToken(supportedToken[0]);
                             setToToken(supportedToken[1]);
                             break;
-                          case "inw2":
+                          case "2.0":
                             setFromToken(supportedToken[1]);
                             setToToken(supportedToken[0]);
                             break;
@@ -386,12 +379,12 @@ const TokensTabSwapToken = ({
             <Flex justify="center" py="12px">
               <Flex
                 onClick={() => {
-                  switch (fromToken.token) {
-                    case "inw":
+                  switch (fromToken.version) {
+                    case "1.0":
                       setFromToken(supportedToken[1]);
                       setToToken(supportedToken[0]);
                       break;
-                    case "inw2":
+                    case "2.0":
                       setFromToken(supportedToken[0]);
                       setToToken(supportedToken[1]);
                       break;
@@ -417,12 +410,12 @@ const TokensTabSwapToken = ({
                     <MenuItem
                       key={`token-${index}`}
                       onClick={() => {
-                        switch (e.token) {
-                          case "inw":
+                        switch (e.version) {
+                          case "1.0":
                             setToToken(supportedToken[0]);
                             setFromToken(supportedToken[1]);
                             break;
-                          case "inw2":
+                          case "2.0":
                             setToToken(supportedToken[1]);
                             setFromToken(supportedToken[0]);
                             break;
