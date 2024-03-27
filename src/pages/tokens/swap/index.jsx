@@ -44,12 +44,12 @@ export default function TokensSwapPage() {
       let faucetTokensListTmp = ret.filter(
         (el) => !!el?.contractAddress && filterAddressContractParam.includes(el?.contractAddress)
       );
-      
+
       console.log('getFaucetTokensListData::ret', ret);
       // for (const faucetTokensListItem of ret) {
       //   if (faucetTokensListItem.)
       // }
-      
+
       if (status === "OK") {
         if (isUnmounted) return;
         return setFaucetTokensList(faucetTokensListTmp);
@@ -158,8 +158,20 @@ export default function TokensSwapPage() {
     for (const swapableToken of swapableTokens) {
       if (swapableToken.contract_address == selectedContractAddr) {
         let supportedToken = [
-          {version: "1.0", token: swapableToken.token, name: swapableToken.name, contractAddress: swapableToken.contract_address},
-          {version: "2.0", token: swapableToken.token_version_2, name: swapableToken.name_version_2, contractAddress: swapableToken.contract_address_2},
+          {
+            version: "1.0",
+            token: swapableToken.token,
+            name: swapableToken.name,
+            decimal: swapableToken.decimal,
+            contractAddress: swapableToken.contract_address,
+          },
+          {
+            version: "2.0",
+            token: swapableToken.token_version_2,
+            name: swapableToken.name_version_2,
+            decimal: swapableToken.decimal,
+            contractAddress: swapableToken.contract_address_2,
+          },
         ];
         setSupportedToken(supportedToken);
         setSwapTokenContractAddress(swapableToken.swap_contract_address);

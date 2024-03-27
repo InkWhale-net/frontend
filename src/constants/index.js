@@ -175,6 +175,7 @@ export const swapableTokens = [
   {
     token: "tiou",
     name: "TIOU",
+    decimal: 12,
     contract_address: "5ENmRm7Bz3rjHPt5suJHz7Zo427PFhQxLaV5pR4qVSxzrQw9",
     token_version_2: "tiou2",
     name_version_2: "TIOU V2",

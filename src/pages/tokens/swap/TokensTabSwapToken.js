@@ -1,4 +1,7 @@
-import { Heading, Stack, Box,
+import {
+  Heading,
+  Stack,
+  Box,
   Button,
   Flex,
   Input,
@@ -6,21 +9,26 @@ import { Heading, Stack, Box,
   MenuButton,
   MenuItem,
   MenuList,
-  Text, } from "@chakra-ui/react";
+  Text,
+} from "@chakra-ui/react";
 import AddressCopier from "components/address-copier/AddressCopier";
 import { ContractPromise } from "@polkadot/api-contract";
 import IWCard from "components/card/Card";
 import IWCardOneColumn from "components/card/CardOneColumn";
 import IWInput from "components/input/Input";
 import { isMobile } from "react-device-detect";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import { delay, formatChainStringToNumber, formatNumDynDecimal,
+import {
+  delay,
+  formatChainStringToNumber,
+  formatNumDynDecimal,
   formatNumToBN,
   formatQueryResultToNumber,
-  formatTokenAmount, } from "utils";
+  formatTokenAmount,
+} from "utils";
 import { execContractTx } from "./utils.js";
 
 import MyAccountTab from "./myAccount";
@@ -33,6 +41,7 @@ import { execContractQuery } from "utils/contracts";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { useAppContext } from "contexts/AppContext";
+import { formatQueryResultToNumberEthers } from "utils/index.js";
 
 const TokensTabSwapToken = ({
   mode,
@@ -55,6 +64,8 @@ const TokensTabSwapToken = ({
   const [amountV2, setAmountV2] = useState("");
   const [fromToken, setFromToken] = useState(supportedToken[0]);
   const [toToken, setToToken] = useState(supportedToken[1]);
+  const [fromTokenBalance, setFromTokenBalance] = useState(0);
+  const [toTokenBalance, setToTokenBalance] = useState(0);
   const [gas, setGas] = useState(0);
 
   const [_isOpen, setIsOpen] = useState(false);
@@ -74,14 +85,17 @@ const TokensTabSwapToken = ({
   }, "swap-to-inw-v2");
 
   const updateMaxAmount = () => {
-    const _value = fromToken.version == "1.0" ? inwBalance : inw2Balance;
+    // const _value = fromToken.version == "1.0" ? inwBalance : inw2Balance;
+    const _value = fromTokenBalance;
     setAmount(_value);
     fetchGas(_value);
   };
   const getBalance = (token) => {
-    console.log('getBalance::currentAccount', currentAccount)
-    return formatNumDynDecimal(currentAccount?.balance?.[token]?.replaceAll(",", ""));
-  }
+    console.log("getBalance::currentAccount", currentAccount);
+    return formatNumDynDecimal(
+      currentAccount?.balance?.[token]?.replaceAll(",", "")
+    );
+  };
 
   const fetchGas = async (_amount) => {
     try {
@@ -89,7 +103,7 @@ const TokensTabSwapToken = ({
         setGas(0);
         return;
       }
-      
+
       const contract = new ContractPromise(
         api,
         swap_inw2_contract.CONTRACT_ABI,
@@ -133,15 +147,19 @@ const TokensTabSwapToken = ({
   };
   const onChangeValue = (newValue) => {
     try {
-      if (fromToken.version == "1.0") {
-        const valueToUpdate = +newValue > inwBalance ? inwBalance : +newValue;
-        setAmount(valueToUpdate);
-        fetchGas(valueToUpdate);
-      } else {
-        const valueToUpdate = +newValue > inw2Balance ? inw2Balance : +newValue;
-        setAmount(valueToUpdate);
-        fetchGas(valueToUpdate);
-      }
+      // if (fromToken.version == "1.0") {
+      //   const valueToUpdate = +newValue > inwBalance ? inwBalance : +newValue;
+      //   setAmount(valueToUpdate);
+      //   fetchGas(valueToUpdate);
+      // } else {
+      //   const valueToUpdate = +newValue > inw2Balance ? inw2Balance : +newValue;
+      //   setAmount(valueToUpdate);
+      //   fetchGas(valueToUpdate);
+      // }
+      const valueToUpdate =
+        +newValue > +fromTokenBalance ? +fromTokenBalance : +newValue;
+      setAmount(valueToUpdate);
+      fetchGas(valueToUpdate);
     } catch (error) {
       console.log(error);
     }
@@ -313,6 +331,39 @@ const TokensTabSwapToken = ({
       console.log(error);
     }
   };
+  const fetchTokenBalance = async () => {
+    try {
+      let qr1 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        fromToken?.contractAddress,
+        0,
+        "psp22::balanceOf",
+        currentAccount?.address
+      );
+      setFromTokenBalance(
+        formatQueryResultToNumberEthers(qr1, fromToken?.decimal) || 0
+      );
+      let qr2 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        toToken?.contractAddress,
+        0,
+        "psp22::balanceOf",
+        currentAccount?.address
+      );
+      setToTokenBalance(
+        formatQueryResultToNumberEthers(qr2, toToken?.decimal) || 0
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchTokenBalance();
+  }, [currentAccount, fromToken, toToken]);
 
   return (
     <Stack
@@ -329,169 +380,180 @@ const TokensTabSwapToken = ({
         title={`Swap ${tokenInfo?.title} Tokens`}
       >
         <IWCard mt="16px" w="full" variant="solid">
-        <Flex justify="center">
-          <Box minW={!isMobile && "600px"} maxW="600px" px="12px">
-            <Flex justify="space-between" mt="4px">
-              <Menu>
-                <MenuButton>
-                  <Flex align="center">
-                    {fromToken.name}{" "}
-                    <FaChevronDown size="14px" style={{ marginLeft: "4px" }} />
-                  </Flex>
-                </MenuButton>
-                <MenuList>
-                  {supportedToken.map((e, index) => (
-                    <MenuItem
-                      key={`token-${index}`}
-                      onClick={() => {
-                        switch (e.version) {
-                          case "1.0":
-                            setFromToken(supportedToken[0]);
-                            setToToken(supportedToken[1]);
-                            break;
-                          case "2.0":
-                            setFromToken(supportedToken[1]);
-                            setToToken(supportedToken[0]);
-                            break;
-                          default:
-                            break;
-                        }
-                      }}
-                    >
-                      {e.name}
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </Menu>
-              <Flex>
-                Balance:{" "}
-                <p className="balance-value">{getBalance(fromToken.token)}</p>
+          <Flex justify="center">
+            <Box minW={!isMobile && "600px"} maxW="600px" px="12px">
+              <Flex justify="space-between" mt="4px">
+                <Menu>
+                  <MenuButton>
+                    <Flex align="center">
+                      {fromToken.name}{" "}
+                      <FaChevronDown
+                        size="14px"
+                        style={{ marginLeft: "4px" }}
+                      />
+                    </Flex>
+                  </MenuButton>
+                  <MenuList>
+                    {supportedToken.map((e, index) => (
+                      <MenuItem
+                        key={`token-${index}`}
+                        onClick={() => {
+                          switch (e.version) {
+                            case "1.0":
+                              setFromToken(supportedToken[0]);
+                              setToToken(supportedToken[1]);
+                              break;
+                            case "2.0":
+                              setFromToken(supportedToken[1]);
+                              setToToken(supportedToken[0]);
+                              break;
+                            default:
+                              break;
+                          }
+                        }}
+                      >
+                        {e.name}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </Menu>
+                <Flex>
+                  Balance:{" "}
+                  <Text className="balance-value">{fromTokenBalance}</Text>
+                  <Text ml="4px">{fromToken.token}</Text>
+                </Flex>
               </Flex>
-            </Flex>
-            <Flex direction="column" className="swap-amount-container">
-              <Box className="max-amount-button" onClick={() => updateMaxAmount()}>
-                max
-              </Box>
-              <Input
-                value={amount}
-                onChange={({ target }) => onChangeValue(target.value)}
-                type="number"
-                placeholder="0.0"
-                className="swap-amount-input"
-              />
-            </Flex>
-            <Flex justify="center" py="12px">
-              <Flex
-                onClick={() => {
-                  switch (fromToken.version) {
-                    case "1.0":
-                      setFromToken(supportedToken[1]);
-                      setToToken(supportedToken[0]);
-                      break;
-                    case "2.0":
-                      setFromToken(supportedToken[0]);
-                      setToToken(supportedToken[1]);
-                      break;
-                    default:
-                      break;
-                  }
-                }}
-                className="change-swap-option-button"
-              >
-                <FaChevronDown />
+              <Flex direction="column" className="swap-amount-container">
+                <Box
+                  className="max-amount-button"
+                  onClick={() => updateMaxAmount()}
+                >
+                  max
+                </Box>
+                <Input
+                  value={amount}
+                  onChange={({ target }) => onChangeValue(target.value)}
+                  type="number"
+                  placeholder="0.0"
+                  className="swap-amount-input"
+                />
               </Flex>
-            </Flex>
-            <Flex justify="space-between">
-              <Menu>
-                <MenuButton>
-                  <Flex align="center">
-                    {toToken.name}
-                    <FaChevronDown size="14px" style={{ marginLeft: "4px" }} />
-                  </Flex>
-                </MenuButton>
-                <MenuList>
-                  {supportedToken.map((e, index) => (
-                    <MenuItem
-                      key={`token-${index}`}
-                      onClick={() => {
-                        switch (e.version) {
-                          case "1.0":
-                            setToToken(supportedToken[0]);
-                            setFromToken(supportedToken[1]);
-                            break;
-                          case "2.0":
-                            setToToken(supportedToken[1]);
-                            setFromToken(supportedToken[0]);
-                            break;
-                          default:
-                            break;
-                        }
-                      }}
-                    >
-                      {e.name}
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </Menu>{" "}
-              <Flex>
-                Balance:{" "}
-                <p className="balance-value">{getBalance(toToken.token)}</p>
+              <Flex justify="center" py="12px">
+                <Flex
+                  onClick={() => {
+                    switch (fromToken.version) {
+                      case "1.0":
+                        setFromToken(supportedToken[1]);
+                        setToToken(supportedToken[0]);
+                        break;
+                      case "2.0":
+                        setFromToken(supportedToken[0]);
+                        setToToken(supportedToken[1]);
+                        break;
+                      default:
+                        break;
+                    }
+                  }}
+                  className="change-swap-option-button"
+                >
+                  <FaChevronDown />
+                </Flex>
               </Flex>
-            </Flex>
-            <Flex direction="column" className="swap-amount-container">
-              <Input
-                value={amount}
-                onChange={({ target }) => onChangeValue(target.value)}
-                type="number"
-                placeholder="0.0"
-                className="swap-amount-input"
-              />
-            </Flex>
+              <Flex justify="space-between">
+                <Menu>
+                  <MenuButton>
+                    <Flex align="center">
+                      {toToken.name}
+                      <FaChevronDown
+                        size="14px"
+                        style={{ marginLeft: "4px" }}
+                      />
+                    </Flex>
+                  </MenuButton>
+                  <MenuList>
+                    {supportedToken.map((e, index) => (
+                      <MenuItem
+                        key={`token-${index}`}
+                        onClick={() => {
+                          switch (e.version) {
+                            case "1.0":
+                              setToToken(supportedToken[0]);
+                              setFromToken(supportedToken[1]);
+                              break;
+                            case "2.0":
+                              setToToken(supportedToken[1]);
+                              setFromToken(supportedToken[0]);
+                              break;
+                            default:
+                              break;
+                          }
+                        }}
+                      >
+                        {e.name}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </Menu>{" "}
+                <Flex>
+                  Balance:{" "}
+                  <Text className="balance-value">{toTokenBalance}</Text>
+                  <Text ml="4px">{toToken?.name}</Text>
+                </Flex>
+              </Flex>
+              <Flex direction="column" className="swap-amount-container">
+                <Input
+                  value={amount}
+                  onChange={({ target }) => onChangeValue(target.value)}
+                  type="number"
+                  placeholder="0.0"
+                  className="swap-amount-input"
+                />
+              </Flex>
 
-            <Flex justify="end" fontSize="16px">
-              {fromToken.name === "INW" ? (
-                <Stack>
-                  {step === 1 ? (
-                    <Text mr="4px">
-                      Step 1: Approve Estimated Gas: {gasApproveToV2.toFixed(8)}{" "}
-                      {appChain?.unit}
-                    </Text>
-                  ) : null}
-                  {step === 2 ? (
-                    <Text mr="4px">
-                      Step 2: Swap Estimated Gas: {gasSwapToV2.toFixed(8)}{" "}
-                      {appChain?.unit}
-                    </Text>
-                  ) : null}
-                </Stack>
-              ) : (
-                <Stack>
-                  {step === 1 ? (
-                    <Text mr="4px">
-                      Step 1: Approve Estimated Gas: {gasApproveToV1.toFixed(8)}{" "}
-                      {appChain?.unit}
-                    </Text>
-                  ) : null}
-                  {step === 2 ? (
-                    <Text mr="4px">
-                      Step 2: Swap Estimated Gas: {gasSwapToV1.toFixed(8)}{" "}
-                      {appChain?.unit}
-                    </Text>
-                  ) : null}
-                </Stack>
-              )}
-            </Flex>
-            <Button
-              isLoading={isLoading}
-              mt="4px"
-              size="md"
-              width="full"
-              onClick={() => mutate()}
-            >
-              SWAP NOW
-            </Button>
-          </Box>
-        </Flex>
+              <Flex justify="end" fontSize="16px">
+                {fromToken.name === "INW" ? (
+                  <Stack>
+                    {step === 1 ? (
+                      <Text mr="4px">
+                        Step 1: Approve Estimated Gas:{" "}
+                        {gasApproveToV2.toFixed(8)} {appChain?.unit}
+                      </Text>
+                    ) : null}
+                    {step === 2 ? (
+                      <Text mr="4px">
+                        Step 2: Swap Estimated Gas: {gasSwapToV2.toFixed(8)}{" "}
+                        {appChain?.unit}
+                      </Text>
+                    ) : null}
+                  </Stack>
+                ) : (
+                  <Stack>
+                    {step === 1 ? (
+                      <Text mr="4px">
+                        Step 1: Approve Estimated Gas:{" "}
+                        {gasApproveToV1.toFixed(8)} {appChain?.unit}
+                      </Text>
+                    ) : null}
+                    {step === 2 ? (
+                      <Text mr="4px">
+                        Step 2: Swap Estimated Gas: {gasSwapToV1.toFixed(8)}{" "}
+                        {appChain?.unit}
+                      </Text>
+                    ) : null}
+                  </Stack>
+                )}
+              </Flex>
+              <Button
+                isLoading={isLoading}
+                mt="4px"
+                size="md"
+                width="full"
+                onClick={() => mutate()}
+              >
+                SWAP NOW
+              </Button>
+            </Box>
+          </Flex>
         </IWCard>
       </IWCard>
     </Stack>
