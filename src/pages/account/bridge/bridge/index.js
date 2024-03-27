@@ -45,24 +45,14 @@ import { formatNumToBNEther } from "utils";
 import { APICall } from "api/client";
 import { IWTable } from "components/table/IWTable";
 import { addressShortener } from "utils";
-// const supportedToken = [
-//   {
-//     token: "inw",
-//     name: "Alephzero",
-//     icon: <
-//   },
-//   {
-//     token: "inw2",
-//     name: "5ire Chain",
-//   },
-// ];
+
 const BridgeTab = ({ amountRef }) => {
   const supportedChainBridge = supportedChain.filter(
     (e) => e?.bridgeTo?.length > 0
   );
   const [amount, setAmount] = useState("");
   const [amountV2, setAmountV2] = useState("");
-  const [fromToken, setFromToken] = useState(supportedChainBridge[0]);
+  const [fromChain, setFromChain] = useState(supportedChainBridge[0]);
   const [toChain, setToChain] = useState(supportedChainBridge[1]);
   const [gas, setGas] = useState(0);
 
@@ -74,249 +64,37 @@ const BridgeTab = ({ amountRef }) => {
   const inw2Balance = +currentAccount?.balance?.inw2?.replaceAll(",", "");
 
   const [step, setStep] = useState(1);
-
   const dispatch = useDispatch();
-  const swapToTokenv2 = async () => {
-    try {
-      if (!currentAccount) {
-        return toast.error("Please connect wallet!");
-      }
-      if (!(+amount > 0)) {
-        toast.error("Please enter valid amount!");
-        return;
-      }
-      if (+inwBalance < +amount) {
-        toast.error(
-          `Maximum swap amount is ${formatNumDynDecimal(inwBalance)}`
-        );
-        return;
-      }
-      toast("Step1: Approve...");
-      const allowanceTokenQr = await execContractQuery(
-        currentAccount?.address,
-        api,
-        psp22_contract.CONTRACT_ABI,
-        psp22_contract.CONTRACT_ADDRESS,
-        0, //-> value
-        "psp22::allowance",
-        currentAccount?.address,
-        azero_manager_bridge.CONTRACT_ADDRESS
-      );
-      const allowanceINW = formatQueryResultToNumber(
-        allowanceTokenQr
-      ).replaceAll(",", "");
+  const [gasSwapToV2, setGasSwapToV2] = useState(0);
+  const [gasApproveToV2, setGasApproveToV2] = useState(0);
 
-      console.log("allowanceINW", allowanceINW);
-      if (+allowanceINW < +amount) {
-        setStep(1);
-        let approve = await execContractTx(
-          currentAccount,
-          api,
-          psp22_contract.CONTRACT_ABI,
-          psp22_contract.CONTRACT_ADDRESS,
-          0, //-> value
-          "psp22::approve",
-          3,
-          azero_manager_bridge.CONTRACT_ADDRESS,
-          formatNumToBNEther(amount)
-        );
-        if (!approve) return;
-      }
-      await delay(1500).then(async () => {
-        setStep(2);
-
-        toast("Step2: Swap...");
-        console.log(formatNumToBNEther(amount));
-        await execContractTx(
-          currentAccount,
-          api,
-          azero_manager_bridge.CONTRACT_ABI,
-          azero_manager_bridge.CONTRACT_ADDRESS,
-          0,
-          "createNewTransaction",
-          3,
-          formatNumToBNEther(amount),
-          currentAccount?.address
-        );
-      });
-
-      await delay(1500).then(() => {
-        setStep(1);
-
-        if (currentAccount) {
-          dispatch(fetchUserBalance({ currentAccount, api }));
-        }
-        setAmount("");
-        setGas(0);
-      });
-    } catch (error) {
-      setStep(1);
-
-      console.log(error);
-    }
-  };
-  const swapToTokenv1 = async () => {
-    try {
-      if (!currentAccount) {
-        return toast.error("Please connect wallet!");
-      }
-      if (!(+amount > 0)) {
-        toast.error("Please enter valid amount!");
-        return;
-      }
-      if (+inw2Balance < +amount) {
-        toast.error(
-          `Maximum swap amount is ${formatNumDynDecimal(inw2Balance)}`
-        );
-        return;
-      }
-      const allowanceTokenQr = await execContractQuery(
-        currentAccount?.address,
-        api,
-        psp22_contract_v2.CONTRACT_ABI,
-        psp22_contract_v2.CONTRACT_ADDRESS,
-        0, //-> value
-        "psp22::allowance",
-        currentAccount?.address,
-        swap_inw2_contract.CONTRACT_ADDRESS
-      );
-      const allowanceINW = formatQueryResultToNumber(
-        allowanceTokenQr
-      ).replaceAll(",", "");
-
-      console.log("allowanceINW", allowanceINW);
-
-      if (+allowanceINW < +amount) {
-        toast("Step1: Approve...");
-
-        setStep(1);
-
-        let approve = await execContractTx(
-          currentAccount,
-          api,
-          psp22_contract_v2.CONTRACT_ABI,
-          psp22_contract_v2.CONTRACT_ADDRESS,
-          0, //-> value
-          "psp22::approve",
-          2,
-          swap_inw2_contract.CONTRACT_ADDRESS,
-          formatNumToBN(amount)
-        );
-        if (!approve) return;
-      }
-
-      await delay(1500).then(async () => {
-        setStep(2);
-
-        toast("Step2: Swap...");
-        await execContractTx(
-          currentAccount,
-          api,
-          swap_inw2_contract.CONTRACT_ABI,
-          swap_inw2_contract.CONTRACT_ADDRESS,
-          0,
-          "inwSwapTrait::swapInwV2ToV1",
-          2,
-          formatNumToBN(amount)
-        );
-      });
-
-      await delay(1500).then(() => {
-        setStep(1);
-
-        if (currentAccount) {
-          dispatch(fetchUserBalance({ currentAccount, api }));
-        }
-        fetchHistory();
-        setAmount("");
-        setGas(0);
-      });
-    } catch (error) {
-      setStep(1);
-
-      console.log(error);
-    }
-  };
-  const { isLoading, mutate } = useMutation(async () => {
-    return new Promise((resolve) => {
-      resolve(swapToTokenv2());
-      // if (fromToken.token == "inw") {
-      //   resolve(swapToTokenv2());
-      // } else {
-      //   resolve(swapToTokenv1());
-      // }
-    });
-  }, "swap-to-inw-v2");
-
-  //   useEffect(() => {
-  //     setIsOpen(isOpen);
-  //   }, [isOpen]);
-
-  //   useEffect(() => {
-  //     if (isOpen == true) {
-  //       amountRef?.current?.focus();
-  //       setAmount("");
-  //       setGas(0);
-  //     }
-  //   }, [_isOpen, fromToken, toToken]);
-
-  const updateMaxAmount = () => {
-    const _value = fromToken.token == "inw" ? inwBalance : inw2Balance;
-    setAmount(_value);
-    fetchGas(_value);
-  };
+  const [gasSwapToV1, setGasSwapToV1] = useState(0);
+  const [gasApproveToV1, setGasApproveToV1] = useState(0);
+  const [transactions, setTransactions] = useState([]);
   const getBalance = (token) =>
     formatNumDynDecimal(currentAccount?.balance?.[token]?.replaceAll(",", ""));
-
-  const fetchGas = async (_amount) => {
-    // try {
-    //   if (+_amount == 0) {
-    //     setGas(0);
-    //     return;
-    //   }
-    //   const contract = new ContractPromise(
-    //     api,
-    //     swap_inw2_contract.CONTRACT_ABI,
-    //     swap_inw2_contract.CONTRACT_ADDRESS
-    //   );
-    //   let gasLimitResultSwap;
-    //   if (fromToken.token == "inw") {
-    //     gasLimitResultSwap = await getGasLimit(
-    //       api,
-    //       currentAccount?.address,
-    //       "inwSwapTrait::swap",
-    //       contract,
-    //       { value: 0 },
-    //       [formatNumToBN(_amount)],
-    //       1.05
-    //     );
-    //   } else {
-    //     gasLimitResultSwap = await getGasLimit(
-    //       api,
-    //       currentAccount?.address,
-    //       "inwSwapTrait::swapInwV2ToV1",
-    //       contract,
-    //       { value: 0 },
-    //       [formatNumToBN(_amount)],
-    //       1.05
-    //     );
-    //   }
-    //   if (!gasLimitResultSwap.ok) {
-    //     console.log(gasLimitResultSwap.error);
-    //     return;
-    //   }
-    //   const gasLimit = JSON.parse(gasLimitResultSwap?.value);
-    //   const gasLimitValue = formatNumDynDecimal(
-    //     formatTokenAmount(gasLimit?.refTime, 12)
-    //   );
-    //   setGas(gasLimitValue);
-    // } catch (error) {
-    //   console.log(error);
-    // }
+  const fetchTransactions = async () => {
+    try {
+      const resp = await APICall.getTransactionOfBridge();
+      setTransactions(resp || []);
+    } catch (error) {
+      console.log(error);
+    }
   };
   const onChangeValue = (newValue) => {
+    console.log('onChangeValue::toChain', toChain);
+    console.log('onChangeValue::fromChain', fromChain);
     try {
-      setAmount(newValue);
+      
+      if (fromChain.key == "alephzero-testnet" && toChain.key == "firechain-testnet") {
+        setAmount(newValue);
+        setAmountV2(newValue + 1);
+      } else if (fromChain.key == "firechain-testnet" && toChain.key == "alephzero-testnet") {
+        setAmount(newValue);
+        setAmountV2(newValue + 2);
+      } else {
+
+      }
       // if (fromToken.token == "inw") {
       //   const valueToUpdate = +newValue > inwBalance ? inwBalance : +newValue;
       //   setAmount(valueToUpdate);
@@ -330,116 +108,8 @@ const BridgeTab = ({ amountRef }) => {
       console.log(error);
     }
   };
-
-  // ==================================
-  const [gasSwapToV2, setGasSwapToV2] = useState(0);
-  const [gasApproveToV2, setGasApproveToV2] = useState(0);
-
-  const [gasSwapToV1, setGasSwapToV1] = useState(0);
-  const [gasApproveToV1, setGasApproveToV1] = useState(0);
-  const [transactionHistory, setTransactionHistory] = useState([]);
-
-  // useEffect(() => {
-  //   // console.log("amount", amount);
-  //   // to v2
-  //   const fetchDataGasApproveToV2 = async () => {
-  //     const contract = new ContractPromise(
-  //       api,
-  //       psp22_contract.CONTRACT_ABI,
-  //       process.env.REACT_APP_INW_TOKEN_ADDRESS
-  //     );
-
-  //     const gasLimitResult = await getSwapGasLimit(
-  //       api,
-  //       currentAccount?.address,
-  //       "psp22::approve",
-  //       contract,
-  //       { value: 0 },
-  //       [swap_inw2_contract.CONTRACT_ADDRESS, formatNumToBN(amount)]
-  //     );
-
-  //     // console.log("Gas Approve To V2", gasLimitResult * 1.688);
-  //     setGasApproveToV2(gasLimitResult * 1.688);
-  //   };
-
-  //   fetchDataGasApproveToV2();
-
-  //   const fetchDataGasSwapToV2 = async () => {
-  //     const contract = new ContractPromise(
-  //       api,
-  //       swap_inw2_contract.CONTRACT_ABI,
-  //       swap_inw2_contract.CONTRACT_ADDRESS
-  //     );
-
-  //     const gasLimitResult = await getSwapGasLimit(
-  //       api,
-  //       currentAccount?.address,
-  //       "inwSwapTrait::swap",
-  //       contract,
-  //       { value: 0 },
-  //       [formatNumToBN(amount)]
-  //     );
-  //     // console.log("Gas Swap To V2", gasLimitResult * 1.05);
-  //     setGasSwapToV2(gasLimitResult * 1.05);
-  //   };
-
-  //   fetchDataGasSwapToV2();
-
-  //   // to v1
-  //   const fetchDataGasApproveToV1 = async () => {
-  //     const contract = new ContractPromise(
-  //       api,
-  //       psp22_contract_v2.CONTRACT_ABI,
-  //       psp22_contract_v2.CONTRACT_ADDRESS
-  //     );
-
-  //     const gasLimitResult = await getSwapGasLimit(
-  //       api,
-  //       currentAccount?.address,
-  //       "psp22::approve",
-  //       contract,
-  //       { value: 0 },
-  //       [swap_inw2_contract.CONTRACT_ADDRESS, formatNumToBN(amount)]
-  //     );
-
-  //     // console.log("fetchDataGasApproveToV1", gasLimitResult * 1.688);
-  //     setGasApproveToV1(gasLimitResult * 1.688);
-  //   };
-
-  //   fetchDataGasApproveToV1();
-
-  //   const fetchDataGasSwapToV1 = async () => {
-  //     const contract = new ContractPromise(
-  //       api,
-  //       swap_inw2_contract.CONTRACT_ABI,
-  //       swap_inw2_contract.CONTRACT_ADDRESS
-  //     );
-
-  //     const gasLimitResult = await getSwapGasLimit(
-  //       api,
-  //       currentAccount?.address,
-  //       "inwSwapTrait::swapInwV2ToV1",
-  //       contract,
-  //       { value: 0 },
-  //       [formatNumToBN(amount)]
-  //     );
-  //     // console.log("fetchDataGasSwapToV1", gasLimitResult * 1.05);
-  //     setGasSwapToV1(gasLimitResult * 1.05);
-  //   };
-
-  //   fetchDataGasSwapToV1();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [amount, api, currentAccount?.address, amount, step]);
-  const fetchHistory = async () => {
-    try {
-      const resp = await APICall.getBridgeHistory();
-      setTransactionHistory(resp || []);
-    } catch (error) {
-      console.log(error);
-    }
-  };
   useEffect(() => {
-    fetchHistory();
+    fetchTransactions();
   }, [api, currentAccount]);
   const tableData = {
     tableHeader: [
@@ -453,7 +123,7 @@ const BridgeTab = ({ amountRef }) => {
         name: "bridgestatus",
         hasTooltip: false,
         tooltipContent: "",
-        label: "status",
+        label: "Status",
       },
       {
         name: "account",
@@ -487,7 +157,7 @@ const BridgeTab = ({ amountRef }) => {
       },
     ],
 
-    tableBody: transactionHistory.map((e) => ({
+    tableBody: transactions.map((e) => ({
       ...e,
       id: e?.transactionId,
       from: "AlephZero Testnet",
@@ -515,30 +185,32 @@ const BridgeTab = ({ amountRef }) => {
               <Flex align="center">
                 <Image
                   className="chain-icon"
-                  src={fromToken?.icon}
-                  alt={`${fromToken.name} logo`}
+                  src={fromChain?.icon}
+                  alt={`${fromChain.name} logo`}
                 />
-                {fromToken.name}{" "}
+                {fromChain.name}{" "}
                 <FaChevronDown size="14px" style={{ marginLeft: "4px" }} />
               </Flex>
             </MenuButton>
             <MenuList>
+              {console.log(supportedChainBridge)}
               {supportedChainBridge.map((e, index) => (
                 <MenuItem
-                  key={`token-${index}`}
+                  key={`token-${e.key}`}
                   onClick={() => {
-                    // switch (e.token) {
-                    //   case "inw":
-                    //     setToToken(supportedToken[0]);
-                    //     setFromToken(supportedToken[1]);
-                    //     break;
-                    //   case "inw2":
-                    //     setToToken(supportedToken[1]);
-                    //     setFromToken(supportedToken[0]);
-                    //     break;
-                    //   default:
-                    //     break;
-                    // }
+                    console.log('e1', e);
+                    switch (e.key) {
+                      case "alephzero-testnet":
+                        setToChain(supportedChainBridge[1]);
+                        setFromChain(supportedChainBridge[0]);
+                        break;
+                      case "firechain-testnet":
+                        setToChain(supportedChainBridge[0]);
+                        setFromChain(supportedChainBridge[1]);
+                        break;
+                      default:
+                        break;
+                    }
                   }}
                 >
                   <Image
@@ -553,11 +225,11 @@ const BridgeTab = ({ amountRef }) => {
           </Menu>
           <Flex>
             Balance:{" "}
-            <p className="balance-value">{getBalance(fromToken.token)}</p>
+            <p className="balance-value">{getBalance(fromChain.token)}</p>
           </Flex>
         </Flex>
         <Flex direction="column" className="swap-amount-container">
-          <Box className="max-amount-button" onClick={() => updateMaxAmount()}>
+          <Box className="max-amount-button">
             max
           </Box>
           <Input
@@ -570,16 +242,16 @@ const BridgeTab = ({ amountRef }) => {
           />
         </Flex>
         <Flex justify="center" py="12px">
-          {/* <Flex
+          <Flex
             onClick={() => {
-              switch (fromToken.token) {
-                case "inw":
-                  setFromToken(supportedToken[1]);
-                  setToToken(supportedToken[0]);
+              switch (fromChain.key) {
+                case "alephzero-testnet":
+                  setFromChain(supportedChainBridge[0]);
+                  setToChain(supportedChainBridge[1]);
                   break;
-                case "inw2":
-                  setFromToken(supportedToken[0]);
-                  setToToken(supportedToken[1]);
+                case "firechain-testnet":
+                  setFromChain(supportedChainBridge[1]);
+                  setToChain(supportedChainBridge[0]);
                   break;
                 default:
                   break;
@@ -588,7 +260,7 @@ const BridgeTab = ({ amountRef }) => {
             className="change-swap-option-button"
           >
             <FaChevronDown />
-          </Flex> */}
+          </Flex>
         </Flex>
         <Flex justify="space-between">
           <Menu>
@@ -606,20 +278,21 @@ const BridgeTab = ({ amountRef }) => {
             <MenuList>
               {supportedChainBridge.map((e, index) => (
                 <MenuItem
-                  key={`token-${index}`}
+                  key={`token-${e.key}`}
                   onClick={() => {
-                    // switch (e.token) {
-                    //   case "inw":
-                    //     setToToken(supportedToken[0]);
-                    //     setFromToken(supportedToken[1]);
-                    //     break;
-                    //   case "inw2":
-                    //     setToToken(supportedToken[1]);
-                    //     setFromToken(supportedToken[0]);
-                    //     break;
-                    //   default:
-                    //     break;
-                    // }
+                    console.log('e2', e);
+                    switch (e.key) {
+                      case "alephzero-testnet":
+                        setToChain(supportedChainBridge[1]);
+                        setFromChain(supportedChainBridge[0]);
+                        break;
+                      case "firechain-testnet":
+                        setToChain(supportedChainBridge[0]);
+                        setFromChain(supportedChainBridge[1]);
+                        break;
+                      default:
+                        break;
+                    }
                   }}
                 >
                   <Image
@@ -639,7 +312,7 @@ const BridgeTab = ({ amountRef }) => {
         </Flex>
         <Flex direction="column" className="swap-amount-container">
           <Input
-            value={amount}
+            value={amountV2}
             onChange={({ target }) => onChangeValue(target.value)}
             type="number"
             placeholder="0.0"
@@ -649,7 +322,7 @@ const BridgeTab = ({ amountRef }) => {
         </Flex>
 
         <Flex justify="end" fontSize="16px">
-          {fromToken.name === "INW" ? (
+          {fromChain.name === "INW" ? (
             <Stack>
               {step === 1 ? (
                 <Text mr="4px">
@@ -682,18 +355,16 @@ const BridgeTab = ({ amountRef }) => {
           )}
         </Flex>
         <Button
-          isLoading={isLoading}
           mt="4px"
           size="md"
           width="full"
-          onClick={() => mutate()}
         >
           Bridge
         </Button>
       </Box>
       <Box mt="24px">
         <Text my="16px" fontWeight={700} fontSize={24} color="#57527e">
-          History
+          Transactions
         </Text>
         <IWTable {...tableData} />
       </Box>
