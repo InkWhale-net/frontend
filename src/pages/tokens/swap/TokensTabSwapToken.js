@@ -76,8 +76,10 @@ const TokensTabSwapToken = ({
     setAmount(_value);
     fetchGas(_value);
   };
-  const getBalance = (token) =>
-    formatNumDynDecimal(currentAccount?.balance?.[token]?.replaceAll(",", ""));
+  const getBalance = (token) => {
+    console.log('getBalance::currentAccount', currentAccount)
+    return formatNumDynDecimal(currentAccount?.balance?.[token]?.replaceAll(",", ""));
+  }
 
   const fetchGas = async (_amount) => {
     try {
@@ -360,7 +362,7 @@ const TokensTabSwapToken = ({
                 </MenuList>
               </Menu>
               <Flex>
-                Balance:{" "}
+                Balance:{" "} {fromToken.token}
                 <p className="balance-value">{getBalance(fromToken.token)}</p>
               </Flex>
             </Flex>

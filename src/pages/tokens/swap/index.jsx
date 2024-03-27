@@ -35,11 +35,23 @@ export default function TokensSwapPage() {
   useEffect(() => {
     let isUnmounted = false;
     const getFaucetTokensListData = async () => {
+      let filterAddressContractParam = [];
+      for (const swapableToken of swapableTokens) {
+        filterAddressContractParam.push(swapableToken.contract_address);
+      }
       let { ret, status, message } = await APICall.getTokensList({});
-
+      let faucetTokensListTmp = ret.filter(
+        (el) => !!el?.contractAddress && filterAddressContractParam.includes(el?.contractAddress)
+      );
+      
+      console.log('getFaucetTokensListData::ret', ret);
+      // for (const faucetTokensListItem of ret) {
+      //   if (faucetTokensListItem.)
+      // }
+      
       if (status === "OK") {
         if (isUnmounted) return;
-        return setFaucetTokensList(moveINWToBegin(ret));
+        return setFaucetTokensList(faucetTokensListTmp);
       }
 
       toast.error(`Get faucet tokens list failed. ${message}`);
