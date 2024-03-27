@@ -41,6 +41,8 @@ const TokensTabSwapToken = ({
   tokenInfo,
   selectedContractAddr,
   loadTokenInfo,
+  tokenV2Info,
+  loadTokenV2Info,
   supportedToken,
   swapTokenContractAddress,
   ...rest
@@ -319,7 +321,7 @@ const TokensTabSwapToken = ({
       alignItems="start"
       direction={{ base: "column", lg: "row" }}
     >
-      <MyAccountTab address={address} balance={balance} tokenInfo={tokenInfo} />
+      <MyAccountTab address={address} balance={balance} tokenInfo={tokenInfo} tokenV2Info={tokenV2Info} />
 
       <IWCard
         w="full"
@@ -362,7 +364,7 @@ const TokensTabSwapToken = ({
                 </MenuList>
               </Menu>
               <Flex>
-                Balance:{" "} {fromToken.token}
+                Balance:{" "}
                 <p className="balance-value">{getBalance(fromToken.token)}</p>
               </Flex>
             </Flex>
