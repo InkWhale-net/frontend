@@ -316,7 +316,6 @@ export default function TokensSwapPage() {
       isDisabled: false,
     },
   ];
-  console.log(currentAccount);
   return (
     <>
       <SectionContainer

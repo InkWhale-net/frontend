@@ -7,7 +7,6 @@ import psp22_contract from "utils/contracts/psp22_contract";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 
 const MyAccountTab = ({ address, balance, tokenInfo, tokenV2Info }) => {
-  console.log('tokenInfo', tokenInfo)
   return (
     <IWCardOneColumn
       title="My Account"

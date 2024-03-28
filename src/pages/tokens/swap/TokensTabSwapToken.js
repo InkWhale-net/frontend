@@ -180,9 +180,10 @@ const TokensTabSwapToken = ({
         toast.error("Please enter valid amount!");
         return;
       }
-      if (+inwBalance < +amount) {
+      console.log(fromTokenBalance);
+      if (+fromTokenBalance < +amount) {
         toast.error(
-          `Maximum swap amount is ${formatNumDynDecimal(inwBalance)}`
+          `Maximum swap amount is ${formatNumDynDecimal(fromTokenBalance)}`
         );
         return;
       }
@@ -259,9 +260,9 @@ const TokensTabSwapToken = ({
         toast.error("Please enter valid amount!");
         return;
       }
-      if (+inw2Balance < +amount) {
+      if (+fromTokenBalance < +amount) {
         toast.error(
-          `Maximum swap amount is ${formatNumDynDecimal(inw2Balance)}`
+          `Maximum swap amount is ${formatNumDynDecimal(fromTokenBalance)}`
         );
         return;
       }
