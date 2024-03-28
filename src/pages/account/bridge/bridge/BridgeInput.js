@@ -45,7 +45,7 @@ export function BridgeInput(props) {
                     <Text>To:</Text>
                     <Spacer />
                     <Switch
-                      isDisabled={!currentAccount.address}
+                      isDisabled={!currentAccount?.address}
                       id="witch-is-send-other"
                       size="sm"
                       colorScheme="blue"
@@ -55,7 +55,7 @@ export function BridgeInput(props) {
                         if (!props.isSendOtherAddress) {
                           form.setFieldValue(
                             "toAddress",
-                            currentAccount.address
+                            currentAccount?.address
                           );
                         } else {
                           form.setFieldValue("toAddress", "");

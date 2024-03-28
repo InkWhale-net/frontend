@@ -25,13 +25,10 @@ export function BridgeForm() {
   const { api } = useAppContext();
   const dispatch = useDispatch();
 
-  const {
-    currentAccount,
-    currentAccount: { balance },
-  } = useSelector((state) => state.wallet);
+  const { currentAccount } = useSelector((state) => state.wallet);
 
-  const inwBalance = +balance?.inw?.replaceAll(",", "");
-  const inwFireBalance = +balance?.inwFire?.replaceAll(",", "");
+  const inwBalance = +currentAccount?.balance?.inw?.replaceAll(",", "");
+  const inwFireBalance = +currentAccount?.balance?.inwFire?.replaceAll(",", "");
 
   const [isSendOtherAddress, setIsSendOtherAddress] = useState(false);
 
@@ -228,8 +225,10 @@ export function BridgeForm() {
                     size={18}
                     speedMultiplier={1.5}
                   />
-                ) : (
+                ) : currentAccount?.address ? (
                   "Bridge"
+                ) : (
+                  "Connect wallet"
                 )}
               </Button>
             </Flex>
