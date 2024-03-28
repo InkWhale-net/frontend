@@ -232,18 +232,6 @@ const SwapTab = ({ amountRef }) => {
     });
   }, "swap-to-inw-v2");
 
-  //   useEffect(() => {
-  //     setIsOpen(isOpen);
-  //   }, [isOpen]);
-
-  //   useEffect(() => {
-  //     if (isOpen == true) {
-  //       amountRef?.current?.focus();
-  //       setAmount("");
-  //       setGas(0);
-  //     }
-  //   }, [_isOpen, fromToken, toToken]);
-
   const updateMaxAmount = () => {
     const _value = fromToken.token == "inw" ? inwBalance : inw2Balance;
     setAmount(_value);

@@ -52,53 +52,9 @@ const AllLaunchpads = ({ isOwner }) => {
   return (
     <div>
       <Box sx={{ display: "flex" }}>
-        {/* <IWInput
-          value={queries?.keyword}
-          width={{ base: "full" }}
-          onChange={
-            ({ target }) => {}
-            //   setKeywords({ ...keywords, queryAddress: target.value })
-          }
-          placeholder="Search with From/To"
-          inputRightElementIcon={<SearchIcon color="#57527E" />}
-        /> */}
         <Box
           sx={{ display: "flex", alignItems: "center", paddingLeft: "12px" }}
         >
-          {/*  <Text sx={{ whiteSpace: "nowrap" }}>Filter by:</Text>
-          <Select
-            variant="flushed"
-            sx={{ border: "none", fontWeight: "bold" }}
-            style={{ width: "120px", paddingLeft: "4px" }}
-            value={queries?.status}
-            id="lanchpad-status"
-            onChange={({ target }) => {
-              setQueries((prev) => {
-                return { ...prev, status: target.value };
-              });
-            }}
-          >
-            {statusOption.map((label, index) => (
-              <option value={index}>{label}</option>
-            ))}
-          </Select>
-          <Text sx={{ whiteSpace: "nowrap" }}>Sort by:</Text>
-          <Select
-            variant="flushed"
-            sx={{ border: "none", fontWeight: "bold" }}
-            style={{ width: "120px", paddingLeft: "4px" }}
-            value={queries?.status}
-            id="lanchpad-status"
-            onChange={({ target }) => {
-              setQueries((prev) => {
-                return { ...prev, status: target.value };
-              });
-            }}
-          >
-            {statusOption.map((label, index) => (
-              <option value={index}>{label}</option>
-            ))}
-          </Select> */}
         </Box>
       </Box>
       <SimpleGrid
