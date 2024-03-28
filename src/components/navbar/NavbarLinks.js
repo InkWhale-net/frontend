@@ -14,20 +14,16 @@ import IWCard from "components/card/Card";
 import { SidebarResponsive } from "components/sidebar/Sidebar";
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
-import { Link as RouterLink, useHistory } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 
 import routes from "routes.js";
 import WalletButton from "components/wallet/WalletButton";
-import { useSelector } from "react-redux";
-import { toast } from "react-hot-toast";
-import { INWSwap } from "components/INWSwap";
 import { appChain } from "constants";
 import ChainButton from "components/wallet/ChainButton";
 
 export default function NavbarLinks(props) {
   const { secondary } = props;
   const [currentAnchor, setCurrentAnchor] = useState("");
-  const currentAccount = useSelector((s) => s.wallet.currentAccount);
 
   useEffect(() => {
     const href = window.location.href;
@@ -114,10 +110,10 @@ export default function NavbarLinks(props) {
                 label: "Interaction",
                 href: "/tokens/interaction",
               },
-              // {
-              //   label: "Bridge/Swap",
-              //   href: "/tokens/bridge",
-              // },
+              {
+                label: "Bridge/Swap",
+                href: "/tokens/bridge",
+              },
               {
                 label: "Transactions",
                 href: "/tokens/transaction",
