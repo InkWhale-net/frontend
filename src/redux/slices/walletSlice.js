@@ -12,7 +12,7 @@ import {
 } from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
-import psp22_contract_fire from "utils/contracts/psp22_contract_fire";
+import fire_psp22_contract from "utils/contracts/firechain/fire_psp22_contract";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 
 const localCurrentAccount = window?.localStorage?.getItem(
@@ -145,7 +145,7 @@ export async function get5ireBalanceOfAddress({ address }) {
   try {
     const contract = new ContractPromise(
       wsApi,
-      psp22_contract_fire.CONTRACT_ABI,
+      fire_psp22_contract.CONTRACT_ABI,
       "5FNhUSS5qvxDnQm61qtmufoozyhuc15ae5He791ydSi9sJcS"
     );
 
