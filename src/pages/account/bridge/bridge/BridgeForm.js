@@ -16,6 +16,11 @@ import azero_manager_bridge from "utils/contracts/azero_manager_bridge";
 import psp22_contract from "utils/contracts/psp22_contract";
 import * as Yup from "yup";
 import { BridgeInput } from "./BridgeInput";
+import { execContractQueryFireChain } from "utils/contracts/firechain/";
+import fire_psp22_contract from "utils/contracts/firechain/fire_psp22_contract";
+import fire_bridge_token_contract from "utils/contracts/firechain/fire_bridge_token_contract";
+import { execContractTxFireChain } from "utils/contracts/firechain";
+import { formatQueryResultToNumberEthers } from "utils";
 
 const supportedChainBridge = supportedChain.filter(
   (e) => e?.bridgeTo?.length > 0
@@ -24,79 +29,134 @@ const supportedChainBridge = supportedChain.filter(
 export function BridgeForm() {
   const { api } = useAppContext();
   const dispatch = useDispatch();
-
   const { currentAccount } = useSelector((state) => state.wallet);
-
-  const inwBalance = +currentAccount?.balance?.inw?.replaceAll(",", "");
-  const inwFireBalance = +currentAccount?.balance?.inwFire?.replaceAll(",", "");
 
   const [isSendOtherAddress, setIsSendOtherAddress] = useState(false);
 
   const onBridgeToken = async (values) => {
     try {
-      // if (!currentAccount) {
-      //   return toast.error("Please connect wallet!");
-      // }
-      // if (!(+amount > 0)) {
-      //   toast.error("Please enter valid amount!");
-      //   return;
-      // }
-      // if (+inwBalance < +amount) {
-      //   toast.error(
-      //     `Maximum swap amount is ${formatNumDynDecimal(inwBalance)}`
-      //   );
-      //   return;
-      // }
-      toast("Step1: Approve...");
+      if (values?.fromChain === "firechain-testnet") {
+        const allowanceTokenQrF = await execContractQueryFireChain(
+          currentAccount?.address,
+          fire_psp22_contract.CONTRACT_ABI,
+          "5FNhUSS5qvxDnQm61qtmufoozyhuc15ae5He791ydSi9sJcS",
+          "psp22::allowance",
+          currentAccount?.address,
+          fire_bridge_token_contract.CONTRACT_ADDRESS
+        );
 
-      const allowanceTokenQr = await execContractQuery(
-        currentAccount?.address,
-        api,
-        psp22_contract.CONTRACT_ABI,
-        psp22_contract.CONTRACT_ADDRESS,
-        0, //-> value
-        "psp22::allowance",
-        currentAccount?.address,
-        azero_manager_bridge.CONTRACT_ADDRESS
-      );
+        const allowanceInwF = formatQueryResultToNumberEthers(
+          allowanceTokenQrF,
+          18
+        ).replaceAll(",", "");
 
-      const allowanceINW = formatQueryResultToNumber(
-        allowanceTokenQr
-      ).replaceAll(",", "");
+        console.log("allowanceInwF", allowanceInwF);
+        console.log("values.fromAmount", values.fromAmount);
 
-      if (+allowanceINW < +values.fromAmount) {
-        let approve = await execContractTx(
-          currentAccount,
+        if (+allowanceInwF < +values.fromAmount) {
+          toast("Step1: Approve...");
+          console.log("Step1: Approve...");
+
+          let approve = await execContractTxFireChain(
+            currentAccount,
+            fire_psp22_contract.CONTRACT_ABI,
+            "5FNhUSS5qvxDnQm61qtmufoozyhuc15ae5He791ydSi9sJcS",
+            0, //-> value
+            "psp22::approve",
+            fire_bridge_token_contract.CONTRACT_ADDRESS,
+            formatNumToBNEther(values.fromAmount, 18)
+          );
+          if (!approve) return;
+        }
+
+        await delay(8000).then(async () => {
+          toast("Step2: Swap...");
+
+          await execContractTxFireChain(
+            currentAccount,
+            fire_bridge_token_contract.CONTRACT_ABI,
+            fire_bridge_token_contract.CONTRACT_ADDRESS,
+            0,
+            "createNewTransaction",
+            formatNumToBNEther(values.fromAmount, 18),
+            isSendOtherAddress ? values.toAddress : currentAccount?.address
+          );
+        });
+
+        await delay(1500).then(() => {
+          if (currentAccount) {
+            dispatch(fetchUserBalance({ currentAccount, api }));
+          }
+        });
+      }
+
+      if (values?.fromChain === "alephzero-testnet") {
+        // ===========================================================
+        // if (!currentAccount) {
+        //   return toast.error("Please connect wallet!");
+        // }
+        // if (!(+amount > 0)) {
+        //   toast.error("Please enter valid amount!");
+        //   return;
+        // }
+        // if (+inwBalance < +amount) {
+        //   toast.error(
+        //     `Maximum swap amount is ${formatNumDynDecimal(inwBalance)}`
+        //   );
+        //   return;
+        // }
+
+        const allowanceTokenQr = await execContractQuery(
+          currentAccount?.address,
           api,
           psp22_contract.CONTRACT_ABI,
           psp22_contract.CONTRACT_ADDRESS,
           0, //-> value
-          "psp22::approve",
-          azero_manager_bridge.CONTRACT_ADDRESS,
-          formatNumToBNEther(values.fromAmount)
+          "psp22::allowance",
+          currentAccount?.address,
+          azero_manager_bridge.CONTRACT_ADDRESS
         );
-        if (!approve) return;
-      }
-      await delay(1500).then(async () => {
-        toast("Step2: Swap...");
 
-        await execContractTx(
-          currentAccount,
-          api,
-          azero_manager_bridge.CONTRACT_ABI,
-          azero_manager_bridge.CONTRACT_ADDRESS,
-          0,
-          "createNewTransaction",
-          formatNumToBNEther(values.fromAmount),
-          isSendOtherAddress ? values.toAddress : currentAccount?.address
-        );
-      });
+        const allowanceINW = formatQueryResultToNumber(
+          allowanceTokenQr
+        ).replaceAll(",", "");
 
-      await delay(1500).then(() => {
-        if (currentAccount) {
-          dispatch(fetchUserBalance({ currentAccount, api }));
+        if (+allowanceINW < +values.fromAmount) {
+          toast("Step1: Approve...");
+
+          let approve = await execContractTx(
+            currentAccount,
+            api,
+            psp22_contract.CONTRACT_ABI,
+            psp22_contract.CONTRACT_ADDRESS,
+            0, //-> value
+            "psp22::approve",
+            azero_manager_bridge.CONTRACT_ADDRESS,
+            formatNumToBNEther(values.fromAmount)
+          );
+          if (!approve) return;
         }
-      });
+        await delay(1500).then(async () => {
+          toast("Step2: Swap...");
+
+          await execContractTx(
+            currentAccount,
+            api,
+            azero_manager_bridge.CONTRACT_ABI,
+            azero_manager_bridge.CONTRACT_ADDRESS,
+            0,
+            "createNewTransaction",
+            formatNumToBNEther(values.fromAmount),
+            isSendOtherAddress ? values.toAddress : currentAccount?.address
+          );
+        });
+
+        await delay(1500).then(() => {
+          if (currentAccount) {
+            dispatch(fetchUserBalance({ currentAccount, api }));
+          }
+        });
+      }
     } catch (error) {
       console.log(error);
     }
@@ -113,7 +173,7 @@ export function BridgeForm() {
         gasApprove: 0,
         gasExec: 0,
       }}
-      validationSchema={validateBridgeInfo(inwBalance)}
+      validationSchema={validateBridgeInfo(9999999)}
       onSubmit={async (values, formHelper) => {
         await onBridgeToken(values);
 
@@ -121,7 +181,7 @@ export function BridgeForm() {
         setIsSendOtherAddress(false);
       }}
     >
-      {({ values, dirty, isValid, isSubmitting }) => {
+      {({ values, dirty, isValid, isSubmitting, setFieldValue }) => {
         const { selectedFromChain, selectedToChain } =
           getSelectedChainInfo(values);
 
@@ -131,7 +191,6 @@ export function BridgeForm() {
               <IWCard variant="solid">
                 <BridgeInput
                   name="fromAmount"
-                  tokenBalance={inwBalance}
                   address={currentAccount?.address}
                   selectedChain={selectedFromChain}
                   supportedChainBridge={supportedChainBridge}
@@ -144,8 +203,8 @@ export function BridgeForm() {
                   h="52px"
                   variant="ghost"
                   onClick={() => {
-                    // setFieldValue("fromChain", "firechain-testnet");
-                    // setFieldValue("toChain", "alephzero-testnet");
+                    setFieldValue("fromChain", values.toChain);
+                    setFieldValue("toChain", values.fromChain);
                   }}
                 >
                   <IoSwapVertical fontSize="32px" />
@@ -155,7 +214,6 @@ export function BridgeForm() {
               <IWCard variant="solid">
                 <BridgeInput
                   name="toAmount"
-                  tokenBalance={inwFireBalance}
                   address={currentAccount?.address}
                   selectedChain={selectedToChain}
                   supportedChainBridge={supportedChainBridge}

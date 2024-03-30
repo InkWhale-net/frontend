@@ -1,4 +1,4 @@
-const fire_swap_inw2_contract = {
+const fire_bridge_token_contract = {
   CONTRACT_ADDRESS: "5GEXxceHfeoN2QsurujFq5SsbbXgurr16z8eN2emJ9xdR2uz",
   CONTRACT_ABI: {
     source: {
@@ -2309,5 +2309,4 @@ const fire_swap_inw2_contract = {
     version: "4",
   },
 };
-
-export default fire_swap_inw2_contract;
+export default fire_bridge_token_contract;

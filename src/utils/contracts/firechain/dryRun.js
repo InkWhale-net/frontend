@@ -1,0 +1,55 @@
+import { BN } from "@polkadot/util";
+import { convertWeight } from "@polkadot/api-contract/base/util";
+
+const toContractAbiMessage = (contractPromise, message) => {
+  const value = contractPromise.abi.messages.find((m) => m.method === message);
+
+  if (!value) {
+    const messages = contractPromise?.abi.messages
+      .map((m) => m.method)
+      .join(", ");
+
+    const error = `"${message}" not found in metadata.spec.messages: [${messages}]`;
+    console.error(error);
+
+    return { ok: false, error };
+  }
+
+  return { ok: true, value };
+};
+
+export const getGasLimitFirechain = async (
+  api,
+  userAddress,
+  message,
+  contract,
+  options = {},
+  args = []
+) => {
+  try {
+    const abiMessage = toContractAbiMessage(contract, message);
+    if (!abiMessage.ok) return abiMessage;
+
+    const { value, gasLimit, storageDepositLimit } = options;
+
+    const result = await api.call.contractsApi.call(
+      userAddress,
+      contract.address,
+      value ?? new BN(0),
+      gasLimit ?? null,
+      storageDepositLimit ?? null,
+      abiMessage.value.toU8a(args)
+    );
+
+    const { v2Weight } = convertWeight(result.gasRequired);
+
+    const gasRequired = api.registry.createType("WeightV2", {
+      refTime: v2Weight.refTime.mul(new BN(1)),
+      proofSize: v2Weight.proofSize.mul(new BN(1)),
+    });
+
+    return { ok: true, values: gasRequired };
+  } catch (error) {
+    console.log("error", error);
+  }
+};

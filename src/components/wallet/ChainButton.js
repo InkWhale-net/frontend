@@ -45,36 +45,39 @@ const ChainButton = () => {
       >
         <Flex flexDirection="column" p="20px">
           <Text sx={{ fontWeight: "bold" }}>Select chain</Text>
-          {supportedChain.filter(e => e?.key != appChain?.key).map((obj, index) => (
-            <Flex
-              sx={{
-                py: "4px",
-                px: "8px",
-                cursor: "pointer",
-                userSelect: "none",
-                borderRadius: "4px",
-              }}
-              _hover={{
-                bg: "#E8FDFF",
-              }}
-              onClick={() => {
-                window.open(obj?.url || "", "_blank");
-              }}
-            >
-              <Image
-                src={obj.icon}
-                sx={{ w: "28px", height: "28px" }}
-                alt={`logo-chain-${obj.key}`}
-              />
-              <Text
+          {supportedChain
+            .filter((e) => e?.key != appChain?.key)
+            .map((obj) => (
+              <Flex
+                key={obj.key}
                 sx={{
-                  marginLeft: "4px",
+                  py: "4px",
+                  px: "8px",
+                  cursor: "pointer",
+                  userSelect: "none",
+                  borderRadius: "4px",
+                }}
+                _hover={{
+                  bg: "#E8FDFF",
+                }}
+                onClick={() => {
+                  window.open(obj?.url || "", "_blank");
                 }}
               >
-                {obj.name}
-              </Text>
-            </Flex>
-          ))}
+                <Image
+                  src={obj.icon}
+                  sx={{ w: "28px", height: "28px" }}
+                  alt={`logo-chain-${obj.key}`}
+                />
+                <Text
+                  sx={{
+                    marginLeft: "4px",
+                  }}
+                >
+                  {obj.name}
+                </Text>
+              </Flex>
+            ))}
           {/* {supportWallets
             .filter((el) => !el.isMobile)
             .map((item, idx) => (

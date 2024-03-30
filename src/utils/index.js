@@ -40,9 +40,15 @@ export const chainDenom = {
 
 // "12,345" (string) or 12,345 (string) -> 12345 (number)
 export const formatChainStringToNumber = (str) => {
-  if (typeof str !== "string") return str;
+  try {
+    // console.log('str', str)
+    // console.log('typeof str', typeof str)
+    if (typeof str !== "string") return str;
 
-  return str.replace(/,/g, "").replace(/"/g, "");
+    return str.replace(/,/g, "").replace(/"/g, "");
+  } catch (error) {
+    return str;
+  }
 };
 export const formatQueryResultToNumber = (result, decimal) => {
   const localDecimal = decimal || chainDecimals[process.env.REACT_APP_CHAIN];
@@ -60,7 +66,6 @@ export const formatQueryResultToNumber = (result, decimal) => {
 
 export const formatQueryResultToNumberEthers = (result, decimal) => {
   const localDecimal = decimal || chainDecimals[process.env.REACT_APP_CHAIN];
-
   const ret = formatTextAmount(result?.toHuman()?.Ok);
 
   return formatTokenAmount(ret, localDecimal);
@@ -123,24 +128,12 @@ export const formatNumToBNEther = (number = 0, decimal) => {
 };
 
 export const formatNumDynDecimal = (num = 0, dec = 4) => {
-  // const number = parseInt(num * 10 ** dec) / 10 ** dec;
-  // const numStr = number.toString();
-  // const dotIdx = numStr.indexOf(".");
-
-  // if (dotIdx === -1) {
-  //   return numeral(numStr).format("0,0");
-  // }
-
-  // const intPart = numeral(numStr.slice(0, dotIdx)).format("0,0");
-  // const decPart = numStr.slice(dotIdx + 1, numStr.length);
-
-  // return intPart + `${dotIdx === -1 ? "" : `.${decPart}`}`;
   try {
     const raw = formatTextAmount(num?.toString());
     let parts = raw?.split(".");
     if (parts?.length > 1 && +parts?.[1] > 0) {
       parts[0] = parts[0]?.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      parts[1] = roundDown(+`0.${parts[1]}`).toString().split(".")[1];
+      parts[1] = roundDown(+`0.${parts[1]}`, dec).toString().split(".")[1];
       return parts?.join(".");
     } else return parts?.[0]?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   } catch (error) {
@@ -423,7 +416,7 @@ export const resolveDomain = async (address) => {
     const { primaryDomain, error } = await resolveAddressToDomain(address, {
       chainId,
     });
-    
+
     if (error) throw Error(error?.message || "Resolve failed");
 
     return primaryDomain;
@@ -452,19 +445,14 @@ export const resolveAZDomainToAddress = async (domain) => {
 
 export const formatTokenAmount = (value, decimal = 12) => {
   try {
-    const ret = formatChainStringToNumber(value) / Math.pow(10, decimal);
+    const ret = formatUnits(
+      value?.toString()?.replace(/\./g, "")?.replace(/,/g, ""),
+      decimal
+    );
 
-    // const ret2 = formatUnits(
-    //   value?.toString()?.replace(/\./g, "")?.replace(/,/g, ""),
-    //   decimal
-    // );
-
-    // console.log("ret", ret);
-    // console.log("ret2", ret2);
-
-    return ret;
+    return formatNumDynDecimal(ret, 6);
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     return;
   }
 };

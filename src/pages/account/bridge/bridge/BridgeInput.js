@@ -25,12 +25,18 @@ export function BridgeInput(props) {
   const { api } = useAppContext();
   const { currentAccount } = useSelector((state) => state.wallet);
 
+  const balance = currentAccount?.balance?.[props?.selectedChain?.key];
+
   return (
     <Field name={props.name}>
       {({ field, form, meta }) => (
         <FormControl id={field.name} alignItems="center">
           <FormLabel display="flex" alignItems="center" htmlFor={field.name}>
             <VStack alignItems="start" w="full">
+              <Text>
+                native balance: {balance?.nativeToken}{" "}
+                {props.selectedChain?.unit}
+              </Text>
               {props.name === "fromAmount" && (
                 <>
                   <Text>From:</Text>
@@ -101,15 +107,15 @@ export function BridgeInput(props) {
                     size="xs"
                     minW="fit-content"
                     onClick={() => {
-                      form.setFieldValue("fromAmount", props.tokenBalance);
+                      form.setFieldValue("fromAmount", balance?.inw);
                       const toAmount =
-                        (parseFloat(props.tokenBalance) / 100) * (100 - 5);
+                        (parseFloat(balance?.inw) / 100) * (100 - 5);
 
                       form.setFieldValue("toAmount", toAmount.toFixed(2));
                     }}
                   >
                     <Text>
-                      {`MAX ~ ${formatNumDynDecimal(props.tokenBalance || 0)} ${
+                      {`MAX ~ ${formatNumDynDecimal(balance?.inw || 0)} ${
                         props.selectedChain?.inwName
                       }`}
                     </Text>
@@ -118,9 +124,9 @@ export function BridgeInput(props) {
 
                 {props.name === "toAmount" && (
                   <Text fontSize="sm">
-                    {`Balance: ${formatNumDynDecimal(
-                      props.tokenBalance || 0
-                    )} ${props.selectedChain?.inwName}`}
+                    {`Balance: ${formatNumDynDecimal(balance?.inw || 0)} ${
+                      props.selectedChain?.inwName
+                    }`}
                   </Text>
                 )}
               </Flex>
@@ -140,7 +146,11 @@ export function BridgeInput(props) {
               id={field.name}
               placeholder="0"
               value={form.values[field.name]}
-              isDisabled={form.isSubmitting || props.name === "toAmount"}
+              isDisabled={
+                !currentAccount?.address ||
+                form.isSubmitting ||
+                props.name === "toAmount"
+              }
               onKeyDown={(e) => {
                 if (e.key === "e" || e.key === "-") {
                   e.preventDefault();
