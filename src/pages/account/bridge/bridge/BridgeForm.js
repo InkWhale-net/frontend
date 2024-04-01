@@ -36,31 +36,44 @@ export function BridgeForm() {
   const onBridgeToken = async (values) => {
     try {
       if (values?.fromChain === "firechain-testnet") {
+        const balanceTokenQrF = await execContractQueryFireChain(
+          currentAccount?.address,
+          fire_psp22_contract.CONTRACT_ABI,
+          fire_psp22_contract.CONTRACT_ADDRESS,
+          "psp22::balanceOf",
+          currentAccount?.address
+        );
+        
         const allowanceTokenQrF = await execContractQueryFireChain(
           currentAccount?.address,
           fire_psp22_contract.CONTRACT_ABI,
-          "5FNhUSS5qvxDnQm61qtmufoozyhuc15ae5He791ydSi9sJcS",
+          fire_psp22_contract.CONTRACT_ADDRESS,
           "psp22::allowance",
           currentAccount?.address,
           fire_bridge_token_contract.CONTRACT_ADDRESS
         );
-
+        
         const allowanceInwF = formatQueryResultToNumberEthers(
           allowanceTokenQrF,
           18
         ).replaceAll(",", "");
+        const balanceInwF = formatQueryResultToNumberEthers(
+          balanceTokenQrF,
+          18
+        ).replaceAll(",", "");
 
         console.log("allowanceInwF", allowanceInwF);
+        console.log("balanceInwF", balanceInwF);
         console.log("values.fromAmount", values.fromAmount);
 
-        if (+allowanceInwF < +values.fromAmount) {
+        if (+allowanceInwF < +values.fromAmount && +balanceInwF < +values.fromAmount) {
           toast("Step1: Approve...");
-          console.log("Step1: Approve...");
+          console.log(`Step1: Approve... ${fire_bridge_token_contract.CONTRACT_ADDRESS}`);
 
           let approve = await execContractTxFireChain(
             currentAccount,
             fire_psp22_contract.CONTRACT_ABI,
-            "5FNhUSS5qvxDnQm61qtmufoozyhuc15ae5He791ydSi9sJcS",
+            fire_psp22_contract.CONTRACT_ADDRESS,
             0, //-> value
             "psp22::approve",
             fire_bridge_token_contract.CONTRACT_ADDRESS,
@@ -71,7 +84,8 @@ export function BridgeForm() {
 
         await delay(8000).then(async () => {
           toast("Step2: Swap...");
-
+          console.log('Swap amount', formatNumToBNEther(values.fromAmount, 18));
+          console.log('Swap receiver', isSendOtherAddress ? values.toAddress : currentAccount?.address);
           await execContractTxFireChain(
             currentAccount,
             fire_bridge_token_contract.CONTRACT_ABI,
