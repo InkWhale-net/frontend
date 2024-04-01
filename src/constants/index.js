@@ -176,11 +176,11 @@ export const swapableTokens = [
     token: "tiou",
     name: "TIOU",
     decimal: 12,
-    contract_address: "5ENmRm7Bz3rjHPt5suJHz7Zo427PFhQxLaV5pR4qVSxzrQw9",
+    contract_address: "5FJmK63LBf9FVEngGzaSx5mXtKxRHkn9r7ZF92tBJBBLjknx",
     token_version_2: "tiou2",
     name_version_2: "TIOU V2",
-    contract_address_2: "5CYbBpWCx7ENUiqgjSBDbuZfdDEERftsRLpx5vF71YYDwgSs",
-    swap_contract_address: "5CjM73FkyTpR8UwbpoQq9yYF2Xnw8BYaL9WcCNLskmwP9rrB"
+    contract_address_2: "5GnbvcRxdaAwNh1J4T2uVk8qF6aHmaeg9r6tqAWPZYdMv743",
+    swap_contract_address: "5Cqif4qeYgG6BZ7WSngko1R5eDw9bUVMMsKnTcSM1BAfFp9t"
   },
   {
     token: "baz",
