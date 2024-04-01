@@ -36,7 +36,7 @@ export async function get5ireBalanceOfAddress({ address }) {
     const contract = new ContractPromise(
       fireApi,
       fire_psp22_contract.CONTRACT_ABI,
-      "5FNhUSS5qvxDnQm61qtmufoozyhuc15ae5He791ydSi9sJcS"
+      fire_psp22_contract.CONTRACT_ADDRESS
     );
 
     const gasLimit = readOnlyGasLimitFirechain(fireApi);
@@ -117,7 +117,7 @@ export function maxGasLimit(api, gasLimitData) {
   return api.registry.createType("WeightV2", {
     // refTime: new BN(10_000_000_000),
     // proofSize: new BN(1_000_000),
-    
+
     refTime: new BN(formatChainStringToNumber(gasLimitData.refTime)),
     proofSize: new BN(formatChainStringToNumber(gasLimitData.proofSize)),
   });
@@ -134,7 +134,7 @@ export async function execContractTxFireChain(
   // console.log("queryName", queryName);
   // console.log("args", args);
   let unsubscribe;
-  
+
   const contract = new ContractPromise(fireApi, contractAbi, contractAddress);
   const { signer } = await web3FromSource(caller?.meta?.source);
 
