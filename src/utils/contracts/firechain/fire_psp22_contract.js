@@ -1,4 +1,4 @@
-const psp22_contract = {
+const fire_psp22_contract = {
   CONTRACT_ADDRESS: "",
   CONTRACT_ABI: {
     source: {
@@ -1813,4 +1813,4 @@ const psp22_contract = {
   },
 };
 
-export default psp22_contract;
+export default fire_psp22_contract;
