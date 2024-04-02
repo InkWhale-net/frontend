@@ -26,7 +26,6 @@ export function BridgeHistoryTable() {
       </Flex>
 
       <Flex justify="center" w="full">
-        {console.log('txHistory', txHistory)}
         {isLoading ? (
           <ClipLoader color="#57527E" loading size={18} speedMultiplier={1.5} />
         ) : txHistory.length ? (

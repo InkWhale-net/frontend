@@ -100,7 +100,7 @@ export const fetchUserBalance = createAsyncThunk(
 
     const azero = formatNumDynDecimal(azeroBalance);
 
-    const { fire, inw: fireInw } = await get5ireBalanceOfAddress({
+    const { fire, inw2: fireInw } = await get5ireBalanceOfAddress({
       address: currentAccount?.address,
     });
 
@@ -109,7 +109,7 @@ export const fetchUserBalance = createAsyncThunk(
       inw2,
       azero,
       "alephzero-testnet": { inw, inw2, nativeToken: azero },
-      "firechain-testnet": { inw: fireInw, nativeToken: fire },
+      "firechain-testnet": { inw2: fireInw, nativeToken: fire },
     };
   }
 );

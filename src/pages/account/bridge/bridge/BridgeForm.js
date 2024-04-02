@@ -52,14 +52,7 @@ export function BridgeForm() {
           18
         ).replaceAll(",", "");
 
-        console.log("allowanceInwF", allowanceInwF);
-        console.log("balanceFirechain?.inw", balanceFirechain?.inw);
-        console.log("values.fromAmount", values.fromAmount);
-
-        if (
-          +allowanceInwF < +values.fromAmount &&
-          parseFloat(balanceFirechain?.inw) < +values.fromAmount
-        ) {
+        if (+allowanceInwF < +values.fromAmount) {
           toast("Step1: Approve...");
           console.log(
             `Step1: Approve... ${fire_bridge_token_contract.CONTRACT_ADDRESS}`
@@ -77,7 +70,7 @@ export function BridgeForm() {
           if (!approve) return;
         }
 
-        await delay(8000).then(async () => {
+        await delay(9000).then(async () => {
           toast("Step2: Swap...");
           console.log("Swap amount", formatNumToBNEther(values.fromAmount, 18));
           console.log(
@@ -95,7 +88,7 @@ export function BridgeForm() {
           );
         });
 
-        await delay(1500).then(() => {
+        await delay(15000).then(() => {
           if (currentAccount) {
             dispatch(fetchUserBalance({ currentAccount, api }));
           }
@@ -148,7 +141,7 @@ export function BridgeForm() {
           );
           if (!approve) return;
         }
-        await delay(1500).then(async () => {
+        await delay(2000).then(async () => {
           toast("Step2: Swap...");
 
           await execContractTx(
@@ -163,7 +156,7 @@ export function BridgeForm() {
           );
         });
 
-        await delay(1500).then(() => {
+        await delay(15000).then(() => {
           if (currentAccount) {
             dispatch(fetchUserBalance({ currentAccount, api }));
           }

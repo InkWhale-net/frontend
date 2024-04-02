@@ -44,8 +44,8 @@ export const getGasLimitFirechain = async (
     const { v2Weight } = convertWeight(result.gasRequired);
 
     const gasRequired = api.registry.createType("WeightV2", {
-      refTime: v2Weight.refTime.mul(new BN(1)),
-      proofSize: v2Weight.proofSize.mul(new BN(1)),
+      refTime: v2Weight.refTime.mul(new BN(110)).div(new BN(100)),
+      proofSize: v2Weight.proofSize.mul(new BN(110)).div(new BN(100)),
     });
 
     return { ok: true, values: gasRequired };

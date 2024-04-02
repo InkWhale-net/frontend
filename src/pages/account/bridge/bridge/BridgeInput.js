@@ -107,15 +107,15 @@ export function BridgeInput(props) {
                     size="xs"
                     minW="fit-content"
                     onClick={() => {
-                      form.setFieldValue("fromAmount", balance?.inw);
+                      form.setFieldValue("fromAmount", balance?.inw2);
                       const toAmount =
-                        (parseFloat(balance?.inw) / 100) * (100 - 5);
+                        (parseFloat(balance?.inw2) / 100) * (100 - 5);
 
                       form.setFieldValue("toAmount", toAmount.toFixed(2));
                     }}
                   >
                     <Text>
-                      {`MAX ~ ${formatNumDynDecimal(balance?.inw || 0)} ${
+                      {`MAX ~ ${formatNumDynDecimal(balance?.inw2 || 0)} ${
                         props.selectedChain?.inwName
                       }`}
                     </Text>
@@ -124,7 +124,7 @@ export function BridgeInput(props) {
 
                 {props.name === "toAmount" && (
                   <Text fontSize="sm">
-                    {`Balance: ${formatNumDynDecimal(balance?.inw || 0)} ${
+                    {`Balance: ${formatNumDynDecimal(balance?.inw2 || 0)} ${
                       props.selectedChain?.inwName
                     }`}
                   </Text>

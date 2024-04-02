@@ -4,7 +4,11 @@ import { web3FromSource } from "@polkadot/extension-dapp";
 import { formatBalance } from "@polkadot/util";
 import { toastMessages } from "constants";
 import toast from "react-hot-toast";
-import { formatNumDynDecimal, formatQueryResultToNumber, formatChainStringToNumber } from "utils";
+import {
+  formatNumDynDecimal,
+  formatQueryResultToNumber,
+  formatChainStringToNumber,
+} from "utils";
 import fire_psp22_contract from "utils/contracts/firechain/fire_psp22_contract";
 import { BN, BN_ONE } from "@polkadot/util";
 import { getGasLimitFirechain } from "./dryRun";
@@ -30,7 +34,7 @@ export async function get5ireBalanceOfAddress({ address }) {
   }
 
   let fire;
-  let inw;
+  let inw2;
 
   try {
     const contract = new ContractPromise(
@@ -48,7 +52,7 @@ export async function get5ireBalanceOfAddress({ address }) {
     );
 
     if (result.isOk) {
-      inw = formatQueryResultToNumber(output, 18);
+      inw2 = formatQueryResultToNumber(output, 18);
     }
 
     const {
@@ -75,7 +79,7 @@ export async function get5ireBalanceOfAddress({ address }) {
 
     fire = formatNumDynDecimal(formattedNumBal);
 
-    return { fire, inw };
+    return { fire, inw2 };
   } catch (error) {
     console.log("@_@ ", "psp22::balanceOf", " error >>", error.message);
   }
@@ -113,6 +117,7 @@ export async function execContractQueryFireChain(
     console.log("@_@ ", queryName, " error >>", error.message);
   }
 }
+
 export function maxGasLimit(api, gasLimitData) {
   return api.registry.createType("WeightV2", {
     // refTime: new BN(10_000_000_000),
@@ -146,20 +151,13 @@ export async function execContractTxFireChain(
     { value },
     args
   );
-  console.log("getGasLimitFirechain gasLimitResult", gasLimitResult);
-  if (!gasLimitResult.ok) {
-    console.log(gasLimitResult.error);
+
+  if (!gasLimitResult?.ok) {
+    console.log(gasLimitResult?.error);
     return;
   }
-  console.log("gasLimitResult", gasLimitResult?.values?.toHuman());
-  const maxGas = maxGasLimit(fireApi, gasLimitResult?.values?.toHuman());
-
-  console.log("maxGas", maxGas);
-  console.log("maxGas.toHuman()", maxGas.toHuman());
-  const txNotSign = contract.tx[queryName](
-    { gasLimit: maxGas, value },
-    ...args
-  );
+  const { values: gasLimit } = gasLimitResult;
+  const txNotSign = contract.tx[queryName]({ gasLimit, value }, ...args);
 
   await txNotSign
     .signAndSend(
