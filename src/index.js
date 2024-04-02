@@ -50,6 +50,7 @@ import { initialApi } from "utils/contracts";
 import AzeroStaking from "pages/azero-staking";
 import INWV2 from "pages/faucet/inwV2";
 import BridgePage from "pages/account/bridge";
+import TokensSwapHistoryPage from "pages/tokens/swap/history";
 import TokensSwapPage from "pages/tokens/swap";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
@@ -176,6 +177,7 @@ const App = () => {
             path={`/tokens/transaction`}
             component={TokensTransactionPage}
           />
+          <Route exact path={`/tokens/swap/history`} component={TokensSwapHistoryPage} />
           <Route exact path={`/tokens/swap`} component={TokensSwapPage} />
           <Route exact path={`/create/token`} component={CreateTokenPage} />
           <Route
