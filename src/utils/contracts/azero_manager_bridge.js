@@ -1,13 +1,13 @@
 const azero_manager_bridge = {
-    CONTRACT_ADDRESS: "5CudmELFbxoRKAeiY2GivG3avjZatA6prhKudmYyBxdQkTf6",
+    CONTRACT_ADDRESS: "5FAY6UDomw5mCuTT349YFcf9j3VHLznJKwgw5SJnnAmEU9XL",
     CONTRACT_ABI: {
       "source": {
-        "hash": "0xfc712d36075bf4798aef5d2afcd533a698a954afdc51245a8d8fe2ad8123b51c",
+        "hash": "0x54991bed34fe9a74f287f1b4b0bfc722f3002e7894965b63dd7f5f5cdc2e5c30",
         "language": "ink! 4.3.0",
-        "compiler": "rustc 1.70.0-nightly",
+        "compiler": "rustc 1.78.0-nightly",
         "build_info": {
           "build_mode": "Debug",
-          "cargo_contract_version": "2.1.0",
+          "cargo_contract_version": "3.2.0",
           "rust_toolchain": "nightly-x86_64-unknown-linux-gnu",
           "wasm_opt_settings": {
             "keep_debug_symbols": false,
@@ -16,7 +16,7 @@ const azero_manager_bridge = {
         }
       },
       "contract": {
-        "name": "azero_manager",
+        "name": "bridge_token",
         "version": "1.0.0",
         "authors": [
           "Inkwhale <admin@inkwhale.net>"
@@ -27,12 +27,39 @@ const azero_manager_bridge = {
           {
             "args": [
               {
-                "label": "bridge_token_contract_address",
+                "label": "trading_rate",
+                "type": {
+                  "displayName": [
+                    "u32"
+                  ],
+                  "type": 0
+                }
+              },
+              {
+                "label": "token_azero_contract_address",
                 "type": {
                   "displayName": [
                     "AccountId"
                   ],
-                  "type": 3
+                  "type": 2
+                }
+              },
+              {
+                "label": "token_5ire_contract_address",
+                "type": {
+                  "displayName": [
+                    "AccountId"
+                  ],
+                  "type": 2
+                }
+              },
+              {
+                "label": "admin_account",
+                "type": {
+                  "displayName": [
+                    "AccountId"
+                  ],
+                  "type": 2
                 }
               }
             ],
@@ -56,13 +83,13 @@ const azero_manager_bridge = {
             "displayName": [
               "AccountId"
             ],
-            "type": 3
+            "type": 2
           },
           "balance": {
             "displayName": [
               "Balance"
             ],
-            "type": 2
+            "type": 5
           },
           "blockNumber": {
             "displayName": [
@@ -101,7 +128,7 @@ const azero_manager_bridge = {
                   "displayName": [
                     "u128"
                   ],
-                  "type": 2
+                  "type": 5
                 }
               },
               {
@@ -112,7 +139,7 @@ const azero_manager_bridge = {
                   "displayName": [
                     "AccountId"
                   ],
-                  "type": 3
+                  "type": 2
                 }
               },
               {
@@ -123,7 +150,7 @@ const azero_manager_bridge = {
                   "displayName": [
                     "Balance"
                   ],
-                  "type": 2
+                  "type": 5
                 }
               },
               {
@@ -134,7 +161,18 @@ const azero_manager_bridge = {
                   "displayName": [
                     "AccountId"
                   ],
-                  "type": 3
+                  "type": 2
+                }
+              },
+              {
+                "docs": [],
+                "indexed": false,
+                "label": "trading_fee",
+                "type": {
+                  "displayName": [
+                    "Balance"
+                  ],
+                  "type": 5
                 }
               }
             ],
@@ -158,7 +196,7 @@ const azero_manager_bridge = {
                   "displayName": [
                     "Balance"
                   ],
-                  "type": 2
+                  "type": 5
                 }
               },
               {
@@ -167,7 +205,7 @@ const azero_manager_bridge = {
                   "displayName": [
                     "AccountId"
                   ],
-                  "type": 3
+                  "type": 2
                 }
               }
             ],
@@ -186,21 +224,10 @@ const azero_manager_bridge = {
             "selector": "0x039581ba"
           },
           {
-            "args": [
-              {
-                "label": "trader",
-                "type": {
-                  "displayName": [
-                    "azeromanager_external",
-                    "CountCompletedTransactionsByTraderInput1"
-                  ],
-                  "type": 3
-                }
-              }
-            ],
+            "args": [],
             "default": false,
             "docs": [],
-            "label": "AzeroManager::count_completed_transactions_by_trader",
+            "label": "BridgeToken::get_trading_rate",
             "mutates": false,
             "payable": false,
             "returnType": {
@@ -210,7 +237,7 @@ const azero_manager_bridge = {
               ],
               "type": 18
             },
-            "selector": "0x8fc90ad5"
+            "selector": "0xddafc330"
           },
           {
             "args": [
@@ -218,16 +245,16 @@ const azero_manager_bridge = {
                 "label": "trader",
                 "type": {
                   "displayName": [
-                    "azeromanager_external",
+                    "bridgetoken_external",
                     "GetBalanceOfTraderInput1"
                   ],
-                  "type": 3
+                  "type": 2
                 }
               }
             ],
             "default": false,
             "docs": [],
-            "label": "AzeroManager::get_balance_of_trader",
+            "label": "BridgeToken::get_balance_of_trader",
             "mutates": false,
             "payable": false,
             "returnType": {
@@ -237,13 +264,40 @@ const azero_manager_bridge = {
               ],
               "type": 19
             },
-            "selector": "0x592b2e1f"
+            "selector": "0x0052eae6"
+          },
+          {
+            "args": [
+              {
+                "label": "trader",
+                "type": {
+                  "displayName": [
+                    "bridgetoken_external",
+                    "GetProcessingTransactionByTraderInput1"
+                  ],
+                  "type": 2
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "BridgeToken::get_processing_transaction_by_trader",
+            "mutates": false,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 19
+            },
+            "selector": "0xef974638"
           },
           {
             "args": [],
             "default": false,
             "docs": [],
-            "label": "AzeroManager::get_transaction_last_id",
+            "label": "BridgeToken::get_admin_account",
             "mutates": false,
             "payable": false,
             "returnType": {
@@ -253,13 +307,148 @@ const azero_manager_bridge = {
               ],
               "type": 21
             },
-            "selector": "0x7fe7ac78"
+            "selector": "0x871eae41"
+          },
+          {
+            "args": [
+              {
+                "label": "trading_rate",
+                "type": {
+                  "displayName": [
+                    "bridgetoken_external",
+                    "UpdateTradingRateInput1"
+                  ],
+                  "type": 0
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "BridgeToken::update_trading_rate",
+            "mutates": true,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 8
+            },
+            "selector": "0xce240252"
+          },
+          {
+            "args": [
+              {
+                "label": "admin_account",
+                "type": {
+                  "displayName": [
+                    "bridgetoken_external",
+                    "UpdateAdminAccountInput1"
+                  ],
+                  "type": 2
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "BridgeToken::update_admin_account",
+            "mutates": true,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 8
+            },
+            "selector": "0x505ee71b"
           },
           {
             "args": [],
             "default": false,
             "docs": [],
-            "label": "AzeroManager::get_bridge_token_contract_address",
+            "label": "BridgeToken::get_token_5ire_contract_address",
+            "mutates": false,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 21
+            },
+            "selector": "0x49d3f6d3"
+          },
+          {
+            "args": [
+              {
+                "label": "transaction_id",
+                "type": {
+                  "displayName": [
+                    "bridgetoken_external",
+                    "CompleteTransactionInput1"
+                  ],
+                  "type": 5
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "BridgeToken::complete_transaction",
+            "mutates": true,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 8
+            },
+            "selector": "0xff16c5d0"
+          },
+          {
+            "args": [
+              {
+                "label": "contract_address",
+                "type": {
+                  "displayName": [
+                    "bridgetoken_external",
+                    "UpdateToken5ireContractAddressInput1"
+                  ],
+                  "type": 2
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "BridgeToken::update_token_5ire_contract_address",
+            "mutates": true,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 8
+            },
+            "selector": "0x1f9833d2"
+          },
+          {
+            "args": [
+              {
+                "label": "transaction_id",
+                "type": {
+                  "displayName": [
+                    "bridgetoken_external",
+                    "GetTransactionInformationByIdInput1"
+                  ],
+                  "type": 5
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "BridgeToken::get_transaction_information_by_id",
             "mutates": false,
             "payable": false,
             "returnType": {
@@ -269,40 +458,13 @@ const azero_manager_bridge = {
               ],
               "type": 22
             },
-            "selector": "0x8b409aa1"
-          },
-          {
-            "args": [
-              {
-                "label": "trader",
-                "type": {
-                  "displayName": [
-                    "azeromanager_external",
-                    "GetProcessingTransactionByTraderInput1"
-                  ],
-                  "type": 3
-                }
-              }
-            ],
-            "default": false,
-            "docs": [],
-            "label": "AzeroManager::get_processing_transaction_by_trader",
-            "mutates": false,
-            "payable": false,
-            "returnType": {
-              "displayName": [
-                "ink",
-                "MessageResult"
-              ],
-              "type": 19
-            },
-            "selector": "0x9ebd3705"
+            "selector": "0x65a65401"
           },
           {
             "args": [],
             "default": false,
             "docs": [],
-            "label": "AzeroManager::get_last_transaction_id",
+            "label": "BridgeToken::get_token_azero_contract_address",
             "mutates": false,
             "payable": false,
             "returnType": {
@@ -312,7 +474,23 @@ const azero_manager_bridge = {
               ],
               "type": 21
             },
-            "selector": "0xe820d97e"
+            "selector": "0xade49a0e"
+          },
+          {
+            "args": [],
+            "default": false,
+            "docs": [],
+            "label": "BridgeToken::get_transaction_last_id",
+            "mutates": false,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 26
+            },
+            "selector": "0xe718af27"
           },
           {
             "args": [
@@ -320,17 +498,98 @@ const azero_manager_bridge = {
                 "label": "trader",
                 "type": {
                   "displayName": [
-                    "azeromanager_external",
+                    "bridgetoken_external",
+                    "CountCompletedTransactionsByTraderInput1"
+                  ],
+                  "type": 2
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "BridgeToken::count_completed_transactions_by_trader",
+            "mutates": false,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 27
+            },
+            "selector": "0xcf3f8b57"
+          },
+          {
+            "args": [
+              {
+                "label": "contract_address",
+                "type": {
+                  "displayName": [
+                    "bridgetoken_external",
+                    "UpdateTokenAzeroContractAddressInput1"
+                  ],
+                  "type": 2
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "BridgeToken::update_token_azero_contract_address",
+            "mutates": true,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 8
+            },
+            "selector": "0x49099e00"
+          },
+          {
+            "args": [
+              {
+                "label": "transaction_id",
+                "type": {
+                  "displayName": [
+                    "bridgetoken_external",
+                    "ProcessTransactionInput1"
+                  ],
+                  "type": 5
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "BridgeToken::process_transaction",
+            "mutates": true,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 8
+            },
+            "selector": "0x3ba7bcdc"
+          },
+          {
+            "args": [
+              {
+                "label": "trader",
+                "type": {
+                  "displayName": [
+                    "bridgetoken_external",
                     "GetPendingTransactionsByTraderAndIndexInput1"
                   ],
-                  "type": 3
+                  "type": 2
                 }
               },
               {
                 "label": "index",
                 "type": {
                   "displayName": [
-                    "azeromanager_external",
+                    "bridgetoken_external",
                     "GetPendingTransactionsByTraderAndIndexInput2"
                   ],
                   "type": 16
@@ -339,7 +598,7 @@ const azero_manager_bridge = {
             ],
             "default": false,
             "docs": [],
-            "label": "AzeroManager::get_pending_transactions_by_trader_and_index",
+            "label": "BridgeToken::get_pending_transactions_by_trader_and_index",
             "mutates": false,
             "payable": false,
             "returnType": {
@@ -349,24 +608,13 @@ const azero_manager_bridge = {
               ],
               "type": 19
             },
-            "selector": "0xcab093ec"
+            "selector": "0x4a83ab04"
           },
           {
-            "args": [
-              {
-                "label": "transaction_id",
-                "type": {
-                  "displayName": [
-                    "azeromanager_external",
-                    "GetTransactionInformationByIdInput1"
-                  ],
-                  "type": 2
-                }
-              }
-            ],
+            "args": [],
             "default": false,
             "docs": [],
-            "label": "AzeroManager::get_transaction_information_by_id",
+            "label": "BridgeToken::get_last_transaction_id",
             "mutates": false,
             "payable": false,
             "returnType": {
@@ -374,9 +622,9 @@ const azero_manager_bridge = {
                 "ink",
                 "MessageResult"
               ],
-              "type": 23
+              "type": 26
             },
-            "selector": "0x18cd5f5f"
+            "selector": "0x58e3ccec"
           },
           {
             "args": [
@@ -384,16 +632,16 @@ const azero_manager_bridge = {
                 "label": "trader",
                 "type": {
                   "displayName": [
-                    "azeromanager_external",
+                    "bridgetoken_external",
                     "CountPendingTransactionsByTraderInput1"
                   ],
-                  "type": 3
+                  "type": 2
                 }
               }
             ],
             "default": false,
             "docs": [],
-            "label": "AzeroManager::count_pending_transactions_by_trader",
+            "label": "BridgeToken::count_pending_transactions_by_trader",
             "mutates": false,
             "payable": false,
             "returnType": {
@@ -401,90 +649,9 @@ const azero_manager_bridge = {
                 "ink",
                 "MessageResult"
               ],
-              "type": 18
+              "type": 27
             },
-            "selector": "0xa098f740"
-          },
-          {
-            "args": [
-              {
-                "label": "transaction_id",
-                "type": {
-                  "displayName": [
-                    "azeromanager_external",
-                    "ProcessTransactionInput1"
-                  ],
-                  "type": 2
-                }
-              }
-            ],
-            "default": false,
-            "docs": [],
-            "label": "AzeroManager::process_transaction",
-            "mutates": true,
-            "payable": false,
-            "returnType": {
-              "displayName": [
-                "ink",
-                "MessageResult"
-              ],
-              "type": 8
-            },
-            "selector": "0x9d498dc5"
-          },
-          {
-            "args": [
-              {
-                "label": "transaction_id",
-                "type": {
-                  "displayName": [
-                    "azeromanager_external",
-                    "CompleteTransactionInput1"
-                  ],
-                  "type": 2
-                }
-              }
-            ],
-            "default": false,
-            "docs": [],
-            "label": "AzeroManager::complete_transaction",
-            "mutates": true,
-            "payable": false,
-            "returnType": {
-              "displayName": [
-                "ink",
-                "MessageResult"
-              ],
-              "type": 8
-            },
-            "selector": "0xab4f97d4"
-          },
-          {
-            "args": [
-              {
-                "label": "contract_address",
-                "type": {
-                  "displayName": [
-                    "azeromanager_external",
-                    "UpdateBridgeTokenContractAddressInput1"
-                  ],
-                  "type": 3
-                }
-              }
-            ],
-            "default": false,
-            "docs": [],
-            "label": "AzeroManager::update_bridge_token_contract_address",
-            "mutates": true,
-            "payable": false,
-            "returnType": {
-              "displayName": [
-                "ink",
-                "MessageResult"
-              ],
-              "type": 8
-            },
-            "selector": "0x158cbf84"
+            "selector": "0x69f871ec"
           },
           {
             "args": [
@@ -492,17 +659,17 @@ const azero_manager_bridge = {
                 "label": "trader",
                 "type": {
                   "displayName": [
-                    "azeromanager_external",
+                    "bridgetoken_external",
                     "GetCompletedTransactionsByTraderAndIndexInput1"
                   ],
-                  "type": 3
+                  "type": 2
                 }
               },
               {
                 "label": "index",
                 "type": {
                   "displayName": [
-                    "azeromanager_external",
+                    "bridgetoken_external",
                     "GetCompletedTransactionsByTraderAndIndexInput2"
                   ],
                   "type": 16
@@ -511,7 +678,7 @@ const azero_manager_bridge = {
             ],
             "default": false,
             "docs": [],
-            "label": "AzeroManager::get_completed_transactions_by_trader_and_index",
+            "label": "BridgeToken::get_completed_transactions_by_trader_and_index",
             "mutates": false,
             "payable": false,
             "returnType": {
@@ -521,7 +688,81 @@ const azero_manager_bridge = {
               ],
               "type": 19
             },
-            "selector": "0xd19bf733"
+            "selector": "0x6b951322"
+          },
+          {
+            "args": [
+              {
+                "label": "amount",
+                "type": {
+                  "displayName": [
+                    "bridgetoken_external",
+                    "TransferTokenInput1"
+                  ],
+                  "type": 5
+                }
+              },
+              {
+                "label": "receiver",
+                "type": {
+                  "displayName": [
+                    "bridgetoken_external",
+                    "TransferTokenInput2"
+                  ],
+                  "type": 2
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "BridgeToken::transfer_token",
+            "mutates": true,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 8
+            },
+            "selector": "0x4e25de30"
+          },
+          {
+            "args": [
+              {
+                "label": "role",
+                "type": {
+                  "displayName": [
+                    "accesscontrol_external",
+                    "RevokeRoleInput1"
+                  ],
+                  "type": 0
+                }
+              },
+              {
+                "label": "account",
+                "type": {
+                  "displayName": [
+                    "accesscontrol_external",
+                    "RevokeRoleInput2"
+                  ],
+                  "type": 28
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "AccessControl::revoke_role",
+            "mutates": true,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 29
+            },
+            "selector": "0x6e4f0991"
           },
           {
             "args": [
@@ -542,7 +783,7 @@ const azero_manager_bridge = {
                     "accesscontrol_external",
                     "GrantRoleInput2"
                   ],
-                  "type": 27
+                  "type": 28
                 }
               }
             ],
@@ -556,9 +797,46 @@ const azero_manager_bridge = {
                 "ink",
                 "MessageResult"
               ],
-              "type": 28
+              "type": 29
             },
             "selector": "0x4ac062fd"
+          },
+          {
+            "args": [
+              {
+                "label": "role",
+                "type": {
+                  "displayName": [
+                    "accesscontrol_external",
+                    "RenounceRoleInput1"
+                  ],
+                  "type": 0
+                }
+              },
+              {
+                "label": "account",
+                "type": {
+                  "displayName": [
+                    "accesscontrol_external",
+                    "RenounceRoleInput2"
+                  ],
+                  "type": 28
+                }
+              }
+            ],
+            "default": false,
+            "docs": [],
+            "label": "AccessControl::renounce_role",
+            "mutates": true,
+            "payable": false,
+            "returnType": {
+              "displayName": [
+                "ink",
+                "MessageResult"
+              ],
+              "type": 29
+            },
+            "selector": "0xeaf1248a"
           },
           {
             "args": [
@@ -579,7 +857,7 @@ const azero_manager_bridge = {
                     "accesscontrol_external",
                     "HasRoleInput2"
                   ],
-                  "type": 27
+                  "type": 28
                 }
               }
             ],
@@ -593,7 +871,7 @@ const azero_manager_bridge = {
                 "ink",
                 "MessageResult"
               ],
-              "type": 30
+              "type": 31
             },
             "selector": "0xc1d9ac18"
           },
@@ -620,83 +898,9 @@ const azero_manager_bridge = {
                 "ink",
                 "MessageResult"
               ],
-              "type": 32
+              "type": 18
             },
             "selector": "0x83da3bb2"
-          },
-          {
-            "args": [
-              {
-                "label": "role",
-                "type": {
-                  "displayName": [
-                    "accesscontrol_external",
-                    "RevokeRoleInput1"
-                  ],
-                  "type": 0
-                }
-              },
-              {
-                "label": "account",
-                "type": {
-                  "displayName": [
-                    "accesscontrol_external",
-                    "RevokeRoleInput2"
-                  ],
-                  "type": 27
-                }
-              }
-            ],
-            "default": false,
-            "docs": [],
-            "label": "AccessControl::revoke_role",
-            "mutates": true,
-            "payable": false,
-            "returnType": {
-              "displayName": [
-                "ink",
-                "MessageResult"
-              ],
-              "type": 28
-            },
-            "selector": "0x6e4f0991"
-          },
-          {
-            "args": [
-              {
-                "label": "role",
-                "type": {
-                  "displayName": [
-                    "accesscontrol_external",
-                    "RenounceRoleInput1"
-                  ],
-                  "type": 0
-                }
-              },
-              {
-                "label": "account",
-                "type": {
-                  "displayName": [
-                    "accesscontrol_external",
-                    "RenounceRoleInput2"
-                  ],
-                  "type": 27
-                }
-              }
-            ],
-            "default": false,
-            "docs": [],
-            "label": "AccessControl::renounce_role",
-            "mutates": true,
-            "payable": false,
-            "returnType": {
-              "displayName": [
-                "ink",
-                "MessageResult"
-              ],
-              "type": 28
-            },
-            "selector": "0xeaf1248a"
           }
         ]
       },
@@ -749,14 +953,50 @@ const azero_manager_bridge = {
                       "fields": [
                         {
                           "layout": {
+                            "leaf": {
+                              "key": "0x00000000",
+                              "ty": 2
+                            }
+                          },
+                          "name": "admin_account"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x00000000",
+                              "ty": 0
+                            }
+                          },
+                          "name": "trading_rate"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x00000000",
+                              "ty": 2
+                            }
+                          },
+                          "name": "token_azero_contract_address"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x00000000",
+                              "ty": 2
+                            }
+                          },
+                          "name": "token_5ire_contract_address"
+                        },
+                        {
+                          "layout": {
                             "root": {
                               "layout": {
                                 "leaf": {
-                                  "key": "0xb9c87fa3",
-                                  "ty": 2
+                                  "key": "0xb33a04dc",
+                                  "ty": 5
                                 }
                               },
-                              "root_key": "0xb9c87fa3"
+                              "root_key": "0xb33a04dc"
                             }
                           },
                           "name": "traders"
@@ -770,7 +1010,7 @@ const azero_manager_bridge = {
                                     {
                                       "layout": {
                                         "enum": {
-                                          "dispatchKey": "0x4785794f",
+                                          "dispatchKey": "0x1dc70227",
                                           "name": "TransactionStatus",
                                           "variants": {
                                             "0": {
@@ -797,8 +1037,8 @@ const azero_manager_bridge = {
                                     {
                                       "layout": {
                                         "leaf": {
-                                          "key": "0x4785794f",
-                                          "ty": 3
+                                          "key": "0x1dc70227",
+                                          "ty": 2
                                         }
                                       },
                                       "name": "trader"
@@ -806,8 +1046,8 @@ const azero_manager_bridge = {
                                     {
                                       "layout": {
                                         "leaf": {
-                                          "key": "0x4785794f",
-                                          "ty": 2
+                                          "key": "0x1dc70227",
+                                          "ty": 5
                                         }
                                       },
                                       "name": "amount"
@@ -815,8 +1055,8 @@ const azero_manager_bridge = {
                                     {
                                       "layout": {
                                         "leaf": {
-                                          "key": "0x4785794f",
-                                          "ty": 3
+                                          "key": "0x1dc70227",
+                                          "ty": 2
                                         }
                                       },
                                       "name": "receiver"
@@ -825,7 +1065,7 @@ const azero_manager_bridge = {
                                   "name": "TransactionInformation"
                                 }
                               },
-                              "root_key": "0x4785794f"
+                              "root_key": "0x1dc70227"
                             }
                           },
                           "name": "transactions"
@@ -834,7 +1074,7 @@ const azero_manager_bridge = {
                           "layout": {
                             "leaf": {
                               "key": "0x00000000",
-                              "ty": 2
+                              "ty": 5
                             }
                           },
                           "name": "transaction_id"
@@ -844,11 +1084,11 @@ const azero_manager_bridge = {
                             "root": {
                               "layout": {
                                 "leaf": {
-                                  "key": "0x4db1597e",
-                                  "ty": 2
+                                  "key": "0x6525230e",
+                                  "ty": 5
                                 }
                               },
-                              "root_key": "0x4db1597e"
+                              "root_key": "0x6525230e"
                             }
                           },
                           "name": "pending_transactions_by_trader"
@@ -858,11 +1098,11 @@ const azero_manager_bridge = {
                             "root": {
                               "layout": {
                                 "leaf": {
-                                  "key": "0xbd1afc8f",
-                                  "ty": 2
+                                  "key": "0x916b6d05",
+                                  "ty": 5
                                 }
                               },
-                              "root_key": "0xbd1afc8f"
+                              "root_key": "0x916b6d05"
                             }
                           },
                           "name": "processing_transaction_by_trader"
@@ -872,11 +1112,11 @@ const azero_manager_bridge = {
                             "root": {
                               "layout": {
                                 "leaf": {
-                                  "key": "0x37b9323a",
-                                  "ty": 2
+                                  "key": "0x54f4263e",
+                                  "ty": 5
                                 }
                               },
-                              "root_key": "0x37b9323a"
+                              "root_key": "0x54f4263e"
                             }
                           },
                           "name": "completed_transactions_by_trader"
@@ -885,7 +1125,7 @@ const azero_manager_bridge = {
                           "layout": {
                             "leaf": {
                               "key": "0x00000000",
-                              "ty": 3
+                              "ty": 2
                             }
                           },
                           "name": "bridge_token_contract_address"
@@ -923,10 +1163,10 @@ const azero_manager_bridge = {
                       "name": "Data"
                     }
                   },
-                  "name": "azero_manager_data"
+                  "name": "bridge_token_data"
                 }
               ],
-              "name": "AzeroManagerContract"
+              "name": "BridgeTokenContract"
             }
           },
           "root_key": "0x00000000"
@@ -953,18 +1193,10 @@ const azero_manager_bridge = {
           "id": 2,
           "type": {
             "def": {
-              "primitive": "u128"
-            }
-          }
-        },
-        {
-          "id": 3,
-          "type": {
-            "def": {
               "composite": {
                 "fields": [
                   {
-                    "type": 4,
+                    "type": 3,
                     "typeName": "[u8; 32]"
                   }
                 ]
@@ -978,13 +1210,21 @@ const azero_manager_bridge = {
           }
         },
         {
-          "id": 4,
+          "id": 3,
           "type": {
             "def": {
               "array": {
                 "len": 32,
-                "type": 5
+                "type": 4
               }
+            }
+          }
+        },
+        {
+          "id": 4,
+          "type": {
+            "def": {
+              "primitive": "u8"
             }
           }
         },
@@ -992,7 +1232,7 @@ const azero_manager_bridge = {
           "id": 5,
           "type": {
             "def": {
-              "primitive": "u8"
+              "primitive": "u128"
             }
           }
         },
@@ -1585,7 +1825,7 @@ const azero_manager_bridge = {
                   {
                     "fields": [
                       {
-                        "type": 3,
+                        "type": 2,
                         "typeName": "AccountId"
                       },
                       {
@@ -1683,7 +1923,7 @@ const azero_manager_bridge = {
                   {
                     "fields": [
                       {
-                        "type": 16
+                        "type": 0
                       }
                     ],
                     "index": 0,
@@ -1704,7 +1944,7 @@ const azero_manager_bridge = {
             "params": [
               {
                 "name": "T",
-                "type": 16
+                "type": 0
               },
               {
                 "name": "E",
@@ -1771,7 +2011,7 @@ const azero_manager_bridge = {
                   {
                     "fields": [
                       {
-                        "type": 2
+                        "type": 5
                       }
                     ],
                     "index": 1,
@@ -1783,7 +2023,7 @@ const azero_manager_bridge = {
             "params": [
               {
                 "name": "T",
-                "type": 2
+                "type": 5
               }
             ],
             "path": [
@@ -1842,7 +2082,7 @@ const azero_manager_bridge = {
                   {
                     "fields": [
                       {
-                        "type": 3
+                        "type": 23
                       }
                     ],
                     "index": 0,
@@ -1863,7 +2103,7 @@ const azero_manager_bridge = {
             "params": [
               {
                 "name": "T",
-                "type": 3
+                "type": 23
               },
               {
                 "name": "E",
@@ -1882,55 +2122,13 @@ const azero_manager_bridge = {
               "variant": {
                 "variants": [
                   {
-                    "fields": [
-                      {
-                        "type": 24
-                      }
-                    ],
-                    "index": 0,
-                    "name": "Ok"
-                  },
-                  {
-                    "fields": [
-                      {
-                        "type": 7
-                      }
-                    ],
-                    "index": 1,
-                    "name": "Err"
-                  }
-                ]
-              }
-            },
-            "params": [
-              {
-                "name": "T",
-                "type": 24
-              },
-              {
-                "name": "E",
-                "type": 7
-              }
-            ],
-            "path": [
-              "Result"
-            ]
-          }
-        },
-        {
-          "id": 24,
-          "type": {
-            "def": {
-              "variant": {
-                "variants": [
-                  {
                     "index": 0,
                     "name": "None"
                   },
                   {
                     "fields": [
                       {
-                        "type": 25
+                        "type": 24
                       }
                     ],
                     "index": 1,
@@ -1942,7 +2140,7 @@ const azero_manager_bridge = {
             "params": [
               {
                 "name": "T",
-                "type": 25
+                "type": 24
               }
             ],
             "path": [
@@ -1951,29 +2149,29 @@ const azero_manager_bridge = {
           }
         },
         {
-          "id": 25,
+          "id": 24,
           "type": {
             "def": {
               "composite": {
                 "fields": [
                   {
                     "name": "status",
-                    "type": 26,
+                    "type": 25,
                     "typeName": "TransactionStatus"
                   },
                   {
                     "name": "trader",
-                    "type": 3,
+                    "type": 2,
                     "typeName": "AccountId"
                   },
                   {
                     "name": "amount",
-                    "type": 2,
+                    "type": 5,
                     "typeName": "Balance"
                   },
                   {
                     "name": "receiver",
-                    "type": 3,
+                    "type": 2,
                     "typeName": "AccountId"
                   }
                 ]
@@ -1982,14 +2180,14 @@ const azero_manager_bridge = {
             "path": [
               "bridge_token_project",
               "impls",
-              "azero_manager",
+              "bridge_token",
               "data",
               "TransactionInformation"
             ]
           }
         },
         {
-          "id": 26,
+          "id": 25,
           "type": {
             "def": {
               "variant": {
@@ -2016,47 +2214,14 @@ const azero_manager_bridge = {
             "path": [
               "bridge_token_project",
               "impls",
-              "azero_manager",
+              "bridge_token",
               "data",
               "TransactionStatus"
             ]
           }
         },
         {
-          "id": 27,
-          "type": {
-            "def": {
-              "variant": {
-                "variants": [
-                  {
-                    "index": 0,
-                    "name": "None"
-                  },
-                  {
-                    "fields": [
-                      {
-                        "type": 3
-                      }
-                    ],
-                    "index": 1,
-                    "name": "Some"
-                  }
-                ]
-              }
-            },
-            "params": [
-              {
-                "name": "T",
-                "type": 3
-              }
-            ],
-            "path": [
-              "Option"
-            ]
-          }
-        },
-        {
-          "id": 28,
+          "id": 26,
           "type": {
             "def": {
               "variant": {
@@ -2064,7 +2229,7 @@ const azero_manager_bridge = {
                   {
                     "fields": [
                       {
-                        "type": 29
+                        "type": 5
                       }
                     ],
                     "index": 0,
@@ -2085,7 +2250,7 @@ const azero_manager_bridge = {
             "params": [
               {
                 "name": "T",
-                "type": 29
+                "type": 5
               },
               {
                 "name": "E",
@@ -2098,7 +2263,124 @@ const azero_manager_bridge = {
           }
         },
         {
+          "id": 27,
+          "type": {
+            "def": {
+              "variant": {
+                "variants": [
+                  {
+                    "fields": [
+                      {
+                        "type": 16
+                      }
+                    ],
+                    "index": 0,
+                    "name": "Ok"
+                  },
+                  {
+                    "fields": [
+                      {
+                        "type": 7
+                      }
+                    ],
+                    "index": 1,
+                    "name": "Err"
+                  }
+                ]
+              }
+            },
+            "params": [
+              {
+                "name": "T",
+                "type": 16
+              },
+              {
+                "name": "E",
+                "type": 7
+              }
+            ],
+            "path": [
+              "Result"
+            ]
+          }
+        },
+        {
+          "id": 28,
+          "type": {
+            "def": {
+              "variant": {
+                "variants": [
+                  {
+                    "index": 0,
+                    "name": "None"
+                  },
+                  {
+                    "fields": [
+                      {
+                        "type": 2
+                      }
+                    ],
+                    "index": 1,
+                    "name": "Some"
+                  }
+                ]
+              }
+            },
+            "params": [
+              {
+                "name": "T",
+                "type": 2
+              }
+            ],
+            "path": [
+              "Option"
+            ]
+          }
+        },
+        {
           "id": 29,
+          "type": {
+            "def": {
+              "variant": {
+                "variants": [
+                  {
+                    "fields": [
+                      {
+                        "type": 30
+                      }
+                    ],
+                    "index": 0,
+                    "name": "Ok"
+                  },
+                  {
+                    "fields": [
+                      {
+                        "type": 7
+                      }
+                    ],
+                    "index": 1,
+                    "name": "Err"
+                  }
+                ]
+              }
+            },
+            "params": [
+              {
+                "name": "T",
+                "type": 30
+              },
+              {
+                "name": "E",
+                "type": 7
+              }
+            ],
+            "path": [
+              "Result"
+            ]
+          }
+        },
+        {
+          "id": 30,
           "type": {
             "def": {
               "variant": {
@@ -2140,7 +2422,7 @@ const azero_manager_bridge = {
           }
         },
         {
-          "id": 30,
+          "id": 31,
           "type": {
             "def": {
               "variant": {
@@ -2148,7 +2430,7 @@ const azero_manager_bridge = {
                   {
                     "fields": [
                       {
-                        "type": 31
+                        "type": 32
                       }
                     ],
                     "index": 0,
@@ -2169,7 +2451,7 @@ const azero_manager_bridge = {
             "params": [
               {
                 "name": "T",
-                "type": 31
+                "type": 32
               },
               {
                 "name": "E",
@@ -2179,56 +2461,14 @@ const azero_manager_bridge = {
             "path": [
               "Result"
             ]
-          }
-        },
-        {
-          "id": 31,
-          "type": {
-            "def": {
-              "primitive": "bool"
-            }
           }
         },
         {
           "id": 32,
           "type": {
             "def": {
-              "variant": {
-                "variants": [
-                  {
-                    "fields": [
-                      {
-                        "type": 0
-                      }
-                    ],
-                    "index": 0,
-                    "name": "Ok"
-                  },
-                  {
-                    "fields": [
-                      {
-                        "type": 7
-                      }
-                    ],
-                    "index": 1,
-                    "name": "Err"
-                  }
-                ]
-              }
-            },
-            "params": [
-              {
-                "name": "T",
-                "type": 0
-              },
-              {
-                "name": "E",
-                "type": 7
-              }
-            ],
-            "path": [
-              "Result"
-            ]
+              "primitive": "bool"
+            }
           }
         },
         {
@@ -2238,7 +2478,7 @@ const azero_manager_bridge = {
               "composite": {
                 "fields": [
                   {
-                    "type": 4,
+                    "type": 3,
                     "typeName": "[u8; 32]"
                   }
                 ]

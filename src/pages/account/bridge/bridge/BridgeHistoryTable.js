@@ -6,7 +6,7 @@ import { ClipLoader } from "react-spinners";
 export function BridgeHistoryTable() {
   const { data: txHistory, isLoading, error } = useBridgeHistory();
 
-  if (!error) {
+  if (error) {
     return (
       <Box mt="24px">
         <Alert status="error">
@@ -26,10 +26,11 @@ export function BridgeHistoryTable() {
       </Flex>
 
       <Flex justify="center" w="full">
+        {console.log('txHistory', txHistory)}
         {isLoading ? (
           <ClipLoader color="#57527E" loading size={18} speedMultiplier={1.5} />
         ) : txHistory.length ? (
-          <IWTable tableHeader={tableHeader} transactionHistory={txHistory} />
+          <IWTable tableHeader={tableHeader} tableBody={txHistory} />
         ) : (
           <Text>No history found.</Text>
         )}

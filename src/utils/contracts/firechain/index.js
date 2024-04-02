@@ -4,7 +4,7 @@ import { web3FromSource } from "@polkadot/extension-dapp";
 import { formatBalance } from "@polkadot/util";
 import { toastMessages } from "constants";
 import toast from "react-hot-toast";
-import { formatNumDynDecimal, formatQueryResultToNumber } from "utils";
+import { formatNumDynDecimal, formatQueryResultToNumber, formatChainStringToNumber } from "utils";
 import fire_psp22_contract from "utils/contracts/firechain/fire_psp22_contract";
 import { BN, BN_ONE } from "@polkadot/util";
 import { getGasLimitFirechain } from "./dryRun";
@@ -36,7 +36,7 @@ export async function get5ireBalanceOfAddress({ address }) {
     const contract = new ContractPromise(
       fireApi,
       fire_psp22_contract.CONTRACT_ABI,
-      "5FNhUSS5qvxDnQm61qtmufoozyhuc15ae5He791ydSi9sJcS"
+      fire_psp22_contract.CONTRACT_ADDRESS
     );
 
     const gasLimit = readOnlyGasLimitFirechain(fireApi);
@@ -113,12 +113,13 @@ export async function execContractQueryFireChain(
     console.log("@_@ ", queryName, " error >>", error.message);
   }
 }
-export function maxGasLimit(api) {
+export function maxGasLimit(api, gasLimitData) {
   return api.registry.createType("WeightV2", {
     // refTime: new BN(10_000_000_000),
     // proofSize: new BN(1_000_000),
-    refTime: new BN(7854016870),
-    proofSize: new BN(203294),
+
+    refTime: new BN(formatChainStringToNumber(gasLimitData.refTime)),
+    proofSize: new BN(formatChainStringToNumber(gasLimitData.proofSize)),
   });
 }
 export async function execContractTxFireChain(
@@ -133,10 +134,7 @@ export async function execContractTxFireChain(
   // console.log("queryName", queryName);
   // console.log("args", args);
   let unsubscribe;
-  const maxGas = maxGasLimit(fireApi);
 
-  // console.log("maxGas", maxGas);
-  // console.log("maxGas.toHuman()", maxGas.toHuman());
   const contract = new ContractPromise(fireApi, contractAbi, contractAddress);
   const { signer } = await web3FromSource(caller?.meta?.source);
 
@@ -148,13 +146,16 @@ export async function execContractTxFireChain(
     { value },
     args
   );
-  // console.log("getGasLimitFirechain gasLimitResult", gasLimitResult);
-  // if (!gasLimitResult.ok) {
-  //   console.log(gasLimitResult.error);
-  //   return;
-  // }
-  // console.log("gasLimitResult", gasLimitResult?.values?.toHuman());
+  console.log("getGasLimitFirechain gasLimitResult", gasLimitResult);
+  if (!gasLimitResult.ok) {
+    console.log(gasLimitResult.error);
+    return;
+  }
+  console.log("gasLimitResult", gasLimitResult?.values?.toHuman());
+  const maxGas = maxGasLimit(fireApi, gasLimitResult?.values?.toHuman());
 
+  console.log("maxGas", maxGas);
+  console.log("maxGas.toHuman()", maxGas.toHuman());
   const txNotSign = contract.tx[queryName](
     { gasLimit: maxGas, value },
     ...args

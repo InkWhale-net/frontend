@@ -1,5 +1,5 @@
 const fire_bridge_token_contract = {
-  CONTRACT_ADDRESS: "5GEXxceHfeoN2QsurujFq5SsbbXgurr16z8eN2emJ9xdR2uz",
+  CONTRACT_ADDRESS: "5G17Xi8mkCB163vrvDpMeKwE3VGxPYVxWakA5vKWW78QPCpC",
   CONTRACT_ABI: {
     source: {
       hash: "0xa4f229e07f770b8c753f0917b8bd7bdd7fb997ecbd1b8c16f5abe81a80286428",
