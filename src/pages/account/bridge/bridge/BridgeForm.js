@@ -12,8 +12,8 @@ import { ClipLoader } from "react-spinners";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { delay, formatNumToBNEther, formatQueryResultToNumber } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import azero_manager_bridge from "utils/contracts/azero_manager_bridge";
-import psp22_contract from "utils/contracts/psp22_contract";
+import azero_bridge_token_contract from "utils/contracts/azero_bridge_token_contract";
+import psp22_contract_V2 from "utils/contracts/psp22_contract_V2";
 import * as Yup from "yup";
 import { BridgeInput } from "./BridgeInput";
 import { execContractQueryFireChain } from "utils/contracts/firechain/";
@@ -114,12 +114,12 @@ export function BridgeForm() {
         const allowanceTokenQr = await execContractQuery(
           currentAccount?.address,
           api,
-          psp22_contract.CONTRACT_ABI,
-          psp22_contract.CONTRACT_ADDRESS,
+          psp22_contract_V2.CONTRACT_ABI,
+          psp22_contract_V2.CONTRACT_ADDRESS,
           0, //-> value
           "psp22::allowance",
           currentAccount?.address,
-          azero_manager_bridge.CONTRACT_ADDRESS
+          azero_bridge_token_contract.CONTRACT_ADDRESS
         );
 
         const allowanceINW = formatQueryResultToNumber(
@@ -132,11 +132,11 @@ export function BridgeForm() {
           let approve = await execContractTx(
             currentAccount,
             api,
-            psp22_contract.CONTRACT_ABI,
-            psp22_contract.CONTRACT_ADDRESS,
+            psp22_contract_V2.CONTRACT_ABI,
+            psp22_contract_V2.CONTRACT_ADDRESS,
             0, //-> value
             "psp22::approve",
-            azero_manager_bridge.CONTRACT_ADDRESS,
+            azero_bridge_token_contract.CONTRACT_ADDRESS,
             formatNumToBNEther(values.fromAmount)
           );
           if (!approve) return;
@@ -147,8 +147,8 @@ export function BridgeForm() {
           await execContractTx(
             currentAccount,
             api,
-            azero_manager_bridge.CONTRACT_ABI,
-            azero_manager_bridge.CONTRACT_ADDRESS,
+            azero_bridge_token_contract.CONTRACT_ABI,
+            azero_bridge_token_contract.CONTRACT_ADDRESS,
             0,
             "createNewTransaction",
             formatNumToBNEther(values.fromAmount),

@@ -17,7 +17,7 @@ import { useAppContext } from "contexts/AppContext";
 import { Field } from "formik";
 import { useSelector } from "react-redux";
 import { formatNumDynDecimal, formatNumToBN } from "utils";
-import azero_manager_bridge from "utils/contracts/azero_manager_bridge";
+import azero_bridge_token_contract from "utils/contracts/azero_bridge_token_contract";
 import { getSwapGasLimit } from "utils/contracts/dryRun";
 import psp22_contract from "utils/contracts/psp22_contract";
 
@@ -182,7 +182,7 @@ export function BridgeInput(props) {
                         contract,
                         { value: 0 },
                         [
-                          azero_manager_bridge.CONTRACT_ADDRESS,
+                          azero_bridge_token_contract.CONTRACT_ADDRESS,
                           formatNumToBN(target.value),
                         ]
                       );
@@ -198,8 +198,8 @@ export function BridgeInput(props) {
                     const fetchDataGasExecBridge = async () => {
                       const contract = new ContractPromise(
                         api,
-                        azero_manager_bridge.CONTRACT_ABI,
-                        azero_manager_bridge.CONTRACT_ADDRESS
+                        azero_bridge_token_contract.CONTRACT_ABI,
+                        azero_bridge_token_contract.CONTRACT_ADDRESS
                       );
 
                       const gasExecResult = await getSwapGasLimit(
