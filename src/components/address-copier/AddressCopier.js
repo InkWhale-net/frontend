@@ -32,12 +32,15 @@ export default function AddressCopier({
       });
     }
   }, [address]);
-  if (azeroID)
+
+  if (azeroID) {
     return (
       <Menu>
         {({ isOpen }) => (
           <>
             <MenuButton
+              id="address-copier-button"
+              name="address-copier-button"
               isActive={isOpen}
               _hover={{ color: "text.2" }}
               sx={{
@@ -67,6 +70,8 @@ export default function AddressCopier({
         )}
       </Menu>
     );
+  }
+
   return (
     <>
       <Flex

@@ -12,6 +12,8 @@ import {
 import fire_psp22_contract from "utils/contracts/firechain/fire_psp22_contract";
 import { BN, BN_ONE } from "@polkadot/util";
 import { getGasLimitFirechain } from "./dryRun";
+import { formatNumToBNEther } from "utils";
+import fire_bridge_token_contract from "./fire_bridge_token_contract";
 
 // ========================5ire chain balance=====================================
 const provider = new WsProvider("wss://wss-testnet.5ire.network");
@@ -118,15 +120,6 @@ export async function execContractQueryFireChain(
   }
 }
 
-export function maxGasLimit(api, gasLimitData) {
-  return api.registry.createType("WeightV2", {
-    // refTime: new BN(10_000_000_000),
-    // proofSize: new BN(1_000_000),
-
-    refTime: new BN(formatChainStringToNumber(gasLimitData.refTime)),
-    proofSize: new BN(formatChainStringToNumber(gasLimitData.proofSize)),
-  });
-}
 export async function execContractTxFireChain(
   caller, // -> currentAccount Object
   contractAbi,
@@ -283,4 +276,60 @@ export const txResponseErrorHandlerFirechain = async ({
       console.log("Tx Finalized at ", `${url}${statusToHuman[0][1]}`);
     }
   }
+};
+
+export const fetchDataGasApproveBridgeFirechain = async (
+  value,
+  form,
+  currentAccount
+) => {
+  const contract = new ContractPromise(
+    fireApi,
+    fire_psp22_contract.CONTRACT_ABI,
+    fire_psp22_contract.CONTRACT_ADDRESS
+  );
+
+  const gasApproveResult = await getGasLimitFirechain(
+    fireApi,
+    currentAccount?.address,
+    "psp22::approve",
+    contract,
+    { value: 0 },
+    [fire_bridge_token_contract.CONTRACT_ADDRESS, formatNumToBNEther(value, 18)]
+  );
+
+  const ret = gasApproveResult?.values?.refTime?.toHuman();
+  console.log(
+    " gasApproveResult.toFixed(8)",
+    formatChainStringToNumber(ret) / 10 ** 12
+  );
+  form.setFieldValue("gasApprove", formatChainStringToNumber(ret) / 10 ** 12);
+};
+
+export const fetchDataGasExecBridgeFirechain = async (
+  value,
+  form,
+  currentAccount
+) => {
+  const contract = new ContractPromise(
+    fireApi,
+    fire_bridge_token_contract.CONTRACT_ABI,
+    fire_bridge_token_contract.CONTRACT_ADDRESS
+  );
+
+  const gasExecResult = await getGasLimitFirechain(
+    fireApi,
+    currentAccount?.address,
+    "createNewTransaction",
+    contract,
+    { value: 0 },
+    [formatNumToBNEther(value, 18), currentAccount?.address]
+  );
+  const ret = gasExecResult?.values?.refTime?.toHuman();
+
+  console.log(
+    "gasExecResult.toFixed(8)",
+    formatChainStringToNumber(ret) / 10 ** 12
+  );
+  form.setFieldValue("gasExec", formatChainStringToNumber(ret) / 10 ** 12);
 };

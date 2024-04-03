@@ -21,6 +21,8 @@ import fire_psp22_contract from "utils/contracts/firechain/fire_psp22_contract";
 import fire_bridge_token_contract from "utils/contracts/firechain/fire_bridge_token_contract";
 import { execContractTxFireChain } from "utils/contracts/firechain";
 import { formatQueryResultToNumberEthers } from "utils";
+import { formatNumDynDecimal } from "utils";
+import { formatChainStringToNumber } from "utils";
 
 const supportedChainBridge = supportedChain.filter(
   (e) => e?.bridgeTo?.length > 0
@@ -33,10 +35,21 @@ export function BridgeForm() {
 
   const [isSendOtherAddress, setIsSendOtherAddress] = useState(false);
 
-  const balanceFirechain = currentAccount?.balance?.["firechain-testnet"];
+  const balance = currentAccount?.balance;
 
   const onBridgeToken = async (values) => {
     try {
+      if (!currentAccount) {
+        return toast.error("Please connect wallet!");
+      }
+
+      const bal = formatChainStringToNumber(balance?.[values?.fromChain]?.inw2);
+
+      if (+bal < +values.fromAmount) {
+        toast.error(`Maximum swap amount is ${formatNumDynDecimal(bal)} INW`);
+        return;
+      }
+
       if (values?.fromChain === "firechain-testnet") {
         const allowanceTokenQrF = await execContractQueryFireChain(
           currentAccount?.address,
@@ -96,21 +109,6 @@ export function BridgeForm() {
       }
 
       if (values?.fromChain === "alephzero-testnet") {
-        // ===========================================================
-        // if (!currentAccount) {
-        //   return toast.error("Please connect wallet!");
-        // }
-        // if (!(+amount > 0)) {
-        //   toast.error("Please enter valid amount!");
-        //   return;
-        // }
-        // if (+inwBalance < +amount) {
-        //   toast.error(
-        //     `Maximum swap amount is ${formatNumDynDecimal(inwBalance)}`
-        //   );
-        //   return;
-        // }
-
         const allowanceTokenQr = await execContractQuery(
           currentAccount?.address,
           api,
@@ -178,7 +176,28 @@ export function BridgeForm() {
         gasApprove: 0,
         gasExec: 0,
       }}
-      validationSchema={validateBridgeInfo(9999999)}
+      validationSchema={() => {
+        return Yup.object().shape({
+          fromChain: Yup.string().required("This field is a required"),
+          fromAmount: Yup.number("Amount must be a number.")
+            .min(1, `Amount must be greater than or equal to 1`)
+            .required("This field is a required")
+            .test(
+              "max",
+              `Amount must be less than or equal to your INW balance`,
+              (value, context) => {
+                const max = formatChainStringToNumber(
+                  balance?.[context?.parent?.fromChain]?.inw2
+                );
+
+                return max >= value;
+              }
+            ),
+          toChain: Yup.string().required("This field is a required"),
+          toAddress: Yup.string(),
+          toAmount: Yup.number("Amount must be a number."),
+        });
+      }}
       onSubmit={async (values, formHelper) => {
         await onBridgeToken(values);
 
@@ -186,13 +205,13 @@ export function BridgeForm() {
         setIsSendOtherAddress(false);
       }}
     >
-      {({ values, dirty, isValid, isSubmitting, setFieldValue }) => {
+      {({ values, dirty, isValid, isSubmitting, setValues }) => {
         const { selectedFromChain, selectedToChain } =
           getSelectedChainInfo(values);
 
         return (
           <Form>
-            <Flex flexDirection={["column"]}>
+            <Flex flexDirection={["column"]} minW={["100%", "410px", "410px"]}>
               <IWCard variant="solid">
                 <BridgeInput
                   name="fromAmount"
@@ -208,8 +227,12 @@ export function BridgeForm() {
                   h="52px"
                   variant="ghost"
                   onClick={() => {
-                    setFieldValue("fromChain", values.toChain);
-                    setFieldValue("toChain", values.fromChain);
+                    setValues((values) => {
+                      const fromChain = values.toChain;
+                      const toChain = values.fromChain;
+
+                      return { ...values, fromChain, toChain };
+                    });
                   }}
                 >
                   <IoSwapVertical fontSize="32px" />
@@ -253,11 +276,17 @@ export function BridgeForm() {
                     </Tooltip>
                   </Flex>
                 </Flex>
-                <Flex w="full" fontSize="sm" alignItems="center">
+                <Flex
+                  w="full"
+                  fontSize="sm"
+                  alignItems={["start", "center", "center"]}
+                  flexDirection={["column", "row", "row"]}
+                >
                   <Flex fontSize="sm" alignItems="center">
                     <Text>
                       Platform fee (5%): ~{" "}
-                      {((values.fromAmount * 5) / 100).toFixed(2) || 0} INW
+                      {formatNumDynDecimal((values.fromAmount * 5) / 100) || 0}{" "}
+                      INW
                     </Text>
                     <Tooltip fontSize="sm" label="Platform fee: 5%">
                       <QuestionOutlineIcon ml="6px" />
@@ -267,7 +296,7 @@ export function BridgeForm() {
                   <Spacer />
 
                   <Flex fontSize="sm" alignItems="center">
-                    <Text>Est. Time: 2m 30s </Text>
+                    <Text>Est. Time: 15s </Text>
                     <Tooltip fontSize="sm" label="Est. time for finish tx ">
                       <QuestionOutlineIcon ml="6px" />
                     </Tooltip>
@@ -307,18 +336,4 @@ function getSelectedChainInfo(values) {
     selectedFromChain: supportedChain.find((e) => e?.key === values?.fromChain),
     selectedToChain: supportedChain.find((e) => e?.key === values?.toChain),
   };
-}
-
-function validateBridgeInfo(maxValue) {
-  return () =>
-    Yup.object().shape({
-      fromChain: Yup.string().required("This field is a required"),
-      fromAmount: Yup.number("Amount must be a number.")
-        .max(maxValue, `Amount must be less than or equal to ${maxValue}`)
-        .min(1, `Amount must be greater than or equal to 1`)
-        .required("This field is a required"),
-      toChain: Yup.string().required("This field is a required"),
-      toAddress: Yup.string(),
-      toAmount: Yup.number("Amount must be a number."),
-    });
 }

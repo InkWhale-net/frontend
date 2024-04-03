@@ -13,12 +13,16 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { ContractPromise } from "@polkadot/api-contract";
+import AddressCopier from "components/address-copier/AddressCopier";
 import { useAppContext } from "contexts/AppContext";
 import { Field } from "formik";
+import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
-import { formatNumDynDecimal, formatNumToBN } from "utils";
+import { formatNumToBN } from "utils";
 import azero_bridge_token_contract from "utils/contracts/azero_bridge_token_contract";
 import { getSwapGasLimit } from "utils/contracts/dryRun";
+import { fetchDataGasExecBridgeFirechain } from "utils/contracts/firechain";
+import { fetchDataGasApproveBridgeFirechain } from "utils/contracts/firechain";
 import psp22_contract from "utils/contracts/psp22_contract";
 
 export function BridgeInput(props) {
@@ -34,45 +38,56 @@ export function BridgeInput(props) {
           <FormLabel display="flex" alignItems="center" htmlFor={field.name}>
             <VStack alignItems="start" w="full">
               <Text>
-                native balance: {balance?.nativeToken}{" "}
-                {props.selectedChain?.unit}
+                Balance: {balance?.inw2 || 0} {props.selectedChain?.inwName}
               </Text>
+
               {props.name === "fromAmount" && (
-                <>
-                  <Text>From:</Text>
-                  <Text>{props.address}</Text>
-                  {/* <Text>{`From: ${addressShortener(props.address, 18)}`}</Text> */}
-                </>
+                <Flex>
+                  <Text mr="4px">From:</Text>
+                  <AddressCopier address={props.address} />
+                </Flex>
               )}
 
               {props.name === "toAmount" && (
                 <>
-                  <Flex w="full" alignItems="center">
-                    <Text>To:</Text>
+                  <Flex w="full" alignItems={["start", "center", "center"]}>
+                    <Text mr="4px">To:</Text>
                     <Spacer />
-                    <Switch
-                      isDisabled={!currentAccount?.address}
-                      id="witch-is-send-other"
-                      size="sm"
-                      colorScheme="blue"
-                      isChecked={props.isSendOtherAddress}
-                      onChange={() => {
-                        props.setIsSendOtherAddress(!props.isSendOtherAddress);
-                        if (!props.isSendOtherAddress) {
-                          form.setFieldValue(
-                            "toAddress",
-                            currentAccount?.address
+                    <Flex w="full" alignItems="center">
+                      <Text fontWeight={!props.isSendOtherAddress ? 800 : 500}>
+                        Connected address
+                      </Text>
+                      <Switch
+                        mx="6px"
+                        isDisabled={!currentAccount?.address}
+                        id="witch-is-send-other"
+                        size="sm"
+                        colorScheme="blue"
+                        isChecked={props.isSendOtherAddress}
+                        onChange={() => {
+                          props.setIsSendOtherAddress(
+                            !props.isSendOtherAddress
                           );
-                        } else {
-                          form.setFieldValue("toAddress", "");
-                        }
-                      }}
-                    />
-                    <Text ml="6px">Other address</Text>
+                          if (!props.isSendOtherAddress) {
+                            form.setFieldValue(
+                              "toAddress",
+                              currentAccount?.address
+                            );
+                          } else {
+                            form.setFieldValue("toAddress", "");
+                          }
+                        }}
+                      />
+                      <Text fontWeight={props.isSendOtherAddress ? 800 : 500}>
+                        Other
+                      </Text>
+                    </Flex>
                   </Flex>
 
                   {props.isSendOtherAddress ? (
                     <Input
+                      w="full"
+                      fontSize="12px"
                       h="30px"
                       size="sm"
                       type="text"
@@ -85,7 +100,7 @@ export function BridgeInput(props) {
                       placeholder="0"
                     />
                   ) : (
-                    <Text>{props.address}</Text>
+                    <AddressCopier address={props.address} />
                   )}
                 </>
               )}
@@ -107,27 +122,25 @@ export function BridgeInput(props) {
                     size="xs"
                     minW="fit-content"
                     onClick={() => {
-                      form.setFieldValue("fromAmount", balance?.inw2);
+                      form.setFieldValue(
+                        "fromAmount",
+                        balance?.inw2?.replaceAll(",", "")
+                      );
                       const toAmount =
-                        (parseFloat(balance?.inw2) / 100) * (100 - 5);
+                        (parseFloat(balance?.inw2?.replaceAll(",", "")) / 100) *
+                        (100 - 5);
 
                       form.setFieldValue("toAmount", toAmount.toFixed(2));
+                      calculateEstGas(
+                        balance?.inw2?.replaceAll(",", ""),
+                        form,
+                        api,
+                        currentAccount
+                      );
                     }}
                   >
-                    <Text>
-                      {`MAX ~ ${formatNumDynDecimal(balance?.inw2 || 0)} ${
-                        props.selectedChain?.inwName
-                      }`}
-                    </Text>
+                    MAX
                   </Button>
-                )}
-
-                {props.name === "toAmount" && (
-                  <Text fontSize="sm">
-                    {`Balance: ${formatNumDynDecimal(balance?.inw2 || 0)} ${
-                      props.selectedChain?.inwName
-                    }`}
-                  </Text>
                 )}
               </Flex>
             </VStack>
@@ -164,58 +177,7 @@ export function BridgeInput(props) {
 
                   form.setFieldValue("toAmount", toAmount.toFixed(2));
 
-                  if (!target.value || parseInt(!target.value) === 0) {
-                    form.setFieldValue("gasApprove", 0);
-                    form.setFieldValue("gasExec", 0);
-                  } else {
-                    const fetchDataGasApproveBridge = async () => {
-                      const contract = new ContractPromise(
-                        api,
-                        psp22_contract.CONTRACT_ABI,
-                        psp22_contract.CONTRACT_ADDRESS
-                      );
-
-                      const gasApproveResult = await getSwapGasLimit(
-                        api,
-                        currentAccount?.address,
-                        "psp22::approve",
-                        contract,
-                        { value: 0 },
-                        [
-                          azero_bridge_token_contract.CONTRACT_ADDRESS,
-                          formatNumToBN(target.value),
-                        ]
-                      );
-
-                      form.setFieldValue(
-                        "gasApprove",
-                        gasApproveResult.toFixed(8)
-                      );
-                    };
-
-                    api && fetchDataGasApproveBridge();
-
-                    const fetchDataGasExecBridge = async () => {
-                      const contract = new ContractPromise(
-                        api,
-                        azero_bridge_token_contract.CONTRACT_ABI,
-                        azero_bridge_token_contract.CONTRACT_ADDRESS
-                      );
-
-                      const gasExecResult = await getSwapGasLimit(
-                        api,
-                        currentAccount?.address,
-                        "createNewTransaction",
-                        contract,
-                        { value: 0 },
-                        [formatNumToBN(target.value), currentAccount?.address]
-                      );
-
-                      form.setFieldValue("gasExec", gasExecResult.toFixed(8));
-                    };
-
-                    api && fetchDataGasExecBridge();
-                  }
+                  calculateEstGas(target?.value, form, api, currentAccount);
                 }
               }}
             />
@@ -234,4 +196,67 @@ export function BridgeInput(props) {
       )}
     </Field>
   );
+}
+
+function calculateEstGas(value, form, api, currentAccount) {
+  const fromChain = form?.values?.fromChain;
+
+  try {
+    if (!value || parseInt(!value) === 0) {
+      form.setFieldValue("gasApprove", 0);
+      form.setFieldValue("gasExec", 0);
+    } else {
+      if (fromChain === "alephzero-testnet") {
+        const fetchDataGasApproveBridge = async () => {
+          const contract = new ContractPromise(
+            api,
+            psp22_contract.CONTRACT_ABI,
+            psp22_contract.CONTRACT_ADDRESS
+          );
+
+          const gasApproveResult = await getSwapGasLimit(
+            api,
+            currentAccount?.address,
+            "psp22::approve",
+            contract,
+            { value: 0 },
+            [azero_bridge_token_contract.CONTRACT_ADDRESS, formatNumToBN(value)]
+          );
+
+          form.setFieldValue("gasApprove", gasApproveResult.toFixed(8));
+        };
+
+        api && fetchDataGasApproveBridge();
+
+        const fetchDataGasExecBridge = async () => {
+          const contract = new ContractPromise(
+            api,
+            azero_bridge_token_contract.CONTRACT_ABI,
+            azero_bridge_token_contract.CONTRACT_ADDRESS
+          );
+
+          const gasExecResult = await getSwapGasLimit(
+            api,
+            currentAccount?.address,
+            "createNewTransaction",
+            contract,
+            { value: 0 },
+            [formatNumToBN(value), currentAccount?.address]
+          );
+
+          form.setFieldValue("gasExec", gasExecResult.toFixed(8));
+        };
+
+        api && fetchDataGasExecBridge();
+      }
+
+      if (fromChain === "firechain-testnet") {
+        api && fetchDataGasApproveBridgeFirechain(value, form, currentAccount);
+        api && fetchDataGasExecBridgeFirechain(value, form, currentAccount);
+      }
+    }
+  } catch (error) {
+    toast.error("Error fetching est. gas!");
+    console.log("error", error);
+  }
 }
