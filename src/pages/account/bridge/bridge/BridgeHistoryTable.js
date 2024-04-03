@@ -29,7 +29,11 @@ export function BridgeHistoryTable() {
         {isLoading ? (
           <ClipLoader color="#57527E" loading size={18} speedMultiplier={1.5} />
         ) : txHistory.length ? (
-          <IWTable tableHeader={tableHeader} tableBody={txHistory} />
+          <IWTable
+            tableHeader={tableHeader}
+            tableBody={txHistory}
+            isDisableRowClick={true}
+          />
         ) : (
           <Text>No history found.</Text>
         )}
@@ -58,27 +62,27 @@ const tableHeader = [
     label: "Trader",
   },
   {
-    name: "from",
+    name: "fromChain",
     hasTooltip: false,
     tooltipContent: "",
     label: "From",
   },
   {
-    name: "to",
+    name: "toChain",
     hasTooltip: false,
     tooltipContent: "",
     label: "To",
   },
   {
-    name: "amount",
+    name: "inwAmount",
     hasTooltip: false,
     tooltipContent: "",
     label: "Amount",
   },
   {
-    name: "blockNumber",
+    name: "blockTime",
     hasTooltip: false,
     tooltipContent: "",
-    label: "Block",
+    label: "Block Time",
   },
 ];

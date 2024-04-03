@@ -14,6 +14,7 @@ import { BN, BN_ONE } from "@polkadot/util";
 import { getGasLimitFirechain } from "./dryRun";
 import { formatNumToBNEther } from "utils";
 import fire_bridge_token_contract from "./fire_bridge_token_contract";
+import moment from "moment";
 
 // ========================5ire chain balance=====================================
 const provider = new WsProvider("wss://wss-testnet.5ire.network");
@@ -332,4 +333,22 @@ export const fetchDataGasExecBridgeFirechain = async (
     formatChainStringToNumber(ret) / 10 ** 12
   );
   form.setFieldValue("gasExec", formatChainStringToNumber(ret) / 10 ** 12);
+};
+
+export const getTimestampFirechain = async (blockNumber) => {
+  const blockHash = await fireApi.rpc.chain.getBlockHash(blockNumber);
+
+  let ret = null;
+
+  const signedBlock = await fireApi.rpc.chain.getBlock(blockHash);
+
+  signedBlock?.block?.extrinsics?.forEach(
+    ({ method: { args, section, method: extrinsicsMethod } }) => {
+      if (section === "timestamp" && extrinsicsMethod === "set") {
+        ret = args[0].toString();
+      }
+    }
+  );
+
+  return moment(parseInt(ret)).format("DD/MM/YY, H:mm");
 };

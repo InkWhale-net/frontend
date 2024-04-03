@@ -44,6 +44,9 @@ import { formatTokenAmount } from "utils";
 import { roundDown } from "utils";
 import { addressShortener, formatNumDynDecimal } from "utils";
 import { format } from "utils/datetime";
+import Icon5Ire from "assets/img/chains/5irechain.png";
+import { InkwhaleLogo } from "components/icons/Icons";
+
 const getStatusPool = (startTime, duration) => {
   if (startTime + duration * 1000 < new Date()) {
     return "Pool ended!";
@@ -721,6 +724,39 @@ export const formatDataCellTable = (
           </Text>
           <Text>
             {formatNumDynDecimal(itemObj["inwReward"], 6)} {appChain?.inwName}
+          </Text>
+        </>
+      );
+
+    // BRIDGE
+    case "fromChain":
+      return parseInt(itemObj[header]) === 2 ? (
+        <Circle w="22px" h="22px" overflow="hidden">
+          <Image src={Icon5Ire} alt="logo-Icon5Ire" rounded />
+        </Circle>
+      ) : (
+        <Circle w="22px" h="22px" overflow="hidden">
+          <AzeroLogo />
+        </Circle>
+      );
+
+    case "toChain":
+      return parseInt(itemObj[header]) === 2 ? (
+        <Circle w="22px" h="22px" overflow="hidden">
+          <Image src={Icon5Ire} alt="logo-Icon5Ire" rounded />
+        </Circle>
+      ) : (
+        <Circle w="22px" h="22px" overflow="hidden">
+          <AzeroLogo />
+        </Circle>
+      );
+
+    case "inwAmount":
+      return (
+        <>
+          <Text>
+            {formatNumDynDecimal(itemObj[header])}{" "}
+            <InkwhaleLogo w="20px" h="20px" mb="3px" />
           </Text>
         </>
       );
