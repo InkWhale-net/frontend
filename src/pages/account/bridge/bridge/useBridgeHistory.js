@@ -37,6 +37,7 @@ export function useBridgeHistory() {
                 parseInt(e.from) === 1 ? 12 : 18
               ),
               account: e?.trader,
+              accountReceiver: e?.receiver,
               bridgeStatus: e?.status,
               blockTime,
             };

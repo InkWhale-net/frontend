@@ -761,6 +761,13 @@ export const formatDataCellTable = (
         </>
       );
 
+    case "accountReceiver":
+      return (
+        <>
+          <AddressCopier address={itemObj[header]} fontWeight="none" />
+        </>
+      );
+
     default:
       return (
         <>

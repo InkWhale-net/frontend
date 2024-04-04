@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Button, Flex, Text } from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Flex, Text } from "@chakra-ui/react";
 import { IWTable } from "components/table/IWTable";
 import { useBridgeHistory } from "./useBridgeHistory";
 import { ClipLoader } from "react-spinners";
@@ -67,6 +67,12 @@ const tableHeader = [
     hasTooltip: false,
     tooltipContent: "",
     label: "Trader",
+  },
+  {
+    name: "accountReceiver",
+    hasTooltip: false,
+    tooltipContent: "",
+    label: "Receiver",
   },
   {
     name: "fromChain",
