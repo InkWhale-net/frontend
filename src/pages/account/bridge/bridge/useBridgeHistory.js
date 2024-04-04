@@ -1,6 +1,6 @@
 import { APICall } from "api/client";
 import { useAppContext } from "contexts/AppContext";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getTimestamp } from "utils";
 import { formatTokenAmount } from "utils";
 import { getTimestampFirechain } from "utils/contracts/firechain";
@@ -11,12 +11,8 @@ export function useBridgeHistory() {
   const [error, setError] = useState(null);
   const { api } = useAppContext();
 
-  useEffect(() => {
-    let isMounted = true;
-
-    setIsLoading(true);
-
-    const fetchData = async (isMounted) => {
+  const fetchData = useCallback(
+    async (isMounted) => {
       try {
         let tx = await APICall.getTransactionOfBridge({
           page: 1,
@@ -50,23 +46,36 @@ export function useBridgeHistory() {
         if (!isMounted) {
           return;
         }
-        setTxHistory(ret);
+
+        setTxHistory((prev) => {
+          return prev[0]?.bridgeStatus === ret[0]?.bridgeStatus &&
+            prev?.length === ret?.length
+            ? prev
+            : ret;
+        });
         setIsLoading(false);
       } catch (error) {
         setTxHistory([]);
         setIsLoading(false);
         setError(error);
       }
-    };
+    },
+    [api]
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+    setIsLoading(true);
 
     api && fetchData(isMounted);
 
     return () => (isMounted = false);
-  }, [api]);
+  }, [api, fetchData]);
 
   return {
     data: txHistory,
     isLoading,
     error,
+    refetch: fetchData,
   };
 }

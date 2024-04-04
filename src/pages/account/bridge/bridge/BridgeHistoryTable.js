@@ -1,10 +1,17 @@
-import { Alert, AlertIcon, Box, Flex, Text } from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Button, Flex, Text } from "@chakra-ui/react";
 import { IWTable } from "components/table/IWTable";
 import { useBridgeHistory } from "./useBridgeHistory";
 import { ClipLoader } from "react-spinners";
+import { useEffect } from "react";
 
 export function BridgeHistoryTable() {
-  const { data: txHistory, isLoading, error } = useBridgeHistory();
+  const { data: txHistory, isLoading, error, refetch } = useBridgeHistory();
+
+  useEffect(() => {
+    const Id = setInterval(() => refetch(true), 3000);
+
+    return () => clearInterval(Id);
+  }, [refetch]);
 
   if (error) {
     return (
