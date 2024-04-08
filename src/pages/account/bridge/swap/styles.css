@@ -107,7 +107,7 @@
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
-  cursor: pointer;
+  /* cursor: pointer; */
   transition: background-color 0.2s;
 }
 .change-swap-option-button:active {

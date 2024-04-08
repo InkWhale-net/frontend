@@ -106,7 +106,7 @@ function SidebarContent({ onClose }) {
               href: "/tokens/transaction",
             },
             {
-              label: "CommonFi Token Swap",
+              label: "Common Swap History",
               href: "/tokens/swap/history",
             },
           ]}

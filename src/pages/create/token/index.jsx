@@ -19,7 +19,6 @@ import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import {
   delay,
-  formatNumToBN,
   formatQueryResultToNumber,
   isAddressValid,
 } from "utils";
@@ -28,9 +27,7 @@ import {
   execContractTx,
   execContractTxAndCallAPI,
 } from "utils/contracts";
-import azt_contract from "utils/contracts/azt_contract";
 import core_contract from "utils/contracts/core_contract";
-import psp22_contract from "utils/contracts/psp22_contract";
 import ImportTokenForm from "./ImportToken";
 import ImageUploadIcon from "./UploadIcon";
 import SaleTab from "components/tabs/SaleTab";

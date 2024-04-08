@@ -180,7 +180,7 @@ export const swapableTokens = [
     token_version_2: "tiou2",
     name_version_2: "TIOU V2",
     contract_address_2: "5GnbvcRxdaAwNh1J4T2uVk8qF6aHmaeg9r6tqAWPZYdMv743",
-    swap_contract_address: "5Cqif4qeYgG6BZ7WSngko1R5eDw9bUVMMsKnTcSM1BAfFp9t"
+    swap_contract_address: "5Cqif4qeYgG6BZ7WSngko1R5eDw9bUVMMsKnTcSM1BAfFp9t",
   },
   {
     token: "baz",
@@ -190,10 +190,10 @@ export const swapableTokens = [
     token_version_2: "baz2",
     name_version_2: "BAZ V2",
     contract_address_2: "5CEd4ttj6p3WqCvTSu7EqdkwPRNaQ9z4TYshBPJC5ofX9gFQ",
-    swap_contract_address: "5GMqPxaxbNps4NS2GUMVsymfaNT7S1WrfnVYToAm6aHitkHB"
-  }
+    swap_contract_address: "5GMqPxaxbNps4NS2GUMVsymfaNT7S1WrfnVYToAm6aHitkHB",
+  },
 ];
- 
+
 export const appChain = supportedChain.find(
   (e) => e?.key === process.env.REACT_APP_CHAIN
 );

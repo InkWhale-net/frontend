@@ -1,13 +1,11 @@
-import { Box, Button, Heading, Show, Stack } from "@chakra-ui/react";
+import { Box, Heading, Stack } from "@chakra-ui/react";
 import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
 import IWCard from "components/card/Card";
 import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
-import IWTabs from "components/tabs/IWTabs";
-import TokenInformation from "./TokenInformation";
 import TokensTabSwapToken from "./TokensTabSwapToken";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
 import {
@@ -15,24 +13,34 @@ import {
   formatNumDynDecimal,
   formatQueryResultToNumber,
   isAddressValid,
-  moveINWToBegin,
-  roundUp,
 } from "utils";
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { getTokenOwner } from "utils";
 import { formatTokenAmount } from "utils";
-import { appChain, swapableTokens } from "constants";
+import { swapableTokens } from "constants";
+import {
+  useHistory,
+  useParams,
+} from "react-router-dom/cjs/react-router-dom.min";
+import { useAppContext } from "contexts/AppContext";
 
 export default function TokensSwapPage() {
+  const { api } = useAppContext();
+  const history = useHistory();
+
+  const { tokenAddress } = useParams();
+
   const { currentAccount } = useSelector((s) => s.wallet);
 
   const [selectedContractAddr, setSelectedContractAddr] = useState(null);
   const [faucetTokensList, setFaucetTokensList] = useState([]);
-  const [tokenInfo, setTokenInfo] = useState({ title: "", content: "" });
-  const [tokenV2Info, setTokenV2Info] = useState({ title: "", content: "" });
+  const [tokenInfo, setTokenInfo] = useState({ title: "", balance: "" });
+  const [tokenV2Info, setTokenV2Info] = useState({ title: "", balance: "" });
   const [supportedToken, setSupportedToken] = useState([]);
-  const [swapTokenContractAddress, setSwapTokenContractAddress] = useState(null);
+  const [swapTokenContractAddress, setSwapTokenContractAddress] =
+    useState(null);
+
   useEffect(() => {
     let isUnmounted = false;
     const getFaucetTokensListData = async () => {
@@ -42,13 +50,10 @@ export default function TokensSwapPage() {
       }
       let { ret, status, message } = await APICall.getTokensList({});
       let faucetTokensListTmp = ret.filter(
-        (el) => !!el?.contractAddress && filterAddressContractParam.includes(el?.contractAddress)
+        (el) =>
+          !!el?.contractAddress &&
+          filterAddressContractParam.includes(el?.contractAddress)
       );
-
-      console.log('getFaucetTokensListData::ret', ret);
-      // for (const faucetTokensListItem of ret) {
-      //   if (faucetTokensListItem.)
-      // }
 
       if (status === "OK") {
         if (isUnmounted) return;
@@ -61,17 +66,6 @@ export default function TokensSwapPage() {
     return () => (isUnmounted = true);
   }, []);
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (selectedContractAddr) {
-        loadTokenInfo();
-        loadTokenV2Info();
-      }
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [selectedContractAddr, currentAccount]);
-
   const selectedToken = useMemo(
     () =>
       faucetTokensList?.find(
@@ -80,242 +74,234 @@ export default function TokensSwapPage() {
     [selectedContractAddr, faucetTokensList]
   );
 
-  async function loadTokenInfo() {
-    if (!currentAccount) {
-      toast.error("Please connect wallet!");
-      return setTokenInfo({ title: "", content: "" });
-    }
+  const loadTokenInfo = useCallback(
+    async (tokenAddress) => {
+      if (!currentAccount) {
+        toast.error("Please connect wallet!");
+        return setTokenInfo({ title: "", balance: "" });
+      }
 
-    if (!isAddressValid(selectedContractAddr)) {
-      toast.error("Invalid address!");
-      return;
-    }
+      if (!isAddressValid(tokenAddress)) {
+        toast.error("Invalid address!");
+        return;
+      }
 
-    let queryResult = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      selectedContractAddr,
-      0,
-      "psp22::balanceOf",
-      currentAccount?.address
-    );
-    let queryResult4 = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      selectedContractAddr,
-      0,
-      "psp22Metadata::tokenDecimals"
-    );
-    const decimals = queryResult4.toHuman().Ok;
-    const balance = formatQueryResultToNumber(queryResult, parseInt(decimals));
+      let queryResult = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenAddress,
+        0,
+        "psp22::balanceOf",
+        currentAccount?.address
+      );
+      let queryResult4 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenAddress,
+        0,
+        "psp22Metadata::tokenDecimals"
+      );
+      const decimals = queryResult4.toHuman().Ok;
+      const balance = formatQueryResultToNumber(
+        queryResult,
+        parseInt(decimals)
+      );
 
-    let queryResult1 = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      selectedContractAddr,
-      0,
-      "psp22Metadata::tokenSymbol"
-    );
-    const tokenSymbol = queryResult1.toHuman().Ok;
-    let queryResult2 = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      selectedContractAddr,
-      0,
-      "psp22Metadata::tokenName"
-    );
-    const tokenName = queryResult2.toHuman().Ok;
-    let queryResult3 = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      selectedContractAddr,
-      0,
-      "psp22::totalSupply"
-    );
-    const rawTotalSupply = queryResult3.toHuman().Ok;
+      let queryResult1 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenAddress,
+        0,
+        "psp22Metadata::tokenSymbol"
+      );
+      const tokenSymbol = queryResult1.toHuman().Ok;
+      let queryResult2 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenAddress,
+        0,
+        "psp22Metadata::tokenName"
+      );
+      const tokenName = queryResult2.toHuman().Ok;
+      let queryResult3 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenAddress,
+        0,
+        "psp22::totalSupply"
+      );
+      const rawTotalSupply = queryResult3.toHuman().Ok;
 
-    const totalSupply = formatTokenAmount(rawTotalSupply, decimals);
-    console.log('selectedContractAddr', selectedContractAddr);
-    const { address: owner } = await getTokenOwner(selectedContractAddr);
-    let tokenIconUrl = null;
-    try {
-      const { status, ret } = await APICall.getTokenInfor({
-        tokenAddress: selectedContractAddr,
+      const totalSupply = formatTokenAmount(rawTotalSupply, decimals);
+
+      const { address: owner } = await getTokenOwner(tokenAddress);
+      let tokenIconUrl = null;
+      try {
+        const { status, ret } = await APICall.getTokenInfor({
+          tokenAddress: tokenAddress,
+        });
+        if (status === "OK") {
+          tokenIconUrl = ret?.tokenIconUrl;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+      setSupportedToken([]);
+      setSwapTokenContractAddress(null);
+      for (const swapableToken of swapableTokens) {
+        if (swapableToken.contract_address == tokenAddress) {
+          let supportedToken = [
+            {
+              version: "1.0",
+              token: swapableToken.token,
+              name: swapableToken.name,
+              decimal: swapableToken.decimal,
+              contractAddress: swapableToken.contract_address,
+            },
+            {
+              version: "2.0",
+              token: swapableToken.token_version_2,
+              name: swapableToken.name_version_2,
+              decimal: swapableToken.decimal,
+              contractAddress: swapableToken.contract_address_2,
+            },
+          ];
+          setSupportedToken(supportedToken);
+          setSwapTokenContractAddress(swapableToken.swap_contract_address);
+        }
+      }
+
+      setTokenInfo((prev) => {
+        return {
+          ...prev,
+          title: tokenSymbol,
+          balance: balance,
+          name: tokenName,
+          totalSupply: formatNumDynDecimal(totalSupply, 4),
+          decimals,
+          owner,
+          tokenIconUrl,
+          address: tokenAddress,
+        };
       });
-      if (status === "OK") {
-        tokenIconUrl = ret?.tokenIconUrl;
+    },
+    [currentAccount]
+  );
+
+  const loadTokenV2Info = useCallback(
+    async (tokenAddress) => {
+      let tokenV2ContractAddress = null;
+      for (const swapableToken of swapableTokens) {
+        if (swapableToken.contract_address === tokenAddress) {
+          tokenV2ContractAddress = swapableToken.contract_address_2;
+        }
       }
-    } catch (error) {
-      console.log(error);
-    }
-    setSupportedToken([]);
-    setSwapTokenContractAddress(null);
-    for (const swapableToken of swapableTokens) {
-      if (swapableToken.contract_address == selectedContractAddr) {
-        let supportedToken = [
-          {
-            version: "1.0",
-            token: swapableToken.token,
-            name: swapableToken.name,
-            decimal: swapableToken.decimal,
-            contractAddress: swapableToken.contract_address,
-          },
-          {
-            version: "2.0",
-            token: swapableToken.token_version_2,
-            name: swapableToken.name_version_2,
-            decimal: swapableToken.decimal,
-            contractAddress: swapableToken.contract_address_2,
-          },
-        ];
-        setSupportedToken(supportedToken);
-        setSwapTokenContractAddress(swapableToken.swap_contract_address);
+      if (!currentAccount) {
+        toast.error("Please connect wallet!");
+        return setTokenInfo({ title: "", balance: "" });
       }
-    }
 
-    setTokenInfo((prev) => {
-      return {
-        ...prev,
-        title: tokenSymbol,
-        content: balance,
-        name: tokenName,
-        totalSupply: formatNumDynDecimal(totalSupply, 4),
-        decimals,
-        owner,
-        tokenIconUrl,
-        address: selectedContractAddr,
-      };
-    });
-  }
-
-  async function loadTokenV2Info() {
-    let tokenV2ContractAddress = null;
-    for (const swapableToken of swapableTokens) {
-      if (swapableToken.contract_address == selectedContractAddr) {
-        tokenV2ContractAddress = swapableToken.contract_address_2;
+      if (!isAddressValid(tokenV2ContractAddress)) {
+        toast.error("Invalid address!");
+        return;
       }
-    }
-    if (!currentAccount) {
-      toast.error("Please connect wallet!");
-      return setTokenInfo({ title: "", content: "" });
-    }
 
-    if (!isAddressValid(tokenV2ContractAddress)) {
-      toast.error("Invalid address!");
-      return;
-    }
+      let queryResult = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenV2ContractAddress,
+        0,
+        "psp22::balanceOf",
+        currentAccount?.address
+      );
+      let queryResult4 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenV2ContractAddress,
+        0,
+        "psp22Metadata::tokenDecimals"
+      );
+      const decimals = queryResult4.toHuman().Ok;
+      const balance = formatQueryResultToNumber(
+        queryResult,
+        parseInt(decimals)
+      );
 
-    let queryResult = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      tokenV2ContractAddress,
-      0,
-      "psp22::balanceOf",
-      currentAccount?.address
-    );
-    let queryResult4 = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      tokenV2ContractAddress,
-      0,
-      "psp22Metadata::tokenDecimals"
-    );
-    const decimals = queryResult4.toHuman().Ok;
-    const balance = formatQueryResultToNumber(queryResult, parseInt(decimals));
+      let queryResult1 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenV2ContractAddress,
+        0,
+        "psp22Metadata::tokenSymbol"
+      );
+      const tokenSymbol = queryResult1.toHuman().Ok;
+      let queryResult2 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenV2ContractAddress,
+        0,
+        "psp22Metadata::tokenName"
+      );
+      const tokenName = queryResult2.toHuman().Ok;
+      let queryResult3 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract.CONTRACT_ABI,
+        tokenV2ContractAddress,
+        0,
+        "psp22::totalSupply"
+      );
+      const rawTotalSupply = queryResult3.toHuman().Ok;
 
-    let queryResult1 = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      tokenV2ContractAddress,
-      0,
-      "psp22Metadata::tokenSymbol"
-    );
-    const tokenSymbol = queryResult1.toHuman().Ok;
-    let queryResult2 = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      tokenV2ContractAddress,
-      0,
-      "psp22Metadata::tokenName"
-    );
-    const tokenName = queryResult2.toHuman().Ok;
-    let queryResult3 = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      tokenV2ContractAddress,
-      0,
-      "psp22::totalSupply"
-    );
-    const rawTotalSupply = queryResult3.toHuman().Ok;
+      const totalSupply = formatTokenAmount(rawTotalSupply, decimals);
 
-    const totalSupply = formatTokenAmount(rawTotalSupply, decimals);
-    console.log('tokenV2ContractAddress', tokenV2ContractAddress);
-    const { address: owner } = await getTokenOwner(tokenV2ContractAddress);
-    let tokenIconUrl = null;
-    try {
-      const { status, ret } = await APICall.getTokenInfor({
-        tokenAddress: tokenV2ContractAddress,
+      const { address: owner } = await getTokenOwner(tokenV2ContractAddress);
+      let tokenIconUrl = null;
+      try {
+        const { status, ret } = await APICall.getTokenInfor({
+          tokenAddress: tokenV2ContractAddress,
+        });
+        if (status === "OK") {
+          tokenIconUrl = ret?.tokenIconUrl;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
+      setTokenV2Info((prev) => {
+        return {
+          ...prev,
+          title: tokenSymbol,
+          balance: balance,
+          name: tokenName,
+          totalSupply: formatNumDynDecimal(totalSupply, 4),
+          decimals,
+          owner,
+          tokenIconUrl,
+          address: tokenV2ContractAddress,
+        };
       });
-      if (status === "OK") {
-        tokenIconUrl = ret?.tokenIconUrl;
-      }
-    } catch (error) {
-      console.log(error);
+    },
+    [currentAccount]
+  );
+
+  useEffect(() => {
+    if (api && tokenAddress) {
+      setSelectedContractAddr(tokenAddress);
+      loadTokenInfo(tokenAddress);
+      loadTokenV2Info(tokenAddress);
     }
+  }, [api, loadTokenInfo, loadTokenV2Info, tokenAddress]);
 
-    setTokenV2Info((prev) => {
-      return {
-        ...prev,
-        title: tokenSymbol,
-        content: balance,
-        name: tokenName,
-        totalSupply: formatNumDynDecimal(totalSupply, 4),
-        decimals,
-        owner,
-        tokenIconUrl,
-        address: tokenV2ContractAddress,
-      };
-    });
-  }
-
-  const tabsData = [
-    tokenInfo?.title && {
-      label: <>Token Info</>,
-      component: <TokenInformation tokenInfo={tokenInfo} />,
-      isDisabled: false,
-    },
-    tokenInfo?.title && {
-      label: (
-        <>
-          Swap<Show above="md"> Token</Show>
-        </>
-      ),
-      component: (
-        <TokensTabSwapToken
-          mode="SWAP_TOKEN"
-          {...currentAccount}
-          tokenInfo={tokenInfo}
-          tokenV2Info={tokenV2Info}
-          selectedContractAddr={selectedContractAddr}
-          loadTokenInfo={loadTokenInfo}
-          loadTokenV2Info={loadTokenV2Info}
-          supportedToken={supportedToken}
-          swapTokenContractAddress={swapTokenContractAddress}
-        />
-      ),
-      isDisabled: false,
-    },
-  ];
   return (
     <>
       <SectionContainer
@@ -361,6 +347,8 @@ export default function TokensSwapPage() {
                   }
                   isSearchable
                   onChange={({ value }) => {
+                    console.log("value", value);
+                    history.push({ pathname: `/tokens/swap/${value}` });
                     setSelectedContractAddr(value);
                   }}
                   options={faucetTokensList?.map((token, idx) => ({
@@ -381,17 +369,19 @@ export default function TokensSwapPage() {
                   label="or enter token contract address"
                 />
               </Box>
-
-              <Button
-                onClick={loadTokenInfo}
-                w="full"
-                maxW={{ base: "full", lg: "190px" }}
-              >
-                Load
-              </Button>
             </Stack>
           </IWCard>
-          <IWTabs tabsData={tabsData.filter((e) => !!e)} />
+          <TokensTabSwapToken
+            mode="SWAP_TOKEN"
+            {...currentAccount}
+            tokenInfo={tokenInfo}
+            tokenV2Info={tokenV2Info}
+            selectedContractAddr={selectedContractAddr}
+            loadTokenInfo={loadTokenInfo}
+            loadTokenV2Info={loadTokenV2Info}
+            supportedToken={supportedToken}
+            swapTokenContractAddress={swapTokenContractAddress}
+          />{" "}
         </Stack>
       </SectionContainer>
     </>

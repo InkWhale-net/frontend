@@ -120,10 +120,10 @@ export default function NavbarLinks(props) {
               },
               {
                 label: "Swap Token",
-                href: "/tokens/swap",
+                href: "/tokens/swap/5DdAakFT1uBpwdArZnsz4zGUn28QntXP8RtKMDFFTPzuDYkt",
               },
               {
-                label: "CommonFi Token Swap",
+                label: "Common Swap History",
                 href: "/tokens/swap/history",
               },
             ]}

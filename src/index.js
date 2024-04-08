@@ -178,7 +178,7 @@ const App = () => {
             component={TokensTransactionPage}
           />
           <Route exact path={`/tokens/swap/history`} component={TokensSwapHistoryPage} />
-          <Route exact path={`/tokens/swap`} component={TokensSwapPage} />
+          <Route exact path={`/tokens/swap/:tokenAddress`} component={TokensSwapPage} />
           <Route exact path={`/create/token`} component={CreateTokenPage} />
           <Route
             exact

@@ -24,19 +24,19 @@ const MyAccountTab = ({ address, balance, tokenInfo, tokenV2Info }) => {
           content: `${balance?.azero || 0} ${appChain?.unit}`,
         },
         {
-          title: !tokenInfo?.title ? "" : `${tokenInfo?.title} Balance (V1)`,
+          title: !tokenInfo?.title ? "" : `${tokenInfo?.title} (old) Balance `,
           content: `${formatNumDynDecimal(
-            formatTextAmount(tokenInfo?.content)
-          )} ${tokenInfo?.title}`,
+            formatTextAmount(tokenInfo?.balance)
+          )} ${tokenInfo?.title} (old)`,
           isHide:
             tokenInfo?.address === psp22_contract_v2.CONTRACT_ADDRESS ||
             tokenInfo?.address === psp22_contract.CONTRACT_ADDRESS,
         },
         {
-          title: !tokenV2Info?.title ? "" : `${tokenV2Info?.title} Balance (V2)`,
+          title: !tokenV2Info?.title ? "" : `${tokenInfo?.title} Balance`,
           content: `${formatNumDynDecimal(
-            formatTextAmount(tokenV2Info?.content)
-          )} ${tokenV2Info?.title}`,
+            formatTextAmount(tokenV2Info?.balance)
+          )} ${tokenInfo?.title}`,
           isHide:
             tokenV2Info?.address === psp22_contract_v2.CONTRACT_ADDRESS ||
             tokenV2Info?.address === psp22_contract.CONTRACT_ADDRESS,
