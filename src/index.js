@@ -177,8 +177,16 @@ const App = () => {
             path={`/tokens/transaction`}
             component={TokensTransactionPage}
           />
-          <Route exact path={`/tokens/swap/history`} component={TokensSwapHistoryPage} />
-          <Route exact path={`/tokens/swap/:tokenAddress`} component={TokensSwapPage} />
+          <Route
+            exact
+            path={`/tokens/swap/history`}
+            component={TokensSwapHistoryPage}
+          />
+          <Route
+            exact
+            path={`/tokens/swap/:tokenAddress`}
+            component={TokensSwapPage}
+          />
           <Route exact path={`/create/token`} component={CreateTokenPage} />
           <Route
             exact
@@ -225,7 +233,7 @@ const App = () => {
           <Route exact path={`/admin`} component={AdminPage} />
           <Route exact path={`/azero-staking`} component={AzeroStaking} />
           <Route exact path={`/inw-v2`} component={INWV2} />
-          <Route exact path={`/tokens/bridge`} component={BridgePage} />
+          <Route exact path={`/bridge`} component={BridgePage} />
           <Route>
             <FaucetPage api={api} />
           </Route>

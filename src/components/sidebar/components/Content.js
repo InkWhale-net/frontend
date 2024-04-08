@@ -98,11 +98,11 @@ function SidebarContent({ onClose }) {
               href: "/tokens/interaction",
             },
             {
-              label: "Transactions",
-              href: "/tokens/transaction",
+              label: "Swap Tokens",
+              href: "/tokens/swap/5DdAakFT1uBpwdArZnsz4zGUn28QntXP8RtKMDFFTPzuDYkt",
             },
             {
-              label: "Swap Tokens",
+              label: "Transactions",
               href: "/tokens/transaction",
             },
             {

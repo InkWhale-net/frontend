@@ -111,16 +111,12 @@ export default function NavbarLinks(props) {
                 href: "/tokens/interaction",
               },
               {
-                label: "Bridge/Swap",
-                href: "/tokens/bridge",
+                label: "Swap Token",
+                href: "/tokens/swap/5DdAakFT1uBpwdArZnsz4zGUn28QntXP8RtKMDFFTPzuDYkt",
               },
               {
                 label: "Transactions",
                 href: "/tokens/transaction",
-              },
-              {
-                label: "Swap Token",
-                href: "/tokens/swap/5DdAakFT1uBpwdArZnsz4zGUn28QntXP8RtKMDFFTPzuDYkt",
               },
               {
                 label: "Common Swap History",
@@ -217,6 +213,10 @@ NavbarLinks.propTypes = {
 };
 
 export const menuListData = [
+  {
+    title: "Bridge",
+    href: "/bridge",
+  },
   {
     title: "Launchpad",
     href: "/launchpad",

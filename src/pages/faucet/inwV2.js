@@ -1,6 +1,6 @@
 import {
   Box,
-  Button,
+  Flex,
   Heading,
   SimpleGrid,
   Text,
@@ -10,8 +10,8 @@ import AddressCopier from "components/address-copier/AddressCopier";
 import SectionContainer from "components/container/SectionContainer";
 import { useAppContext } from "contexts/AppContext";
 import { useSwapV2TokenContext } from "contexts/SwapV2TokenModalContext";
+import SwapTab from "pages/account/bridge/swap";
 import { useEffect, useState } from "react";
-import { isMobile } from "react-device-detect";
 import { useSelector } from "react-redux";
 import {
   formatNumDynDecimal,
@@ -71,11 +71,6 @@ const INWV2 = () => {
   return (
     <>
       <SectionContainer
-        right={
-          isMobile ? null : (
-            <Button onClick={() => openSwapModal()}>Swap Now</Button>
-          )
-        }
         mt={{ base: "0px", xl: "20px" }}
         title="INW V2 Tokens"
         description={
@@ -86,11 +81,6 @@ const INWV2 = () => {
           </>
         }
       >
-        {isMobile && (
-          <Button mb="8px" onClick={() => openSwapModal()}>
-            Swap Now
-          </Button>
-        )}
         <Box __css={styles}>
           <Heading as="h4" size="h4" lineHeight="25px">
             Ink Whale Token (INW V2)
@@ -148,6 +138,10 @@ const INWV2 = () => {
           </Box>
         </Box>
       </SectionContainer>
+      <Flex justifyContent="center" my="16px">
+        <Heading>Swap</Heading>
+      </Flex>
+      <SwapTab />
     </>
   );
 };

@@ -1,6 +1,5 @@
 import SectionContainer from "components/container/SectionContainer";
 import { useRef } from "react";
-import SwapTab from "./swap";
 import IWTabs from "components/tabs/IWTabs";
 import BridgeTab from "./bridge";
 
@@ -10,11 +9,6 @@ const BridgePage = () => {
     {
       label: <>Bridge</>,
       component: <BridgeTab amountRef={amountRef} />,
-      isDisabled: false,
-    },
-    {
-      label: <>Swap</>,
-      component: <SwapTab amountRef={amountRef} />,
       isDisabled: false,
     },
   ];
