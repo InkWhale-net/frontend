@@ -172,7 +172,7 @@ function SidebarContent({ onClose }) {
             </Text>
           </Link>
         </Flex>
-        {isMobile && appChain?.allowSwap && (
+        {/* {isMobile && appChain?.allowSwap && (
           <Flex
             _hover={{ textDecoration: "none", bg: "bg.1" }}
             p="6px 10px"
@@ -197,7 +197,7 @@ function SidebarContent({ onClose }) {
               </Text>
             </Link>
           </Flex>
-        )}
+        )} */}
         <Flex ml="30px" pt="10px" w="full">
           <WalletButton onCloseSidebar={onClose} />
         </Flex>
