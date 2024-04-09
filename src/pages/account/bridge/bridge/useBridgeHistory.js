@@ -19,8 +19,6 @@ export function useBridgeHistory() {
           limit: 9999,
         });
 
-        tx = tx.sort((a, b) => b.blockNumber - a.blockNumber);
-
         const ret = await Promise.all(
           tx.map(async (e) => {
             const blockTime =

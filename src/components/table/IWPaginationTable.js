@@ -756,7 +756,7 @@ export const formatDataCellTable = (
         <>
           <Text>
             {formatNumDynDecimal(itemObj[header])}{" "}
-            <InkwhaleLogo w="20px" h="20px" mb="3px" />
+            INW
           </Text>
         </>
       );
