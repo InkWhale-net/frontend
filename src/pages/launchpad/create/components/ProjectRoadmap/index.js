@@ -3,17 +3,18 @@ import {
   Button,
   Flex,
   FormControl,
-  FormErrorMessage,
   IconButton,
+  Text,
 } from "@chakra-ui/react";
 import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
+import { validationCollectionName, validationDescription } from "constants/yup";
 import { Field, Form, Formik } from "formik";
 import { BsTrashFill } from "react-icons/bs";
+import { MdError } from "react-icons/md";
 import * as Yup from "yup";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
-import { MdError } from "react-icons/md";
 
 const ProjectRoadmap = () => {
   const { updateRoadmap, launchpadData, prevStep, nextStep } =
@@ -27,8 +28,8 @@ const ProjectRoadmap = () => {
 
   const validationSchema = Yup.array().of(
     Yup.object().shape({
-      name: Yup.string().required("Name required"),
-      description: Yup.string().required("Description required"),
+      name: validationCollectionName,
+      description: validationDescription,
     })
   );
 
@@ -45,7 +46,7 @@ const ProjectRoadmap = () => {
       onSubmit={handleSubmit}
     >
       <Form>
-        <Field>
+        <Field name="name">
           {({ form }) =>
             form.values?.map((obj, index) => {
               return (
@@ -84,6 +85,7 @@ const ProjectRoadmap = () => {
                       isRequiredLabel
                     >
                       <IWInput
+                        autocomplete="off"
                         maxLength={60}
                         onChange={({ target }) => {
                           const updatedArray = [...form.values];
@@ -99,9 +101,15 @@ const ProjectRoadmap = () => {
                         value={obj?.name}
                         placeholder="Milestone Name"
                       />
-                      <FormErrorMessage>
-                        {form.errors[index]?.name}
-                      </FormErrorMessage>
+                      <Text
+                        h="20px"
+                        color="red"
+                        textAlign="left"
+                        fontSize="14px"
+                        lineHeight="22px"
+                      >
+                        {form.errors?.[index]?.name ?? null}
+                      </Text>
                     </SectionContainer>
                   </FormControl>
                   <FormControl
@@ -130,9 +138,15 @@ const ProjectRoadmap = () => {
                         id={`description-roadmap-${index}`}
                         placeholder="Project Description"
                       />
-                      <FormErrorMessage>
-                        {form.errors[index]?.description}
-                      </FormErrorMessage>
+                      <Text
+                        h="20px"
+                        color="red"
+                        textAlign="left"
+                        fontSize="14px"
+                        lineHeight="22px"
+                      >
+                        {form.errors?.[index]?.description ?? null}
+                      </Text>
                     </SectionContainer>
                   </FormControl>
                 </Box>
@@ -142,7 +156,7 @@ const ProjectRoadmap = () => {
         </Field>
 
         <Flex justify="center">
-          <Field>
+          <Field name="description">
             {({ form }) => (
               <Button
                 w={{
@@ -168,21 +182,28 @@ const ProjectRoadmap = () => {
           </Field>
         </Flex>
         <Flex justify="center" mt="20px">
-          <Button onClick={() => prevStep()} minW="100px">
-            Previous
-          </Button>
-          <Flex align="center">
-            <Button mr="4px" ml="8px" type="submit" minW="100px">
-              Next
-            </Button>
-            <Field>
-              {({ form }) =>
-                Object.entries(form.errors)?.length > 0 && (
-                  <MdError color="red" />
-                )
-              }
-            </Field>
-          </Flex>
+          <Field>
+            {({ form }) => {
+              return (
+                <>
+                  <Button onClick={() => prevStep()} minW="100px">
+                    Previous
+                  </Button>
+                  <Flex align="center">
+                    <Button
+                      disabled={!!Object.entries(form.errors)?.length}
+                      mr="4px"
+                      ml="8px"
+                      type="submit"
+                      minW="100px"
+                    >
+                      Next
+                    </Button>
+                  </Flex>
+                </>
+              );
+            }}
+          </Field>
         </Flex>
       </Form>
     </Formik>

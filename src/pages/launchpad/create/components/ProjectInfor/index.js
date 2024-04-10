@@ -3,11 +3,19 @@ import {
   Button,
   Flex,
   FormControl,
-  FormErrorMessage,
   SimpleGrid,
+  Text,
 } from "@chakra-ui/react";
 import IWInput from "components/input/Input";
 import IWTextArea from "components/input/TextArea";
+import {
+  validationCollectionName,
+  validationDescription,
+  validationDiscord,
+  validationTelegram,
+  validationTwitter,
+  validationWebsite,
+} from "constants/yup";
 import { Field, Form, Formik } from "formik";
 import UploadImage from "pages/launchpad/UploadImage";
 import { useState } from "react";
@@ -16,10 +24,6 @@ import * as Yup from "yup";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
 import Tokenomic from "./Tokenomic";
-import { validationTwitter } from "constants/yup";
-import { validationWebsite } from "constants/yup";
-import { validationDiscord } from "constants/yup";
-import { validationTelegram } from "constants/yup";
 
 const ProjectInfor = () => {
   const { updateProjectInfor, launchpadData, nextStep, prevStep } =
@@ -38,8 +42,8 @@ const ProjectInfor = () => {
     tokenomic: launchpadData?.projectInfor?.telegram,
   });
   const validationSchema = Yup.object().shape({
-    project_name: Yup.string().required("Project name is required"),
-    description: Yup.string().required("Description is required"),
+    project_name: validationCollectionName,
+    description: validationDescription,
     avatarImage: Yup.string().required("This field is required"),
     featureImage: Yup.string().required("This field is required"),
     youtubeUrl: Yup.string().matches(
@@ -138,13 +142,14 @@ const ProjectInfor = () => {
         <Box w={{ base: "full" }}>
           <SectionContainer title="Project Name" isRequiredLabel>
             <Field name="project_name">
-              {({ field, form }) => (
+              {({ field, form, meta }) => (
                 <FormControl
                   isInvalid={
                     form.errors.project_name && form.touched.project_name
                   }
                 >
                   <IWInput
+                    autocomplete="off"
                     maxLength={60}
                     onChange={({ target }) =>
                       form.setFieldValue("project_name", target.value)
@@ -153,16 +158,22 @@ const ProjectInfor = () => {
                     value={field.value}
                     placeholder="Project Name"
                   />
-                  <FormErrorMessage>
-                    {form.errors.project_name}
-                  </FormErrorMessage>
+                  <Text
+                    h="20px"
+                    color="red"
+                    textAlign="left"
+                    fontSize="14px"
+                    lineHeight="22px"
+                  >
+                    {meta.error ? meta.error : null}
+                  </Text>
                 </FormControl>
               )}
             </Field>
           </SectionContainer>
           <SectionContainer title="Project Description" isRequiredLabel>
             <Field name="description">
-              {({ field, form }) => (
+              {({ field, form, meta }) => (
                 <FormControl
                   isInvalid={
                     form.errors.description && form.touched.description
@@ -177,14 +188,22 @@ const ProjectInfor = () => {
                     }
                     placeholder="Project Description"
                   />
-                  <FormErrorMessage>{form.errors.description}</FormErrorMessage>
+                  <Text
+                    h="20px"
+                    color="red"
+                    textAlign="left"
+                    fontSize="14px"
+                    lineHeight="22px"
+                  >
+                    {meta.error ? meta.error : null}
+                  </Text>{" "}
                 </FormControl>
               )}
             </Field>
           </SectionContainer>
           <SectionContainer title="Youtube intro link">
             <Field name="youtubeUrl">
-              {({ field, form }) => (
+              {({ field, form, meta }) => (
                 <FormControl
                   isInvalid={form.errors.youtubeUrl && form.touched.youtubeUrl}
                 >
@@ -196,7 +215,15 @@ const ProjectInfor = () => {
                     }
                     placeholder="https://www.youtube.com/embed/fwK7ggA3-bU"
                   />
-                  <FormErrorMessage>{form.errors.youtubeUrl}</FormErrorMessage>
+                  <Text
+                    h="20px"
+                    color="red"
+                    textAlign="left"
+                    fontSize="14px"
+                    lineHeight="22px"
+                  >
+                    {meta.error ? meta.error : null}
+                  </Text>{" "}
                 </FormControl>
               )}
             </Field>
@@ -221,7 +248,7 @@ const ProjectInfor = () => {
           <SimpleGrid columns={[1, 1, 2]} spacing={4}>
             <SectionContainer title="Website">
               <Field name="website">
-                {({ field, form }) => (
+                {({ field, form, meta }) => (
                   <FormControl
                     isInvalid={form.errors.website && form.touched.website}
                   >
@@ -232,15 +259,22 @@ const ProjectInfor = () => {
                       }
                       placeholder="Project Website"
                     />
-
-                    <FormErrorMessage>{form.errors.website}</FormErrorMessage>
+                    <Text
+                      h="20px"
+                      color="red"
+                      textAlign="left"
+                      fontSize="14px"
+                      lineHeight="22px"
+                    >
+                      {meta.error ? meta.error : null}
+                    </Text>{" "}
                   </FormControl>
                 )}
               </Field>
             </SectionContainer>
             <SectionContainer title="Twitter">
               <Field name="twitter">
-                {({ field, form }) => (
+                {({ field, form, meta }) => (
                   <FormControl
                     isInvalid={form.errors.twitter && form.touched.twitter}
                   >
@@ -251,15 +285,22 @@ const ProjectInfor = () => {
                       }
                       placeholder="Project Twitter"
                     />
-
-                    <FormErrorMessage>{form.errors.twitter}</FormErrorMessage>
+                    <Text
+                      h="20px"
+                      color="red"
+                      textAlign="left"
+                      fontSize="14px"
+                      lineHeight="22px"
+                    >
+                      {meta.error ? meta.error : null}
+                    </Text>{" "}
                   </FormControl>
                 )}
               </Field>
             </SectionContainer>
             <SectionContainer title="Discord">
               <Field name="discord">
-                {({ field, form }) => (
+                {({ field, form, meta }) => (
                   <FormControl
                     isInvalid={form.errors.discord && form.touched.discord}
                   >
@@ -270,15 +311,22 @@ const ProjectInfor = () => {
                       }
                       placeholder="Project Discord"
                     />
-
-                    <FormErrorMessage>{form.errors.discord}</FormErrorMessage>
+                    <Text
+                      h="20px"
+                      color="red"
+                      textAlign="left"
+                      fontSize="14px"
+                      lineHeight="22px"
+                    >
+                      {meta.error ? meta.error : null}
+                    </Text>{" "}
                   </FormControl>
                 )}
               </Field>
             </SectionContainer>
             <SectionContainer title="Telegram">
               <Field name="telegram">
-                {({ field, form }) => (
+                {({ field, form, meta }) => (
                   <FormControl
                     isInvalid={form.errors.telegram && form.touched.telegram}
                   >
@@ -290,7 +338,15 @@ const ProjectInfor = () => {
                       placeholder="Project Telegram"
                     />
 
-                    <FormErrorMessage>{form.errors.telegram}</FormErrorMessage>
+                    <Text
+                      h="20px"
+                      color="red"
+                      textAlign="left"
+                      fontSize="14px"
+                      lineHeight="22px"
+                    >
+                      {meta.error ? meta.error : null}
+                    </Text>
                   </FormControl>
                 )}
               </Field>
@@ -298,21 +354,28 @@ const ProjectInfor = () => {
           </SimpleGrid>
         </Box>
         <Flex justify="center" mt="20px">
-          <Button onClick={() => prevStep()} minW="100px">
-            Previous
-          </Button>
-          <Flex align="center">
-            <Button mr="4px" ml="8px" type="submit" minW="100px">
-              Next
-            </Button>
-            <Field>
-              {({ form }) =>
-                Object.entries(form.errors)?.length > 0 && (
-                  <MdError color="red" />
-                )
-              }
-            </Field>
-          </Flex>
+          <Field>
+            {({ form }) => {
+              return (
+                <>
+                  <Button onClick={() => prevStep()} minW="100px">
+                    Previous
+                  </Button>
+                  <Flex align="center">
+                    <Button
+                      disabled={!!Object?.entries(form?.errors)?.length}
+                      mr="4px"
+                      ml="8px"
+                      type="submit"
+                      minW="100px"
+                    >
+                      Next
+                    </Button>
+                  </Flex>
+                </>
+              );
+            }}
+          </Field>
         </Flex>
       </Form>
     </Formik>

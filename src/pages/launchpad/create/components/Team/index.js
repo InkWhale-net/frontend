@@ -3,21 +3,21 @@ import {
   Button,
   Flex,
   FormControl,
-  FormErrorMessage,
   Heading,
   IconButton,
   SimpleGrid,
+  Text,
 } from "@chakra-ui/react";
 import IWInput from "components/input/Input";
+import { validationCollectionName, validationWebsite } from "constants/yup";
 import { Field, Form, Formik } from "formik";
 import UploadImage from "pages/launchpad/UploadImage";
 import { useState } from "react";
 import { BsTrashFill } from "react-icons/bs";
+import { MdError } from "react-icons/md";
 import * as Yup from "yup";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
-import { MdError } from "react-icons/md";
-import { validationWebsite } from "constants/yup";
 
 const Team = () => {
   const { updateMember, launchpadData, prevStep, nextStep } =
@@ -34,9 +34,9 @@ const Team = () => {
   );
   const validationSchema = Yup.array().of(
     Yup.object().shape({
-      name: Yup.string().required("Name required"),
+      name: validationCollectionName,
       iconIPFSUrl: Yup.string().required("Avatar required"),
-      title: Yup.string().required("Title required"),
+      title: validationCollectionName,
       socialLink: validationWebsite,
     })
   );
@@ -149,9 +149,15 @@ const Team = () => {
                           }}
                           placeholder="Name"
                         />
-                        <FormErrorMessage>
-                          {form.errors[index]?.name}
-                        </FormErrorMessage>
+                        <Text
+                          h="20px"
+                          color="red"
+                          textAlign="left"
+                          fontSize="14px"
+                          lineHeight="22px"
+                        >
+                          {form.errors?.[index]?.name ?? null}
+                        </Text>
                       </SectionContainer>
                     </FormControl>
                     <FormControl
@@ -174,9 +180,15 @@ const Team = () => {
                           }}
                           placeholder="Title"
                         />
-                        <FormErrorMessage>
-                          {form.errors[index]?.title}
-                        </FormErrorMessage>
+                        <Text
+                          h="20px"
+                          color="red"
+                          textAlign="left"
+                          fontSize="14px"
+                          lineHeight="22px"
+                        >
+                          {form.errors?.[index]?.title ?? null}
+                        </Text>
                       </SectionContainer>
                     </FormControl>
                     <FormControl
@@ -198,11 +210,17 @@ const Team = () => {
                             }
                             form.setValues(updatedArray);
                           }}
-                          placeholder="Social Link"
+                          placeholder="https://artzero.io/"
                         />
-                        <FormErrorMessage>
-                          {form.errors[index]?.socialLink}
-                        </FormErrorMessage>
+                        <Text
+                          h="20px"
+                          color="red"
+                          textAlign="left"
+                          fontSize="14px"
+                          lineHeight="22px"
+                        >
+                          {form.errors?.[index]?.socialLink ?? null}
+                        </Text>
                       </SectionContainer>
                     </FormControl>
                   </SimpleGrid>
@@ -249,21 +267,28 @@ const Team = () => {
         </Flex>
 
         <Flex justify="center" mt="20px">
-          <Button onClick={() => prevStep()} minW="100px">
-            Previous
-          </Button>
-          <Flex align="center">
-            <Button mr="4px" ml="8px" type="submit" minW="100px">
-              Next
-            </Button>
-            <Field>
-              {({ form }) =>
-                Object.entries(form.errors)?.length > 0 && (
-                  <MdError color="red" />
-                )
-              }
-            </Field>
-          </Flex>
+          <Field>
+            {({ form }) => {
+              return (
+                <>
+                  <Button onClick={() => prevStep()} minW="100px">
+                    Previous
+                  </Button>
+                  <Flex align="center">
+                    <Button
+                      disabled={!!Object.entries(form.errors)?.length}
+                      mr="4px"
+                      ml="8px"
+                      type="submit"
+                      minW="100px"
+                    >
+                      Next
+                    </Button>
+                  </Flex>
+                </>
+              );
+            }}
+          </Field>
         </Flex>
       </Form>
     </Formik>

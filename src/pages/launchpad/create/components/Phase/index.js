@@ -4,7 +4,6 @@ import {
   Button,
   Flex,
   FormControl,
-  FormErrorMessage,
   Heading,
   IconButton,
   SimpleGrid,
@@ -14,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { AzeroLogo } from "components/icons/Icons";
 import IWInput from "components/input/Input";
+import { validationCollectionName } from "constants/yup";
 import { Field, Form, Formik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import DateTimePicker from "react-datetime-picker";
@@ -23,12 +23,14 @@ import { delay, formatTextAmount } from "utils";
 import * as Yup from "yup";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
+
 export const roundToMinute = (date) => {
   const roundedDate = new Date(date);
   roundedDate.setSeconds(0);
   roundedDate.setMilliseconds(0);
   return roundedDate;
 };
+
 const Phase = () => {
   const {
     updatePhase,
@@ -129,110 +131,103 @@ const Phase = () => {
         }
       )
       .required("Total For Sale is required"),
-    phase: Yup.array()
-      .of(
-        Yup.object().shape({
-          name: Yup.string().required("Name required"),
-          startDate: Yup.date().required("Start date is required"),
-          endDate: Yup.date()
-            .test(
-              "is-after-start",
-              "End date must be after start date",
-              function (value) {
-                const startDate = this.parent.startDate;
-                return !startDate || !value || value > startDate;
-              }
-            )
-            .required("End date is required"),
-          capAmount: Yup.string().required("This field is required"),
-          immediateReleaseRate: Yup.number()
-            .required("This field is required")
-            .test(
-              "is-valid-immediateReleaseRate",
-              "Release rate must be input from 0 to 100",
-              function (value) {
-                return +value > 0 ? true : null;
-              }
-            ),
-          vestingLength: Yup.string().test(
-            "is-require-vesting-length",
-            "This field is required",
+    phase: Yup.array().of(
+      Yup.object().shape({
+        name: validationCollectionName,
+        startDate: Yup.date().required("Start date is required"),
+        endDate: Yup.date()
+          .test(
+            "is-after-start",
+            "End date must be after start date",
             function (value) {
-              const immediateReleaseRate = this.parent.immediateReleaseRate;
-              return +immediateReleaseRate == 100
-                ? true
-                : +value > 0
-                ? true
-                : null;
+              const startDate = this.parent.startDate;
+              return !startDate || !value || value > startDate;
+            }
+          )
+          .required("End date is required"),
+        capAmount: Yup.string()
+          .required("This field is required")
+          .test(
+            "is-valid-cap-amount",
+            "Phases cap have exceeded total tokens sale",
+            function () {
+              const totalSupply = this?.from[1]?.value?.totalSupply;
+              const phase = this?.from[1]?.value?.phase;
+
+              const sum = phase?.reduce(
+                (acc, curr) => acc + (+curr?.capAmount || 0),
+                0
+              );
+              return sum <= totalSupply;
             }
           ),
-          vestingUnit: Yup.string().test(
-            "is-require-vesting-unit",
-            "This field is required",
+        immediateReleaseRate: Yup.number()
+          .required("This field is required")
+          .test(
+            "is-valid-immediateReleaseRate",
+            "Release rate must be input from 0 to 100",
             function (value) {
-              const immediateReleaseRate = this.parent.immediateReleaseRate;
-              return +immediateReleaseRate == 100
-                ? true
-                : +value > 0
-                ? true
-                : null;
+              return +value > 0 ? true : null;
             }
           ),
-          phasePublicAmount: Yup.string()
-            .test(
-              "is-require-phasePublicAmount",
-              "This field is required",
-              function (value) {
-                const allowPublicSale = this.parent.allowPublicSale;
-                return allowPublicSale == false ? true : +value > 0;
-              }
-            )
-            .test(
-              "is-valid-phasePublicAmount",
-              "Public sale amount cannot exceed phase cap",
-              function (value) {
-                const capAmount = this.parent.capAmount;
-                const allowPublicSale = this.parent.allowPublicSale;
-                return (
-                  allowPublicSale == false ||
-                  (allowPublicSale == true && (+value || 0) <= +capAmount)
-                );
-              }
-            ),
-          phasePublicPrice: Yup.string().test(
+        vestingLength: Yup.string().test(
+          "is-require-vesting-length",
+          "This field is required",
+          function (value) {
+            const immediateReleaseRate = this.parent.immediateReleaseRate;
+            return +immediateReleaseRate == 100
+              ? true
+              : +value > 0
+              ? true
+              : null;
+          }
+        ),
+        vestingUnit: Yup.string().test(
+          "is-require-vesting-unit",
+          "This field is required",
+          function (value) {
+            const immediateReleaseRate = this.parent.immediateReleaseRate;
+            return +immediateReleaseRate == 100
+              ? true
+              : +value > 0
+              ? true
+              : null;
+          }
+        ),
+        phasePublicAmount: Yup.string()
+          .test(
             "is-require-phasePublicAmount",
             "This field is required",
             function (value) {
               const allowPublicSale = this.parent.allowPublicSale;
+              return allowPublicSale == false ? true : +value > 0;
+            }
+          )
+          .test(
+            "is-valid-phasePublicAmount",
+            "Public sale amount cannot exceed phase cap",
+            function (value) {
+              const capAmount = this.parent.capAmount;
+              const allowPublicSale = this.parent.allowPublicSale;
               return (
                 allowPublicSale == false ||
-                (allowPublicSale == true && +value > 0)
+                (allowPublicSale == true && (+value || 0) <= +capAmount)
               );
             }
           ),
-        })
-      )
-      .test(
-        "is-valid-cap-amount",
-        "All phases cap have exceeded total tokens for sale. Please edit the amount accordingly",
-        function (values) {
-          const totalSupply = this.parent.totalSupply;
-          const sum = values?.reduce(
-            (accumulator, currentValue) =>
-              accumulator + (+currentValue?.capAmount || 0),
-            0
-          );
-          return sum <= totalSupply;
-        }
-      ),
-    // .test(
-    //   "is-valid-timerange",
-    //   "Phase time range can not overlapse",
-    //   function (values) {
-    //     const phaseData = this.parent.phase;
-    //     console.log(phaseData);
-    //   }
-    // ),
+        phasePublicPrice: Yup.string().test(
+          "is-require-phasePublicAmount",
+          "This field is required",
+          function (value) {
+            const allowPublicSale = this.parent.allowPublicSale;
+            return (
+              allowPublicSale == false ||
+              (allowPublicSale == true && +value > 0)
+            );
+          }
+        ),
+      })
+    ),
   });
 
   const handleSubmit = async (values, actions) => {
@@ -253,7 +248,7 @@ const Phase = () => {
       <Form>
         <SectionContainer title="Total token For Sale">
           <Field name="totalSupply">
-            {({ field, form }) => (
+            {({ field, form, meta }) => (
               <FormControl
                 isInvalid={form.errors.totalSupply && form.touched.totalSupply}
               >
@@ -267,7 +262,16 @@ const Phase = () => {
                   placeholder="0"
                   inputRightElementIcon={launchpadData?.token?.symbol}
                 />
-                <FormErrorMessage>{form.errors.totalSupply}</FormErrorMessage>
+
+                <Text
+                  h="20px"
+                  color="red"
+                  textAlign="left"
+                  fontSize="14px"
+                  lineHeight="22px"
+                >
+                  {meta.error ?? null}
+                </Text>
               </FormControl>
             )}
           </Field>
@@ -369,9 +373,15 @@ const Phase = () => {
                           }}
                           placeholder="Name"
                         />
-                        <FormErrorMessage>
-                          {form.errors?.phase?.[index]?.name}
-                        </FormErrorMessage>
+                        <Text
+                          h="20px"
+                          color="red"
+                          textAlign="left"
+                          fontSize="14px"
+                          lineHeight="22px"
+                        >
+                          {form.errors?.phase?.[index]?.name ?? null}
+                        </Text>
                       </SectionContainer>
                     </FormControl>
                     <FormControl
@@ -407,9 +417,15 @@ const Phase = () => {
                             }}
                           />
                         </Flex>
-                        <FormErrorMessage>
-                          {form.errors?.phase?.[index]?.startDate}
-                        </FormErrorMessage>
+                        <Text
+                          h="20px"
+                          color="red"
+                          textAlign="left"
+                          fontSize="14px"
+                          lineHeight="22px"
+                        >
+                          {form.errors?.phase?.[index]?.startDate ?? null}
+                        </Text>
                       </SectionContainer>
                     </FormControl>
                     <FormControl
@@ -464,9 +480,15 @@ const Phase = () => {
                             }}
                           />
                         </Flex>
-                        <FormErrorMessage>
-                          {form.errors?.phase?.[index]?.endDate}
-                        </FormErrorMessage>
+                        <Text
+                          h="20px"
+                          color="red"
+                          textAlign="left"
+                          fontSize="14px"
+                          lineHeight="22px"
+                        >
+                          {form.errors?.phase?.[index]?.endDate ?? null}
+                        </Text>
                       </SectionContainer>
                     </FormControl>
                   </SimpleGrid>
@@ -516,11 +538,15 @@ const Phase = () => {
                           }}
                           placeholder="0"
                         />
-                        <FormErrorMessage>
-                          {form.errors?.phase?.[index]?.capAmount ||
-                            (typeof form.errors?.phase === "string" &&
-                              form.errors?.phase)}
-                        </FormErrorMessage>
+                        <Text
+                          h="20px"
+                          color="red"
+                          textAlign="left"
+                          fontSize="14px"
+                          lineHeight="22px"
+                        >
+                          {form.errors?.phase?.[index]?.capAmount ?? null}
+                        </Text>
                       </SectionContainer>
                     </FormControl>
 
@@ -557,9 +583,17 @@ const Phase = () => {
                           }
                           placeholder="0.00"
                         />
-                        <FormErrorMessage>
-                          {form.errors?.phase?.[index]?.immediateReleaseRate}
-                        </FormErrorMessage>
+
+                        <Text
+                          h="20px"
+                          color="red"
+                          textAlign="left"
+                          fontSize="14px"
+                          lineHeight="22px"
+                        >
+                          {form.errors?.phase?.[index]?.immediateReleaseRate ??
+                            null}
+                        </Text>
                       </SectionContainer>
                     </FormControl>
                     <FormControl
@@ -591,9 +625,15 @@ const Phase = () => {
                           }
                           placeholder="0"
                         />
-                        <FormErrorMessage>
-                          {form.errors?.phase?.[index]?.vestingLength}
-                        </FormErrorMessage>
+                        <Text
+                          h="20px"
+                          color="red"
+                          textAlign="left"
+                          fontSize="14px"
+                          lineHeight="22px"
+                        >
+                          {form.errors?.phase?.[index]?.vestingLength ?? null}
+                        </Text>
                       </SectionContainer>
                     </FormControl>
 
@@ -632,9 +672,16 @@ const Phase = () => {
                           }
                           placeholder="0"
                         />
-                        <FormErrorMessage>
-                          {form.errors?.phase?.[index]?.vestingUnit}
-                        </FormErrorMessage>
+
+                        <Text
+                          h="20px"
+                          color="red"
+                          textAlign="left"
+                          fontSize="14px"
+                          lineHeight="22px"
+                        >
+                          {form.errors?.phase?.[index]?.vestingUnit ?? null}
+                        </Text>
                       </SectionContainer>
                     </FormControl>
 
@@ -701,9 +748,16 @@ const Phase = () => {
                                 }}
                                 placeholder="0"
                               />
-                              <FormErrorMessage>
-                                {form.errors?.phase?.[index]?.phasePublicAmount}
-                              </FormErrorMessage>
+                              <Text
+                                h="20px"
+                                color="red"
+                                textAlign="left"
+                                fontSize="14px"
+                                lineHeight="22px"
+                              >
+                                {form.errors?.phase?.[index]
+                                  ?.phasePublicAmount ?? null}
+                              </Text>
                             </SectionContainer>
                           </FormControl>
                           <FormControl
@@ -736,9 +790,16 @@ const Phase = () => {
                                 }}
                                 placeholder="0.0000"
                               />
-                              <FormErrorMessage>
-                                {form.errors?.phase?.[index]?.phasePublicPrice}
-                              </FormErrorMessage>
+                              <Text
+                                h="20px"
+                                color="red"
+                                textAlign="left"
+                                fontSize="14px"
+                                lineHeight="22px"
+                              >
+                                {form.errors?.phase?.[index]
+                                  ?.phasePublicPrice ?? null}
+                              </Text>
                             </SectionContainer>
                           </FormControl>
                         </SimpleGrid>
@@ -800,12 +861,15 @@ const Phase = () => {
                 Previous
               </Button>
               <Flex align="center">
-                <Button mr="4px" ml="8px" type="submit" minW="100px">
+                <Button
+                  disabled={!!Object.entries(form.errors)?.length}
+                  mr="4px"
+                  ml="8px"
+                  type="submit"
+                  minW="100px"
+                >
                   Finish
                 </Button>
-                {Object.entries(form.errors)?.length > 0 && (
-                  <MdError color="red" />
-                )}
               </Flex>
             </Flex>
           )}
