@@ -596,7 +596,7 @@ export default function FaucetPage({ api }) {
   const onChangeInwInput = ({ target }) => {
     if (checkNumeric(target.value) == true) {
       setInwBuyAmount(target.value);
-      setAzeroBuyAmount(roundUp(target.value * parseFloat(inwPrice)));
+      setAzeroBuyAmount(roundDown(target.value * parseFloat(inwPrice)));
     }
   };
 
