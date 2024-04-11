@@ -14,6 +14,7 @@ import { BeatLoader } from "react-spinners";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { formatNumDynDecimal } from "utils";
+import { formatChainStringToNumber } from "utils";
 import {
   delay,
   formatNumToBN,
@@ -23,10 +24,12 @@ import {
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
+
 const headerSX = {
   fontWeight: "700",
   color: "#57527E",
 };
+
 const TimeBox = ({ value, isLast = false }) => {
   return (
     <Box display="flex" alignItems="center">
@@ -146,9 +149,8 @@ const IWCountDown = ({ saleTime, launchpadData }) => {
         <Box>
           <SaleCount label="Sale end in" time={livePhase?.endTime} />
           <Box sx={{ display: "flex", marginTop: "20px" }}>
-            <Text>Active phase: </Text>
+            <Text mr="4px">Active phase:</Text>
             <Text sx={{ fontWeight: "600", color: "#57527E" }}>
-              {" "}
               {livePhase?.name}
             </Text>
           </Box>
@@ -312,8 +314,8 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
     () =>
       publicSaleAmount?.total != 0
         ? roundUp(
-            ((publicSaleAmount?.purchased || 0) /
-              (publicSaleAmount?.total || 0)) *
+            ((formatChainStringToNumber(publicSaleAmount?.purchased) || 0) /
+              (formatChainStringToNumber(publicSaleAmount?.total) || 0)) *
               100
           )
         : 0,
@@ -324,12 +326,18 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
       !launchpadData?.isActive ||
       !allowBuy ||
       !(parseFloat(amount) > 0) ||
-      !(publicSaleAmount?.total - publicSaleAmount?.purchased > 0)
+      !(
+        formatChainStringToNumber(publicSaleAmount?.total) -
+          formatChainStringToNumber(publicSaleAmount?.purchased) >
+        0
+      )
     );
   }, [allowBuy, amount, publicSaleAmount]);
 
   const maxAmount = useMemo(
-    () => +publicSaleAmount?.total - +publicSaleAmount?.purchased,
+    () =>
+      formatChainStringToNumber(publicSaleAmount?.total) -
+      formatChainStringToNumber(publicSaleAmount?.purchased),
     [publicSaleAmount]
   );
 

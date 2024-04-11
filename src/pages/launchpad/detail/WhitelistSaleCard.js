@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { BeatLoader } from "react-spinners";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
+import { formatChainStringToNumber } from "utils";
 import {
   delay,
   formatNumToBN,
@@ -203,7 +204,10 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                 )
               );
 
-              const maxAmount = +wlMaxAmount - +wlPurchasedAmount;
+              const maxAmount =
+                formatChainStringToNumber(wlMaxAmount) -
+                formatChainStringToNumber(wlPurchasedAmount);
+
               if (allowBuy) {
                 return (
                   <>
@@ -231,7 +235,10 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                     <>
                       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
                         <IWInput
-                          isDisabled={upComing || !(+maxAmount > 0)}
+                          isDisabled={
+                            upComing ||
+                            !(formatChainStringToNumber(maxAmount) > 0)
+                          }
                           onChange={({ target }) => {
                             setAmount(target.value);
                             setAzeroBuyAmount(
@@ -253,7 +260,10 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                         />
                       </Box>
                       <IWInput
-                        isDisabled={upComing || !(+maxAmount > 0)}
+                        isDisabled={
+                          upComing ||
+                          !(formatChainStringToNumber(maxAmount) > 0)
+                        }
                         onChange={({ target }) => {
                           setAzeroBuyAmount(target.value);
                           setAmount(
@@ -296,7 +306,8 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                           sx={{ flex: 1, height: "40px", marginTop: "8px" }}
                           onClick={() =>
                             wlBuyMutation.mutate(
-                              wlMaxAmount - wlPurchasedAmount
+                              formatChainStringToNumber(wlMaxAmount) -
+                                formatChainStringToNumber(wlPurchasedAmount)
                             )
                           }
                           spinner={<BeatLoader size={8} color="white" />}
