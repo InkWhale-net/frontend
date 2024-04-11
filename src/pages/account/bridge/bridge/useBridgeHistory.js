@@ -46,12 +46,14 @@ export function useBridgeHistory() {
           return;
         }
 
-        setTxHistory((prev) => {
-          return prev[0]?.bridgeStatus === ret[0]?.bridgeStatus &&
-            prev?.length === ret?.length
-            ? prev
-            : ret;
-        });
+        console.log({set: ret})
+        setTxHistory(ret)
+        // setTxHistory((prev) => {
+        //   return prev[0]?.bridgeStatus === ret[0]?.bridgeStatus &&
+        //     prev?.length === ret?.length
+        //     ? prev
+        //     : ret;
+        // });
         setIsLoading(false);
       } catch (error) {
         setTxHistory([]);
