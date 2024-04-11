@@ -90,7 +90,10 @@ export default function FaucetPage({ api }) {
             <AddressCopier address={currentAccount?.address} />
           ),
         },
-        { title: `${appChain?.unit} Balance`, content: `${azeroBalance} ${appChain?.unit}` },
+        {
+          title: `${appChain?.unit} Balance`,
+          content: `${azeroBalance} ${appChain?.unit}`,
+        },
         { title: "INW Balance", content: `${inwBalance} INW` },
       ];
 
@@ -289,7 +292,7 @@ export default function FaucetPage({ api }) {
       unclaimAmount: unclaimAmount?.toHuman()?.Ok?.Ok?.replaceAll(",", "") || 0,
       burnedAmount: isBurnedQr?.toHuman()?.Ok
         ? result3?.replaceAll(",", "") -
-        +totalPuchaedQr?.toHuman()?.Ok?.replaceAll(",", "")
+          +totalPuchaedQr?.toHuman()?.Ok?.replaceAll(",", "")
         : 0,
       vestingDuration: vestingDuration?.toHuman()?.Ok?.replaceAll(",", "") || 0,
     });
@@ -354,7 +357,7 @@ export default function FaucetPage({ api }) {
             const inwTotalSupplyCap = formatQueryResultToNumber(result1);
             setInwBurn(
               +formatTextAmount(inwTotalSupplyCap) -
-              formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
+                formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
             );
           }
         } else {
@@ -391,7 +394,7 @@ export default function FaucetPage({ api }) {
   const disableBuyBtn = useMemo(() => {
     return (
       inwBuyAmount * parseFloat(inwPrice) >=
-      formatChainStringToNumber(azeroBalance) ||
+        formatChainStringToNumber(azeroBalance) ||
       isSaleEnded ||
       notSaleStart ||
       availableMint?.replaceAll(",", "") < +inwBuyAmount ||
@@ -596,7 +599,7 @@ export default function FaucetPage({ api }) {
   const onChangeInwInput = ({ target }) => {
     if (checkNumeric(target.value) == true) {
       setInwBuyAmount(target.value);
-      setAzeroBuyAmount(roundUp(target.value * parseFloat(inwPrice)));
+      setAzeroBuyAmount(roundDown(target.value * parseFloat(inwPrice)));
     }
   };
 
@@ -735,8 +738,9 @@ export default function FaucetPage({ api }) {
               },
               {
                 title: "Vesting Duration",
-                content: `${saleInfo?.vestingDuration / 60 / 60 / 24 / 1000
-                  } days`,
+                content: `${
+                  saleInfo?.vestingDuration / 60 / 60 / 24 / 1000
+                } days`,
               },
               {
                 title: "Vesting Start Date/Time",
@@ -920,7 +924,7 @@ export default function FaucetPage({ api }) {
                 content: `${formatNumDynDecimal(
                   (+saleInfo?.buyerInfo?.purchasedAmount?.replaceAll(",", "") *
                     95) /
-                  100 || 0
+                    100 || 0
                 )} INW`,
               },
               { title: "Your Balance: ", content: `${inwBalance} INW` },
