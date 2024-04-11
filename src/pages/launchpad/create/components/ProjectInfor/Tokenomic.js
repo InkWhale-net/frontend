@@ -9,6 +9,7 @@ import {
 import IWInput from "components/input/Input";
 import { useEffect, useMemo, useState } from "react";
 import ReactApexChart from "react-apexcharts";
+import { toast } from "react-hot-toast";
 import { BsTrashFill } from "react-icons/bs";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
@@ -19,6 +20,7 @@ const DistributionTag = ({
   isDisabled,
   isNewValueValid,
   onDelete,
+  currentTotalValue,
 }) => {
   const { isOpen, onToggle } = useDisclosure();
 
@@ -56,6 +58,7 @@ const DistributionTag = ({
               })
             }
           />
+
           <IWInput
             isDisabled={isDisabled}
             sx={{
@@ -69,6 +72,10 @@ const DistributionTag = ({
             type="number"
             value={data?.value}
             onChange={(event) => {
+              if (currentTotalValue === 100) {
+                toast.error("Full allocation 100% !");
+                return;
+              }
               const newValue = parseFloat(event.target.value);
               if (isNewValueValid(newValue))
                 onChange({
@@ -76,8 +83,10 @@ const DistributionTag = ({
                   label: data?.label,
                 });
             }}
+            placeHolder="0"
           />
         </Box>
+
         <IconButton
           ml="4px"
           variant="link"
@@ -94,17 +103,29 @@ const DistributionTag = ({
 };
 
 const Tokenomic = ({ updateTokenomic, tokenomicValue }) => {
-  const { updateProjectInfor, current, launchpadData } = useCreateLaunchpad();
+  const { current, launchpadData } = useCreateLaunchpad();
   const [distribution, setDistribution] = useState(null);
 
   const currentTotalValue = useMemo(
     () =>
       distribution?.reduce((acc, obj) => {
-        return acc + obj?.value;
+        return acc + (obj?.value || 0);
       }, 0),
     [distribution]
   );
+
   const other = useMemo(() => 100 - currentTotalValue, [currentTotalValue]);
+
+  const series = useMemo(() => {
+    const formatDist = distribution?.map((e) => ({
+      ...e,
+      value: e.value || 0,
+    }));
+
+    return other > 0
+      ? [...formatDist?.map((e) => e.value), other]
+      : formatDist?.map((e) => e.value);
+  }, [distribution, other]);
 
   useEffect(() => {
     if (
@@ -113,21 +134,25 @@ const Tokenomic = ({ updateTokenomic, tokenomicValue }) => {
     ) {
       updateTokenomic(distribution);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [distribution]);
+
   useEffect(() => {
     if (current == 1) {
       setDistribution(
         launchpadData?.projectInfor?.tokenomic || [
           {
             label: "",
-            value: 0,
+            value: "",
           },
         ]
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current]);
+
   return (
-    <SectionContainer title="Tokenomic" sx={{ mt: "40px" }}>
+    <SectionContainer title="Tokenomics" sx={{ mt: "40px" }}>
       <SimpleGrid
         w="full"
         columns={{ base: 1, lg: 2 }}
@@ -156,11 +181,7 @@ const Tokenomic = ({ updateTokenomic, tokenomicValue }) => {
                 },
               ],
             }}
-            series={
-              other > 0
-                ? [...distribution?.map((e) => e.value), other]
-                : distribution?.map((e) => e.value)
-            }
+            series={series}
             type="donut"
           />
         )}
@@ -170,12 +191,20 @@ const Tokenomic = ({ updateTokenomic, tokenomicValue }) => {
           {distribution?.map((obj, index) => (
             <DistributionTag
               isNewValueValid={(value) => {
-                return +currentTotalValue + +value - +obj.value <= 100;
+                const ret =
+                  parseFloat(value || 0) +
+                    parseFloat(currentTotalValue) -
+                    parseFloat(obj.value || 0) <=
+                  100;
+
+                return ret;
               }}
               onDelete={() => {
-                setDistribution((prev) =>
-                  prev.filter((_, currentIndex) => index !== currentIndex)
-                );
+                setDistribution((prev) => {
+                  return prev.filter(
+                    (_, currentIndex) => index !== currentIndex
+                  );
+                });
               }}
               onChange={({ label, value }) => {
                 setDistribution((prevState) => {
@@ -187,11 +216,13 @@ const Tokenomic = ({ updateTokenomic, tokenomicValue }) => {
                       value: value,
                     };
                   }
+
                   return updatedArray;
                 });
               }}
               data={obj}
               key={`plan-tag-${index}`}
+              currentTotalValue={currentTotalValue}
             />
           ))}
           {other > 0 && (
@@ -212,7 +243,7 @@ const Tokenomic = ({ updateTokenomic, tokenomicValue }) => {
                   ...prev,
                   {
                     label: "",
-                    value: 0,
+                    value: "",
                   },
                 ];
               });
