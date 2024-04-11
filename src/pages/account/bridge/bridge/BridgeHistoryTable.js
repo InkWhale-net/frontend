@@ -2,16 +2,230 @@ import { Alert, AlertIcon, Box, Flex, Text } from "@chakra-ui/react";
 import { IWTable } from "components/table/IWTable";
 import { useBridgeHistory } from "./useBridgeHistory";
 import { ClipLoader } from "react-spinners";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import useWebSocket from "react-use-websocket";
+import { delay } from "utils";
+
+const wss1Url = process.env.REACT_APP_WSS1_URL;
+const wss2Url = process.env.REACT_APP_WSS2_URL;
+const wss3Url = process.env.REACT_APP_WSS3_URL;
+const wss4Url = process.env.REACT_APP_WSS4_URL;
+const wss5Url = process.env.REACT_APP_WSS5_URL;
+const wss6Url = process.env.REACT_APP_WSS6_URL;
+const wss7Url = process.env.REACT_APP_WSS7_URL;
+const wss8Url = process.env.REACT_APP_WSS8_URL;
+const wss9Url = process.env.REACT_APP_WSS9_URL;
+const wss10Url = process.env.REACT_APP_WSS10_URL;
 
 export function BridgeHistoryTable() {
   const { data: txHistory, isLoading, error, refetch } = useBridgeHistory();
 
-  useEffect(() => {
-    const Id = setInterval(() => refetch(true), 3000);
+  const {} = useWebSocket(wss1Url, {
+    onOpen: () => console.log(`connected websocket ${wss1Url}`),
+    onMessage: (event) => {
+      const message = JSON.parse(event?.data);
+      console.log({ message });
+      if (
+        message?.event == "added Transactions" ||
+        message?.event == "updated Transactions"
+      ) {
+        console.log("start refetch 1");
+        refetch(true);
+      }
+    },
+    onClose: () => console.log(`disconnected websocket ${wss1Url}`),
+    onError: (error) => {
+      console.log(`Error from websocket ${wss1Url}`);
+      console.log(error);
+    },
+    shouldReconnect: (closeEvent) => true,
+  });
+  const {} = useWebSocket(wss2Url, {
+    onOpen: () => console.log(`connected websocket ${wss2Url}`),
+    onMessage: (event) => {
+      const message = JSON.parse(event?.data);
+      console.log({ message });
+      if (
+        message?.event == "added Transactions" ||
+        message?.event == "updated Transactions"
+      ) {
+        console.log("start refetch 2");
+        refetch(true);
+      }
+    },
+    onClose: () => console.log(`disconnected websocket ${wss2Url}`),
+    onError: (error) => {
+      console.log(`Error from websocket ${wss2Url}`);
+      console.log(error);
+    },
+    shouldReconnect: (closeEvent) => true,
+  });
+  const {} = useWebSocket(wss3Url, {
+    onOpen: () => console.log(`connected websocket ${wss3Url}`),
+    onMessage: (event) => {
+      const message = JSON.parse(event?.data);
+      console.log({ message });
+      if (
+        message?.event == "added Transactions" ||
+        message?.event == "updated Transactions"
+      ) {
+        console.log("start refetch 3");
+        refetch(true);
+      }
+    },
+    onClose: () => console.log(`disconnected websocket ${wss3Url}`),
+    onError: (error) => {
+      console.log(`Error from websocket ${wss3Url}`);
+      console.log(error);
+    },
+    shouldReconnect: (closeEvent) => true,
+  });
+  const {} = useWebSocket(wss4Url, {
+    onOpen: () => console.log(`connected websocket ${wss4Url}`),
+    onMessage: (event) => {
+      const message = JSON.parse(event?.data);
+      console.log({ message });
+      if (
+        message?.event == "added Transactions" ||
+        message?.event == "updated Transactions"
+      ) {
+        console.log("start refetch 4");
+        refetch(true);
+      }
+    },
+    onClose: () => console.log(`disconnected websocket ${wss4Url}`),
+    onError: (error) => {
+      console.log(`Error from websocket ${wss4Url}`);
+      console.log(error);
+    },
+    shouldReconnect: (closeEvent) => true,
+  });
+  const {} = useWebSocket(wss5Url, {
+    onOpen: () => console.log(`connected websocket ${wss5Url}`),
+    onMessage: (event) => {
+      const message = JSON.parse(event?.data);
+      console.log({ message });
+      if (
+        message?.event == "added Transactions" ||
+        message?.event == "updated Transactions"
+      ) {
+        console.log("start refetch 5");
+        refetch(true);
+      }
+    },
+    onClose: () => console.log(`disconnected websocket ${wss5Url}`),
+    onError: (error) => {
+      console.log(`Error from websocket ${wss5Url}`);
+      console.log(error);
+    },
+    shouldReconnect: (closeEvent) => true,
+  });
+  const {} = useWebSocket(wss6Url, {
+    onOpen: () => console.log(`connected websocket ${wss6Url}`),
+    onMessage: (event) => {
+      const message = JSON.parse(event?.data);
+      console.log({ message });
+      if (
+        message?.event == "added Transactions" ||
+        message?.event == "updated Transactions"
+      ) {
+        console.log("start refetch 6");
+        refetch(true);
+      }
+    },
+    onClose: () => console.log(`disconnected websocket ${wss6Url}`),
+    onError: (error) => {
+      console.log(`Error from websocket ${wss6Url}`);
+      console.log(error);
+    },
+    shouldReconnect: (closeEvent) => true,
+  });
+  const {} = useWebSocket(wss7Url, {
+    onOpen: () => console.log(`connected websocket ${wss7Url}`),
+    onMessage: (event) => {
+      const message = JSON.parse(event?.data);
+      console.log({ message });
+      if (
+        message?.event == "added Transactions" ||
+        message?.event == "updated Transactions"
+      ) {
+        console.log("start refetch 7");
+        refetch(true);
+      }
+    },
+    onClose: () => console.log(`disconnected websocket ${wss7Url}`),
+    onError: (error) => {
+      console.log(`Error from websocket ${wss7Url}`);
+      console.log(error);
+    },
+    shouldReconnect: (closeEvent) => true,
+  });
+  const {} = useWebSocket(wss8Url, {
+    onOpen: () => console.log(`connected websocket ${wss8Url}`),
+    onMessage: (event) => {
+      const message = JSON.parse(event?.data);
+      console.log({ message });
+      if (
+        message?.event == "added Transactions" ||
+        message?.event == "updated Transactions"
+      ) {
+        console.log("start refetch 8");
+        refetch(true);
+      }
+    },
+    onClose: () => console.log(`disconnected websocket ${wss8Url}`),
+    onError: (error) => {
+      console.log(`Error from websocket ${wss8Url}`);
+      console.log(error);
+    },
+    shouldReconnect: (closeEvent) => true,
+  });
+  const {} = useWebSocket(wss9Url, {
+    onOpen: () => console.log(`connected websocket ${wss9Url}`),
+    onMessage: (event) => {
+      const message = JSON.parse(event?.data);
+      console.log({ message });
+      if (
+        message?.event == "added Transactions" ||
+        message?.event == "updated Transactions"
+      ) {
+        console.log("start refetch 9");
+        refetch(true);
+      }
+    },
+    onClose: () => console.log(`disconnected websocket ${wss9Url}`),
+    onError: (error) => {
+      console.log(`Error from websocket ${wss9Url}`);
+      console.log(error);
+    },
+    shouldReconnect: (closeEvent) => true,
+  });
+  const {} = useWebSocket(wss10Url, {
+    onOpen: () => console.log(`connected websocket ${wss10Url}`),
+    onMessage: (event) => {
+      const message = JSON.parse(event?.data);
+      console.log({ message });
+      if (
+        message?.event == "added Transactions" ||
+        message?.event == "updated Transactions"
+      ) {
+        console.log("start refetch 10");
+        refetch(true);
+      }
+    },
+    onClose: () => console.log(`disconnected websocket ${wss10Url}`),
+    onError: (error) => {
+      console.log(`Error from websocket ${wss10Url}`);
+      console.log(error);
+    },
+    shouldReconnect: (closeEvent) => true,
+  });
 
-    return () => clearInterval(Id);
-  }, [refetch]);
+  // useEffect(() => {
+  //   const Id = setInterval(() => refetch(true), 3000);
+
+  //   return () => clearInterval(Id);
+  // }, [refetch]);
 
   if (error) {
     return (
