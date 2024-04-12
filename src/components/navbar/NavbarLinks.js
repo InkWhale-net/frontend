@@ -20,6 +20,7 @@ import routes from "routes.js";
 import WalletButton from "components/wallet/WalletButton";
 import { appChain } from "constants";
 import ChainButton from "components/wallet/ChainButton";
+import { toast } from "react-hot-toast";
 
 export default function NavbarLinks(props) {
   const { secondary } = props;
@@ -56,17 +57,14 @@ export default function NavbarLinks(props) {
             {...groupButtonProps}
             title="INW Token"
             path="/inw"
-            data={[
-              {
-                label: "Claim INW",
-                href: "/acquire-inw",
-              },
-              {
-                label: "INW V2",
-                href: "/inw-v2",
-              },
-            ]}
+            data={inwTokenListData}
           />
+          <GroupMenu
+            {...groupButtonProps}
+            title="Token"
+            path="/token"
+            data={tokenMenuListData}
+          />{" "}
           {menuListData?.map(({ title, href }) => (
             <Flex
               _hover={{ textDecoration: "none", bg: "bg.1" }}
@@ -103,96 +101,71 @@ export default function NavbarLinks(props) {
           ))}
           <GroupMenu
             {...groupButtonProps}
-            title="Token"
-            path="/token"
-            data={[
-              {
-                label: "Interaction",
-                href: "/tokens/interaction",
-              },
-              {
-                label: "Swap Token",
-                href: "/tokens/swap/5DdAakFT1uBpwdArZnsz4zGUn28QntXP8RtKMDFFTPzuDYkt",
-              },
-              {
-                label: "Transactions",
-                href: "/tokens/transaction",
-              },
-              {
-                label: "Common Swap History",
-                href: "/tokens/swap/history",
-              },
-            ]}
-          />
-          <GroupMenu
-            {...groupButtonProps}
-            title="Pools"
+            title="Pools / Farms "
             path="/pools"
-            data={[
-              {
-                label: `${appChain?.unit} Staking`,
-                href: "/azero-staking",
-              },
-              {
-                label: "Token Pools",
-                href: "/pools",
-              },
-              { label: "Farming", href: "/farming" },
-              { label: "NFT Pools", href: "/farms" },
-            ]}
+            data={poolsMenuListData}
           />
-          <GroupMenu
-            {...groupButtonProps}
-            title="Create"
-            path="/create"
-            data={[
-              {
-                label: "Token",
-                href: "/create/token",
-              },
-              {
-                label: "Token Staking Pool",
-                href: "/create/stake-pool",
-              },
-              {
-                label: "Token Farming",
-                href: "/create/farming",
-              },
-              {
-                label: "NFT Staking Pool",
-                href: "/create/nft-lp",
-              },
-            ]}
-          />
-          <Flex
-            _hover={{ textDecoration: "none", bg: "bg.1" }}
-            p="6px 10px"
-            bg={"transparent"}
-            borderRadius="5px"
-            // ml={{ base: "20px", md: "20px" }}
-            minW={{ base: "0px", lg: "72px" }}
-            justify={{ base: "normal", lg: "center" }}
-          >
-            <Link
-              color={"text.1"}
-              fontWeight="600"
-              bg="transparent"
-              textDecoration="none"
-              _focus={{ borderWidth: "0px" }}
+          {[
+            {
+              title: `Stake ${appChain?.unit} `,
+              href: "/azero-staking",
+            },
+          ].map(({ title, href }) => (
+            <Flex
               _hover={{ textDecoration: "none", bg: "bg.1" }}
-              onClick={() =>
-                window.open("https://docs.inkwhale.net/", "_blank")
+              p="6px 10px"
+              bg={
+                (!currentAnchor && href === "#hero") || currentAnchor === href
+                  ? "bg.1"
+                  : "transparent"
               }
-              display="flex"
-              alignItems="center"
+              borderRadius="5px"
+              key={title}
+              // ml={{ base: "20px", md: "20px" }}
+              minW={{ base: null, lg: "80px" }}
             >
-              <Text bg="transparent" fontSize="md">
-                Docs
-              </Text>
-            </Link>
-          </Flex>
+              <Link
+                to={href}
+                as={RouterLink}
+                color={"text.1"}
+                fontWeight="600"
+                bg="transparent"
+                textDecoration="none"
+                _focus={{ borderWidth: "0px" }}
+                _hover={{ textDecoration: "none", bg: "bg.1" }}
+                onClick={() => setCurrentAnchor(href)}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Text bg="transparent" fontSize="md" textAlign="center">
+                  {title}
+                </Text>
+              </Link>
+            </Flex>
+          ))}
         </Flex>
-        {/* {appChain?.allowSwap && <INWSwap />} */}
+        <Flex
+          _hover={{ textDecoration: "none", bg: "bg.1" }}
+          p="6px 10px"
+          bg={"transparent"}
+          borderRadius="5px"
+          // ml={{ base: "20px", md: "20px" }}
+        >
+          <Link
+            color={"text.1"}
+            fontWeight="600"
+            bg="transparent"
+            textDecoration="none"
+            _focus={{ borderWidth: "0px" }}
+            _hover={{ textDecoration: "none", bg: "bg.1" }}
+            onClick={() => toast.success("Coming soon!")}
+          >
+            <Text bg="transparent" fontSize="md">
+              Solana Bridge
+            </Text>
+          </Link>
+        </Flex>
       </Show>
 
       <Show above="md">
@@ -214,13 +187,56 @@ NavbarLinks.propTypes = {
 
 export const menuListData = [
   {
-    title: "Bridge",
-    href: "/bridge",
-  },
-  {
     title: "Launchpad",
     href: "/launchpad",
   },
+];
+
+export const inwTokenListData = [
+  {
+    label: "Acquire / Claim INW",
+    href: "/acquire-inw",
+  },
+  {
+    label: "Swap INW",
+    href: "/inw-v2",
+  },
+  {
+    label: "Bridge to 5irechain",
+    href: "/bridge",
+  },
+];
+
+export const tokenMenuListData = [
+  {
+    label: "Create a PSP22 token",
+    href: "/create/token",
+  },
+  {
+    label: "Interact with a token",
+    href: "/tokens/interaction",
+  },
+  {
+    label: "Swap Token to V2",
+    href: "/tokens/swap/5DdAakFT1uBpwdArZnsz4zGUn28QntXP8RtKMDFFTPzuDYkt",
+  },
+  {
+    label: "Transaction history",
+    href: "/tokens/transaction",
+  },
+  {
+    label: "Transactions on Common",
+    href: "/tokens/swap/history",
+  },
+];
+
+export const poolsMenuListData = [
+  {
+    label: "Token Pools",
+    href: "/pools",
+  },
+  { label: "NFT Pools", href: "/farms" },
+  { label: "Token Farming", href: "/farming" },
 ];
 
 export const GroupMenu = ({

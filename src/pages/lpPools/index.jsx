@@ -3,6 +3,7 @@ import { SearchIcon } from "@chakra-ui/icons";
 // import IWInput from "components/input/Input";
 import {
   Box,
+  Button,
   Flex,
   FormControl,
   FormLabel,
@@ -10,6 +11,7 @@ import {
   Stack,
   Switch,
   useBreakpointValue,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 
@@ -19,6 +21,7 @@ import { IWTable } from "components/table/IWTable";
 import { useAppContext } from "contexts/AppContext";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import {
   fetchAllNFTPools,
   fetchAllTokenPools,
@@ -191,6 +194,9 @@ export default function LPPoolsPage() {
     tableBody: tokenLPListFiltered,
   };
 
+  const [isBigScreen] = useMediaQuery("(min-width: 480px)");
+  const history = useHistory();
+
   return (
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
@@ -198,7 +204,26 @@ export default function LPPoolsPage() {
       description={
         <span>Lock in one token, get another token as your reward</span>
       }
+      right={
+        isBigScreen ? (
+          <Button
+            onClick={async () => {
+              history.push("/create/farming");
+            }}
+          >
+            Create
+          </Button>
+        ) : null
+      }
     >
+      {!isBigScreen && <Button
+        mb="16px"
+        onClick={async () => {
+          history.push("/create/farming");
+        }}
+      >
+        Create
+      </Button>}
       <Stack
         w="full"
         spacing="30px"
@@ -246,6 +271,7 @@ export default function LPPoolsPage() {
             <Box
               display="flex"
               justifyContent={{ base: "flex-start", lg: "flex-end" }}
+              flexDirection={!isBigScreen ? "column" : "row"}
               marginTop={{ base: "20px", lg: "none" }}
             >
               <FormControl
@@ -277,7 +303,7 @@ export default function LPPoolsPage() {
                 maxW="200px"
                 display="flex"
                 alignItems="center"
-                justifyContent={{ base: "flex-end", lg: "none" }}
+                justifyContent={{ base: "none", lg: "flex-end" }}
               >
                 <Switch
                   id="zero-reward-pools"
@@ -302,7 +328,7 @@ export default function LPPoolsPage() {
                 maxW="200px"
                 display="flex"
                 alignItems="center"
-                justifyContent={{ base: "flex-end", lg: "none" }}
+                justifyContent={{ base: "none", lg: "flex-end" }}
               >
                 <Switch
                   id="zero-reward-pools"

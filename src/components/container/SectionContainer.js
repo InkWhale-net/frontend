@@ -22,23 +22,6 @@ function SectionContainer({
       {...rest}
       ref={scrollRef}
     >
-      {/* <Box
-        border="1px solid blue"
-        mb={{ base: "40px" }}
-        textAlign={{ base: "center", lg: "left" }}
-      >
-        {title && (
-          <Heading as="h1" size="h1" mb="16px">
-            {title}
-          </Heading>
-        )}
-
-        {description && (
-          <Text color="text.2" mx="auto" maxW={{ base: "330px", lg: "full" }}>
-            {description}
-          </Text>
-        )}
-      </Box> */}
       {title && (
         <Box
           display={{ base: "flex" }}

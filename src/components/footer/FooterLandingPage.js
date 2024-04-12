@@ -50,7 +50,32 @@ export default function FooterLandingPage() {
             </Text>
           </Text>
           <Spacer py="8px" />
-          <List display="flex">
+          <List display="flex items-center">
+            <ListItem
+              me={{
+                base: "20px",
+                md: "44px",
+              }}
+            >
+              <Link
+                color={"text.1"}
+                fontWeight="600"
+                bg="transparent"
+                textDecoration="none"
+                _focus={{ borderWidth: "0px" }}
+                // _hover={{ textDecoration: "none", bg: "bg.1" }}
+                onClick={() =>
+                  window.open("https://docs.inkwhale.net/", "_blank")
+                }
+                display="flex"
+                alignItems="center"
+              >
+                <Text bg="transparent" fontSize="md">
+                  Docs
+                </Text>
+              </Link>
+            </ListItem>
+
             <ListItem
               me={{
                 base: "20px",

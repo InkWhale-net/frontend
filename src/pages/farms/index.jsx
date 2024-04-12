@@ -3,6 +3,7 @@ import { SearchIcon } from "@chakra-ui/icons";
 // import IWInput from "components/input/Input";
 import {
   Box,
+  Button,
   Flex,
   FormControl,
   FormLabel,
@@ -10,6 +11,7 @@ import {
   Stack,
   Switch,
   useBreakpointValue,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 
@@ -19,6 +21,7 @@ import { IWTable } from "components/table/IWTable";
 import { useAppContext } from "contexts/AppContext";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import {
   fetchAllNFTPools,
   fetchAllTokenPools,
@@ -167,12 +170,36 @@ export default function FarmsPage() {
     tableBody: resultList || nftLPListFiltered,
   };
 
+  const [isBigScreen] = useMediaQuery("(min-width: 480px)");
+  const history = useHistory();
+
   return (
     <SectionContainer
       mt={{ base: "0px", xl: "20px" }}
       title="NFT Staking Pools"
       description={<span>Stake NFT to earn tokens</span>}
+      right={
+        isBigScreen ? (
+          <Button
+            onClick={async () => {
+              history.push("/create/nft-lp");
+            }}
+          >
+            Create
+          </Button>
+        ) : null
+      }
     >
+      {!isBigScreen && (
+        <Button
+          mb="16px"
+          onClick={async () => {
+            history.push("/create/nft-lp");
+          }}
+        >
+          Create
+        </Button>
+      )}
       <Stack
         w="full"
         spacing="30px"
@@ -221,6 +248,7 @@ export default function FarmsPage() {
               display="flex"
               justifyContent={{ base: "flex-start", lg: "flex-end" }}
               marginTop={{ base: "20px", lg: "none" }}
+              flexDirection={!isBigScreen ? "column" : "row"}
             >
               <FormControl
                 maxW={{
@@ -251,7 +279,7 @@ export default function FarmsPage() {
                 maxW="200px"
                 display="flex"
                 alignItems="center"
-                justifyContent={{ base: "flex-end", lg: "none" }}
+                justifyContent={{ base: "none", lg: "flex-end" }}
               >
                 <Switch
                   id="zero-reward-pools"
@@ -277,7 +305,7 @@ export default function FarmsPage() {
                 maxW="200px"
                 display="flex"
                 alignItems="center"
-                justifyContent={{ base: "flex-end", lg: "none" }}
+                justifyContent={{ base: "none", lg: "flex-end" }}
               >
                 <Switch
                   id="zero-reward-pools"

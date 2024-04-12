@@ -2,6 +2,7 @@ import { SearchIcon } from "@chakra-ui/icons";
 // import IWInput from "components/input/Input";
 import {
   Box,
+  Button,
   Flex,
   FormControl,
   FormLabel,
@@ -9,6 +10,7 @@ import {
   Stack,
   Switch,
   useBreakpointValue,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 
@@ -19,6 +21,7 @@ import { useAppContext } from "contexts/AppContext";
 import { useEffect, useMemo, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
 import { isPoolEnded, isPoolNotStart } from "utils";
 
@@ -41,7 +44,9 @@ export default function PoolsPage() {
   const getSearchResult = () => {
     const result =
       poolsListDataFiltered?.filter((el) =>
-        el?.tokenSymbol?.toLowerCase()?.includes(keywords?.trim()?.toLowerCase())
+        el?.tokenSymbol
+          ?.toLowerCase()
+          ?.includes(keywords?.trim()?.toLowerCase())
       ) || [];
     if (!result?.length && !keywords) {
       setResultList();
@@ -143,12 +148,36 @@ export default function PoolsPage() {
     tableBody: resultList || poolsListDataFiltered,
   };
 
+  const [isBigScreen] = useMediaQuery("(min-width: 480px)");
+  const history = useHistory();
+
   return (
     <SectionContainer
+      right={
+        isBigScreen ? (
+          <Button
+            onClick={async () => {
+              history.push("/create/stake-pool");
+            }}
+          >
+            Create
+          </Button>
+        ) : null
+      }
       mt={{ base: "0px", xl: "20px" }}
       title="Staking Pools"
-      description={<span>Stake tokens to earn more</span>}
+      description={<span>Stake tokens to earn more x</span>}
     >
+      {!isBigScreen && (
+        <Button
+          mb="16px"
+          onClick={async () => {
+            history.push("/create/stake-pool");
+          }}
+        >
+          Create
+        </Button>
+      )}
       <Stack
         w="full"
         spacing="30px"

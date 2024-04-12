@@ -5,10 +5,13 @@ import Brand from "components/sidebar/components/Brand";
 import WalletButton from "components/wallet/WalletButton";
 import { useSwapV2TokenContext } from "contexts/SwapV2TokenModalContext";
 import { useEffect, useState } from "react";
-import { isMobile } from "react-device-detect";
 import { useSelector } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
 import { appChain } from "constants";
+import { inwTokenListData } from "components/navbar/NavbarLinks";
+import { tokenMenuListData } from "components/navbar/NavbarLinks";
+import { poolsMenuListData } from "components/navbar/NavbarLinks";
+import { toast } from "react-hot-toast";
 
 function SidebarContent({ onClose }) {
   const [currentAnchor, setCurrentAnchor] = useState("");
@@ -43,18 +46,16 @@ function SidebarContent({ onClose }) {
             {...groupButtonProps}
             title="INW Token"
             path="/inw"
-            data={[
-              {
-                label: "Claim INW",
-                href: "/acquire-inw",
-              },
-              {
-                label: "INW V2",
-                href: "/inw-v2",
-              },
-            ]}
+            data={inwTokenListData}
           />
         )}
+
+        <GroupMenu
+          {...groupButtonProps}
+          title="Token"
+          path="/token"
+          data={tokenMenuListData}
+        />
 
         {menuListData?.map(({ title, href }) => (
           <Flex
@@ -88,75 +89,58 @@ function SidebarContent({ onClose }) {
             </Link>
           </Flex>
         ))}
+
         <GroupMenu
           {...groupButtonProps}
-          title="Token"
-          path="/token"
-          data={[
-            {
-              label: "Interaction",
-              href: "/tokens/interaction",
-            },
-            {
-              label: "Swap Tokens",
-              href: "/tokens/swap/5DdAakFT1uBpwdArZnsz4zGUn28QntXP8RtKMDFFTPzuDYkt",
-            },
-            {
-              label: "Transactions",
-              href: "/tokens/transaction",
-            },
-            {
-              label: "Common Swap History",
-              href: "/tokens/swap/history",
-            },
-          ]}
-        />
-        <GroupMenu
-          {...groupButtonProps}
-          title="Pools"
+          title="Pools / Farms "
           path="/pools"
-          data={[
-            {
-              label: "AZERO Staking",
-              href: "/azero-staking",
-            },
-            {
-              label: "Token Pools",
-              href: "/pools",
-            },
-            { label: "Farming", href: "/farming" },
-            { label: "NFT Pools", href: "/farms" },
-          ]}
+          data={poolsMenuListData}
         />
-        <GroupMenu
-          {...groupButtonProps}
-          title="Create"
-          path="/create"
-          data={[
-            {
-              label: "Token",
-              href: "/create/token",
-            },
-            {
-              label: "Token Staking Pool",
-              href: "/create/stake-pool",
-            },
-            {
-              label: "Token Farming",
-              href: "/create/farming",
-            },
-            {
-              label: "NFT Staking Pool",
-              href: "/create/nft-lp",
-            },
-          ]}
-        />
+
+        {[
+          {
+            title: `Stake ${appChain?.unit} `,
+            href: "/azero-staking",
+          },
+        ]?.map(({ title, href }) => (
+          <Flex
+            w={"full"}
+            p="6px 10px"
+            bg={
+              (!currentAnchor && href === "#hero") || currentAnchor === href
+                ? "bg.1"
+                : "transparent"
+            }
+            borderRadius="5px"
+            key={title}
+            ml={{ base: "0px" }}
+          >
+            <Link
+              to={href}
+              as={RouterLink}
+              onClick={() => {
+                onClose();
+                setCurrentAnchor(href);
+              }}
+              bg="transparent"
+              textDecoration="none"
+              fontWeight="600"
+              color={"text.1"}
+              href={href}
+            >
+              <Text bg="transparent" fontSize="md">
+                {title}
+              </Text>
+            </Link>
+          </Flex>
+        ))}
+
         <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
           p="6px 10px"
           bg={"transparent"}
           borderRadius="5px"
-          ml={{ base: "20px", md: "20px" }}
+          // ml={{ base: "20px", md: "20px" }}
         >
           <Link
             color={"text.1"}
@@ -165,39 +149,13 @@ function SidebarContent({ onClose }) {
             textDecoration="none"
             _focus={{ borderWidth: "0px" }}
             _hover={{ textDecoration: "none", bg: "bg.1" }}
-            onClick={() => window.open("https://docs.inkwhale.net/", "_blank")}
+            onClick={() => toast.success("Coming soon!")}
           >
             <Text bg="transparent" fontSize="md">
-              Docs
+              Solana Bridge
             </Text>
           </Link>
         </Flex>
-        {/* {isMobile && appChain?.allowSwap && (
-          <Flex
-            _hover={{ textDecoration: "none", bg: "bg.1" }}
-            p="6px 10px"
-            bg={"transparent"}
-            borderRadius="5px"
-            ml={{ base: "20px", md: "20px" }}
-          >
-            <Link
-              color={"text.1"}
-              fontWeight="600"
-              bg="transparent"
-              textDecoration="none"
-              _focus={{ borderWidth: "0px" }}
-              _hover={{ textDecoration: "none", bg: "bg.1" }}
-              onClick={() => {
-                if (onClose) onClose();
-                openSwapModal();
-              }}
-            >
-              <Text bg="transparent" fontSize="md">
-                Swap
-              </Text>
-            </Link>
-          </Flex>
-        )} */}
         <Flex ml="30px" pt="10px" w="full">
           <WalletButton onCloseSidebar={onClose} />
         </Flex>
