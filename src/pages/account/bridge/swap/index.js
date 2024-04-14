@@ -1,8 +1,6 @@
 import {
-  Box,
   Button,
   Flex,
-  Input,
   Menu,
   MenuButton,
   MenuItem,
@@ -14,7 +12,6 @@ import { ContractPromise } from "@polkadot/api-contract";
 import { appChain } from "constants";
 import { useAppContext } from "contexts/AppContext";
 import { useEffect, useState } from "react";
-import { isMobile } from "react-device-detect";
 import toast from "react-hot-toast";
 import { FaChevronDown } from "react-icons/fa";
 import { useMutation } from "react-query";
@@ -35,6 +32,9 @@ import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
 import "./styles.css";
 
 import { execContractTx } from "./utils";
+import IWCard from "components/card/Card";
+import IWInput from "components/input/Input";
+
 const supportedToken = [
   {
     token: "inw",
@@ -402,8 +402,12 @@ const SwapTab = ({ amountRef }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amount, api, currentAccount?.address, amount, step]);
   return (
-    <Flex justify="center">
-      <Box minW={!isMobile && "600px"} maxW="600px" px="12px">
+    <IWCard
+      w="full"
+      variant="outline"
+      title={<Flex justifyContent={"space-between"}>Swap INW</Flex>}
+    >
+      <IWCard mt="16px" w="full" variant="solid">
         <Flex className="balance-container">
           <Text>{appChain?.unit} balance</Text>
           <Text className="balance-value">{getBalance("azero")}</Text>
@@ -446,19 +450,20 @@ const SwapTab = ({ amountRef }) => {
             <p className="balance-value">{getBalance(fromToken.token)}</p>
           </Flex>
         </Flex>
-        <Flex direction="column" className="swap-amount-container">
-          <Box className="max-amount-button" onClick={() => updateMaxAmount()}>
-            max
-          </Box>
-          <Input
+        <Flex direction="column">
+          <IWInput
             value={amount}
             onChange={({ target }) => onChangeValue(target.value)}
             type="number"
-            placeholder="0.0"
-            className="swap-amount-input"
-            ref={amountRef}
+            placeholder="0"
+            inputRightElementIcon={
+              <Button size="xs" onClick={() => updateMaxAmount()}>
+                Max
+              </Button>
+            }
           />
         </Flex>
+        {/* ========================== */}
         <Flex justify="center" py="12px">
           <Flex
             onClick={() => {
@@ -480,6 +485,7 @@ const SwapTab = ({ amountRef }) => {
             <FaChevronDown />
           </Flex>
         </Flex>
+        {/* ========================== */}
         <Flex justify="space-between">
           <Menu>
             <MenuButton>
@@ -517,14 +523,12 @@ const SwapTab = ({ amountRef }) => {
             <p className="balance-value">{getBalance(toToken.token)}</p>
           </Flex>
         </Flex>
-        <Flex direction="column" className="swap-amount-container">
-          <Input
+        <Flex direction="column">
+          <IWInput
             value={amount}
             onChange={({ target }) => onChangeValue(target.value)}
             type="number"
-            placeholder="0.0"
-            className="swap-amount-input"
-            ref={amountRef}
+            placeholder="0"
           />
         </Flex>
 
@@ -570,8 +574,8 @@ const SwapTab = ({ amountRef }) => {
         >
           SWAP NOW
         </Button>
-      </Box>
-    </Flex>
+      </IWCard>
+    </IWCard>
   );
 };
 export default SwapTab;

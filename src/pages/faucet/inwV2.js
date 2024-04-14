@@ -1,18 +1,13 @@
-import {
-  Box,
-  Flex,
-  Heading,
-  SimpleGrid,
-  Text,
-  useStyleConfig,
-} from "@chakra-ui/react";
+import { Box, Stack, useStyleConfig } from "@chakra-ui/react";
 import AddressCopier from "components/address-copier/AddressCopier";
+import IWCardOneColumn from "components/card/CardOneColumn";
 import SectionContainer from "components/container/SectionContainer";
 import { useAppContext } from "contexts/AppContext";
 import { useSwapV2TokenContext } from "contexts/SwapV2TokenModalContext";
 import SwapTab from "pages/account/bridge/swap";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { formatChainStringToNumber } from "utils";
 import {
   formatNumDynDecimal,
   formatTextAmount,
@@ -54,9 +49,9 @@ const INWV2 = () => {
       );
 
       const contractBalance = query2?.toHuman()?.Ok;
-
       const totalBurn =
-        formatTokenAmount(contractBalance, 12) - +inwTotalSupply;
+        formatChainStringToNumber(formatTokenAmount(contractBalance, 12)) -
+        +formatChainStringToNumber(inwTotalSupply);
       setInwV2Info({
         inwInCur: formatNumDynDecimal(inwTotalSupply),
         inwBurn: formatNumDynDecimal(totalBurn),
@@ -81,67 +76,46 @@ const INWV2 = () => {
           </>
         }
       >
-        <Box __css={styles}>
-          <Heading as="h4" size="h4" lineHeight="25px">
-            Ink Whale Token (INW V2)
-          </Heading>
-          <Box mt="14px" pt="0px" w="full" borderTop="1px solid #E3DFF3">
-            <SimpleGrid
-              columns={{
-                base: 1,
-                lg: 4,
-              }}
-              spacing="4px"
-            >
-              {[
-                {
-                  title: "Contract Address",
-                  content: (
-                    <AddressCopier
-                      address={psp22_contract_v2.CONTRACT_ADDRESS}
-                    />
-                  ),
-                },
-                {
-                  title: "In Circulation ",
-                  content: `${inwV2Info?.inwInCur || 0} INW V2`,
-                },
-                {
-                  title: "Total Burned",
-                  content: `${inwV2Info?.inwBurn || 0} INW V2`,
-                },
-                {
-                  title: "Your Balance: ",
-                  content: `${
-                    currentAccount?.balance?.inw2
-                      ? formatNumDynDecimal(
-                          formatTextAmount(currentAccount?.balance?.inw2)
-                        )
-                      : 0
-                  } INW V2`,
-                },
-              ]?.map(({ title, content }, idx) => {
-                return (
-                  <Box key={idx} my={{ base: "12px", lg: "12px" }}>
-                    <Text fontSize="md" lineHeight="28px">
-                      {title}{" "}
-                    </Text>
-
-                    <Heading as="h4" size="h4" mt="2px" fontWeight="semibold">
-                      {content}
-                      {/* <AzeroLogo /> */}
-                    </Heading>
-                  </Box>
-                );
-              })}
-            </SimpleGrid>
+        <Stack
+          w="full"
+          spacing="30px"
+          alignItems="start"
+          direction={{ base: "column", lg: "row" }}
+        >
+          <IWCardOneColumn
+            title="Ink Whale Token (INW V2)"
+            data={[
+              {
+                title: "Contract Address",
+                content: (
+                  <AddressCopier address={psp22_contract_v2.CONTRACT_ADDRESS} />
+                ),
+              },
+              {
+                title: "In Circulation ",
+                content: `${inwV2Info?.inwInCur || 0} INW V2`,
+              },
+              {
+                title: "Total Burned",
+                content: `${inwV2Info?.inwBurn || 0} INW V2`,
+              },
+              {
+                title: "Your Balance: ",
+                content: `${
+                  currentAccount?.balance?.inw2
+                    ? formatNumDynDecimal(
+                        formatTextAmount(currentAccount?.balance?.inw2)
+                      )
+                    : 0
+                } INW V2`,
+              },
+            ]}
+          />
+          <Box w={"full"}>
+            <SwapTab />
           </Box>
-        </Box>
+        </Stack>
       </SectionContainer>
-      <Flex justifyContent="center" my="16px">
-        <Heading>Swap</Heading>
-      </Flex>
-      <SwapTab />
     </>
   );
 };
