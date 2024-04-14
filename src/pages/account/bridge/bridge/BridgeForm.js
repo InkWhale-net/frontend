@@ -210,8 +210,8 @@ export function BridgeForm() {
           getSelectedChainInfo(values);
 
         return (
-          <Form>
-            <Flex flexDirection={["column"]} minW={["100%", "410px", "410px"]}>
+          <IWCard w="full" variant="outline" maxW='xl'>
+            <Form>
               <IWCard variant="solid">
                 <BridgeInput
                   name="fromAmount"
@@ -323,8 +323,8 @@ export function BridgeForm() {
                   "Connect wallet"
                 )}
               </Button>
-            </Flex>
-          </Form>
+            </Form>
+          </IWCard>
         );
       }}
     </Formik>

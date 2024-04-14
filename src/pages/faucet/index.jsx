@@ -355,9 +355,15 @@ export default function FaucetPage({ api }) {
               "psp22Capped::cap"
             );
             const inwTotalSupplyCap = formatQueryResultToNumber(result1);
+
             setInwBurn(
               +formatTextAmount(inwTotalSupplyCap) -
-                formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
+                formatChainStringToNumber(
+                  formatTokenAmount(
+                    INWTotalSupplyResponse?.ret?.totalSupply,
+                    12
+                  )
+                )
             );
           }
         } else {
@@ -916,7 +922,7 @@ export default function FaucetPage({ api }) {
                 content: `${formatNumDynDecimal(swappedV2Amount)} INW`,
               },
               {
-                title: "Total Burned ",
+                title: "Total Burned",
                 content: `${formatNumDynDecimal(inwBurn)} INW`,
               },
               {
