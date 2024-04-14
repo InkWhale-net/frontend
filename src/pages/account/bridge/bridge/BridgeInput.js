@@ -50,7 +50,11 @@ export function BridgeInput(props) {
 
               {props.name === "toAmount" && (
                 <>
-                  <Flex w="full" alignItems={["start", "center", "center"]}>
+                  <Flex
+                    w="full"
+                    alignItems={["start", "center", "center"]}
+                    flexDirection={["column", "row", "row"]}
+                  >
                     <Text mr="4px">To:</Text>
                     <Spacer />
                     <Flex w="full" alignItems="center">
