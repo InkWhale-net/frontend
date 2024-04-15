@@ -275,7 +275,7 @@ const IWPaginationTable = ({
         >
           Go
         </Button>
-        {/* 
+        {/*
         <span className="flex items-center gap-1">
           <div>Page</div>
           <strong>
@@ -425,7 +425,9 @@ export const formatDataCellTable = (
               borderRadius="5px"
               src={itemObj[header]?.avatarImage}
             />
-            <Text ml="8px">{itemObj[header]?.name}</Text>
+            <Text ml="8px" maxW="200px" lineHeight="1">
+              {itemObj[header]?.name}
+            </Text>
           </Flex>
         </>
       );
@@ -542,7 +544,9 @@ export const formatDataCellTable = (
           >
             <TokenIcon tokenContract={itemObj["tokenContract"]} />
           </Box>
-          <Text textAlign="left">{itemObj[header]} </Text>
+          <Text textAlign="left" maxW="200px" lineHeight="1">
+            {itemObj[header]}
+          </Text>
         </Flex>
       );
     case "lptokenSymbol":
@@ -668,6 +672,107 @@ export const formatDataCellTable = (
       return (
         <>
           <Text>{addressShortener(itemObj[header])}</Text>
+        </>
+      );
+
+    // AZERO STAKING
+    case "requestIndex":
+      return (
+        <>
+          <Text>{itemObj[header]}</Text>
+        </>
+      );
+
+    case "withdrawalAmount":
+      return (
+        <>
+          <Text>
+            {formatNumDynDecimal(itemObj[header])} {appChain?.unit}
+          </Text>
+        </>
+      );
+
+    case "requestUserAddress":
+      return (
+        <>
+          <AddressCopier address={itemObj[header]} />
+        </>
+      );
+
+    case "azeroAmount":
+      return (
+        <>
+          <Text>
+            {formatNumDynDecimal(itemObj[header])}{" "}
+            <AzeroLogo w="12px" h="12px" mb="3px" />
+          </Text>
+        </>
+      );
+
+    case "interestAccount":
+      return (
+        <>
+          <Text>
+            {formatNumDynDecimal(itemObj[header])} {appChain?.unit}
+          </Text>
+        </>
+      );
+
+    case "masterAccount":
+      return (
+        <>
+          <Text>
+            {formatNumDynDecimal(itemObj[header])} {appChain?.unit}
+          </Text>
+        </>
+      );
+
+    case "azeroReward":
+      return (
+        <>
+          <Text>
+            {formatNumDynDecimal(itemObj[header], 6)} {appChain?.unit}
+          </Text>
+          <Text>
+            {formatNumDynDecimal(itemObj["inwReward"], 6)} {appChain?.inwName}
+          </Text>
+        </>
+      );
+
+    // BRIDGE
+    case "fromChain":
+      return parseInt(itemObj[header]) === 2 ? (
+        <Circle w="22px" h="22px" overflow="hidden">
+          <Image src={Icon5Ire} alt="logo-Icon5Ire" rounded />
+        </Circle>
+      ) : (
+        <Circle w="22px" h="22px" overflow="hidden">
+          <AzeroLogo />
+        </Circle>
+      );
+
+    case "toChain":
+      return parseInt(itemObj[header]) === 2 ? (
+        <Circle w="22px" h="22px" overflow="hidden">
+          <Image src={Icon5Ire} alt="logo-Icon5Ire" rounded />
+        </Circle>
+      ) : (
+        <Circle w="22px" h="22px" overflow="hidden">
+          <AzeroLogo />
+        </Circle>
+      );
+
+    case "inwAmount":
+      return (
+        <>
+          <Text>{formatNumDynDecimal(itemObj[header])} INW</Text>
+        </>
+      );
+
+    case "accountReceiver":
+      return (
+        <>
+          <AddressCopier address={itemObj[header]} fontWeight="none" />
         </>
       );
 
