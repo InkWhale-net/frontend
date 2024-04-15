@@ -10,7 +10,7 @@ export default function IWCountDown({ date }) {
     } else {
       return (
         <Flex>
-          <Text textAlign="left" minW="40px">
+          <Text textAlign="left" minW="168px">
             {`${days ? `${zeroPad(days)}d` : ""} ${zeroPad(hours)}h ${zeroPad(
               minutes
             )}m ${zeroPad(seconds)}s`}

@@ -426,7 +426,9 @@ export const formatDataCellTable = (
               borderRadius="5px"
               src={itemObj[header]?.avatarImage}
             />
-            <Text ml="8px">{itemObj[header]?.name}</Text>
+            <Text ml="8px" maxW="200px" lineHeight="1">
+              {itemObj[header]?.name}
+            </Text>
           </Flex>
         </>
       );
@@ -543,7 +545,9 @@ export const formatDataCellTable = (
           >
             <TokenIcon tokenContract={itemObj["tokenContract"]} />
           </Box> */}
-          <Text textAlign="left">{itemObj[header]} </Text>
+          <Text textAlign="left" maxW="200px" lineHeight="1">
+            {itemObj[header]}
+          </Text>
         </Flex>
       );
     case "lptokenSymbol":
@@ -754,10 +758,7 @@ export const formatDataCellTable = (
     case "inwAmount":
       return (
         <>
-          <Text>
-            {formatNumDynDecimal(itemObj[header])}{" "}
-            INW
-          </Text>
+          <Text>{formatNumDynDecimal(itemObj[header])} INW</Text>
         </>
       );
 
