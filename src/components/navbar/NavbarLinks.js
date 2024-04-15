@@ -145,7 +145,7 @@ export default function NavbarLinks(props) {
             </Flex>
           ))}
         </Flex>
-        <Flex
+        {/* <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
           p="6px 10px"
           bg={"transparent"}
@@ -165,7 +165,7 @@ export default function NavbarLinks(props) {
               Solana Bridge
             </Text>
           </Link>
-        </Flex>
+        </Flex> */}
       </Show>
 
       <Show above="md">

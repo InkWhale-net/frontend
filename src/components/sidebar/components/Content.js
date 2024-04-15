@@ -135,7 +135,7 @@ function SidebarContent({ onClose }) {
           </Flex>
         ))}
 
-        <Flex
+        {/* <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
           p="6px 10px"
           bg={"transparent"}
@@ -155,7 +155,7 @@ function SidebarContent({ onClose }) {
               Solana Bridge
             </Text>
           </Link>
-        </Flex>
+        </Flex> */}
         <Flex ml="30px" pt="10px" w="full">
           <WalletButton onCloseSidebar={onClose} />
         </Flex>
