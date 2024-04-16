@@ -343,17 +343,11 @@ export const APICall = {
     return ret;
   },
 
-  getNFTsByOwnerAndCollectionFromArtZero: async ({
-    collection_address,
-    owner,
-  }) => {
+  getNFTsByOwnerAndCollectionFromArtZero: async (options) => {
     const ret = await client(
       "POST",
       "/getNFTsByOwnerAndCollection",
-      {
-        collection_address,
-        owner,
-      },
+      options,
       process.env.REACT_APP_ARTZERO_API_BASE_URL
     );
 

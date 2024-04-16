@@ -4,12 +4,11 @@ import { APICall } from "api/client";
 import { useAppContext } from "contexts/AppContext";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import {batchTxResponseErrorHandler} from "utils";
+import { batchTxResponseErrorHandler } from "utils";
 import {
   delay,
   formatNumToBN,
   formatTextAmount,
-  formatTokenAmount,
   getEstimatedGasBatchTx,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
@@ -83,7 +82,6 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
       { u64: listNFTStake[0].tokenID },
       true
     );
-
     await Promise.all(
       listNFTStake.map(async (info) => {
         return nftPsp34Contract.tx["psp34::approve"](
@@ -320,7 +318,6 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
       { u64: listNFTStake[0].tokenID }
     );
     // TODOS: monitor gas is ok for different price above
-
     await Promise.all(
       listNFTStake.map(async (info) => {
         const ret = marketplaceContract.tx["unstake"](

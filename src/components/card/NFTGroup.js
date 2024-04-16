@@ -12,7 +12,7 @@ import { isPoolEnded } from "utils";
 import { isPoolNotStart } from "utils";
 import { formatTextAmount } from "utils";
 
-const MAX_NFT_ACTION = 4;
+const MAX_NFT_ACTION = 10;
 
 const NFTGroup = ({
   mode,
@@ -125,8 +125,8 @@ const NFTGroup = ({
                   You are bulk {action?.replace("NFT", "")} (
                   {listNFTStake?.length || 0}) NFTs <br /> Unstaking{" "}
                   {action !== "Unstake NFT" && "later"} will cost you{" "}
-                  {Number(unstakeFee * listNFTStake?.length)?.toFixed(0)} INW V2.
-                  Continue?
+                  {Number(unstakeFee * listNFTStake?.length)?.toFixed(0)} INW
+                  V2. Continue?
                 </>
               }
             />
