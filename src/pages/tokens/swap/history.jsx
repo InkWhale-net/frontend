@@ -24,7 +24,6 @@ import { getTimestamp, roundUp } from "utils";
 import { formatChainStringToNumber } from "utils";
 
 export default function TokensSwapHistoryPage() {
-
   const { api } = useAppContext();
   const [transactions, setTransactions] = useState([]);
   const [totalPage, setTotalPage] = useState(0);
@@ -154,7 +153,6 @@ export default function TokensSwapHistoryPage() {
         const transactionList = await Promise.all(
           ret?.dataArray?.map(async (txObj) => {
             if (txObj.method.includes("router::swapExact")) {
-
               const tokenInInfo = commonFiTokenList.find(
                 (item) => item.tokenAddress === txObj.tokenPathIn
               );
@@ -476,6 +474,12 @@ export default function TokensSwapHistoryPage() {
 
 const commonFiTokenList = [
   {
+    tokenSymbol: "INW",
+    tokenDecimals: 12,
+    icon: "",
+    tokenAddress: "5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX",
+  },
+  {
     tokenSymbol: "TZERO",
     tokenDecimals: 12,
     icon: "",
@@ -583,5 +587,4 @@ const commonFiTokenList = [
   //   icon: "",
   //   tokenAddress: "5CJ5FKNcp2QVBKYqdv6Lq4dKnUL8GxDh1hrJBstijaPwAjLZ",
   // },
-
 ];
