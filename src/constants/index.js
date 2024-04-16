@@ -155,7 +155,7 @@ export const supportedChain = [
     haveAzeroID: true,
     unit: "TZERO",
     url: "https://testnet.inkwhale.net/",
-    inwName: "INW V2",
+    inwName: "INW2",
     bridgeTo: ["firechain-testnet"]
   },
   {

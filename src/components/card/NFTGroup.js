@@ -98,7 +98,7 @@ const NFTGroup = ({
                     +formatTextAmount(unstakeFee)
                   ) {
                     toast.error(
-                      `You don't have enough INW V2. Unstake costs ${unstakeFee} INW V2`
+                      `You don't have enough INW2. Unstake costs ${unstakeFee} INW2`
                     );
                     return;
                   }

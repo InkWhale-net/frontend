@@ -150,9 +150,9 @@ export default function CreateTokenPage() {
       +createTokenFee?.replaceAll(",", "")
     ) {
       toast.error(
-        `You don't have enough INW V2. Create Token costs ${formatNumDynDecimal(
+        `You don't have enough INW2. Create Token costs ${formatNumDynDecimal(
           createTokenFee
-        )} INW V2`
+        )} INW2`
       );
       return;
     }
@@ -291,7 +291,7 @@ export default function CreateTokenPage() {
             specific address. The creation requires
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {createTokenFee && formatNumDynDecimal(createTokenFee)} INW V2
+              {createTokenFee && formatNumDynDecimal(createTokenFee)} INW2
             </Text>
           </span>
           <VStack w="full" mt={4}>
@@ -359,8 +359,8 @@ export default function CreateTokenPage() {
                   value={`${formatNumDynDecimal(
                     currentAccount?.balance?.inw2?.replaceAll(",", "")
                   ) || 0
-                    } INW V2`}
-                  label="Your INW V2 Balance"
+                    } INW2`}
+                  label="Your INW2 Balance"
                 />
               </Box>
               <Box w="full">

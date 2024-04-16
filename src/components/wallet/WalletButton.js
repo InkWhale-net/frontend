@@ -293,7 +293,7 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
               ),
             },
             appChain?.haveINW2 && {
-              title: "INW V2 Balance",
+              title: "INW2 Balance",
               content: formatNumDynDecimal(
                 currentAccount?.balance?.inw2?.replaceAll(",", "")
               ),

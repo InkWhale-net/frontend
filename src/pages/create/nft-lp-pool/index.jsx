@@ -238,7 +238,7 @@ export default function CreateNFTLPPage() {
 
     if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
-        `You don't have enough INW V2.Create Pool costs ${createTokenFee} INW V2`
+        `You don't have enough INW2.Create Pool costs ${createTokenFee} INW2`
       );
       return;
     }
@@ -292,7 +292,7 @@ export default function CreateNFTLPPage() {
 
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving INW V2 token...`);
+      toast.success(`Step ${step}: Approving INW2 token...`);
       step++;
       let approve = await execContractTx(
         currentAccount,
@@ -474,7 +474,7 @@ export default function CreateNFTLPPage() {
             NFT Stakers get rewards in selected token. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {formatNumDynDecimal(createTokenFee)} INW V2
+              {formatNumDynDecimal(createTokenFee)} INW2
             </Text>
             . This currently only works with NFTs on ArtZero platform.
           </span>
@@ -632,7 +632,7 @@ export default function CreateNFTLPPage() {
                     currentAccount?.balance?.inw2?.replaceAll(",", "")
                   ) || 0
                 } INW`}
-                label="Your INW V2 Balance"
+                label="Your INW2 Balance"
               />
             </Box>
 

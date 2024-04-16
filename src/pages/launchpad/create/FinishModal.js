@@ -96,7 +96,7 @@ const FinishModal = ({}) => {
   const history = useHistory();
   const stepList = [
     {
-      label: "Approve INW V2",
+      label: "Approve INW2",
       callback: async () => {
         try {
           await new Promise(async (resolve, reject) => {

@@ -544,7 +544,7 @@ const MyStakeRewardInfo = ({
         +formatTextAmount(currentAccount?.balance?.inw2) < +unstakeFee
       ) {
         toast.error(
-          `You don't have enough INW V2. Unstake costs ${unstakeFee} INW V2!`
+          `You don't have enough INW2. Unstake costs ${unstakeFee} INW2!`
         );
         return false;
       }
@@ -682,12 +682,12 @@ const MyStakeRewardInfo = ({
             content: `${balance?.azero || 0} ${appChain?.unit}`,
           },
           {
-            title: isOldPool ? "INW Balance" : "INW V2 Balance",
+            title: isOldPool ? "INW Balance" : "INW2 Balance",
             content: isOldPool
               ? `${formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
               } INW`
               : `${formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
-              } INW V2`,
+              } INW2`,
           },
           {
             title: `${tokenSymbol} Balance`,
@@ -947,7 +947,7 @@ const formatMessageStakingPool = (
       <>
         You are staking {amount} {tokenSymbol}.<br />
         Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
-        {isOldPool ? "INW" : "INW V2."}
+        {isOldPool ? "INW" : "INW2."}
         Continue?
       </>
     );
@@ -958,7 +958,7 @@ const formatMessageStakingPool = (
       <>
         You are unstaking {amount} {tokenSymbol}.<br />
         Unstaking will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
-        {isOldPool ? "INW" : "INW V2."}
+        {isOldPool ? "INW" : "INW2."}
         Continue?
       </>
     );

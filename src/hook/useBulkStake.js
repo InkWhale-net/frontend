@@ -268,15 +268,15 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
       +unstakeFee * +numberNft
     ) {
       toast.error(
-        `You don't have enough INW V2. Unstake costs ${
+        `You don't have enough INW2. Unstake costs ${
           +unstakeFee * +numberNft
-        } INW V2`
+        } INW2`
       );
       return;
     }
 
     //Approve
-    toast.success("Step 1: Approving INW V2...");
+    toast.success("Step 1: Approving INW2...");
     let approve = await execContractTx(
       currentAccount,
       "api",

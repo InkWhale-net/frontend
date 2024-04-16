@@ -918,7 +918,7 @@ export default function FaucetPage({ api }) {
               { title: "Total Supply", content: `${inwTotalSupply} INW` },
               { title: "In Circulation ", content: `${inwInCur} INW` },
               {
-                title: "Total Swap To INW V2 ",
+                title: "Total Swap To INW2 ",
                 content: `${formatNumDynDecimal(swappedV2Amount)} INW`,
               },
               {

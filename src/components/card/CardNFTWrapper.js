@@ -137,7 +137,7 @@ const formatMessageNFTPool = (action, nftName, unstakeFee, isOldPool) => {
       <>
         You are staking NFT {nftName}.<br />
         Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
-        {isOldPool ? "INW" : "INW V2."} Continue?
+        {isOldPool ? "INW" : "INW2."} Continue?
       </>
     );
   }
@@ -147,7 +147,7 @@ const formatMessageNFTPool = (action, nftName, unstakeFee, isOldPool) => {
       <>
         You are unstaking NFT {nftName}.<br />
         Unstaking will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
-        {isOldPool ? "INW" : "INW V2."} Continue?
+        {isOldPool ? "INW" : "INW2."} Continue?
       </>
     );
   }

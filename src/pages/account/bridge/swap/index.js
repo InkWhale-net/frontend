@@ -42,7 +42,7 @@ const supportedToken = [
   },
   {
     token: "inw2",
-    name: "INW V2",
+    name: "INW2",
   },
 ];
 const SwapTab = ({ amountRef }) => {

@@ -1589,7 +1589,7 @@ const formatMessageStakingPool = (
       <>
         You are staking {amount} {tokenSymbol}.<br />
         Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
-        {isOldPool ? "INW" : "INW V2."}
+        {isOldPool ? "INW" : "INW2."}
         Continue?
       </>
     );
@@ -1600,7 +1600,7 @@ const formatMessageStakingPool = (
       <>
         You are unstaking {amount} {tokenSymbol}.<br />
         Unstaking will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
-        {isOldPool ? "INW" : "INW V2."}
+        {isOldPool ? "INW" : "INW2."}
         Continue?
       </>
     );

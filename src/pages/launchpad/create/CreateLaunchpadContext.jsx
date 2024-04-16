@@ -180,7 +180,7 @@ const CreateLaunchpadContextProvider = (props) => {
           formatTokenAmount(fee, 12)
         )
       ) {
-        toast.error(`Low INW V2 balance`);
+        toast.error(`Low INW2 balance`);
         return;
       }
       // check wallet connect?

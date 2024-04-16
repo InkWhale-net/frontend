@@ -67,12 +67,12 @@ const INWV2 = () => {
     <>
       <SectionContainer
         mt={{ base: "0px", xl: "20px" }}
-        title="INW V2 Tokens"
+        title="INW2 Tokens"
         description={
           <>
-            INW (which has been upgraded to INW version 2 via SWAP feature) is
-            the core token of Ink Whale platform. You will need to acquire INW
-            to be able to use the platform features.
+            INW (which has been upgraded to Ink Whale Token V2 via SWAP feature)
+            is the core token of Ink Whale platform. You will need to acquire
+            INW to be able to use the platform features.
           </>
         }
       >
@@ -83,7 +83,7 @@ const INWV2 = () => {
           direction={{ base: "column", lg: "row" }}
         >
           <IWCardOneColumn
-            title="Ink Whale Token (INW V2)"
+            title="Ink Whale Token V2"
             data={[
               {
                 title: "Contract Address",
@@ -93,11 +93,11 @@ const INWV2 = () => {
               },
               {
                 title: "In Circulation ",
-                content: `${inwV2Info?.inwInCur || 0} INW V2`,
+                content: `${inwV2Info?.inwInCur || 0} INW2`,
               },
               {
                 title: "Total Burned",
-                content: `${inwV2Info?.inwBurn || 0} INW V2`,
+                content: `${inwV2Info?.inwBurn || 0} INW2`,
               },
               {
                 title: "Your Balance: ",
@@ -107,7 +107,7 @@ const INWV2 = () => {
                         formatTextAmount(currentAccount?.balance?.inw2)
                       )
                     : 0
-                } INW V2`,
+                } INW2`,
               },
             ]}
           />
