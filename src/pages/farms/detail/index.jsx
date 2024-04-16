@@ -465,6 +465,7 @@ const MyStakeRewardInfoNFT = ({
       await APICall.getNFTsByOwnerAndCollectionFromArtZero({
         collection_address: nftInfo?.nftContractAddress,
         owner: currentAccount?.address,
+        limit: 10,
       });
 
     if (status === "OK") {
