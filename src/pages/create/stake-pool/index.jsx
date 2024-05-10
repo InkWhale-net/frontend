@@ -255,7 +255,7 @@ export default function CreateStakePoolPage({ api }) {
         0, //-> value
         "psp22::approve",
         pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBNEther(Number.MAX_SAFE_INTEGER)
       );
       if (!approve) return;
     }
@@ -270,7 +270,7 @@ export default function CreateStakePoolPage({ api }) {
         0, //-> value
         "psp22::approve",
         pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBNEther(Number.MAX_SAFE_INTEGER)
       );
       if (!approve) return;
     }
