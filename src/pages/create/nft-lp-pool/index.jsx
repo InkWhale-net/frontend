@@ -28,7 +28,6 @@ import {
   delay,
   excludeNFT,
   formatNumDynDecimal,
-  formatNumToBN,
   formatQueryResultToNumber,
   isAddressValid,
   moveINWToBegin,
@@ -42,6 +41,7 @@ import {
 import nft_pool_generator_contract from "utils/contracts/nft_pool_generator_contract";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { appChain } from "constants";
+import {formatNumToBNEther} from "utils";
 
 export default function CreateNFTLPPage() {
   const dispatch = useDispatch();
@@ -302,7 +302,7 @@ export default function CreateNFTLPPage() {
         0, //-> value
         "psp22::approve",
         nft_pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBNEther(Number.MAX_SAFE_INTEGER)
       );
       if (!approve) return;
     }
@@ -317,7 +317,7 @@ export default function CreateNFTLPPage() {
         0, //-> value
         "psp22::approve",
         nft_pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBNEther(Number.MAX_SAFE_INTEGER)
       );
       if (!approve) return;
     }
@@ -338,7 +338,7 @@ export default function CreateNFTLPPage() {
       selectedCollectionAddr,
       selectedContractAddr,
       maxStake,
-      formatNumToBN(multiplier, selectedTokenDecimal),
+      formatNumToBNEther(multiplier, selectedTokenDecimal),
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
     );

@@ -26,7 +26,6 @@ import {
   addressShortener,
   delay,
   formatNumDynDecimal,
-  formatNumToBN,
   formatQueryResultToNumber,
   formatTokenAmount,
   isAddressValid,
@@ -38,6 +37,7 @@ import pool_generator_contract from "utils/contracts/pool_generator";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { execContractTxAndCallAPI } from "utils/contracts";
 import { appChain } from "constants";
+import {formatNumToBNEther} from "utils";
 
 export default function CreateStakePoolPage({ api }) {
   const dispatch = useDispatch();
@@ -292,7 +292,7 @@ export default function CreateStakePoolPage({ api }) {
       },
       currentAccount?.address,
       selectedContractAddr,
-      formatNumToBN(maxStake, tokenInfor?.decimal || 12),
+      formatNumToBNEther(maxStake, tokenInfor?.decimal || 12),
       parseInt(apy * 100),
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()

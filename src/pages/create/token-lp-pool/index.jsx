@@ -28,7 +28,6 @@ import {
   addressShortener,
   delay,
   formatNumDynDecimal,
-  formatNumToBN,
   formatQueryResultToNumber,
   formatTokenAmount,
   isAddressValid,
@@ -38,6 +37,7 @@ import { execContractQuery, execContractTx } from "utils/contracts";
 import lp_pool_generator_contract from "utils/contracts/lp_pool_generator_contract";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { appChain } from "constants";
+import {formatNumToBNEther} from "utils";
 
 export default function CreateTokenLPPage() {
   const dispatch = useDispatch();
@@ -280,7 +280,7 @@ export default function CreateTokenLPPage() {
         0, //-> value
         "psp22::approve",
         lp_pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBNEther(Number.MAX_SAFE_INTEGER)
       );
       if (!approve) return;
     }
@@ -295,7 +295,7 @@ export default function CreateTokenLPPage() {
         0, //-> value
         "psp22::approve",
         lp_pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBNEther(Number.MAX_SAFE_INTEGER)
       );
       if (!approve) return;
     }
@@ -312,7 +312,7 @@ export default function CreateTokenLPPage() {
       currentAccount?.address,
       LPtokenContract,
       selectedContractAddr,
-      formatNumToBN(maxStake, tokenLPSymbol?.decimal || 12),
+      formatNumToBNEther(maxStake, tokenLPSymbol?.decimal || 12),
       Number(multiplier * 1000000),
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
