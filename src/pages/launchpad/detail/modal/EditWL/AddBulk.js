@@ -76,6 +76,7 @@ const AddBulk = ({
       });
       if (result) {
         setSelectedMode(0);
+        setWlString('');
         toast.promise(
           delay(6000).then(() => {
             dispatch(fetchLaunchpads({}));
@@ -133,7 +134,7 @@ const AddBulk = ({
     selectedPhase,
   ]);
   return (
-    <Box sx={{ pt: "2px", px: "0px", w: "full" }}>
+    <Box sx={{ pt: "0px", px: "0px", w: "full" }}>
       {launchpadData?.requireKyc ? (
         <AddKycBlockpass
           launchpadData={launchpadData}
@@ -142,27 +143,13 @@ const AddBulk = ({
         />
       ) : (
         <>
-          <Flex
-            flexDirection={["column", "row"]}
-            w="full"
-            p="10px"
-            mb="10px"
-            borderRadius={8}
-            border="1px solid #E3DFF3"
-            bg="#F6F6FC"
-           >
-            <PhaseHeaderInfo
-              phaseHeaderInfo={phaseHeaderInfo}
-              launchpadData={launchpadData}
-            />
-          </Flex>
           <IWTextArea
             sx={{
               height: "132px",
             }}
             value={wlString}
             onChange={({ target }) => setWlString(target.value)}
-            placeholder={`Enter one address, whitelist amount and price on each line. A decimal separator of amount must use dot (.)\nSample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn, 100, 0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL, 20, 2`}
+            placeholder={`Enter one address, whitelist amount and price on each line. A decimal separator of amount must use dot (.)\nSample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn,100,0.1\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL,20,2`}
           />
           <Flex>
             <Button

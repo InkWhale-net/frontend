@@ -2,6 +2,7 @@ import { Portal, Box, useDisclosure, Text } from "@chakra-ui/react";
 import Footer from "components/footer/FooterLandingPage.js";
 
 import Navbar from "components/navbar/Navbar.js";
+import { appChain } from "constants";
 import { SidebarContext } from "contexts/SidebarContext";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
@@ -46,6 +47,7 @@ export default function Default(props) {
                 position={"fixed"}
                 top={0}
                 width={"100%"}
+                zIndex={9999}
                 background={"#EDC1F5"}
               >
                 <Text
@@ -55,7 +57,8 @@ export default function Default(props) {
                   textAlign={"center"}
                 >
                   {" "}
-                  Platform TVL: {formatNumDynDecimal(TVL?.tvlInAzero, 2)} AZERO (${formatNumDynDecimal(TVL?.tvlInUSD, 2)})
+                  Platform TVL: {formatNumDynDecimal(TVL?.tvlInAzero, 2)}{" "}
+                  {appChain?.unit} (${formatNumDynDecimal(TVL?.tvlInUSD, 2)})
                 </Text>
               </Box>
               <Navbar

@@ -26,7 +26,6 @@ import {
   addressShortener,
   delay,
   formatNumDynDecimal,
-  formatNumToBN,
   formatQueryResultToNumber,
   formatTokenAmount,
   isAddressValid,
@@ -34,9 +33,11 @@ import {
   roundUp,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import azt_contract from "utils/contracts/azt_contract";
 import pool_generator_contract from "utils/contracts/pool_generator";
-import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { execContractTxAndCallAPI } from "utils/contracts";
+import { appChain } from "constants";
+import {formatNumToBNEther} from "utils";
 
 export default function CreateStakePoolPage({ api }) {
   const dispatch = useDispatch();
@@ -44,7 +45,7 @@ export default function CreateStakePoolPage({ api }) {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { myStakingPoolsList, loading } = useSelector((s) => s.myPools);
 
-  const [createTokenFee, setCreateTokenFee] = useState(0);
+  const [createTokenFee, setCreateFee] = useState("");
   const [faucetTokensList, setFaucetTokensList] = useState([]);
 
   const [selectedContractAddr, setSelectedContractAddr] = useState("");
@@ -76,7 +77,7 @@ export default function CreateStakePoolPage({ api }) {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       selectedContractAddr,
       0,
       "psp22::balanceOf",
@@ -91,7 +92,7 @@ export default function CreateStakePoolPage({ api }) {
       let queryResult1 = await execContractQuery(
         currentAccount?.address,
         "api",
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ABI,
         selectedContractAddr,
         0,
         "psp22Metadata::tokenSymbol"
@@ -135,8 +136,9 @@ export default function CreateStakePoolPage({ api }) {
         "genericPoolGeneratorTrait::getCreationFee"
       );
 
-      const fee = formatQueryResultToNumber(result);
-      setCreateTokenFee(fee);
+      const fee = formatTokenAmount(result?.toHuman()?.Ok, appChain?.decimal);
+
+      setCreateFee(fee);
     };
 
     fetchCreateTokenFee();
@@ -187,20 +189,14 @@ export default function CreateStakePoolPage({ api }) {
       return toast.error("Invalid address!");
     }
 
-    if (
-      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) <
-      createTokenFee?.replaceAll(",", "")
-    ) {
+    if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
       toast.error(
-        `You don't have enough INW. Create Stake Pool costs ${createTokenFee} INW`
+        `You don't have enough ${appChain?.inwName}. Create Stake Pool costs ${createTokenFee} ${appChain?.inwName}`
       );
       return;
     }
 
-    if (
-      parseInt(tokenBalance?.replaceAll(",", "")) <
-      minReward?.replaceAll(",", "")
-    ) {
+    if (+tokenBalance?.replaceAll(",", "") < +minReward?.replaceAll(",", "")) {
       toast.error(`You don't have enough ${tokenSymbol} to topup the reward`);
       return;
     }
@@ -220,8 +216,8 @@ export default function CreateStakePoolPage({ api }) {
     const allowanceINWQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      azt_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
+      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::allowance",
       currentAccount?.address,
@@ -234,7 +230,7 @@ export default function CreateStakePoolPage({ api }) {
     const allowanceTokenQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       selectedContractAddr,
       0, //-> value
       "psp22::allowance",
@@ -246,20 +242,20 @@ export default function CreateStakePoolPage({ api }) {
       tokenInfor?.decimal
     ).replaceAll(",", "");
     let step = 1;
-
+    console.log("createTokenFee", createTokenFee);
     //Approve
-    if (allowanceINW < createTokenFee.replaceAll(",", "")) {
+    if (allowanceINW < createTokenFee) {
       toast.success(`Step ${step}: Approving INW token...`);
       step++;
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract.CONTRACT_ABI,
-        azt_contract.CONTRACT_ADDRESS,
+        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ADDRESS,
         0, //-> value
         "psp22::approve",
         pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBNEther(Number.MAX_SAFE_INTEGER)
       );
       if (!approve) return;
     }
@@ -269,41 +265,50 @@ export default function CreateStakePoolPage({ api }) {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ABI,
         selectedContractAddr,
         0, //-> value
         "psp22::approve",
         pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBNEther(Number.MAX_SAFE_INTEGER)
       );
       if (!approve) return;
     }
 
     await delay(3000);
     toast.success(`Step ${step}: Process...`);
-    await execContractTx(
+    await execContractTxAndCallAPI(
       currentAccount,
       "api",
       pool_generator_contract.CONTRACT_ABI,
       pool_generator_contract.CONTRACT_ADDRESS,
       0, //-> value
       "newPool",
+      async (newContractAddress) => {
+        await APICall.askBEupdate({
+          type: "pool",
+          poolContract: newContractAddress,
+        });
+      },
       currentAccount?.address,
       selectedContractAddr,
-      formatNumToBN(maxStake, tokenInfor?.decimal || 12),
+      formatNumToBNEther(maxStake, tokenInfor?.decimal || 12),
       parseInt(apy * 100),
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
     );
-    await delay(3000);
+    await delay(1000);
 
     await APICall.askBEupdate({ type: "pool", poolContract: "new" });
 
     setApy("");
     setDuration("");
+    setMaxStake("");
     setStartTime(new Date());
+    setSelectedContractAddr("");
+
     toast.promise(
-      delay(30000).then(() => {
+      delay(10000).then(() => {
         if (currentAccount) {
           dispatch(fetchUserBalance({ currentAccount, api }));
           dispatch(fetchMyStakingPools({ currentAccount }));
@@ -312,7 +317,7 @@ export default function CreateStakePoolPage({ api }) {
         fetchTokenBalance();
       }),
       {
-        loading: "Please wait 30s for the data to be updated! ",
+        loading: "Please wait 10s for the data to be updated! ",
         success: "Done !",
         error: "Could not fetch data!!!",
       }
@@ -381,6 +386,19 @@ export default function CreateStakePoolPage({ api }) {
 
     tableBody: stakingPoolList,
   };
+
+  const firstSearchValue = useMemo(() => {
+    const ret = faucetTokensList
+      ?.filter((item) => item.contractAddress === selectedContractAddr)
+      .map((token) => ({
+        value: token?.contractAddress,
+        label: `${token?.symbol} (${token?.name}) - ${addressShortener(
+          token?.contractAddress
+        )}`,
+      }));
+    return ret?.length === 0 ? null : ret[0];
+  }, [faucetTokensList, selectedContractAddr]);
+
   return (
     <>
       <SectionContainer
@@ -391,7 +409,10 @@ export default function CreateStakePoolPage({ api }) {
             Staker earns tokens at fixed APR. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {createTokenFee} INW
+              {+createTokenFee > 1
+                ? formatNumDynDecimal(createTokenFee)
+                : createTokenFee}{" "}
+              {appChain?.inwName}
             </Text>
           </span>
         }
@@ -409,14 +430,13 @@ export default function CreateStakePoolPage({ api }) {
                 Select Token
               </Heading>
               <SelectSearch
+                value={firstSearchValue}
                 name="token"
                 placeholder="Select Token..."
                 closeMenuOnSelect={true}
                 // filterOption={filterOptions}
                 isSearchable
-                onChange={({ value }) => {
-                  setSelectedContractAddr(value);
-                }}
+                onChange={(data) => setSelectedContractAddr(data?.value ?? "")}
                 options={faucetTokensList?.map((token, idx) => ({
                   value: token?.contractAddress,
                   label: `${token?.symbol} (${
@@ -447,8 +467,10 @@ export default function CreateStakePoolPage({ api }) {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.azero || 0} AZERO`}
-                label="Your AZERO Balance"
+                value={`${currentAccount?.balance?.azero || 0} ${
+                  appChain?.unit
+                }`}
+                label={`Your ${appChain?.unit} Balance`}
               />
             </Box>
             <Box w="full">
@@ -472,8 +494,12 @@ export default function CreateStakePoolPage({ api }) {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.inw || 0} INW`}
-                label="Your INW Balance"
+                value={`${
+                  formatNumDynDecimal(
+                    currentAccount?.balance?.inw2?.replaceAll(",", "")
+                  ) || 0
+                } ${appChain?.inwName}`}
+                label={`Your ${appChain?.inwName} Balance`}
               />
             </Box>
 

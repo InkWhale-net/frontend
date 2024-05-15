@@ -1,6 +1,8 @@
 import { Box, Divider, Heading, Text } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { appChain } from "constants";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
+import { formatChainStringToNumber } from "utils";
 import { formatNumDynDecimal, formatTokenAmount, roundUp } from "utils";
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
@@ -33,19 +35,19 @@ const BalanceCard = ({ launchpadData }) => {
         currentAccount?.address,
         "api",
         psp22_contract.CONTRACT_ABI,
-        launchpadData.tokenContract,
+        launchpadData?.tokenContract,
         0,
         "psp22::balanceOf",
         currentAccount?.address
       );
-      const tokenBalance = queryResult.toHuman().Ok;
+      const tokenBalance = queryResult?.toHuman()?.Ok;
 
       setTokenBalance(
         formatNumDynDecimal(
           roundUp(
             formatTokenAmount(
               tokenBalance,
-              parseInt(launchpadData.projectInfo.token.decimals)
+              parseInt(launchpadData?.projectInfo?.token?.decimals)
             )
           )
         )
@@ -58,33 +60,38 @@ const BalanceCard = ({ launchpadData }) => {
   useEffect(() => {
     if (currentAccount) getBalance();
   }, [currentAccount, launchpadData]);
+
   return (
-    <Box
-      sx={{
-        marginTop: "12px",
-        border: "2.8px solid #E3DFF3",
-        borderRadius: "8px",
-        paddingTop: "20px",
-        paddingLeft: "16px",
-        paddingRight: "16px",
-        paddingBottom: "12px",
-      }}
-    >
-      <Heading size="md" sx={{ marginBottom: "4px" }}>
-        Your balance
-      </Heading>
-      <Divider
+    <>
+      <Box
         sx={{
-          marginBottom: "8px",
+          marginTop: "12px",
+          border: "2.8px solid #E3DFF3",
+          borderRadius: "8px",
+          paddingTop: "20px",
+          paddingLeft: "16px",
+          paddingRight: "16px",
+          paddingBottom: "12px",
         }}
-      />
-      <Row label="INW" value={currentAccount?.balance?.inw} />
-      <Row label="AZERO" value={currentAccount?.balance?.azero} />
-      <Row
-        label={launchpadData?.projectInfo?.token?.name}
-        value={tokenBalance || 0}
-      />
-    </Box>
+      >
+        <Heading size="md" sx={{ marginBottom: "4px" }}>
+          Your balance
+        </Heading>
+        <Divider
+          sx={{
+            marginBottom: "8px",
+          }}
+        />
+        <Row label="INW" value={currentAccount?.balance?.inw} />
+        <Row label={appChain?.inwName} value={currentAccount?.balance?.inw2} />
+        <Row label={appChain?.unit} value={currentAccount?.balance?.azero} />
+
+        <Row
+          label={launchpadData?.projectInfo?.token?.symbol}
+          value={tokenBalance || 0}
+        />
+      </Box>
+    </>
   );
 };
 

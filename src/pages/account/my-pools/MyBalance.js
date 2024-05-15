@@ -62,10 +62,7 @@ const MyBalance = ({ scrollRef }) => {
 
         if (rawBalance == "0") return;
         else {
-          const tokenBalance = formatTokenAmount(
-            rawBalance.replaceAll(",", ""),
-            parseInt(e?.decimal)
-          );
+          const tokenBalance = formatTokenAmount(rawBalance, +e?.decimal);
           return {
             ...e,
             balance: formatNumDynDecimal(tokenBalance),

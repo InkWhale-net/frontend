@@ -5,7 +5,6 @@ import {
   Flex,
   Heading,
   Image,
-  SimpleGrid,
   Text,
 } from "@chakra-ui/react";
 import { APICall } from "api/client";
@@ -14,22 +13,24 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useQuery } from "react-query";
 import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import {
   addressShortener,
   formatNumDynDecimal,
   formatQueryResultToNumber,
+  getTokenOwner,
   isAddressValid,
   roundUp,
 } from "utils";
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
-import { useHistory } from "react-router-dom";
-import psp22_contract_old from "utils/contracts/psp22_contract_old";
-import { getTokenOwner } from "utils";
+import { formatTokenAmount } from "utils";
+import { formatTextAmount } from "utils";
 
 export default function VerifyToken() {
-  const { launchpadData, updateLaunchpadData, current } = useCreateLaunchpad();
+  const { launchpadData, updateLaunchpadData, current, nextStep } =
+    useCreateLaunchpad();
   const [tokenInfo, setTokenInfo] = useState(null);
   const { currentAccount } = useSelector((s) => s.wallet);
   const { allTokensList } = useSelector((s) => s.allPools);
@@ -60,17 +61,6 @@ export default function VerifyToken() {
       toast.error("You are not token owner!");
       return;
     }
-    let queryResult = await execContractQuery(
-      currentAccount?.address,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      tokenAddress,
-      0,
-      "psp22::balanceOf",
-      currentAccount?.address
-    );
-
-    const balance = formatQueryResultToNumber(queryResult);
 
     let queryResult1 = await execContractQuery(
       currentAccount?.address,
@@ -109,10 +99,24 @@ export default function VerifyToken() {
       "psp22Metadata::tokenDecimals"
     );
     const decimals = queryResult4.toHuman().Ok;
-    const totalSupply = roundUp(
-      rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
-      0
+    let queryResult = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      tokenAddress,
+      0,
+      "psp22::balanceOf",
+      currentAccount?.address
     );
+
+    const balance = formatNumDynDecimal(
+      formatTokenAmount(queryResult?.toHuman()?.Ok, +decimals)
+    );
+    const totalSupply = formatTokenAmount(
+      formatTextAmount(rawTotalSupply),
+      +decimals
+    );
+    console.log(totalSupply);
 
     let tokenIconUrl = null;
     try {
@@ -135,14 +139,18 @@ export default function VerifyToken() {
       tokenIconUrl,
     });
   };
-  const { isFetching } = useQuery(["query-token-infor", tokenAddress], () => {
-    return new Promise(async (resolve) => {
-      if (tokenAddress) {
-        await loadTokenInfo();
-      }
-      resolve();
-    });
-  });
+  const { isLoading, isFetching } = useQuery(
+    ["query-token-infor", tokenAddress],
+    () => {
+      return new Promise(async (resolve) => {
+        if (tokenAddress) {
+          await loadTokenInfo();
+        }
+        resolve();
+      });
+    },
+    { refetchOnWindowFocus: false }
+  );
 
   useEffect(() => {
     if (tokenInfo)
@@ -155,7 +163,7 @@ export default function VerifyToken() {
     if (current == 0 && launchpadData?.token)
       setTokenInfo(launchpadData?.token);
   }, [current]);
-
+  const tokenBalance = +tokenInfo?.balance?.replaceAll(",", "");
   return (
     <>
       <Box
@@ -198,11 +206,11 @@ export default function VerifyToken() {
         </Box>
         {!(tokenList?.length > 0) && (
           <Text sx={{ textAlign: "center", marginTop: "20px" }}>
-            No owned token. You need to Create or Import first
+            No token found. You need to Create or Import a PSP22 token first
           </Text>
         )}
 
-        {isFetching && (
+        {isLoading && (
           <CircularProgress
             alignSelf={"center"}
             isIndeterminate
@@ -211,7 +219,7 @@ export default function VerifyToken() {
             sx={{ marginTop: "8px" }}
           />
         )}
-        {tokenInfo && !isFetching && (
+        {tokenInfo && !isLoading && (
           <Box
             borderWidth={"1px"}
             padding={{ base: "8px" }}
@@ -273,6 +281,22 @@ export default function VerifyToken() {
           </Box>
         )}
       </Box>
+      {tokenInfo && !(tokenBalance > 0) && !isLoading && (
+        <Box bg="#FCE5E5" p="8px" mt="8px" borderRadius="4px">
+          <Text color="#F17171">
+            Low balance. You need to send tokens to your wallet
+          </Text>
+        </Box>
+      )}
+      <Flex justify="center" mt="20px">
+        <Button
+          isDisabled={!(tokenInfo && tokenBalance)}
+          onClick={() => nextStep()}
+          minW="100px"
+        >
+          Next
+        </Button>
+      </Flex>
     </>
   );
 }

@@ -1,8 +1,9 @@
 import IWTabs from "components/tabs/IWTabs";
-import React, { useState, useEffect } from "react";
+import React, { } from "react";
 import SaleInfoTab from "./components/SaleInfoTab";
 import SectionContainer from "components/container/SectionContainer";
 import Launchpad from "./components/Launchpad";
+import AzeroStakingAdmin from "./components/AzeroStakingAdmin";
 
 export default function AdminPage() {
   const tabsData = [
@@ -16,10 +17,15 @@ export default function AdminPage() {
       component: <Launchpad />,
       isDisabled: false,
     },
+    {
+      label: <>Azero Staking</>,
+      component: <AzeroStakingAdmin />,
+      isDisabled: false,
+    },
   ];
 
   return (
-    <SectionContainer mt={{ base: "0px", xl: "20px" }}>
+    <SectionContainer maxW="1800px" mt={{ base: "0px", xl: "20px" }}>
       <IWTabs tabsData={tabsData} />
     </SectionContainer>
   );

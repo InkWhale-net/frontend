@@ -4,14 +4,16 @@ import { APICall } from "api/client";
 import { useAppContext } from "contexts/AppContext";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { delay } from "utils";
-import { formatNumToBN } from "utils";
-import { getEstimatedGasBatchTx } from "utils";
-import { execContractTx } from "utils/contracts";
-import { execContractQuery } from "utils/contracts";
-import azt_contract from "utils/contracts/azt_contract";
+import { batchTxResponseErrorHandler } from "utils";
+import {
+  delay,
+  formatNumToBN,
+  formatTextAmount,
+  getEstimatedGasBatchTx,
+} from "utils";
+import { execContractQuery, execContractTx } from "utils/contracts";
 import nft_pool_contract from "utils/contracts/nft_pool_contract";
-import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 
 import psp34_standard from "utils/contracts/psp34_standard";
 
@@ -80,7 +82,6 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
       { u64: listNFTStake[0].tokenID },
       true
     );
-
     await Promise.all(
       listNFTStake.map(async (info) => {
         return nftPsp34Contract.tx["psp34::approve"](
@@ -134,15 +135,15 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
             handleBulkStaking(updateData);
           }
         }
-        // batchTxResponseErrorHandler({
-        //   status,
-        //   dispatchError,
-        //   dispatch,
-        //   txType: "APPROVE_MULTI_LISTING",
-        //   api,
-        //   currentAccount,
-        //   isApprovalTx: true,
-        // });
+        batchTxResponseErrorHandler({
+          status,
+          dispatchError,
+          dispatch,
+          txType: "APPROVE_MULTI_STAKE",
+          api,
+          currentAccount,
+          isApprovalTx: true,
+        });
       })
       .then((unsub) => (unsubscribe = unsub))
       .catch((error) => toast.error(error.message || "Unknow error occured"));
@@ -237,6 +238,15 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
               );
             }
             updateData();
+            batchTxResponseErrorHandler({
+              status,
+              dispatchError,
+              dispatch,
+              txType: "MULTI_STAKE",
+              api,
+              currentAccount,
+              isApprovalTx: true,
+            });
           }
         }
       )
@@ -254,22 +264,24 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
 
     toast.success(numberNft > 0 && `Bulk unstakeing process...`);
     if (
-      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) <
-      unstakeFee * numberNft
+      +formatTextAmount(currentAccount?.balance?.inw2) <
+      +unstakeFee * +numberNft
     ) {
       toast.error(
-        `You don't have enough INW. Unstake costs ${unstakeFee * numberNft} INW`
+        `You don't have enough INW2. Unstake costs ${
+          +unstakeFee * +numberNft
+        } INW2`
       );
       return;
     }
 
     //Approve
-    toast.success("Step 1: Approving INW...");
+    toast.success("Step 1: Approving INW2...");
     let approve = await execContractTx(
       currentAccount,
       "api",
-      psp22_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
+      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::approve",
       poolContract,
@@ -306,7 +318,6 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
       { u64: listNFTStake[0].tokenID }
     );
     // TODOS: monitor gas is ok for different price above
-
     await Promise.all(
       listNFTStake.map(async (info) => {
         const ret = marketplaceContract.tx["unstake"](
@@ -359,6 +370,15 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
               );
             }
             updateData();
+            batchTxResponseErrorHandler({
+              status,
+              dispatchError,
+              dispatch,
+              txType: "MULTI_UNSTAKE",
+              api,
+              currentAccount,
+              isApprovalTx: true,
+            });
           }
         }
       )

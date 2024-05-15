@@ -3,6 +3,8 @@ import NightlyLogo from "assets/img/wallet/Nightly.jpg";
 import PolkadotjsLogo from "assets/img/wallet/PolkadotjsLogo.svg";
 import SubWalletLogo from "assets/img/wallet/SubWalletLogo.svg";
 import NovaLogo from "assets/img/wallet/nova.jpg";
+import Icon5Ire from "assets/img/chains/5irechain.png";
+import IconAlephzero from "assets/img/chains/alephzero.png";
 
 export const toastMessages = {
   NO_EXTENSION: "Your browser does NOT HAVE the required plugin.",
@@ -84,6 +86,21 @@ export const ADDRESSES_INW = {
   INW_TEAM: "5DtKc7qBE3fmGLHWGbqtYdvhBxkWpTfPfvGABsoqTVyesLsQ",
 };
 
+/*
+  pub status: u8
+  0: waiting,
+  1: is Ready to unstake,
+  2: unstaked,
+  3: cancelled
+ */
+
+export const stakeStatus = {
+  PENDING: "Pending",
+  READY: "Ready To Unstake",
+  UNSTAKED: "Unstaked",
+  CANCELLED: "Cancelled",
+};
+
 // export const IPFS_BASE_URL = 'https://artzeronft.infura-ipfs.io/ipfs';
 
 // export const SUPPORTED_WALLET_LIST = [
@@ -113,3 +130,72 @@ export const ADDRESSES_INW = {
 //       'https://addons.mozilla.org/en-US/firefox/addon/polkadot-js-extension/',
 //   },
 // ];
+
+export const supportedChain = [
+  {
+    name: "Alephzero",
+    key: "alephzero",
+    icon: IconAlephzero,
+    decimal: 12,
+    providerURL: "wss://ws.azero.dev",
+    haveAzeroID: true,
+    unit: "AZERO",
+    // unitIcon
+    url: "https://a0.inkwhale.net",
+    inwName: "INW",
+  },
+  {
+    name: "Alephzero Testnet",
+    key: "alephzero-testnet",
+    icon: IconAlephzero,
+    decimal: 12,
+    providerURL: "wss://ws.test.azero.dev",
+    allowSwap: true,
+    allowBuy: true,
+    haveINW2: true,
+    haveAzeroID: true,
+    unit: "TZERO",
+    url: "https://testnet.inkwhale.net/",
+    inwName: "INW2",
+    bridgeTo: ["firechain-testnet"]
+  },
+  {
+    name: "5ireChain Testnet",
+    key: "firechain-testnet",
+    icon: Icon5Ire,
+    decimal: 18,
+    providerURL: "wss://wss-testnet.5ire.network",
+    unit: "5IRE",
+    inwName: "INW",
+    url: "https://5iretest.inkwhale.net/",
+    bridgeTo: ["alephzero-testnet"]
+  },
+];
+
+export const swapableTokens = [
+  {
+    token: "tiou",
+    name: "TIOU",
+    decimal: 12,
+    contract_address: "5FJmK63LBf9FVEngGzaSx5mXtKxRHkn9r7ZF92tBJBBLjknx",
+    token_version_2: "tiou2",
+    name_version_2: "TIOU V2",
+    contract_address_2: "5GnbvcRxdaAwNh1J4T2uVk8qF6aHmaeg9r6tqAWPZYdMv743",
+    swap_contract_address: "5Cqif4qeYgG6BZ7WSngko1R5eDw9bUVMMsKnTcSM1BAfFp9t",
+  },
+  {
+    token: "baz",
+    name: "BAZ",
+    decimal: 12,
+    contract_address: "5DdAakFT1uBpwdArZnsz4zGUn28QntXP8RtKMDFFTPzuDYkt",
+    token_version_2: "baz2",
+    name_version_2: "BAZ V2",
+    contract_address_2: "5CEd4ttj6p3WqCvTSu7EqdkwPRNaQ9z4TYshBPJC5ofX9gFQ",
+    swap_contract_address: "5GMqPxaxbNps4NS2GUMVsymfaNT7S1WrfnVYToAm6aHitkHB",
+  },
+];
+
+export const appChain = supportedChain.find(
+  (e) => e?.key === process.env.REACT_APP_CHAIN
+);
+export const FINALIZED_TIME = 6000;

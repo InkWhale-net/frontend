@@ -43,6 +43,11 @@ import { execContractQuery, execContractTx } from "utils/contracts";
 import { parseUnits } from "ethers";
 import { formatTokenAmount } from "utils";
 import IWCountDownClaim from "./ClaimButton";
+import { formatTextAmount } from "utils";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import psp22_contract from "utils/contracts/psp22_contract";
+import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
+import { appChain } from "constants";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
 
@@ -61,6 +66,7 @@ export default function FaucetPage({ api }) {
   const [inwBuyAmount, setInwBuyAmount] = useState("");
   const [azeroBuyAmount, setAzeroBuyAmount] = useState("");
   const [inwInCur, setInwInCur] = useState(0);
+  const [swappedV2Amount, setSwappedV2Amount] = useState(0);
   const [inwPrice, setInwPrice] = useState(0);
   const [tabIndex, setTabIndex] = useState(0);
   const [saleInfo, setSaleInfo] = useState({});
@@ -84,7 +90,10 @@ export default function FaucetPage({ api }) {
             <AddressCopier address={currentAccount?.address} />
           ),
         },
-        { title: "Azero Balance", content: `${azeroBalance} AZERO` },
+        {
+          title: `${appChain?.unit} Balance`,
+          content: `${azeroBalance} ${appChain?.unit}`,
+        },
         { title: "INW Balance", content: `${inwBalance} INW` },
       ];
 
@@ -326,6 +335,17 @@ export default function FaucetPage({ api }) {
               )
             )
           );
+          const queryContractBalance = await execContractQuery(
+            publicCurrentAccount?.address,
+            api,
+            psp22_contract_v2.CONTRACT_ABI,
+            psp22_contract.CONTRACT_ADDRESS,
+            0,
+            "psp22::balanceOf",
+            swap_inw2_contract.CONTRACT_ADDRESS
+          );
+          const contractBalance = queryContractBalance?.toHuman()?.Ok;
+          setSwappedV2Amount(formatTokenAmount(contractBalance, 12));
           if (!inwBurn) {
             let result1 = await execContractQuery(
               process.env.REACT_APP_PUBLIC_ADDRESS,
@@ -336,9 +356,10 @@ export default function FaucetPage({ api }) {
               "psp22Capped::cap"
             );
             const inwTotalSupplyCap = formatQueryResultToNumber(result1);
+
             setInwBurn(
-              parseFloat(inwTotalSupplyCap?.replaceAll(",", "")) -
-                parseFloat(
+              +formatTextAmount(inwTotalSupplyCap) -
+                formatChainStringToNumber(
                   formatTokenAmount(
                     INWTotalSupplyResponse?.ret?.totalSupply,
                     12
@@ -596,6 +617,7 @@ export default function FaucetPage({ api }) {
   const onChangeInwInput = ({ target }) => {
     if (checkNumeric(target.value) == true) {
       setInwBuyAmount(target.value);
+      setAzeroBuyAmount(roundDown(target.value * parseFloat(inwPrice)));
       setAzeroBuyAmount(roundDown(target.value * parseFloat(inwPrice)));
     }
   };
@@ -920,7 +942,11 @@ export default function FaucetPage({ api }) {
               { title: "Total Supply", content: `${inwTotalSupply} INW` },
               { title: "In Circulation ", content: `${inwInCur} INW` },
               {
-                title: "Total Burned ",
+                title: "Total Swap To INW2 ",
+                content: `${formatNumDynDecimal(swappedV2Amount)} INW`,
+              },
+              {
+                title: "Total Burned",
                 content: `${formatNumDynDecimal(inwBurn)} INW`,
               },
               {

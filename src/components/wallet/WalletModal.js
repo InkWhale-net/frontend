@@ -9,7 +9,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
-  Stack
+  Stack,
 } from "@chakra-ui/react";
 import { supportWallets } from "constants";
 

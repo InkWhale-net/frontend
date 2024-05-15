@@ -12,7 +12,6 @@ import {
   Grid,
   IconButton,
   Image,
-  Input,
   Table,
   TableContainer,
   Tbody,
@@ -32,8 +31,10 @@ import {
 import TokenIcon from "components/TokenIcon";
 import AddressCopier from "components/address-copier/AddressCopier";
 import IWCountDown from "components/countdown/CountDown";
+import { AzeroLogo } from "components/icons/Icons";
 import ImageCloudFlare from "components/image-cf/ImageCF";
 import IWInput from "components/input/Input";
+import { appChain } from "constants";
 import React, { useEffect, useState } from "react";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import { toast } from "react-hot-toast";
@@ -41,9 +42,11 @@ import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { GoStar } from "react-icons/go";
 import { formatTokenAmount } from "utils";
 import { roundDown } from "utils";
-import { roundUp } from "utils";
 import { addressShortener, formatNumDynDecimal } from "utils";
 import { format } from "utils/datetime";
+import Icon5Ire from "assets/img/chains/5irechain.png";
+import { InkwhaleLogo } from "components/icons/Icons";
+
 const getStatusPool = (startTime, duration) => {
   if (startTime + duration * 1000 < new Date()) {
     return "Pool ended!";
@@ -120,6 +123,7 @@ const IWPaginationTable = ({
   isDisableRowClick = false,
   customURLRowClick = "",
   mutation,
+  fontSize = "18px",
 }) => {
   const table = useReactTable({
     data: tableBody ?? [],
@@ -145,7 +149,7 @@ const IWPaginationTable = ({
   }, [table.getState().pagination.pageIndex]);
 
   return (
-    <>
+    <Box width="full" fontSize={fontSize}>
       <TableContainer width="full">
         <Table variant="striped">
           {!isSmallerThanMd && (
@@ -171,49 +175,61 @@ const IWPaginationTable = ({
             </Thead>
           )}
 
-          <Tbody>
-            {!mutation?.isLoading &&
-              table.getRowModel().rows.map((row, index) => {
-                if (isSmallerThanMd)
-                  return (
-                    <ElementCard
-                      itemObj={tableBody[index]}
-                      tableHeader={table
-                        ?.getHeaderGroups()[0]
-                        .headers.map((e) => {
-                          return {
-                            label: e.column.columnDef.header,
-                            name: e.id,
-                          };
+          {totalData === 0 ? (
+            <Tr>
+              <Td colSpan={tableHeader?.length} textAlign="center">
+                <Text textAlign="center" w="full">
+                  No data found!
+                </Text>
+              </Td>
+            </Tr>
+          ) : (
+            <Tbody>
+              {!mutation?.isLoading &&
+                table.getRowModel().rows.map((row, index) => {
+                  if (isSmallerThanMd)
+                    return (
+                      <ElementCard
+                        itemObj={tableBody[index]}
+                        tableHeader={table
+                          ?.getHeaderGroups()[0]
+                          .headers.map((e) => {
+                            return {
+                              label: e.column.columnDef.header,
+                              name: e.id,
+                            };
+                          })}
+                      />
+                    );
+                  else
+                    return (
+                      <Tr key={row.id}>
+                        {row.getVisibleCells().map((cell) => {
+                          return (
+                            <Td key={cell.id}>
+                              {formatDataCellTable(
+                                tableBody[index],
+                                cell.getContext().column.id
+                              )}
+                            </Td>
+                          );
                         })}
-                    />
-                  );
-                else
-                  return (
-                    <Tr key={row.id}>
-                      {row.getVisibleCells().map((cell) => {
-                        return (
-                          <Td key={cell.id}>
-                            {formatDataCellTable(
-                              tableBody[index],
-                              cell.getContext().column.id
-                            )}
-                          </Td>
-                        );
-                      })}
-                    </Tr>
-                  );
-              })}
-          </Tbody>
+                      </Tr>
+                    );
+                })}
+            </Tbody>
+          )}
         </Table>
       </TableContainer>
       {mutation?.isLoading && (
-        <CircularProgress
-          alignSelf={"center"}
-          isIndeterminate
-          size={"40px"}
-          color="#93F0F5"
-        />
+        <Flex py="24px" justifyContent="center" w="full">
+          <CircularProgress
+            alignSelf={"center"}
+            isIndeterminate
+            size={"40px"}
+            color="#93F0F5"
+          />
+        </Flex>
       )}
 
       <Box
@@ -515,7 +531,7 @@ export const formatDataCellTable = (
       );
     case "tokenSymbol":
       return (
-        <Flex alignItems={"center"} mr={{ base: "20px" }}>
+        <Flex alignItems={"center"}>
           <Box
             w={{ base: null, lg: "42px" }}
             sx={{
@@ -532,8 +548,8 @@ export const formatDataCellTable = (
       );
     case "tokenName":
       return (
-        <Flex alignItems={"center"} mr={{ base: "20px" }}>
-          <Box
+        <Flex alignItems={"center"}>
+          {/* <Box
             w={{ base: null, lg: "42px" }}
             sx={{
               h: "42px",
@@ -627,15 +643,7 @@ export const formatDataCellTable = (
           <AddressCopier address={itemObj[header]} fontWeight="none" />
         </>
       );
-    case "amount":
-      return (
-        <>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            {itemObj?.amountIcon}
-            {itemObj[header]}{" "}
-          </Box>
-        </>
-      );
+
     case "tokenIconUrl":
       return itemObj[header] ? (
         <Image
@@ -672,6 +680,107 @@ export const formatDataCellTable = (
       return (
         <>
           <Text>{addressShortener(itemObj[header])}</Text>
+        </>
+      );
+
+    // AZERO STAKING
+    case "requestIndex":
+      return (
+        <>
+          <Text>{itemObj[header]}</Text>
+        </>
+      );
+
+    case "withdrawalAmount":
+      return (
+        <>
+          <Text>
+            {formatNumDynDecimal(itemObj[header])} {appChain?.unit}
+          </Text>
+        </>
+      );
+
+    case "requestUserAddress":
+      return (
+        <>
+          <AddressCopier address={itemObj[header]} />
+        </>
+      );
+
+    case "azeroAmount":
+      return (
+        <>
+          <Text>
+            {formatNumDynDecimal(itemObj[header])}{" "}
+            <AzeroLogo w="12px" h="12px" mb="3px" />
+          </Text>
+        </>
+      );
+
+    case "interestAccount":
+      return (
+        <>
+          <Text>
+            {formatNumDynDecimal(itemObj[header])} {appChain?.unit}
+          </Text>
+        </>
+      );
+
+    case "masterAccount":
+      return (
+        <>
+          <Text>
+            {formatNumDynDecimal(itemObj[header])} {appChain?.unit}
+          </Text>
+        </>
+      );
+
+    case "azeroReward":
+      return (
+        <>
+          <Text>
+            {formatNumDynDecimal(itemObj[header], 6)} {appChain?.unit}
+          </Text>
+          <Text>
+            {formatNumDynDecimal(itemObj["inwReward"], 6)} {appChain?.inwName}
+          </Text>
+        </>
+      );
+
+    // BRIDGE
+    case "fromChain":
+      return parseInt(itemObj[header]) === 2 ? (
+        <Circle w="22px" h="22px" overflow="hidden">
+          <Image src={Icon5Ire} alt="logo-Icon5Ire" rounded />
+        </Circle>
+      ) : (
+        <Circle w="22px" h="22px" overflow="hidden">
+          <AzeroLogo />
+        </Circle>
+      );
+
+    case "toChain":
+      return parseInt(itemObj[header]) === 2 ? (
+        <Circle w="22px" h="22px" overflow="hidden">
+          <Image src={Icon5Ire} alt="logo-Icon5Ire" rounded />
+        </Circle>
+      ) : (
+        <Circle w="22px" h="22px" overflow="hidden">
+          <AzeroLogo />
+        </Circle>
+      );
+
+    case "inwAmount":
+      return (
+        <>
+          <Text>{formatNumDynDecimal(itemObj[header])} INW</Text>
+        </>
+      );
+
+    case "accountReceiver":
+      return (
+        <>
+          <AddressCopier address={itemObj[header]} fontWeight="none" />
         </>
       );
 

@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Divider,
+  Flex,
   Heading,
   Image,
   Progress,
@@ -12,7 +13,13 @@ import {
   IWStatusWithCountDown,
 } from "components/countdown/StatusWithCountDown";
 import { useHistory } from "react-router-dom";
-import { EndStatusTag, LiveStatusTag, UpcomingStatusTag } from "./StatusTag";
+import {
+  DoxxedTag,
+  EndStatusTag,
+  LiveStatusTag,
+  RequireKyc,
+  UpcomingStatusTag,
+} from "./StatusTag";
 import { useMemo } from "react";
 import Countdown, { zeroPad } from "react-countdown";
 import FadeIn from "react-fade-in/lib/FadeIn";
@@ -136,16 +143,34 @@ const LaunchpadTag = ({ launchpadData }) => {
             objectPosition="center"
             filter="brightness(0.4)"
             borderRadius="4px"
-            src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}/${projectInfo?.projectInfor?.headerImage}`}
+            src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${projectInfo?.projectInfor?.featureImage}`}
           />
-          <IWStatus
-            isActive={launchpadData.isActive}
-            startDate={projectTime?.startTime}
-            endDate={projectTime?.endTime}
-            liveRender={<LiveStatusTag />}
-            upcomingRender={<UpcomingStatusTag />}
-            endRender={<EndStatusTag />}
-          />
+          <Flex
+            style={{
+              position: "absolute",
+              right: "8px",
+              top: "8px",
+            }}
+          >
+            {launchpadData?.requireKyc && <RequireKyc />}
+            <IWStatus
+              isActive={launchpadData.isActive}
+              startDate={projectTime?.startTime}
+              endDate={projectTime?.endTime}
+              liveRender={<LiveStatusTag />}
+              upcomingRender={<UpcomingStatusTag />}
+              endRender={<EndStatusTag />}
+            />
+          </Flex>
+          <Flex
+            style={{
+              position: "absolute",
+              right: "4px",
+              bottom: "8px",
+            }}
+          >
+            {launchpadData?.isDoxxed && <DoxxedTag />}
+          </Flex>
 
           <div
             style={{
@@ -166,7 +191,7 @@ const LaunchpadTag = ({ launchpadData }) => {
               boxShadow="base"
               objectFit="cover"
               objectPosition="center"
-              src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}/${projectInfo?.projectInfor?.avatarImage}`}
+              src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${projectInfo?.projectInfor?.avatarImage}`}
             />
           </div>
         </div>

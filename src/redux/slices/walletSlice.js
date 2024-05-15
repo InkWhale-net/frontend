@@ -1,9 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-
 import { formatNumDynDecimal, formatQueryResultToNumber } from "utils";
 import { execContractQuery, getAzeroBalanceOfAddress } from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { get5ireBalanceOfAddress } from "../../utils/contracts/firechain";
 
 const localCurrentAccount = window?.localStorage?.getItem(
   "localCurrentAccount"
@@ -79,6 +80,18 @@ export const fetchUserBalance = createAsyncThunk(
     );
 
     const inw = formatQueryResultToNumber(inwBalance);
+    const inw2Balance = await execContractQuery(
+      currentAccount?.address,
+      //thunkAPI.getState().wallet.api,
+      api,
+      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ADDRESS,
+      0,
+      "psp22::balanceOf",
+      currentAccount?.address
+    );
+
+    const inw2 = formatQueryResultToNumber(inw2Balance);
 
     const azeroBalance = await getAzeroBalanceOfAddress({
       api,
@@ -86,8 +99,17 @@ export const fetchUserBalance = createAsyncThunk(
     });
 
     const azero = formatNumDynDecimal(azeroBalance);
-    return { inw, azero };
+
+    const { fire, inw2: fireInw } = await get5ireBalanceOfAddress({
+      address: currentAccount?.address,
+    });
+
+    return {
+      inw,
+      inw2,
+      azero,
+      "alephzero-testnet": { inw, inw2, nativeToken: azero },
+      "firechain-testnet": { inw2: fireInw, nativeToken: fire },
+    };
   }
 );
-
-// ,api,psp22_contract.CONTRACT_ABI,azt_contract.CONTRACT_ADDRESS, 0,"psp22::balanceOf"

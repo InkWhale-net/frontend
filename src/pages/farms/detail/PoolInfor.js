@@ -3,6 +3,7 @@ import { Link, Stack } from "@chakra-ui/react";
 import AddressCopier from "components/address-copier/AddressCopier";
 import { NFTBannerCard } from "components/card/Card";
 import CardTwoColumn from "components/card/CardTwoColumn";
+import { appChain } from "constants";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -29,6 +30,7 @@ const PoolInfo = ({
   lptokenName,
   lptokenSymbol,
   tokenDecimal,
+  isOldPool,
   ...rest
 }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -69,7 +71,7 @@ const PoolInfo = ({
           {nftInfo?.name}
         </Link>
       ),
-      volume: `${formatNumDynDecimal(nftInfo?.volume)} AZERO`,
+      volume: `${formatNumDynDecimal(nftInfo?.volume)} ${appChain?.unit}`,
       totalSupply: `${nftInfo?.nft_count} NFT${nftInfo?.nft_count > 1 && "s"}`,
       royaltyFee: `${(nftInfo?.royaltyFee / 100).toFixed(2)}%`,
     },
@@ -88,6 +90,7 @@ const PoolInfo = ({
       );
       const rawTokenTotalSupply = queryResult.toHuman().Ok;
       setTokenTotalSupply(formatTokenAmount(rawTokenTotalSupply, tokenDecimal));
+      if (!lptokenContract) return;
       let queryResult2 = await execContractQuery(
         currentAccount?.address,
         "api",
@@ -140,9 +143,8 @@ const PoolInfo = ({
             },
             {
               title: "Pool Length",
-              content: `${duration / 86400} day${
-                duration / 86400 > 1 ? "s" : ""
-              }`,
+              content: `${duration / 86400} day${duration / 86400 > 1 ? "s" : ""
+                }`,
             },
             {
               title: "Reward Pool",
@@ -150,15 +152,13 @@ const PoolInfo = ({
             },
             {
               title: "Max Staking Amount",
-              content: `${formatNumDynDecimal(maxStakingAmount)} ${
-                mode === "NFT_FARM" ? "NFT" : lptokenSymbol
-              }${mode === "NFT_FARM" && maxStakingAmount > 1 ? "s" : ""}`,
+              content: `${formatNumDynDecimal(maxStakingAmount)} ${mode === "NFT_FARM" ? "NFT" : lptokenSymbol
+                }${mode === "NFT_FARM" && maxStakingAmount > 1 ? "s" : ""}`,
             },
             {
               title: "Total Value Locked",
-              content: `${formatNumDynDecimal(totalStaked)} ${
-                mode === "NFT_FARM" ? "NFT" : lptokenSymbol
-              }${mode === "NFT_FARM" && totalStaked > 1 ? "s" : ""}`,
+              content: `${formatNumDynDecimal(totalStaked)} ${mode === "NFT_FARM" ? "NFT" : lptokenSymbol
+                }${mode === "NFT_FARM" && totalStaked > 1 ? "s" : ""}`,
             },
           ]}
         />

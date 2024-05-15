@@ -2347,5 +2347,5 @@ const psp22_contract = {
 		"version": "4"
 	  }
   };
-  
+
   export default psp22_contract;

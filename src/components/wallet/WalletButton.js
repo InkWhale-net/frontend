@@ -29,27 +29,17 @@ import { updateAccountsList } from "redux/slices/walletSlice";
 import { addressShortener } from "utils";
 
 import AddressCopier from "components/address-copier/AddressCopier";
-import { supportWallets } from "constants";
+import { appChain, supportWallets } from "constants";
 import { useAppContext } from "contexts/AppContext";
 import { useMemo } from "react";
 import { isMobile } from "react-device-detect";
 import { setCurrentAccount } from "redux/slices/walletSlice";
-import { resolveDomain } from "utils";
+import { formatNumDynDecimal, resolveDomain } from "utils";
 import WalletModal from "./WalletModal";
 import useLongPress from "./useLongPress";
-import toast from "react-hot-toast";
-
 export default function WalletButton({ onCloseSidebar }) {
-  const dispatch = useDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { currentAccount, allAccounts } = useSelector((state) => state.wallet);
-
-  const loadListAccount = async () => {};
-  useEffect(() => {
-    if (currentAccount) {
-      loadListAccount();
-    } else dispatch(updateAccountsList([]));
-  }, [currentAccount]);
 
   const onClickSwitch = async () => {
     if (currentAccount && allAccounts?.length > 1) onOpen();
@@ -81,10 +71,10 @@ const WalletNotConnect = ({ onClose }) => {
   const [showDetailMenu, setShowDetailMenu] = useState(false);
   const clearCache = async () => {
     // try {
-      await caches.keys().then(async (names) => {
-        await Promise.all(names.map((name) => caches.delete(name)));
-      });
-      await window.location.reload();
+    await caches.keys().then(async (names) => {
+      await Promise.all(names.map((name) => caches.delete(name)));
+    });
+    await window.location.reload();
     // } catch (error) {
     //   toast.error("Can not clear cache");
     // }
@@ -298,26 +288,42 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
           </IWCard>
 
           {[
-            { title: "AZERO Balance", content: currentAccount?.balance?.azero },
-            { title: "INW Balance", content: currentAccount?.balance?.inw },
-          ].map(({ title, content }, idx) => {
-            return (
-              <IWCard
-                key={idx}
-                mb="12px"
-                variant="menu"
-                minW={{ base: "full", lg: "350px" }}
-              >
-                <Flex justify={{ base: "space-between" }}>
-                  <Text>{title}</Text>
+            {
+              title: `${appChain?.unit} Balance`,
+              content: currentAccount?.balance?.azero,
+            },
+            {
+              title: "INW Balance",
+              content: formatNumDynDecimal(
+                currentAccount?.balance?.inw?.replaceAll(",", "")
+              ),
+            },
+            appChain?.haveINW2 && {
+              title: "INW2 Balance",
+              content: formatNumDynDecimal(
+                currentAccount?.balance?.inw2?.replaceAll(",", "")
+              ),
+            },
+          ]
+            .filter((e) => e)
+            .map(({ title, content }, idx) => {
+              return (
+                <IWCard
+                  key={idx}
+                  mb="12px"
+                  variant="menu"
+                  minW={{ base: "full", lg: "350px" }}
+                >
+                  <Flex justify={{ base: "space-between" }}>
+                    <Text>{title}</Text>
 
-                  <Heading as="h4" size="h4">
-                    {content}
-                  </Heading>
-                </Flex>
-              </IWCard>
-            );
-          })}
+                    <Heading as="h4" size="h4">
+                      {content}
+                    </Heading>
+                  </Flex>
+                </IWCard>
+              );
+            })}
 
           <Flex
             w="full"

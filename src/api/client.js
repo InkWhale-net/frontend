@@ -60,6 +60,34 @@ const clientWithGetParams = async (
   return data;
 };
 
+const clientWithRawParams = async (
+  method,
+  url,
+  options = {},
+  baseURL = process.env.REACT_APP_API_BASE_URL
+) => {
+  const headers = {
+    Accept: "*/*",
+    "Content-Type": "application/json",
+  };
+
+  let optionsJSON = JSON.stringify(options);
+
+  const { data } = await axios({
+    baseURL,
+    url,
+    method,
+    headers,
+    data: optionsJSON,
+  });
+
+  if (data?.status === "FAILED") {
+    console.log("error FAILED @ xx>>", url, data?.message);
+  }
+
+  return data;
+};
+
 export const APICall = {
   // Get list of tokens
   getTokensList: async ({ limit = 1000, offset = 0, sort = -1 }) => {
@@ -109,6 +137,12 @@ export const APICall = {
       isNew,
     });
   },
+  updateDoxxed: async ({ contractAddress, newValue }) => {
+    return await client("POST", "/updateDoxxed", {
+      contractAddress,
+      newValue,
+    });
+  },
   getTokenInfor: async ({ tokenAddress }) => {
     return await client("POST", "/getTokenInfor", {
       tokenAddress,
@@ -140,6 +174,25 @@ export const APICall = {
       isToOnly,
     });
   },
+
+  getSwapTransactionHistory: async ({
+    tokenContract,
+    queryAddress,
+    limit = 10,
+    offset = 0,
+    isFromOnly = true,
+    isToOnly = true,
+  }) => {
+    return await client("POST", "/getSwapTransactionHistory", {
+      tokenContract,
+      queryAddress,
+      limit,
+      offset,
+      isFromOnly,
+      isToOnly,
+    });
+  },
+
   getLaunchpad: async ({
     keyword,
     isActive = 1,
@@ -338,6 +391,71 @@ export const APICall = {
     return await clientWithGetParams("GET", "/getKycAddress", {
       filter: { ...options },
     });
+  },
+
+  // Azero Staking API
+  getWaitingListInfo: async (options) => {
+    return await client(
+      "POST",
+      "/getWaitingListInfoWithinExpirationDuration",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  getExpirationTime: async (options) => {
+    return await client(
+      "POST",
+      "/getExpirationTime",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  getDistributionInfo: async (options) => {
+    return await client(
+      "POST",
+      "/getDistributionInfo",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  // clientWithRawParams
+  getEventData: async (options) => {
+    return await clientWithRawParams(
+      "POST",
+      "/getEventData",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  getMyEventData: async (options) => {
+    return await clientWithRawParams(
+      "POST",
+      "/getMyEventData",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  getOperationWallet: async (options) => {
+    return await client(
+      "POST",
+      "/getOperationWallet",
+      { ...options },
+      "https://staking.inkwhale.net/"
+    );
+  },
+
+  getTransactionOfBridge: async ({ limit, page }) => {
+    return await client(
+      "GET",
+      `/transaction/history?page=${page}&limit=${limit}`,
+      {},
+      process.env.REACT_APP_BRIDGE_BE_URL
+    );
   },
 };
 

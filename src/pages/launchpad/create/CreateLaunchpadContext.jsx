@@ -1,13 +1,13 @@
 import { CheckIcon } from "@chakra-ui/icons";
 import { Circle } from "@chakra-ui/react";
 import { useAppContext } from "contexts/AppContext";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
-  formatNumDynDecimal,
   formatQueryResultToNumber,
+  formatTextAmount,
   formatTokenAmount,
 } from "utils";
 import { execContractQuery } from "utils/contracts";
@@ -18,17 +18,7 @@ import ProjectInfor from "./components/ProjectInfor";
 import ProjectRoadmap from "./components/ProjectRoadmap";
 import Team from "./components/Team";
 import VerifyToken from "./components/VerifyToken";
-import {
-  validatePhase,
-  validatePhaseData,
-  validateProjectInfor,
-  validateRoadmap,
-  validateTeam,
-  validateTotalSupply,
-  verifyProjectInfo,
-  verifyTeam,
-  verifyTokenValid,
-} from "./utils";
+import { validatePhaseData } from "./utils";
 
 export const CreateLaunchpadContext = createContext();
 
@@ -82,7 +72,7 @@ const CreateLaunchpadContextProvider = (props) => {
     //   content: <Phase />,
     // },
   ]);
-  const [createTokenFee, setCreateTokenFee] = useState(0);
+  const [createTokenFee, setCreateTokenFee] = useState("");
 
   const [launchpadData, updateLaunchpadData] = useState({
     token: null,
@@ -122,28 +112,13 @@ const CreateLaunchpadContextProvider = (props) => {
     updateLaunchpadData({ ...launchpadData, requireKyc: value });
   };
 
-  const verifyStep = async () => {
-    switch (current) {
-      case 0:
-        return verifyTokenValid(launchpadData, currentAccount);
-      case 1:
-        return verifyProjectInfo(launchpadData);
-      case 3:
-        return verifyTeam(launchpadData);
-      default:
-        return true;
-    }
-  };
-
   const nextStep = async () => {
     const nextStep = Math.min(current + 1, itemStep?.length - 1);
-    if (await verifyStep()) {
-      setItemStep((prevState) => {
-        prevState[current] = { ...prevState[current], icon: <CheckedIcon /> };
-        return prevState;
-      });
-      setCurrent(nextStep);
-    }
+    setItemStep((prevState) => {
+      prevState[current] = { ...prevState[current], icon: <CheckedIcon /> };
+      return prevState;
+    });
+    setCurrent(nextStep);
   };
 
   const prevStep = async () => {
@@ -157,22 +132,6 @@ const CreateLaunchpadContextProvider = (props) => {
     });
     setCurrent(prefStep);
   };
-  const isNextButtonActive = useMemo(() => {
-    switch (current) {
-      case 0:
-        return !!launchpadData?.token;
-      case 1:
-        return validateProjectInfor(launchpadData);
-      case 2:
-        return validateRoadmap(launchpadData);
-      case 3:
-        return validateTeam(launchpadData);
-      case 4:
-        return validatePhase(launchpadData);
-      default:
-        return true;
-    }
-  }, [current, launchpadData]);
 
   useEffect(() => {
     const fetchCreateTokenFee = async () => {
@@ -193,25 +152,17 @@ const CreateLaunchpadContextProvider = (props) => {
     fetchCreateTokenFee();
   }, [currentAccount]);
 
-  const handleAddNewLaunchpad = async () => {
+  const handleAddNewLaunchpad = async (phaseData) => {
     try {
+      updatePhase(phaseData?.phase);
       if (!currentAccount) {
         return toast.error("Please connect wallet first!");
       }
-      const minReward = +launchpadData?.phase?.reduce(
+      const minReward = +phaseData?.phase?.reduce(
         (acc, e) => acc + (e?.phasePublicAmount || 0),
         0
       );
-
-      if (
-        !(launchpadData?.phase?.length > 0) ||
-        !validateTotalSupply(
-          launchpadData?.phase,
-          parseFloat(launchpadData?.totalSupply),
-          parseFloat(launchpadData.token.balance.replaceAll(",", ""))
-        )
-      )
-        return;
+      if (!(phaseData?.phase?.length > 0)) return;
 
       const result = await execContractQuery(
         currentAccount?.address,
@@ -225,21 +176,16 @@ const CreateLaunchpadContextProvider = (props) => {
 
       if (
         !(
-          parseFloat(currentAccount?.balance?.inw.replaceAll(",", "")) >
-          parseFloat(formatTokenAmount(fee, 12))
+          +formatTextAmount(currentAccount?.balance?.inw2) >
+          formatTokenAmount(fee, 12)
         )
       ) {
-        toast.error(
-          `Your INW balance must higher than ${formatNumDynDecimal(
-            formatTokenAmount(fee, 12)
-          )}`
-        );
+        toast.error(`Low INW2 balance`);
         return;
       }
       // check wallet connect?
 
-      if (!validatePhaseData(launchpadData?.phase, launchpadData?.totalSupply))
-        return;
+      if (!validatePhaseData(phaseData?.phase, phaseData?.totalSupply)) return;
 
       setFinishModalVisible(true);
     } catch (error) {
@@ -261,7 +207,6 @@ const CreateLaunchpadContextProvider = (props) => {
         updateTotalSupply,
         launchpadData,
         updateLaunchpadData,
-        isNextButtonActive,
         handleAddNewLaunchpad,
         finishModalVisible,
         setFinishModalVisible,

@@ -15,11 +15,9 @@ const SaleCount = ({ label, time, direction }) => {
     } else {
       return (
         <Flex>
-          <Text sx={{ fontWeight: "bold", color: "#57527E" }}>{`${
-            days && zeroPad(days)
-          }d:${zeroPad(hours)}h:${zeroPad(minutes)}m:${zeroPad(
-            seconds
-          )}s`}</Text>
+          <Text>{`${days && zeroPad(days)}d:${zeroPad(hours)}h:${zeroPad(
+            minutes
+          )}m:${zeroPad(seconds)}s`}</Text>
         </Flex>
       );
     }
@@ -44,7 +42,7 @@ export const IWStatusWithCountDown = ({ startDate, endDate, direction }) => {
     } else if (now < startDate) {
       return (
         <SaleCount
-          label="Sale start in"
+          label="Sale starts in"
           time={startDate}
           direction={direction}
         />
@@ -127,9 +125,6 @@ export const NotActive = ({ label }) => {
     <Tooltip label="Contact InkWhale to active project">
       <div
         style={{
-          position: "absolute",
-          right: "8px",
-          top: "8px",
           background: "#E3DFF3",
           paddingLeft: "8px",
           paddingRight: "12px",
@@ -139,6 +134,7 @@ export const NotActive = ({ label }) => {
           fontWeight: "bold",
           fontSize: "14px",
           color: "#57527E",
+          whiteSpace: "nowrap",
         }}
       >
         <BsDot size={"20px"} color="#FF9595" />

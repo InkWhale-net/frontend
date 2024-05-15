@@ -25,9 +25,13 @@ import { formatChainStringToNumber } from "utils";
 const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
   const tokenDecimal = parseInt(launchpadData.projectInfo.token.decimals);
+  const tokenSymbol = launchpadData?.projectInfo?.token?.symbol;
+
   const tagData = useMemo(() => {
     return {
       ...data,
+      availableAmount:
+        formatChainStringToNumber(data?.availableAmount) / 10 ** tokenDecimal,
       capAmount:
         formatChainStringToNumber(data?.capAmount) / 10 ** tokenDecimal,
       startTime: new Date(parseInt(data?.startTime?.replace(/,/g, ""))),
@@ -55,6 +59,10 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
         tagData?.publicSaleInfor?.totalClaimedAmount,
         tokenDecimal
       ),
+      availableAmount: formatTokenAmount(
+        tagData?.publicSaleInfor?.availableAmount,
+        tokenDecimal
+      ),
       price: formatTokenAmount(tagData?.publicSaleInfor?.price, 12),
     };
   }, [tagData]);
@@ -65,6 +73,48 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
         (e) => e?.account == currentAccount?.address
       );
   }, [currentAccount, tagData]);
+
+  // ###############################
+  // account:"5HdV9C5v5DJF4wNPrMNsEYk5amND93xMHCSncHEWaJbZbzn9"
+  // amount:"100,000,000,000,000" Balance
+  // claimedAmount:"0" Balance
+  // lastUpdatedTime:"0"
+  // price:"500,000,000,000" Balance
+  // purchasedAmount:"0" Balance
+  // vestingAmount: "0"; Balance
+
+  const whitelistList = useMemo(
+    () =>
+      tagData?.whitelist?.map((w) => ({
+        ...w,
+        amount:
+          formatChainStringToNumber(w?.amount) / Math.pow(10, tokenDecimal),
+        claimedAmount:
+          formatChainStringToNumber(w?.claimedAmount) /
+          Math.pow(10, tokenDecimal),
+        price: formatChainStringToNumber(w?.price) / Math.pow(10, tokenDecimal),
+        purchasedAmount:
+          formatChainStringToNumber(w?.purchasedAmount) /
+          Math.pow(10, tokenDecimal),
+        vestingAmount:
+          formatChainStringToNumber(w?.vestingAmount) /
+          Math.pow(10, tokenDecimal),
+      })),
+    [tagData?.whitelist, tokenDecimal]
+  );
+
+  const whitelistAddedAmount = whitelistList?.reduce(
+    (prev, curr) => prev + curr.amount,
+    0
+  );
+
+  const whitelistClaimedAmount = whitelistList?.reduce(
+    (prev, curr) => prev + curr.claimedAmount,
+    0
+  );
+
+  const whitelistClaimed = whitelistList.filter((w) => !!w.claimedAmount);
+
   return (
     <Box
       sx={{
@@ -102,6 +152,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             live: "On-going",
             end: "Ended",
           }}
+          isActive={tagData.isActive}
         />
       </Box>
       <Divider sx={{ mb: "16px" }} />
@@ -171,8 +222,11 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             }}
           >
             <Text>Vesting Duration</Text>
-            <Text size="md">{tagData?.vestingDuration} day(s)</Text>
-          </Box>
+            <Text size="md">
+              {tagData?.vestingDuration} day
+              {tagData?.vestingDuration > 1 ? "s" : null}
+            </Text>
+          </Box>{" "}
           <Box
             sx={{
               display: "flex",
@@ -182,7 +236,9 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             }}
           >
             <Text>Vesting Release Period</Text>
-            <Text size="md">{tagData?.vestingUnit} day(s)</Text>
+            <Text size="md">
+              {tagData?.vestingUnit} day {tagData?.vestingUnit > 1 ? "s" : null}
+            </Text>
           </Box>
         </>
       )}
@@ -204,9 +260,10 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
               marginTop: "12px",
             }}
           >
-            <Text>Total sale amount</Text>
+            <Text>Total for sale</Text>
             <Text size="md">
-              {formatNumDynDecimal(publicSaleInfo?.totalAmount)}
+              {`${formatNumDynDecimal(publicSaleInfo?.totalAmount)}
+               ${tokenSymbol}`}
             </Text>
           </Box>
           <Box
@@ -217,9 +274,10 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
               marginTop: "12px",
             }}
           >
-            <Text>Total purchased amount</Text>
+            <Text>Total purchased</Text>
             <Text size="md">
-              {formatNumDynDecimal(publicSaleInfo?.totalPurchasedAmount)}
+              {`${formatNumDynDecimal(publicSaleInfo?.totalPurchasedAmount)}
+               ${tokenSymbol}`}
             </Text>
           </Box>
 
@@ -281,20 +339,55 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             <Text size="md">
               {`${formatNumDynDecimal(
                 formatTokenAmount(userWL?.amount, tokenDecimal)
-              )} ${launchpadData?.projectInfo?.token?.symbol}`}
+              )} ${tokenSymbol}`}
             </Text>
           </Box>
         </>
       )}
       <Flex justify="space-between" mt="12px">
-        <Text>Phase Cap Amount</Text>
+        <Text>Phase Cap</Text>
 
-        <Text sx={{ fontWeight: "bold", color: "#57527E" }}>
-          {tagData.capAmount} ${launchpadData?.projectInfo?.token?.symbol}
+        <Text>
+          {formatNumDynDecimal(tagData.capAmount)} {tokenSymbol}
         </Text>
       </Flex>
 
       <Divider sx={{ mb: "20px", mt: "8px" }} />
+
+      {whitelistList?.length ? (
+        <>
+          <Flex justify="space-between" mt="12px">
+            <Text>Whitelist added</Text>
+
+            <Text>
+              {formatNumDynDecimal(whitelistAddedAmount)} {tokenSymbol}
+            </Text>
+          </Flex>
+          <Flex justify="space-between" mt="12px">
+            <Text>Whitelist address added</Text>
+
+            <Text>{whitelistList?.length ?? 0}</Text>
+          </Flex>
+        </>
+      ) : null}
+
+      {whitelistList?.length ? (
+        <>
+          <Flex justify="space-between" mt="12px">
+            <Text>Whitelist claimed</Text>
+
+            <Text>
+              {formatNumDynDecimal(whitelistClaimedAmount)} {tokenSymbol}
+            </Text>
+          </Flex>
+          <Flex justify="space-between" mt="12px">
+            <Text>Whitelist address claimed</Text>
+
+            <Text>{whitelistClaimed?.length ?? 0}</Text>
+          </Flex>
+          <Divider sx={{ mb: "20px", mt: "8px" }} />
+        </>
+      ) : null}
 
       <IWStatusWithCountDown
         direction="row"

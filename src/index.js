@@ -47,6 +47,11 @@ import { fetchTotalValueLocked } from "redux/slices/statSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { delay } from "utils";
 import { initialApi } from "utils/contracts";
+import AzeroStaking from "pages/azero-staking";
+import INWV2 from "pages/faucet/inwV2";
+import BridgePage from "pages/account/bridge";
+import TokensSwapHistoryPage from "pages/tokens/swap/history";
+import TokensSwapPage from "pages/tokens/swap";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -184,6 +189,16 @@ const App = () => {
             path={`/tokens/transaction`}
             component={TokensTransactionPage}
           />
+          <Route
+            exact
+            path={`/tokens/swap/history`}
+            component={TokensSwapHistoryPage}
+          />
+          <Route
+            exact
+            path={`/tokens/swap/:tokenAddress`}
+            component={TokensSwapPage}
+          />
           <Route exact path={`/create/token`} component={CreateTokenPage} />
           <Route
             exact
@@ -191,7 +206,7 @@ const App = () => {
             component={CreateStakePoolPage}
           />
           <Route exact path={`/create/nft-lp`} component={CreateNFTLPPage} />
-          {/* <Route
+          <Route
             exact
             path={`/launchpad/create`}
             component={CreateLaunchpadPage}
@@ -201,7 +216,7 @@ const App = () => {
             exact
             path={`/launchpad/:launchpadContract`}
             component={PublicDetailLaunchpad}
-          /> */}
+          />
           <Route exact path={`/create/farming`} component={CreateTokenLPPage} />
           <Route exact path={`/farming`} component={LPPoolsPage} />
           <Route
@@ -228,6 +243,9 @@ const App = () => {
             component={MyPoolDetailPage}
           />
           <Route exact path={`/admin`} component={AdminPage} />
+          <Route exact path={`/azero-staking`} component={AzeroStaking} />
+          <Route exact path={`/inw-v2`} component={INWV2} />
+          <Route exact path={`/bridge`} component={BridgePage} />
           <Route>
             <FaucetPage api={api} />
           </Route>

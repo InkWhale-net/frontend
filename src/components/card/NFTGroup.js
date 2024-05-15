@@ -10,6 +10,7 @@ import { toast } from "react-hot-toast";
 import { toastMessages } from "constants";
 import { isPoolEnded } from "utils";
 import { isPoolNotStart } from "utils";
+import { formatTextAmount } from "utils";
 
 const MAX_NFT_ACTION = 10;
 
@@ -93,12 +94,11 @@ const NFTGroup = ({
 
                 if (action === "Unstake NFT") {
                   if (
-                    parseInt(
-                      currentAccount?.balance?.inw?.replaceAll(",", "")
-                    ) < unstakeFee
+                    +formatTextAmount(currentAccount?.balance?.inw2) <
+                    +formatTextAmount(unstakeFee)
                   ) {
                     toast.error(
-                      `You don't have enough INW. Unstake costs ${unstakeFee} INW`
+                      `You don't have enough INW2. Unstake costs ${unstakeFee} INW2`
                     );
                     return;
                   }
@@ -125,8 +125,8 @@ const NFTGroup = ({
                   You are bulk {action?.replace("NFT", "")} (
                   {listNFTStake?.length || 0}) NFTs <br /> Unstaking{" "}
                   {action !== "Unstake NFT" && "later"} will cost you{" "}
-                  {Number(unstakeFee * listNFTStake?.length)?.toFixed(0)} INW.
-                  Continue?
+                  {Number(unstakeFee * listNFTStake?.length)?.toFixed(0)} INW
+                  V2. Continue?
                 </>
               }
             />
