@@ -20,7 +20,6 @@ import { toast } from "react-hot-toast";
 import { execContractQuery } from "./contracts";
 import psp22_contract from "./contracts/psp22_contract";
 import psp22_contract_v2 from "./contracts/psp22_contract_V2";
-import psp22_contract_old from "./contracts/psp22_contract_old";
 import { appChain } from "constants";
 export const chainDecimals = {
   alephzero: 12,
@@ -290,6 +289,8 @@ export const getPublicCurrentAccount = () => {
 };
 
 export const moveINWToBegin = (tokensList) => {
+  console.log(psp22_contract.CONTRACT_ADDRESS);
+  console.log(psp22_contract_v2.CONTRACT_ADDRESS);
   const INW2Index = tokensList.findIndex(
     (element) => element?.contractAddress === psp22_contract_v2.CONTRACT_ADDRESS
   );
@@ -298,7 +299,10 @@ export const moveINWToBegin = (tokensList) => {
     tokensList.unshift(element);
   }
   const INWIndex = tokensList.findIndex(
-    (element) => element?.contractAddress === psp22_contract.CONTRACT_ADDRESS
+    (element) =>
+      element?.contractAddress === psp22_contract.CONTRACT_ADDRESS ||
+      element?.contractAddress ===
+        "5H4aCwLKUpVpct6XGJzDGPPXFockNKQU2JUVNgUw6BXEPzST"
   );
   if (INWIndex > -1) {
     const element = tokensList.splice(INWIndex, 1)[0];
@@ -445,11 +449,17 @@ export const resolveAZDomainToAddress = async (domain) => {
 
 export const formatTokenAmount = (value, decimal = 12) => {
   try {
+    console.log(
+      "value1",
+      value?.toString()?.replace(/\./g, "")?.replace(/,/g, "")
+    );
+    console.log('value', value)
+    console.log('decimal', decimal)
     const ret = formatUnits(
       value?.toString()?.replace(/\./g, "")?.replace(/,/g, ""),
-      decimal
+      Number(decimal)
     );
-
+    console.log('ret', ret)
     return formatNumDynDecimal(ret, 6);
   } catch (error) {
     console.log(error);
@@ -500,7 +510,7 @@ export const getTokenOwner = async (tokenContract) => {
   const queryOwnerOld = await execContractQuery(
     process.env.REACT_APP_PUBLIC_ADDRESS,
     "api",
-    psp22_contract_old.CONTRACT_ABI,
+    psp22_contract.CONTRACT_ABI,
     tokenContract,
     0,
     "ownable::owner"

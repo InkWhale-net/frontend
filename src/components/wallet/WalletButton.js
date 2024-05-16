@@ -298,12 +298,12 @@ export const WalletConnect = ({ onClose, onClickSwitch }) => {
                 currentAccount?.balance?.inw?.replaceAll(",", "")
               ),
             },
-            appChain?.haveINW2 && {
-              title: "INW2 Balance",
-              content: formatNumDynDecimal(
-                currentAccount?.balance?.inw2?.replaceAll(",", "")
-              ),
-            },
+            // appChain?.haveINW2 && {
+            //   title: "INW2 Balance",
+            //   content: formatNumDynDecimal(
+            //     currentAccount?.balance?.inw2?.replaceAll(",", "")
+            //   ),
+            // },
           ]
             .filter((e) => e)
             .map(({ title, content }, idx) => {

@@ -189,11 +189,11 @@ const App = () => {
             path={`/tokens/transaction`}
             component={TokensTransactionPage}
           />
-          <Route
+          {/* <Route
             exact
             path={`/tokens/swap/history`}
             component={TokensSwapHistoryPage}
-          />
+          /> */}
           <Route
             exact
             path={`/tokens/swap/:tokenAddress`}
@@ -206,17 +206,17 @@ const App = () => {
             component={CreateStakePoolPage}
           />
           <Route exact path={`/create/nft-lp`} component={CreateNFTLPPage} />
-          <Route
+          {/* <Route
             exact
             path={`/launchpad/create`}
             component={CreateLaunchpadPage}
-          />
-          <Route exact path={`/launchpad`} component={Launchpad} />
+          /> */}
+          {/* <Route exact path={`/launchpad`} component={Launchpad} />
           <Route
             exact
             path={`/launchpad/:launchpadContract`}
             component={PublicDetailLaunchpad}
-          />
+          /> */}
           <Route exact path={`/create/farming`} component={CreateTokenLPPage} />
           <Route exact path={`/farming`} component={LPPoolsPage} />
           <Route
@@ -243,9 +243,9 @@ const App = () => {
             component={MyPoolDetailPage}
           />
           <Route exact path={`/admin`} component={AdminPage} />
-          <Route exact path={`/azero-staking`} component={AzeroStaking} />
-          <Route exact path={`/inw-v2`} component={INWV2} />
-          <Route exact path={`/bridge`} component={BridgePage} />
+          {/* <Route exact path={`/azero-staking`} component={AzeroStaking} /> */}
+          {/* <Route exact path={`/inw-v2`} component={INWV2} /> */}
+          {/* <Route exact path={`/bridge`} component={BridgePage} /> */}
           <Route>
             <FaucetPage api={api} />
           </Route>

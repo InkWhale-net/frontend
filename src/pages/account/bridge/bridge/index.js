@@ -5,8 +5,8 @@ import { BridgeHistoryTable } from "./BridgeHistoryTable";
 const BridgeTab = () => {
   return (
     <Flex direction="column" align="center">
-      <BridgeForm />
-      <BridgeHistoryTable />
+      {/* <BridgeForm />
+      <BridgeHistoryTable /> */}
     </Flex>
   );
 };

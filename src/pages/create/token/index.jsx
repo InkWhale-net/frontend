@@ -149,11 +149,11 @@ export default function CreateTokenPage() {
       +currentAccount?.balance?.inw2?.replaceAll(",", "") <
       +createTokenFee?.replaceAll(",", "")
     ) {
-      toast.error(
-        `You don't have enough INW2. Create Token costs ${formatNumDynDecimal(
-          createTokenFee
-        )} INW2`
-      );
+      // toast.error(
+      //   `You don't have enough INW2. Create Token costs ${formatNumDynDecimal(
+      //     createTokenFee
+      //   )} INW2`
+      // );
       return;
     }
     const allowanceINWQr = await execContractQuery(
@@ -291,8 +291,12 @@ export default function CreateTokenPage() {
             specific address. The creation requires
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {createTokenFee && formatNumDynDecimal(createTokenFee)} INW2
+              {createTokenFee && formatNumDynDecimal(createTokenFee)} INW
             </Text>
+            {/* <Text as="span" fontWeight="700" color="text.1">
+              {" "}
+              {createTokenFee && formatNumDynDecimal(createTokenFee)} INW2
+            </Text> */}
           </span>
           <VStack w="full" mt={4}>
             <SimpleGrid
@@ -359,8 +363,13 @@ export default function CreateTokenPage() {
                   value={`${formatNumDynDecimal(
                     currentAccount?.balance?.inw2?.replaceAll(",", "")
                   ) || 0
-                    } INW2`}
-                  label="Your INW2 Balance"
+                    } INW`}
+                  label="Your INW Balance"
+                  // value={`${formatNumDynDecimal(
+                  //   currentAccount?.balance?.inw2?.replaceAll(",", "")
+                  // ) || 0
+                  //   } INW2`}
+                  // label="Your INW2 Balance"
                 />
               </Box>
               <Box w="full">

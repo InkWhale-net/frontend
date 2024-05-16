@@ -65,7 +65,7 @@ const INWV2 = () => {
   }, [api]);
   return (
     <>
-      <SectionContainer
+      {/* <SectionContainer
         mt={{ base: "0px", xl: "20px" }}
         title="INW2 Tokens"
         description={
@@ -115,7 +115,7 @@ const INWV2 = () => {
             <SwapTab />
           </Box>
         </Stack>
-      </SectionContainer>
+      </SectionContainer> */}
     </>
   );
 };

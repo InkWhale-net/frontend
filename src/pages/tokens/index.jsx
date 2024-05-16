@@ -97,6 +97,7 @@ export default function TokensPage() {
       "psp22Metadata::tokenDecimals"
     );
     const decimals = queryResult4.toHuman().Ok;
+    console.log(decimals)
     const balance = formatQueryResultToNumber(queryResult, parseInt(decimals));
 
     let queryResult1 = await execContractQuery(
@@ -126,10 +127,13 @@ export default function TokensPage() {
       "psp22::totalSupply"
     );
     const rawTotalSupply = queryResult3.toHuman().Ok;
-
+    console.log('rawTotalSupply', rawTotalSupply)
     const totalSupply = formatTokenAmount(rawTotalSupply, decimals);
+    console.log('totalSupply', totalSupply)
 
     const { address: owner } = await getTokenOwner(selectedContractAddr);
+    console.log(selectedContractAddr);
+    console.log(owner);
     let tokenIconUrl = null;
     try {
       const { status, ret } = await APICall.getTokenInfor({
@@ -236,7 +240,7 @@ export default function TokensPage() {
             >
               <Box w="full" pr={{ lg: "10px" }}>
                 <Heading as="h4" size="h4" mb="12px">
-                  Token Contract Address
+                  Token Contract Address 123
                 </Heading>
                 <SelectSearch
                   name="token"

@@ -237,9 +237,9 @@ export default function CreateNFTLPPage() {
     }
 
     if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
-      toast.error(
-        `You don't have enough INW2.Create Pool costs ${createTokenFee} INW2`
-      );
+      // toast.error(
+      //   `You don't have enough INW2.Create Pool costs ${createTokenFee} INW2`
+      // );
       return;
     }
     if (+tokenBalance?.replaceAll(",", "") < +minReward.replaceAll(",", "")) {
@@ -292,7 +292,7 @@ export default function CreateNFTLPPage() {
 
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving INW2 token...`);
+      // toast.success(`Step ${step}: Approving INW2 token...`);
       step++;
       let approve = await execContractTx(
         currentAccount,
@@ -474,11 +474,21 @@ export default function CreateNFTLPPage() {
             NFT Stakers get rewards in selected token. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {formatNumDynDecimal(createTokenFee)} INW2
+              {formatNumDynDecimal(createTokenFee)} INW
             </Text>
             . This currently only works with NFTs on ArtZero platform.
           </span>
         }
+        // description={
+        //   <span>
+        //     NFT Stakers get rewards in selected token. The creation costs
+        //     <Text as="span" fontWeight="700" color="text.1">
+        //       {" "}
+        //       {formatNumDynDecimal(createTokenFee)} INW2
+        //     </Text>
+        //     . This currently only works with NFTs on ArtZero platform.
+        //   </span>
+        // }
       >
         <VStack w="full">
           <SimpleGrid
@@ -625,7 +635,7 @@ export default function CreateNFTLPPage() {
             </Box>
 
             <Box w="full">
-              <IWInput
+              {/* <IWInput
                 isDisabled={true}
                 value={`${
                   formatNumDynDecimal(
@@ -633,7 +643,7 @@ export default function CreateNFTLPPage() {
                   ) || 0
                 } INW`}
                 label="Your INW2 Balance"
-              />
+              /> */}
             </Box>
 
             <Box w="full">

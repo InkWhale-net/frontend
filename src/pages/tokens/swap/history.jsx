@@ -237,7 +237,7 @@ export default function TokensSwapHistoryPage() {
 
   return (
     <>
-      <SectionContainer
+      {/* <SectionContainer
         mt={{ base: "0px", xl: "20px" }}
         title="Common Fi Swap Transaction History"
         description={<span>Sync in progress</span>}
@@ -359,106 +359,6 @@ export default function TokensSwapHistoryPage() {
           alignItems="start"
           direction={{ base: "column" }}
         >
-          {/* <Box
-            display="flex"
-            justifyContent={{ base: "flex-start", lg: "flex-end" }}
-            marginTop={{ base: "20px", lg: "none" }}
-          >
-            <FormControl
-              maxW={{
-                base: "200px",
-                lg: "205px",
-              }}
-              display="flex"
-              alignItems="center"
-            >
-              <Switch
-                id="from-only"
-                isDisabled={
-                  !(keywords?.queryAddress && currentAccount?.address)
-                }
-                isChecked={keywords?.fromOnly}
-                onChange={() => {
-                  if (keywords?.fromOnly === false)
-                    setKeywords({
-                      ...keywords,
-                      fromOnly: true,
-                      toOnly: false,
-                    });
-                  else
-                    setKeywords({
-                      ...keywords,
-                      fromOnly: false,
-                    });
-                }}
-              />
-              <FormLabel
-                htmlFor="my-stake"
-                mb="0"
-                ml="10px"
-                fontWeight="400"
-                whiteSpace="nowrap"
-              >
-                From Address only
-              </FormLabel>
-            </FormControl>
-
-            <FormControl
-              maxW="200px"
-              display="flex"
-              alignItems="center"
-              justifyContent={{ base: "flex-end", lg: "none" }}
-            >
-              <Switch
-                id="to-only"
-                isDisabled={
-                  !(keywords?.queryAddress && currentAccount?.address)
-                }
-                isChecked={keywords?.toOnly}
-                onChange={() => {
-                  if (keywords?.toOnly === false)
-                    setKeywords({
-                      ...keywords,
-                      fromOnly: false,
-                      toOnly: true,
-                    });
-                  else
-                    setKeywords({
-                      ...keywords,
-                      toOnly: false,
-                    });
-                }}
-              />
-              <FormLabel
-                mb="0"
-                ml="10px"
-                fontWeight="400"
-                htmlFor="zero-reward-pools"
-                whiteSpace="nowrap"
-              >
-                To Address Only
-              </FormLabel>
-            </FormControl>
-          </Box> */}
-          {/* {isSmallerThanMd && (
-            <Button
-              width={"full"}
-              isDisabled={false}
-              onClick={() => {
-                //
-                if (pagination?.pageIndex !== 0) {
-                  setPagination({ pageIndex: 0, pageSize: 10 });
-                } else {
-                  tokenTransactionMutation.mutate(
-                    selectedToken?.tokenAddress,
-                    keywords
-                  );
-                }
-              }}
-            >
-              Load
-            </Button>
-          )} */}
           <IWPaginationTable
             {...tableData}
             pagination={pagination}
@@ -467,7 +367,7 @@ export default function TokensSwapHistoryPage() {
             mutation={tokenTransactionMutation}
           />
         </Stack>
-      </SectionContainer>
+      </SectionContainer> */}
     </>
   );
 }

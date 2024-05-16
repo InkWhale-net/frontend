@@ -10,7 +10,7 @@ const MyAccountTab = ({ address, balance, tokenInfo }) => {
 
   return (
     <IWCardOneColumn
-      title="My Account"
+      title="My Account 123"
       data={[
         {
           title: "Account Address",
@@ -26,20 +26,24 @@ const MyAccountTab = ({ address, balance, tokenInfo }) => {
         },
         {
           title: "INW Balance",
-          content: `${formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
-            } INW`,
+          content: `${
+            formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
+          } INW`,
         },
-        {
-          title: "INW2 Balance",
-          content: `${formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
-            } INW`,
-        },
+        // {
+        //   title: "INW2 Balance",
+        //   content: `${
+        //     formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
+        //   } INW`,
+        // },
         {
           title: !tokenInfo?.title ? "" : `${tokenInfo?.title} Balance`,
           content: `${formatNumDynDecimal(
             formatTextAmount(tokenInfo?.content)
           )} ${tokenInfo?.title}`,
           isHide:
+            tokenInfo?.address ===
+              "5H4aCwLKUpVpct6XGJzDGPPXFockNKQU2JUVNgUw6BXEPzST" ||
             tokenInfo?.address === psp22_contract_v2.CONTRACT_ADDRESS ||
             tokenInfo?.address === psp22_contract.CONTRACT_ADDRESS,
         },

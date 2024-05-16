@@ -106,10 +106,10 @@ export default function NavbarLinks(props) {
             data={poolsMenuListData}
           />
           {[
-            {
-              title: `Stake ${appChain?.unit} `,
-              href: "/azero-staking",
-            },
+            // {
+            //   title: `Stake ${appChain?.unit} `,
+            //   href: "/azero-staking",
+            // },
           ].map(({ title, href }) => (
             <Flex
               _hover={{ textDecoration: "none", bg: "bg.1" }}
@@ -144,6 +144,27 @@ export default function NavbarLinks(props) {
               </Link>
             </Flex>
           ))}
+          <Flex
+            _hover={{ textDecoration: "none", bg: "bg.1" }}
+            p="6px 10px"
+            bg={"transparent"}
+            borderRadius="5px"
+            mr={{ base: "20px", md: "20px" }}
+          >
+            <Link
+              color={"text.1"}
+              fontWeight="600"
+              bg="transparent"
+              textDecoration="none"
+              _focus={{ borderWidth: "0px" }}
+              _hover={{ textDecoration: "none", bg: "bg.1" }}
+              onClick={() => toast.success("Coming soon!")}
+            >
+              <Text bg="transparent" fontSize="md">
+                Orderbook Dex
+              </Text>
+            </Link>
+          </Flex>
         </Flex>
         {/* <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
@@ -170,7 +191,7 @@ export default function NavbarLinks(props) {
 
       <Show above="md">
         <Flex>
-          <ChainButton />
+          {/* <ChainButton /> */}
           <WalletButton />
         </Flex>
       </Show>
@@ -186,10 +207,10 @@ NavbarLinks.propTypes = {
 };
 
 export const menuListData = [
-  {
-    title: "Launchpad",
-    href: "/launchpad",
-  },
+  // {
+  //   title: "Launchpad",
+  //   href: "/launchpad",
+  // },
 ];
 
 export const inwTokenListData = [
@@ -197,14 +218,14 @@ export const inwTokenListData = [
     label: "Acquire / Claim INW",
     href: "/acquire-inw",
   },
-  {
-    label: "Swap INW",
-    href: "/inw-v2",
-  },
-  {
-    label: "Bridge to 5irechain",
-    href: "/bridge",
-  },
+  // {
+  //   label: "Swap INW",
+  //   href: "/inw-v2",
+  // },
+  // {
+  //   label: "Bridge to 5irechain",
+  //   href: "/bridge",
+  // },
 ];
 
 export const tokenMenuListData = [
@@ -224,10 +245,10 @@ export const tokenMenuListData = [
     label: "Transaction history",
     href: "/tokens/transaction",
   },
-  {
-    label: "Transactions on Common",
-    href: "/tokens/swap/history",
-  },
+  // {
+  //   label: "Transactions on Common",
+  //   href: "/tokens/swap/history",
+  // },
 ];
 
 export const poolsMenuListData = [

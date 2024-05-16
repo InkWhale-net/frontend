@@ -76,16 +76,18 @@ function AzeroStaking() {
   const totalApy = parseFloat(inwApy) + parseFloat(apy);
 
   return (
-    <SectionContainer
-      mt={{ base: "0px", xl: "20px" }}
-      title={`${appChain?.unit} Staking`}
-      description={`Stake ${appChain?.unit} to earn ${formatNumDynDecimal(
-        totalApy
-      )}% APY and up to 48 hours unstaking.`}
-    >
-      <StatsInfo totalApy={totalApy} inwApy={inwApy} />
-      <StakingTabs tabsData={tabsData} />
-    </SectionContainer>
+    <>
+      {/* <SectionContainer
+        mt={{ base: "0px", xl: "20px" }}
+        title={`${appChain?.unit} Staking`}
+        description={`Stake ${appChain?.unit} to earn ${formatNumDynDecimal(
+          totalApy
+        )}% APY and up to 48 hours unstaking.`}
+      >
+        <StatsInfo totalApy={totalApy} inwApy={inwApy} />
+        <StakingTabs tabsData={tabsData} />
+      </SectionContainer> */}
+    </>
   );
 }
 

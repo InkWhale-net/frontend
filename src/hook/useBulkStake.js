@@ -267,11 +267,11 @@ export default function useBulkStake({ poolContract, NFTtokenContract }) {
       +formatTextAmount(currentAccount?.balance?.inw2) <
       +unstakeFee * +numberNft
     ) {
-      toast.error(
-        `You don't have enough INW2. Unstake costs ${
-          +unstakeFee * +numberNft
-        } INW2`
-      );
+      // toast.error(
+      //   `You don't have enough INW2. Unstake costs ${
+      //     +unstakeFee * +numberNft
+      //   } INW2`
+      // );
       return;
     }
 

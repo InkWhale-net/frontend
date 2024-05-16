@@ -41,14 +41,14 @@ function SidebarContent({ onClose }) {
         mt="8px"
         px="20px"
       >
-        {appChain?.allowBuy && (
+        {/* {appChain?.allowBuy && ( */}
           <GroupMenu
             {...groupButtonProps}
             title="INW Token"
             path="/inw"
             data={inwTokenListData}
           />
-        )}
+        {/* )} */}
 
         <GroupMenu
           {...groupButtonProps}
@@ -98,10 +98,10 @@ function SidebarContent({ onClose }) {
         />
 
         {[
-          {
-            title: `Stake ${appChain?.unit} `,
-            href: "/azero-staking",
-          },
+          // {
+          //   title: `Stake ${appChain?.unit} `,
+          //   href: "/azero-staking",
+          // },
         ]?.map(({ title, href }) => (
           <Flex
             w={"full"}
@@ -135,7 +135,7 @@ function SidebarContent({ onClose }) {
           </Flex>
         ))}
 
-        {/* <Flex
+        <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
           p="6px 10px"
           bg={"transparent"}
@@ -152,10 +152,10 @@ function SidebarContent({ onClose }) {
             onClick={() => toast.success("Coming soon!")}
           >
             <Text bg="transparent" fontSize="md">
-              Solana Bridge
+              Orderbook Dex
             </Text>
           </Link>
-        </Flex> */}
+        </Flex>
         <Flex ml="30px" pt="10px" w="full">
           <WalletButton onCloseSidebar={onClose} />
         </Flex>

@@ -33,31 +33,33 @@ const Launchpad = () => {
   }, [currentAccount, api, dispatch]);
 
   return (
-    <SectionContainer
-      title="Launchpads"
-      right={
-        isMobile ? null : (
-          <Button
-            onClick={async () => {
-              history.push("/launchpad/create");
-              // await APICall.askBEupdate({
-              //   type: "launchpad",
-              //   poolContract: "new",
-              // });
-            }}
-          >
+    <>
+      {/* <SectionContainer
+        title="Launchpads"
+        right={
+          isMobile ? null : (
+            <Button
+              onClick={async () => {
+                history.push("/launchpad/create");
+                // await APICall.askBEupdate({
+                //   type: "launchpad",
+                //   poolContract: "new",
+                // });
+              }}
+            >
+              Create
+            </Button>
+          )
+        }
+      >
+        {isMobile ? (
+          <Button onClick={async () => history.push("/launchpad/create")}>
             Create
           </Button>
-        )
-      }
-    >
-      {isMobile ? (
-        <Button onClick={async () => history.push("/launchpad/create")}>
-          Create
-        </Button>
-      ) : null}
-      <IWTabs tabsData={tabsData} />
-    </SectionContainer>
+        ) : null}
+        <IWTabs tabsData={tabsData} />
+      </SectionContainer> */}
+    </>
   );
 };
 
