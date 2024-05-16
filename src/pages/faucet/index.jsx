@@ -269,11 +269,11 @@ export default function FaucetPage({ api }) {
     const result3 = balanceTotalInwQr?.toHuman()?.Ok;
     const buyInfo = {
       claimedAmount: formatNumDynDecimal(
-        result2?.claimedAmount?.replaceAll(",", "") / 10 ** 12,
+        (result2?.claimedAmount?.replaceAll(",", "") ?? 0) / 10 ** 12,
         2
       ),
       purchasedAmount: formatNumDynDecimal(
-        result2?.purchasedAmount?.replaceAll(",", "") / 10 ** 12,
+        (result2?.purchasedAmount?.replaceAll(",", "") ?? 0) / 10 ** 12,
         2
       ),
     };
@@ -325,15 +325,7 @@ export default function FaucetPage({ api }) {
         const INWTotalSupplyResponse = await APICall.getINWTotalSupply();
         if (INWTotalSupplyResponse?.status === "OK") {
           setInwTotalSupply(
-            formatNumDynDecimal(
-              roundUp(
-                formatTokenAmount(
-                  INWTotalSupplyResponse?.ret?.totalSupply,
-                  12
-                ) || 0,
-                4
-              )
-            )
+            formatTokenAmount(INWTotalSupplyResponse?.ret?.totalSupply, 12)
           );
           const queryContractBalance = await execContractQuery(
             publicCurrentAccount?.address,
@@ -862,7 +854,7 @@ export default function FaucetPage({ api }) {
                 },
                 {
                   title: "Total Claimed Amount",
-                  content: `${saleInfo?.buyerInfo?.claimedAmount} INW`,
+                  content: `${saleInfo?.buyerInfo?.claimedAmount || 0} INW`,
                 },
                 {
                   title: "Allocation",

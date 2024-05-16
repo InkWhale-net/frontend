@@ -218,7 +218,7 @@ export const tokenMenuListData = [
   },
   {
     label: "Swap Token to V2",
-    href: "/tokens/swap/5DdAakFT1uBpwdArZnsz4zGUn28QntXP8RtKMDFFTPzuDYkt",
+    href: "/tokens/swap/5GYgJ1xBPtyUwbPVnDfbg9uRGWdGrcaM6y1TaftUMoxUHQh5",
   },
   {
     label: "Transaction history",

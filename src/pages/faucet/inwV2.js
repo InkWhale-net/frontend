@@ -36,7 +36,7 @@ const INWV2 = () => {
         0,
         "psp22::totalSupply"
       );
-      const totalSupply = query1?.toHuman()?.Ok;
+      const totalSupply = query1?.toHuman()?.Ok ?? 0;
       const inwTotalSupply = formatTokenAmount(totalSupply, 12);
       const query2 = await execContractQuery(
         publicCurrentAccount?.address,
@@ -48,7 +48,7 @@ const INWV2 = () => {
         swap_inw2_contract.CONTRACT_ADDRESS
       );
 
-      const contractBalance = query2?.toHuman()?.Ok;
+      const contractBalance = query2?.toHuman()?.Ok ?? 0;
       const totalBurn =
         formatChainStringToNumber(formatTokenAmount(contractBalance, 12)) -
         +formatChainStringToNumber(inwTotalSupply);

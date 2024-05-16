@@ -67,49 +67,57 @@ export default walletSlice.reducer;
 export const fetchUserBalance = createAsyncThunk(
   "wallet/fetchUserBalance",
   async ({ currentAccount, api }, thunkAPI) => {
-    // TODO: check can fix warning about storing api on redux?
-    const inwBalance = await execContractQuery(
-      currentAccount?.address,
-      //thunkAPI.getState().wallet.api,
-      api,
-      psp22_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
-      0,
-      "psp22::balanceOf",
-      currentAccount?.address
-    );
+    let ret;
 
-    const inw = formatQueryResultToNumber(inwBalance);
-    const inw2Balance = await execContractQuery(
-      currentAccount?.address,
-      //thunkAPI.getState().wallet.api,
-      api,
-      psp22_contract_v2.CONTRACT_ABI,
-      psp22_contract_v2.CONTRACT_ADDRESS,
-      0,
-      "psp22::balanceOf",
-      currentAccount?.address
-    );
+    try {
+      // TODO: check can fix warning about storing api on redux?
+      const inwBalance = await execContractQuery(
+        currentAccount?.address,
+        //thunkAPI.getState().wallet.api,
+        api,
+        psp22_contract.CONTRACT_ABI,
+        azt_contract.CONTRACT_ADDRESS,
+        0,
+        "psp22::balanceOf",
+        currentAccount?.address
+      );
+      const inw = formatQueryResultToNumber(inwBalance);
 
-    const inw2 = formatQueryResultToNumber(inw2Balance);
+      const inw2Balance = await execContractQuery(
+        currentAccount?.address,
+        //thunkAPI.getState().wallet.api,
+        api,
+        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ADDRESS,
+        0,
+        "psp22::balanceOf",
+        currentAccount?.address
+      );
+      const inw2 = formatQueryResultToNumber(inw2Balance);
 
-    const azeroBalance = await getAzeroBalanceOfAddress({
-      api,
-      address: currentAccount?.address,
-    });
+      const azeroBalance = await getAzeroBalanceOfAddress({
+        api,
+        address: currentAccount?.address,
+      });
 
-    const azero = formatNumDynDecimal(azeroBalance);
+      const azero = formatNumDynDecimal(azeroBalance);
 
-    const { fire, inw2: fireInw } = await get5ireBalanceOfAddress({
-      address: currentAccount?.address,
-    });
+      const { fire, inw2: fireInw } = await get5ireBalanceOfAddress({
+        address: currentAccount?.address,
+      });
 
-    return {
-      inw,
-      inw2,
-      azero,
-      "alephzero-testnet": { inw, inw2, nativeToken: azero },
-      "firechain-testnet": { inw2: fireInw, nativeToken: fire },
-    };
+      ret = {
+        inw,
+        inw2,
+        azero,
+        "alephzero-testnet": { inw, inw2, nativeToken: azero },
+        "firechain-testnet": { inw2: fireInw, nativeToken: fire },
+      };
+      console.log(ret);
+    } catch (error) {
+      console.log("error", error);
+    }
+
+    return ret;
   }
 );

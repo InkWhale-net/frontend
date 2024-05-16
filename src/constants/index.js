@@ -174,24 +174,15 @@ export const supportedChain = [
 
 export const swapableTokens = [
   {
-    token: "tiou",
-    name: "TIOU",
+    token: "IOU",
+    name: "IOU",
+    symbol: "IOU",
     decimal: 12,
-    contract_address: "5FJmK63LBf9FVEngGzaSx5mXtKxRHkn9r7ZF92tBJBBLjknx",
-    token_version_2: "tiou2",
-    name_version_2: "TIOU V2",
-    contract_address_2: "5GnbvcRxdaAwNh1J4T2uVk8qF6aHmaeg9r6tqAWPZYdMv743",
-    swap_contract_address: "5Cqif4qeYgG6BZ7WSngko1R5eDw9bUVMMsKnTcSM1BAfFp9t",
-  },
-  {
-    token: "baz",
-    name: "BAZ",
-    decimal: 12,
-    contract_address: "5DdAakFT1uBpwdArZnsz4zGUn28QntXP8RtKMDFFTPzuDYkt",
-    token_version_2: "baz2",
-    name_version_2: "BAZ V2",
-    contract_address_2: "5CEd4ttj6p3WqCvTSu7EqdkwPRNaQ9z4TYshBPJC5ofX9gFQ",
-    swap_contract_address: "5GMqPxaxbNps4NS2GUMVsymfaNT7S1WrfnVYToAm6aHitkHB",
+    contractAddress: "5GYgJ1xBPtyUwbPVnDfbg9uRGWdGrcaM6y1TaftUMoxUHQh5",
+    tokenVersion2: "IOU2",
+    nameVersion2: "IOU2",
+    contractAddress2: "5DYNiSrzZsaaq8yzpLtwY3F1xQ78PZhPA6tuY5UumbXubNaP",
+    swapContractAddress: "5ETFVYt97CerkamawL7Wf5zY2aidBfWg2RzPJVGSjWRHC3rx",
   },
 ];
 

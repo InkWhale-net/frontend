@@ -313,7 +313,7 @@ const IWPaginationTable = ({
         </select> */}
         {/* {dataQuery.isFetching ? "Loading..." : null} */}
       </Box>
-    </>
+    </Box>
   );
 };
 
@@ -549,7 +549,7 @@ export const formatDataCellTable = (
     case "tokenName":
       return (
         <Flex alignItems={"center"}>
-          {/* <Box
+           <Box
             w={{ base: null, lg: "42px" }}
             sx={{
               h: "42px",

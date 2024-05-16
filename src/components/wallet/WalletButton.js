@@ -45,11 +45,11 @@ export default function WalletButton({ onCloseSidebar }) {
     if (currentAccount && allAccounts?.length > 1) onOpen();
   };
 
-  useEffect(() => {
-    if (currentAccount) {
-      loadListAccount();
-    } else dispatch(updateAccountsList([]));
-  }, [currentAccount]);
+  // useEffect(() => {
+  //   if (currentAccount) {
+  //     loadListAccount();
+  //   } else dispatch(updateAccountsList([]));
+  // }, [currentAccount]);
 
   return (
     <>

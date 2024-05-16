@@ -24,7 +24,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { fetchAllStakingPools } from "redux/slices/allPoolsSlice";
 import { isPoolEnded, isPoolNotStart } from "utils";
-import { isPoolEnded, isPoolNotStart } from "utils";
 
 export default function PoolsPage() {
   const dispatch = useDispatch();

@@ -46,14 +46,18 @@ export default function TokensSwapPage() {
     const getFaucetTokensListData = async () => {
       let filterAddressContractParam = [];
       for (const swapableToken of swapableTokens) {
-        filterAddressContractParam.push(swapableToken.contract_address);
+        filterAddressContractParam.push(swapableToken.contractAddress);
       }
       let { ret, status, message } = await APICall.getTokensList({});
-      let faucetTokensListTmp = ret.filter(
-        (el) =>
-          !!el?.contractAddress &&
-          filterAddressContractParam.includes(el?.contractAddress)
-      );
+
+      // let faucetTokensListTmp = ret.filter(
+      //   (el) =>
+      //     !!el?.contractAddress &&
+      //     filterAddressContractParam.includes(el?.contractAddress)
+      // );
+
+      // hard fix only for IOU
+      let faucetTokensListTmp = swapableTokens;
 
       if (status === "OK") {
         if (isUnmounted) return;
@@ -103,7 +107,7 @@ export default function TokensSwapPage() {
         0,
         "psp22Metadata::tokenDecimals"
       );
-      const decimals = queryResult4.toHuman().Ok;
+      const decimals = queryResult4?.toHuman().Ok;
       const balance = formatQueryResultToNumber(
         queryResult,
         parseInt(decimals)
@@ -117,7 +121,7 @@ export default function TokensSwapPage() {
         0,
         "psp22Metadata::tokenSymbol"
       );
-      const tokenSymbol = queryResult1.toHuman().Ok;
+      const tokenSymbol = queryResult1?.toHuman().Ok;
       let queryResult2 = await execContractQuery(
         currentAccount?.address,
         "api",
@@ -126,7 +130,7 @@ export default function TokensSwapPage() {
         0,
         "psp22Metadata::tokenName"
       );
-      const tokenName = queryResult2.toHuman().Ok;
+      const tokenName = queryResult2?.toHuman().Ok;
       let queryResult3 = await execContractQuery(
         currentAccount?.address,
         "api",
@@ -135,7 +139,7 @@ export default function TokensSwapPage() {
         0,
         "psp22::totalSupply"
       );
-      const rawTotalSupply = queryResult3.toHuman().Ok;
+      const rawTotalSupply = queryResult3?.toHuman().Ok;
 
       const totalSupply = formatTokenAmount(rawTotalSupply, decimals);
 
@@ -154,21 +158,21 @@ export default function TokensSwapPage() {
       setSupportedToken([]);
       setSwapTokenContractAddress(null);
       for (const swapableToken of swapableTokens) {
-        if (swapableToken.contract_address == tokenAddress) {
+        if (swapableToken.contractAddress == tokenAddress) {
           let supportedToken = [
             {
               version: "1.0",
               token: swapableToken.token,
               name: swapableToken.name,
               decimal: swapableToken.decimal,
-              contractAddress: swapableToken.contract_address,
+              contractAddress: swapableToken.contractAddress,
             },
             {
               version: "2.0",
-              token: swapableToken.token_version_2,
-              name: swapableToken.name_version_2,
+              token: swapableToken.tokenVersion2,
+              name: swapableToken.nameVersion2,
               decimal: swapableToken.decimal,
-              contractAddress: swapableToken.contract_address_2,
+              contractAddress: swapableToken.contractAddress2,
             },
           ];
           setSupportedToken(supportedToken);
@@ -197,8 +201,8 @@ export default function TokensSwapPage() {
     async (tokenAddress) => {
       let tokenV2ContractAddress = null;
       for (const swapableToken of swapableTokens) {
-        if (swapableToken.contract_address === tokenAddress) {
-          tokenV2ContractAddress = swapableToken.contract_address_2;
+        if (swapableToken.contractAddress === tokenAddress) {
+          tokenV2ContractAddress = swapableToken.contractAddress2;
         }
       }
       if (!currentAccount) {
@@ -228,7 +232,7 @@ export default function TokensSwapPage() {
         0,
         "psp22Metadata::tokenDecimals"
       );
-      const decimals = queryResult4.toHuman().Ok;
+      const decimals = queryResult4?.toHuman().Ok;
       const balance = formatQueryResultToNumber(
         queryResult,
         parseInt(decimals)
@@ -242,7 +246,7 @@ export default function TokensSwapPage() {
         0,
         "psp22Metadata::tokenSymbol"
       );
-      const tokenSymbol = queryResult1.toHuman().Ok;
+      const tokenSymbol = queryResult1?.toHuman().Ok;
       let queryResult2 = await execContractQuery(
         currentAccount?.address,
         "api",
@@ -251,7 +255,7 @@ export default function TokensSwapPage() {
         0,
         "psp22Metadata::tokenName"
       );
-      const tokenName = queryResult2.toHuman().Ok;
+      const tokenName = queryResult2?.toHuman().Ok;
       let queryResult3 = await execContractQuery(
         currentAccount?.address,
         "api",
@@ -260,7 +264,7 @@ export default function TokensSwapPage() {
         0,
         "psp22::totalSupply"
       );
-      const rawTotalSupply = queryResult3.toHuman().Ok;
+      const rawTotalSupply = queryResult3?.toHuman().Ok;
 
       const totalSupply = formatTokenAmount(rawTotalSupply, decimals);
 
@@ -278,7 +282,7 @@ export default function TokensSwapPage() {
       }
 
       setTokenV2Info((prev) => {
-        return {
+        const ret = {
           ...prev,
           title: tokenSymbol,
           balance: balance,
@@ -289,6 +293,8 @@ export default function TokensSwapPage() {
           tokenIconUrl,
           address: tokenV2ContractAddress,
         };
+
+        return ret;
       });
     },
     [currentAccount]
