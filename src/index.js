@@ -52,9 +52,12 @@ import INWV2 from "pages/faucet/inwV2";
 import BridgePage from "pages/account/bridge";
 import TokensSwapHistoryPage from "pages/tokens/swap/history";
 import TokensSwapPage from "pages/tokens/swap";
+import LoginPage from "pages/login";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
+
+const loginPass = process.env.REACT_APP_LOGIN_PASSWORD;
 
 const App = () => {
   const dispatch = useDispatch();
@@ -163,31 +166,44 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api, currentAccount?.address]);
 
+  const { isLogin } = useAppContext();
+  console.log({ isLogin });
   return (
     <HashRouter>
       <DefaultLayout>
         <Switch>
-          <Redirect exact from="/" to="/acquire-inw" />
+          <Redirect exact from="/" to={`/acquire-inw`} />
+          <Route exact path={`/login`}>
+            <LoginPage />
+          </Route>
           <Route exact path={`/acquire-inw`}>
-            <FaucetPage api={api} />
+            {!isLogin ? <LoginPage /> : <FaucetPage api={api} />}
           </Route>
           <Route exact path={`/pools/:contractAddress`}>
-            <PoolDetailPage api={api} />
+            {!isLogin ? <LoginPage /> : <PoolDetailPage api={api} />}
           </Route>
           <Route exact path={`/pools`}>
-            <PoolsPage api={api} />
+            {!isLogin ? <LoginPage /> : <PoolsPage api={api} />}
           </Route>
           <Route
             exact
             path={`/farms/:contractAddress`}
-            component={FarmDetailPage}
+            component={!isLogin ? LoginPage : FarmDetailPage}
           />
-          <Route exact path={`/farms`} component={FarmsPage} />
-          <Route exact path={`/tokens/interaction`} component={TokensPage} />
+          <Route
+            exact
+            path={`/farms`}
+            component={!isLogin ? LoginPage : FarmsPage}
+          />
+          <Route
+            exact
+            path={`/tokens/interaction`}
+            component={!isLogin ? LoginPage : TokensPage}
+          />
           <Route
             exact
             path={`/tokens/transaction`}
-            component={TokensTransactionPage}
+            component={!isLogin ? LoginPage : TokensTransactionPage}
           />
           {/* <Route
             exact
@@ -197,15 +213,23 @@ const App = () => {
           <Route
             exact
             path={`/tokens/swap/:tokenAddress`}
-            component={TokensSwapPage}
+            component={!isLogin ? LoginPage : TokensSwapPage}
           />
-          <Route exact path={`/create/token`} component={CreateTokenPage} />
+          <Route
+            exact
+            path={`/create/token`}
+            component={!isLogin ? LoginPage : CreateTokenPage}
+          />
           <Route
             exact
             path={`/create/stake-pool`}
-            component={CreateStakePoolPage}
+            component={!isLogin ? LoginPage : CreateStakePoolPage}
           />
-          <Route exact path={`/create/nft-lp`} component={CreateNFTLPPage} />
+          <Route
+            exact
+            path={`/create/nft-lp`}
+            component={!isLogin ? LoginPage : CreateNFTLPPage}
+          />
           {/* <Route
             exact
             path={`/launchpad/create`}
@@ -217,38 +241,60 @@ const App = () => {
             path={`/launchpad/:launchpadContract`}
             component={PublicDetailLaunchpad}
           /> */}
-          <Route exact path={`/create/farming`} component={CreateTokenLPPage} />
-          <Route exact path={`/farming`} component={LPPoolsPage} />
+          <Route
+            exact
+            path={`/create/farming`}
+            component={!isLogin ? LoginPage : CreateTokenLPPage}
+          />
+          <Route
+            exact
+            path={`/farming`}
+            component={!isLogin ? LoginPage : LPPoolsPage}
+          />
           <Route
             exact
             path={`/farming/:contractAddress`}
-            component={FarmDetailPage}
+            component={!isLogin ? LoginPage : FarmDetailPage}
           />
-          <Route exact path={`/account`} component={MyBalancePage} />
-          <Route exact path={`/account/my-balance`} component={MyBalancePage} />
-          <Route exact path={`/my-pools`} component={MyPoolsPage} />
+          <Route
+            exact
+            path={`/account`}
+            component={!isLogin ? LoginPage : MyBalancePage}
+          />
+          <Route
+            exact
+            path={`/account/my-balance`}
+            component={!isLogin ? LoginPage : MyBalancePage}
+          />
+          <Route
+            exact
+            path={`/my-pools`}
+            component={!isLogin ? LoginPage : MyPoolsPage}
+          />
           <Route
             exact
             path={`/my-pool/:contractAddress`}
-            component={MyPoolDetailPage}
+            component={!isLogin ? LoginPage : MyPoolDetailPage}
           />
           <Route
             exact
             path={`/my-farm/:contractAddress`}
-            component={MyPoolDetailPage}
+            component={!isLogin ? LoginPage : MyPoolDetailPage}
           />
           <Route
             exact
             path={`/my-farming/:contractAddress`}
-            component={MyPoolDetailPage}
+            component={!isLogin ? LoginPage : MyPoolDetailPage}
           />
-          <Route exact path={`/admin`} component={AdminPage} />
+          <Route
+            exact
+            path={`/admin`}
+            component={!isLogin ? LoginPage : AdminPage}
+          />
           {/* <Route exact path={`/azero-staking`} component={AzeroStaking} /> */}
           {/* <Route exact path={`/inw-v2`} component={INWV2} /> */}
           {/* <Route exact path={`/bridge`} component={BridgePage} /> */}
-          <Route>
-            <FaucetPage api={api} />
-          </Route>
+          <Route>{!isLogin ? <LoginPage /> : <FaucetPage api={api} />}</Route>
         </Switch>
       </DefaultLayout>
     </HashRouter>

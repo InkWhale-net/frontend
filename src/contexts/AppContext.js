@@ -13,8 +13,16 @@ import {
 import { SwapV2TokenProvider } from "./SwapV2TokenModalContext";
 
 const AppContext = createContext();
+const loginPass = process.env.REACT_APP_LOGIN_PASSWORD;
+// const localLoginPass = window?.localStorage?.getItem("localLoginPass");
 
 export const AppContextProvider = ({ children }) => {
+  const [password, setPassword] = useState("");
+  const [isLogin, setIsLogin] = useState(false);
+  useEffect(() => {
+    const localLoginPass = window?.localStorage?.getItem("localLoginPass");
+    setIsLogin(loginPass === localLoginPass);
+  }, [password]);
   const { currentAccount } = useSelector((state) => state.wallet);
   const [api, setApi] = useState(null);
   const dispatch = useDispatch();
@@ -90,6 +98,10 @@ export const AppContextProvider = ({ children }) => {
         setCurrentApi: setApi,
         walletConnectHandler,
         walletDisconnectHandler,
+        setIsLogin,
+        isLogin,
+        password,
+        setPassword
       }}
     >
       <SwapV2TokenProvider>{children}</SwapV2TokenProvider>
