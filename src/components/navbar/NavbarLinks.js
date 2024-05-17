@@ -14,18 +14,17 @@ import IWCard from "components/card/Card";
 import { SidebarResponsive } from "components/sidebar/Sidebar";
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
-import { Link as RouterLink, useHistory } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 
 import routes from "routes.js";
 import WalletButton from "components/wallet/WalletButton";
-import { useSelector } from "react-redux";
+import { appChain } from "constants";
+import ChainButton from "components/wallet/ChainButton";
 import { toast } from "react-hot-toast";
 
 export default function NavbarLinks(props) {
   const { secondary } = props;
-
   const [currentAnchor, setCurrentAnchor] = useState("");
-  const currentAccount = useSelector((s) => s.wallet.currentAccount);
 
   useEffect(() => {
     const href = window.location.href;
@@ -38,6 +37,8 @@ export default function NavbarLinks(props) {
       ? setCurrentAnchor("")
       : setCurrentAnchor(shortenUrl.replace("/", ""));
   }, []);
+
+  const groupButtonProps = { setCurrentAnchor, currentAnchor };
 
   return (
     <Flex
@@ -52,6 +53,18 @@ export default function NavbarLinks(props) {
 
       <Show above="md">
         <Flex bg="transparent">
+          <GroupMenu
+            {...groupButtonProps}
+            title="INW Token"
+            path="/inw"
+            data={inwTokenListData}
+          />
+          <GroupMenu
+            {...groupButtonProps}
+            title="Token"
+            path="/token"
+            data={tokenMenuListData}
+          />{" "}
           {menuListData?.map(({ title, href }) => (
             <Flex
               _hover={{ textDecoration: "none", bg: "bg.1" }}
@@ -63,7 +76,8 @@ export default function NavbarLinks(props) {
               }
               borderRadius="5px"
               key={title}
-              ml={{ base: "20px", md: "20px" }}
+              // ml={{ base: "20px", md: "20px" }}
+              minW={{ base: null, lg: "80px" }}
             >
               <Link
                 to={href}
@@ -75,32 +89,43 @@ export default function NavbarLinks(props) {
                 _focus={{ borderWidth: "0px" }}
                 _hover={{ textDecoration: "none", bg: "bg.1" }}
                 onClick={() => setCurrentAnchor(href)}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
               >
-                <Text bg="transparent" fontSize="md">
+                <Text bg="transparent" fontSize="md" textAlign="center">
                   {title}
                 </Text>
               </Link>
             </Flex>
           ))}
-          <TokenMenuDropdown
-            setCurrentAnchor={setCurrentAnchor}
-            currentAnchor={currentAnchor}
+          <GroupMenu
+            {...groupButtonProps}
+            title="Pools / Farms "
+            path="/pools"
+            data={poolsMenuListData}
           />
-          <StakeMenuDropdown
-            setCurrentAnchor={setCurrentAnchor}
-            currentAnchor={currentAnchor}
-          />
-
-          {/* {!currentAccount ? null : (
+          {[
+            // {
+            //   title: `Stake ${appChain?.unit} `,
+            //   href: "/azero-staking",
+            // },
+          ].map(({ title, href }) => (
             <Flex
               _hover={{ textDecoration: "none", bg: "bg.1" }}
               p="6px 10px"
-              bg={currentAnchor === "/my-pools" ? "bg.1" : "transparent"}
+              bg={
+                (!currentAnchor && href === "#hero") || currentAnchor === href
+                  ? "bg.1"
+                  : "transparent"
+              }
               borderRadius="5px"
-              ml={{ base: "20px", md: "20px" }}
+              key={title}
+              // ml={{ base: "20px", md: "20px" }}
+              minW={{ base: null, lg: "80px" }}
             >
               <Link
-                to="/my-pools"
+                to={href}
                 as={RouterLink}
                 color={"text.1"}
                 fontWeight="600"
@@ -108,47 +133,23 @@ export default function NavbarLinks(props) {
                 textDecoration="none"
                 _focus={{ borderWidth: "0px" }}
                 _hover={{ textDecoration: "none", bg: "bg.1" }}
-                onClick={() => setCurrentAnchor("/my-pools")}
+                onClick={() => setCurrentAnchor(href)}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
               >
-                <Text bg="transparent" fontSize="md">
-                  My Account
+                <Text bg="transparent" fontSize="md" textAlign="center">
+                  {title}
                 </Text>
               </Link>
             </Flex>
-          )} */}
-
-          <CreateMenuDropdown
-            setCurrentAnchor={setCurrentAnchor}
-            currentAnchor={currentAnchor}
-          />
-
-          {/* <Flex
-            _hover={{ textDecoration: "none", bg: "bg.1" }}
-            p="6px 10px"
-            bg={"transparent"}
-            borderRadius="5px"
-            ml={{ base: "20px", md: "20px" }}
-          >
-            <Link
-              color={"text.1"}
-              fontWeight="600"
-              bg="transparent"
-              textDecoration="none"
-              _focus={{ borderWidth: "0px" }}
-              _hover={{ textDecoration: "none", bg: "bg.1" }}
-              onClick={() => toast.success("Coming soon!")}
-            >
-              <Text bg="transparent" fontSize="md">
-                Launchpad
-              </Text>
-            </Link>
-          </Flex> */}
+          ))}
           <Flex
             _hover={{ textDecoration: "none", bg: "bg.1" }}
             p="6px 10px"
             bg={"transparent"}
             borderRadius="5px"
-            ml={{ base: "20px", md: "20px" }}
+            mr={{ base: "20px", md: "20px" }}
           >
             <Link
               color={"text.1"}
@@ -164,34 +165,33 @@ export default function NavbarLinks(props) {
               </Text>
             </Link>
           </Flex>
-          <Flex
-            _hover={{ textDecoration: "none", bg: "bg.1" }}
-            p="6px 10px"
-            bg={"transparent"}
-            borderRadius="5px"
-            ml={{ base: "20px", md: "20px" }}
-          >
-            <Link
-              color={"text.1"}
-              fontWeight="600"
-              bg="transparent"
-              textDecoration="none"
-              _focus={{ borderWidth: "0px" }}
-              _hover={{ textDecoration: "none", bg: "bg.1" }}
-              onClick={() =>
-                window.open("https://docs.inkwhale.net/", "_blank")
-              }
-            >
-              <Text bg="transparent" fontSize="md">
-                Docs
-              </Text>
-            </Link>
-          </Flex>
         </Flex>
+        {/* <Flex
+          _hover={{ textDecoration: "none", bg: "bg.1" }}
+          p="6px 10px"
+          bg={"transparent"}
+          borderRadius="5px"
+          // ml={{ base: "20px", md: "20px" }}
+        >
+          <Link
+            color={"text.1"}
+            fontWeight="600"
+            bg="transparent"
+            textDecoration="none"
+            _focus={{ borderWidth: "0px" }}
+            _hover={{ textDecoration: "none", bg: "bg.1" }}
+            onClick={() => toast.success("Coming soon!")}
+          >
+            <Text bg="transparent" fontSize="md">
+              Solana Bridge
+            </Text>
+          </Link>
+        </Flex> */}
       </Show>
 
       <Show above="md">
-        <Flex ml="30px">
+        <Flex>
+          {/* <ChainButton /> */}
           <WalletButton />
         </Flex>
       </Show>
@@ -207,35 +207,85 @@ NavbarLinks.propTypes = {
 };
 
 export const menuListData = [
-  {
-    title: "Acquire INW",
-    href: "/acquire-inw",
-  },
   // {
   //   title: "Launchpad",
   //   href: "/launchpad",
   // },
 ];
 
-export const CreateMenuDropdown = ({
+export const inwTokenListData = [
+  {
+    label: "Acquire / Claim INW",
+    href: "/acquire-inw",
+  },
+  // {
+  //   label: "Swap INW",
+  //   href: "/inw-v2",
+  // },
+  // {
+  //   label: "Bridge to 5irechain",
+  //   href: "/bridge",
+  // },
+];
+
+export const tokenMenuListData = [
+  {
+    label: "Create a PSP22 token",
+    href: "/create/token",
+  },
+  {
+    label: "Interact with a token",
+    href: "/tokens/interaction",
+  },
+  {
+    label: "Swap Token to V2",
+    href: "/tokens/swap/5GYgJ1xBPtyUwbPVnDfbg9uRGWdGrcaM6y1TaftUMoxUHQh5",
+  },
+  {
+    label: "Transaction history",
+    href: "/tokens/transaction",
+  },
+  // {
+  //   label: "Transactions on Common",
+  //   href: "/tokens/swap/history",
+  // },
+];
+
+export const poolsMenuListData = [
+  {
+    label: "Token Pools",
+    href: "/pools",
+  },
+  { label: "NFT Pools", href: "/farms" },
+  { label: "Token Farming", href: "/farming" },
+];
+
+export const GroupMenu = ({
+  title,
+  path,
+  data,
   onClose,
   setCurrentAnchor,
   currentAnchor,
 }) => {
-  const history = useHistory();
-
   return (
     <Menu placement="bottom-end">
       <MenuButton
         p="0px"
         _hover={{ bg: "bg.1" }}
-        bg={currentAnchor === "/create" ? "bg.1" : "transparent"}
+        bg={currentAnchor === path ? "bg.1" : "transparent"}
         borderRadius="5px"
-        ml={{ base: "20px", md: "20px" }}
       >
-        <Flex w="full" p="6px 10px" borderRadius="5px">
+        <Flex
+          w="full"
+          p="6px 10px"
+          borderRadius="5px"
+          display="flex"
+          justify={{ base: "normal", lg: "center" }}
+          minW={{ base: "72px" }}
+        >
           <Link color={"text.1"} fontWeight="600" textDecoration="none">
-            <Text fontSize="md">Create</Text>
+            <Text fontSize="md">{title}</Text>
           </Link>
         </Flex>
       </MenuButton>
@@ -248,260 +298,52 @@ export const CreateMenuDropdown = ({
         boxShadow="0px 10px 21px rgba(0, 0, 0, 0.08)"
       >
         <Flex flexDirection="column" p="20px">
-          {[
-            {
-              label: "Token",
+          {data
+            ?.map((e) => ({
+              ...e,
               onClick: () => {
                 if (onClose) onClose();
+                setCurrentAnchor(path);
               },
-              href: "/create/token",
-            },
-            {
-              label: "Token Staking Pool",
-              href: "/create/stake-pool",
-              onClick: () => {
-                if (onClose) onClose();
-              },
-            },
-            {
-              label: "Token Farming",
-              href: "/create/farming",
-              onClick: () => {
-                if (onClose) onClose();
-              },
-            },
-            {
-              label: "NFT Staking Pool",
-              onClick: () => {
-                if (onClose) onClose();
-              },
-              href: "/create/nft-lp",
-            },
-            // {
-            //   label: "Launchpad",
-            //   onClick: () => {
-            //     if (onClose) {
-            //       onClose();
-            //     }
-            //   },
-            //   href: "/launchpad/create",
-            // },
-            // { label: "Token Yield Farm", href: "/create/farming" },
-          ].map((item, idx) => (
-            <IWCard
-              key={idx}
-              mb="0px"
-              px="-24px"
-              alignItems={{ base: "center" }}
-              cursor="pointer"
-              variant="menuBlank"
-              minW={{ base: "full", lg: "180px" }}
-            >
-              <Link
-                _hover={{ textDecoration: "none" }}
-                to={item?.href}
-                as={item?.href && RouterLink}
-                color={"text.1"}
-                fontWeight="600"
-                bg="transparent"
-                textDecoration="none"
-                _disabled={true}
-                onClick={item?.onClick}
+            }))
+            .map((item, idx) => (
+              <IWCard
+                key={idx}
+                mb="0px"
+                px="-24px"
+                alignItems={{ base: "center" }}
+                cursor="pointer"
+                variant="menuBlank"
+                minW={{ base: "full", lg: "180px" }}
               >
-                <MenuItem
-                  _active={{ bg: "transparent" }}
-                  _focus={{ bg: "transparent" }}
+                <Link
+                  _hover={{ textDecoration: "none" }}
+                  to={item?.href}
+                  as={item?.href && RouterLink}
+                  color={"text.1"}
+                  fontWeight="600"
+                  bg="transparent"
+                  textDecoration="none"
+                  _disabled={true}
+                  onClick={item?.onClick}
                 >
-                  <Flex
-                    w="full"
-                    justify={{ base: "start" }}
-                    alignItems={{ base: "center" }}
+                  <MenuItem
+                    _active={{ bg: "transparent" }}
+                    _focus={{ bg: "transparent" }}
                   >
-                    <Heading as="h5" size="h5" ml="10px">
-                      {item.label}
-                    </Heading>
-                  </Flex>
-                </MenuItem>
-              </Link>
-            </IWCard>
-          ))}
-        </Flex>
-      </MenuList>
-    </Menu>
-  );
-};
-
-export const StakeMenuDropdown = ({
-  onClose,
-  setCurrentAnchor,
-  currentAnchor,
-}) => {
-  const history = useHistory();
-
-  return (
-    <Menu placement="bottom-end">
-      <MenuButton
-        p="0px"
-        _hover={{ bg: "bg.1" }}
-        bg={currentAnchor === "/stake" ? "bg.1" : "transparent"}
-        borderRadius="5px"
-        ml={{ base: "20px", md: "20px" }}
-      >
-        <Flex w="full" p="6px 10px" borderRadius="5px">
-          <Link color={"text.1"} fontWeight="600" textDecoration="none">
-            <Text fontSize="md">Pools</Text>
-          </Link>
-        </Flex>
-      </MenuButton>
-
-      <MenuList
-        p="0px"
-        m="0px"
-        border="none"
-        borderRadius="10px"
-        boxShadow="0px 10px 21px rgba(0, 0, 0, 0.08)"
-      >
-        <Flex flexDirection="column" p="20px">
-          {[
-            {
-              label: "Token Pools",
-              href: "/pools",
-            },
-            { label: "Farming", href: "/farming" },
-            { label: "NFT Pools", href: "/farms" },
-            // { label: "NFT Yield Farm", href: "/create/nft-lp" },
-            // { label: "Token Yield Farm", href: "/create/farming" },
-          ].map((item, idx) => (
-            <IWCard
-              key={idx}
-              mb="0px"
-              px="-24px"
-              alignItems={{ base: "center" }}
-              cursor="pointer"
-              variant="menuBlank"
-              minW={{ base: "full", lg: "180px" }}
-            >
-              <Link
-                _hover={{ textDecoration: "none" }}
-                to={item.href}
-                as={RouterLink}
-                color={"text.1"}
-                fontWeight="600"
-                bg="transparent"
-                textDecoration="none"
-                onClick={() => {
-                  history.push(item.href);
-                  setCurrentAnchor("/pools");
-                  if (onClose) onClose();
-                }}
-              >
-                <MenuItem
-                  _active={{ bg: "transparent" }}
-                  _focus={{ bg: "transparent" }}
-                >
-                  <Flex
-                    w="full"
-                    justify={{ base: "start" }}
-                    alignItems={{ base: "center" }}
-                  >
-                    <Heading as="h5" size="h5" ml="10px">
-                      {item.label}
-                    </Heading>
-                  </Flex>
-                </MenuItem>
-              </Link>
-            </IWCard>
-          ))}
-        </Flex>
-      </MenuList>
-    </Menu>
-  );
-};
-
-export const TokenMenuDropdown = ({
-  onClose,
-  setCurrentAnchor,
-  currentAnchor,
-}) => {
-  const history = useHistory();
-
-  return (
-    <Menu placement="bottom-end">
-      <MenuButton
-        p="0px"
-        _hover={{ bg: "bg.1" }}
-        bg={currentAnchor === "/create" ? "bg.1" : "transparent"}
-        borderRadius="5px"
-        ml={{ base: "20px", md: "20px" }}
-      >
-        <Flex w="full" p="6px 10px" borderRadius="5px">
-          <Link color={"text.1"} fontWeight="600" textDecoration="none">
-            <Text fontSize="md">Token</Text>
-          </Link>
-        </Flex>
-      </MenuButton>
-
-      <MenuList
-        p="0px"
-        m="0px"
-        border="none"
-        borderRadius="10px"
-        boxShadow="0px 10px 21px rgba(0, 0, 0, 0.08)"
-      >
-        <Flex flexDirection="column" p="20px">
-          {[
-            {
-              label: "Interaction",
-              onClick: () => {
-                if (onClose) onClose();
-              },
-              href: "/tokens/interaction",
-            },
-            {
-              label: "Transactions",
-              href: "/tokens/transaction",
-              onClick: () => {
-                if (onClose) onClose();
-              },
-            },
-          ].map((item, idx) => (
-            <IWCard
-              key={idx}
-              mb="0px"
-              px="-24px"
-              alignItems={{ base: "center" }}
-              cursor="pointer"
-              variant="menuBlank"
-              minW={{ base: "full", lg: "180px" }}
-            >
-              <Link
-                _hover={{ textDecoration: "none" }}
-                to={item?.href}
-                as={item?.href && RouterLink}
-                color={"text.1"}
-                fontWeight="600"
-                bg="transparent"
-                textDecoration="none"
-                _disabled={true}
-                onClick={item?.onClick}
-              >
-                <MenuItem
-                  _active={{ bg: "transparent" }}
-                  _focus={{ bg: "transparent" }}
-                >
-                  <Flex
-                    w="full"
-                    justify={{ base: "start" }}
-                    alignItems={{ base: "center" }}
-                  >
-                    <Heading as="h5" size="h5" ml="10px">
-                      {item.label}
-                    </Heading>
-                  </Flex>
-                </MenuItem>
-              </Link>
-            </IWCard>
-          ))}
+                    <Flex
+                      w="full"
+                      justify={{ base: "start" }}
+                      alignItems={{ base: "center" }}
+                    >
+                      <Heading as="h5" size="h5" ml="10px">
+                        {item.label}
+                      </Heading>
+                    </Flex>
+                  </MenuItem>
+                </Link>
+              </IWCard>
+            ))}
         </Flex>
       </MenuList>
     </Menu>

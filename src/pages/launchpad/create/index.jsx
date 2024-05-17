@@ -14,6 +14,7 @@ import launchpad_generator from "utils/contracts/launchpad_generator";
 import { formatTokenAmount } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { isMobile } from "react-device-detect";
+import { appChain } from "constants";
 
 function CreateLaunchpadLayout() {
   const {
@@ -29,16 +30,20 @@ function CreateLaunchpadLayout() {
   const { api } = useAppContext();
 
   const getCreateFee = async () => {
-    const result = await execContractQuery(
-      currentAccount?.address,
-      api,
-      launchpad_generator.CONTRACT_ABI,
-      launchpad_generator.CONTRACT_ADDRESS,
-      0,
-      "launchpadGeneratorTrait::getCreationFee"
-    );
-    const fee = result.toHuman().Ok;
-    setCreateFee(formatNumDynDecimal(formatTokenAmount(fee, 12)));
+    try {
+      const result = await execContractQuery(
+        currentAccount?.address,
+        api,
+        launchpad_generator.CONTRACT_ABI,
+        launchpad_generator.CONTRACT_ADDRESS,
+        0,
+        "launchpadGeneratorTrait::getCreationFee"
+      );
+      const fee = result.toHuman().Ok;
+      setCreateFee(formatNumDynDecimal(formatTokenAmount(fee, appChain?.decimal)));
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
@@ -49,6 +54,12 @@ function CreateLaunchpadLayout() {
     <SectionContainer
       mt={{ base: "0px", xl: "8px" }}
       title="Launchpad"
+      // description={
+      //   <>
+      //     The premier destination to launch your PSP22 token on Aleph Zero
+      //     Network. This action requires {createFee} INW2.
+      //   </>
+      // }
       description={
         <>
           The premier destination to launch your PSP22 token on Aleph Zero
@@ -66,7 +77,7 @@ function CreateLaunchpadLayout() {
           ></Steps>
         </div>
         <Box>{itemStep[current]?.content}</Box>
-        <Center mt={"60px"}>
+        {/* <Center mt={"60px"}>
           {current > 0 && (
             <Button w={"101px"} mr={"12px"} type="button" onClick={prevStep}>
               Back
@@ -82,7 +93,7 @@ function CreateLaunchpadLayout() {
           >
             {current < itemStep?.length - 1 ? "Next" : "Finish"}
           </Button>
-        </Center>
+        </Center> */}
       </Box>
     </SectionContainer>
   );

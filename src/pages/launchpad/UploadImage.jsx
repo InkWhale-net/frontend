@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Center,
+  FormErrorMessage,
   Heading,
   Image,
   Spacer,
@@ -31,6 +32,7 @@ const UploadImage = ({
   updatePreviewImage,
   previewUrl,
   keyInput,
+  errorLabel,
   direction = "vertical",
 }) => {
   const [imgURL, setImgURL] = useState(null);
@@ -117,10 +119,12 @@ const UploadImage = ({
 
   return (
     <VStack h="full" justifyContent="flex-start" alignItems="start">
-      <Heading size="md" mb={{ base: "12px" }}>
-        {label}
+      <Heading size="md" mb={{ base: "6px" }}>
+        {label || " "}
         <RequiredMark ml="4px" isRequired />
       </Heading>
+      <FormErrorMessage>{errorLabel}</FormErrorMessage>
+
       <Box
         sx={{
           display: "flex",

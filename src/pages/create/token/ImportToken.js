@@ -18,10 +18,10 @@ import {
 import { execContractQuery } from "utils/contracts";
 import core_contract from "utils/contracts/core_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
-import psp22_contract_old from "utils/contracts/psp22_contract_old";
 import ImageUploadIcon from "./UploadIcon";
 import { getTokenOwner } from "utils";
 import { web3FromSource } from "@polkadot/extension-dapp";
+import { formatTokenAmount } from "utils";
 
 const ImportTokenForm = ({ api }) => {
   const dispatch = useDispatch();
@@ -77,10 +77,9 @@ const ImportTokenForm = ({ api }) => {
         psp22_contract.CONTRACT_ABI,
         tokenAddress,
         0,
-        "psp22::totalSupply"
+        "psp22Capped::cap"
       );
       const rawTotalSupply = queryResult3.toHuman().Ok;
-
       let queryResult4 = await execContractQuery(
         currentAccount?.address,
         "api",
@@ -90,11 +89,7 @@ const ImportTokenForm = ({ api }) => {
         "psp22Metadata::tokenDecimals"
       );
       const decimals = queryResult4.toHuman().Ok;
-      const totalSupply = roundUp(
-        rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
-        0
-      );
-
+      const totalSupply = formatTokenAmount(rawTotalSupply, decimals)
       const { address: tokenOwnerAddress } = await getTokenOwner(tokenAddress);
       const balance = formatQueryResultToNumber(
         queryResult,
@@ -143,7 +138,7 @@ const ImportTokenForm = ({ api }) => {
       }
       const { signer } = await web3FromSource(currentAccount?.meta?.source);
       const { signature } = await signer.signRaw({
-        address: currentAccount.address,
+        address: currentAccount?.address,
         data: stringToHex("Sign message to import token"),
         type: "bytes",
       });

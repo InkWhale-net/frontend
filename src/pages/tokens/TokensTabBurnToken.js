@@ -11,6 +11,8 @@ import { fetchUserBalance } from "redux/slices/walletSlice";
 import { delay, formatChainStringToNumber, formatNumToBN } from "utils";
 import { execContractTx } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
+import MyAccountTab from "./myAccount";
+import { appChain } from "constants";
 
 const TokensTabBurnToken = ({
   mode,
@@ -36,19 +38,19 @@ const TokensTabBurnToken = ({
     }
 
     if (burnAmount === 0 || !burnAmount) {
-      toast.error("Please enter amount to transfer!");
+      toast.error("Please enter amount to burn!");
       return;
     }
 
     if (+burnAmount > +formatChainStringToNumber(tokenInfo?.content)) {
       toast.error(
-        `You don't have enough ${tokenInfo?.title} tokens to transfer!`
+        `You don't have enough ${tokenInfo?.title} tokens to burn!`
       );
       return;
     }
 
     if (balance?.azero < 0.05) {
-      toast.error("Low Azero balance!");
+      toast.error(`Low ${appChain?.unit} balance!`);
       return;
     }
     await execContractTx(
@@ -76,28 +78,7 @@ const TokensTabBurnToken = ({
       alignItems="start"
       direction={{ base: "column", lg: "row" }}
     >
-      <IWCardOneColumn
-        title="My Account"
-        data={[
-          {
-            title: "Account Address",
-            content: !address ? (
-              "No account selected"
-            ) : (
-              <AddressCopier address={address} />
-            ),
-          },
-          {
-            title: "Azero Balance",
-            content: `${balance?.azero || 0} AZERO`,
-          },
-          { title: "INW Balance", content: `${balance?.inw || 0} INW` },
-          {
-            title: !tokenInfo?.title ? "" : `${tokenInfo?.title} Balance`,
-            content: `${tokenInfo?.content} ${tokenInfo?.title}`,
-          },
-        ]}
-      />
+      <MyAccountTab address={address} balance={balance} tokenInfo={tokenInfo} />
 
       <IWCard
         w="full"

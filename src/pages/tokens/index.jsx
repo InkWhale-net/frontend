@@ -23,8 +23,9 @@ import TokenInformation from "./TokenInformation";
 import TokensTabBurnToken from "./TokensTabBurnToken";
 import TokensTabCheckBalance from "./TokensTabCheckBalance";
 import TokensTabTransferToken from "./TokensTabTransferToken";
-import psp22_contract_old from "utils/contracts/psp22_contract_old";
+
 import { getTokenOwner } from "utils";
+import { formatTokenAmount } from "utils";
 
 export default function TokensPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -96,6 +97,7 @@ export default function TokensPage() {
       "psp22Metadata::tokenDecimals"
     );
     const decimals = queryResult4.toHuman().Ok;
+    console.log(decimals)
     const balance = formatQueryResultToNumber(queryResult, parseInt(decimals));
 
     let queryResult1 = await execContractQuery(
@@ -125,13 +127,13 @@ export default function TokensPage() {
       "psp22::totalSupply"
     );
     const rawTotalSupply = queryResult3.toHuman().Ok;
-
-    const totalSupply = roundUp(
-      rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
-      0
-    );
+    console.log('rawTotalSupply', rawTotalSupply)
+    const totalSupply = formatTokenAmount(rawTotalSupply, decimals);
+    console.log('totalSupply', totalSupply)
 
     const { address: owner } = await getTokenOwner(selectedContractAddr);
+    console.log(selectedContractAddr);
+    console.log(owner);
     let tokenIconUrl = null;
     try {
       const { status, ret } = await APICall.getTokenInfor({
@@ -154,6 +156,7 @@ export default function TokensPage() {
         decimals,
         owner,
         tokenIconUrl,
+        address: selectedContractAddr,
       };
     });
   }
@@ -237,7 +240,7 @@ export default function TokensPage() {
             >
               <Box w="full" pr={{ lg: "10px" }}>
                 <Heading as="h4" size="h4" mb="12px">
-                  Token Contract Address
+                  Token Contract Address 123
                 </Heading>
                 <SelectSearch
                   name="token"

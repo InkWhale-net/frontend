@@ -1,5 +1,6 @@
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
 import {
+  Button,
   Flex,
   Skeleton,
   Table,
@@ -12,17 +13,25 @@ import {
   Tooltip,
   Tr,
 } from "@chakra-ui/react";
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import { useHistory, useLocation } from "react-router-dom";
 import { formatDataCellTable as formatDataCellTableNew } from "./IWPaginationTable";
+import { useSelector } from "react-redux";
+import { formatChainStringToNumber } from "utils";
+import toast from "react-hot-toast";
+import { useAppContext } from "contexts/AppContext";
+import { doClaimPrincipal } from "api/azero-staking/azero-staking";
+import { delay } from "utils";
 
-const getStatusPool = (startTime, duration) => {
-  if (startTime + duration * 1000 < new Date()) {
-    return "Pool ended!";
-  }
-  return startTime < new Date() ? "Pool live!" : "Upcoming";
-};
+import { execContractQuery } from "utils/contracts";
+import my_azero_staking from "utils/contracts/my_azero_staking";
+import { formatNumToBN } from "utils";
+import { execContractTx } from "utils/contracts";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { stakeStatus } from "constants";
+import { doCancelRequest } from "api/azero-staking/azero-staking";
+import { appChain } from "constants";
 
 export function IWTable({
   tableHeader,
@@ -31,6 +40,7 @@ export function IWTable({
   loading,
   isDisableRowClick = false,
   customURLRowClick = "",
+  cb,
 }) {
   const history = useHistory();
   const location = useLocation();
@@ -52,6 +62,106 @@ export function IWTable({
       pathname: `${location.pathname}/${itemObj?.poolContract}`,
     });
   }
+
+  const { api } = useAppContext();
+  const { currentAccount } = useSelector((s) => s.wallet);
+
+  const azeroBalance = useMemo(() => {
+    const azeroBal = formatChainStringToNumber(currentAccount?.balance?.azero);
+    return Number(azeroBal);
+  }, [currentAccount?.balance?.azero]);
+
+  const inwBalance2 = useMemo(() => {
+    const bal = formatChainStringToNumber(currentAccount?.balance?.inw2);
+    return Number(bal);
+  }, [currentAccount?.balance?.inw2]);
+
+  async function handleClaimPrincipal(index) {
+    if (azeroBalance < 0.01) {
+      toast.error(`Too low ${appChain?.unit} balance!`);
+      return;
+    }
+
+    if (inwBalance2 < 5) {
+      toast.error(`Too low ${appChain?.inwName} balance!`);
+      return;
+    }
+    try {
+      // check approve 5inw
+      const allowanceTokenQr = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ADDRESS,
+        0, //-> value
+        "psp22::allowance",
+        currentAccount?.address,
+        my_azero_staking.CONTRACT_ADDRESS
+      );
+
+      const allowanceToken =
+        allowanceTokenQr?.toHuman().Ok?.replaceAll(",", "") / 10 ** 12;
+
+      console.log("allowanceToken", allowanceToken);
+
+      if (5 > allowanceToken) {
+        toast("Approving fee...");
+
+        await execContractTx(
+          currentAccount,
+          "api",
+          psp22_contract_v2.CONTRACT_ABI,
+          psp22_contract_v2.CONTRACT_ADDRESS,
+          0, //-> value
+          "psp22::approve",
+          my_azero_staking.CONTRACT_ADDRESS,
+          formatNumToBN(5)
+        );
+      }
+      // End check approve additional portion
+
+      await delay(1000).then(async () => {
+        await doClaimPrincipal(api, currentAccount, index);
+      });
+
+      delay(1000).then(() => {
+        cb && cb();
+      });
+    } catch (error) {
+      console.log("error", error);
+    }
+  }
+
+  async function handleCancelRequest(index) {
+    const foundItem = tableBody?.find((i) => i.requestIndex === index);
+
+    if (!foundItem) {
+      toast.error("Invalid Id!");
+      return;
+    }
+
+    if (parseInt(foundItem.status) !== 0 && parseInt(foundItem.status) !== 1) {
+      toast.error("This request can not be cancel!");
+      return;
+    }
+
+    if (azeroBalance < 0.01) {
+      toast.error(`Too low ${appChain?.unit} balance!`);
+      return;
+    }
+
+    try {
+      await doCancelRequest(api, currentAccount, index);
+
+      delay(1000).then(() => {
+        cb && cb();
+      });
+    } catch (error) {
+      console.log("error", error);
+      toast.error("There is something wrong with your request!");
+    }
+  }
+
   return (
     <TableContainer
       w="full"
@@ -86,6 +196,47 @@ export function IWTable({
                 </Flex>
               </Th>
             ))}
+            {mode === "AZERO_STAKING" && (
+              <>
+                <Th
+                  h="60px"
+                  bg="bg.5"
+                  color="text.2"
+                  fontWeight="400"
+                  fontSize="16px"
+                  lineHeight="28px"
+                  textTransform="none"
+                >
+                  <Flex
+                    display="flex"
+                    justifyContent="center"
+                    w="full"
+                    alignItems="center"
+                  >
+                    Unstake
+                  </Flex>
+                </Th>
+                <Th
+                  h="60px"
+                  bg="bg.5"
+                  color="text.2"
+                  fontWeight="400"
+                  fontSize="16px"
+                  lineHeight="28px"
+                  textTransform="none"
+                  textAlign="center"
+                >
+                  <Flex
+                    display="flex"
+                    justifyContent="center"
+                    w="full"
+                    alignItems="center"
+                  >
+                    Cancel
+                  </Flex>
+                </Th>
+              </>
+            )}
           </Tr>
         </Thead>
 
@@ -134,6 +285,59 @@ export function IWTable({
                             </Td>
                           );
                         })}
+                        {mode === "AZERO_STAKING" && (
+                          <>
+                            <Td>
+                              <FadeIn>
+                                <Button
+                                  w="full"
+                                  size="sm"
+                                  disabled={
+                                    itemObj["requestStatus"] !==
+                                    stakeStatus.READY
+                                  }
+                                  onClick={() =>
+                                    handleClaimPrincipal(
+                                      itemObj["requestIndex"]
+                                    )
+                                  }
+                                >
+                                  {itemObj["requestStatus"] ===
+                                  stakeStatus.UNSTAKED
+                                    ? "Unstaked"
+                                    : "Unstake"}
+                                </Button>
+                              </FadeIn>
+                            </Td>
+                            <Td>
+                              <FadeIn>
+                                <Button
+                                  _hover={{ bg: "indianred" }}
+                                  _focus={{ bg: "indianred" }}
+                                  _active={{ bg: "indianred" }}
+                                  bg="orangered"
+                                  color="black"
+                                  w="full"
+                                  size="sm"
+                                  disabled={
+                                    itemObj["requestStatus"] !==
+                                      stakeStatus.READY &&
+                                    itemObj["requestStatus"] !==
+                                      stakeStatus.PENDING
+                                  }
+                                  onClick={() =>
+                                    handleCancelRequest(itemObj["requestIndex"])
+                                  }
+                                >
+                                  {itemObj["requestStatus"] !==
+                                  stakeStatus.CANCELLED
+                                    ? "Cancel"
+                                    : "Cancelled"}
+                                </Button>
+                              </FadeIn>
+                            </Td>
+                          </>
+                        )}
                       </Tr>
                     </Fragment>
                   );
@@ -146,289 +350,3 @@ export function IWTable({
     </TableContainer>
   );
 }
-
-// export const formatDataCellTable = (itemObj, header, mode) => {
-//   switch (header) {
-//     case "totalStaked":
-//       const extPart = `NFT${itemObj[header] > 1 ? "s" : ""}`;
-//       return (
-//         <Box sx={{ display: "flex", alignItems: "center" }}>
-//           <Text>
-//             {mode == "NFT_FARM"
-//               ? itemObj[header]
-//               : mode === "TOKEN_FARM"
-//               ? formatNumDynDecimal(
-//                   formatTokenAmount(itemObj[header], itemObj?.lptokenDecimal)
-//                 )
-//               : formatNumDynDecimal(
-//                   formatTokenAmount(itemObj[header], itemObj?.tokenDecimal)
-//                 )}{" "}
-//             {itemObj["NFTtokenContract"] && extPart}
-//           </Text>
-//           {itemObj?.hasTooltip}
-//         </Box>
-//       );
-
-//     case "multiplier":
-//       return mode === "TOKEN_FARM" ? (
-//         <Text>{itemObj[header]?.toFixed(2)}</Text>
-//       ) : mode === "NFT_FARM" ? (
-//         // <Text>{(itemObj[header] / 10 ** 12).toFixed(2)}</Text>
-//         <Text>
-//           {formatNumDynDecimal(
-//             formatTokenAmount(itemObj[header], itemObj?.tokenDecimal)
-//           )}
-//         </Text>
-//       ) : (
-//         <></>
-//       );
-
-//     case "rewardPool":
-//       return (
-//         <>
-//           <Text>{formatNumDynDecimal(itemObj[header])}</Text>
-//         </>
-//       );
-
-//     case "startTime":
-//       return (
-//         <>
-//           <IWCountDown
-//             date={
-//               itemObj[header] < new Date()
-//                 ? itemObj[header] + itemObj["duration"] * 1000
-//                 : itemObj[header]
-//             }
-//           />
-//         </>
-//       );
-
-//     case "status":
-//       return (
-//         <>
-//           <Text>
-//             {getStatusPool(itemObj["startTime"], itemObj["duration"])}
-//           </Text>
-//         </>
-//       );
-
-//     case "apy":
-//       return (
-//         <>
-//           <Text>{itemObj[header] / 100}%</Text>
-//         </>
-//       );
-
-//     case "poolName":
-//       return (
-//         <>
-//           <Flex
-//             w="full"
-//             justify={{ base: "start" }}
-//             alignItems={{ base: "center" }}
-//           >
-//             <Circle w="30px" h="30px" bg="white">
-//               <Image src={itemObj["poolLogo"]} alt="logo-subwallet" />
-//             </Circle>
-
-//             <Text ml="8px">{itemObj[header]}</Text>
-//           </Flex>
-//         </>
-//       );
-
-//     case "nftInfo":
-//       return (
-//         <>
-//           <Flex
-//             w="full"
-//             justify={{ base: "start" }}
-//             alignItems={{ base: "center" }}
-//           >
-//             <ImageCloudFlare
-//               borderWidth="1px"
-//               w="40px"
-//               h="40px"
-//               size="500"
-//               alt={header}
-//               borderRadius="5px"
-//               src={itemObj[header]?.avatarImage}
-//             />
-//             <Text ml="8px">{itemObj[header]?.name}</Text>
-//           </Flex>
-//         </>
-//       );
-
-//     case "poolNameNFT":
-//       return (
-//         <>
-//           <Flex
-//             w="full"
-//             justify={{ base: "start" }}
-//             alignItems={{ base: "center" }}
-//           >
-//             <Circle w="30px" h="30px" bg="white">
-//               <Image src={itemObj["poolLogo"]} alt="logo-subwallet" />
-//             </Circle>
-
-//             <Text ml="8px">{itemObj[header]}</Text>
-//           </Flex>
-//         </>
-//       );
-
-//     case "stakeInfo":
-//       const numberStakeInfo =
-//         itemObj[header] &&
-//         formatNumDynDecimal(
-//           formatTokenAmount(
-//             itemObj[header].stakedValue,
-//             mode === "TOKEN_FARM"
-//               ? itemObj?.lptokenDecimal
-//               : itemObj?.tokenDecimal
-//           )
-//         );
-
-//       const numberNFTStakeInfo =
-//         itemObj[header] && formatNumDynDecimal(itemObj[header].stakedValue);
-//       return (
-//         <>
-//           {itemObj[header] ? (
-//             itemObj["NFTtokenContract"] ? (
-//               <Flex alignItems="center">
-//                 <Text mr="8px">{numberNFTStakeInfo}</Text>
-//                 <GoStar color="#FFB800" />
-//               </Flex>
-//             ) : (
-//               parseFloat(numberStakeInfo) > 0 && (
-//                 <Flex alignItems="center">
-//                   <Text mr="8px">{numberStakeInfo}</Text>
-//                   <GoStar color="#FFB800" />
-//                 </Flex>
-//               )
-//             )
-//           ) : (
-//             ""
-//           )}
-//         </>
-//       );
-
-//     case "myStake":
-//       return (
-//         <>
-//           <Flex alignItems="center">
-//             <Text mr="8px">{itemObj[header]}</Text>
-//             {itemObj["isMyStake"] && <GoStar color="#FFB800" />}
-//           </Flex>
-//         </>
-//       );
-
-//     case "totalSupply":
-//       return (
-//         <>
-//           <Text>{formatNumDynDecimal(itemObj[header])}</Text>
-//         </>
-//       );
-
-//     case "duration":
-//       return (
-//         <>
-//           <Text>{itemObj[header] / 86400} days</Text>
-//         </>
-//       );
-//     case "tokenIconUrl":
-//       return itemObj[header] ? (
-//         <Image
-//           w="38px"
-//           borderRadius={"10px"}
-//           src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${itemObj[header]}`}
-//           alt="logo"
-//         />
-//       ) : (
-//         ""
-//       );
-//     case "name":
-//       if (itemObj?.showIcon)
-//         return (
-//           <>
-//             <Flex
-//               w="full"
-//               justify={{ base: "start" }}
-//               alignItems={{ base: "center" }}
-//             >
-//               <Circle w="30px" h="30px" bg="white">
-//                 <Image
-//                   w="38px"
-//                   borderRadius={"10px"}
-//                   src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${itemObj["tokenIconUrl"]}`}
-//                   alt="logo"
-//                 />
-//               </Circle>
-
-//               <Text ml="8px">{itemObj[header]}</Text>
-//             </Flex>
-//           </>
-//         );
-//       else return itemObj[header];
-//     case "tokenTotalSupply":
-//       const tokenTotalSupply = itemObj[header].replaceAll(",", "");
-//       return (
-//         <>
-//           <Text>{formatNumDynDecimal(tokenTotalSupply / 10 ** 12)}</Text>
-//         </>
-//       );
-
-//     case "contractAddress":
-//       return (
-//         <>
-//           <AddressCopier address={itemObj[header]} />
-//         </>
-//       );
-//     case "tokenSymbol":
-//       return (
-//         <Flex alignItems={"center"} mr={{ base: "20px" }}>
-//           <TokenIcon tokenContract={itemObj["tokenContract"]} />
-//           <Text textAlign="left">{itemObj[header]} </Text>
-//         </Flex>
-//       );
-//     case "Earn":
-//       return (
-//         <Flex alignItems={"center"}>
-//           <TokenIcon tokenContract={itemObj["tokenContract"]} />
-//           <Text textAlign="left">{itemObj[header]} </Text>
-//         </Flex>
-//       );
-//     case "owner":
-//       return (
-//         <>
-//           <AddressCopier address={itemObj[header]} />
-//         </>
-//       );
-
-//     case "poolContract":
-//       return (
-//         <>
-//           <AddressCopier address={itemObj[header]} />
-//         </>
-//       );
-
-//     case "creator":
-//       return (
-//         <>
-//           <AddressCopier address={itemObj[header]} />
-//         </>
-//       );
-
-//     case "mintTo":
-//       return (
-//         <>
-//           <AddressCopier address={itemObj[header]} />
-//         </>
-//       );
-
-//     default:
-//       return (
-//         <>
-//           <Text textAlign="left">{itemObj[header]} </Text>
-//         </>
-//       );
-//   }
-// };

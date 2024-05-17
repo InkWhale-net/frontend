@@ -73,7 +73,7 @@ export const fetchAllTokensList = createAsyncThunk(
     } else {
       toast.error(message);
     }
-
+    console.log('data', data)
     return data;
   }
 );

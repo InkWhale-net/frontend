@@ -1,12 +1,18 @@
-import { Box, Button, Divider, Heading, Text } from "@chakra-ui/react";
+import { Box, Button, Divider, Flex, Heading, Text } from "@chakra-ui/react";
 import { useAppContext } from "contexts/AppContext";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { formatNumToBN, formatTokenAmount } from "utils";
 import { execContractQuery, execContractTxAndCallAPI } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
-import { useModalLPDetail } from "./modal/ModelContext";
+import { useModalLPDetail } from "./modal/ModalContext";
+import { formatChainStringToNumber } from "utils";
+import { delay } from "utils";
+import { fetchUserBalance } from "redux/slices/walletSlice";
+import { formatNumDynDecimal } from "utils";
+import { AzeroLogo } from "components/icons/Icons";
+import { appChain } from "constants";
 
 const OwnerZoneCard = ({ launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -16,12 +22,18 @@ const OwnerZoneCard = ({ launchpadData }) => {
     showPhaseModal,
     showEditInforModal,
     showEditTotalSupply,
+    showWithdrawAzeroVisible,
+    withdrawAzeroVisible,
+    updateOwnerBalance,
+    updateUnsoldToken,
   } = useModalLPDetail();
   const tokenDecimal = parseInt(launchpadData?.projectInfo?.token?.decimals);
 
   const [ownerBalance, setOwnerBalance] = useState(0);
   const [unsoldToken, setUnsoldToken] = useState(0);
   const [isDisableWithdrawNBurn, setIsDisableWithdrawNBurn] = useState(false);
+
+  const dispatch = useDispatch();
 
   const fetchBalance = useCallback(async () => {
     const queryResult = await execContractQuery(
@@ -34,7 +46,10 @@ const OwnerZoneCard = ({ launchpadData }) => {
     );
 
     const ret = queryResult?.toHuman().Ok?.Ok;
-    setOwnerBalance(parseInt(ret?.replaceAll(",", ""), 10) / 10 ** 12);
+    const ownerBL =
+      parseInt(ret?.replaceAll(",", ""), 10) / 10 ** appChain?.decimal;
+    setOwnerBalance(ownerBL);
+    updateOwnerBalance(ownerBL);
     const fetchUnsoldToken = await execContractQuery(
       currentAccount?.address,
       "api",
@@ -73,6 +88,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
     currentAccount?.address,
     fetchBalance,
     launchpadData?.launchpadContract,
+    withdrawAzeroVisible,
   ]);
   const ownerWithdrawUnsoldHandler = async () => {
     const endTime = launchpadData?.endTime?.replaceAll(",", "");
@@ -95,6 +111,12 @@ const OwnerZoneCard = ({ launchpadData }) => {
       fetchBalance,
       currentAccount?.address
     );
+
+    await delay(500).then(() => {
+      if (currentAccount) {
+        dispatch(fetchUserBalance({ currentAccount, api }));
+      }
+    });
     fetchBalance();
   };
   const ownerBurnUnsoldHandler = async () => {
@@ -119,25 +141,6 @@ const OwnerZoneCard = ({ launchpadData }) => {
     );
     fetchBalance();
   };
-  const ownerWithdrawHandler = async () => {
-    if (ownerBalance < 0.0001) {
-      return toast.error("Balance is zero!");
-    }
-
-    toast.success(`Withdrawing ${ownerBalance.toFixed(4)} AZERO...`);
-
-    await execContractTxAndCallAPI(
-      currentAccount,
-      "api",
-      launchpad.CONTRACT_ABI,
-      launchpadData?.launchpadContract,
-      0,
-      "launchpadContractTrait::withdraw",
-      fetchBalance,
-      formatNumToBN(ownerBalance),
-      currentAccount?.address
-    );
-  };
   const fetchOwnerData = useCallback(async () => {
     // const totalTokenSold = launchpadData?.phaseList?.map(async (acc, phase) => {
     //   const publicSaleInfor = await execContractQuery(
@@ -155,6 +158,66 @@ const OwnerZoneCard = ({ launchpadData }) => {
   useEffect(() => {
     fetchOwnerData();
   }, [currentAccount, api, launchpadData]);
+  // ############################
+
+  const tokenSymbol = launchpadData?.projectInfo?.token?.symbol;
+
+  const totalSupply =
+    formatChainStringToNumber(launchpadData?.totalSupply) /
+    Math.pow(10, tokenDecimal);
+
+  const availableAmount =
+    formatChainStringToNumber(launchpadData?.availableTokenAmount) /
+    Math.pow(10, tokenDecimal);
+
+  const totalWhitelistByPhase = launchpadData?.phaseList?.map((p) => {
+    const totalSoldAmount = p?.whitelist?.reduce(
+      (prev, curr) =>
+        prev +
+        formatChainStringToNumber(curr.purchasedAmount) /
+          Math.pow(10, tokenDecimal),
+      0
+    );
+    return { ...p, totalSoldAmount };
+  });
+
+  const totalWhitelist = launchpadData?.phaseList?.reduce((prev, curr) => {
+    return prev.concat(curr?.whitelist);
+  }, []);
+
+  const formattedTotalWhitelist = useMemo(
+    () =>
+      totalWhitelist?.map((w) => ({
+        ...w,
+        amount:
+          formatChainStringToNumber(w?.amount) / Math.pow(10, tokenDecimal),
+        claimedAmount:
+          formatChainStringToNumber(w?.claimedAmount) /
+          Math.pow(10, tokenDecimal),
+        price: formatChainStringToNumber(w?.price) / Math.pow(10, tokenDecimal),
+        purchasedAmount:
+          formatChainStringToNumber(w?.purchasedAmount) /
+          Math.pow(10, tokenDecimal),
+        vestingAmount:
+          formatChainStringToNumber(w?.vestingAmount) /
+          Math.pow(10, tokenDecimal),
+      })),
+    [totalWhitelist, tokenDecimal]
+  );
+
+  const totalSoldAmount = formattedTotalWhitelist?.reduce(
+    (prev, curr) => prev + curr.purchasedAmount,
+    0
+  );
+
+  const totalWhitelistAddedAmount = formattedTotalWhitelist?.reduce(
+    (prev, curr) => prev + curr.amount,
+    0
+  );
+
+  const totalWhitelistClaimed = formattedTotalWhitelist?.filter(
+    (w) => !!w.claimedAmount
+  );
 
   return (
     <Box
@@ -168,16 +231,58 @@ const OwnerZoneCard = ({ launchpadData }) => {
         paddingBottom: "12px",
       }}
     >
-      <Heading as="h4" size="md">
+      <Heading as="h4" size="md" mb="8px">
         Owner Zone
       </Heading>
-      <Text sx={{ mt: "20px", fontWeight: "700", color: "#57527E " }}>
+      {/* <Text sx={{ mt: "20px", fontWeight: "700", color: "#57527E " }}>
         Launchpad Balance
-      </Text>
+      </Text> */}
+      <Divider
+        sx={{
+          marginBottom: "8px",
+        }}
+      />
+      <Row
+        label="Token For Sale"
+        value={`${formatNumDynDecimal(totalSupply)} ${tokenSymbol}`}
+      />
+      <Row
+        label="Distributed Token"
+        value={`${formatNumDynDecimal(availableAmount)} ${tokenSymbol}`}
+      />
+      <Row
+        label="Total Whitelist Added"
+        value={`${formatNumDynDecimal(
+          totalWhitelistAddedAmount
+        )} ${tokenSymbol}`}
+      />
+      <Row
+        label="Total Sold"
+        value={`${formatNumDynDecimal(totalSoldAmount)} ${tokenSymbol}`}
+      />
+
+      {totalWhitelistByPhase?.map((p, idx) => (
+        <Row
+          key={idx}
+          label={` - ${p?.name}`}
+          value={`${formatNumDynDecimal(p.totalSoldAmount)} ${tokenSymbol}`}
+        />
+      ))}
+      <Row
+        label="Whitelist Address Added"
+        value={`${formattedTotalWhitelist?.length}`}
+      />
+      <Row
+        label="Whitelist Address Claimed"
+        value={`${totalWhitelistClaimed?.length}`}
+      />
       <Divider />
       <Box mt="16px" display="flex" justifyContent="space-between">
-        <Text>AZERO</Text>
-        <Text>{ownerBalance.toFixed(4)}</Text>
+        <Text>Balance</Text>
+        <Flex alignItems="center">
+          <Text mr="4px">{formatNumDynDecimal(ownerBalance)}</Text>
+          <AzeroLogo w="14px" />
+        </Flex>
       </Box>
 
       <Button
@@ -185,10 +290,10 @@ const OwnerZoneCard = ({ launchpadData }) => {
         w="full"
         height="40px"
         variant="outline"
-        onClick={ownerWithdrawHandler}
-        isDisabled={ownerBalance < 0.0001}
+        onClick={() => showWithdrawAzeroVisible()}
+        // isDisabled={ownerBalance < 0.0001}
       >
-        Withdraw AZERO
+        Withdraw {appChain?.unit}
       </Button>
 
       <Divider />
@@ -258,7 +363,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         onClick={() => showWLModal()}
       >
         {launchpadData?.requireKyc
-          ? "KYC Manager"
+          ? "Manage KYC & Whitelist"
           : "Whitelist Manager"}
       </Button>
       {/* <Button
@@ -275,3 +380,22 @@ const OwnerZoneCard = ({ launchpadData }) => {
 };
 
 export default OwnerZoneCard;
+
+const Row = ({ label, value, divider = false, ...rest }) => {
+  return (
+    <>
+      <Box
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "8px",
+          ...rest,
+        }}
+      >
+        <Text>{label}</Text>
+        <Text>{value}</Text>
+      </Box>
+      {divider && <Divider />}
+    </>
+  );
+};

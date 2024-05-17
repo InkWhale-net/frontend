@@ -20,6 +20,8 @@ import {
 } from "utils";
 import { execContractTx } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
+import MyAccountTab from "./myAccount";
+import { appChain } from "constants";
 
 const TokensTabTransferToken = ({
   mode,
@@ -62,7 +64,7 @@ const TokensTabTransferToken = ({
       return;
     }
     if (balance?.azero < 0.05) {
-      toast.error("Low Azero balance!");
+      toast.error(`Low ${appChain?.unit} balance!`);
       return;
     }
 
@@ -93,28 +95,7 @@ const TokensTabTransferToken = ({
       alignItems="start"
       direction={{ base: "column", lg: "row" }}
     >
-      <IWCardOneColumn
-        title="My Account"
-        data={[
-          {
-            title: "Account Address",
-            content: !address ? (
-              "No account selected"
-            ) : (
-              <AddressCopier address={address} />
-            ),
-          },
-          {
-            title: "Azero Balance",
-            content: `${balance?.azero || 0} AZERO`,
-          },
-          { title: "INW Balance", content: `${balance?.inw || 0} INW` },
-          {
-            title: !tokenInfo?.title ? "" : `${tokenInfo?.title} Balance`,
-            content: `${tokenInfo?.content} ${tokenInfo?.title}`,
-          },
-        ]}
-      />
+      <MyAccountTab address={address} balance={balance} tokenInfo={tokenInfo} />
 
       <IWCard
         w="full"
@@ -135,7 +116,7 @@ const TokensTabTransferToken = ({
                 setAddressFromDomain("");
                 setTransferAmount("");
               }}
-              placeholder="Address or azero.id to transfer"
+              placeholder={`Address${appChain?.haveAzeroID ? " or azero.id" : ""} to transfer`}
             />
             {addressFromDomain && transferAddress && (
               <IWInput

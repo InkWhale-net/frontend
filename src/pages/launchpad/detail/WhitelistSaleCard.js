@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { BeatLoader } from "react-spinners";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
+import { formatChainStringToNumber } from "utils";
 import {
   delay,
   formatNumToBN,
@@ -123,25 +124,35 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
         launchpadData?.launchpadContract,
         parseUnits(azeroBuyAmount.toString(), 12), //-> value
         "launchpadContractTrait::whitelistPurchase",
-        livePhase?.id,
+        livePhase?.phaseID,
         formatNumToBN(
           parseFloat(amount),
           parseInt(launchpadData.projectInfo.token.decimals)
         )
       );
       if (!buyResult) return;
-      await delay(400);
+      await delay(1000);
       await APICall.askBEupdate({
         type: "launchpad",
         poolContract: launchpadData?.launchpadContract,
       });
-      setAmount(0);
-      setAzeroBuyAmount(0);
-      await delay(4000);
-      if (currentAccount) {
-        dispatch(fetchUserBalance({ currentAccount, api }));
-        dispatch(fetchLaunchpads({}));
-      }
+
+      setAmount("");
+      setAzeroBuyAmount("");
+
+      toast.promise(
+        delay(6000).then(() => {
+          if (currentAccount) {
+            dispatch(fetchUserBalance({ currentAccount, api }));
+            dispatch(fetchLaunchpads({}));
+          }
+        }),
+        {
+          loading: "Please wait up to 5s for the data to be updated!",
+          success: "Done !",
+          error: "Could not fetch data!!!",
+        }
+      );
     } catch (error) {
       console.log(error);
     }
@@ -175,29 +186,28 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
               const buyerInformation = obj?.whitelist?.find(
                 (e) => e?.account === currentAccount?.address
               );
-              const allowBuy = index === livePhase?.id;
+              const allowBuy = obj?.phaseID === livePhase?.phaseID;
               const wlTokenPriceStr = formatTokenAmount(
                 buyerInformation?.price,
                 12
               );
-              const wlTokenPrice = parseFloat(wlTokenPriceStr);
+              const wlTokenPrice = +wlTokenPriceStr;
 
-              const wlMaxAmount = parseFloat(
+              const wlMaxAmount = formatTokenAmount(
+                buyerInformation?.amount,
+                parseInt(launchpadData.projectInfo.token.decimals)
+              );
+              const wlPurchasedAmount = roundUp(
                 formatTokenAmount(
-                  buyerInformation?.amount,
+                  buyerInformation?.purchasedAmount,
                   parseInt(launchpadData.projectInfo.token.decimals)
                 )
               );
-              const wlPurchasedAmount = roundUp(
-                parseFloat(
-                  formatTokenAmount(
-                    buyerInformation?.purchasedAmount,
-                    parseInt(launchpadData.projectInfo.token.decimals)
-                  )
-                )
-              );
 
-              const maxAmount = +wlMaxAmount - +wlPurchasedAmount;
+              const maxAmount =
+                formatChainStringToNumber(wlMaxAmount) -
+                formatChainStringToNumber(wlPurchasedAmount);
+
               if (allowBuy) {
                 return (
                   <>
@@ -225,11 +235,14 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                     <>
                       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
                         <IWInput
-                          isDisabled={upComing || !(+maxAmount > 0)}
+                          isDisabled={
+                            upComing ||
+                            !(formatChainStringToNumber(maxAmount) > 0)
+                          }
                           onChange={({ target }) => {
                             setAmount(target.value);
                             setAzeroBuyAmount(
-                              roundUp(parseFloat(target.value) * wlTokenPrice),
+                              roundDown(+target.value * wlTokenPrice),
                               4
                             );
                           }}
@@ -247,7 +260,10 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                         />
                       </Box>
                       <IWInput
-                        isDisabled={upComing || !(+maxAmount > 0)}
+                        isDisabled={
+                          upComing ||
+                          !(formatChainStringToNumber(maxAmount) > 0)
+                        }
                         onChange={({ target }) => {
                           setAzeroBuyAmount(target.value);
                           setAmount(
@@ -282,12 +298,16 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                         <Button
                           isLoading={wlBuyMutation.isLoading}
                           isDisabled={
-                            !allowBuy || !(parseFloat(amount) > 0) || upComing
+                            !launchpadData?.isActive ||
+                            !allowBuy ||
+                            !(parseFloat(amount) > 0) ||
+                            upComing
                           }
                           sx={{ flex: 1, height: "40px", marginTop: "8px" }}
                           onClick={() =>
                             wlBuyMutation.mutate(
-                              wlMaxAmount - wlPurchasedAmount
+                              formatChainStringToNumber(wlMaxAmount) -
+                                formatChainStringToNumber(wlPurchasedAmount)
                             )
                           }
                           spinner={<BeatLoader size={8} color="white" />}
@@ -400,10 +420,24 @@ export const KycLayout = ({ launchpadData, upComing }) => {
           color: "#57527E",
         }}
       >
-        <Link href={kycUrl} isExternal>
-          Click here to KYC
-          <ExternalLinkIcon mx="2px" />
-        </Link>
+        {!currentAccount?.address || !launchpadData?.isActive ? (
+          <>
+            This project requires all users to KYC in order to buy. <br />
+            <Button colorScheme="teal" variant="link" disabled>
+              Click here to KYC
+              <ExternalLinkIcon mx="2px" />
+            </Button>
+          </>
+        ) : (
+          <>
+            This project requires all users to KYC in order to buy.
+            <br />
+            <Link href={kycUrl} isExternal disable>
+              Click here to KYC
+              <ExternalLinkIcon mx="2px" />
+            </Link>
+          </>
+        )}
       </Box>
     </>
   ) : null;

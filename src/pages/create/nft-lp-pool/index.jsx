@@ -3,7 +3,6 @@ import {
   Button,
   Flex,
   Heading,
-  Select,
   SimpleGrid,
   Text,
   Tooltip,
@@ -13,39 +12,43 @@ import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 import { IWTable } from "components/table/IWTable";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import DateTimePicker from "react-datetime-picker";
-import { useDispatch, useSelector } from "react-redux";
-import { addressShortener } from "utils";
-import { toast } from "react-hot-toast";
-import { isAddressValid } from "utils";
-import { execContractQuery } from "utils/contracts";
-import { formatQueryResultToNumber } from "utils";
-import psp22_contract from "utils/contracts/psp22_contract";
-import { APICall } from "api/client";
-import { toastMessages } from "constants";
-import { execContractTx } from "utils/contracts";
-import { fetchUserBalance } from "redux/slices/walletSlice";
-import { delay } from "utils";
-import { formatNumToBN, formatNumDynDecimal } from "utils";
-import azt_contract from "utils/contracts/azt_contract";
-import nft_pool_generator_contract from "utils/contracts/nft_pool_generator_contract";
-import { fetchMyNFTPools } from "redux/slices/myPoolsSlice";
 import { QuestionOutlineIcon } from "@chakra-ui/icons";
-import { roundUp } from "utils";
-import ImageUploadIcon from "../token/UploadIcon";
+import { APICall } from "api/client";
 import { SelectSearch } from "components/SelectSearch";
-import { execContractTxAndCallAPI } from "utils/contracts";
-import { moveINWToBegin } from "utils";
-import { excludeNFT } from "utils";
+import { toastMessages } from "constants";
 import { useAppContext } from "contexts/AppContext";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import DateTimePicker from "react-datetime-picker";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMyNFTPools } from "redux/slices/myPoolsSlice";
+import { fetchUserBalance } from "redux/slices/walletSlice";
+import {
+  addressShortener,
+  delay,
+  excludeNFT,
+  formatNumDynDecimal,
+  formatQueryResultToNumber,
+  isAddressValid,
+  moveINWToBegin,
+  roundUp,
+} from "utils";
+import {
+  execContractQuery,
+  execContractTx,
+  execContractTxAndCallAPI,
+} from "utils/contracts";
+import nft_pool_generator_contract from "utils/contracts/nft_pool_generator_contract";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { appChain } from "constants";
+import {formatNumToBNEther} from "utils";
 
 export default function CreateNFTLPPage() {
   const dispatch = useDispatch();
   const { api } = useAppContext();
   const { currentAccount } = useSelector((s) => s.wallet);
 
-  const [createTokenFee, setCreateTokenFee] = useState(0);
+  const [createTokenFee, setCreateTokenFee] = useState("");
 
   const [faucetTokensList, setFaucetTokensList] = useState([]);
   const [selectedContractAddr, setSelectedContractAddr] = useState("");
@@ -78,7 +81,7 @@ export default function CreateNFTLPPage() {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       selectedContractAddr,
       0,
       "psp22::balanceOf",
@@ -92,7 +95,7 @@ export default function CreateNFTLPPage() {
       let queryResult1 = await execContractQuery(
         currentAccount?.address,
         "api",
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ABI,
         selectedContractAddr,
         0,
         "psp22Metadata::tokenSymbol"
@@ -107,7 +110,7 @@ export default function CreateNFTLPPage() {
       let queryResult1 = await execContractQuery(
         currentAccount?.address,
         "api",
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ABI,
         selectedContractAddr,
         0,
         "psp22Metadata::tokenDecimals"
@@ -182,7 +185,7 @@ export default function CreateNFTLPPage() {
 
       const fee = formatQueryResultToNumber(result);
 
-      setCreateTokenFee(fee);
+      setCreateTokenFee(fee?.replaceAll(",", ""));
     };
     if (!currentAccount?.address) return;
     fetchCreateTokenFee();
@@ -233,19 +236,13 @@ export default function CreateNFTLPPage() {
       );
     }
 
-    if (
-      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) <
-      createTokenFee
-    ) {
-      toast.error(
-        `You don't have enough INW.Create Pool costs ${createTokenFee} INW`
-      );
+    if (+currentAccount?.balance?.inw2?.replaceAll(",", "") < +createTokenFee) {
+      // toast.error(
+      //   `You don't have enough INW2.Create Pool costs ${createTokenFee} INW2`
+      // );
       return;
     }
-    if (
-      parseInt(tokenBalance?.replaceAll(",", "")) <
-      minReward.replaceAll(",", "")
-    ) {
+    if (+tokenBalance?.replaceAll(",", "") < +minReward.replaceAll(",", "")) {
       toast.error(`You don't have enough ${tokenSymbol} to topup the reward`);
       return;
     }
@@ -266,8 +263,8 @@ export default function CreateNFTLPPage() {
     const allowanceINWQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      azt_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
+      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::allowance",
       currentAccount?.address,
@@ -280,7 +277,7 @@ export default function CreateNFTLPPage() {
     const allowanceTokenQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ABI,
       selectedContractAddr,
       0, //-> value
       "psp22::allowance",
@@ -295,17 +292,17 @@ export default function CreateNFTLPPage() {
 
     //Approve
     if (allowanceINW < createTokenFee.replaceAll(",", "")) {
-      toast.success(`Step ${step}: Approving INW token...`);
+      // toast.success(`Step ${step}: Approving INW2 token...`);
       step++;
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract.CONTRACT_ABI,
-        azt_contract.CONTRACT_ADDRESS,
+        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ADDRESS,
         0, //-> value
         "psp22::approve",
         nft_pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBNEther(Number.MAX_SAFE_INTEGER)
       );
       if (!approve) return;
     }
@@ -315,12 +312,12 @@ export default function CreateNFTLPPage() {
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ABI,
         selectedContractAddr,
         0, //-> value
         "psp22::approve",
         nft_pool_generator_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBNEther(Number.MAX_SAFE_INTEGER)
       );
       if (!approve) return;
     }
@@ -341,18 +338,19 @@ export default function CreateNFTLPPage() {
       selectedCollectionAddr,
       selectedContractAddr,
       maxStake,
-      formatNumToBN(multiplier, selectedTokenDecimal),
+      formatNumToBNEther(multiplier, selectedTokenDecimal),
       roundUp(duration * 24 * 60 * 60 * 1000, 0),
       startTime.getTime()
     );
 
-    // await APICall.askBEupdate({ type: "nft", poolContract: "new" });
+    await APICall.askBEupdate({ type: "nft", poolContract: "new" });
     await delay(3000);
     setMultiplier("");
     setDuration("");
     setStartTime(new Date());
-    // setSelectedContractAddr("");
-    // setSelectedCollectionAddr("");
+    setSelectedContractAddr("");
+    setSelectedCollectionAddr("");
+    setMaxStake("");
 
     toast.promise(
       delay(10000).then(() => {
@@ -378,7 +376,7 @@ export default function CreateNFTLPPage() {
   );
 
   useEffect(() => {
-    if(api) dispatch(fetchMyNFTPools({ currentAccount }));
+    if (api) dispatch(fetchMyNFTPools({ currentAccount }));
   }, [api, currentAccount]);
 
   const tableData = {
@@ -439,6 +437,33 @@ export default function CreateNFTLPPage() {
     })),
   };
 
+  const firstSearchValue = useMemo(() => {
+    const ret = collectionList
+      ?.filter((item) => item?.nftContractAddress === selectedCollectionAddr)
+      ?.map((token, idx) => ({
+        value: token?.name,
+        nftContractAddress: token?.nftContractAddress,
+        label: `${token?.name} - ${addressShortener(
+          token?.nftContractAddress
+        )}`,
+      }));
+
+    return ret?.length === 0 ? null : ret[0];
+  }, [collectionList, selectedCollectionAddr]);
+
+  const secondSearchValue = useMemo(() => {
+    const ret = faucetTokensList
+      ?.filter((item) => item.contractAddress === selectedContractAddr)
+      .map((token) => ({
+        value: token?.contractAddress,
+        label: `${token?.symbol} (${token?.name}) - ${addressShortener(
+          token?.contractAddress
+        )}`,
+      }));
+
+    return ret?.length === 0 ? null : ret[0];
+  }, [faucetTokensList, selectedContractAddr]);
+
   return (
     <>
       <SectionContainer
@@ -449,11 +474,21 @@ export default function CreateNFTLPPage() {
             NFT Stakers get rewards in selected token. The creation costs
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {createTokenFee} INW
+              {formatNumDynDecimal(createTokenFee)} INW
             </Text>
             . This currently only works with NFTs on ArtZero platform.
           </span>
         }
+        // description={
+        //   <span>
+        //     NFT Stakers get rewards in selected token. The creation costs
+        //     <Text as="span" fontWeight="700" color="text.1">
+        //       {" "}
+        //       {formatNumDynDecimal(createTokenFee)} INW2
+        //     </Text>
+        //     . This currently only works with NFTs on ArtZero platform.
+        //   </span>
+        // }
       >
         <VStack w="full">
           <SimpleGrid
@@ -485,6 +520,7 @@ export default function CreateNFTLPPage() {
               </Select> */}
 
               <SelectSearch
+                value={firstSearchValue}
                 name="collection"
                 placeholder="Select Collection..."
                 closeMenuOnSelect={true}
@@ -508,7 +544,6 @@ export default function CreateNFTLPPage() {
                   setSelectedCollectionAddr(target.value)
                 }
                 value={selectedCollectionAddr}
-                isDisabled
                 placeholder="Contract Address"
                 label="Collection contract address"
               />
@@ -535,6 +570,7 @@ export default function CreateNFTLPPage() {
               </Select> */}
 
               <SelectSearch
+                value={secondSearchValue}
                 name="token"
                 placeholder="Select Token..."
                 closeMenuOnSelect={true}
@@ -574,8 +610,10 @@ export default function CreateNFTLPPage() {
             <Box w="full">
               <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.azero || 0} AZERO`}
-                label="Your AZERO Balance"
+                value={`${currentAccount?.balance?.azero || 0} ${
+                  appChain?.unit
+                }`}
+                label={`Your ${appChain?.unit} Balance`}
               />
             </Box>
             <Box w="full">
@@ -597,11 +635,15 @@ export default function CreateNFTLPPage() {
             </Box>
 
             <Box w="full">
-              <IWInput
+              {/* <IWInput
                 isDisabled={true}
-                value={`${currentAccount?.balance?.inw || 0} INW`}
-                label="Your INW Balance"
-              />
+                value={`${
+                  formatNumDynDecimal(
+                    currentAccount?.balance?.inw2?.replaceAll(",", "")
+                  ) || 0
+                } INW`}
+                label="Your INW2 Balance"
+              /> */}
             </Box>
 
             <Box w="full">

@@ -159,27 +159,28 @@ export default function TokensPage() {
       const { ret, status, message } = await APICall.getTransactionHistory(
         queryBody
       );
+
       setTotalPage(roundUp(ret?.total / 10, 0));
       if (status === "OK") {
         const transactionList = await Promise.all(
           ret?.dataArray?.map(async (txObj) => {
-            if (txObj?.data?.tokenContract) {
+            if (txObj?.tokenAddress) {
               const findTokenInCache = tokenMetadata.filter(
-                (e) => e?.tokenContract === txObj?.data?.tokenContract
+                (e) => e?.tokenContract === txObj?.tokenAddress
               );
               const timeEvent = await getTimestamp(api, txObj?.blockNumber);
               if (findTokenInCache?.length > 0) {
                 return {
                   token: {
-                    address: txObj?.data?.tokenContract,
+                    address: txObj?.tokenAddress,
                     name: findTokenInCache[0].tokenName,
                     symbol: findTokenInCache[0].tokenSymbol,
                     decimal: parseInt(findTokenInCache[0].decimal),
                   },
-                  tokenContract: txObj?.data?.tokenContract,
+                  tokenContract: txObj?.tokenAddress,
                   tokenSymbol: findTokenInCache[0].tokenSymbol,
                   amount: formatTokenAmount(
-                    txObj?.data?.amount,
+                    txObj?.amount,
                     +findTokenInCache[0].decimal
                   ),
                   blockNumber: timeEvent,
@@ -203,7 +204,7 @@ export default function TokensPage() {
                   currentAccount?.address,
                   "api",
                   psp22_contract.CONTRACT_ABI,
-                  txObj?.data?.tokenContract,
+                  txObj?.tokenAddress,
                   0,
                   "psp22Metadata::tokenDecimals"
                 );
@@ -212,7 +213,7 @@ export default function TokensPage() {
                   currentAccount?.address,
                   "api",
                   psp22_contract.CONTRACT_ABI,
-                  txObj?.data?.tokenContract,
+                  txObj?.tokenAddress,
                   0,
                   "psp22Metadata::tokenName"
                 );
@@ -221,7 +222,7 @@ export default function TokensPage() {
                   currentAccount?.address,
                   "api",
                   psp22_contract.CONTRACT_ABI,
-                  txObj?.data?.tokenContract,
+                  txObj?.tokenAddress,
                   0,
                   "psp22Metadata::tokenSymbol"
                 );
@@ -232,21 +233,18 @@ export default function TokensPage() {
                     tokenName,
                     tokenSymbol,
                     decimal,
-                    tokenContract: txObj?.data?.tokenContract,
+                    tokenContract: txObj?.tokenAddress,
                   });
                 return {
                   token: {
-                    address: txObj?.data?.tokenContract,
+                    address: txObj?.tokenAddress,
                     name: tokenName,
                     symbol: tokenSymbol,
                     decimal: parseInt(decimal),
                   },
-                  tokenContract: txObj?.data?.tokenContract,
+                  tokenContract: txObj?.tokenAddress,
                   tokenSymbol,
-                  amount: formatTokenAmount(
-                    txObj?.data?.amount,
-                    +decimal
-                  ),
+                  amount: formatTokenAmount(txObj?.amount, +decimal),
                   blockNumber: timeEvent,
                   time: txObj?.createdTime,
                   fromAddress: txObj?.fromAddress,

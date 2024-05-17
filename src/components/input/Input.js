@@ -7,8 +7,6 @@ import {
   InputRightElement,
 } from "@chakra-ui/react";
 
-var reg = /^\d*\.?\d*$/;
-
 function IWInput(props) {
   const {
     id,
@@ -25,18 +23,11 @@ function IWInput(props) {
   } = props;
 
   // const styles = useStyleConfig("Input", { variant });
-
   const onChangeInput = (valueString) => {
     if (type === "number") {
-      if (reg.test(valueString.target.value)) {
-        if (maxLength > 0) {
-          const slicedValue = valueString.target.value.slice(0, maxLength);
-          onChange({
-            ...valueString,
-            target: { ...valueString.target, value: slicedValue },
-          });
-        } else onChange(valueString);
-      }
+      // const num = valueString?.target?.value?.replace(/[^0-9]/g, "");
+      // valueString.target.value = num;
+      onChange(valueString);
     } else {
       if (maxLength > 0) {
         const slicedValue = valueString.target.value.slice(0, maxLength);
@@ -45,6 +36,12 @@ function IWInput(props) {
           target: { ...valueString.target, value: slicedValue },
         });
       } else onChange(valueString);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "e" || e.key === "-") {
+      type === "number" && e.preventDefault();
     }
   };
 
@@ -69,6 +66,7 @@ function IWInput(props) {
           {...rest}
           onChange={onChangeInput}
           type={type}
+          onKeyDown={handleKeyDown}
           id={id}
           onWheel={(e) => e.target.blur()}
           min={0}

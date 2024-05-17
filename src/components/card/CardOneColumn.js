@@ -26,15 +26,15 @@ export default function IWCardOneColumn(props) {
         borderTop={!title ? "" : "1px solid #E3DFF3"}
       >
         {data
-          ?.filter(
-            (value, index, self) =>
-              index ===
-              self.findIndex(
-                (t) => t.title === value.title
-              )
-          )
-          ?.map(({ title, content }, idx) => {
-            return (
+          // ?.filter(
+          //   (value, index, self) =>
+          //     index ===
+          //     self.findIndex(
+          //       (t) => t.title === value.title
+          //     )
+          // )
+          ?.map(({ title, content, isHide }, idx) => {
+            return !isHide && title && content ? (
               <Box key={idx} mt={{ base: "18px", lg: "20px" }}>
                 <Text fontSize="md" lineHeight="28px">
                   {title}{" "}
@@ -45,7 +45,7 @@ export default function IWCardOneColumn(props) {
                   {/* <AzeroLogo /> */}
                 </Heading>
               </Box>
-            );
+            ) : null;
           })}
       </Box>
     </Box>

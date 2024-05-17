@@ -1,13 +1,53 @@
+import { Tooltip } from "@chakra-ui/react";
 import { BsDot } from "react-icons/bs";
-import { AiOutlineLock } from "react-icons/ai";
 
+export const RequireKyc = () => {
+  return (
+    <div
+      style={{
+        background: "#93F0F5",
+        paddingLeft: "12px",
+        paddingRight: "12px",
+        borderRadius: "20px",
+        display: "flex",
+        alignItems: "center",
+        fontWeight: "bold",
+        fontSize: "14px",
+        color: "#57527E",
+        marginRight: "4px",
+      }}
+    >
+      KYC
+    </div>
+  );
+};
+export const DoxxedTag = () => {
+  return (
+    <Tooltip label="At least one of the team members’ identity is verified.">
+      <div
+        style={{
+          background: "#93F0F5",
+          paddingLeft: "12px",
+          paddingRight: "12px",
+          borderRadius: "20px",
+          display: "flex",
+          alignItems: "center",
+          fontWeight: "bold",
+          fontSize: "14px",
+          color: "#57527E",
+          marginRight: "4px",
+        }}
+      >
+        DOXXED
+      </div>
+    </Tooltip>
+
+  );
+};
 export const UpcomingStatusTag = () => {
   return (
     <div
       style={{
-        position: "absolute",
-        right: "8px",
-        top: "8px",
         background: "#E3DFF3",
         paddingLeft: "8px",
         paddingRight: "12px",
@@ -17,6 +57,7 @@ export const UpcomingStatusTag = () => {
         fontWeight: "bold",
         fontSize: "14px",
         color: "#57527E",
+        whiteSpace: "nowrap",
       }}
     >
       <BsDot size={"20px"} color="#57527E" />
@@ -29,9 +70,6 @@ export const LiveStatusTag = () => {
   return (
     <div
       style={{
-        position: "absolute",
-        right: "4px",
-        top: "8px",
         background: "#E1FFD6",
         paddingLeft: "8px",
         paddingRight: "12px",
@@ -41,6 +79,7 @@ export const LiveStatusTag = () => {
         fontWeight: "bold",
         fontSize: "14px",
         color: "#57527E",
+        whiteSpace: "nowrap",
       }}
     >
       <BsDot size={"20px"} color="#9CDE85" />
@@ -52,9 +91,6 @@ export const EndStatusTag = () => {
   return (
     <div
       style={{
-        position: "absolute",
-        right: "4px",
-        top: "8px",
         background: "#FFE1E1",
         paddingLeft: "8px",
         paddingRight: "12px",
@@ -64,6 +100,7 @@ export const EndStatusTag = () => {
         fontWeight: "bold",
         fontSize: "14px",
         color: "#57527E",
+        whiteSpace: "nowrap",
       }}
     >
       <BsDot size={"20px"} color="#FF9595" />

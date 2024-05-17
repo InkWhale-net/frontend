@@ -3,6 +3,8 @@ import NightlyLogo from "assets/img/wallet/Nightly.jpg";
 import PolkadotjsLogo from "assets/img/wallet/PolkadotjsLogo.svg";
 import SubWalletLogo from "assets/img/wallet/SubWalletLogo.svg";
 import NovaLogo from "assets/img/wallet/nova.jpg";
+import Icon5Ire from "assets/img/chains/5irechain.png";
+import IconAlephzero from "assets/img/chains/alephzero.png";
 
 export const toastMessages = {
   NO_EXTENSION: "Your browser does NOT HAVE the required plugin.",
@@ -84,6 +86,21 @@ export const ADDRESSES_INW = {
   INW_TEAM: "5DtKc7qBE3fmGLHWGbqtYdvhBxkWpTfPfvGABsoqTVyesLsQ",
 };
 
+/*
+  pub status: u8
+  0: waiting,
+  1: is Ready to unstake,
+  2: unstaked,
+  3: cancelled
+ */
+
+export const stakeStatus = {
+  PENDING: "Pending",
+  READY: "Ready To Unstake",
+  UNSTAKED: "Unstaked",
+  CANCELLED: "Cancelled",
+};
+
 // export const IPFS_BASE_URL = 'https://artzeronft.infura-ipfs.io/ipfs';
 
 // export const SUPPORTED_WALLET_LIST = [
@@ -113,3 +130,63 @@ export const ADDRESSES_INW = {
 //       'https://addons.mozilla.org/en-US/firefox/addon/polkadot-js-extension/',
 //   },
 // ];
+
+export const supportedChain = [
+  {
+    name: "Alephzero",
+    key: "alephzero",
+    icon: IconAlephzero,
+    decimal: 12,
+    providerURL: "wss://ws.azero.dev",
+    haveAzeroID: true,
+    unit: "AZERO",
+    // unitIcon
+    url: "https://a0.inkwhale.net",
+    inwName: "INW",
+  },
+  {
+    name: "Alephzero Testnet",
+    key: "alephzero-testnet",
+    icon: IconAlephzero,
+    decimal: 12,
+    providerURL: "wss://ws.test.azero.dev",
+    allowSwap: true,
+    allowBuy: true,
+    haveINW2: true,
+    haveAzeroID: true,
+    unit: "TZERO",
+    url: "https://testnet.inkwhale.net/",
+    inwName: "INW2",
+    bridgeTo: ["firechain-testnet"]
+  },
+  {
+    name: "5ireChain Testnet",
+    key: "firechain-testnet",
+    icon: Icon5Ire,
+    decimal: 18,
+    providerURL: "wss://wss-testnet.5ire.network",
+    unit: "5IRE",
+    inwName: "INW",
+    url: "https://5iretest.inkwhale.net/",
+    bridgeTo: ["alephzero-testnet"]
+  },
+];
+
+export const swapableTokens = [
+  {
+    token: "IOU",
+    name: "IOU",
+    symbol: "IOU",
+    decimal: 12,
+    contractAddress: "5GYgJ1xBPtyUwbPVnDfbg9uRGWdGrcaM6y1TaftUMoxUHQh5",
+    tokenVersion2: "IOU2",
+    nameVersion2: "IOU2",
+    contractAddress2: "5DYNiSrzZsaaq8yzpLtwY3F1xQ78PZhPA6tuY5UumbXubNaP",
+    swapContractAddress: "5ETFVYt97CerkamawL7Wf5zY2aidBfWg2RzPJVGSjWRHC3rx",
+  },
+];
+
+export const appChain = supportedChain.find(
+  (e) => e?.key === process.env.REACT_APP_CHAIN
+);
+export const FINALIZED_TIME = 6000;

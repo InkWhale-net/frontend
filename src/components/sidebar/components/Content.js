@@ -1,19 +1,22 @@
-import { Flex, Stack, Link, Text } from "@chakra-ui/react";
-import { TokenMenuDropdown } from "components/navbar/NavbarLinks";
-import { StakeMenuDropdown } from "components/navbar/NavbarLinks";
-import { CreateMenuDropdown } from "components/navbar/NavbarLinks";
-import { menuListData } from "components/navbar/NavbarLinks";
+import { Flex, Link, Stack, Text } from "@chakra-ui/react";
+import { GroupMenu, menuListData } from "components/navbar/NavbarLinks";
 
 import Brand from "components/sidebar/components/Brand";
 import WalletButton from "components/wallet/WalletButton";
-import React, { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
+import { useSwapV2TokenContext } from "contexts/SwapV2TokenModalContext";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
+import { appChain } from "constants";
+import { inwTokenListData } from "components/navbar/NavbarLinks";
+import { tokenMenuListData } from "components/navbar/NavbarLinks";
+import { poolsMenuListData } from "components/navbar/NavbarLinks";
+import { toast } from "react-hot-toast";
 
 function SidebarContent({ onClose }) {
   const [currentAnchor, setCurrentAnchor] = useState("");
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
+  const { openSwapModal } = useSwapV2TokenContext();
 
   useEffect(() => {
     const href = window.location.href;
@@ -26,7 +29,7 @@ function SidebarContent({ onClose }) {
       ? setCurrentAnchor("")
       : setCurrentAnchor(shortenUrl.replace("/", ""));
   }, []);
-
+  const groupButtonProps = { setCurrentAnchor, currentAnchor };
   return (
     <Flex direction="column" height="100%" pt="25px" borderRadius="30px">
       <Brand />
@@ -38,6 +41,22 @@ function SidebarContent({ onClose }) {
         mt="8px"
         px="20px"
       >
+        {/* {appChain?.allowBuy && ( */}
+          <GroupMenu
+            {...groupButtonProps}
+            title="INW Token"
+            path="/inw"
+            data={inwTokenListData}
+          />
+        {/* )} */}
+
+        <GroupMenu
+          {...groupButtonProps}
+          title="Token"
+          path="/token"
+          data={tokenMenuListData}
+        />
+
         {menuListData?.map(({ title, href }) => (
           <Flex
             w={"full"}
@@ -49,7 +68,7 @@ function SidebarContent({ onClose }) {
             }
             borderRadius="5px"
             key={title}
-            ml={{ base: "0px", md: "20px" }}
+            ml={{ base: "0px" }}
           >
             <Link
               to={href}
@@ -71,68 +90,57 @@ function SidebarContent({ onClose }) {
           </Flex>
         ))}
 
-        {/* {!currentAccount ? null : (
+        <GroupMenu
+          {...groupButtonProps}
+          title="Pools / Farms "
+          path="/pools"
+          data={poolsMenuListData}
+        />
+
+        {[
+          // {
+          //   title: `Stake ${appChain?.unit} `,
+          //   href: "/azero-staking",
+          // },
+        ]?.map(({ title, href }) => (
           <Flex
-            _hover={{ textDecoration: "none", bg: "bg.1" }}
+            w={"full"}
             p="6px 10px"
-            bg={currentAnchor === "/account" ? "bg.1" : "transparent"}
+            bg={
+              (!currentAnchor && href === "#hero") || currentAnchor === href
+                ? "bg.1"
+                : "transparent"
+            }
             borderRadius="5px"
-            ml={{ base: "20px", md: "20px" }}
+            key={title}
+            ml={{ base: "0px" }}
           >
             <Link
-              to="/account"
+              to={href}
               as={RouterLink}
-              color={"text.1"}
-              fontWeight="600"
+              onClick={() => {
+                onClose();
+                setCurrentAnchor(href);
+              }}
               bg="transparent"
               textDecoration="none"
-              _hover={{ textDecoration: "none", bg: "bg.1" }}
-              onClick={() => setCurrentAnchor('"/account"')}
+              fontWeight="600"
+              color={"text.1"}
+              href={href}
             >
               <Text bg="transparent" fontSize="md">
-                My Account
+                {title}
               </Text>
             </Link>
           </Flex>
-        )} */}
-        <TokenMenuDropdown
-          onClose={onClose}
-          setCurrentAnchor={setCurrentAnchor}
-          currentAnchor={currentAnchor}
-        />
-        <StakeMenuDropdown
-          onClose={onClose}
-          setCurrentAnchor={setCurrentAnchor}
-          currentAnchor={currentAnchor}
-        />
-        <CreateMenuDropdown onClose={onClose} />
-        {/* <Flex
-          _hover={{ textDecoration: "none", bg: "bg.1" }}
-          p="6px 10px"
-          bg={"transparent"}
-          borderRadius="5px"
-          ml={{ base: "20px", md: "20px" }}
-        >
-          <Link
-            color={"text.1"}
-            fontWeight="600"
-            bg="transparent"
-            textDecoration="none"
-            _focus={{ borderWidth: "0px" }}
-            _hover={{ textDecoration: "none", bg: "bg.1" }}
-            onClick={() => toast.success("Coming soon!")}
-          >
-            <Text bg="transparent" fontSize="md">
-              Launchpad
-            </Text>
-          </Link>
-        </Flex> */}
+        ))}
+
         <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
           p="6px 10px"
           bg={"transparent"}
           borderRadius="5px"
-          ml={{ base: "20px", md: "20px" }}
+          // ml={{ base: "20px", md: "20px" }}
         >
           <Link
             color={"text.1"}
@@ -145,27 +153,6 @@ function SidebarContent({ onClose }) {
           >
             <Text bg="transparent" fontSize="md">
               Orderbook Dex
-            </Text>
-          </Link>
-        </Flex>
-        <Flex
-          _hover={{ textDecoration: "none", bg: "bg.1" }}
-          p="6px 10px"
-          bg={"transparent"}
-          borderRadius="5px"
-          ml={{ base: "20px", md: "20px" }}
-        >
-          <Link
-            color={"text.1"}
-            fontWeight="600"
-            bg="transparent"
-            textDecoration="none"
-            _focus={{ borderWidth: "0px" }}
-            _hover={{ textDecoration: "none", bg: "bg.1" }}
-            onClick={() => window.open("https://docs.inkwhale.net/", "_blank")}
-          >
-            <Text bg="transparent" fontSize="md">
-              Docs
             </Text>
           </Link>
         </Flex>

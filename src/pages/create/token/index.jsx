@@ -19,7 +19,6 @@ import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import {
   delay,
-  formatNumToBN,
   formatQueryResultToNumber,
   isAddressValid,
 } from "utils";
@@ -28,15 +27,17 @@ import {
   execContractTx,
   execContractTxAndCallAPI,
 } from "utils/contracts";
-import azt_contract from "utils/contracts/azt_contract";
 import core_contract from "utils/contracts/core_contract";
-import psp22_contract from "utils/contracts/psp22_contract";
 import ImportTokenForm from "./ImportToken";
 import ImageUploadIcon from "./UploadIcon";
 import SaleTab from "components/tabs/SaleTab";
 import { roundUp } from "utils";
 import { useAppContext } from "contexts/AppContext";
 import { moveINWToBegin } from "utils";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { formatNumDynDecimal } from "utils";
+import { formatNumToBNEther } from "utils";
+import { appChain } from "constants";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
@@ -70,7 +71,7 @@ export default function CreateTokenPage() {
 
       const fee = formatQueryResultToNumber(result);
 
-      setCreateToken(fee);
+      setCreateToken(fee?.replaceAll(",", ""));
     };
     fetchCreateTokenFee();
   }, [currentAccount, api]);
@@ -80,7 +81,7 @@ export default function CreateTokenPage() {
         let queryResult = await execContractQuery(
           currentAccount?.address,
           "api",
-          psp22_contract.CONTRACT_ABI,
+          psp22_contract_v2.CONTRACT_ABI,
           e?.contractAddress,
           0,
           "psp22::totalSupply"
@@ -89,7 +90,7 @@ export default function CreateTokenPage() {
         let queryResult1 = await execContractQuery(
           currentAccount?.address,
           "api",
-          psp22_contract.CONTRACT_ABI,
+          psp22_contract_v2.CONTRACT_ABI,
           e?.contractAddress,
           0,
           "psp22Metadata::tokenDecimals"
@@ -145,19 +146,21 @@ export default function CreateTokenPage() {
     }
 
     if (
-      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) <
-      createTokenFee?.replaceAll(",", "")
+      +currentAccount?.balance?.inw2?.replaceAll(",", "") <
+      +createTokenFee?.replaceAll(",", "")
     ) {
-      toast.error(
-        `You don't have enough INW. Create Token costs ${createTokenFee} INW`
-      );
+      // toast.error(
+      //   `You don't have enough INW2. Create Token costs ${formatNumDynDecimal(
+      //     createTokenFee
+      //   )} INW2`
+      // );
       return;
     }
     const allowanceINWQr = await execContractQuery(
       currentAccount?.address,
       "api",
-      azt_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
+      psp22_contract_v2.CONTRACT_ABI,
+      psp22_contract_v2.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::allowance",
       currentAccount?.address,
@@ -169,18 +172,18 @@ export default function CreateTokenPage() {
     );
     let step = 1;
     //Approve
-    if (allowanceINW < createTokenFee.replaceAll(",", "")) {
+    if (+allowanceINW < +createTokenFee) {
       toast.success(`Step ${step}: Approving...`);
       step++;
       let approve = await execContractTx(
         currentAccount,
         "api",
-        psp22_contract.CONTRACT_ABI,
-        azt_contract.CONTRACT_ADDRESS,
+        psp22_contract_v2.CONTRACT_ABI,
+        psp22_contract_v2.CONTRACT_ADDRESS,
         0, //-> value
         "psp22::approve",
         core_contract.CONTRACT_ADDRESS,
-        formatNumToBN(Number.MAX_SAFE_INTEGER)
+        formatNumToBNEther(createTokenFee)
       );
       if (!approve) return;
     }
@@ -198,7 +201,7 @@ export default function CreateTokenPage() {
       "newToken",
       updateIcon,
       mintAddress,
-      formatNumToBN(totalSupply),
+      formatNumToBNEther(totalSupply),
       tokenName,
       tokenSymbol,
       12 // tokenDecimal
@@ -288,8 +291,12 @@ export default function CreateTokenPage() {
             specific address. The creation requires
             <Text as="span" fontWeight="700" color="text.1">
               {" "}
-              {createTokenFee} INW
+              {createTokenFee && formatNumDynDecimal(createTokenFee)} INW
             </Text>
+            {/* <Text as="span" fontWeight="700" color="text.1">
+              {" "}
+              {createTokenFee && formatNumDynDecimal(createTokenFee)} INW2
+            </Text> */}
           </span>
           <VStack w="full" mt={4}>
             <SimpleGrid
@@ -305,7 +312,11 @@ export default function CreateTokenPage() {
                   value={tokenName}
                   label="Token Name"
                   placeholder="Token Name"
-                  onChange={({ target }) => setTokenName(target.value)}
+                  onChange={({ target }) => {
+                    if (/^[a-zA-Z0-9\s]*$/.test(target.value)) {
+                      setTokenName(target.value);
+                    }
+                  }}
                 />
               </Box>
               <Box w={{ base: "full" }}>
@@ -323,14 +334,18 @@ export default function CreateTokenPage() {
                   value={tokenSymbol}
                   label="Token Symbol"
                   placeholder="Token Symbol"
-                  onChange={({ target }) => setTokenSymbol(target.value)}
+                  onChange={({ target }) => {
+                    if (/^[a-zA-Z0-9]*$/.test(target.value)) {
+                      setTokenSymbol(target.value);
+                    }
+                  }}
                 />
               </Box>
               <Box w={{ base: "full" }}>
                 <IWInput
                   isDisabled={true}
-                  value={`${currentAccount?.balance?.azero || 0} AZERO`}
-                  label="Your Azero Balance"
+                  value={`${currentAccount?.balance?.azero || 0} ${appChain?.unit}`}
+                  label={`Your ${appChain?.unit} Balance`}
                 />
               </Box>
               <Box w={{ base: "full" }}>
@@ -339,18 +354,22 @@ export default function CreateTokenPage() {
                   value={totalSupply}
                   label="Total Supply"
                   placeholder="0"
-                  onChange={({ target }) => {
-                    if (/^\d+$/.test(target.value)) {
-                      setTotalSupply(target.value);
-                    }
-                  }}
+                  onChange={({ target }) => setTotalSupply(target.value)}
                 />
               </Box>
               <Box w={{ base: "full" }}>
                 <IWInput
                   isDisabled={true}
-                  value={`${currentAccount?.balance?.inw || 0} INW`}
+                  value={`${formatNumDynDecimal(
+                    currentAccount?.balance?.inw2?.replaceAll(",", "")
+                  ) || 0
+                    } INW`}
                   label="Your INW Balance"
+                  // value={`${formatNumDynDecimal(
+                  //   currentAccount?.balance?.inw2?.replaceAll(",", "")
+                  // ) || 0
+                  //   } INW2`}
+                  // label="Your INW2 Balance"
                 />
               </Box>
               <Box w="full">
@@ -370,7 +389,7 @@ export default function CreateTokenPage() {
                   !!iconIPFSUrl &&
                   !!tokenName &&
                   !!tokenSymbol &&
-                  !!totalSupply &&
+                  +totalSupply > 0 &&
                   !!mintAddress
                 )
               }

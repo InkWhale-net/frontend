@@ -11,6 +11,7 @@ import { CopyIcon } from "@chakra-ui/icons";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { addressShortener, resolveDomain } from "utils";
+import { appChain } from "constants";
 
 export default function AddressCopier({
   address,
@@ -25,17 +26,21 @@ export default function AddressCopier({
   };
 
   useEffect(() => {
-    resolveDomain(address).then((domains) => {
-      setAzeroID(domains);
-    });
+    if (appChain?.haveAzeroID) {
+      resolveDomain(address).then((domains) => {
+        setAzeroID(domains);
+      });
+    }
   }, [address]);
 
-  if (azeroID)
+  if (azeroID) {
     return (
       <Menu>
         {({ isOpen }) => (
           <>
             <MenuButton
+              id="address-copier-button"
+              name="address-copier-button"
               isActive={isOpen}
               _hover={{ color: "text.2" }}
               sx={{
@@ -65,6 +70,8 @@ export default function AddressCopier({
         )}
       </Menu>
     );
+  }
+
   return (
     <>
       <Flex

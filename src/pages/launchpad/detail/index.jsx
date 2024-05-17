@@ -9,6 +9,7 @@ import {
   BreadcrumbLink,
   Button,
   Show,
+  Flex,
 } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
 import IWTabs from "components/tabs/IWTabs";
@@ -21,10 +22,11 @@ import PhaseInformation from "./tabs/Phase";
 import BalanceTab from "./tabs/Balance";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { ChevronRightIcon } from "@chakra-ui/icons";
-import ModalDetailContextProvider from "./modal/ModelContext";
+import ModalDetailContextProvider from "./modal/ModalContext";
 import { useEffect } from "react";
 import { useAppContext } from "contexts/AppContext";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import CardSocial from "components/card/CardSocial";
 
 const PublicDetailLaunchpad = () => {
   const { launchpads } = useSelector((s) => s.launchpad);
@@ -69,7 +71,7 @@ const PublicDetailLaunchpad = () => {
     },
 
     {
-      label: <>Phase</>,
+      label: <>Sale Phases</>,
       component: (
         <PhaseInformation
           launchpadContract={launchpadContract}
@@ -78,18 +80,18 @@ const PublicDetailLaunchpad = () => {
       ),
       isDisabled: false,
     },
+    // {
+    //   label: <>Token</>,
+    //   component: (
+    //     <TokenInformation
+    //       launchpadContract={launchpadContract}
+    //       launchpadData={launchpadData}
+    //     />
+    //   ),
+    //   isDisabled: false,
+    // },
     {
-      label: <>Token</>,
-      component: (
-        <TokenInformation
-          launchpadContract={launchpadContract}
-          launchpadData={launchpadData}
-        />
-      ),
-      isDisabled: false,
-    },
-    {
-      label: <>Balance</>,
+      label: "My Purchase",
       component: <BalanceTab launchpadData={launchpadData} />,
       isDisabled: false,
     },
@@ -104,7 +106,7 @@ const PublicDetailLaunchpad = () => {
           >
             <BreadcrumbItem color="text.2">
               <BreadcrumbLink onClick={() => history.push("/launchpad")}>
-                All Launchpads
+                All Launchpad Projects
               </BreadcrumbLink>
             </BreadcrumbItem>
 
@@ -148,6 +150,15 @@ const PublicDetailLaunchpad = () => {
             </Box>
           </Box>
         </Box>
+        <Flex mb='16px'>
+          <CardSocial
+            websiteUrl={launchpadData?.projectInfo?.projectInfor?.website}
+            twitterUrl={launchpadData?.projectInfo?.projectInfor?.twitter}
+            discordUrl={launchpadData?.projectInfo?.projectInfor?.discord}
+            telegramUrl={launchpadData?.projectInfo?.projectInfor?.telegram}
+          />
+        </Flex>
+
         <IWTabs tabsData={tabsData} />
       </SectionContainer>
     </ModalDetailContextProvider>

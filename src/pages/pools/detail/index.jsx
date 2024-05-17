@@ -5,7 +5,6 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  Button,
   CircularProgress,
   Flex,
   HStack,
@@ -52,10 +51,12 @@ import {
   roundUp,
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
-import azt_contract from "utils/contracts/azt_contract";
 import pool_contract from "utils/contracts/pool_contract";
-import psp22_contract from "utils/contracts/psp22_contract";
+import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { MaxStakeButton } from "./MaxStakeButton";
+import psp22_contract from "utils/contracts/psp22_contract";
+import { formatTextAmount } from "utils";
+import { appChain } from "constants";
 
 export default function PoolDetailPage() {
   const params = useParams();
@@ -63,6 +64,7 @@ export default function PoolDetailPage() {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { api } = useAppContext();
   const { allStakingPoolsList } = useSelector((s) => s.allPools);
+  const [isOldPool, setIsOldPool] = useState(null);
   const dispatch = useDispatch();
 
   const currentPool = useMemo(
@@ -128,7 +130,13 @@ export default function PoolDetailPage() {
   const tabsData = [
     {
       label: "My Stakes & Rewards",
-      component: <MyStakeRewardInfo {...currentPool} {...currentAccount} />,
+      component: (
+        <MyStakeRewardInfo
+          {...currentPool}
+          {...currentAccount}
+          isOldPool={isOldPool}
+        />
+      ),
       isDisabled: false,
     },
     {
@@ -139,11 +147,27 @@ export default function PoolDetailPage() {
           rewardPool={currentPool?.rewardPool}
           totalStaked={currentPool?.totalStaked}
           api={api}
+          isOldPool={isOldPool}
         />
       ),
       isDisabled: false,
     },
   ];
+  const fetchIsOldPool = async () => {
+    let queryResult = await execContractQuery(
+      currentAccount?.address,
+      "api",
+      pool_contract.CONTRACT_ABI,
+      currentPool?.poolContract,
+      0,
+      "genericPoolContractTrait::inwContract"
+    );
+    const inwContract = queryResult.toHuman().Ok;
+    setIsOldPool(inwContract == psp22_contract.CONTRACT_ADDRESS);
+  };
+  useEffect(() => {
+    if (currentPool && api) fetchIsOldPool();
+  }, [currentPool, api]);
   useEffect(() => {
     if (api) {
       dispatch(fetchAllStakingPools({ currentAccount }));
@@ -274,6 +298,7 @@ const MyStakeRewardInfo = ({
   tokenDecimal,
   maxStakingAmount,
   totalStaked,
+  isOldPool,
   ...rest
 }) => {
   const dispatch = useDispatch();
@@ -317,14 +342,15 @@ const MyStakeRewardInfo = ({
     }
     setStakeInfo(info);
   }, [api, currentAccount?.address, currentAccount?.balance, poolContract]);
-
   const fetchTokenBalance = useCallback(async () => {
     // if (!currentAccount?.balance) return;
     try {
       const result = await execContractQuery(
         currentAccount?.address,
         api,
-        psp22_contract.CONTRACT_ABI,
+        isOldPool
+          ? psp22_contract.CONTRACT_ABI
+          : psp22_contract_v2.CONTRACT_ABI,
         tokenContract,
         0,
         "psp22::balanceOf",
@@ -338,8 +364,10 @@ const MyStakeRewardInfo = ({
   }, [api, currentAccount?.address, currentAccount?.balance, tokenContract]);
 
   useEffect(() => {
-    fetchUserStakeInfo();
-    fetchTokenBalance();
+    if (isOldPool != null) {
+      fetchUserStakeInfo();
+      fetchTokenBalance();
+    }
   }, [
     api,
     currentAccount?.address,
@@ -347,6 +375,7 @@ const MyStakeRewardInfo = ({
     fetchTokenBalance,
     fetchUserStakeInfo,
     poolContract,
+    isOldPool,
   ]);
 
   useEffect(() => {
@@ -364,7 +393,7 @@ const MyStakeRewardInfo = ({
         );
 
         const fee = formatQueryResultToNumber(result);
-        setUnstakeFee(fee);
+        setUnstakeFee(formatTextAmount(fee));
       } catch (error) {
         console.log(error);
       }
@@ -422,8 +451,7 @@ const MyStakeRewardInfo = ({
         toast.error("Pool is ended!");
         return false;
       }
-
-      if (!amount || +tokenBalance?.replaceAll(",", "") < +amount) {
+      if (!amount || +formatTextAmount(tokenBalance) < +amount) {
         toast.error("Invalid Amount!");
         return false;
       }
@@ -437,15 +465,12 @@ const MyStakeRewardInfo = ({
         toast.error("Not enough tokens!");
         return false;
       }
-      if (roundUp(maxStakingAmount - totalStaked) === 0) {
+      if (roundUp(+maxStakingAmount - +totalStaked) === 0) {
         toast.error(`Max staking amount reached`);
         return false;
       }
-      const remainStaking = roundUp(
-        maxStakingAmount -
-          parseFloat(formatTokenAmount(totalStaked, tokenDecimal))
-      );
-      if (remainStaking - amount < 0) {
+      const remainStaking = roundUp(maxStakingAmount - totalStaked);
+      if (remainStaking - +amount < 0) {
         toast.error(
           `You can not stake more than ${formatNumDynDecimal(
             remainStaking
@@ -468,7 +493,9 @@ const MyStakeRewardInfo = ({
       let approve = await execContractTx(
         currentAccount,
         api,
-        psp22_contract.CONTRACT_ABI,
+        isOldPool
+          ? psp22_contract.CONTRACT_ABI
+          : psp22_contract_v2.CONTRACT_ABI,
         tokenContract,
         0, //-> value
         "psp22::approve",
@@ -507,6 +534,38 @@ const MyStakeRewardInfo = ({
   }
   async function onValidateUnstake() {
     try {
+      if (!currentAccount) {
+        toast.error(toastMessages.NO_WALLET);
+        return false;
+      }
+
+      if (
+        !isOldPool &&
+        +formatTextAmount(currentAccount?.balance?.inw2) < +unstakeFee
+      ) {
+        // toast.error(
+        //   `You don't have enough INW2. Unstake costs ${unstakeFee} INW2!`
+        // );
+        return false;
+      }
+      if (
+        isOldPool &&
+        +formatTextAmount(currentAccount?.balance?.inw) < +unstakeFee
+      ) {
+        toast.error(
+          `You don't have enough INW. Unstake costs ${unstakeFee} INW!`
+        );
+        return false;
+      }
+
+      if (!amount) {
+        toast.error("Invalid Amount!");
+        return false;
+      }
+      if (!stakeInfo?.stakedValue) {
+        toast.error("No staking info!");
+        return false;
+      }
       let queryResult = await execContractQuery(
         currentAccount?.address,
         api,
@@ -520,14 +579,16 @@ const MyStakeRewardInfo = ({
       let info = queryResult?.toHuman().Ok;
 
       const userCurrentStake =
-        info?.stakedValue?.replaceAll(",", "") / 10 ** tokenDecimal || 0;
-      if (userCurrentStake === 0) {
+        formatTokenAmount(info?.stakedValue, +tokenDecimal) || 0;
+      if (!(+userCurrentStake > 0)) {
         toast.error(`You musk stake first`);
         return false;
       }
-      if (amount > userCurrentStake) {
+      if (+amount > +userCurrentStake) {
         toast.error(
-          `You can not unstake higher ${userCurrentStake} ${tokenSymbol}`
+          `You can not unstake higher ${formatNumDynDecimal(
+            userCurrentStake
+          )} ${tokenSymbol}`
         );
         return false;
       }
@@ -538,36 +599,16 @@ const MyStakeRewardInfo = ({
     }
   }
   async function handleUnstake() {
-    if (!currentAccount) {
-      toast.error(toastMessages.NO_WALLET);
-      return;
-    }
-
-    if (
-      parseInt(currentAccount?.balance?.inw?.replaceAll(",", "")) < unstakeFee
-    ) {
-      toast.error(
-        `You don't have enough INW. Unstake costs ${unstakeFee} INW!`
-      );
-      return;
-    }
-
-    if (!amount) {
-      toast.error("Invalid Amount!");
-      return;
-    }
-    if (stakeInfo?.stakedValue / 10 ** tokenDecimal < amount) {
-      toast.error("Not enough tokens!");
-      return;
-    }
     //Approve
     toast("Step 1: Approving...");
 
     let approve = await execContractTx(
       currentAccount,
       api,
-      psp22_contract.CONTRACT_ABI,
-      azt_contract.CONTRACT_ADDRESS,
+      isOldPool ? psp22_contract.CONTRACT_ABI : psp22_contract_v2.CONTRACT_ABI,
+      isOldPool
+        ? psp22_contract.CONTRACT_ADDRESS
+        : psp22_contract_v2.CONTRACT_ADDRESS,
       0, //-> value
       "psp22::approve",
       poolContract,
@@ -637,16 +678,21 @@ const MyStakeRewardInfo = ({
             ),
           },
           {
-            title: "AZERO Balance",
-            content: `${balance?.azero || 0} AZERO`,
+            title: `${appChain?.unit} Balance`,
+            content: `${balance?.azero || 0} ${appChain?.unit}`,
           },
-          {
-            title: "INW Balance",
-            content: `${balance?.inw || 0} INW`,
-          },
+          // {
+          //   title: isOldPool ? "INW Balance" : "INW2 Balance",
+          //   content: isOldPool
+          //     ? `${formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
+          //     } INW`
+          //     : `${formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
+          //     } INW2`,
+          // },
           {
             title: `${tokenSymbol} Balance`,
-            content: `${tokenBalance || 0} ${tokenSymbol}`,
+            content: `${formatNumDynDecimal(tokenBalance?.replaceAll(",", "")) || 0
+              } ${tokenSymbol}`,
           },
         ]}
       />
@@ -657,18 +703,17 @@ const MyStakeRewardInfo = ({
           {
             title: "My Stakes ",
             content: `${formatNumDynDecimal(
-              formatTokenAmount(stakeInfo?.stakedValue, tokenDecimal)
+              formatTokenAmount(stakeInfo?.stakedValue, +tokenDecimal)
             )} ${tokenSymbol}`,
           },
           {
             title: "Last Claim",
-            content: `${
-              !currentAccount
+            content: `${!currentAccount
                 ? "No account selected"
                 : !stakeInfo?.lastRewardUpdate
-                ? "Not claimed yet"
-                : new Date(stakeInfo?.lastRewardUpdate).toLocaleString("en-US")
-            }`,
+                  ? "Not claimed yet"
+                  : new Date(stakeInfo?.lastRewardUpdate).toLocaleString("en-US")
+              }`,
           },
           {
             title: "My Unclaimed Rewards ",
@@ -721,12 +766,15 @@ const MyStakeRewardInfo = ({
                       return;
                     }
                     setAmount(
-                      formatTokenAmount(stakeInfo?.stakedValue, tokenDecimal)
+                      formatTokenAmount(
+                        stakeInfo?.stakedValue,
+                        tokenDecimal
+                      ).toString()
                     );
                   }}
                 />
               }
-              // isDisabled={!(remainStaking > 0)}
+            // isDisabled={!(remainStaking > 0)}
             />
 
             <HStack
@@ -753,7 +801,8 @@ const MyStakeRewardInfo = ({
                   "stake",
                   amount,
                   tokenSymbol,
-                  unstakeFee
+                  unstakeFee,
+                  isOldPool
                 )}
               />
 
@@ -768,7 +817,8 @@ const MyStakeRewardInfo = ({
                   "unstake",
                   amount,
                   tokenSymbol,
-                  unstakeFee
+                  unstakeFee,
+                  isOldPool
                 )}
               />
             </HStack>
@@ -801,6 +851,7 @@ const PoolInfo = (props) => {
     tokenDecimal,
     api,
     owner,
+    isOldPool,
   } = props;
   const { currentAccount } = useSelector((s) => s.wallet);
   const [totalSupply, setTotalSupply] = useState(0);
@@ -809,7 +860,7 @@ const PoolInfo = (props) => {
     let queryResult = await execContractQuery(
       currentAccount?.address,
       "api",
-      psp22_contract.CONTRACT_ABI,
+      isOldPool ? psp22_contract.CONTRACT_ABI : psp22_contract_v2.CONTRACT_ABI,
       tokenContract,
       0,
       "psp22::totalSupply"
@@ -817,10 +868,7 @@ const PoolInfo = (props) => {
     const rawTotalSupply = queryResult?.toHuman()?.Ok;
 
     const totalSupply = roundUp(
-      formatTokenAmount(
-        rawTotalSupply?.replaceAll(",", ""),
-        parseInt(tokenDecimal)
-      )
+      formatTokenAmount(formatTextAmount(rawTotalSupply), +tokenDecimal)
     );
     setTotalSupply(totalSupply);
   };
@@ -887,12 +935,19 @@ const PoolInfo = (props) => {
   );
 };
 
-const formatMessageStakingPool = (action, amount, tokenSymbol, unstakeFee) => {
+const formatMessageStakingPool = (
+  action,
+  amount,
+  tokenSymbol,
+  unstakeFee,
+  isOldPool
+) => {
   if (action === "stake") {
     return (
       <>
         You are staking {amount} {tokenSymbol}.<br />
-        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)} INW.
+        Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
+        {isOldPool ? "INW" : "INW2."}
         Continue?
       </>
     );
@@ -901,8 +956,10 @@ const formatMessageStakingPool = (action, amount, tokenSymbol, unstakeFee) => {
   if (action === "unstake") {
     return (
       <>
-        You are unstaking {amount} ${tokenSymbol}.<br />
-        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)} INW. Continue?
+        You are unstaking {amount} {tokenSymbol}.<br />
+        Unstaking will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
+        {isOldPool ? "INW" : "INW2."}
+        Continue?
       </>
     );
   }
