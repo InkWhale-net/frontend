@@ -23,7 +23,9 @@ export default function LoginPage() {
   const isError = password === "";
 
   const handleLogin = () => {
-    if (password === loginPass) {
+    console.log('password', password);
+    console.log('loginPass', loginPass);
+    if (password == loginPass) {
       localStorage.setItem("localLoginPass", password);
       toast.success("Login sussces!");
       setIsLogin(true);
