@@ -310,7 +310,7 @@ export default function TokensSwapPage() {
 
   return (
     <>
-      {/* <SectionContainer
+      <SectionContainer
         mt={{ base: "0px", xl: "20px" }}
         title="Swap Token"
         description={
@@ -389,7 +389,7 @@ export default function TokensSwapPage() {
             swapTokenContractAddress={swapTokenContractAddress}
           />{" "}
         </Stack>
-      </SectionContainer> */}
+      </SectionContainer>
     </>
   );
 }
