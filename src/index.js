@@ -177,33 +177,33 @@ const App = () => {
             <LoginPage />
           </Route>
           <Route exact path={`/acquire-inw`}>
-            {!isLogin ? <LoginPage /> : <FaucetPage api={api} />}
+            <FaucetPage api={api} />
           </Route>
           <Route exact path={`/pools/:contractAddress`}>
-            {!isLogin ? <LoginPage /> : <PoolDetailPage api={api} />}
+            <PoolDetailPage api={api} />
           </Route>
           <Route exact path={`/pools`}>
-            {!isLogin ? <LoginPage /> : <PoolsPage api={api} />}
+            <PoolsPage api={api} />
           </Route>
           <Route
             exact
             path={`/farms/:contractAddress`}
-            component={!isLogin ? LoginPage : FarmDetailPage}
+            component={FarmDetailPage}
           />
           <Route
             exact
             path={`/farms`}
-            component={!isLogin ? LoginPage : FarmsPage}
+            component={FarmsPage}
           />
           <Route
             exact
             path={`/tokens/interaction`}
-            component={!isLogin ? LoginPage : TokensPage}
+            component={TokensPage}
           />
           <Route
             exact
             path={`/tokens/transaction`}
-            component={!isLogin ? LoginPage : TokensTransactionPage}
+            component={TokensTransactionPage}
           />
           {/* <Route
             exact
@@ -218,17 +218,17 @@ const App = () => {
           <Route
             exact
             path={`/create/token`}
-            component={!isLogin ? LoginPage : CreateTokenPage}
+            component={CreateTokenPage}
           />
           <Route
             exact
             path={`/create/stake-pool`}
-            component={!isLogin ? LoginPage : CreateStakePoolPage}
+            component={CreateStakePoolPage}
           />
           <Route
             exact
             path={`/create/nft-lp`}
-            component={!isLogin ? LoginPage : CreateNFTLPPage}
+            component={CreateNFTLPPage}
           />
           {/* <Route
             exact
@@ -244,57 +244,57 @@ const App = () => {
           <Route
             exact
             path={`/create/farming`}
-            component={!isLogin ? LoginPage : CreateTokenLPPage}
+            component={CreateTokenLPPage}
           />
           <Route
             exact
             path={`/farming`}
-            component={!isLogin ? LoginPage : LPPoolsPage}
+            component={LPPoolsPage}
           />
           <Route
             exact
             path={`/farming/:contractAddress`}
-            component={!isLogin ? LoginPage : FarmDetailPage}
+            component={FarmDetailPage}
           />
           <Route
             exact
             path={`/account`}
-            component={!isLogin ? LoginPage : MyBalancePage}
+            component={MyBalancePage}
           />
           <Route
             exact
             path={`/account/my-balance`}
-            component={!isLogin ? LoginPage : MyBalancePage}
+            component={MyBalancePage}
           />
           <Route
             exact
             path={`/my-pools`}
-            component={!isLogin ? LoginPage : MyPoolsPage}
+            component={MyPoolsPage}
           />
           <Route
             exact
             path={`/my-pool/:contractAddress`}
-            component={!isLogin ? LoginPage : MyPoolDetailPage}
+            component={MyPoolDetailPage}
           />
           <Route
             exact
             path={`/my-farm/:contractAddress`}
-            component={!isLogin ? LoginPage : MyPoolDetailPage}
+            component={MyPoolDetailPage}
           />
           <Route
             exact
             path={`/my-farming/:contractAddress`}
-            component={!isLogin ? LoginPage : MyPoolDetailPage}
+            component={MyPoolDetailPage}
           />
           <Route
             exact
             path={`/admin`}
-            component={!isLogin ? LoginPage : AdminPage}
+            component={AdminPage}
           />
           {/* <Route exact path={`/azero-staking`} component={AzeroStaking} /> */}
-          {/* <Route exact path={`/inw-v2`} component={INWV2} /> */}
+          {/* <Route exact path={`/inw-v2`} component={!isLogin ? LoginPage : INWV2} /> */}
           {/* <Route exact path={`/bridge`} component={BridgePage} /> */}
-          <Route>{!isLogin ? <LoginPage /> : <FaucetPage api={api} />}</Route>
+          <Route><FaucetPage api={api} /></Route>
         </Switch>
       </DefaultLayout>
     </HashRouter>

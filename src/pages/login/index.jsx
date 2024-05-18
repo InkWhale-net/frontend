@@ -45,9 +45,9 @@ export default function LoginPage() {
   };
   return (
     <SectionContainer maxW="1800px" mt={{ base: "0px", xl: "20px" }}>
-      <Text fontSize={"4xl"}>Login</Text>
+      <Text fontSize={"4xl"}>Authorized Personnel Only</Text>
       <FormControl isInvalid={isError} mt={"24px"}>
-        <FormLabel>Password</FormLabel>
+        <FormLabel>This page is restricted to authorized personnel only. Please enter your credentials to continue. If you do not have access, please contact the site administrator for assistance.</FormLabel>
         <Input type="password" value={password} onChange={handleInputChange} />
         {!isError ? (
           <FormHelperText>Enter the password.</FormHelperText>
@@ -56,7 +56,7 @@ export default function LoginPage() {
         )}
         <Box mt={"24px"}>
           <Button colorScheme="blue" onClick={handleLogin}>
-            Login
+          Access
           </Button>
         </Box>
       </FormControl>
