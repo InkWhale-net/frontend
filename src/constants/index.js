@@ -178,7 +178,7 @@ export const swapableTokens = [
     name: "IOU",
     symbol: "IOU",
     decimal: 12,
-    contractAddress: "5Gi4UqSUMRavGu65et7nrP1yVZ7UHokM2igTisNdMoxx9t5J",
+    contractAddress: "5GYgJ1xBPtyUwbPVnDfbg9uRGWdGrcaM6y1TaftUMoxUHQh5",
     tokenVersion2: "IOU2",
     nameVersion2: "IOU2",
     contractAddress2: "5GCubYQbm9x6TQbthbWpUVrgEibXMDXhgisw8DFYCpPJQ5f7",
