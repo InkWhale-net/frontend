@@ -218,10 +218,10 @@ export const inwTokenListData = [
     label: "Acquire / Claim INW",
     href: "/acquire-inw",
   },
-  // {
-  //   label: "Swap INW",
-  //   href: "/inw-v2",
-  // },
+  {
+    label: "Swap INW",
+    href: "/inw-v2",
+  },
   // {
   //   label: "Bridge to 5irechain",
   //   href: "/bridge",

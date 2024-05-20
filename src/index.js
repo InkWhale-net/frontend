@@ -292,7 +292,7 @@ const App = () => {
             component={AdminPage}
           />
           {/* <Route exact path={`/azero-staking`} component={AzeroStaking} /> */}
-          {/* <Route exact path={`/inw-v2`} component={!isLogin ? LoginPage : INWV2} /> */}
+          <Route exact path={`/inw-v2`} component={!isLogin ? LoginPage : INWV2} />
           {/* <Route exact path={`/bridge`} component={BridgePage} /> */}
           <Route><FaucetPage api={api} /></Route>
         </Switch>

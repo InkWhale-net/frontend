@@ -479,7 +479,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
       currentAccount?.address,
       api,
       psp22_contract_v2.CONTRACT_ABI,
-      "5HgJNiF2bJkjqZ8M7HRdSuJ9Ho5EJhnpipEtF69FTo2XX1Hu", // INW 2 contract addr
+      "5EA7h2xCP9TkAwEQ8Km2b7aQChPKVCqcS2BJWqYavoXiEsfx", // INW 2 contract addr
       0, //-> value
       "psp22::allowance",
       currentAccount?.address,
@@ -496,7 +496,7 @@ function ContractBalanceSection({ hasWithdrawalManagerRole }) {
         currentAccount,
         api,
         psp22_contract_v2.CONTRACT_ABI,
-        "5HgJNiF2bJkjqZ8M7HRdSuJ9Ho5EJhnpipEtF69FTo2XX1Hu", // INW 2 contract addr
+        "5EA7h2xCP9TkAwEQ8Km2b7aQChPKVCqcS2BJWqYavoXiEsfx", // INW 2 contract addr
         0, //-> value
         "psp22::approve",
         my_azero_staking.CONTRACT_ADDRESS,

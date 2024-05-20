@@ -383,7 +383,7 @@ const commonFiTokenList = [
     tokenSymbol: "INW2",
     tokenDecimals: 12,
     icon: "",
-    tokenAddress: "5HgJNiF2bJkjqZ8M7HRdSuJ9Ho5EJhnpipEtF69FTo2XX1Hu",
+    tokenAddress: "5EA7h2xCP9TkAwEQ8Km2b7aQChPKVCqcS2BJWqYavoXiEsfx",
   },
   {
     tokenAddress: "5CVGYujZnkBvNsUypdMuEYT2qRzFWhZHufteSfYguQMLkaE3",
