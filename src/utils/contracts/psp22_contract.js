@@ -1,5 +1,5 @@
 const psp22_contract = {
-	CONTRACT_ADDRESS: "5GWe1NDUko5QQiHfyF3x31NjxPP8UsUP5kc7a5r4F4XK3xYa",
+	CONTRACT_ADDRESS: "5H4aCwLKUpVpct6XGJzDGPPXFockNKQU2JUVNgUw6BXEPzST",
 	CONTRACT_ABI: {
 		"source": {
 		  "hash": "0x196515c8485b795cd2eeab043f305faa4a4caa2eb8dbf1245f6b3a187e0c75c9",
@@ -2347,5 +2347,5 @@ const psp22_contract = {
 		"version": "4"
 	  }
   };
-  
+
   export default psp22_contract;
