@@ -182,7 +182,7 @@ export const swapableTokens = [
     tokenVersion2: "IOU2",
     nameVersion2: "IOU2",
     contractAddress2: "5GCubYQbm9x6TQbthbWpUVrgEibXMDXhgisw8DFYCpPJQ5f7",
-    swapContractAddress: "5Gi4UqSUMRavGu65et7nrP1yVZ7UHokM2igTisNdMoxx9t5J",
+    swap_contract_address: "5Gi4UqSUMRavGu65et7nrP1yVZ7UHokM2igTisNdMoxx9t5J",
   },
 ];
 
