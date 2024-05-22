@@ -10,7 +10,7 @@ const MyAccountTab = ({ address, balance, tokenInfo }) => {
 
   return (
     <IWCardOneColumn
-      title="My Account 123"
+      title="My Account"
       data={[
         {
           title: "Account Address",

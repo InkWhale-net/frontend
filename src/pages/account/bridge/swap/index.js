@@ -47,12 +47,12 @@ const supportedToken = [
 ];
 const SwapTab = ({ amountRef }) => {
   const [amount, setAmount] = useState("");
-  const [amountV2, setAmountV2] = useState("");
+
   const [fromToken, setFromToken] = useState(supportedToken[0]);
   const [toToken, setToToken] = useState(supportedToken[1]);
   const [gas, setGas] = useState(0);
 
-  const [_isOpen, setIsOpen] = useState(false);
+
   const { api } = useAppContext();
   const { currentAccount } = useSelector((state) => state.wallet);
 

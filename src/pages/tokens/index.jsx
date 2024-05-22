@@ -240,7 +240,7 @@ export default function TokensPage() {
             >
               <Box w="full" pr={{ lg: "10px" }}>
                 <Heading as="h4" size="h4" mb="12px">
-                  Token Contract Address 123
+                  Token Contract Address
                 </Heading>
                 <SelectSearch
                   name="token"

@@ -215,7 +215,7 @@ export const menuListData = [
 
 export const inwTokenListData = [
   {
-    label: "Acquire / Claim INW",
+    label: "Claim INW",
     href: "/acquire-inw",
   },
   {

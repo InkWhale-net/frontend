@@ -292,8 +292,13 @@ export const moveINWToBegin = (tokensList) => {
   console.log(psp22_contract.CONTRACT_ADDRESS);
   console.log(psp22_contract_v2.CONTRACT_ADDRESS);
   const INW2Index = tokensList.findIndex(
-    (element) => element?.contractAddress === psp22_contract_v2.CONTRACT_ADDRESS
+    (element) =>
+      element?.contractAddress === psp22_contract_v2.CONTRACT_ADDRESS ||
+      element?.contractAddress ===
+        "5EA7h2xCP9TkAwEQ8Km2b7aQChPKVCqcS2BJWqYavoXiEsfx"
   );
+
+  console.log('INW2Index', INW2Index)
   if (INW2Index > -1) {
     const element = tokensList.splice(INW2Index, 1)[0];
     tokensList.unshift(element);
@@ -453,13 +458,13 @@ export const formatTokenAmount = (value, decimal = 12) => {
       "value1",
       value?.toString()?.replace(/\./g, "")?.replace(/,/g, "")
     );
-    console.log('value', value)
-    console.log('decimal', decimal)
+    console.log("value", value);
+    console.log("decimal", decimal);
     const ret = formatUnits(
       value?.toString()?.replace(/\./g, "")?.replace(/,/g, ""),
       Number(decimal)
     );
-    console.log('ret', ret)
+    console.log("ret", ret);
     return formatNumDynDecimal(ret, 6);
   } catch (error) {
     console.log(error);

@@ -1,11 +1,11 @@
-import { Box, Stack, useStyleConfig } from "@chakra-ui/react";
+import { Box, Button, Stack, useStyleConfig } from "@chakra-ui/react";
 import AddressCopier from "components/address-copier/AddressCopier";
 import IWCardOneColumn from "components/card/CardOneColumn";
 import SectionContainer from "components/container/SectionContainer";
 import { useAppContext } from "contexts/AppContext";
 import { useSwapV2TokenContext } from "contexts/SwapV2TokenModalContext";
 import SwapTab from "pages/account/bridge/swap";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { formatChainStringToNumber } from "utils";
 import {
@@ -23,10 +23,10 @@ const INWV2 = () => {
   const [inwV2Info, setInwV2Info] = useState(null);
   const publicCurrentAccount = getPublicCurrentAccount();
   const { currentAccount } = useSelector((s) => s.wallet);
-  const styles = useStyleConfig("IWCard", { variant: "outline" });
+
   const { api } = useAppContext();
-  const { openSwapModal } = useSwapV2TokenContext();
-  const fetchINWV2Info = async () => {
+
+  const fetchINWV2Info = useCallback(async () => {
     try {
       const query1 = await execContractQuery(
         publicCurrentAccount?.address,
@@ -59,10 +59,12 @@ const INWV2 = () => {
     } catch (error) {
       console.log(error);
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [api, publicCurrentAccount?.address, currentAccount?.balance?.inw2]);
+
   useEffect(() => {
     if (api) fetchINWV2Info();
-  }, [api]);
+  }, [api, fetchINWV2Info]);
   return (
     <>
       <SectionContainer
@@ -100,7 +102,7 @@ const INWV2 = () => {
                 content: `${inwV2Info?.inwBurn || 0} INW2`,
               },
               {
-                title: "Your Balance: ",
+                title: "Your Balance",
                 content: `${
                   currentAccount?.balance?.inw2
                     ? formatNumDynDecimal(
@@ -108,6 +110,22 @@ const INWV2 = () => {
                       )
                     : 0
                 } INW2`,
+              },
+              {
+                title: "Add liquidity",
+                content: (
+                  <Button
+                    size="sm"
+                    onClick={() =>
+                      window.open(
+                        "https://app.common.fi/pools/5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj",
+                        "_blank"
+                      )
+                    }
+                  >
+                    Common Fi Pool
+                  </Button>
+                ),
               },
             ]}
           />

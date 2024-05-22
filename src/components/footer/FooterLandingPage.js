@@ -65,7 +65,7 @@ export default function FooterLandingPage() {
                 _focus={{ borderWidth: "0px" }}
                 // _hover={{ textDecoration: "none", bg: "bg.1" }}
                 onClick={() =>
-                  window.open("https://docs.inkwhale.net/", "_blank")
+                  window.open("https://app.common.fi/pools/5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj", "_blank")
                 }
                 display="flex"
                 alignItems="center"
