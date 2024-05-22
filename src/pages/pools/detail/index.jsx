@@ -127,6 +127,7 @@ export default function PoolDetailPage() {
 
     cardValue: currentPool,
   };
+
   const tabsData = [
     {
       label: "My Stakes & Rewards",
@@ -691,8 +692,9 @@ const MyStakeRewardInfo = ({
           // },
           {
             title: `${tokenSymbol} Balance`,
-            content: `${formatNumDynDecimal(tokenBalance?.replaceAll(",", "")) || 0
-              } ${tokenSymbol}`,
+            content: `${
+              formatNumDynDecimal(tokenBalance?.replaceAll(",", "")) || 0
+            } ${tokenSymbol}`,
           },
         ]}
       />
@@ -708,12 +710,13 @@ const MyStakeRewardInfo = ({
           },
           {
             title: "Last Claim",
-            content: `${!currentAccount
+            content: `${
+              !currentAccount
                 ? "No account selected"
                 : !stakeInfo?.lastRewardUpdate
-                  ? "Not claimed yet"
-                  : new Date(stakeInfo?.lastRewardUpdate).toLocaleString("en-US")
-              }`,
+                ? "Not claimed yet"
+                : new Date(stakeInfo?.lastRewardUpdate).toLocaleString("en-US")
+            }`,
           },
           {
             title: "My Unclaimed Rewards ",
@@ -774,7 +777,7 @@ const MyStakeRewardInfo = ({
                   }}
                 />
               }
-            // isDisabled={!(remainStaking > 0)}
+              // isDisabled={!(remainStaking > 0)}
             />
 
             <HStack

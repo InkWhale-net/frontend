@@ -73,7 +73,7 @@ export const fetchAllTokensList = createAsyncThunk(
     } else {
       toast.error(message);
     }
-    console.log('data', data)
+
     return data;
   }
 );
@@ -126,9 +126,12 @@ export const fetchAllStakingPools = createAsyncThunk(
           return {
             ...pool,
             stakeInfo,
-            totalStaked,
-            maxStakingAmount,
-            isMaxStakingAmount: maxStakingAmount == totalStaked,
+
+            totalStaked: formatChainStringToNumber(totalStaked),
+            maxStakingAmount: formatChainStringToNumber(maxStakingAmount),
+            isMaxStakingAmount:
+              formatChainStringToNumber(totalStaked) >=
+              formatChainStringToNumber(maxStakingAmount),
           };
         })
       );
