@@ -1250,9 +1250,11 @@ const MyStakeRewardInfoToken = ({
       toast.error("Invalid Amount!");
       return;
     }
+
     if (
-      formatTokenAmount(stakeInfo?.stakedValue?.toString(), +lptokenDecimal) <
-      LPTokenAmount
+      formatChainStringToNumber(
+        formatTokenAmount(stakeInfo?.stakedValue?.toString(), +lptokenDecimal)
+      ) < LPTokenAmount
     ) {
       toast.error("There is not enough balance!");
       return;
@@ -1503,14 +1505,17 @@ const MyStakeRewardInfoToken = ({
                     isOldPool
                   )}
                 />
+
                 <ConfirmModal
                   disableBtn={
                     !(
-                      formatTokenAmount(
-                        stakeInfo?.stakedValue,
-                        lptokenDecimal
+                      formatChainStringToNumber(
+                        formatTokenAmount(
+                          stakeInfo?.stakedValue,
+                          lptokenDecimal
+                        )
                       ) > 0
-                    ) || !(LPTokenAmount > 0)
+                    ) || !(formatChainStringToNumber(LPTokenAmount) > 0)
                   }
                   action="unstake"
                   buttonVariant="primary"
