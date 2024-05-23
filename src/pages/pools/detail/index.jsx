@@ -303,7 +303,7 @@ const MyStakeRewardInfo = ({
   ...rest
 }) => {
   const dispatch = useDispatch();
-
+  const currentINWAddress = isOldPool ? psp22_contract.CONTRACT_ADDRESS : psp22_contract_v2.CONTRACT_ADDRESS
   const { currentAccount } = useSelector((s) => s.wallet);
   const { api } = useAppContext();
 
@@ -692,6 +692,7 @@ const MyStakeRewardInfo = ({
               : `${formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
               } INW2`,
           },
+          currentINWAddress != tokenContract && 
           {
             title: `${tokenSymbol} Balance`,
             content: `${
@@ -873,7 +874,7 @@ const PoolInfo = (props) => {
     const rawTotalSupply = queryResult?.toHuman()?.Ok;
 
     const totalSupply = roundUp(
-      formatTokenAmount(formatTextAmount(rawTotalSupply), +tokenDecimal)
+      formatChainStringToNumber(formatTokenAmount(formatTextAmount(rawTotalSupply), +tokenDecimal))
     );
     setTotalSupply(totalSupply);
   };

@@ -122,7 +122,6 @@ export const fetchAllStakingPools = createAsyncThunk(
               ),
             };
           }
-
           return {
             ...pool,
             stakeInfo,
@@ -130,8 +129,8 @@ export const fetchAllStakingPools = createAsyncThunk(
             totalStaked: formatChainStringToNumber(totalStaked),
             maxStakingAmount: formatChainStringToNumber(maxStakingAmount),
             isMaxStakingAmount:
-              formatChainStringToNumber(totalStaked) >=
-              formatChainStringToNumber(maxStakingAmount),
+              +formatChainStringToNumber(totalStaked) >=
+              +formatChainStringToNumber(maxStakingAmount),
           };
         })
       );
