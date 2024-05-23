@@ -161,7 +161,7 @@ export default function NavbarLinks(props) {
               onClick={() => toast.success("Coming soon!")}
             >
               <Text bg="transparent" fontSize="md">
-                Orderbook Dex
+                Launchpad
               </Text>
             </Link>
           </Flex>

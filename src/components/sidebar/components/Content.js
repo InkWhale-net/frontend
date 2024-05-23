@@ -155,7 +155,7 @@ function SidebarContent({ onClose }) {
             onClick={() => toast.success("Coming soon!")}
           >
             <Text bg="transparent" fontSize="md">
-              Orderbook Dex
+              Launchpad
             </Text>
           </Link>
         </Flex>
