@@ -1,4 +1,4 @@
-import { Flex, Link, Stack, Text } from "@chakra-ui/react";
+import { Button, Flex, Link, Stack, Text } from "@chakra-ui/react";
 import { GroupMenu, menuListData } from "components/navbar/NavbarLinks";
 
 import Brand from "components/sidebar/components/Brand";
@@ -42,12 +42,13 @@ function SidebarContent({ onClose }) {
         px="20px"
       >
         {/* {appChain?.allowBuy && ( */}
-          <GroupMenu
-            {...groupButtonProps}
-            title="INW Token"
-            path="/inw"
-            data={inwTokenListData}
-          />
+        <GroupMenu
+          {...groupButtonProps}
+          title="INW Token"
+          path="/inw"
+          data={inwTokenListData}
+          onClose={onClose}
+        />
         {/* )} */}
 
         <GroupMenu
@@ -55,6 +56,7 @@ function SidebarContent({ onClose }) {
           title="Token"
           path="/token"
           data={tokenMenuListData}
+          onClose={onClose}
         />
 
         {menuListData?.map(({ title, href }) => (
@@ -95,6 +97,7 @@ function SidebarContent({ onClose }) {
           title="Pools / Farms "
           path="/pools"
           data={poolsMenuListData}
+          onClose={onClose}
         />
 
         {[

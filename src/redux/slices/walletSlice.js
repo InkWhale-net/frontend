@@ -113,7 +113,6 @@ export const fetchUserBalance = createAsyncThunk(
         "alephzero-testnet": { inw, inw2, nativeToken: azero },
         "firechain-testnet": { inw2: fireInw, nativeToken: fire },
       };
-      console.log(ret);
     } catch (error) {
       console.log("error", error);
     }
