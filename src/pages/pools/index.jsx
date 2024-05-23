@@ -166,7 +166,7 @@ export default function PoolsPage() {
       }
       mt={{ base: "0px", xl: "20px" }}
       title="Staking Pools"
-      description={<span>Stake tokens to earn more x</span>}
+      description={<span>Stake tokens to earn more</span>}
     >
       {!isBigScreen && (
         <Button
@@ -243,7 +243,7 @@ export default function PoolsPage() {
                 maxW="200px"
                 display="flex"
                 alignItems="center"
-                justifyContent={{ base: "flex-end", lg: "none" }}
+                justifyContent={{ base: "flex-start", lg: "none" }}
               >
                 <Switch
                   id="zero-reward-pools"
