@@ -270,9 +270,10 @@ export const fetchAllTokenPools = createAsyncThunk(
             return {
               ...tokenLP,
               stakeInfo,
-              totalStaked,
-              maxStakingAmount,
-              isMaxStakingAmount: maxStakingAmount == totalStaked,
+              totalStaked: formatChainStringToNumber(totalStaked),
+              maxStakingAmount: formatChainStringToNumber(maxStakingAmount),
+              isMaxStakingAmount:
+                totalStaked >= formatChainStringToNumber(maxStakingAmount),
             };
           })
       );

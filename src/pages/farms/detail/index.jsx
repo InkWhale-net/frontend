@@ -1367,15 +1367,22 @@ const MyStakeRewardInfoToken = ({
             {
               title: `${tokenSymbol} Balance`,
               content: `${tokenBalance || 0} ${tokenSymbol}`,
+              isHide:
+                tokenContract === psp22_contract_v2.CONTRACT_ADDRESS ||
+                tokenContract === psp22_contract.CONTRACT_ADDRESS,
             },
             {
               title: `${lptokenSymbol} Balance`,
               content: `${
                 formatNumDynDecimal(LPtokenBalance) || 0
               } ${lptokenSymbol}`,
+              isHide:
+                lptokenContract === psp22_contract_v2.CONTRACT_ADDRESS ||
+                lptokenContract === psp22_contract.CONTRACT_ADDRESS,
             },
           ]}
         />
+
         <CardThreeColumn
           title="Staking Information"
           data={[
