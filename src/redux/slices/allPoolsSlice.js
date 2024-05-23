@@ -258,11 +258,11 @@ export const fetchAllTokenPools = createAsyncThunk(
               stakeInfo = {
                 ...stakeInfo,
                 lastRewardUpdate: Number(
-                  formatChainStringToNumber(stakeInfo.lastRewardUpdate)
+                  formatChainStringToNumber(stakeInfo?.lastRewardUpdate)
                 ),
-                stakedValue: formatChainStringToNumber(stakeInfo.stakedValue),
+                stakedValue: formatChainStringToNumber(stakeInfo?.stakedValue),
                 unclaimedReward: formatChainStringToNumber(
-                  stakeInfo.unclaimedReward
+                  stakeInfo?.unclaimedReward
                 ),
               };
             }

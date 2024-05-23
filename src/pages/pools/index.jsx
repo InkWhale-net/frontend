@@ -278,11 +278,6 @@ export default function PoolsPage() {
                     setendedPools(newValue);
                     if (newValue == true) setLivePools(false);
                   }}
-                  onChange={() => {
-                    const newValue = !endedPools;
-                    setendedPools(newValue);
-                    if (newValue == true) setLivePools(false);
-                  }}
                 />
                 <FormLabel
                   mb="0"
