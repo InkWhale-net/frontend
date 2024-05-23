@@ -142,7 +142,7 @@ export const supportedChain = [
     unit: "AZERO",
     // unitIcon
     url: "https://a0.inkwhale.net",
-    inwName: "INW",
+    inwName: "INW2",
     haveINW2: true,
   },
   {
