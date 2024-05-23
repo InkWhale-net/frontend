@@ -46,6 +46,7 @@ import { addressShortener, formatNumDynDecimal } from "utils";
 import { format } from "utils/datetime";
 import Icon5Ire from "assets/img/chains/5irechain.png";
 import { InkwhaleLogo } from "components/icons/Icons";
+import { formatChainStringToNumber } from "utils";
 
 const getStatusPool = (startTime, duration) => {
   if (startTime + duration * 1000 < new Date()) {
@@ -466,12 +467,12 @@ export const formatDataCellTable = (
       );
 
     case "stakeInfo":
-      if (mode == MODE.pool) {
+      if (mode === MODE.pool) {
         const decimal = +itemObj?.tokenDecimal;
         const numberStakeInfo = itemObj[header]?.stakedValue;
         const stakedValue = formatTokenAmount(numberStakeInfo, decimal);
         return (
-          +stakedValue > 0 && (
+          +formatChainStringToNumber(stakedValue) > 0 && (
             <Flex alignItems="center">
               <Text mr="8px">{formatNumDynDecimal(stakedValue)}</Text>
               <GoStar color="#FFB800" />
@@ -479,12 +480,12 @@ export const formatDataCellTable = (
           )
         );
       }
-      if (mode == MODE.farming) {
+      if (mode === MODE.farming) {
         const decimal = +itemObj?.lptokenDecimal;
         const numberStakeInfo = itemObj[header]?.stakedValue;
         const stakedValue = formatTokenAmount(numberStakeInfo, decimal);
         return (
-          +stakedValue > 0 && (
+          +formatChainStringToNumber(stakedValue) > 0 && (
             <Flex alignItems="center">
               <Text mr="8px">{formatNumDynDecimal(stakedValue)}</Text>
               <GoStar color="#FFB800" />
@@ -549,7 +550,7 @@ export const formatDataCellTable = (
     case "tokenName":
       return (
         <Flex alignItems={"center"}>
-           <Box
+          <Box
             w={{ base: null, lg: "42px" }}
             sx={{
               h: "42px",
