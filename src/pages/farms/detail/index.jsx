@@ -1461,8 +1461,8 @@ const MyStakeRewardInfoToken = ({
                       }}
                       setUnstakeMax={() => {
                         setLPTokenAmount(
-                          formatTokenAmount(
-                            stakeInfo?.stakedValue?.toString(),
+                          formatChainStringToNumber(
+                            formatTokenAmount(stakeInfo?.stakedValue),
                             lptokenDecimal
                           ).toString()
                         );
@@ -1614,8 +1614,7 @@ const formatMessageStakingPool = (
       <>
         You are staking {amount} {tokenSymbol}.<br />
         Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
-        {isOldPool ? "INW" : "INW2"}
-        . Continue?
+        {isOldPool ? "INW" : "INW2"}. Continue?
       </>
     );
   }
@@ -1625,8 +1624,7 @@ const formatMessageStakingPool = (
       <>
         You are unstaking {amount} {tokenSymbol}.<br />
         Unstaking will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
-        {isOldPool ? "INW" : "INW2"}
-        . Continue?
+        {isOldPool ? "INW" : "INW2"}. Continue?
       </>
     );
   }
