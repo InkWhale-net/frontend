@@ -580,9 +580,11 @@ const MyStakeRewardInfo = ({
       let info = queryResult?.toHuman().Ok;
 
       const userCurrentStake =
-        formatTokenAmount(info?.stakedValue, +tokenDecimal) || 0;
+        formatChainStringToNumber(
+          formatTokenAmount(info?.stakedValue, +tokenDecimal)
+        ) || 0;
       if (!(+userCurrentStake > 0)) {
-        toast.error(`You musk stake first`);
+        toast.error(`You must stake first`);
         return false;
       }
       if (+amount > +userCurrentStake) {
@@ -768,11 +770,11 @@ const MyStakeRewardInfo = ({
                       setAmount(0);
                       return;
                     }
+
                     setAmount(
-                      formatTokenAmount(
-                        stakeInfo?.stakedValue,
-                        tokenDecimal
-                      ).toString()
+                      formatChainStringToNumber(
+                        formatTokenAmount(stakeInfo?.stakedValue, tokenDecimal)
+                      )
                     );
                   }}
                 />
@@ -950,8 +952,7 @@ const formatMessageStakingPool = (
       <>
         You are staking {amount} {tokenSymbol}.<br />
         Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
-        {isOldPool ? "INW" : "INW2."}
-        Continue?
+        {isOldPool ? "INW" : "INW2"}. Continue?
       </>
     );
   }
@@ -961,8 +962,7 @@ const formatMessageStakingPool = (
       <>
         You are unstaking {amount} {tokenSymbol}.<br />
         Unstaking will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
-        {isOldPool ? "INW" : "INW2."}
-        Continue?
+        {isOldPool ? "INW" : "INW2"}. Continue?
       </>
     );
   }

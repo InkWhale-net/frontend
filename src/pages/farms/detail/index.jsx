@@ -1145,7 +1145,7 @@ const MyStakeRewardInfoToken = ({
         : 0;
       console.log(userCurrentStake);
       if (+userCurrentStake === 0) {
-        toast.error(`You musk stake first`);
+        toast.error(`You must stake first`);
         return false;
       }
       if (+LPTokenAmount > +userCurrentStake) {
@@ -1614,8 +1614,8 @@ const formatMessageStakingPool = (
       <>
         You are staking {amount} {tokenSymbol}.<br />
         Unstaking later will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
-        {isOldPool ? "INW" : "INW2."}
-        Continue?
+        {isOldPool ? "INW" : "INW2"}
+        . Continue?
       </>
     );
   }
@@ -1625,8 +1625,8 @@ const formatMessageStakingPool = (
       <>
         You are unstaking {amount} {tokenSymbol}.<br />
         Unstaking will cost you {Number(unstakeFee)?.toFixed(0)}{" "}
-        {isOldPool ? "INW" : "INW2."}
-        Continue?
+        {isOldPool ? "INW" : "INW2"}
+        . Continue?
       </>
     );
   }
