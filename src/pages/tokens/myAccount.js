@@ -34,7 +34,7 @@ const MyAccountTab = ({ address, balance, tokenInfo }) => {
           title: "INW2 Balance",
           content: `${
             formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
-          } INW`,
+          } INW2`,
         },
         {
           title: !tokenInfo?.title ? "" : `${tokenInfo?.title} Balance`,
