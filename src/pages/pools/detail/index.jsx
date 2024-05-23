@@ -544,9 +544,9 @@ const MyStakeRewardInfo = ({
         !isOldPool &&
         +formatTextAmount(currentAccount?.balance?.inw2) < +unstakeFee
       ) {
-        // toast.error(
-        //   `You don't have enough INW2. Unstake costs ${unstakeFee} INW2!`
-        // );
+        toast.error(
+          `You don't have enough INW2. Unstake costs ${unstakeFee} INW2!`
+        );
         return false;
       }
       if (
@@ -684,14 +684,14 @@ const MyStakeRewardInfo = ({
             title: `${appChain?.unit} Balance`,
             content: `${balance?.azero || 0} ${appChain?.unit}`,
           },
-          // {
-          //   title: isOldPool ? "INW Balance" : "INW2 Balance",
-          //   content: isOldPool
-          //     ? `${formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
-          //     } INW`
-          //     : `${formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
-          //     } INW2`,
-          // },
+          {
+            title: isOldPool ? "INW Balance" : "INW2 Balance",
+            content: isOldPool
+              ? `${formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
+              } INW`
+              : `${formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
+              } INW2`,
+          },
           {
             title: `${tokenSymbol} Balance`,
             content: `${

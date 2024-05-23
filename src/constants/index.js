@@ -143,6 +143,7 @@ export const supportedChain = [
     // unitIcon
     url: "https://a0.inkwhale.net",
     inwName: "INW",
+    haveINW2: true,
   },
   {
     name: "Alephzero Testnet",

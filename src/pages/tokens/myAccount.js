@@ -30,12 +30,12 @@ const MyAccountTab = ({ address, balance, tokenInfo }) => {
             formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
           } INW`,
         },
-        // {
-        //   title: "INW2 Balance",
-        //   content: `${
-        //     formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
-        //   } INW`,
-        // },
+        {
+          title: "INW2 Balance",
+          content: `${
+            formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
+          } INW`,
+        },
         {
           title: !tokenInfo?.title ? "" : `${tokenInfo?.title} Balance`,
           content: `${formatNumDynDecimal(

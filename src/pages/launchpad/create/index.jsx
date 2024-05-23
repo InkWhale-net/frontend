@@ -54,16 +54,10 @@ function CreateLaunchpadLayout() {
     <SectionContainer
       mt={{ base: "0px", xl: "8px" }}
       title="Launchpad"
-      // description={
-      //   <>
-      //     The premier destination to launch your PSP22 token on Aleph Zero
-      //     Network. This action requires {createFee} INW2.
-      //   </>
-      // }
       description={
         <>
           The premier destination to launch your PSP22 token on Aleph Zero
-          Network. This action requires {createFee} INW.
+          Network. This action requires {createFee} INW2.
         </>
       }
     >

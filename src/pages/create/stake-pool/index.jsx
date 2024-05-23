@@ -245,7 +245,7 @@ export default function CreateStakePoolPage({ api }) {
     console.log("createTokenFee", createTokenFee);
     //Approve
     if (allowanceINW < createTokenFee) {
-      toast.success(`Step ${step}: Approving INW token...`);
+      toast.success(`Step ${step}: Approving INW2 token...`);
       step++;
       let approve = await execContractTx(
         currentAccount,

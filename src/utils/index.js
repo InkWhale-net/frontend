@@ -15,11 +15,11 @@ import {
 import axios from "axios";
 import { formatUnits, parseUnits } from "ethers";
 import moment from "moment";
-import numeral from "numeral";
 import { toast } from "react-hot-toast";
 import { execContractQuery } from "./contracts";
 import psp22_contract from "./contracts/psp22_contract";
 import psp22_contract_v2 from "./contracts/psp22_contract_V2";
+import psp22_contract_old from "./contracts/psp22_contract_old";
 import { appChain } from "constants";
 export const chainDecimals = {
   alephzero: 12,
@@ -515,7 +515,7 @@ export const getTokenOwner = async (tokenContract) => {
   const queryOwnerOld = await execContractQuery(
     process.env.REACT_APP_PUBLIC_ADDRESS,
     "api",
-    psp22_contract.CONTRACT_ABI,
+    psp22_contract_old.CONTRACT_ABI,
     tokenContract,
     0,
     "ownable::owner"
