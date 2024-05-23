@@ -114,10 +114,10 @@ export const fetchAllStakingPools = createAsyncThunk(
             stakeInfo = {
               ...stakeInfo,
               lastRewardUpdate: Number(
-                formatChainStringToNumber(stakeInfo.lastRewardUpdate)
+                +formatChainStringToNumber(stakeInfo.lastRewardUpdate)
               ),
-              stakedValue: formatChainStringToNumber(stakeInfo.stakedValue),
-              unclaimedReward: formatChainStringToNumber(
+              stakedValue: +formatChainStringToNumber(stakeInfo.stakedValue),
+              unclaimedReward: +formatChainStringToNumber(
                 stakeInfo.unclaimedReward
               ),
             };
@@ -126,8 +126,8 @@ export const fetchAllStakingPools = createAsyncThunk(
             ...pool,
             stakeInfo,
 
-            totalStaked: formatChainStringToNumber(totalStaked),
-            maxStakingAmount: formatChainStringToNumber(maxStakingAmount),
+            totalStaked: +formatChainStringToNumber(totalStaked),
+            maxStakingAmount: +formatChainStringToNumber(maxStakingAmount),
             isMaxStakingAmount:
               +formatChainStringToNumber(totalStaked) >=
               +formatChainStringToNumber(maxStakingAmount),
@@ -183,11 +183,9 @@ export const fetchAllNFTPools = createAsyncThunk(
           if (stakeInfo) {
             stakeInfo = {
               ...stakeInfo,
-              lastRewardUpdate: Number(
-                formatChainStringToNumber(stakeInfo.lastRewardUpdate)
-              ),
-              stakedValue: formatChainStringToNumber(stakeInfo.stakedValue),
-              unclaimedReward: formatChainStringToNumber(
+              lastRewardUpdate: +formatChainStringToNumber(stakeInfo.lastRewardUpdate),
+              stakedValue: +formatChainStringToNumber(stakeInfo.stakedValue),
+              unclaimedReward: +formatChainStringToNumber(
                 stakeInfo.unclaimedReward
               ),
             };
@@ -259,8 +257,8 @@ export const fetchAllTokenPools = createAsyncThunk(
                 lastRewardUpdate: Number(
                   formatChainStringToNumber(stakeInfo?.lastRewardUpdate)
                 ),
-                stakedValue: formatChainStringToNumber(stakeInfo?.stakedValue),
-                unclaimedReward: formatChainStringToNumber(
+                stakedValue: +formatChainStringToNumber(stakeInfo?.stakedValue),
+                unclaimedReward: +formatChainStringToNumber(
                   stakeInfo?.unclaimedReward
                 ),
               };
@@ -269,10 +267,10 @@ export const fetchAllTokenPools = createAsyncThunk(
             return {
               ...tokenLP,
               stakeInfo,
-              totalStaked: formatChainStringToNumber(totalStaked),
-              maxStakingAmount: formatChainStringToNumber(maxStakingAmount),
+              totalStaked: +formatChainStringToNumber(totalStaked),
+              maxStakingAmount: +formatChainStringToNumber(maxStakingAmount),
               isMaxStakingAmount:
-                totalStaked >= formatChainStringToNumber(maxStakingAmount),
+                +formatChainStringToNumber(totalStaked) >= +formatChainStringToNumber(maxStakingAmount),
             };
           })
       );
