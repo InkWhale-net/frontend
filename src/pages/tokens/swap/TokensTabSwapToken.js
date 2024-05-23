@@ -23,6 +23,7 @@ import psp22_contract from "utils/contracts/psp22_contract";
 import { useAppContext } from "contexts/AppContext";
 import { formatTextAmount } from "utils/index.js";
 import { getSwapGasLimit } from "utils/contracts/dryRun.js";
+import { formatChainStringToNumber } from "utils/index.js";
 
 const TokensTabSwapToken = ({
   address,
@@ -46,7 +47,7 @@ const TokensTabSwapToken = ({
   }, "swap-to-inw-v2");
 
   const updateMaxAmount = () => {
-    const _value = tokenInfo?.balance;
+    const _value = formatChainStringToNumber(tokenInfo?.balance);
     setAmount(_value);
   };
 
