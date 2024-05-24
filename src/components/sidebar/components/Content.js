@@ -41,7 +41,31 @@ function SidebarContent({ onClose }) {
         mt="8px"
         px="20px"
       >
-        {/* {appChain?.allowBuy && ( */}
+        <Flex
+          _hover={{ textDecoration: "none", bg: "bg.1" }}
+          p="6px 10px"
+          bg={"transparent"}
+          borderRadius="5px"
+          minW={{ base: "0px", lg: "72px" }}
+          justify={{ base: "normal", lg: "center" }}
+        >
+          <Link
+            color={"text.1"}
+            fontWeight="600"
+            bg="transparent"
+            textDecoration="none"
+            _focus={{ borderWidth: "0px" }}
+            _hover={{ textDecoration: "none", bg: "bg.1" }}
+            onClick={() => window.open("https://app.common.fi/", "_blank")}
+            display="flex"
+            alignItems="center"
+          >
+            <Text bg="transparent" fontSize="md">
+              Buy INW on Common
+            </Text>
+          </Link>
+        </Flex>
+
         <GroupMenu
           {...groupButtonProps}
           title="INW Token"
@@ -50,7 +74,6 @@ function SidebarContent({ onClose }) {
           onClose={onClose}
         />
         {/* )} */}
-
         <GroupMenu
           {...groupButtonProps}
           title="Token"
@@ -58,7 +81,6 @@ function SidebarContent({ onClose }) {
           data={tokenMenuListData}
           onClose={onClose}
         />
-
         {menuListData?.map(({ title, href }) => (
           <Flex
             w={"full"}
@@ -91,7 +113,6 @@ function SidebarContent({ onClose }) {
             </Link>
           </Flex>
         ))}
-
         <GroupMenu
           {...groupButtonProps}
           title="Pools / Farms "
@@ -99,7 +120,6 @@ function SidebarContent({ onClose }) {
           data={poolsMenuListData}
           onClose={onClose}
         />
-
         {[
           // {
           //   title: `Stake ${appChain?.unit} `,
@@ -137,7 +157,6 @@ function SidebarContent({ onClose }) {
             </Link>
           </Flex>
         ))}
-
         <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
           p="6px 10px"

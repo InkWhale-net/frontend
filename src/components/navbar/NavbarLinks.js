@@ -52,6 +52,31 @@ export default function NavbarLinks(props) {
       <SidebarResponsive routes={routes} />
 
       <Show above="md">
+        <Flex
+          _hover={{ textDecoration: "none", bg: "bg.1" }}
+          p="6px 10px"
+          bg={"transparent"}
+          borderRadius="5px"
+          minW={{ base: "0px", lg: "72px" }}
+          justify={{ base: "normal", lg: "center" }}
+        >
+          <Link
+            color={"text.1"}
+            fontWeight="600"
+            bg="transparent"
+            textDecoration="none"
+            _focus={{ borderWidth: "0px" }}
+            _hover={{ textDecoration: "none", bg: "bg.1" }}
+            onClick={() => window.open("https://app.common.fi/", "_blank")}
+            display="flex"
+            alignItems="center"
+          >
+            <Text bg="transparent" fontSize="md">
+              Buy INW on Common
+            </Text>
+          </Link>
+        </Flex>
+
         <Flex bg="transparent">
           <GroupMenu
             {...groupButtonProps}
@@ -166,27 +191,6 @@ export default function NavbarLinks(props) {
             </Link>
           </Flex>
         </Flex>
-        {/* <Flex
-          _hover={{ textDecoration: "none", bg: "bg.1" }}
-          p="6px 10px"
-          bg={"transparent"}
-          borderRadius="5px"
-          // ml={{ base: "20px", md: "20px" }}
-        >
-          <Link
-            color={"text.1"}
-            fontWeight="600"
-            bg="transparent"
-            textDecoration="none"
-            _focus={{ borderWidth: "0px" }}
-            _hover={{ textDecoration: "none", bg: "bg.1" }}
-            onClick={() => toast.success("Coming soon!")}
-          >
-            <Text bg="transparent" fontSize="md">
-              Solana Bridge
-            </Text>
-          </Link>
-        </Flex> */}
       </Show>
 
       <Show above="md">
@@ -208,7 +212,7 @@ NavbarLinks.propTypes = {
 
 export const menuListData = [
   // {
-  //   title: "Launchpad",
+  //   title: "Buy on CommonFi",
   //   href: "/launchpad",
   // },
 ];
