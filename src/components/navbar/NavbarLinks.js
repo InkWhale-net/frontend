@@ -72,7 +72,7 @@ export default function NavbarLinks(props) {
             alignItems="center"
           >
             <Text bg="transparent" fontSize="md">
-              Buy INW on Common
+              Buy INW2 on Common
             </Text>
           </Link>
         </Flex>
