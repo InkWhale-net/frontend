@@ -309,32 +309,6 @@ export default function FarmsPage() {
               >
                 <Switch
                   id="zero-reward-pools"
-                  isChecked={livePools}
-                  onChange={() => {
-                    const newValue = !livePools;
-                    setLivePools(newValue);
-                    if (newValue == true) setEndedPools(false);
-                  }}
-                />
-                <FormLabel
-                  mb="0"
-                  ml="10px"
-                  fontWeight="400"
-                  htmlFor="zero-reward-pools"
-                  whiteSpace="nowrap"
-                >
-                  Pool Live Only
-                </FormLabel>
-              </FormControl>
-
-              <FormControl
-                maxW="200px"
-                display="flex"
-                alignItems="center"
-                justifyContent={{ base: "flex-end", lg: "none" }}
-              >
-                <Switch
-                  id="zero-reward-pools"
                   isChecked={endedPools}
                   onChange={() => {
                     const newValue = !endedPools;

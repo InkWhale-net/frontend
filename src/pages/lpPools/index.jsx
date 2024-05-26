@@ -216,14 +216,16 @@ export default function LPPoolsPage() {
         ) : null
       }
     >
-      {!isBigScreen && <Button
-        mb="16px"
-        onClick={async () => {
-          history.push("/create/farming");
-        }}
-      >
-        Create
-      </Button>}
+      {!isBigScreen && (
+        <Button
+          mb="16px"
+          onClick={async () => {
+            history.push("/create/farming");
+          }}
+        >
+          Create
+        </Button>
+      )}
       <Stack
         w="full"
         spacing="30px"
@@ -329,31 +331,6 @@ export default function LPPoolsPage() {
                 display="flex"
                 alignItems="center"
                 justifyContent={{ base: "none", lg: "flex-end" }}
-              >
-                <Switch
-                  id="zero-reward-pools"
-                  isChecked={livePools}
-                  onChange={() => {
-                    const newValue = !livePools;
-                    setLivePools(newValue);
-                    if (newValue == true) setEndedPools(false);
-                  }}
-                />
-                <FormLabel
-                  mb="0"
-                  ml="10px"
-                  fontWeight="400"
-                  htmlFor="zero-reward-pools"
-                  whiteSpace="nowrap"
-                >
-                  Pool Live Only
-                </FormLabel>
-              </FormControl>
-              <FormControl
-                maxW="200px"
-                display="flex"
-                alignItems="center"
-                justifyContent={{ base: "flex-end", lg: "none" }}
               >
                 <Switch
                   id="zero-reward-pools"
