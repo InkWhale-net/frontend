@@ -45,6 +45,7 @@ import { roundDown } from "utils";
 import { addressShortener, formatNumDynDecimal } from "utils";
 import { format } from "utils/datetime";
 import Icon5Ire from "assets/img/chains/5irechain.png";
+import IconQuestionMark from "assets/img/question-mark.png";
 import { InkwhaleLogo } from "components/icons/Icons";
 import { formatChainStringToNumber } from "utils";
 
@@ -646,15 +647,14 @@ export const formatDataCellTable = (
       );
 
     case "tokenIconUrl":
-      return itemObj[header] ? (
+      return (
         <Image
+          fallbackSrc={IconQuestionMark}
           w="38px"
           borderRadius={"10px"}
           src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${itemObj[header]}`}
           alt="logo"
         />
-      ) : (
-        ""
       );
     case "owner":
       return (

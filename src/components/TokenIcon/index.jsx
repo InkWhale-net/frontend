@@ -1,14 +1,17 @@
 import { Image } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
+import IconQuestionMark from "assets/img/question-mark.png";
 
 export default function TokenIcon({ tokenContract }) {
   const { allTokensList } = useSelector((s) => s.allPools);
+
   const tokenSelected = useMemo(() => {
     return allTokensList?.find(
       (token) => token?.contractAddress === tokenContract
     );
   }, [tokenContract, allTokensList]);
+
   return tokenSelected?.tokenIconUrl ? (
     <Image
       w="38px"
@@ -20,6 +23,6 @@ export default function TokenIcon({ tokenContract }) {
       alt="logo"
     />
   ) : (
-    ""
+    <Image src={IconQuestionMark} w="38px" borderRadius={"10px"} alt="logo" />
   );
 }
