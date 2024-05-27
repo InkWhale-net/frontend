@@ -80,7 +80,7 @@ export function SidebarResponsive(props) {
         finalFocusRef={btnRef}
       >
         <DrawerOverlay />
-        <DrawerContent minW="285px" bg={"white"}>
+        <DrawerContent minW="285px" bg={"white"} pt="39px">
           <DrawerCloseButton
             zIndex="3"
             onClose={onClose}
