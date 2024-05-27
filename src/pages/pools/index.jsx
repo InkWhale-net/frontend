@@ -212,7 +212,7 @@ export default function PoolsPage() {
             <Box
               display="flex"
               justifyContent={{ base: "flex-start", lg: "flex-end" }}
-              flexDirection={isMobile ? "column" : "row"}
+              flexDirection={!isBigScreen ? "column" : "row"}
               marginTop={{ base: "20px", lg: "none" }}
             >
               <FormControl

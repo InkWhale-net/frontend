@@ -454,17 +454,10 @@ export const resolveAZDomainToAddress = async (domain) => {
 
 export const formatTokenAmount = (value, decimal = 12) => {
   try {
-    console.log(
-      "value1",
-      value?.toString()?.replace(/\./g, "")?.replace(/,/g, "")
-    );
-    console.log("value", value);
-    console.log("decimal", decimal);
     const ret = formatUnits(
       value?.toString()?.replace(/\./g, "")?.replace(/,/g, ""),
       Number(decimal)
     );
-    console.log("ret", ret);
     return formatNumDynDecimal(ret, 6);
   } catch (error) {
     console.log(error);

@@ -3,6 +3,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { APICall } from "api/client";
 import { toast } from "react-hot-toast";
 import { formatTokenAmount } from "utils";
+import { isPoolEnded } from "utils";
 import { formatChainStringToNumber } from "utils";
 import { execContractQuery } from "utils/contracts";
 import lp_pool_contract from "utils/contracts/lp_pool_contract";
@@ -89,50 +90,55 @@ export const fetchAllStakingPools = createAsyncThunk(
 
     if (status === "OK") {
       const poolsListAddMyStake = await Promise.all(
-        ret?.map(async (pool) => {
-          let queryResult = await execContractQuery(
-            params?.currentAccount?.address,
-            "api",
-            pool_contract.CONTRACT_ABI,
-            pool?.poolContract,
-            0,
-            "genericPoolContractTrait::getStakeInfo",
-            params?.currentAccount?.address
-          );
-          let stakeInfo = queryResult?.toHuman().Ok;
+        ret
+          ?.filter(
+            (e) =>
+              !(isPoolEnded(e?.startTime, e?.duration) && +e?.totalStaked == 0)
+          )
+          ?.map(async (pool) => {
+            let queryResult = await execContractQuery(
+              params?.currentAccount?.address,
+              "api",
+              pool_contract.CONTRACT_ABI,
+              pool?.poolContract,
+              0,
+              "genericPoolContractTrait::getStakeInfo",
+              params?.currentAccount?.address
+            );
+            let stakeInfo = queryResult?.toHuman().Ok;
 
-          const tokenDecimal = +pool.tokenDecimal;
-          const totalStaked = formatTokenAmount(
-            pool?.totalStaked,
-            tokenDecimal
-          );
-          const maxStakingAmount = formatTokenAmount(
-            pool.maxStakingAmount,
-            tokenDecimal
-          );
-          if (stakeInfo) {
-            stakeInfo = {
-              ...stakeInfo,
-              lastRewardUpdate: Number(
-                +formatChainStringToNumber(stakeInfo.lastRewardUpdate)
-              ),
-              stakedValue: +formatChainStringToNumber(stakeInfo.stakedValue),
-              unclaimedReward: +formatChainStringToNumber(
-                stakeInfo.unclaimedReward
-              ),
+            const tokenDecimal = +pool.tokenDecimal;
+            const totalStaked = formatTokenAmount(
+              pool?.totalStaked,
+              tokenDecimal
+            );
+            const maxStakingAmount = formatTokenAmount(
+              pool.maxStakingAmount,
+              tokenDecimal
+            );
+            if (stakeInfo) {
+              stakeInfo = {
+                ...stakeInfo,
+                lastRewardUpdate: Number(
+                  +formatChainStringToNumber(stakeInfo.lastRewardUpdate)
+                ),
+                stakedValue: +formatChainStringToNumber(stakeInfo.stakedValue),
+                unclaimedReward: +formatChainStringToNumber(
+                  stakeInfo.unclaimedReward
+                ),
+              };
+            }
+            return {
+              ...pool,
+              stakeInfo,
+
+              totalStaked: +formatChainStringToNumber(totalStaked),
+              maxStakingAmount: +formatChainStringToNumber(maxStakingAmount),
+              isMaxStakingAmount:
+                +formatChainStringToNumber(totalStaked) >=
+                +formatChainStringToNumber(maxStakingAmount),
             };
-          }
-          return {
-            ...pool,
-            stakeInfo,
-
-            totalStaked: +formatChainStringToNumber(totalStaked),
-            maxStakingAmount: +formatChainStringToNumber(maxStakingAmount),
-            isMaxStakingAmount:
-              +formatChainStringToNumber(totalStaked) >=
-              +formatChainStringToNumber(maxStakingAmount),
-          };
-        })
+          })
       );
 
       data = poolsListAddMyStake;
@@ -153,51 +159,58 @@ export const fetchAllNFTPools = createAsyncThunk(
 
     if (status === "OK") {
       const nftLPListAddNftInfo = await Promise.all(
-        ret?.map(async (nftLP) => {
-          // get collection info
-          const { ret, status } =
-            await APICall.getCollectionByAddressFromArtZero({
-              collection_address: nftLP?.NFTtokenContract,
-            });
+        ret
+          ?.filter(
+            (e) =>
+              !(isPoolEnded(e?.startTime, e?.duration) && +e?.totalStaked == 0)
+          )
+          ?.map(async (nftLP) => {
+            // get collection info
+            const { ret, status } =
+              await APICall.getCollectionByAddressFromArtZero({
+                collection_address: nftLP?.NFTtokenContract,
+              });
 
-          if (status === "OK") {
-            nftLP = { ...nftLP, nftInfo: ret[0] };
-          }
+            if (status === "OK") {
+              nftLP = { ...nftLP, nftInfo: ret[0] };
+            }
 
-          // get stake info NFT LP Pool
-          let queryResult = await execContractQuery(
-            params?.currentAccount?.address,
-            "api",
-            nft_pool_contract.CONTRACT_ABI,
-            nftLP?.poolContract,
-            0,
-            "genericPoolContractTrait::getStakeInfo",
-            params?.currentAccount?.address
-          );
+            // get stake info NFT LP Pool
+            let queryResult = await execContractQuery(
+              params?.currentAccount?.address,
+              "api",
+              nft_pool_contract.CONTRACT_ABI,
+              nftLP?.poolContract,
+              0,
+              "genericPoolContractTrait::getStakeInfo",
+              params?.currentAccount?.address
+            );
 
-          let stakeInfo = queryResult?.toHuman().Ok;
-          const maxStakingAmount = nftLP?.maxStakingAmount
-            ?.toString()
-            ?.replace(/\./g, "")
-            ?.replace(/,/g, "");
-          if (stakeInfo) {
-            stakeInfo = {
-              ...stakeInfo,
-              lastRewardUpdate: +formatChainStringToNumber(stakeInfo.lastRewardUpdate),
-              stakedValue: +formatChainStringToNumber(stakeInfo.stakedValue),
-              unclaimedReward: +formatChainStringToNumber(
-                stakeInfo.unclaimedReward
-              ),
+            let stakeInfo = queryResult?.toHuman().Ok;
+            const maxStakingAmount = nftLP?.maxStakingAmount
+              ?.toString()
+              ?.replace(/\./g, "")
+              ?.replace(/,/g, "");
+            if (stakeInfo) {
+              stakeInfo = {
+                ...stakeInfo,
+                lastRewardUpdate: +formatChainStringToNumber(
+                  stakeInfo.lastRewardUpdate
+                ),
+                stakedValue: +formatChainStringToNumber(stakeInfo.stakedValue),
+                unclaimedReward: +formatChainStringToNumber(
+                  stakeInfo.unclaimedReward
+                ),
+              };
+            }
+
+            return {
+              ...nftLP,
+              stakeInfo,
+              maxStakingAmount,
+              isMaxStakingAmount: +maxStakingAmount == +nftLP?.totalStaked,
             };
-          }
-
-          return {
-            ...nftLP,
-            stakeInfo,
-            maxStakingAmount,
-            isMaxStakingAmount: +maxStakingAmount == +nftLP?.totalStaked,
-          };
-        })
+          })
       );
       data = nftLPListAddNftInfo;
     } else {
@@ -225,6 +238,10 @@ export const fetchAllTokenPools = createAsyncThunk(
             const createdTimeB = b.createdTime ? new Date(b.createdTime) : 0;
             return compare(createdTimeB, createdTimeA);
           })
+          ?.filter(
+            (e) =>
+              !(isPoolEnded(e?.startTime, e?.duration) && +e?.totalStaked == 0)
+          )
           ?.map(async (tokenLP) => {
             // get staking data
             let queryResult = await execContractQuery(
@@ -270,7 +287,8 @@ export const fetchAllTokenPools = createAsyncThunk(
               totalStaked: +formatChainStringToNumber(totalStaked),
               maxStakingAmount: +formatChainStringToNumber(maxStakingAmount),
               isMaxStakingAmount:
-                +formatChainStringToNumber(totalStaked) >= +formatChainStringToNumber(maxStakingAmount),
+                +formatChainStringToNumber(totalStaked) >=
+                +formatChainStringToNumber(maxStakingAmount),
             };
           })
       );
