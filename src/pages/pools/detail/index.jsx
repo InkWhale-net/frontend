@@ -692,7 +692,7 @@ const MyStakeRewardInfo = ({
               : `${formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
               } INW2`,
           },
-          currentINWAddress != tokenContract && 
+          currentINWAddress != tokenContract &&
           {
             title: `${tokenSymbol} Balance`,
             content: `${

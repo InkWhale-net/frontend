@@ -177,7 +177,7 @@ const FarmDetailPage = () => {
   const cardData = {
     cardHeaderList: [
       {
-        name: farmMode == "NFT_FARM" ? "nftInfo" : "lptokenName",
+        name: farmMode == "NFT_FARM" ? "nftInfo" : "lptokenSymbol",
         hasTooltip: false,
         tooltipContent: "",
         label: "Stake",
