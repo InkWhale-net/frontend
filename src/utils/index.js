@@ -289,33 +289,35 @@ export const getPublicCurrentAccount = () => {
 };
 
 export const moveINWToBegin = (tokensList) => {
-  console.log(psp22_contract.CONTRACT_ADDRESS);
-  console.log(psp22_contract_v2.CONTRACT_ADDRESS);
-  const INW2Index = tokensList.findIndex(
-    (element) =>
-      element?.contractAddress === psp22_contract_v2.CONTRACT_ADDRESS ||
-      element?.contractAddress ===
-        "5EA7h2xCP9TkAwEQ8Km2b7aQChPKVCqcS2BJWqYavoXiEsfx"
-  );
+  const priorityTokens = JSON.parse(process.env.REACT_APP_PRIORITY_TOKEN_ADDRESS)
+  const cloneTokenList = [...tokensList]
+  const priorityTokenList = priorityTokens.map(e => cloneTokenList.find(j => j?.contractAddress == e))
+  // const INW2Index = tokensList.findIndex(
+  //   (element) =>
+  //     element?.contractAddress === psp22_contract_v2.CONTRACT_ADDRESS ||
+  //     element?.contractAddress ===
+  //       "5EA7h2xCP9TkAwEQ8Km2b7aQChPKVCqcS2BJWqYavoXiEsfx"
+  // );
 
-  console.log('INW2Index', INW2Index)
-  if (INW2Index > -1) {
-    const element = tokensList.splice(INW2Index, 1)[0];
-    tokensList.unshift(element);
-  }
-  const INWIndex = tokensList.findIndex(
-    (element) =>
-      element?.contractAddress === psp22_contract.CONTRACT_ADDRESS ||
-      element?.contractAddress ===
-        "5H4aCwLKUpVpct6XGJzDGPPXFockNKQU2JUVNgUw6BXEPzST"
-  );
-  if (INWIndex > -1) {
-    const element = tokensList.splice(INWIndex, 1)[0];
-    tokensList.unshift(element);
-  }
-  return tokensList.filter(
-    (e) => !!e?.contractAddress && e?.contractAddress !== "undefined"
-  );
+  // console.log('INW2Index', INW2Index)
+  // if (INW2Index > -1) {
+  //   const element = tokensList.splice(INW2Index, 1)[0];
+  //   tokensList.unshift(element);
+  // }
+  // const INWIndex = tokensList.findIndex(
+  //   (element) =>
+  //     element?.contractAddress === psp22_contract.CONTRACT_ADDRESS ||
+  //     element?.contractAddress ===
+  //       "5H4aCwLKUpVpct6XGJzDGPPXFockNKQU2JUVNgUw6BXEPzST"
+  // );
+  // if (INWIndex > -1) {
+  //   const element = tokensList.splice(INWIndex, 1)[0];
+  //   tokensList.unshift(element);
+  // }
+  // return tokensList.filter(
+  //   (e) => !!e?.contractAddress && e?.contractAddress !== "undefined"
+  // );
+  return [...priorityTokenList, ...cloneTokenList?.filter(e => !priorityTokens.includes(e.contractAddress))]
 };
 
 export const excludeNFT = (tokensList) =>
