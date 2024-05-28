@@ -67,12 +67,12 @@ export default function NavbarLinks(props) {
             textDecoration="none"
             _focus={{ borderWidth: "0px" }}
             _hover={{ textDecoration: "none", bg: "bg.1" }}
-            onClick={() => window.open("https://app.common.fi/", "_blank")}
+            onClick={() => window.open("https://app.common.fi/pools/5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj", "_blank")}
             display="flex"
             alignItems="center"
           >
             <Text bg="transparent" fontSize="md">
-              Buy INW2 on Common
+              Trade INW2
             </Text>
           </Link>
         </Flex>
