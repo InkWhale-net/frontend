@@ -183,7 +183,7 @@ const FarmDetailPage = () => {
         label: "Stake",
       },
       {
-        name: "tokenName",
+        name: "tokenSymbol",
         hasTooltip: false,
         tooltipContent: "",
         label: "Earn",

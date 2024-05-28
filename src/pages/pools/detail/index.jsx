@@ -225,6 +225,7 @@ export default function PoolDetailPage() {
 
                   return (
                     <Flex
+                      p="4px"
                       mt={{ base: "15px", lg: "0px" }}
                       w="full"
                       key={name}
@@ -303,7 +304,9 @@ const MyStakeRewardInfo = ({
   ...rest
 }) => {
   const dispatch = useDispatch();
-  const currentINWAddress = isOldPool ? psp22_contract.CONTRACT_ADDRESS : psp22_contract_v2.CONTRACT_ADDRESS
+  const currentINWAddress = isOldPool
+    ? psp22_contract.CONTRACT_ADDRESS
+    : psp22_contract_v2.CONTRACT_ADDRESS;
   const { currentAccount } = useSelector((s) => s.wallet);
   const { api } = useAppContext();
 
@@ -687,13 +690,14 @@ const MyStakeRewardInfo = ({
           {
             title: isOldPool ? "INW Balance" : "INW2 Balance",
             content: isOldPool
-              ? `${formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
-              } INW`
-              : `${formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
-              } INW2`,
+              ? `${
+                  formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
+                } INW`
+              : `${
+                  formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
+                } INW2`,
           },
-          currentINWAddress != tokenContract &&
-          {
+          currentINWAddress != tokenContract && {
             title: `${tokenSymbol} Balance`,
             content: `${
               formatNumDynDecimal(tokenBalance?.replaceAll(",", "")) || 0
@@ -874,7 +878,9 @@ const PoolInfo = (props) => {
     const rawTotalSupply = queryResult?.toHuman()?.Ok;
 
     const totalSupply = roundUp(
-      formatChainStringToNumber(formatTokenAmount(formatTextAmount(rawTotalSupply), +tokenDecimal))
+      formatChainStringToNumber(
+        formatTokenAmount(formatTextAmount(rawTotalSupply), +tokenDecimal)
+      )
     );
     setTotalSupply(totalSupply);
   };
