@@ -57,6 +57,7 @@ import pool_contract from "utils/contracts/pool_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { useLocation } from "react-router-dom";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
+import { formatTextAmount } from "utils";
 
 export default function MyPoolDetailPage() {
   const [state, setState] = useState({});
@@ -513,6 +514,7 @@ const MyPoolInfo = ({
   const [amount, setAmount] = useState("");
 
   const [withdrawbleAm, setWithdrawbleAm] = useState("");
+  const [RWTokenTotalSupply, setRWTokenTotalSupply] = useState("");
 
   const fetchTokenBalance = useCallback(async () => {
     if (!currentAccount?.balance) return;
@@ -618,7 +620,7 @@ const MyPoolInfo = ({
   useEffect(() => {
     mode === "TOKEN_FARM" && fetchLPTokenBalance();
   }, [fetchLPTokenBalance, mode]);
-
+  const currentINWAddress = isOldPool ? psp22_contract.CONTRACT_ADDRESS : psp22_contract_v2.CONTRACT_ADDRESS
   const cardData = useMemo(() => {
     let ret = [
       {
@@ -634,10 +636,14 @@ const MyPoolInfo = ({
         content: `${balance?.azero || 0} AZERO`,
       },
       {
-        title: "INW Balance",
-        content: `${balance?.inw || 0} INW`,
+        title: isOldPool ? "INW Balance" : "INW2 Balance",
+        content: isOldPool
+        ? `${formatNumDynDecimal(formatTextAmount(balance?.inw)) || 0
+        } INW`
+        : `${formatNumDynDecimal(formatTextAmount(balance?.inw2)) || 0
+        } INW2`,
       },
-      {
+      currentINWAddress != tokenContract && {
         title: `${tokenSymbol} Balance`,
         content: `${tokenBalance || 0} ${tokenSymbol}`,
       },
@@ -981,6 +987,23 @@ const MyPoolInfo = ({
       );
     }
   }
+  useEffect(() => {
+    (async () => {
+      if (tokenContract) {
+        let queryResult = await execContractQuery(
+          currentAccount?.address,
+          "api",
+          psp22_contract.CONTRACT_ABI,
+          tokenContract,
+          0,
+          "psp22::totalSupply"
+        );
+        const rawTotalSupply = queryResult.toHuman().Ok;
+        const totalSupply = formatTokenAmount(rawTotalSupply, tokenDecimal);
+        setRWTokenTotalSupply(totalSupply)
+      }
+    })()
+  }, [currentAccount, mode, tokenContract])
   return (
     <>
       <Stack
@@ -1148,10 +1171,7 @@ const MyPoolInfo = ({
                   },
                   {
                     title: "Total Supply",
-                    content: `${formatNumDynDecimal(
-                      tokenTotalSupply,
-                      0
-                    )} ${tokenSymbol}`,
+                    content: `${RWTokenTotalSupply} ${tokenSymbol}`,
                   },
                   { title: "Token Symbol", content: tokenSymbol },
                 ]}
@@ -1168,10 +1188,7 @@ const MyPoolInfo = ({
                 },
                 {
                   title: "Total Supply",
-                  content: `${formatNumDynDecimal(
-                    tokenTotalSupply,
-                    0
-                  )} ${tokenSymbol}`,
+                  content: `${RWTokenTotalSupply} ${tokenSymbol}`,
                 },
                 { title: "Token Symbol", content: tokenSymbol },
               ]}

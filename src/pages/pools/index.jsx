@@ -97,7 +97,10 @@ export default function PoolsPage() {
 
     return () => clearTimeout(delayDebounceFn);
   }, [keywords, poolsListDataFiltered]);
-
+  const dataTable = (resultList || poolsListDataFiltered)?.filter(
+    (e) =>
+      !(isPoolEnded(e?.startTime, e?.duration) && +e?.totalStaked == 0)
+  )
   const tableData = {
     tableHeader: [
       {
@@ -145,9 +148,9 @@ export default function PoolsPage() {
       },
     ],
 
-    tableBody: resultList || poolsListDataFiltered,
+    tableBody: dataTable,
   };
-
+  console.log(resultList, poolsListDataFiltered)
   const [isBigScreen] = useMediaQuery("(min-width: 480px)");
   const history = useHistory();
 

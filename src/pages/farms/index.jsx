@@ -113,7 +113,10 @@ export default function FarmsPage() {
 
     return () => clearTimeout(delayDebounceFn);
   }, [keywords, nftLPListFiltered]);
-
+  const dataTable = (resultList || nftLPListFiltered)?.filter(
+    (e) =>
+      !(isPoolEnded(e?.startTime, e?.duration) && +e?.totalStaked == 0)
+  )
   const tableDataNFT = {
     tableHeader: [
       {
@@ -167,7 +170,7 @@ export default function FarmsPage() {
       },
     ],
 
-    tableBody: resultList || nftLPListFiltered,
+    tableBody: dataTable,
   };
 
   const [isBigScreen] = useMediaQuery("(min-width: 480px)");
