@@ -90,12 +90,7 @@ export const fetchAllStakingPools = createAsyncThunk(
 
     if (status === "OK") {
       const poolsListAddMyStake = await Promise.all(
-        ret
-          ?.filter(
-            (e) =>
-              !(isPoolEnded(e?.startTime, e?.duration) && +e?.totalStaked == 0)
-          )
-          ?.map(async (pool) => {
+        ret?.map(async (pool) => {
             let queryResult = await execContractQuery(
               params?.currentAccount?.address,
               "api",
@@ -159,12 +154,7 @@ export const fetchAllNFTPools = createAsyncThunk(
 
     if (status === "OK") {
       const nftLPListAddNftInfo = await Promise.all(
-        ret
-          ?.filter(
-            (e) =>
-              !(isPoolEnded(e?.startTime, e?.duration) && +e?.totalStaked == 0)
-          )
-          ?.map(async (nftLP) => {
+        ret?.map(async (nftLP) => {
             // get collection info
             const { ret, status } =
               await APICall.getCollectionByAddressFromArtZero({
@@ -238,10 +228,6 @@ export const fetchAllTokenPools = createAsyncThunk(
             const createdTimeB = b.createdTime ? new Date(b.createdTime) : 0;
             return compare(createdTimeB, createdTimeA);
           })
-          ?.filter(
-            (e) =>
-              !(isPoolEnded(e?.startTime, e?.duration) && +e?.totalStaked == 0)
-          )
           ?.map(async (tokenLP) => {
             // get staking data
             let queryResult = await execContractQuery(

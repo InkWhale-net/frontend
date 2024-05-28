@@ -191,7 +191,10 @@ export default function LPPoolsPage() {
       },
     ],
 
-    tableBody: tokenLPListFiltered,
+    tableBody: tokenLPListFiltered?.filter(
+      (e) =>
+        !(isPoolEnded(e?.startTime, e?.duration) && +e?.totalStaked == 0)
+    ),
   };
 
   const [isBigScreen] = useMediaQuery("(min-width: 480px)");
