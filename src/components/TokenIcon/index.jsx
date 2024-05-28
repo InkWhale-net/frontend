@@ -14,7 +14,7 @@ export default function TokenIcon({ tokenContract }) {
 
   return tokenSelected?.tokenIconUrl ? (
     <Image
-      w="38px"
+      w="42px"
       h="38px"
       objectFit="cover"
       mr="8px"
@@ -23,6 +23,12 @@ export default function TokenIcon({ tokenContract }) {
       alt="logo"
     />
   ) : (
-    <Image src={IconQuestionMark} w="38px" borderRadius={"10px"} alt="logo" />
+    <Image
+      src={IconQuestionMark}
+      w="42px"
+      h="38px"
+      borderRadius={"10px"}
+      alt="logo"
+    />
   );
 }
