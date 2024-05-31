@@ -61,10 +61,10 @@ export default function Default(props) {
                   justifyContent={["center", "center", "space-evenly"]}
                   fontSize={["13px", "13px", "15px"]}
                 >
-                  <Text color="#57527E" fontWeight={"700"} textAlign={"center"}>
+                  {/* <Text color="#57527E" fontWeight={"700"} textAlign={"center"}>
                     INW2 Price: {(TVL?.inw2InAzero || 0)?.toFixed(4)} AZERO ($
                     {inw2UsdPrice || 0})
-                  </Text>
+                  </Text> */}
                   <Text color="#57527E" fontWeight={"700"} textAlign={"center"}>
                     Platform TVL: {formatNumDynDecimal(TVL?.tvlInAzero, 2)}{" "}
                     {appChain?.unit} ($

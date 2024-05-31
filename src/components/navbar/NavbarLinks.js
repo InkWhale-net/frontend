@@ -52,7 +52,7 @@ export default function NavbarLinks(props) {
       <SidebarResponsive routes={routes} />
 
       <Show above="md">
-        <Flex
+        {/* <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
           p="6px 10px"
           bg={"transparent"}
@@ -75,7 +75,7 @@ export default function NavbarLinks(props) {
               Trade INW2
             </Text>
           </Link>
-        </Flex>
+        </Flex> */}
 
         <Flex bg="transparent">
           <GroupMenu

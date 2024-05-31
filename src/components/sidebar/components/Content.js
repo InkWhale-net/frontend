@@ -41,7 +41,7 @@ function SidebarContent({ onClose }) {
         mt="8px"
         px="20px"
       >
-        <Flex
+        {/* <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
           p="6px 10px"
           bg={"transparent"}
@@ -64,7 +64,7 @@ function SidebarContent({ onClose }) {
               Trade INW2
             </Text>
           </Link>
-        </Flex>
+        </Flex> */}
 
         <GroupMenu
           {...groupButtonProps}

@@ -107,6 +107,7 @@ export default function CreateTokenPage() {
         };
       })
     );
+
     setListToken(moveINWToBegin(processedTokenList));
   };
   useEffect(() => {
