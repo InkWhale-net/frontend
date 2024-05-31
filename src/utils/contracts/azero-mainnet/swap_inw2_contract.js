@@ -1,14 +1,14 @@
-const azt_contract = {
-  CONTRACT_ADDRESS: "5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX",
+const swap_inw2_contract = {
+  CONTRACT_ADDRESS: "5CWN6Q3JaejitEhYDcmkcRch15qj2EqZEcmVQGXHVGZF3mxP",
   CONTRACT_ABI: {
     source: {
-      hash: "0xba199e2311c6a70c84c43b4de1c947bbbc7695eb6038bd1b295d1380e04ff023",
-      language: "ink! 4.2.1",
-      compiler: "rustc 1.70.0-nightly",
+      hash: "0xf686245f1371f3d09b8e97cd88a28aef0ec714bf2ca4ac7e5ef26c26bfd2e767",
+      language: "ink! 4.3.0",
+      compiler: "rustc 1.68.0",
       build_info: {
-        build_mode: "Debug",
-        cargo_contract_version: "2.1.0",
-        rust_toolchain: "nightly-x86_64-unknown-linux-gnu",
+        build_mode: "Release",
+        cargo_contract_version: "3.2.0",
+        rust_toolchain: "stable-x86_64-unknown-linux-gnu",
         wasm_opt_settings: {
           keep_debug_symbols: false,
           optimization_passes: "Z",
@@ -16,7 +16,7 @@ const azt_contract = {
       },
     },
     contract: {
-      name: "psp22_standard",
+      name: "inw_swap",
       version: "1.0.0",
       authors: ["InkWhale <admin@artzero.io>"],
     },
@@ -25,31 +25,17 @@ const azt_contract = {
         {
           args: [
             {
-              label: "cap",
+              label: "inw_contract_v1",
               type: {
-                displayName: ["Balance"],
-                type: 0,
-              },
-            },
-            {
-              label: "name",
-              type: {
-                displayName: ["String"],
+                displayName: ["AccountId"],
                 type: 1,
               },
             },
             {
-              label: "symbol",
+              label: "inw_contract_v2",
               type: {
-                displayName: ["String"],
+                displayName: ["AccountId"],
                 type: 1,
-              },
-            },
-            {
-              label: "decimal",
-              type: {
-                displayName: ["u8"],
-                type: 2,
               },
             },
           ],
@@ -59,7 +45,7 @@ const azt_contract = {
           payable: false,
           returnType: {
             displayName: ["ink_primitives", "ConstructorResult"],
-            type: 6,
+            type: 5,
           },
           selector: "0x9bae9d5e",
         },
@@ -68,7 +54,7 @@ const azt_contract = {
       environment: {
         accountId: {
           displayName: ["AccountId"],
-          type: 3,
+          type: 1,
         },
         balance: {
           displayName: ["Balance"],
@@ -76,20 +62,20 @@ const azt_contract = {
         },
         blockNumber: {
           displayName: ["BlockNumber"],
-          type: 30,
+          type: 34,
         },
         chainExtension: {
           displayName: ["ChainExtension"],
-          type: 31,
+          type: 35,
         },
         hash: {
           displayName: ["Hash"],
-          type: 28,
+          type: 33,
         },
         maxEventTopics: 4,
         timestamp: {
           displayName: ["Timestamp"],
-          type: 29,
+          type: 19,
         },
       },
       events: [
@@ -98,19 +84,10 @@ const azt_contract = {
             {
               docs: [],
               indexed: true,
-              label: "from",
+              label: "user",
               type: {
-                displayName: ["Option"],
-                type: 25,
-              },
-            },
-            {
-              docs: [],
-              indexed: true,
-              label: "to",
-              type: {
-                displayName: ["Option"],
-                type: 25,
+                displayName: ["AccountId"],
+                type: 1,
               },
             },
             {
@@ -124,26 +101,17 @@ const azt_contract = {
             },
           ],
           docs: [],
-          label: "Transfer",
+          label: "Swap",
         },
         {
           args: [
             {
               docs: [],
               indexed: true,
-              label: "owner",
+              label: "user",
               type: {
                 displayName: ["AccountId"],
-                type: 3,
-              },
-            },
-            {
-              docs: [],
-              indexed: true,
-              label: "spender",
-              type: {
-                displayName: ["AccountId"],
-                type: 3,
+                type: 1,
               },
             },
             {
@@ -157,7 +125,7 @@ const azt_contract = {
             },
           ],
           docs: [],
-          label: "Approval",
+          label: "SwapV2ToV1",
         },
       ],
       lang_error: {
@@ -165,6 +133,81 @@ const azt_contract = {
         type: 7,
       },
       messages: [
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "pause",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 8,
+          },
+          selector: "0x81e0c604",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "unpause",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 8,
+          },
+          selector: "0x67616649",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "change_state",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 8,
+          },
+          selector: "0x300f90c8",
+        },
+        {
+          args: [
+            {
+              label: "code_hash",
+              type: {
+                displayName: ["upgradeabletrait_external", "SetCodeInput1"],
+                type: 2,
+              },
+            },
+          ],
+          default: false,
+          docs: [
+            " This function allow contract owner modifies the code which is used to execute calls to this contract address (`AccountId`).",
+          ],
+          label: "UpgradeableTrait::set_code",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 11,
+          },
+          selector: "0x9e32fab2",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [" Get Azero balance"],
+          label: "AdminTrait::get_balance",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 21,
+          },
+          selector: "0xc4360570",
+        },
         {
           args: [
             {
@@ -178,7 +221,7 @@ const azt_contract = {
               label: "receiver",
               type: {
                 displayName: ["admintrait_external", "WithdrawFeeInput2"],
-                type: 3,
+                type: 1,
               },
             },
           ],
@@ -191,22 +234,9 @@ const azt_contract = {
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 8,
+            type: 11,
           },
           selector: "0x07573e99",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [" Get Azero balance"],
-          label: "AdminTrait::get_balance",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 15,
-          },
-          selector: "0xc4360570",
         },
         {
           args: [
@@ -214,7 +244,7 @@ const azt_contract = {
               label: "psp22_contract_address",
               type: {
                 displayName: ["admintrait_external", "TranferPsp22Input1"],
-                type: 3,
+                type: 1,
               },
             },
             {
@@ -228,7 +258,7 @@ const azt_contract = {
               label: "receiver",
               type: {
                 displayName: ["admintrait_external", "TranferPsp22Input3"],
-                type: 3,
+                type: 1,
               },
             },
           ],
@@ -241,65 +271,206 @@ const azt_contract = {
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 8,
+            type: 11,
           },
           selector: "0xd9aad284",
         },
         {
-          args: [
-            {
-              label: "account",
-              type: {
-                displayName: ["psp22burnable_external", "BurnInput1"],
-                type: 3,
-              },
-            },
-            {
-              label: "amount",
-              type: {
-                displayName: ["psp22burnable_external", "BurnInput2"],
-                type: 0,
-              },
-            },
-          ],
+          args: [],
           default: false,
           docs: [],
-          label: "PSP22Burnable::burn",
-          mutates: true,
+          label: "InwSwapTrait::get_inw_contract_v1",
+          mutates: false,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 17,
+            type: 23,
           },
-          selector: "0x7a9da510",
+          selector: "0x1a3ed4b8",
         },
         {
           args: [
             {
-              label: "spender",
+              label: "amount",
               type: {
-                displayName: ["psp22_external", "ApproveInput1"],
-                type: 3,
-              },
-            },
-            {
-              label: "value",
-              type: {
-                displayName: ["psp22_external", "ApproveInput2"],
+                displayName: ["inwswaptrait_external", "SwapInput1"],
                 type: 0,
               },
             },
           ],
           default: false,
           docs: [],
-          label: "PSP22::approve",
+          label: "InwSwapTrait::swap",
           mutates: true,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 17,
+            type: 11,
           },
-          selector: "0xb20f1bbd",
+          selector: "0xae765606",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "InwSwapTrait::get_inw_contract_v2",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 23,
+          },
+          selector: "0x0543f709",
+        },
+        {
+          args: [
+            {
+              label: "inw_contract_v1",
+              type: {
+                displayName: [
+                  "inwswaptrait_external",
+                  "SetInwContractV1Input1",
+                ],
+                type: 1,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "InwSwapTrait::set_inw_contract_v1",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 11,
+          },
+          selector: "0x44df600b",
+        },
+        {
+          args: [
+            {
+              label: "inw_contract_v2",
+              type: {
+                displayName: [
+                  "inwswaptrait_external",
+                  "SetInwContractV2Input1",
+                ],
+                type: 1,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "InwSwapTrait::set_inw_contract_v2",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 11,
+          },
+          selector: "0x73271d53",
+        },
+        {
+          args: [
+            {
+              label: "amount",
+              type: {
+                displayName: ["inwswaptrait_external", "BurnInwV1Input1"],
+                type: 0,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "InwSwapTrait::burn_inw_v1",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 11,
+          },
+          selector: "0xa7c2e930",
+        },
+        {
+          args: [
+            {
+              label: "amount",
+              type: {
+                displayName: ["inwswaptrait_external", "SwapInwV2ToV1Input1"],
+                type: 0,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "InwSwapTrait::swap_inw_v2_to_v1",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 11,
+          },
+          selector: "0xa97e9c94",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "Ownable::renounce_ownership",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 24,
+          },
+          selector: "0x5e228753",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "Ownable::owner",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 26,
+          },
+          selector: "0x4fa43c8c",
+        },
+        {
+          args: [
+            {
+              label: "new_owner",
+              type: {
+                displayName: ["ownable_external", "TransferOwnershipInput1"],
+                type: 27,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "Ownable::transfer_ownership",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 24,
+          },
+          selector: "0x11f43efd",
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: "PSP22::total_supply",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 28,
+          },
+          selector: "0x162df8c2",
         },
         {
           args: [
@@ -307,7 +478,7 @@ const azt_contract = {
               label: "spender",
               type: {
                 displayName: ["psp22_external", "DecreaseAllowanceInput1"],
-                type: 3,
+                type: 1,
               },
             },
             {
@@ -325,106 +496,9 @@ const azt_contract = {
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 17,
+            type: 29,
           },
           selector: "0xfecb57d5",
-        },
-        {
-          args: [
-            {
-              label: "owner",
-              type: {
-                displayName: ["psp22_external", "AllowanceInput1"],
-                type: 3,
-              },
-            },
-            {
-              label: "spender",
-              type: {
-                displayName: ["psp22_external", "AllowanceInput2"],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "PSP22::allowance",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 19,
-          },
-          selector: "0x4d47d921",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "PSP22::total_supply",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 19,
-          },
-          selector: "0x162df8c2",
-        },
-        {
-          args: [
-            {
-              label: "to",
-              type: {
-                displayName: ["psp22_external", "TransferInput1"],
-                type: 3,
-              },
-            },
-            {
-              label: "value",
-              type: {
-                displayName: ["psp22_external", "TransferInput2"],
-                type: 0,
-              },
-            },
-            {
-              label: "data",
-              type: {
-                displayName: ["psp22_external", "TransferInput3"],
-                type: 20,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "PSP22::transfer",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 17,
-          },
-          selector: "0xdb20f9f5",
-        },
-        {
-          args: [
-            {
-              label: "owner",
-              type: {
-                displayName: ["psp22_external", "BalanceOfInput1"],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "PSP22::balance_of",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 19,
-          },
-          selector: "0x6568382f",
         },
         {
           args: [
@@ -432,14 +506,14 @@ const azt_contract = {
               label: "from",
               type: {
                 displayName: ["psp22_external", "TransferFromInput1"],
-                type: 3,
+                type: 1,
               },
             },
             {
               label: "to",
               type: {
                 displayName: ["psp22_external", "TransferFromInput2"],
-                type: 3,
+                type: 1,
               },
             },
             {
@@ -453,7 +527,7 @@ const azt_contract = {
               label: "data",
               type: {
                 displayName: ["psp22_external", "TransferFromInput4"],
-                type: 20,
+                type: 31,
               },
             },
           ],
@@ -464,9 +538,93 @@ const azt_contract = {
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 17,
+            type: 29,
           },
           selector: "0x54b3c76e",
+        },
+        {
+          args: [
+            {
+              label: "owner",
+              type: {
+                displayName: ["psp22_external", "BalanceOfInput1"],
+                type: 1,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "PSP22::balance_of",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 28,
+          },
+          selector: "0x6568382f",
+        },
+        {
+          args: [
+            {
+              label: "owner",
+              type: {
+                displayName: ["psp22_external", "AllowanceInput1"],
+                type: 1,
+              },
+            },
+            {
+              label: "spender",
+              type: {
+                displayName: ["psp22_external", "AllowanceInput2"],
+                type: 1,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "PSP22::allowance",
+          mutates: false,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 28,
+          },
+          selector: "0x4d47d921",
+        },
+        {
+          args: [
+            {
+              label: "to",
+              type: {
+                displayName: ["psp22_external", "TransferInput1"],
+                type: 1,
+              },
+            },
+            {
+              label: "value",
+              type: {
+                displayName: ["psp22_external", "TransferInput2"],
+                type: 0,
+              },
+            },
+            {
+              label: "data",
+              type: {
+                displayName: ["psp22_external", "TransferInput3"],
+                type: 31,
+              },
+            },
+          ],
+          default: false,
+          docs: [],
+          label: "PSP22::transfer",
+          mutates: true,
+          payable: false,
+          returnType: {
+            displayName: ["ink", "MessageResult"],
+            type: 29,
+          },
+          selector: "0xdb20f9f5",
         },
         {
           args: [
@@ -474,7 +632,7 @@ const azt_contract = {
               label: "spender",
               type: {
                 displayName: ["psp22_external", "IncreaseAllowanceInput1"],
-                type: 3,
+                type: 1,
               },
             },
             {
@@ -492,7 +650,7 @@ const azt_contract = {
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 17,
+            type: 29,
           },
           selector: "0x96d6b57a",
         },
@@ -505,7 +663,7 @@ const azt_contract = {
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 19,
+            type: 28,
           },
           selector: "0xf40366b4",
         },
@@ -513,115 +671,14 @@ const azt_contract = {
           args: [],
           default: false,
           docs: [],
-          label: "PSP22Metadata::token_name",
+          label: "Pausable::paused",
           mutates: false,
           payable: false,
           returnType: {
             displayName: ["ink", "MessageResult"],
-            type: 21,
+            type: 32,
           },
-          selector: "0x3d261bd4",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "PSP22Metadata::token_symbol",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 21,
-          },
-          selector: "0x34205be5",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "PSP22Metadata::token_decimals",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 23,
-          },
-          selector: "0x7271b782",
-        },
-        {
-          args: [
-            {
-              label: "account",
-              type: {
-                displayName: ["psp22mintable_external", "MintInput1"],
-                type: 3,
-              },
-            },
-            {
-              label: "amount",
-              type: {
-                displayName: ["psp22mintable_external", "MintInput2"],
-                type: 0,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "PSP22Mintable::mint",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 17,
-          },
-          selector: "0xfc3c75d4",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "Ownable::owner",
-          mutates: false,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 24,
-          },
-          selector: "0x4fa43c8c",
-        },
-        {
-          args: [],
-          default: false,
-          docs: [],
-          label: "Ownable::renounce_ownership",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 26,
-          },
-          selector: "0x5e228753",
-        },
-        {
-          args: [
-            {
-              label: "new_owner",
-              type: {
-                displayName: ["ownable_external", "TransferOwnershipInput1"],
-                type: 3,
-              },
-            },
-          ],
-          default: false,
-          docs: [],
-          label: "Ownable::transfer_ownership",
-          mutates: true,
-          payable: false,
-          returnType: {
-            displayName: ["ink", "MessageResult"],
-            type: 26,
-          },
-          selector: "0x11f43efd",
+          selector: "0xd123ce11",
         },
       ],
     },
@@ -688,91 +745,27 @@ const azt_contract = {
                     fields: [
                       {
                         layout: {
-                          root: {
-                            layout: {
-                              enum: {
-                                dispatchKey: "0x90a00b7d",
-                                name: "Option",
-                                variants: {
-                                  0: {
-                                    fields: [],
-                                    name: "None",
-                                  },
-                                  1: {
-                                    fields: [
-                                      {
-                                        layout: {
-                                          leaf: {
-                                            key: "0x90a00b7d",
-                                            ty: 1,
-                                          },
-                                        },
-                                        name: "0",
-                                      },
-                                    ],
-                                    name: "Some",
-                                  },
-                                },
-                              },
-                            },
-                            root_key: "0x90a00b7d",
+                          leaf: {
+                            key: "0x00000000",
+                            ty: 1,
                           },
                         },
-                        name: "name",
+                        name: "inw_contract_v1",
                       },
                       {
                         layout: {
-                          root: {
-                            layout: {
-                              enum: {
-                                dispatchKey: "0xf8019f84",
-                                name: "Option",
-                                variants: {
-                                  0: {
-                                    fields: [],
-                                    name: "None",
-                                  },
-                                  1: {
-                                    fields: [
-                                      {
-                                        layout: {
-                                          leaf: {
-                                            key: "0xf8019f84",
-                                            ty: 1,
-                                          },
-                                        },
-                                        name: "0",
-                                      },
-                                    ],
-                                    name: "Some",
-                                  },
-                                },
-                              },
-                            },
-                            root_key: "0xf8019f84",
+                          leaf: {
+                            key: "0x00000000",
+                            ty: 1,
                           },
                         },
-                        name: "symbol",
-                      },
-                      {
-                        layout: {
-                          root: {
-                            layout: {
-                              leaf: {
-                                key: "0xd29264d8",
-                                ty: 2,
-                              },
-                            },
-                            root_key: "0xd29264d8",
-                          },
-                        },
-                        name: "decimals",
+                        name: "inw_contract_v2",
                       },
                     ],
                     name: "Data",
                   },
                 },
-                name: "metadata",
+                name: "manager",
               },
               {
                 layout: {
@@ -796,7 +789,7 @@ const azt_contract = {
                                         layout: {
                                           leaf: {
                                             key: "0x6f713913",
-                                            ty: 3,
+                                            ty: 1,
                                           },
                                         },
                                         name: "0",
@@ -848,41 +841,26 @@ const azt_contract = {
                     fields: [
                       {
                         layout: {
-                          enum: {
-                            dispatchKey: "0x00000000",
-                            name: "Option",
-                            variants: {
-                              0: {
-                                fields: [],
-                                name: "None",
-                              },
-                              1: {
-                                fields: [
-                                  {
-                                    layout: {
-                                      leaf: {
-                                        key: "0x00000000",
-                                        ty: 5,
-                                      },
-                                    },
-                                    name: "0",
-                                  },
-                                ],
-                                name: "Some",
+                          root: {
+                            layout: {
+                              leaf: {
+                                key: "0xec3485f7",
+                                ty: 4,
                               },
                             },
+                            root_key: "0xec3485f7",
                           },
                         },
-                        name: "_reserved",
+                        name: "paused",
                       },
                     ],
                     name: "Data",
                   },
                 },
-                name: "admin_data",
+                name: "pause",
               },
             ],
-            name: "Psp22Nft",
+            name: "InwSwap",
           },
         },
         root_key: "0x00000000",
@@ -901,26 +879,10 @@ const azt_contract = {
         id: 1,
         type: {
           def: {
-            primitive: "str",
-          },
-        },
-      },
-      {
-        id: 2,
-        type: {
-          def: {
-            primitive: "u8",
-          },
-        },
-      },
-      {
-        id: 3,
-        type: {
-          def: {
             composite: {
               fields: [
                 {
-                  type: 4,
+                  type: 2,
                   typeName: "[u8; 32]",
                 },
               ],
@@ -930,13 +892,29 @@ const azt_contract = {
         },
       },
       {
-        id: 4,
+        id: 2,
         type: {
           def: {
             array: {
               len: 32,
-              type: 2,
+              type: 3,
             },
+          },
+        },
+      },
+      {
+        id: 3,
+        type: {
+          def: {
+            primitive: "u8",
+          },
+        },
+      },
+      {
+        id: 4,
+        type: {
+          def: {
+            primitive: "bool",
           },
         },
       },
@@ -944,20 +922,12 @@ const azt_contract = {
         id: 5,
         type: {
           def: {
-            tuple: [],
-          },
-        },
-      },
-      {
-        id: 6,
-        type: {
-          def: {
             variant: {
               variants: [
                 {
                   fields: [
                     {
-                      type: 5,
+                      type: 6,
                     },
                   ],
                   index: 0,
@@ -978,7 +948,7 @@ const azt_contract = {
           params: [
             {
               name: "T",
-              type: 5,
+              type: 6,
             },
             {
               name: "E",
@@ -986,6 +956,14 @@ const azt_contract = {
             },
           ],
           path: ["Result"],
+        },
+      },
+      {
+        id: 6,
+        type: {
+          def: {
+            tuple: [],
+          },
         },
       },
       {
@@ -1053,7 +1031,7 @@ const azt_contract = {
                 {
                   fields: [
                     {
-                      type: 5,
+                      type: 6,
                     },
                   ],
                   index: 0,
@@ -1074,7 +1052,7 @@ const azt_contract = {
           params: [
             {
               name: "T",
-              type: 5,
+              type: 6,
             },
             {
               name: "E",
@@ -1091,9 +1069,115 @@ const azt_contract = {
             variant: {
               variants: [
                 {
+                  index: 0,
+                  name: "Paused",
+                },
+                {
+                  index: 1,
+                  name: "NotPaused",
+                },
+              ],
+            },
+          },
+          path: [
+            "openbrush_contracts",
+            "traits",
+            "errors",
+            "pausable",
+            "PausableError",
+          ],
+        },
+      },
+      {
+        id: 11,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
                   fields: [
                     {
-                      type: 1,
+                      type: 12,
+                    },
+                  ],
+                  index: 0,
+                  name: "Ok",
+                },
+                {
+                  fields: [
+                    {
+                      type: 7,
+                    },
+                  ],
+                  index: 1,
+                  name: "Err",
+                },
+              ],
+            },
+          },
+          params: [
+            {
+              name: "T",
+              type: 12,
+            },
+            {
+              name: "E",
+              type: 7,
+            },
+          ],
+          path: ["Result"],
+        },
+      },
+      {
+        id: 12,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
+                  fields: [
+                    {
+                      type: 6,
+                    },
+                  ],
+                  index: 0,
+                  name: "Ok",
+                },
+                {
+                  fields: [
+                    {
+                      type: 13,
+                    },
+                  ],
+                  index: 1,
+                  name: "Err",
+                },
+              ],
+            },
+          },
+          params: [
+            {
+              name: "T",
+              type: 6,
+            },
+            {
+              name: "E",
+              type: 13,
+            },
+          ],
+          path: ["Result"],
+        },
+      },
+      {
+        id: 13,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
+                  fields: [
+                    {
+                      type: 14,
                       typeName: "String",
                     },
                   ],
@@ -1103,7 +1187,7 @@ const azt_contract = {
                 {
                   fields: [
                     {
-                      type: 11,
+                      type: 15,
                       typeName: "OwnableError",
                     },
                   ],
@@ -1113,7 +1197,7 @@ const azt_contract = {
                 {
                   fields: [
                     {
-                      type: 12,
+                      type: 16,
                       typeName: "AccessControlError",
                     },
                   ],
@@ -1123,7 +1207,7 @@ const azt_contract = {
                 {
                   fields: [
                     {
-                      type: 13,
+                      type: 17,
                       typeName: "PSP22Error",
                     },
                   ],
@@ -1133,7 +1217,7 @@ const azt_contract = {
                 {
                   fields: [
                     {
-                      type: 14,
+                      type: 20,
                       typeName: "PSP34Error",
                     },
                   ],
@@ -1141,276 +1225,318 @@ const azt_contract = {
                   name: "PSP34Error",
                 },
                 {
+                  fields: [
+                    {
+                      type: 10,
+                      typeName: "PausableError",
+                    },
+                  ],
                   index: 5,
-                  name: "NotEnoughBalance",
+                  name: "PausableError",
                 },
                 {
                   index: 6,
-                  name: "WithdrawFeeError",
+                  name: "NotEnoughBalance",
                 },
                 {
                   index: 7,
-                  name: "NotCallable",
+                  name: "WithdrawFeeError",
                 },
                 {
                   index: 8,
-                  name: "CannotTransfer",
+                  name: "NotCallable",
                 },
                 {
                   index: 9,
-                  name: "CannotBurn",
+                  name: "CannotTransfer",
                 },
                 {
                   index: 10,
-                  name: "CheckedOperations",
+                  name: "CannotBurn",
                 },
                 {
                   index: 11,
-                  name: "InvalidBalanceAndAllowance",
+                  name: "CheckedOperations",
                 },
                 {
                   index: 12,
-                  name: "AlreadyInit",
+                  name: "InvalidBalanceAndAllowance",
                 },
                 {
                   index: 13,
-                  name: "InvalidBuyAmount",
+                  name: "AlreadyInit",
                 },
                 {
                   index: 14,
-                  name: "InvalidTransferAmount",
+                  name: "InvalidBuyAmount",
                 },
                 {
                   index: 15,
-                  name: "CannotCreatePool",
+                  name: "InvalidTransferAmount",
                 },
                 {
                   index: 16,
-                  name: "NotTimeToStake",
+                  name: "CannotCreatePool",
                 },
                 {
                   index: 17,
-                  name: "NoStakerFound",
+                  name: "NotTimeToStake",
                 },
                 {
                   index: 18,
-                  name: "InvalidUnstakedAmount",
+                  name: "NoStakerFound",
                 },
                 {
                   index: 19,
-                  name: "NotEnoughReward",
+                  name: "InvalidUnstakedAmount",
                 },
                 {
                   index: 20,
-                  name: "NotTokenOwner",
+                  name: "NotEnoughReward",
                 },
                 {
                   index: 21,
-                  name: "AllowanceNotSet",
+                  name: "NotTokenOwner",
                 },
                 {
                   index: 22,
-                  name: "TokenNotFound",
+                  name: "AllowanceNotSet",
                 },
                 {
                   index: 23,
-                  name: "UserNotStake",
+                  name: "TokenNotFound",
                 },
                 {
                   index: 24,
-                  name: "NoTokenOwner",
+                  name: "UserNotStake",
                 },
                 {
                   index: 25,
-                  name: "ExceedTotalStakingAmount",
+                  name: "NoTokenOwner",
                 },
                 {
                   index: 26,
-                  name: "NoClaimAmount",
+                  name: "ExceedTotalStakingAmount",
                 },
                 {
                   index: 27,
-                  name: "NotTimeToWithdraw",
+                  name: "NoClaimAmount",
                 },
                 {
                   index: 28,
-                  name: "NotEnoughRewardToWithdraw",
+                  name: "NotTimeToWithdraw",
                 },
                 {
                   index: 29,
-                  name: "NotTopupEnoughReward",
+                  name: "NotEnoughRewardToWithdraw",
                 },
                 {
                   index: 30,
-                  name: "NoAmount",
+                  name: "NotTopupEnoughReward",
                 },
                 {
                   index: 31,
-                  name: "InvalidTokenBalanceAndAllowance",
+                  name: "NoAmount",
                 },
                 {
                   index: 32,
-                  name: "CannotApprove",
+                  name: "InvalidTokenBalanceAndAllowance",
                 },
                 {
                   index: 33,
-                  name: "CannotTopupRewardPool",
+                  name: "CannotApprove",
                 },
                 {
                   index: 34,
-                  name: "NotTimeToPurchase",
+                  name: "CannotTopupRewardPool",
                 },
                 {
                   index: 35,
-                  name: "NotTimeToClaim",
+                  name: "NotTimeToPurchase",
                 },
                 {
                   index: 36,
-                  name: "NotTimeToBurn",
+                  name: "NotTimeToClaim",
                 },
                 {
                   index: 37,
-                  name: "NoTokenPurchased",
+                  name: "NotTimeToBurn",
                 },
                 {
                   index: 38,
-                  name: "AlreadyBurnt",
+                  name: "NoTokenPurchased",
                 },
                 {
                   index: 39,
-                  name: "InvalidTime",
+                  name: "AlreadyBurnt",
                 },
                 {
                   index: 40,
-                  name: "InvalidPercentage",
+                  name: "InvalidTime",
                 },
                 {
                   index: 41,
-                  name: "InvalidDuration",
+                  name: "InvalidPercentage",
                 },
                 {
                   index: 42,
-                  name: "InvalidTopupAmount",
+                  name: "InvalidDuration",
                 },
                 {
                   index: 43,
-                  name: "LaunchpadNotExist",
+                  name: "InvalidVestingUnit",
                 },
                 {
                   index: 44,
-                  name: "InvalidIsActiveInput",
+                  name: "InvalidTopupAmount",
                 },
                 {
                   index: 45,
-                  name: "InvalidCreationFee",
+                  name: "LaunchpadNotExist",
                 },
                 {
                   index: 46,
-                  name: "InvalidTxRate",
+                  name: "InvalidIsActiveInput",
                 },
                 {
                   index: 47,
-                  name: "InvalidPhaseData",
+                  name: "InvalidCreationFee",
                 },
                 {
                   index: 48,
-                  name: "CannotTopupToken",
+                  name: "InvalidTxRate",
                 },
                 {
                   index: 49,
-                  name: "InvalidStartTimeAndEndTime",
+                  name: "InvalidPhaseData",
                 },
                 {
                   index: 50,
-                  name: "InvalidPhaseCount",
+                  name: "CannotTopupToken",
                 },
                 {
                   index: 51,
-                  name: "InvalidMaxStakingAmount",
+                  name: "InvalidStartTimeAndEndTime",
                 },
                 {
                   index: 52,
-                  name: "InvalidApy",
+                  name: "InvalidPhaseCount",
                 },
                 {
                   index: 53,
-                  name: "InvalidMultiplier",
+                  name: "InvalidMaxStakingAmount",
                 },
                 {
                   index: 54,
-                  name: "InvalidWhitelistData",
+                  name: "InvalidApy",
                 },
                 {
                   index: 55,
-                  name: "PhaseNotExist",
+                  name: "InvalidMultiplier",
                 },
                 {
                   index: 56,
-                  name: "PhaseNotActive",
+                  name: "InvalidWhitelistData",
                 },
                 {
                   index: 57,
-                  name: "WhitelistBuyerInfoNotExist",
+                  name: "PhaseNotExist",
                 },
                 {
                   index: 58,
-                  name: "WhitelistBuyerInfoExist",
+                  name: "PhaseNotActive",
                 },
                 {
                   index: 59,
-                  name: "WhitelistBuyerPurchased",
+                  name: "WhitelistBuyerInfoNotExist",
                 },
                 {
                   index: 60,
-                  name: "WhitelistSaleInfoNotExist",
+                  name: "WhitelistBuyerInfoExist",
                 },
                 {
                   index: 61,
-                  name: "WhitelistPhaseAccountNotExist",
+                  name: "WhitelistBuyerPurchased",
                 },
                 {
                   index: 62,
-                  name: "PublicSaleInfoNotExist",
+                  name: "WhitelistSaleInfoNotExist",
                 },
                 {
                   index: 63,
-                  name: "InvalidSetActive",
+                  name: "WhitelistPhaseAccountNotExist",
                 },
                 {
                   index: 64,
-                  name: "InvalidTotalAmount",
+                  name: "PublicSaleInfoNotExist",
                 },
                 {
                   index: 65,
-                  name: "CannotTransferTxFee",
+                  name: "InvalidSetActive",
                 },
                 {
                   index: 66,
-                  name: "ActiveLaunchpadStatusNotFound",
+                  name: "InvalidTotalAmount",
                 },
                 {
                   index: 67,
-                  name: "LaunchpadNotActive",
+                  name: "CannotTransferTxFee",
                 },
                 {
                   index: 68,
-                  name: "InvalidCaller",
+                  name: "ActiveLaunchpadStatusNotFound",
                 },
                 {
                   index: 69,
-                  name: "NoPhaseActive",
+                  name: "LaunchpadNotActive",
                 },
                 {
                   index: 70,
-                  name: "InvalidTotalSupply",
+                  name: "InvalidCaller",
                 },
                 {
                   index: 71,
-                  name: "PhaseNotPublic",
+                  name: "NoPhaseActive",
                 },
                 {
                   index: 72,
+                  name: "InvalidTotalSupply",
+                },
+                {
+                  index: 73,
+                  name: "PhaseNotPublic",
+                },
+                {
+                  index: 74,
                   name: "InvalidSetPublic",
+                },
+                {
+                  index: 75,
+                  name: "InvalidCapAmount",
+                },
+                {
+                  index: 76,
+                  name: "InvalidWhitelistAmount",
+                },
+                {
+                  index: 77,
+                  name: "CapExceeded",
+                },
+                {
+                  index: 78,
+                  name: "CannotCollectInwV1",
+                },
+                {
+                  index: 79,
+                  name: "CannotCollectInwV2",
+                },
+                {
+                  index: 80,
+                  name: "CannotMintInwV2",
+                },
+                {
+                  index: 81,
+                  name: "CannotTransferInwV1",
                 },
               ],
             },
@@ -1419,7 +1545,15 @@ const azt_contract = {
         },
       },
       {
-        id: 11,
+        id: 14,
+        type: {
+          def: {
+            primitive: "str",
+          },
+        },
+      },
+      {
+        id: 15,
         type: {
           def: {
             variant: {
@@ -1430,7 +1564,7 @@ const azt_contract = {
                 },
                 {
                   index: 1,
-                  name: "NewOwnerIsZero",
+                  name: "NewOwnerIsNotSet",
                 },
               ],
             },
@@ -1445,7 +1579,7 @@ const azt_contract = {
         },
       },
       {
-        id: 12,
+        id: 16,
         type: {
           def: {
             variant: {
@@ -1475,7 +1609,7 @@ const azt_contract = {
         },
       },
       {
-        id: 13,
+        id: 17,
         type: {
           def: {
             variant: {
@@ -1483,7 +1617,7 @@ const azt_contract = {
                 {
                   fields: [
                     {
-                      type: 1,
+                      type: 14,
                       typeName: "String",
                     },
                   ],
@@ -1500,21 +1634,39 @@ const azt_contract = {
                 },
                 {
                   index: 3,
-                  name: "ZeroRecipientAddress",
+                  name: "RecipientIsNotSet",
                 },
                 {
                   index: 4,
-                  name: "ZeroSenderAddress",
+                  name: "SenderIsNotSet",
                 },
                 {
                   fields: [
                     {
-                      type: 1,
+                      type: 14,
                       typeName: "String",
                     },
                   ],
                   index: 5,
                   name: "SafeTransferCheckFailed",
+                },
+                {
+                  index: 6,
+                  name: "PermitInvalidSignature",
+                },
+                {
+                  index: 7,
+                  name: "PermitExpired",
+                },
+                {
+                  fields: [
+                    {
+                      type: 18,
+                      typeName: "NoncesError",
+                    },
+                  ],
+                  index: 8,
+                  name: "NoncesError",
                 },
               ],
             },
@@ -1529,7 +1681,7 @@ const azt_contract = {
         },
       },
       {
-        id: 14,
+        id: 18,
         type: {
           def: {
             variant: {
@@ -1538,6 +1690,50 @@ const azt_contract = {
                   fields: [
                     {
                       type: 1,
+                      typeName: "AccountId",
+                    },
+                    {
+                      type: 19,
+                      typeName: "u64",
+                    },
+                  ],
+                  index: 0,
+                  name: "InvalidAccountNonce",
+                },
+                {
+                  index: 1,
+                  name: "NonceOverflow",
+                },
+              ],
+            },
+          },
+          path: [
+            "openbrush_contracts",
+            "traits",
+            "errors",
+            "nonces",
+            "NoncesError",
+          ],
+        },
+      },
+      {
+        id: 19,
+        type: {
+          def: {
+            primitive: "u64",
+          },
+        },
+      },
+      {
+        id: 20,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
+                  fields: [
+                    {
+                      type: 14,
                       typeName: "String",
                     },
                   ],
@@ -1563,7 +1759,7 @@ const azt_contract = {
                 {
                   fields: [
                     {
-                      type: 1,
+                      type: 14,
                       typeName: "String",
                     },
                   ],
@@ -1580,216 +1776,6 @@ const azt_contract = {
             "psp34",
             "PSP34Error",
           ],
-        },
-      },
-      {
-        id: 15,
-        type: {
-          def: {
-            variant: {
-              variants: [
-                {
-                  fields: [
-                    {
-                      type: 16,
-                    },
-                  ],
-                  index: 0,
-                  name: "Ok",
-                },
-                {
-                  fields: [
-                    {
-                      type: 7,
-                    },
-                  ],
-                  index: 1,
-                  name: "Err",
-                },
-              ],
-            },
-          },
-          params: [
-            {
-              name: "T",
-              type: 16,
-            },
-            {
-              name: "E",
-              type: 7,
-            },
-          ],
-          path: ["Result"],
-        },
-      },
-      {
-        id: 16,
-        type: {
-          def: {
-            variant: {
-              variants: [
-                {
-                  fields: [
-                    {
-                      type: 0,
-                    },
-                  ],
-                  index: 0,
-                  name: "Ok",
-                },
-                {
-                  fields: [
-                    {
-                      type: 10,
-                    },
-                  ],
-                  index: 1,
-                  name: "Err",
-                },
-              ],
-            },
-          },
-          params: [
-            {
-              name: "T",
-              type: 0,
-            },
-            {
-              name: "E",
-              type: 10,
-            },
-          ],
-          path: ["Result"],
-        },
-      },
-      {
-        id: 17,
-        type: {
-          def: {
-            variant: {
-              variants: [
-                {
-                  fields: [
-                    {
-                      type: 18,
-                    },
-                  ],
-                  index: 0,
-                  name: "Ok",
-                },
-                {
-                  fields: [
-                    {
-                      type: 7,
-                    },
-                  ],
-                  index: 1,
-                  name: "Err",
-                },
-              ],
-            },
-          },
-          params: [
-            {
-              name: "T",
-              type: 18,
-            },
-            {
-              name: "E",
-              type: 7,
-            },
-          ],
-          path: ["Result"],
-        },
-      },
-      {
-        id: 18,
-        type: {
-          def: {
-            variant: {
-              variants: [
-                {
-                  fields: [
-                    {
-                      type: 5,
-                    },
-                  ],
-                  index: 0,
-                  name: "Ok",
-                },
-                {
-                  fields: [
-                    {
-                      type: 13,
-                    },
-                  ],
-                  index: 1,
-                  name: "Err",
-                },
-              ],
-            },
-          },
-          params: [
-            {
-              name: "T",
-              type: 5,
-            },
-            {
-              name: "E",
-              type: 13,
-            },
-          ],
-          path: ["Result"],
-        },
-      },
-      {
-        id: 19,
-        type: {
-          def: {
-            variant: {
-              variants: [
-                {
-                  fields: [
-                    {
-                      type: 0,
-                    },
-                  ],
-                  index: 0,
-                  name: "Ok",
-                },
-                {
-                  fields: [
-                    {
-                      type: 7,
-                    },
-                  ],
-                  index: 1,
-                  name: "Err",
-                },
-              ],
-            },
-          },
-          params: [
-            {
-              name: "T",
-              type: 0,
-            },
-            {
-              name: "E",
-              type: 7,
-            },
-          ],
-          path: ["Result"],
-        },
-      },
-      {
-        id: 20,
-        type: {
-          def: {
-            sequence: {
-              type: 2,
-            },
-          },
         },
       },
       {
@@ -1839,17 +1825,22 @@ const azt_contract = {
             variant: {
               variants: [
                 {
+                  fields: [
+                    {
+                      type: 0,
+                    },
+                  ],
                   index: 0,
-                  name: "None",
+                  name: "Ok",
                 },
                 {
                   fields: [
                     {
-                      type: 1,
+                      type: 13,
                     },
                   ],
                   index: 1,
-                  name: "Some",
+                  name: "Err",
                 },
               ],
             },
@@ -1857,10 +1848,14 @@ const azt_contract = {
           params: [
             {
               name: "T",
-              type: 1,
+              type: 0,
+            },
+            {
+              name: "E",
+              type: 13,
             },
           ],
-          path: ["Option"],
+          path: ["Result"],
         },
       },
       {
@@ -1872,7 +1867,7 @@ const azt_contract = {
                 {
                   fields: [
                     {
-                      type: 2,
+                      type: 1,
                     },
                   ],
                   index: 0,
@@ -1893,7 +1888,7 @@ const azt_contract = {
           params: [
             {
               name: "T",
-              type: 2,
+              type: 1,
             },
             {
               name: "E",
@@ -1950,17 +1945,22 @@ const azt_contract = {
             variant: {
               variants: [
                 {
+                  fields: [
+                    {
+                      type: 6,
+                    },
+                  ],
                   index: 0,
-                  name: "None",
+                  name: "Ok",
                 },
                 {
                   fields: [
                     {
-                      type: 3,
+                      type: 15,
                     },
                   ],
                   index: 1,
-                  name: "Some",
+                  name: "Err",
                 },
               ],
             },
@@ -1968,10 +1968,14 @@ const azt_contract = {
           params: [
             {
               name: "T",
-              type: 3,
+              type: 6,
+            },
+            {
+              name: "E",
+              type: 15,
             },
           ],
-          path: ["Option"],
+          path: ["Result"],
         },
       },
       {
@@ -2021,9 +2025,40 @@ const azt_contract = {
             variant: {
               variants: [
                 {
+                  index: 0,
+                  name: "None",
+                },
+                {
                   fields: [
                     {
-                      type: 5,
+                      type: 1,
+                    },
+                  ],
+                  index: 1,
+                  name: "Some",
+                },
+              ],
+            },
+          },
+          params: [
+            {
+              name: "T",
+              type: 1,
+            },
+          ],
+          path: ["Option"],
+        },
+      },
+      {
+        id: 28,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
+                  fields: [
+                    {
+                      type: 0,
                     },
                   ],
                   index: 0,
@@ -2032,7 +2067,7 @@ const azt_contract = {
                 {
                   fields: [
                     {
-                      type: 11,
+                      type: 7,
                     },
                   ],
                   index: 1,
@@ -2044,24 +2079,154 @@ const azt_contract = {
           params: [
             {
               name: "T",
-              type: 5,
+              type: 0,
             },
             {
               name: "E",
-              type: 11,
+              type: 7,
             },
           ],
           path: ["Result"],
         },
       },
       {
-        id: 28,
+        id: 29,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
+                  fields: [
+                    {
+                      type: 30,
+                    },
+                  ],
+                  index: 0,
+                  name: "Ok",
+                },
+                {
+                  fields: [
+                    {
+                      type: 7,
+                    },
+                  ],
+                  index: 1,
+                  name: "Err",
+                },
+              ],
+            },
+          },
+          params: [
+            {
+              name: "T",
+              type: 30,
+            },
+            {
+              name: "E",
+              type: 7,
+            },
+          ],
+          path: ["Result"],
+        },
+      },
+      {
+        id: 30,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
+                  fields: [
+                    {
+                      type: 6,
+                    },
+                  ],
+                  index: 0,
+                  name: "Ok",
+                },
+                {
+                  fields: [
+                    {
+                      type: 17,
+                    },
+                  ],
+                  index: 1,
+                  name: "Err",
+                },
+              ],
+            },
+          },
+          params: [
+            {
+              name: "T",
+              type: 6,
+            },
+            {
+              name: "E",
+              type: 17,
+            },
+          ],
+          path: ["Result"],
+        },
+      },
+      {
+        id: 31,
+        type: {
+          def: {
+            sequence: {
+              type: 3,
+            },
+          },
+        },
+      },
+      {
+        id: 32,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {
+                  fields: [
+                    {
+                      type: 4,
+                    },
+                  ],
+                  index: 0,
+                  name: "Ok",
+                },
+                {
+                  fields: [
+                    {
+                      type: 7,
+                    },
+                  ],
+                  index: 1,
+                  name: "Err",
+                },
+              ],
+            },
+          },
+          params: [
+            {
+              name: "T",
+              type: 4,
+            },
+            {
+              name: "E",
+              type: 7,
+            },
+          ],
+          path: ["Result"],
+        },
+      },
+      {
+        id: 33,
         type: {
           def: {
             composite: {
               fields: [
                 {
-                  type: 4,
+                  type: 2,
                   typeName: "[u8; 32]",
                 },
               ],
@@ -2071,15 +2236,7 @@ const azt_contract = {
         },
       },
       {
-        id: 29,
-        type: {
-          def: {
-            primitive: "u64",
-          },
-        },
-      },
-      {
-        id: 30,
+        id: 34,
         type: {
           def: {
             primitive: "u32",
@@ -2087,7 +2244,7 @@ const azt_contract = {
         },
       },
       {
-        id: 31,
+        id: 35,
         type: {
           def: {
             variant: {},
@@ -2100,4 +2257,4 @@ const azt_contract = {
   },
 };
 
-export default azt_contract;
+  export default swap_inw2_contract;

@@ -1,13 +1,13 @@
-const lp_pool_generator_contract = {
-	CONTRACT_ADDRESS: "5EVBFxHMTWadGSkQTx8B8mW454bfkAxsY25so8JGxH6AptYp",
+const psp22_contract = {
+	CONTRACT_ADDRESS: "5H4aCwLKUpVpct6XGJzDGPPXFockNKQU2JUVNgUw6BXEPzST",
 	CONTRACT_ABI: {
 		"source": {
-		  "hash": "0x16cb993256e7ace0f585845ce496d7a7deeda2370e5b573f0bcbe4139da6f7f4",
+		  "hash": "0x196515c8485b795cd2eeab043f305faa4a4caa2eb8dbf1245f6b3a187e0c75c9",
 		  "language": "ink! 4.3.0",
 		  "compiler": "rustc 1.68.0",
 		  "build_info": {
 			"build_mode": "Debug",
-			"cargo_contract_version": "3.2.0",
+			"cargo_contract_version": "2.0.1",
 			"rust_toolchain": "stable-x86_64-unknown-linux-gnu",
 			"wasm_opt_settings": {
 			  "keep_debug_symbols": false,
@@ -16,10 +16,10 @@ const lp_pool_generator_contract = {
 		  }
 		},
 		"contract": {
-		  "name": "lp_pool_generator",
-		  "version": "1.0.1",
+		  "name": "token_standard",
+		  "version": "1.0.0",
 		  "authors": [
-			"Support <contact@artzero.io>"
+			"InkWhale <admin@artzero.io>"
 		  ]
 		},
 		"spec": {
@@ -27,48 +27,57 @@ const lp_pool_generator_contract = {
 			{
 			  "args": [
 				{
-				  "label": "pool_hash",
+				  "label": "contract_owner",
 				  "type": {
 					"displayName": [
-					  "Hash"
+					  "AccountId"
 					],
 					"type": 3
 				  }
 				},
 				{
-				  "label": "inw_contract",
+				  "label": "mint_to",
 				  "type": {
 					"displayName": [
 					  "AccountId"
+					],
+					"type": 3
+				  }
+				},
+				{
+				  "label": "cap",
+				  "type": {
+					"displayName": [
+					  "Balance"
 					],
 					"type": 0
 				  }
 				},
 				{
-				  "label": "creation_fee",
+				  "label": "name",
 				  "type": {
 					"displayName": [
-					  "Balance"
+					  "String"
 					],
-					"type": 5
+					"type": 1
 				  }
 				},
 				{
-				  "label": "unstake_fee",
+				  "label": "symbol",
 				  "type": {
 					"displayName": [
-					  "Balance"
+					  "String"
 					],
-					"type": 5
+					"type": 1
 				  }
 				},
 				{
-				  "label": "owner_address",
+				  "label": "decimal",
 				  "type": {
 					"displayName": [
-					  "AccountId"
+					  "u8"
 					],
-					"type": 0
+					"type": 2
 				  }
 				}
 			  ],
@@ -81,7 +90,7 @@ const lp_pool_generator_contract = {
 				  "ink_primitives",
 				  "ConstructorResult"
 				],
-				"type": 7
+				"type": 6
 			  },
 			  "selector": "0x9bae9d5e"
 			}
@@ -92,241 +101,135 @@ const lp_pool_generator_contract = {
 			  "displayName": [
 				"AccountId"
 			  ],
-			  "type": 0
+			  "type": 3
 			},
 			"balance": {
 			  "displayName": [
 				"Balance"
 			  ],
-			  "type": 5
+			  "type": 0
 			},
 			"blockNumber": {
 			  "displayName": [
 				"BlockNumber"
 			  ],
-			  "type": 29
+			  "type": 30
 			},
 			"chainExtension": {
 			  "displayName": [
 				"ChainExtension"
 			  ],
-			  "type": 30
+			  "type": 31
 			},
 			"hash": {
 			  "displayName": [
 				"Hash"
 			  ],
-			  "type": 3
+			  "type": 28
 			},
 			"maxEventTopics": 4,
 			"timestamp": {
 			  "displayName": [
 				"Timestamp"
 			  ],
-			  "type": 4
+			  "type": 29
 			}
 		  },
-		  "events": [],
+		  "events": [
+			{
+			  "args": [
+				{
+				  "docs": [],
+				  "indexed": true,
+				  "label": "from",
+				  "type": {
+					"displayName": [
+					  "Option"
+					],
+					"type": 27
+				  }
+				},
+				{
+				  "docs": [],
+				  "indexed": true,
+				  "label": "to",
+				  "type": {
+					"displayName": [
+					  "Option"
+					],
+					"type": 27
+				  }
+				},
+				{
+				  "docs": [],
+				  "indexed": false,
+				  "label": "value",
+				  "type": {
+					"displayName": [
+					  "Balance"
+					],
+					"type": 0
+				  }
+				}
+			  ],
+			  "docs": [],
+			  "label": "Transfer"
+			},
+			{
+			  "args": [
+				{
+				  "docs": [],
+				  "indexed": true,
+				  "label": "owner",
+				  "type": {
+					"displayName": [
+					  "AccountId"
+					],
+					"type": 3
+				  }
+				},
+				{
+				  "docs": [],
+				  "indexed": true,
+				  "label": "spender",
+				  "type": {
+					"displayName": [
+					  "AccountId"
+					],
+					"type": 3
+				  }
+				},
+				{
+				  "docs": [],
+				  "indexed": false,
+				  "label": "value",
+				  "type": {
+					"displayName": [
+					  "Balance"
+					],
+					"type": 0
+				  }
+				}
+			  ],
+			  "docs": [],
+			  "label": "Approval"
+			}
+		  ],
 		  "lang_error": {
 			"displayName": [
 			  "ink",
 			  "LangError"
 			],
-			"type": 8
+			"type": 7
 		  },
 		  "messages": [
 			{
-			  "args": [
-				{
-				  "label": "pool_hash",
-				  "type": {
-					"displayName": [
-					  "Hash"
-					],
-					"type": 3
-				  }
-				},
-				{
-				  "label": "inw_contract",
-				  "type": {
-					"displayName": [
-					  "AccountId"
-					],
-					"type": 0
-				  }
-				},
-				{
-				  "label": "creation_fee",
-				  "type": {
-					"displayName": [
-					  "Balance"
-					],
-					"type": 5
-				  }
-				},
-				{
-				  "label": "unstake_fee",
-				  "type": {
-					"displayName": [
-					  "Balance"
-					],
-					"type": 5
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "initialize",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 9
-			  },
-			  "selector": "0xf2f6dba3"
-			},
-			{
-			  "args": [
-				{
-				  "label": "contract_owner",
-				  "type": {
-					"displayName": [
-					  "AccountId"
-					],
-					"type": 0
-				  }
-				},
-				{
-				  "label": "lp_contract_address",
-				  "type": {
-					"displayName": [
-					  "AccountId"
-					],
-					"type": 0
-				  }
-				},
-				{
-				  "label": "psp22_contract_address",
-				  "type": {
-					"displayName": [
-					  "AccountId"
-					],
-					"type": 0
-				  }
-				},
-				{
-				  "label": "max_staking_amount",
-				  "type": {
-					"displayName": [
-					  "Balance"
-					],
-					"type": 5
-				  }
-				},
-				{
-				  "label": "multiplier",
-				  "type": {
-					"displayName": [
-					  "u128"
-					],
-					"type": 5
-				  }
-				},
-				{
-				  "label": "duration",
-				  "type": {
-					"displayName": [
-					  "u64"
-					],
-					"type": 4
-				  }
-				},
-				{
-				  "label": "start_time",
-				  "type": {
-					"displayName": [
-					  "u64"
-					],
-					"type": 4
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "new_pool",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 9
-			  },
-			  "selector": "0x2393fe3a"
-			},
-			{
-			  "args": [
-				{
-				  "label": "creation_fee",
-				  "type": {
-					"displayName": [
-					  "genericpoolgeneratortrait_external",
-					  "SetCreationFeeInput1"
-					],
-					"type": 5
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::set_creation_fee",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 9
-			  },
-			  "selector": "0x3cd3873c"
-			},
-			{
 			  "args": [],
 			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_creation_fee",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 17
-			  },
-			  "selector": "0xea416566"
-			},
-			{
-			  "args": [
-				{
-				  "label": "unstake_fee",
-				  "type": {
-					"displayName": [
-					  "genericpoolgeneratortrait_external",
-					  "SetUnstakeFeeInput1"
-					],
-					"type": 5
-				  }
-				}
+			  "docs": [
+				" Get Azero balance"
 			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::set_unstake_fee",
+			  "label": "AdminTrait::get_balance",
 			  "mutates": true,
 			  "payable": false,
 			  "returnType": {
@@ -334,218 +237,9 @@ const lp_pool_generator_contract = {
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 9
+				"type": 8
 			  },
-			  "selector": "0xfd8d8fda"
-			},
-			{
-			  "args": [
-				{
-				  "label": "index",
-				  "type": {
-					"displayName": [
-					  "genericpoolgeneratortrait_external",
-					  "GetPoolInput1"
-					],
-					"type": 4
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_pool",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 18
-			  },
-			  "selector": "0xd8207f36"
-			},
-			{
-			  "args": [],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_pool_count",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 20
-			  },
-			  "selector": "0x38b09ecb"
-			},
-			{
-			  "args": [
-				{
-				  "label": "contract_owner",
-				  "type": {
-					"displayName": [
-					  "genericpoolgeneratortrait_external",
-					  "GetPoolCountByOwnerInput1"
-					],
-					"type": 0
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_pool_count_by_owner",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 20
-			  },
-			  "selector": "0xa4cef8cd"
-			},
-			{
-			  "args": [],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_inw_contract",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 21
-			  },
-			  "selector": "0xd6b47e7a"
-			},
-			{
-			  "args": [
-				{
-				  "label": "contract_owner",
-				  "type": {
-					"displayName": [
-					  "genericpoolgeneratortrait_external",
-					  "GetPoolByOwnerInput1"
-					],
-					"type": 0
-				  }
-				},
-				{
-				  "label": "index",
-				  "type": {
-					"displayName": [
-					  "genericpoolgeneratortrait_external",
-					  "GetPoolByOwnerInput2"
-					],
-					"type": 4
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_pool_by_owner",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 22
-			  },
-			  "selector": "0x476bc739"
-			},
-			{
-			  "args": [],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_pool_hash",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 24
-			  },
-			  "selector": "0x79f903bb"
-			},
-			{
-			  "args": [],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_unstake_fee",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 17
-			  },
-			  "selector": "0xa4395f88"
-			},
-			{
-			  "args": [
-				{
-				  "label": "pool_hash",
-				  "type": {
-					"displayName": [
-					  "genericpoolgeneratortrait_external",
-					  "SetPoolHashInput1"
-					],
-					"type": 3
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::set_pool_hash",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 9
-			  },
-			  "selector": "0xc49c451f"
-			},
-			{
-			  "args": [
-				{
-				  "label": "inw_contract",
-				  "type": {
-					"displayName": [
-					  "genericpoolgeneratortrait_external",
-					  "SetInwContractInput1"
-					],
-					"type": 0
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::set_inw_contract",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 9
-			  },
-			  "selector": "0xf71a1217"
+			  "selector": "0xc4360570"
 			},
 			{
 			  "args": [
@@ -556,7 +250,7 @@ const lp_pool_generator_contract = {
 					  "admintrait_external",
 					  "WithdrawFeeInput1"
 					],
-					"type": 5
+					"type": 0
 				  }
 				},
 				{
@@ -566,7 +260,7 @@ const lp_pool_generator_contract = {
 					  "admintrait_external",
 					  "WithdrawFeeInput2"
 					],
-					"type": 0
+					"type": 3
 				  }
 				}
 			  ],
@@ -582,27 +276,9 @@ const lp_pool_generator_contract = {
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 9
+				"type": 15
 			  },
 			  "selector": "0x07573e99"
-			},
-			{
-			  "args": [],
-			  "default": false,
-			  "docs": [
-				" Get Azero balance"
-			  ],
-			  "label": "AdminTrait::get_balance",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 25
-			  },
-			  "selector": "0xc4360570"
 			},
 			{
 			  "args": [
@@ -613,7 +289,7 @@ const lp_pool_generator_contract = {
 					  "admintrait_external",
 					  "TranferPsp22Input1"
 					],
-					"type": 0
+					"type": 3
 				  }
 				},
 				{
@@ -623,7 +299,7 @@ const lp_pool_generator_contract = {
 					  "admintrait_external",
 					  "TranferPsp22Input2"
 					],
-					"type": 5
+					"type": 0
 				  }
 				},
 				{
@@ -633,7 +309,7 @@ const lp_pool_generator_contract = {
 					  "admintrait_external",
 					  "TranferPsp22Input3"
 					],
-					"type": 0
+					"type": 3
 				  }
 				}
 			  ],
@@ -649,28 +325,36 @@ const lp_pool_generator_contract = {
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 9
+				"type": 15
 			  },
 			  "selector": "0xd9aad284"
 			},
 			{
 			  "args": [
 				{
-				  "label": "code_hash",
+				  "label": "account",
 				  "type": {
 					"displayName": [
-					  "upgradeabletrait_external",
-					  "SetCodeInput1"
+					  "psp22burnable_external",
+					  "BurnInput1"
 					],
-					"type": 1
+					"type": 3
+				  }
+				},
+				{
+				  "label": "amount",
+				  "type": {
+					"displayName": [
+					  "psp22burnable_external",
+					  "BurnInput2"
+					],
+					"type": 0
 				  }
 				}
 			  ],
 			  "default": false,
-			  "docs": [
-				" This function allow contract owner modifies the code which is used to execute calls to this contract address (`AccountId`)."
-			  ],
-			  "label": "UpgradeableTrait::set_code",
+			  "docs": [],
+			  "label": "PSP22Burnable::burn",
 			  "mutates": true,
 			  "payable": false,
 			  "returnType": {
@@ -678,9 +362,405 @@ const lp_pool_generator_contract = {
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 9
+				"type": 17
 			  },
-			  "selector": "0x9e32fab2"
+			  "selector": "0x7a9da510"
+			},
+			{
+			  "args": [],
+			  "default": false,
+			  "docs": [],
+			  "label": "PSP22::total_supply",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 19
+			  },
+			  "selector": "0x162df8c2"
+			},
+			{
+			  "args": [
+				{
+				  "label": "to",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "TransferInput1"
+					],
+					"type": 3
+				  }
+				},
+				{
+				  "label": "value",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "TransferInput2"
+					],
+					"type": 0
+				  }
+				},
+				{
+				  "label": "data",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "TransferInput3"
+					],
+					"type": 20
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [],
+			  "label": "PSP22::transfer",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 17
+			  },
+			  "selector": "0xdb20f9f5"
+			},
+			{
+			  "args": [
+				{
+				  "label": "from",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "TransferFromInput1"
+					],
+					"type": 3
+				  }
+				},
+				{
+				  "label": "to",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "TransferFromInput2"
+					],
+					"type": 3
+				  }
+				},
+				{
+				  "label": "value",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "TransferFromInput3"
+					],
+					"type": 0
+				  }
+				},
+				{
+				  "label": "data",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "TransferFromInput4"
+					],
+					"type": 20
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [],
+			  "label": "PSP22::transfer_from",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 17
+			  },
+			  "selector": "0x54b3c76e"
+			},
+			{
+			  "args": [
+				{
+				  "label": "spender",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "ApproveInput1"
+					],
+					"type": 3
+				  }
+				},
+				{
+				  "label": "value",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "ApproveInput2"
+					],
+					"type": 0
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [],
+			  "label": "PSP22::approve",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 17
+			  },
+			  "selector": "0xb20f1bbd"
+			},
+			{
+			  "args": [
+				{
+				  "label": "spender",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "IncreaseAllowanceInput1"
+					],
+					"type": 3
+				  }
+				},
+				{
+				  "label": "delta_value",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "IncreaseAllowanceInput2"
+					],
+					"type": 0
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [],
+			  "label": "PSP22::increase_allowance",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 17
+			  },
+			  "selector": "0x96d6b57a"
+			},
+			{
+			  "args": [
+				{
+				  "label": "owner",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "BalanceOfInput1"
+					],
+					"type": 3
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [],
+			  "label": "PSP22::balance_of",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 19
+			  },
+			  "selector": "0x6568382f"
+			},
+			{
+			  "args": [
+				{
+				  "label": "owner",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "AllowanceInput1"
+					],
+					"type": 3
+				  }
+				},
+				{
+				  "label": "spender",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "AllowanceInput2"
+					],
+					"type": 3
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [],
+			  "label": "PSP22::allowance",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 19
+			  },
+			  "selector": "0x4d47d921"
+			},
+			{
+			  "args": [
+				{
+				  "label": "spender",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "DecreaseAllowanceInput1"
+					],
+					"type": 3
+				  }
+				},
+				{
+				  "label": "delta_value",
+				  "type": {
+					"displayName": [
+					  "psp22_external",
+					  "DecreaseAllowanceInput2"
+					],
+					"type": 0
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [],
+			  "label": "PSP22::decrease_allowance",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 17
+			  },
+			  "selector": "0xfecb57d5"
+			},
+			{
+			  "args": [],
+			  "default": false,
+			  "docs": [],
+			  "label": "PSP22Capped::cap",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 19
+			  },
+			  "selector": "0xf40366b4"
+			},
+			{
+			  "args": [],
+			  "default": false,
+			  "docs": [],
+			  "label": "PSP22Metadata::token_symbol",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 21
+			  },
+			  "selector": "0x34205be5"
+			},
+			{
+			  "args": [],
+			  "default": false,
+			  "docs": [],
+			  "label": "PSP22Metadata::token_name",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 21
+			  },
+			  "selector": "0x3d261bd4"
+			},
+			{
+			  "args": [],
+			  "default": false,
+			  "docs": [],
+			  "label": "PSP22Metadata::token_decimals",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 23
+			  },
+			  "selector": "0x7271b782"
+			},
+			{
+			  "args": [
+				{
+				  "label": "account",
+				  "type": {
+					"displayName": [
+					  "psp22mintable_external",
+					  "MintInput1"
+					],
+					"type": 3
+				  }
+				},
+				{
+				  "label": "amount",
+				  "type": {
+					"displayName": [
+					  "psp22mintable_external",
+					  "MintInput2"
+					],
+					"type": 0
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [],
+			  "label": "PSP22Mintable::mint",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 17
+			  },
+			  "selector": "0xfc3c75d4"
 			},
 			{
 			  "args": [],
@@ -694,25 +774,9 @@ const lp_pool_generator_contract = {
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 27
+				"type": 24
 			  },
 			  "selector": "0x5e228753"
-			},
-			{
-			  "args": [],
-			  "default": false,
-			  "docs": [],
-			  "label": "Ownable::owner",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 18
-			  },
-			  "selector": "0x4fa43c8c"
 			},
 			{
 			  "args": [
@@ -723,7 +787,7 @@ const lp_pool_generator_contract = {
 					  "ownable_external",
 					  "TransferOwnershipInput1"
 					],
-					"type": 0
+					"type": 3
 				  }
 				}
 			  ],
@@ -737,9 +801,25 @@ const lp_pool_generator_contract = {
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 27
+				"type": 24
 			  },
 			  "selector": "0x11f43efd"
+			},
+			{
+			  "args": [],
+			  "default": false,
+			  "docs": [],
+			  "label": "Ownable::owner",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 26
+			  },
+			  "selector": "0x4fa43c8c"
 			}
 		  ]
 		},
@@ -748,6 +828,150 @@ const lp_pool_generator_contract = {
 			"layout": {
 			  "struct": {
 				"fields": [
+				  {
+					"layout": {
+					  "struct": {
+						"fields": [
+						  {
+							"layout": {
+							  "root": {
+								"layout": {
+								  "leaf": {
+									"key": "0x270a8fc3",
+									"ty": 0
+								  }
+								},
+								"root_key": "0x270a8fc3"
+							  }
+							},
+							"name": "supply"
+						  },
+						  {
+							"layout": {
+							  "root": {
+								"layout": {
+								  "leaf": {
+									"key": "0xc2664826",
+									"ty": 0
+								  }
+								},
+								"root_key": "0xc2664826"
+							  }
+							},
+							"name": "balances"
+						  },
+						  {
+							"layout": {
+							  "root": {
+								"layout": {
+								  "leaf": {
+									"key": "0xf8d71e22",
+									"ty": 0
+								  }
+								},
+								"root_key": "0xf8d71e22"
+							  }
+							},
+							"name": "allowances"
+						  }
+						],
+						"name": "Data"
+					  }
+					},
+					"name": "psp22"
+				  },
+				  {
+					"layout": {
+					  "struct": {
+						"fields": [
+						  {
+							"layout": {
+							  "root": {
+								"layout": {
+								  "enum": {
+									"dispatchKey": "0x90a00b7d",
+									"name": "Option",
+									"variants": {
+									  "0": {
+										"fields": [],
+										"name": "None"
+									  },
+									  "1": {
+										"fields": [
+										  {
+											"layout": {
+											  "leaf": {
+												"key": "0x90a00b7d",
+												"ty": 1
+											  }
+											},
+											"name": "0"
+										  }
+										],
+										"name": "Some"
+									  }
+									}
+								  }
+								},
+								"root_key": "0x90a00b7d"
+							  }
+							},
+							"name": "name"
+						  },
+						  {
+							"layout": {
+							  "root": {
+								"layout": {
+								  "enum": {
+									"dispatchKey": "0xf8019f84",
+									"name": "Option",
+									"variants": {
+									  "0": {
+										"fields": [],
+										"name": "None"
+									  },
+									  "1": {
+										"fields": [
+										  {
+											"layout": {
+											  "leaf": {
+												"key": "0xf8019f84",
+												"ty": 1
+											  }
+											},
+											"name": "0"
+										  }
+										],
+										"name": "Some"
+									  }
+									}
+								  }
+								},
+								"root_key": "0xf8019f84"
+							  }
+							},
+							"name": "symbol"
+						  },
+						  {
+							"layout": {
+							  "root": {
+								"layout": {
+								  "leaf": {
+									"key": "0xd29264d8",
+									"ty": 2
+								  }
+								},
+								"root_key": "0xd29264d8"
+							  }
+							},
+							"name": "decimals"
+						  }
+						],
+						"name": "Data"
+					  }
+					},
+					"name": "metadata"
+				  },
 				  {
 					"layout": {
 					  "struct": {
@@ -770,7 +994,7 @@ const lp_pool_generator_contract = {
 											"layout": {
 											  "leaf": {
 												"key": "0x6f713913",
-												"ty": 0
+												"ty": 3
 											  }
 											},
 											"name": "0"
@@ -798,91 +1022,28 @@ const lp_pool_generator_contract = {
 						"fields": [
 						  {
 							"layout": {
-							  "leaf": {
-								"key": "0x00000000",
-								"ty": 3
-							  }
-							},
-							"name": "pool_hash"
-						  },
-						  {
-							"layout": {
-							  "leaf": {
-								"key": "0x00000000",
-								"ty": 4
-							  }
-							},
-							"name": "pool_count"
-						  },
-						  {
-							"layout": {
-							  "leaf": {
-								"key": "0x00000000",
-								"ty": 0
-							  }
-							},
-							"name": "inw_contract"
-						  },
-						  {
-							"layout": {
-							  "leaf": {
-								"key": "0x00000000",
-								"ty": 5
-							  }
-							},
-							"name": "creation_fee"
-						  },
-						  {
-							"layout": {
-							  "leaf": {
-								"key": "0x00000000",
-								"ty": 5
-							  }
-							},
-							"name": "unstake_fee"
-						  },
-						  {
-							"layout": {
 							  "root": {
 								"layout": {
 								  "leaf": {
-									"key": "0x02691d63",
+									"key": "0x5fd98c24",
 									"ty": 0
 								  }
 								},
-								"root_key": "0x02691d63"
+								"root_key": "0x5fd98c24"
 							  }
 							},
-							"name": "pool_list"
-						  },
-						  {
-							"layout": {
-							  "root": {
-								"layout": {
-								  "leaf": {
-									"key": "0x2f17f942",
-									"ty": 4
-								  }
-								},
-								"root_key": "0x2f17f942"
-							  }
-							},
-							"name": "pool_ids"
-						  },
-						  {
-							"layout": {
-							  "root": {
-								"layout": {
-								  "leaf": {
-									"key": "0x78f46c9a",
-									"ty": 4
-								  }
-								},
-								"root_key": "0x78f46c9a"
-							  }
-							},
-							"name": "pool_ids_last_index"
-						  },
+							"name": "cap"
+						  }
+						],
+						"name": "Data"
+					  }
+					},
+					"name": "cap"
+				  },
+				  {
+					"layout": {
+					  "struct": {
+						"fields": [
 						  {
 							"layout": {
 							  "enum": {
@@ -899,7 +1060,7 @@ const lp_pool_generator_contract = {
 										"layout": {
 										  "leaf": {
 											"key": "0x00000000",
-											"ty": 6
+											"ty": 5
 										  }
 										},
 										"name": "0"
@@ -916,10 +1077,10 @@ const lp_pool_generator_contract = {
 						"name": "Data"
 					  }
 					},
-					"name": "manager"
+					"name": "admin_data"
 				  }
 				],
-				"name": "LPPoolGenerator"
+				"name": "TokenStandard"
 			  }
 			},
 			"root_key": "0x00000000"
@@ -930,30 +1091,15 @@ const lp_pool_generator_contract = {
 			"id": 0,
 			"type": {
 			  "def": {
-				"composite": {
-				  "fields": [
-					{
-					  "type": 1,
-					  "typeName": "[u8; 32]"
-					}
-				  ]
-				}
-			  },
-			  "path": [
-				"ink_primitives",
-				"types",
-				"AccountId"
-			  ]
+				"primitive": "u128"
+			  }
 			}
 		  },
 		  {
 			"id": 1,
 			"type": {
 			  "def": {
-				"array": {
-				  "len": 32,
-				  "type": 2
-				}
+				"primitive": "str"
 			  }
 			}
 		  },
@@ -972,7 +1118,7 @@ const lp_pool_generator_contract = {
 				"composite": {
 				  "fields": [
 					{
-					  "type": 1,
+					  "type": 4,
 					  "typeName": "[u8; 32]"
 					}
 				  ]
@@ -981,7 +1127,7 @@ const lp_pool_generator_contract = {
 			  "path": [
 				"ink_primitives",
 				"types",
-				"Hash"
+				"AccountId"
 			  ]
 			}
 		  },
@@ -989,7 +1135,10 @@ const lp_pool_generator_contract = {
 			"id": 4,
 			"type": {
 			  "def": {
-				"primitive": "u64"
+				"array": {
+				  "len": 32,
+				  "type": 2
+				}
 			  }
 			}
 		  },
@@ -997,7 +1146,7 @@ const lp_pool_generator_contract = {
 			"id": 5,
 			"type": {
 			  "def": {
-				"primitive": "u128"
+				"tuple": []
 			  }
 			}
 		  },
@@ -1005,20 +1154,12 @@ const lp_pool_generator_contract = {
 			"id": 6,
 			"type": {
 			  "def": {
-				"tuple": []
-			  }
-			}
-		  },
-		  {
-			"id": 7,
-			"type": {
-			  "def": {
 				"variant": {
 				  "variants": [
 					{
 					  "fields": [
 						{
-						  "type": 6
+						  "type": 5
 						}
 					  ],
 					  "index": 0,
@@ -1027,7 +1168,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 8
+						  "type": 7
 						}
 					  ],
 					  "index": 1,
@@ -1039,11 +1180,11 @@ const lp_pool_generator_contract = {
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 6
+				  "type": 5
 				},
 				{
 				  "name": "E",
-				  "type": 8
+				  "type": 7
 				}
 			  ],
 			  "path": [
@@ -1052,7 +1193,7 @@ const lp_pool_generator_contract = {
 			}
 		  },
 		  {
-			"id": 8,
+			"id": 7,
 			"type": {
 			  "def": {
 				"variant": {
@@ -1071,7 +1212,7 @@ const lp_pool_generator_contract = {
 			}
 		  },
 		  {
-			"id": 9,
+			"id": 8,
 			"type": {
 			  "def": {
 				"variant": {
@@ -1079,7 +1220,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 10
+						  "type": 9
 						}
 					  ],
 					  "index": 0,
@@ -1088,7 +1229,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 8
+						  "type": 7
 						}
 					  ],
 					  "index": 1,
@@ -1100,11 +1241,53 @@ const lp_pool_generator_contract = {
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 10
+				  "type": 9
 				},
 				{
 				  "name": "E",
-				  "type": 8
+				  "type": 7
+				}
+			  ],
+			  "path": [
+				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 9,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
+						  "type": 0
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 10
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 0
+				},
+				{
+				  "name": "E",
+				  "type": 10
 				}
 			  ],
 			  "path": [
@@ -1121,49 +1304,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 6
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 11
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 6
-				},
-				{
-				  "name": "E",
-				  "type": 11
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 11,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 12,
+						  "type": 1,
 						  "typeName": "String"
 						}
 					  ],
@@ -1173,7 +1314,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 13,
+						  "type": 11,
 						  "typeName": "OwnableError"
 						}
 					  ],
@@ -1183,7 +1324,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 14,
+						  "type": 12,
 						  "typeName": "AccessControlError"
 						}
 					  ],
@@ -1193,7 +1334,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 15,
+						  "type": 13,
 						  "typeName": "PSP22Error"
 						}
 					  ],
@@ -1203,7 +1344,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 16,
+						  "type": 14,
 						  "typeName": "PSP34Error"
 						}
 					  ],
@@ -1494,15 +1635,7 @@ const lp_pool_generator_contract = {
 			}
 		  },
 		  {
-			"id": 12,
-			"type": {
-			  "def": {
-				"primitive": "str"
-			  }
-			}
-		  },
-		  {
-			"id": 13,
+			"id": 11,
 			"type": {
 			  "def": {
 				"variant": {
@@ -1528,7 +1661,7 @@ const lp_pool_generator_contract = {
 			}
 		  },
 		  {
-			"id": 14,
+			"id": 12,
 			"type": {
 			  "def": {
 				"variant": {
@@ -1558,7 +1691,7 @@ const lp_pool_generator_contract = {
 			}
 		  },
 		  {
-			"id": 15,
+			"id": 13,
 			"type": {
 			  "def": {
 				"variant": {
@@ -1566,7 +1699,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 12,
+						  "type": 1,
 						  "typeName": "String"
 						}
 					  ],
@@ -1592,7 +1725,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 12,
+						  "type": 1,
 						  "typeName": "String"
 						}
 					  ],
@@ -1612,7 +1745,7 @@ const lp_pool_generator_contract = {
 			}
 		  },
 		  {
-			"id": 16,
+			"id": 14,
 			"type": {
 			  "def": {
 				"variant": {
@@ -1620,7 +1753,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 12,
+						  "type": 1,
 						  "typeName": "String"
 						}
 					  ],
@@ -1646,7 +1779,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 12,
+						  "type": 1,
 						  "typeName": "String"
 						}
 					  ],
@@ -1666,7 +1799,49 @@ const lp_pool_generator_contract = {
 			}
 		  },
 		  {
-			"id": 17,
+			"id": 15,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
+						  "type": 16
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 7
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 16
+				},
+				{
+				  "name": "E",
+				  "type": 7
+				}
+			  ],
+			  "path": [
+				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 16,
 			"type": {
 			  "def": {
 				"variant": {
@@ -1683,7 +1858,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 8
+						  "type": 10
 						}
 					  ],
 					  "index": 1,
@@ -1699,7 +1874,49 @@ const lp_pool_generator_contract = {
 				},
 				{
 				  "name": "E",
-				  "type": 8
+				  "type": 10
+				}
+			  ],
+			  "path": [
+				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 17,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
+						  "type": 18
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 7
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 18
+				},
+				{
+				  "name": "E",
+				  "type": 7
 				}
 			  ],
 			  "path": [
@@ -1716,7 +1933,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 19
+						  "type": 5
 						}
 					  ],
 					  "index": 0,
@@ -1725,7 +1942,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 8
+						  "type": 13
 						}
 					  ],
 					  "index": 1,
@@ -1737,11 +1954,11 @@ const lp_pool_generator_contract = {
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 19
+				  "type": 5
 				},
 				{
 				  "name": "E",
-				  "type": 8
+				  "type": 13
 				}
 			  ],
 			  "path": [
@@ -1756,42 +1973,9 @@ const lp_pool_generator_contract = {
 				"variant": {
 				  "variants": [
 					{
-					  "index": 0,
-					  "name": "None"
-					},
-					{
 					  "fields": [
 						{
 						  "type": 0
-						}
-					  ],
-					  "index": 1,
-					  "name": "Some"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 0
-				}
-			  ],
-			  "path": [
-				"Option"
-			  ]
-			}
-		  },
-		  {
-			"id": 20,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 4
 						}
 					  ],
 					  "index": 0,
@@ -1800,7 +1984,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 8
+						  "type": 7
 						}
 					  ],
 					  "index": 1,
@@ -1812,16 +1996,26 @@ const lp_pool_generator_contract = {
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 4
+				  "type": 0
 				},
 				{
 				  "name": "E",
-				  "type": 8
+				  "type": 7
 				}
 			  ],
 			  "path": [
 				"Result"
 			  ]
+			}
+		  },
+		  {
+			"id": 20,
+			"type": {
+			  "def": {
+				"sequence": {
+				  "type": 2
+				}
+			  }
 			}
 		  },
 		  {
@@ -1833,7 +2027,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 0
+						  "type": 22
 						}
 					  ],
 					  "index": 0,
@@ -1842,7 +2036,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 8
+						  "type": 7
 						}
 					  ],
 					  "index": 1,
@@ -1854,11 +2048,11 @@ const lp_pool_generator_contract = {
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 0
+				  "type": 22
 				},
 				{
 				  "name": "E",
-				  "type": 8
+				  "type": 7
 				}
 			  ],
 			  "path": [
@@ -1873,55 +2067,13 @@ const lp_pool_generator_contract = {
 				"variant": {
 				  "variants": [
 					{
-					  "fields": [
-						{
-						  "type": 23
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 8
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 23
-				},
-				{
-				  "name": "E",
-				  "type": 8
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 23,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
 					  "index": 0,
 					  "name": "None"
 					},
 					{
 					  "fields": [
 						{
-						  "type": 4
+						  "type": 1
 						}
 					  ],
 					  "index": 1,
@@ -1933,11 +2085,53 @@ const lp_pool_generator_contract = {
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 4
+				  "type": 1
 				}
 			  ],
 			  "path": [
 				"Option"
+			  ]
+			}
+		  },
+		  {
+			"id": 23,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
+						  "type": 2
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 7
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 2
+				},
+				{
+				  "name": "E",
+				  "type": 7
+				}
+			  ],
+			  "path": [
+				"Result"
 			  ]
 			}
 		  },
@@ -1950,7 +2144,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 3
+						  "type": 25
 						}
 					  ],
 					  "index": 0,
@@ -1959,7 +2153,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 8
+						  "type": 7
 						}
 					  ],
 					  "index": 1,
@@ -1971,11 +2165,11 @@ const lp_pool_generator_contract = {
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 3
+				  "type": 25
 				},
 				{
 				  "name": "E",
-				  "type": 8
+				  "type": 7
 				}
 			  ],
 			  "path": [
@@ -1985,48 +2179,6 @@ const lp_pool_generator_contract = {
 		  },
 		  {
 			"id": 25,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 26
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 8
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 26
-				},
-				{
-				  "name": "E",
-				  "type": 8
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 26,
 			"type": {
 			  "def": {
 				"variant": {
@@ -2068,7 +2220,7 @@ const lp_pool_generator_contract = {
 			}
 		  },
 		  {
-			"id": 27,
+			"id": 26,
 			"type": {
 			  "def": {
 				"variant": {
@@ -2076,7 +2228,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 28
+						  "type": 27
 						}
 					  ],
 					  "index": 0,
@@ -2085,7 +2237,7 @@ const lp_pool_generator_contract = {
 					{
 					  "fields": [
 						{
-						  "type": 8
+						  "type": 7
 						}
 					  ],
 					  "index": 1,
@@ -2097,15 +2249,48 @@ const lp_pool_generator_contract = {
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 28
+				  "type": 27
 				},
 				{
 				  "name": "E",
-				  "type": 8
+				  "type": 7
 				}
 			  ],
 			  "path": [
 				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 27,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "index": 0,
+					  "name": "None"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 3
+						}
+					  ],
+					  "index": 1,
+					  "name": "Some"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 3
+				}
+			  ],
+			  "path": [
+				"Option"
 			  ]
 			}
 		  },
@@ -2113,41 +2298,19 @@ const lp_pool_generator_contract = {
 			"id": 28,
 			"type": {
 			  "def": {
-				"variant": {
-				  "variants": [
+				"composite": {
+				  "fields": [
 					{
-					  "fields": [
-						{
-						  "type": 6
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 13
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
+					  "type": 4,
+					  "typeName": "[u8; 32]"
 					}
 				  ]
 				}
 			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 6
-				},
-				{
-				  "name": "E",
-				  "type": 13
-				}
-			  ],
 			  "path": [
-				"Result"
+				"ink_primitives",
+				"types",
+				"Hash"
 			  ]
 			}
 		  },
@@ -2155,12 +2318,20 @@ const lp_pool_generator_contract = {
 			"id": 29,
 			"type": {
 			  "def": {
-				"primitive": "u32"
+				"primitive": "u64"
 			  }
 			}
 		  },
 		  {
 			"id": 30,
+			"type": {
+			  "def": {
+				"primitive": "u32"
+			  }
+			}
+		  },
+		  {
+			"id": 31,
 			"type": {
 			  "def": {
 				"variant": {}
@@ -2175,6 +2346,6 @@ const lp_pool_generator_contract = {
 		],
 		"version": "4"
 	  }
-};
+  };
 
-export default lp_pool_generator_contract;
+  export default psp22_contract;
