@@ -212,17 +212,17 @@ const App = () => {
             component={CreateStakePoolPage}
           />
           <Route exact path={`/create/nft-lp`} component={CreateNFTLPPage} />
-          {/* <Route
+          <Route
             exact
             path={`/launchpad/create`}
             component={CreateLaunchpadPage}
-          /> */}
-          {/* <Route exact path={`/launchpad`} component={Launchpad} />
+          />
+          <Route exact path={`/launchpad`} component={Launchpad} />
           <Route
             exact
             path={`/launchpad/:launchpadContract`}
             component={PublicDetailLaunchpad}
-          /> */}
+          />
           <Route exact path={`/create/farming`} component={CreateTokenLPPage} />
           <Route exact path={`/farming`} component={LPPoolsPage} />
           <Route
