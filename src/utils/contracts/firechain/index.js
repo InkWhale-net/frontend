@@ -17,7 +17,7 @@
 // import moment from "moment";
 
 // // ========================5ire chain balance=====================================
-// const provider = new WsProvider("wss://wss.5ire.network");
+// const provider = new WsProvider("wss://val-5ire.artzero.io");
 // const fireApi = await ApiPromise.create({
 //   provider,
 //   throwOnConnect: true,
