@@ -165,7 +165,7 @@ export const supportedChain = [
     key: "firechain-testnet",
     icon: Icon5Ire,
     decimal: 18,
-    providerURL: "wss://wss-testnet.5ire.network",
+    providerURL: "wss://wss.5ire.network",
     unit: "5IRE",
     inwName: "INW",
     url: "https://5iretest.inkwhale.net/",
