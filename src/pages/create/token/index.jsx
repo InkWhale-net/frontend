@@ -17,11 +17,7 @@ import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllTokensList } from "redux/slices/allPoolsSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import {
-  delay,
-  formatQueryResultToNumber,
-  isAddressValid,
-} from "utils";
+import { delay, formatQueryResultToNumber, isAddressValid } from "utils";
 import {
   execContractQuery,
   execContractTx,
@@ -340,7 +336,9 @@ export default function CreateTokenPage() {
               <Box w={{ base: "full" }}>
                 <IWInput
                   isDisabled={true}
-                  value={`${currentAccount?.balance?.azero || 0} ${appChain?.unit}`}
+                  value={`${currentAccount?.balance?.azero || 0} ${
+                    appChain?.unit
+                  }`}
                   label={`Your ${appChain?.unit} Balance`}
                 />
               </Box>
@@ -354,12 +352,13 @@ export default function CreateTokenPage() {
                 />
               </Box>
               <Box w={{ base: "full" }}>
-              <IWInput
+                <IWInput
                   isDisabled={true}
-                  value={`${formatNumDynDecimal(
-                    currentAccount?.balance?.inw2?.replaceAll(",", "")
-                  ) || 0
-                    } INW2`}
+                  value={`${
+                    formatNumDynDecimal(
+                      currentAccount?.balance?.inw2?.replaceAll(",", "")
+                    ) || 0
+                  } INW2`}
                   label="Your INW2 Balance"
                 />
               </Box>

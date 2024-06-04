@@ -289,9 +289,13 @@ export const getPublicCurrentAccount = () => {
 };
 
 export const moveINWToBegin = (tokensList) => {
-  const priorityTokens = JSON.parse(process.env.REACT_APP_PRIORITY_TOKEN_ADDRESS)
-  const cloneTokenList = [...tokensList]
-  const priorityTokenList = priorityTokens.map(e => cloneTokenList.find(j => j?.contractAddress == e))
+  const priorityTokens = JSON.parse(
+    process.env.REACT_APP_PRIORITY_TOKEN_ADDRESS
+  );
+  const cloneTokenList = [...tokensList];
+  const priorityTokenList = priorityTokens
+    .map((e) => cloneTokenList.find((j) => j?.contractAddress === e))
+    .filter((e) => !!e);
   // const INW2Index = tokensList.findIndex(
   //   (element) =>
   //     element?.contractAddress === psp22_contract_v2.CONTRACT_ADDRESS ||
@@ -317,7 +321,12 @@ export const moveINWToBegin = (tokensList) => {
   // return tokensList.filter(
   //   (e) => !!e?.contractAddress && e?.contractAddress !== "undefined"
   // );
-  return [...priorityTokenList, ...cloneTokenList?.filter(e => !priorityTokens.includes(e.contractAddress))]
+  return [
+    ...priorityTokenList,
+    ...cloneTokenList?.filter(
+      (e) => !priorityTokens.includes(e.contractAddress)
+    ),
+  ];
 };
 
 export const excludeNFT = (tokensList) =>

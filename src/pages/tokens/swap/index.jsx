@@ -73,7 +73,7 @@ export default function TokensSwapPage() {
   const selectedToken = useMemo(
     () =>
       faucetTokensList?.find(
-        (el) => el.contractAddress === selectedContractAddr
+        (el) => el?.contractAddress === selectedContractAddr
       ),
     [selectedContractAddr, faucetTokensList]
   );
