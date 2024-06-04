@@ -48,7 +48,7 @@ import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import psp22_contract from "utils/contracts/psp22_contract";
 import swap_inw2_contract from "utils/contracts/swap_inw2_contract";
 import { appChain } from "constants";
-import {useHistory} from "react-router-dom/cjs/react-router-dom.min";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const inwContractAddress = azt_contract.CONTRACT_ADDRESS;
 
@@ -366,11 +366,9 @@ export default function FaucetPage({ api }) {
       }
 
       if (!inwInCur) {
-        const INWInCirculationResponse = await APICall.getINWInCirculation();
-        if (INWInCirculationResponse?.status === "OK") {
-          setInwInCur(
-            formatNumDynDecimal(INWInCirculationResponse.ret.inCirculation, 2)
-          );
+        const { status, ret } = await APICall.getINWInCirculation();
+        if (status === "OK") {
+          setInwInCur(formatNumDynDecimal(ret.inCirculation, 2));
         } else {
           toast.error("Get In inCirculation fail");
         }
@@ -379,7 +377,7 @@ export default function FaucetPage({ api }) {
       console.log(error);
       toast.error("unknow error");
     }
-  }, [api]);
+  }, [api, inwBurn, inwInCur, inwTotalSupply, publicCurrentAccount?.address]);
 
   const isSaleEnded = useMemo(
     () => Date.now() >= saleInfo?.endTimeSale,
@@ -906,7 +904,15 @@ export default function FaucetPage({ api }) {
       isDisabled: false,
     },
   ];
-  const history = useHistory()
+  const history = useHistory();
+
+  const inw1InCurEdit = useMemo(() => {
+    const ret =
+      formatChainStringToNumber(inwInCur) -
+      formatChainStringToNumber(swappedV2Amount);
+
+    return formatNumDynDecimal(ret);
+  }, [inwInCur, swappedV2Amount]);
   return (
     <>
       <SectionContainer
@@ -933,11 +939,11 @@ export default function FaucetPage({ api }) {
                 content: <AddressCopier address={inwContractAddress} />,
               },
               { title: "Total Supply", content: `${inwTotalSupply} INW` },
-              { title: "In Circulation ", content: `${inwInCur} INW` },
-              // {
-              //   title: "Total Swap To INW2 ",
-              //   content: `${formatNumDynDecimal(swappedV2Amount)} INW`,
-              // },
+              { title: "In Circulation ", content: `${inw1InCurEdit} INW` },
+              {
+                title: "Total Swap To INW2 ",
+                content: `${formatNumDynDecimal(swappedV2Amount)} INW`,
+              },
               {
                 title: "Total Burned",
                 content: `${formatNumDynDecimal(inwBurn)} INW`,
