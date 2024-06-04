@@ -383,7 +383,7 @@ export const formatDataCellTable = (
     case "amount":
       return (
         <>
-          <Text>{formatNumDynDecimal(itemObj[header])}</Text>
+          <Text>{formatNumDynDecimal(itemObj[header],6)}</Text>
         </>
       );
     case "price":
