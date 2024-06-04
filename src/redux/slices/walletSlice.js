@@ -4,7 +4,7 @@ import { execContractQuery, getAzeroBalanceOfAddress } from "utils/contracts";
 import azt_contract from "utils/contracts/azt_contract";
 import psp22_contract from "utils/contracts/psp22_contract";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
-import { get5ireBalanceOfAddress } from "../../utils/contracts/firechain";
+// import { get5ireBalanceOfAddress } from "../../utils/contracts/firechain";
 
 const localCurrentAccount = window?.localStorage?.getItem(
   "localCurrentAccount"
@@ -102,16 +102,16 @@ export const fetchUserBalance = createAsyncThunk(
 
       const azero = formatNumDynDecimal(azeroBalance);
 
-      const { fire, inw2: fireInw } = await get5ireBalanceOfAddress({
-        address: currentAccount?.address,
-      });
+      // const { fire, inw2: fireInw } = await get5ireBalanceOfAddress({
+      //   address: currentAccount?.address,
+      // });
 
       ret = {
         inw,
         inw2,
         azero,
         "alephzero-testnet": { inw, inw2, nativeToken: azero },
-        "firechain-testnet": { inw2: fireInw, nativeToken: fire },
+        // "firechain-testnet": { inw2: fireInw, nativeToken: fire },
       };
     } catch (error) {
       console.log("error", error);

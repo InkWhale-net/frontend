@@ -1,354 +1,354 @@
-import { ApiPromise, WsProvider } from "@polkadot/api";
-import { ContractPromise } from "@polkadot/api-contract";
-import { web3FromSource } from "@polkadot/extension-dapp";
-import { formatBalance } from "@polkadot/util";
-import { toastMessages } from "constants";
-import toast from "react-hot-toast";
-import {
-  formatNumDynDecimal,
-  formatQueryResultToNumber,
-  formatChainStringToNumber,
-} from "utils";
-import fire_psp22_contract from "utils/contracts/firechain/fire_psp22_contract";
-import { BN, BN_ONE } from "@polkadot/util";
-import { getGasLimitFirechain } from "./dryRun";
-import { formatNumToBNEther } from "utils";
-import fire_bridge_token_contract from "./fire_bridge_token_contract";
-import moment from "moment";
+// import { ApiPromise, WsProvider } from "@polkadot/api";
+// import { ContractPromise } from "@polkadot/api-contract";
+// import { web3FromSource } from "@polkadot/extension-dapp";
+// import { formatBalance } from "@polkadot/util";
+// import { toastMessages } from "constants";
+// import toast from "react-hot-toast";
+// import {
+//   formatNumDynDecimal,
+//   formatQueryResultToNumber,
+//   formatChainStringToNumber,
+// } from "utils";
+// import fire_psp22_contract from "utils/contracts/firechain/fire_psp22_contract";
+// import { BN, BN_ONE } from "@polkadot/util";
+// import { getGasLimitFirechain } from "./dryRun";
+// import { formatNumToBNEther } from "utils";
+// import fire_bridge_token_contract from "./fire_bridge_token_contract";
+// import moment from "moment";
 
-// ========================5ire chain balance=====================================
-const provider = new WsProvider("wss://wss-testnet.5ire.network");
-const fireApi = await ApiPromise.create({
-  provider,
-  throwOnConnect: true,
-});
+// // ========================5ire chain balance=====================================
+// const provider = new WsProvider("wss://wss-testnet.5ire.network");
+// const fireApi = await ApiPromise.create({
+//   provider,
+//   throwOnConnect: true,
+// });
 
-export async function get5ireBalanceOfAddress({ address }) {
-  if (!address || !fireApi) return console.log("acct , fireApi invalid!");
+// export async function get5ireBalanceOfAddress({ address }) {
+//   if (!address || !fireApi) return console.log("acct , fireApi invalid!");
 
-  if (!fireApi) {
-    toast.error(toastMessages.ERR_API_CONN);
-    return;
-  }
+//   if (!fireApi) {
+//     toast.error(toastMessages.ERR_API_CONN);
+//     return;
+//   }
 
-  if (!address) {
-    toast.error(toastMessages.NO_WALLET);
-    return;
-  }
+//   if (!address) {
+//     toast.error(toastMessages.NO_WALLET);
+//     return;
+//   }
 
-  let fire;
-  let inw2;
+//   let fire;
+//   let inw2;
 
-  try {
-    const contract = new ContractPromise(
-      fireApi,
-      fire_psp22_contract.CONTRACT_ABI,
-      fire_psp22_contract.CONTRACT_ADDRESS
-    );
+//   try {
+//     const contract = new ContractPromise(
+//       fireApi,
+//       fire_psp22_contract.CONTRACT_ABI,
+//       fire_psp22_contract.CONTRACT_ADDRESS
+//     );
 
-    const gasLimit = readOnlyGasLimitFirechain(fireApi);
+//     const gasLimit = readOnlyGasLimitFirechain(fireApi);
 
-    const { result, output } = await contract.query["psp22::balanceOf"](
-      address,
-      { gasLimit, storageDepositLimit: null, value: 0 },
-      address
-    );
+//     const { result, output } = await contract.query["psp22::balanceOf"](
+//       address,
+//       { gasLimit, storageDepositLimit: null, value: 0 },
+//       address
+//     );
 
-    if (result.isOk) {
-      inw2 = formatQueryResultToNumber(output, 18);
-    }
+//     if (result.isOk) {
+//       inw2 = formatQueryResultToNumber(output, 18);
+//     }
 
-    const {
-      data: { free: balance, frozen },
-    } = await fireApi.query.system.account(address);
+//     const {
+//       data: { free: balance, frozen },
+//     } = await fireApi.query.system.account(address);
 
-    const [chainDecimals] = await fireApi.registry.chainDecimals;
+//     const [chainDecimals] = await fireApi.registry.chainDecimals;
 
-    const formattedStrBal = formatBalance(balance, {
-      withSi: false,
-      forceUnit: "-",
-      decimals: chainDecimals,
-    });
+//     const formattedStrBal = formatBalance(balance, {
+//       withSi: false,
+//       forceUnit: "-",
+//       decimals: chainDecimals,
+//     });
 
-    const formattedStrBalFrozen = formatBalance(frozen, {
-      withSi: false,
-      forceUnit: "-",
-      decimals: chainDecimals,
-    });
+//     const formattedStrBalFrozen = formatBalance(frozen, {
+//       withSi: false,
+//       forceUnit: "-",
+//       decimals: chainDecimals,
+//     });
 
-    const formattedNumBal =
-      formattedStrBal.replaceAll(",", "") * 1 -
-      formattedStrBalFrozen.replaceAll(",", "") * 1;
+//     const formattedNumBal =
+//       formattedStrBal.replaceAll(",", "") * 1 -
+//       formattedStrBalFrozen.replaceAll(",", "") * 1;
 
-    fire = formatNumDynDecimal(formattedNumBal);
+//     fire = formatNumDynDecimal(formattedNumBal);
 
-    return { fire, inw2 };
-  } catch (error) {
-    console.log("@_@ ", "psp22::balanceOf", " error >>", error.message);
-  }
-}
+//     return { fire, inw2 };
+//   } catch (error) {
+//     console.log("@_@ ", "psp22::balanceOf", " error >>", error.message);
+//   }
+// }
 
-export function readOnlyGasLimitFirechain(api) {
-  return api.registry.createType("WeightV2", {
-    refTime: new BN(1_000_000_000_000),
-    proofSize: new BN(5_000_000_000_000).isub(BN_ONE),
-  });
-}
+// export function readOnlyGasLimitFirechain(api) {
+//   return api.registry.createType("WeightV2", {
+//     refTime: new BN(1_000_000_000_000),
+//     proofSize: new BN(5_000_000_000_000).isub(BN_ONE),
+//   });
+// }
 
-export async function execContractQueryFireChain(
-  callerAddress, // -> currentAccount?.address
-  contractAbi,
-  contractAddress,
-  queryName,
-  ...args
-) {
-  const contract = new ContractPromise(fireApi, contractAbi, contractAddress);
+// export async function execContractQueryFireChain(
+//   callerAddress, // -> currentAccount?.address
+//   contractAbi,
+//   contractAddress,
+//   queryName,
+//   ...args
+// ) {
+//   const contract = new ContractPromise(fireApi, contractAbi, contractAddress);
 
-  const gasLimit = readOnlyGasLimitFirechain(fireApi);
+//   const gasLimit = readOnlyGasLimitFirechain(fireApi);
 
-  try {
-    const { result, output } = await contract.query[queryName](
-      callerAddress,
-      { gasLimit, storageDepositLimit: null, value: 0 },
-      ...args
-    );
+//   try {
+//     const { result, output } = await contract.query[queryName](
+//       callerAddress,
+//       { gasLimit, storageDepositLimit: null, value: 0 },
+//       ...args
+//     );
 
-    if (result.isOk) {
-      return output;
-    }
-  } catch (error) {
-    console.log("@_@ ", queryName, " error >>", error.message);
-  }
-}
+//     if (result.isOk) {
+//       return output;
+//     }
+//   } catch (error) {
+//     console.log("@_@ ", queryName, " error >>", error.message);
+//   }
+// }
 
-export async function execContractTxFireChain(
-  caller, // -> currentAccount Object
-  contractAbi,
-  contractAddress,
-  value = 0,
-  queryName,
-  ...args
-) {
-  // console.log("contractAddress", contractAddress);
-  // console.log("queryName", queryName);
-  // console.log("args", args);
-  let unsubscribe;
+// export async function execContractTxFireChain(
+//   caller, // -> currentAccount Object
+//   contractAbi,
+//   contractAddress,
+//   value = 0,
+//   queryName,
+//   ...args
+// ) {
+//   // console.log("contractAddress", contractAddress);
+//   // console.log("queryName", queryName);
+//   // console.log("args", args);
+//   let unsubscribe;
 
-  const contract = new ContractPromise(fireApi, contractAbi, contractAddress);
-  const { signer } = await web3FromSource(caller?.meta?.source);
+//   const contract = new ContractPromise(fireApi, contractAbi, contractAddress);
+//   const { signer } = await web3FromSource(caller?.meta?.source);
 
-  const gasLimitResult = await getGasLimitFirechain(
-    fireApi,
-    caller?.address,
-    queryName,
-    contract,
-    { value },
-    args
-  );
+//   const gasLimitResult = await getGasLimitFirechain(
+//     fireApi,
+//     caller?.address,
+//     queryName,
+//     contract,
+//     { value },
+//     args
+//   );
 
-  if (!gasLimitResult?.ok) {
-    console.log(gasLimitResult?.error);
-    return;
-  }
-  const { values: gasLimit } = gasLimitResult;
-  const txNotSign = contract.tx[queryName]({ gasLimit, value }, ...args);
+//   if (!gasLimitResult?.ok) {
+//     console.log(gasLimitResult?.error);
+//     return;
+//   }
+//   const { values: gasLimit } = gasLimitResult;
+//   const txNotSign = contract.tx[queryName]({ gasLimit, value }, ...args);
 
-  await txNotSign
-    .signAndSend(
-      caller.address,
-      { signer },
-      ({ events = [], status, dispatchError }) => {
-        txResponseErrorHandlerFirechain({
-          status,
-          dispatchError,
-          txType: queryName,
-          api: fireApi,
-        });
-        if (Object.keys(status.toHuman())[0] === "0") {
-          toast(`Processing ...`);
-        }
+//   await txNotSign
+//     .signAndSend(
+//       caller.address,
+//       { signer },
+//       ({ events = [], status, dispatchError }) => {
+//         txResponseErrorHandlerFirechain({
+//           status,
+//           dispatchError,
+//           txType: queryName,
+//           api: fireApi,
+//         });
+//         if (Object.keys(status.toHuman())[0] === "0") {
+//           toast(`Processing ...`);
+//         }
 
-        events.forEach(({ event: { method } }) => {
-          if (method === "ExtrinsicSuccess" && status.type === "Finalized") {
-            toast.success("Successful!");
-          } else if (method === "ExtrinsicFailed") {
-            toast.error(`${toastMessages.CUSTOM} ${method}.`);
-          }
-        });
-      }
-    )
-    .then((unsub) => (unsubscribe = unsub))
-    .catch((error) => {
-      console.log("error", error);
-      toast.error(`${toastMessages.CUSTOM} ${error}.`);
-    });
+//         events.forEach(({ event: { method } }) => {
+//           if (method === "ExtrinsicSuccess" && status.type === "Finalized") {
+//             toast.success("Successful!");
+//           } else if (method === "ExtrinsicFailed") {
+//             toast.error(`${toastMessages.CUSTOM} ${method}.`);
+//           }
+//         });
+//       }
+//     )
+//     .then((unsub) => (unsubscribe = unsub))
+//     .catch((error) => {
+//       console.log("error", error);
+//       toast.error(`${toastMessages.CUSTOM} ${error}.`);
+//     });
 
-  return unsubscribe;
-}
+//   return unsubscribe;
+// }
 
-export const txResponseErrorHandlerFirechain = async ({
-  status,
-  dispatchError,
-  txType,
-  api,
-}) => {
-  const url = `https://explorer.5ire.network/block/`;
-  const statusToHuman = Object.entries(status.toHuman());
+// export const txResponseErrorHandlerFirechain = async ({
+//   status,
+//   dispatchError,
+//   txType,
+//   api,
+// }) => {
+//   const url = `https://explorer.5ire.network/block/`;
+//   const statusToHuman = Object.entries(status.toHuman());
 
-  if (dispatchError) {
-    if (dispatchError.isModule) {
-      toast.error(`There is some error with your request... ..`);
+//   if (dispatchError) {
+//     if (dispatchError.isModule) {
+//       toast.error(`There is some error with your request... ..`);
 
-      if (statusToHuman[0][0] === "Finalized") {
-        const apiAt = await api?.at(statusToHuman[0][1]);
-        const allEventsRecords = await apiAt?.query.system.events();
+//       if (statusToHuman[0][0] === "Finalized") {
+//         const apiAt = await api?.at(statusToHuman[0][1]);
+//         const allEventsRecords = await apiAt?.query.system.events();
 
-        const data = {
-          ContractCall: txType,
-          Reserved: 0,
-          ReserveRepatriated: 0,
-          FeePaid: 0,
-          TotalCharge: 0,
-          TxHash: "",
-        };
+//         const data = {
+//           ContractCall: txType,
+//           Reserved: 0,
+//           ReserveRepatriated: 0,
+//           FeePaid: 0,
+//           TotalCharge: 0,
+//           TxHash: "",
+//         };
 
-        allEventsRecords.forEach(({ event }, index) => {
-          if (api.events.transactionPayment?.TransactionFeePaid.is(event)) {
-            data.FeePaid = -event.data[1]?.toString() / 10 ** 18;
-          }
+//         allEventsRecords.forEach(({ event }, index) => {
+//           if (api.events.transactionPayment?.TransactionFeePaid.is(event)) {
+//             data.FeePaid = -event.data[1]?.toString() / 10 ** 18;
+//           }
 
-          if (api.events.balances?.Reserved.is(event)) {
-            data.Reserved = -event.data[1]?.toString() / 10 ** 18;
-          }
+//           if (api.events.balances?.Reserved.is(event)) {
+//             data.Reserved = -event.data[1]?.toString() / 10 ** 18;
+//           }
 
-          if (api.events.balances?.ReserveRepatriated.is(event)) {
-            data.ReserveRepatriated = event.data[2]?.toString() / 10 ** 18;
-          }
-        });
+//           if (api.events.balances?.ReserveRepatriated.is(event)) {
+//             data.ReserveRepatriated = event.data[2]?.toString() / 10 ** 18;
+//           }
+//         });
 
-        data.TxHash = statusToHuman[0][1];
+//         data.TxHash = statusToHuman[0][1];
 
-        data.TotalCharge =
-          data.FeePaid + data.Reserved + data.ReserveRepatriated;
+//         data.TotalCharge =
+//           data.FeePaid + data.Reserved + data.ReserveRepatriated;
 
-        console.log("Err tx fee: ", data);
+//         console.log("Err tx fee: ", data);
 
-        console.log("Err Tx Finalized at ", `${url}${statusToHuman[0][1]}`);
-      }
-    } else {
-      console.log("dispatchError.toString()", dispatchError.toString());
-    }
-  }
+//         console.log("Err Tx Finalized at ", `${url}${statusToHuman[0][1]}`);
+//       }
+//     } else {
+//       console.log("dispatchError.toString()", dispatchError.toString());
+//     }
+//   }
 
-  if (!dispatchError && status) {
-    if (statusToHuman[0][0] === "Finalized") {
-      const apiAt = await api.at(statusToHuman[0][1]);
-      const allEventsRecords = await apiAt?.query?.system.events();
+//   if (!dispatchError && status) {
+//     if (statusToHuman[0][0] === "Finalized") {
+//       const apiAt = await api.at(statusToHuman[0][1]);
+//       const allEventsRecords = await apiAt?.query?.system.events();
 
-      const data = {
-        ContractCall: txType,
-        Reserved: 0,
-        ReserveRepatriated: 0,
-        FeePaid: 0,
-        TotalCharge: 0,
-        TxHash: "",
-      };
+//       const data = {
+//         ContractCall: txType,
+//         Reserved: 0,
+//         ReserveRepatriated: 0,
+//         FeePaid: 0,
+//         TotalCharge: 0,
+//         TxHash: "",
+//       };
 
-      allEventsRecords.forEach(({ event }, index) => {
-        if (api.events.transactionPayment?.TransactionFeePaid.is(event)) {
-          data.FeePaid = -event.data[1]?.toString() / 10 ** 18;
-        }
+//       allEventsRecords.forEach(({ event }, index) => {
+//         if (api.events.transactionPayment?.TransactionFeePaid.is(event)) {
+//           data.FeePaid = -event.data[1]?.toString() / 10 ** 18;
+//         }
 
-        if (api.events.balances?.Reserved.is(event)) {
-          data.Reserved = -event.data[1]?.toString() / 10 ** 18;
-        }
+//         if (api.events.balances?.Reserved.is(event)) {
+//           data.Reserved = -event.data[1]?.toString() / 10 ** 18;
+//         }
 
-        if (api.events.balances?.ReserveRepatriated.is(event)) {
-          data.ReserveRepatriated = event.data[2]?.toString() / 10 ** 18;
-        }
-      });
+//         if (api.events.balances?.ReserveRepatriated.is(event)) {
+//           data.ReserveRepatriated = event.data[2]?.toString() / 10 ** 18;
+//         }
+//       });
 
-      data.TxHash = statusToHuman[0][1];
+//       data.TxHash = statusToHuman[0][1];
 
-      data.TotalCharge = data.FeePaid + data.Reserved + data.ReserveRepatriated;
+//       data.TotalCharge = data.FeePaid + data.Reserved + data.ReserveRepatriated;
 
-      console.log("Success tx fee: ", data);
+//       console.log("Success tx fee: ", data);
 
-      console.log("Tx Finalized at ", `${url}${statusToHuman[0][1]}`);
-    }
-  }
-};
+//       console.log("Tx Finalized at ", `${url}${statusToHuman[0][1]}`);
+//     }
+//   }
+// };
 
-export const fetchDataGasApproveBridgeFirechain = async (
-  value,
-  form,
-  currentAccount
-) => {
-  const contract = new ContractPromise(
-    fireApi,
-    fire_psp22_contract.CONTRACT_ABI,
-    fire_psp22_contract.CONTRACT_ADDRESS
-  );
+// export const fetchDataGasApproveBridgeFirechain = async (
+//   value,
+//   form,
+//   currentAccount
+// ) => {
+//   const contract = new ContractPromise(
+//     fireApi,
+//     fire_psp22_contract.CONTRACT_ABI,
+//     fire_psp22_contract.CONTRACT_ADDRESS
+//   );
 
-  const gasApproveResult = await getGasLimitFirechain(
-    fireApi,
-    currentAccount?.address,
-    "psp22::approve",
-    contract,
-    { value: 0 },
-    [fire_bridge_token_contract.CONTRACT_ADDRESS, formatNumToBNEther(value, 18)]
-  );
+//   const gasApproveResult = await getGasLimitFirechain(
+//     fireApi,
+//     currentAccount?.address,
+//     "psp22::approve",
+//     contract,
+//     { value: 0 },
+//     [fire_bridge_token_contract.CONTRACT_ADDRESS, formatNumToBNEther(value, 18)]
+//   );
 
-  const ret = gasApproveResult?.values?.refTime?.toHuman();
-  console.log(
-    " gasApproveResult.toFixed(8)",
-    formatChainStringToNumber(ret) / 10 ** 12
-  );
-  form.setFieldValue("gasApprove", formatChainStringToNumber(ret) / 10 ** 12);
-};
+//   const ret = gasApproveResult?.values?.refTime?.toHuman();
+//   console.log(
+//     " gasApproveResult.toFixed(8)",
+//     formatChainStringToNumber(ret) / 10 ** 12
+//   );
+//   form.setFieldValue("gasApprove", formatChainStringToNumber(ret) / 10 ** 12);
+// };
 
-export const fetchDataGasExecBridgeFirechain = async (
-  value,
-  form,
-  currentAccount
-) => {
-  const contract = new ContractPromise(
-    fireApi,
-    fire_bridge_token_contract.CONTRACT_ABI,
-    fire_bridge_token_contract.CONTRACT_ADDRESS
-  );
+// export const fetchDataGasExecBridgeFirechain = async (
+//   value,
+//   form,
+//   currentAccount
+// ) => {
+//   const contract = new ContractPromise(
+//     fireApi,
+//     fire_bridge_token_contract.CONTRACT_ABI,
+//     fire_bridge_token_contract.CONTRACT_ADDRESS
+//   );
 
-  const gasExecResult = await getGasLimitFirechain(
-    fireApi,
-    currentAccount?.address,
-    "createNewTransaction",
-    contract,
-    { value: 0 },
-    [formatNumToBNEther(value, 18), currentAccount?.address]
-  );
-  const ret = gasExecResult?.values?.refTime?.toHuman();
+//   const gasExecResult = await getGasLimitFirechain(
+//     fireApi,
+//     currentAccount?.address,
+//     "createNewTransaction",
+//     contract,
+//     { value: 0 },
+//     [formatNumToBNEther(value, 18), currentAccount?.address]
+//   );
+//   const ret = gasExecResult?.values?.refTime?.toHuman();
 
-  console.log(
-    "gasExecResult.toFixed(8)",
-    formatChainStringToNumber(ret) / 10 ** 12
-  );
-  form.setFieldValue("gasExec", formatChainStringToNumber(ret) / 10 ** 12);
-};
+//   console.log(
+//     "gasExecResult.toFixed(8)",
+//     formatChainStringToNumber(ret) / 10 ** 12
+//   );
+//   form.setFieldValue("gasExec", formatChainStringToNumber(ret) / 10 ** 12);
+// };
 
-export const getTimestampFirechain = async (blockNumber) => {
-  const blockHash = await fireApi.rpc.chain.getBlockHash(blockNumber);
+// export const getTimestampFirechain = async (blockNumber) => {
+//   const blockHash = await fireApi.rpc.chain.getBlockHash(blockNumber);
 
-  let ret = null;
+//   let ret = null;
 
-  const signedBlock = await fireApi.rpc.chain.getBlock(blockHash);
+//   const signedBlock = await fireApi.rpc.chain.getBlock(blockHash);
 
-  signedBlock?.block?.extrinsics?.forEach(
-    ({ method: { args, section, method: extrinsicsMethod } }) => {
-      if (section === "timestamp" && extrinsicsMethod === "set") {
-        ret = args[0].toString();
-      }
-    }
-  );
+//   signedBlock?.block?.extrinsics?.forEach(
+//     ({ method: { args, section, method: extrinsicsMethod } }) => {
+//       if (section === "timestamp" && extrinsicsMethod === "set") {
+//         ret = args[0].toString();
+//       }
+//     }
+//   );
 
-  return moment(parseInt(ret)).format("DD/MM/YY, H:mm");
-};
+//   return moment(parseInt(ret)).format("DD/MM/YY, H:mm");
+// };
