@@ -254,6 +254,7 @@ const Phase = () => {
               >
                 <IWInput
                   type="number"
+                  step="any"
                   value={field.value}
                   onChange={({ target }) => {
                     form.setFieldValue("totalSupply", target.value);
@@ -525,6 +526,7 @@ const Phase = () => {
                       >
                         <IWInput
                           type="number"
+                          step="any"
                           value={obj?.capAmount}
                           onChange={({ target }) => {
                             const updatedArray = [...form.values.phase];
@@ -573,6 +575,7 @@ const Phase = () => {
                         <IWInput
                           inputRightElementIcon={<b>%</b>}
                           type="number"
+                          step="any"
                           value={obj?.immediateReleaseRate}
                           onChange={({ target }) =>
                             onChangeImmediateReleaseRate(
@@ -619,6 +622,7 @@ const Phase = () => {
                           inputRightElementIcon={<b>day(s)</b>}
                           isDisabled={+obj?.immediateReleaseRate == 100}
                           type="number"
+                          step="any"
                           value={obj?.vestingLength}
                           onChange={({ target }) =>
                             onChangeVestingDuration(form, target.value, index)
@@ -662,6 +666,7 @@ const Phase = () => {
                             parseFloat(obj?.immediateReleaseRate) === 100
                           }
                           type="number"
+                          step="any"
                           value={obj?.vestingUnit}
                           onChange={({ target }) =>
                             onChangeVestingReleasePeriod(
@@ -729,6 +734,7 @@ const Phase = () => {
                             >
                               <IWInput
                                 type="number"
+                                step="any"
                                 inputRightElementIcon={
                                   launchpadData?.token?.symbol
                                 }
