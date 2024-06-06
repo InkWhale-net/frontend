@@ -55,7 +55,6 @@ const INWV2 = () => {
       const totalBurn =
         +formatChainStringToNumber(formatTokenAmount(contractBalance, 12)) -
         +formatChainStringToNumber(inwTotalSupply);
-      console.log("dsada", totalSupply, contractBalance);
       setInwV2Info({
         inwInCur: formatNumDynDecimal(inwTotalSupply),
         inwBurn: formatNumDynDecimal(+totalBurn + 11000000.5, 4),
