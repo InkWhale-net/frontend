@@ -15,6 +15,7 @@ import { formatTokenAmount } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { isMobile } from "react-device-detect";
 import { appChain } from "constants";
+import { formatTokenAmountNumber } from "utils";
 
 function CreateLaunchpadLayout() {
   const {
@@ -40,7 +41,7 @@ function CreateLaunchpadLayout() {
         "launchpadGeneratorTrait::getCreationFee"
       );
       const fee = result.toHuman().Ok;
-      setCreateFee(formatNumDynDecimal(formatTokenAmount(fee, appChain?.decimal)));
+      setCreateFee(formatNumDynDecimal(formatTokenAmountNumber(fee, appChain?.decimal)));
     } catch (error) {
       console.log(error);
     }

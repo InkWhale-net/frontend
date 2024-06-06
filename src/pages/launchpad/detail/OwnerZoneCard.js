@@ -13,6 +13,7 @@ import { fetchUserBalance } from "redux/slices/walletSlice";
 import { formatNumDynDecimal } from "utils";
 import { AzeroLogo } from "components/icons/Icons";
 import { appChain } from "constants";
+import { formatTokenAmountNumber } from "utils";
 
 const OwnerZoneCard = ({ launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -59,7 +60,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
       "launchpadContractTrait::getAvailableTokenAmount"
     );
     const availableAmount = fetchUnsoldToken?.toHuman()?.Ok;
-    setUnsoldToken(formatTokenAmount(availableAmount, tokenDecimal));
+    setUnsoldToken(formatTokenAmountNumber(availableAmount, tokenDecimal));
 
     if (launchpadData?.phaseList?.length > 0) {
       const resultQuery = await execContractQuery(

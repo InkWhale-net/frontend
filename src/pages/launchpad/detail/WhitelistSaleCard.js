@@ -15,6 +15,7 @@ import { BeatLoader } from "react-spinners";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { formatChainStringToNumber } from "utils";
+import { formatTokenAmountNumber } from "utils";
 import {
   delay,
   formatNumToBN,
@@ -187,18 +188,18 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                 (e) => e?.account === currentAccount?.address
               );
               const allowBuy = obj?.phaseID === livePhase?.phaseID;
-              const wlTokenPriceStr = formatTokenAmount(
+              const wlTokenPriceStr = formatTokenAmountNumber(
                 buyerInformation?.price,
                 12
               );
               const wlTokenPrice = +wlTokenPriceStr;
 
-              const wlMaxAmount = formatTokenAmount(
+              const wlMaxAmount = formatTokenAmountNumber(
                 buyerInformation?.amount,
                 parseInt(launchpadData.projectInfo.token.decimals)
               );
               const wlPurchasedAmount = roundUp(
-                formatTokenAmount(
+                formatTokenAmountNumber(
                   buyerInformation?.purchasedAmount,
                   parseInt(launchpadData.projectInfo.token.decimals)
                 )

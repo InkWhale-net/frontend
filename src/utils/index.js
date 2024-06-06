@@ -467,6 +467,18 @@ export const formatTokenAmount = (value, decimal = 12) => {
   }
 };
 
+export const formatTokenAmountNumber = (value, decimal = 12) => {
+  try {
+    return formatUnits(
+      value?.toString()?.replace(/\./g, "")?.replace(/,/g, ""),
+      Number(decimal)
+    );
+  } catch (error) {
+    console.log(error);
+    return;
+  }
+};
+
 export const getTimestamp = async (api, blockNumber) => {
   const blockHash = await api.rpc.chain.getBlockHash(blockNumber);
 

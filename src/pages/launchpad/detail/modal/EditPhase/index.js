@@ -52,6 +52,7 @@ import * as Yup from "yup";
 import { roundToMinute } from "pages/launchpad/create/components/Phase";
 import { processStringToArray } from "pages/launchpad/create/utils";
 import { checkDuplicatedWL } from "pages/launchpad/create/utils";
+import { formatTokenAmountNumber } from "utils";
 
 const EditPhase = ({ visible, setVisible, launchpadData }) => {
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
@@ -82,12 +83,12 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
             : parseFloat(e?.vestingUnit?.replace(/,/g, "")) /
               millisecondsInADay,
         allowPublicSale: e?.publicSaleInfor?.isPublic,
-        phasePublicAmount: formatTokenAmount(
+        phasePublicAmount: formatTokenAmountNumber(
           e?.publicSaleInfor?.totalAmount,
           tokenDecimal
         ),
-        capAmount: formatTokenAmount(e?.capAmount, tokenDecimal),
-        phasePublicPrice: formatTokenAmount(e?.publicSaleInfor?.price, 12),
+        capAmount: formatTokenAmountNumber(e?.capAmount, tokenDecimal),
+        phasePublicPrice: formatTokenAmountNumber(e?.publicSaleInfor?.price, 12),
       };
     });
   }, [launchpadData]);
@@ -151,7 +152,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
       "launchpadContractTrait::getAvailableTokenAmount"
     );
     const availableAmount = result.toHuman().Ok;
-    setAvailableTokenAmount(formatTokenAmount(availableAmount, tokenDecimal));
+    setAvailableTokenAmount(formatTokenAmountNumber(availableAmount, tokenDecimal));
   };
   useEffect(() => {
     if (!visible) {

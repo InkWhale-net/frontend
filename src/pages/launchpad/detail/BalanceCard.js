@@ -3,6 +3,7 @@ import { appChain } from "constants";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { formatChainStringToNumber } from "utils";
+import { formatTokenAmountNumber } from "utils";
 import { formatNumDynDecimal, formatTokenAmount, roundUp } from "utils";
 import { execContractQuery } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
@@ -45,7 +46,7 @@ const BalanceCard = ({ launchpadData }) => {
       setTokenBalance(
         formatNumDynDecimal(
           roundUp(
-            formatTokenAmount(
+            formatTokenAmountNumber(
               tokenBalance,
               parseInt(launchpadData?.projectInfo?.token?.decimals)
             )

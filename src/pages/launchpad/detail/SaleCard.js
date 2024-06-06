@@ -15,6 +15,7 @@ import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { formatNumDynDecimal } from "utils";
 import { formatChainStringToNumber } from "utils";
+import { formatTokenAmountNumber } from "utils";
 import {
   delay,
   formatNumToBN,
@@ -285,11 +286,11 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
       );
       const publicSaleTotalBuyedAmount = result.toHuman()?.Ok;
       setPublicSale({
-        total: formatTokenAmount(
+        total: formatTokenAmountNumber(
           publicSaleTotalAmount,
           parseInt(launchpadData.projectInfo.token.decimals)
         ),
-        purchased: formatTokenAmount(
+        purchased: formatTokenAmountNumber(
           publicSaleTotalBuyedAmount,
           parseInt(launchpadData.projectInfo.token.decimals)
         ),
@@ -304,7 +305,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         livePhase?.id
       );
       const publicSalePrice = result1.toHuman()?.Ok;
-      setTokenPrice(formatTokenAmount(publicSalePrice, 12));
+      setTokenPrice(formatTokenAmountNumber(publicSalePrice, 12));
     } catch (error) {
       console.log(error);
     }

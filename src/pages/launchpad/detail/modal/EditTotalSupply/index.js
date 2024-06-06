@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import { formatTokenAmountNumber } from "utils";
 import { formatNumToBN } from "utils";
 import { delay } from "utils";
 import { formatChainStringToNumber } from "utils";
@@ -60,7 +61,7 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
       "launchpadContractTrait::getAvailableTokenAmount"
     );
     const availableAmount = result.toHuman().Ok;
-    setAvailableTokenAmount(formatTokenAmount(availableAmount, tokenDecimal));
+    setAvailableTokenAmount(formatTokenAmountNumber(availableAmount, tokenDecimal));
   };
 
   useEffect(() => {

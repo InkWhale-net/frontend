@@ -11,6 +11,7 @@ import TabLayout from "../Layout";
 import { formatChainStringToNumber } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { appChain } from "constants";
+import { formatTokenAmountNumber } from "utils";
 
 const Row = ({ label, value, divider = false, ...rest }) => {
   return (
@@ -183,19 +184,19 @@ const PhaseTag = ({ data, launchpadData }) => {
 
         const decimalToken = parseInt(token.decimals);
         setPublicBalance({
-          claimedAmount: formatTokenAmount(
+          claimedAmount: formatTokenAmountNumber(
             publicBuyer?.claimedAmount || 0,
             decimalToken
           ),
-          lastUpdatedTime: formatTokenAmount(
+          lastUpdatedTime: formatTokenAmountNumber(
             publicBuyer?.lastUpdatedTime,
             decimalToken
           ),
-          purchasedAmount: formatTokenAmount(
+          purchasedAmount: formatTokenAmountNumber(
             publicBuyer?.purchasedAmount || 0,
             decimalToken
           ),
-          vestingAmount: formatTokenAmount(
+          vestingAmount: formatTokenAmountNumber(
             publicBuyer?.vestingAmount || 0,
             decimalToken
           ),
@@ -220,21 +221,21 @@ const PhaseTag = ({ data, launchpadData }) => {
         const decimalToken = parseInt(token.decimals);
 
         setWLBalance({
-          claimedAmount: formatTokenAmount(
+          claimedAmount: formatTokenAmountNumber(
             WLBuyer?.claimedAmount,
             decimalToken
           ),
-          amount: formatTokenAmount(WLBuyer?.amount, decimalToken),
-          price: formatTokenAmount(WLBuyer?.price, decimalToken),
-          lastUpdatedTime: formatTokenAmount(
+          amount: formatTokenAmountNumber(WLBuyer?.amount, decimalToken),
+          price: formatTokenAmountNumber(WLBuyer?.price, decimalToken),
+          lastUpdatedTime: formatTokenAmountNumber(
             WLBuyer?.lastUpdatedTime,
             decimalToken
           ),
-          purchasedAmount: formatTokenAmount(
+          purchasedAmount: formatTokenAmountNumber(
             WLBuyer?.purchasedAmount,
             decimalToken
           ),
-          vestingAmount: formatTokenAmount(
+          vestingAmount: formatTokenAmountNumber(
             WLBuyer?.vestingAmount,
             decimalToken
           ),

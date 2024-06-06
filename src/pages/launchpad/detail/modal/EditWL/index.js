@@ -50,6 +50,7 @@ import launchpad from "utils/contracts/launchpad";
 import AddBulk from "./AddBulk";
 import AddSingleWL from "./AddSingle";
 import { appChain } from "constants";
+import { formatTokenAmountNumber } from "utils";
 
 const EditWL = ({ visible, setVisible, launchpadData }) => {
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
@@ -99,16 +100,16 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
           const WLAccountDetail = queryWLAccountDetail?.toHuman()?.Ok;
           const formatedAccountBuyer = {
             account: WLAccount,
-            amount: formatTokenAmount(WLAccountDetail?.amount, tokenDecimal),
-            price: formatTokenAmount(
+            amount: formatTokenAmountNumber(WLAccountDetail?.amount, tokenDecimal),
+            price: formatTokenAmountNumber(
               WLAccountDetail?.price,
               appChain?.decimals
             ),
-            purchasedAmount: formatTokenAmount(
+            purchasedAmount: formatTokenAmountNumber(
               WLAccountDetail?.purchasedAmount,
               tokenDecimal
             ),
-            claimedAmount: formatTokenAmount(
+            claimedAmount: formatTokenAmountNumber(
               WLAccountDetail?.claimedAmount,
               tokenDecimal
             ),
@@ -131,7 +132,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     );
     const availableAmount = result.toHuman().Ok;
 
-    setAvailableTokenAmount(formatTokenAmount(availableAmount, tokenDecimal));
+    setAvailableTokenAmount(formatTokenAmountNumber(availableAmount, tokenDecimal));
   };
 
   const tableData = {
