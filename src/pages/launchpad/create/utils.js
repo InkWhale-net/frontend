@@ -116,18 +116,26 @@ export const verifyWhitelist = (wlString) => {
   if (
     whitelistphase?.filter((e) => isValidAddress(e?.address))?.length !=
     whitelistphase?.length
-  )
+  ) {
+    toast.error("Invalid address");
     return false;
+  }
+    
   if (
     whitelistphase?.filter((e) => e?.amount > 0)?.length !=
     whitelistphase?.length
-  )
+  ) {
+    toast.error("Invalid amount");
     return false;
+  }
   if (
     whitelistphase?.filter((e) => e?.price > 0 && regexTestNum.test(e?.price))
       ?.length != whitelistphase?.length
-  )
+  ) {
+    toast.error("Invalid price");
     return false;
+  }
+    
   return true;
 };
 

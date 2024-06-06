@@ -248,7 +248,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         value={`${formatNumDynDecimal(totalSupply)} ${tokenSymbol}`}
       />
       <Row
-        label="Distributed Token"
+        label="Available Token"
         value={`${formatNumDynDecimal(availableAmount)} ${tokenSymbol}`}
       />
       <Row
@@ -258,7 +258,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
         )} ${tokenSymbol}`}
       />
       <Row
-        label="Total Sold"
+        label="Total Claim"
         value={`${formatNumDynDecimal(totalSoldAmount)} ${tokenSymbol}`}
       />
 
