@@ -153,6 +153,7 @@ export function NFTBannerCard({ cardData, nftInfo }) {
                 twitterUrl={nftInfo?.twitter}
                 discordUrl={nftInfo?.discord}
                 telegramUrl={nftInfo?.telegram}
+                websiteUrl={nftInfo?.website}
               />
             </Show>
           </HStack>
@@ -169,6 +170,7 @@ export function NFTBannerCard({ cardData, nftInfo }) {
               twitterUrl={nftInfo?.twitter}
               discordUrl={nftInfo?.discord}
               telegramUrl={nftInfo?.telegram}
+              websiteUrl={nftInfo?.website}
             />
           </Hide>
 
