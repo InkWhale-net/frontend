@@ -58,7 +58,7 @@ const INWV2 = () => {
       console.log("dsada", totalSupply, contractBalance);
       setInwV2Info({
         inwInCur: formatNumDynDecimal(inwTotalSupply),
-        inwBurn: formatNumDynDecimal(totalBurn),
+        inwBurn: formatNumDynDecimal(+totalBurn + 11000000.5, 4),
       });
     } catch (error) {
       console.log(error);
