@@ -217,23 +217,23 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     const currPLPhaseInfo = currPhaseInfo?.publicSaleInfor;
 
     const whitelistTotalAmount = currWLPhaseInfo?.reduce((prev, curr) => {
-      return prev + curr?.amount?.replaceAll(",", "") / 10 ** decimals;
+      return prev + formatTokenAmountNumber(curr?.amount, decimals);
     }, 0);
 
     const whitelistTotalPurchasedAmount = currWLPhaseInfo?.reduce(
       (prev, curr) =>
-        prev + curr?.purchasedAmount?.replaceAll(",", "") / 10 ** decimals,
+        prev + formatTokenAmountNumber(curr?.purchasedAmount, decimals),
       0
     );
 
     const whitelistTotalClaimedAmount = currWLPhaseInfo?.reduce(
       (prev, curr) =>
-        prev + curr?.claimedAmount?.replaceAll(",", "") / 10 ** decimals,
+        prev + formatTokenAmountNumber(curr?.claimedAmount, decimals),
       0
     );
 
     return {
-      capAmount: capAmountBN?.replaceAll(",", "") / 10 ** decimals,
+      capAmount: formatTokenAmountNumber(capAmountBN, decimals),
 
       isPublic: currPLPhaseInfo?.isPublic,
       publicTotalAmount: currPLPhaseInfo?.totalAmount,
@@ -345,11 +345,17 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                 ${launchpadData?.projectInfo?.token?.symbol}`}
                 </Text>
               </Text> */}
-
               <Text>
                 Phase Cap:{" "}
                 <Text as="span" fontWeight={600}>
                   {`${formatNumDynDecimal(phaseHeaderInfo?.capAmount)}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+                </Text>
+              </Text>
+              <Text ml="12px">
+                Available for whitelist:{" "}
+                <Text as="span" fontWeight={600}>
+                  {`${formatNumDynDecimal(+phaseHeaderInfo?.capAmount - +formatTokenAmountNumber(phaseHeaderInfo?.publicTotalAmount))}
                 ${launchpadData?.projectInfo?.token?.symbol}`}
                 </Text>
               </Text>

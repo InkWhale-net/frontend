@@ -234,6 +234,10 @@ export const inwTokenListData = [
 
 export const tokenMenuListData = [
   {
+    label: "PSP22 Tokens",
+    href: "/psp22tokens",
+  },
+  {
     label: "Create a PSP22 token",
     href: "/create/token",
   },

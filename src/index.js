@@ -53,6 +53,7 @@ import BridgePage from "pages/account/bridge";
 import TokensSwapHistoryPage from "pages/tokens/swap/history";
 import TokensSwapPage from "pages/tokens/swap";
 import LoginPage from "pages/login";
+import PSP22Tokens from "pages/psp22Tokens";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -206,6 +207,7 @@ const App = () => {
             component={TokensSwapPage}
           />
           <Route exact path={`/create/token`} component={CreateTokenPage} />
+          <Route exact path={`/psp22tokens`} component={PSP22Tokens} />
           <Route
             exact
             path={`/create/stake-pool`}

@@ -129,7 +129,7 @@ export const verifyWhitelist = (wlString) => {
     return false;
   }
   if (
-    whitelistphase?.filter((e) => e?.price > 0 && regexTestNum.test(e?.price))
+    whitelistphase?.filter((e) => e?.price >= 0 && regexTestNum.test(e?.price))
       ?.length != whitelistphase?.length
   ) {
     toast.error("Invalid price");
