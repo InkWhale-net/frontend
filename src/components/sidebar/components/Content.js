@@ -121,10 +121,10 @@ function SidebarContent({ onClose }) {
           onClose={onClose}
         />
         {[
-          // {
-          //   title: `Stake ${appChain?.unit} `,
-          //   href: "/azero-staking",
-          // },
+          {
+            title: `Stake ${appChain?.unit} `,
+            href: "/azero-staking",
+          },
         ]?.map(({ title, href }) => (
           <Flex
             w={"full"}

@@ -131,10 +131,10 @@ export default function NavbarLinks(props) {
             data={poolsMenuListData}
           />
           {[
-            // {
-            //   title: `Stake ${appChain?.unit} `,
-            //   href: "/azero-staking",
-            // },
+            {
+              title: `Stake ${appChain?.unit} `,
+              href: "/azero-staking",
+            },
           ].map(({ title, href }) => (
             <Flex
               _hover={{ textDecoration: "none", bg: "bg.1" }}

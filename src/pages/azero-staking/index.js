@@ -77,7 +77,7 @@ function AzeroStaking() {
 
   return (
     <>
-      {/* <SectionContainer
+      <SectionContainer
         mt={{ base: "0px", xl: "20px" }}
         title={`${appChain?.unit} Staking`}
         description={`Stake ${appChain?.unit} to earn ${formatNumDynDecimal(
@@ -86,7 +86,7 @@ function AzeroStaking() {
       >
         <StatsInfo totalApy={totalApy} inwApy={inwApy} />
         <StakingTabs tabsData={tabsData} />
-      </SectionContainer> */}
+      </SectionContainer>
     </>
   );
 }
