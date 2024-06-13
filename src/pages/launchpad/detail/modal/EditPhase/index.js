@@ -83,12 +83,12 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
             : parseFloat(e?.vestingUnit?.replace(/,/g, "")) /
               millisecondsInADay,
         allowPublicSale: e?.publicSaleInfor?.isPublic,
-        phasePublicAmount: formatTokenAmountNumber(
+        phasePublicAmount: +formatTokenAmountNumber(
           e?.publicSaleInfor?.totalAmount,
           tokenDecimal
         ),
-        capAmount: formatTokenAmountNumber(e?.capAmount, tokenDecimal),
-        phasePublicPrice: formatTokenAmountNumber(e?.publicSaleInfor?.price, 12),
+        capAmount: +formatTokenAmountNumber(e?.capAmount, tokenDecimal),
+        phasePublicPrice: +formatTokenAmountNumber(e?.publicSaleInfor?.price, 12),
       };
     });
   }, [launchpadData]);
@@ -152,7 +152,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
       "launchpadContractTrait::getAvailableTokenAmount"
     );
     const availableAmount = result.toHuman().Ok;
-    setAvailableTokenAmount(formatTokenAmountNumber(availableAmount, tokenDecimal));
+    setAvailableTokenAmount(+formatTokenAmountNumber(availableAmount, tokenDecimal));
   };
   useEffect(() => {
     if (!visible) {
@@ -964,7 +964,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                           {!launchpadData?.requireKyc && (
                             <>
                               <Divider sx={{ marginTop: "8px" }} />
-                              {selectedPhaseIndex === -1 && (
+                              {/* {selectedPhaseIndex === -1 && (
                                 <FormControl
                                   isInvalid={
                                     form.errors?.whiteList &&
@@ -1007,7 +1007,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                     </FormErrorMessage>
                                   </SectionContainer>
                                 </FormControl>
-                              )}
+                              )} */}
                             </>
                           )}
                           <Flex sx={{ justifyContent: "center" }}>

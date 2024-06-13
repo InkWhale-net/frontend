@@ -46,7 +46,7 @@ const BalanceCard = ({ launchpadData }) => {
       setTokenBalance(
         formatNumDynDecimal(
           roundUp(
-            formatTokenAmountNumber(
+            +formatTokenAmountNumber(
               tokenBalance,
               parseInt(launchpadData?.projectInfo?.token?.decimals)
             )

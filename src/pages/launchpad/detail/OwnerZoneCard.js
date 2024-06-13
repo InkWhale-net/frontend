@@ -60,7 +60,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
       "launchpadContractTrait::getAvailableTokenAmount"
     );
     const availableAmount = fetchUnsoldToken?.toHuman()?.Ok;
-    setUnsoldToken(formatTokenAmountNumber(availableAmount, tokenDecimal));
+    setUnsoldToken(+formatTokenAmountNumber(availableAmount, tokenDecimal));
 
     if (launchpadData?.phaseList?.length > 0) {
       const resultQuery = await execContractQuery(

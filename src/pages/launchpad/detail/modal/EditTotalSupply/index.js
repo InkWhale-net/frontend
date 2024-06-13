@@ -61,7 +61,7 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
       "launchpadContractTrait::getAvailableTokenAmount"
     );
     const availableAmount = result.toHuman().Ok;
-    setAvailableTokenAmount(formatTokenAmountNumber(availableAmount, tokenDecimal));
+    setAvailableTokenAmount(+formatTokenAmountNumber(availableAmount, tokenDecimal));
   };
 
   useEffect(() => {

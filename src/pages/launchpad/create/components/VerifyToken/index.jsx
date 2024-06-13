@@ -113,11 +113,10 @@ export default function VerifyToken() {
     const balance = formatNumDynDecimal(
       formatTokenAmountNumber(queryResult?.toHuman()?.Ok, +decimals)
     );
-    const totalSupply = formatTokenAmountNumber(
+    const totalSupply = +formatTokenAmountNumber(
       formatTextAmount(rawTotalSupply),
       +decimals
     );
-    console.log(totalSupply);
 
     let tokenIconUrl = null;
     try {

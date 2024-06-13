@@ -48,23 +48,23 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
   }, [data]);
   const publicSaleInfo = useMemo(() => {
     return {
-      totalAmount: formatTokenAmountNumber(
+      totalAmount: +formatTokenAmountNumber(
         tagData?.publicSaleInfor?.totalAmount,
         tokenDecimal
       ),
-      totalPurchasedAmount: formatTokenAmountNumber(
+      totalPurchasedAmount: +formatTokenAmountNumber(
         tagData?.publicSaleInfor?.totalPurchasedAmount,
         tokenDecimal
       ),
-      totalClaimedAmount: formatTokenAmountNumber(
+      totalClaimedAmount: +formatTokenAmountNumber(
         tagData?.publicSaleInfor?.totalClaimedAmount,
         tokenDecimal
       ),
-      availableAmount: formatTokenAmountNumber(
+      availableAmount: +formatTokenAmountNumber(
         tagData?.publicSaleInfor?.availableAmount,
         tokenDecimal
       ),
-      price: formatTokenAmountNumber(tagData?.publicSaleInfor?.price, 12),
+      price: +formatTokenAmountNumber(tagData?.publicSaleInfor?.price, 12),
     };
   }, [tagData]);
 

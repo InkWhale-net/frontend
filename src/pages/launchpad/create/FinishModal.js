@@ -171,7 +171,7 @@ const FinishModal = ({}) => {
                 launchpad_generator.CONTRACT_ADDRESS
               );
 
-              const allowanceToken = formatTokenAmountNumber(
+              const allowanceToken = +formatTokenAmountNumber(
                 formatTextAmount(allowanceTokenQr?.toHuman().Ok),
                 +launchpadData?.token?.decimals
               );

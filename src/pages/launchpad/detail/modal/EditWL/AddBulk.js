@@ -22,6 +22,7 @@ const AddBulk = ({
   selectedPhase,
   availableTokenAmount,
   setSelectedMode,
+  hideModal
 }) => {
   const { currentAccount } = useSelector((state) => state.wallet);
   const { api } = useAppContext();
@@ -75,6 +76,7 @@ const AddBulk = ({
         poolContract: launchpadData?.launchpadContract,
       });
       if (result) {
+        hideModal()
         setSelectedMode(0);
         setWlString('');
         toast.promise(

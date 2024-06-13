@@ -188,18 +188,18 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                 (e) => e?.account === currentAccount?.address
               );
               const allowBuy = obj?.phaseID === livePhase?.phaseID;
-              const wlTokenPriceStr = formatTokenAmountNumber(
+              const wlTokenPriceStr = +formatTokenAmountNumber(
                 buyerInformation?.price,
                 12
               );
               const wlTokenPrice = +wlTokenPriceStr;
 
-              const wlMaxAmount = formatTokenAmountNumber(
+              const wlMaxAmount = +formatTokenAmountNumber(
                 buyerInformation?.amount,
                 parseInt(launchpadData.projectInfo.token.decimals)
               );
               const wlPurchasedAmount = roundUp(
-                formatTokenAmountNumber(
+                +formatTokenAmountNumber(
                   buyerInformation?.purchasedAmount,
                   parseInt(launchpadData.projectInfo.token.decimals)
                 )

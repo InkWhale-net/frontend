@@ -286,11 +286,11 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
       );
       const publicSaleTotalBuyedAmount = result.toHuman()?.Ok;
       setPublicSale({
-        total: formatTokenAmountNumber(
+        total: +formatTokenAmountNumber(
           publicSaleTotalAmount,
           parseInt(launchpadData.projectInfo.token.decimals)
         ),
-        purchased: formatTokenAmountNumber(
+        purchased: +formatTokenAmountNumber(
           publicSaleTotalBuyedAmount,
           parseInt(launchpadData.projectInfo.token.decimals)
         ),
@@ -305,7 +305,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         livePhase?.id
       );
       const publicSalePrice = result1.toHuman()?.Ok;
-      setTokenPrice(formatTokenAmountNumber(publicSalePrice, 12));
+      setTokenPrice(+formatTokenAmountNumber(publicSalePrice, 12));
     } catch (error) {
       console.log(error);
     }

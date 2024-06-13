@@ -42,7 +42,7 @@ export default function PSP22Tokens() {
         );
         const decimals = queryResult1.toHuman().Ok;
         const totalSupply = roundUp(
-          formatTokenAmountNumber(rawTotalSupply, decimals),
+          +formatTokenAmountNumber(rawTotalSupply, decimals),
           0
         );
         return {

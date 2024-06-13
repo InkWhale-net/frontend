@@ -100,16 +100,16 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
           const WLAccountDetail = queryWLAccountDetail?.toHuman()?.Ok;
           const formatedAccountBuyer = {
             account: WLAccount,
-            amount: formatTokenAmountNumber(WLAccountDetail?.amount, tokenDecimal),
-            price: formatTokenAmountNumber(
+            amount: +formatTokenAmountNumber(WLAccountDetail?.amount, tokenDecimal),
+            price: +formatTokenAmountNumber(
               WLAccountDetail?.price,
               appChain?.decimals
             ),
-            purchasedAmount: formatTokenAmountNumber(
+            purchasedAmount: +formatTokenAmountNumber(
               WLAccountDetail?.purchasedAmount,
               tokenDecimal
             ),
-            claimedAmount: formatTokenAmountNumber(
+            claimedAmount: +formatTokenAmountNumber(
               WLAccountDetail?.claimedAmount,
               tokenDecimal
             ),
@@ -217,23 +217,22 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     const currPLPhaseInfo = currPhaseInfo?.publicSaleInfor;
 
     const whitelistTotalAmount = currWLPhaseInfo?.reduce((prev, curr) => {
-      return prev + formatTokenAmountNumber(curr?.amount, decimals);
+      return prev + +formatTokenAmountNumber(curr?.amount, decimals);
     }, 0);
-
+    
     const whitelistTotalPurchasedAmount = currWLPhaseInfo?.reduce(
       (prev, curr) =>
-        prev + formatTokenAmountNumber(curr?.purchasedAmount, decimals),
+        prev + +formatTokenAmountNumber(curr?.purchasedAmount, decimals),
       0
     );
 
     const whitelistTotalClaimedAmount = currWLPhaseInfo?.reduce(
       (prev, curr) =>
-        prev + formatTokenAmountNumber(curr?.claimedAmount, decimals),
+        prev + +formatTokenAmountNumber(curr?.claimedAmount, decimals),
       0
     );
-
     return {
-      capAmount: formatTokenAmountNumber(capAmountBN, decimals),
+      capAmount: +formatTokenAmountNumber(capAmountBN, decimals),
 
       isPublic: currPLPhaseInfo?.isPublic,
       publicTotalAmount: currPLPhaseInfo?.totalAmount,
@@ -280,6 +279,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
           selectedPhase={selectedPhase}
           availableTokenAmount={availableTokenAmount}
           setSelectedMode={setSelectedMode}
+          hideModal={() => setVisible(false)}
         />
       ),
       isDisabled: false,
@@ -355,7 +355,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
               <Text ml="12px">
                 Available for whitelist:{" "}
                 <Text as="span" fontWeight={600}>
-                  {`${formatNumDynDecimal(+phaseHeaderInfo?.capAmount - +formatTokenAmountNumber(phaseHeaderInfo?.publicTotalAmount))}
+                  {`${formatNumDynDecimal(phaseHeaderInfo?.capAmount - +formatTokenAmountNumber(phaseHeaderInfo?.publicTotalAmount, launchpadData?.projectInfo?.token?.decimals))}
                 ${launchpadData?.projectInfo?.token?.symbol}`}
                 </Text>
               </Text>
@@ -427,7 +427,7 @@ function EditWhitelist({
       </Box>
 
       <Box sx={{ flex: 1, pt: "30px" }}>
-        <Flex mb="16px">
+        {/* <Flex mb="16px">
           <IWInput
             size="md"
             value={queries?.keyword}
@@ -438,7 +438,7 @@ function EditWhitelist({
             placeholder="Search"
             inputRightElementIcon={<SearchIcon color="#57527E" />}
           />
-        </Flex>
+        </Flex> */}
         <TableContainer
           // mt="18px"
           width="full"

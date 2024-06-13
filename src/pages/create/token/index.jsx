@@ -97,7 +97,7 @@ export default function CreateTokenPage() {
           "psp22Metadata::tokenDecimals"
         );
         const decimals = queryResult1.toHuman().Ok;
-        const totalSupply = roundUp( formatTokenAmountNumber(rawTotalSupply, decimals), 0);
+        const totalSupply = roundUp(+formatTokenAmountNumber(rawTotalSupply, decimals), 0);
         await delay(50);
         return {
           ...e,
