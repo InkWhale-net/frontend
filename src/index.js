@@ -251,7 +251,7 @@ const App = () => {
             component={MyPoolDetailPage}
           />
           <Route exact path={`/admin`} component={AdminPage} />
-          {/* <Route exact path={`/azero-staking`} component={AzeroStaking} /> */}
+          <Route exact path={`/azero-staking`} component={AzeroStaking} />
           <Route exact path={`/inw-v2`} component={INWV2} />
           {/* <Route exact path={`/bridge`} component={BridgePage} /> */}
           <Route>
