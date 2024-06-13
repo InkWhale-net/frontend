@@ -188,20 +188,28 @@ const AddSingleWL = ({
   }, [selectedWL]);
 
   // ++++++++++++++++++++++++++
-  const inWLList = whitelist?.map((i) => i.account).includes(wlData?.address);
-
+  const [inWLList, setINWLList] = useState(false)
+  useEffect(()=> {
+    (async () => {
+      const wladdress = (await resolveAZDomainToAddress(wlData?.address)) || (isValidAddress(wlData?.address) && wlData?.address)
+      setINWLList(whitelist?.map((i) => i.account).includes(wladdress))
+    })()
+  }, [whitelist, wlData?.address])
   useEffect(() => {
-    if (inWLList) {
-      const found = whitelist?.find((i) => i.account === wlData?.address);
-
-      setWLData((prev) => ({ ...prev, ...found }));
-    } else {
-      setWLData((prev) => ({
-        ...prev,
-        amount: "",
-        price: "",
-      }));
-    }
+    (async () => {
+      if (inWLList) {
+        const wladdress = (await resolveAZDomainToAddress(wlData?.address)) || (isValidAddress(wlData?.address) && wlData?.address)
+        const found = whitelist?.find((i) => i.account === wladdress);
+  
+        setWLData((prev) => ({ ...prev, ...found }));
+      } else {
+        setWLData((prev) => ({
+          ...prev,
+          amount: "",
+          price: "",
+        }));
+      }
+    })()
   }, [inWLList, whitelist, wlData?.address]);
 
   return (
