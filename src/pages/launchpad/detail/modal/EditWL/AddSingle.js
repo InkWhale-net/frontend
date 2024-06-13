@@ -9,6 +9,7 @@ import { toast } from "react-hot-toast";
 import { AiFillExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import { resolveAZDomainToAddress } from "utils";
 import { delay } from "utils";
 import { execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
@@ -48,6 +49,11 @@ const AddSingleWL = ({
 
   const addSingleWLHandler = async () => {
     try {
+      const wladdress = (await resolveAZDomainToAddress(wlData?.address)) || (isValidAddress(wlData?.address) && wlData?.address)
+      if(!wladdress) {
+        toast.error(`Address or ID not valid`);
+        return;
+      }
       if (availableTokenAmount * 1 <= 0) {
         toast.error(`No available token amount!`);
         return;
@@ -61,7 +67,7 @@ const AddSingleWL = ({
       }
 
       const currentWl = launchpadData?.phaseList[selectedPhase]?.whitelist;
-      if (currentWl.some((obj) => obj.address === wlData?.address)) {
+      if (currentWl.some((obj) => obj.address === wladdress)) {
         toast.error("Whitelist address existed");
         return;
       }
@@ -77,7 +83,7 @@ const AddSingleWL = ({
         0, //-> value
         "launchpadContractTrait::addMultiWhitelists",
         selectedPhase,
-        [wlData?.address],
+        [wladdress],
         [
           parseUnits(
             wlData?.amount.toString(),
@@ -286,7 +292,6 @@ const AddSingleWL = ({
                   !(
                     wlData?.address?.length > 0 &&
                     wlData?.amount?.length > 0 &&
-                    wlData?.price?.length > 0 &&
                     (wlData?.address !== selectedWL?.account ||
                       wlData?.amount !== (+selectedWL?.amount).toString() ||
                       wlData?.price !== (+selectedWL?.price).toString())
@@ -324,9 +329,7 @@ const AddSingleWL = ({
                     isDisabled={
                       !(
                         wlData?.address?.length > 0 &&
-                        wlData?.amount?.length > 0 &&
-                        wlData?.price?.length > 0 &&
-                        isValidAddress(wlData?.address)
+                        wlData?.amount?.length > 0
                       )
                     }
                     m="16px 2px"
