@@ -120,7 +120,13 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
       setWL(WLList);
     })();
   }, [launchpadData?.phaseList, queries?.keyword, selectedPhase, tokenDecimal]);
-
+  
+  const totalWLPhase = useMemo(() => {
+    return whitelist.reduce((acc, cur) => {
+      return acc += cur?.amount
+    }, 0)
+  }, [whitelist])
+  
   const fetchPhaseData = async () => {
     const result = await execContractQuery(
       currentAccount?.address,
@@ -248,7 +254,16 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     launchpadData?.projectInfo?.token?.decimals,
     selectedPhase,
   ]);
-
+  const availableWLAmount = useMemo(() => {
+    return (
+      phaseHeaderInfo?.capAmount -
+      +formatTokenAmountNumber(
+        phaseHeaderInfo?.publicTotalAmount,
+        launchpadData?.projectInfo?.token?.decimals
+      ) -
+      totalWLPhase
+    );
+  }, [launchpadData?.projectInfo?.token?.decimals, phaseHeaderInfo?.capAmount, phaseHeaderInfo?.publicTotalAmount, totalWLPhase]);
   // ++++++++++++++++++++++++++++++++++++++++++
 
   const tabsData = [
@@ -356,7 +371,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
               <Text ml="12px">
                 Available for whitelist:{" "}
                 <Text as="span" fontWeight={600}>
-                  {`${formatNumDynDecimal(availableTokenAmount)}
+                  {`${formatNumDynDecimal(availableWLAmount)}
                 ${launchpadData?.projectInfo?.token?.symbol}`}
                 </Text>
               </Text>
