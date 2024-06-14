@@ -40,7 +40,7 @@ const AddBulk = ({
       }
       const wlData = processStringToArray(wlString);
       const reformatWLData = await Promise.all(wlData.map(async e => {
-        return {...e, address: await resolveAZDomainToAddress(e?.address)}
+        return {...e, address: await resolveAZDomainToAddress(e?.address) || e?.address}
       }))
       const currentWl = launchpadData?.phaseList[selectedPhase]?.whitelist;
       if (

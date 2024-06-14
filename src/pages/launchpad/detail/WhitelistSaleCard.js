@@ -3,19 +3,22 @@ import { Box, Button, Link, Text } from "@chakra-ui/react";
 import { APICall } from "api/client";
 import { AzeroLogo } from "components/icons/Icons";
 import IWInput from "components/input/Input";
+import { appChain } from "constants";
 import { toastMessages } from "constants";
 import { useAppContext } from "contexts/AppContext";
 import { parseUnits } from "ethers";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Countdown from "react-countdown";
 import { toast } from "react-hot-toast";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { BeatLoader } from "react-spinners";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
+import { formatNumDynDecimal } from "utils";
 import { formatChainStringToNumber } from "utils";
 import { formatTokenAmountNumber } from "utils";
+import { multipleFloat } from "utils";
 import {
   delay,
   formatNumToBN,
@@ -23,6 +26,7 @@ import {
   roundDown,
   roundUp,
 } from "utils";
+import { execContractQuery } from "utils/contracts";
 import { execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 
@@ -90,7 +94,66 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
   const { api } = useAppContext();
   const [amount, setAmount] = useState(null);
   const [azeroBuyAmount, setAzeroBuyAmount] = useState(0);
-
+  const [publicSaleAmount, setPublicSale] = useState({
+    purchased: 0,
+    total: 0,
+  });
+  const getPublicSaleInfo = async () => {
+    try {
+      const result0 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        launchpad.CONTRACT_ABI,
+        launchpadData?.launchpadContract,
+        0,
+        "launchpadContractTrait::getPublicSaleTotalAmount",
+        livePhase?.id
+      );
+      const publicSaleTotalAmount = result0.toHuman()?.Ok;
+      const result = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        launchpad.CONTRACT_ABI,
+        launchpadData?.launchpadContract,
+        0,
+        "launchpadContractTrait::getPublicSaleTotalPurchasedAmount",
+        livePhase?.id
+      );
+      const publicSaleTotalBuyedAmount = result.toHuman()?.Ok;
+      setPublicSale({
+        total: +formatTokenAmountNumber(
+          publicSaleTotalAmount,
+          parseInt(launchpadData.projectInfo.token.decimals)
+        ),
+        purchased: +formatTokenAmountNumber(
+          publicSaleTotalBuyedAmount,
+          parseInt(launchpadData.projectInfo.token.decimals)
+        ),
+      });
+      const result1 = await execContractQuery(
+        currentAccount?.address,
+        "api",
+        launchpad.CONTRACT_ABI,
+        launchpadData?.launchpadContract,
+        0,
+        "launchpadContractTrait::getPublicSalePrice",
+        livePhase?.id
+      );
+      const publicSalePrice = result1.toHuman()?.Ok;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const saleQuery = useQuery(
+    ["query-public-sale", currentAccount, launchpadData],
+    async () => {
+      if (currentAccount)
+        await new Promise(async (resolve) => {
+          await getPublicSaleInfo();
+          resolve();
+        });
+    }
+  );
   const isUserInWL = useMemo(() => {
     return (
       livePhase?.whitelist?.find(
@@ -100,7 +163,110 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
     );
   }, [livePhase, upComing, currentAccount]);
   const dispatch = useDispatch();
-
+  const tokenDecimal = launchpadData?.projectInfo?.token?.decimals
+  const getWLInfo = async (phaseID) => {
+    try {
+      const txRateQuery = await execContractQuery(
+        currentAccount?.address,
+        api,
+        launchpad.CONTRACT_ABI,
+        launchpadData?.launchpadContract,
+        0,
+        "launchpadContractTrait::getTxRate"
+      );
+      const txRate = +txRateQuery?.toHuman()?.Ok / 10000;
+      const queryResult = await execContractQuery(
+        currentAccount?.address,
+        api,
+        launchpad.CONTRACT_ABI,
+        launchpadData?.launchpadContract,
+        0,
+        "launchpadContractTrait::getWhitelistSaleInfo",
+        phaseID
+      );
+      const WLInfo = queryResult?.toHuman()?.Ok;
+      const totalPurchasedAmountPhase =
+        WLInfo?.totalPurchasedAmount &&
+        +formatTokenAmountNumber(
+          WLInfo?.totalPurchasedAmount,
+          launchpadData?.projectInfo?.token?.decimals
+        );
+      const queryCountWL = await execContractQuery(
+        currentAccount?.address,
+        api,
+        launchpad.CONTRACT_ABI,
+        launchpadData?.launchpadContract,
+        0,
+        "launchpadContractTrait::getWhitelistAccountCount",
+        phaseID
+      );
+      const countWL = queryCountWL?.toHuman()?.Ok;
+      const WLList = await Promise.all(
+        new Array(+countWL).fill(0).map(async (e, index) => {
+          const queryWLAccount = await execContractQuery(
+            currentAccount?.address,
+            api,
+            launchpad.CONTRACT_ABI,
+            launchpadData?.launchpadContract,
+            0,
+            "launchpadContractTrait::getWhitelistAccount",
+            phaseID,
+            index
+          );
+          const WLAccount = queryWLAccount?.toHuman()?.Ok;
+          const queryWLAccountDetail = await execContractQuery(
+            currentAccount?.address,
+            api,
+            launchpad.CONTRACT_ABI,
+            launchpadData?.launchpadContract,
+            0,
+            "launchpadContractTrait::getWhitelistBuyer",
+            phaseID,
+            WLAccount
+          );
+          const WLAccountDetail = queryWLAccountDetail?.toHuman()?.Ok;
+          const formatedAccountBuyer = {
+            price: +formatTokenAmountNumber(
+              WLAccountDetail?.price,
+              appChain?.decimals
+            ),
+            purchasedAmount: +formatTokenAmountNumber(
+              WLAccountDetail?.purchasedAmount,
+              tokenDecimal
+            ),
+            amount: +formatTokenAmountNumber(
+              WLAccountDetail?.amount,
+              tokenDecimal
+            ),
+          };
+          return formatedAccountBuyer;
+        })
+      );
+      const totalSaledAzero = WLList.reduce((acc, current) => {
+        return (
+          acc + multipleFloat(current?.price, current?.purchasedAmount)
+        );
+      }, 0);
+      return {
+        WLList,
+        totalWL: WLList.reduce((acc, current) => {
+          return (
+            acc + (current?.amount || 0)
+          );
+        }, 0),
+        totalAmount:
+          WLInfo?.totalAmount &&
+          +formatTokenAmountNumber(
+            WLInfo?.totalAmount,
+            launchpadData?.projectInfo?.token?.decimals
+          ),
+        totalPurchasedAmount: totalPurchasedAmountPhase,
+        azeroAmount: multipleFloat(totalSaledAzero, 1 - txRate),
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  }
   const wlBuyHandler = async (maxAllowWlPurchase) => {
     try {
       if (!api) {
@@ -110,6 +276,14 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
 
       if (!currentAccount) {
         toast.error(toastMessages.NO_WALLET);
+        return;
+      }
+      const WLData = await getWLInfo()
+      const phaseCap = +formatTokenAmountNumber(launchpadData?.phaseList[livePhase?.id]?.capAmount, tokenDecimal)
+      if (+amount + +publicSaleAmount?.purchased + WLData?.totalWL > phaseCap) {
+        toast.error(
+          `Phase purchase cap is ${formatNumDynDecimal(phaseCap)}`
+        );
         return;
       }
       if (parseFloat(amount) > maxAllowWlPurchase) {
@@ -140,7 +314,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
 
       setAmount("");
       setAzeroBuyAmount("");
-
+      saleQuery.refetch()
       toast.promise(
         delay(6000).then(() => {
           if (currentAccount) {

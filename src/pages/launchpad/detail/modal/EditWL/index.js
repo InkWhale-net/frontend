@@ -371,7 +371,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
               <Text ml="12px">
                 Available for whitelist:{" "}
                 <Text as="span" fontWeight={600}>
-                  {`${formatNumDynDecimal(availableWLAmount)}
+                  {`${formatNumDynDecimal(availableTokenAmount)}
                 ${launchpadData?.projectInfo?.token?.symbol}`}
                 </Text>
               </Text>
