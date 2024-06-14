@@ -341,7 +341,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         );
         return;
       }
-      const a0BuyAmount = isBuyWithA0 ? +azeroBuyAmount : +amount * +tokenPrice;
+      const a0BuyAmount = isBuyWithA0 ? +azeroBuyAmount : multipleFloat(+amount, +tokenPrice);
       const buyResult = await execContractTx(
         currentAccount,
         api,

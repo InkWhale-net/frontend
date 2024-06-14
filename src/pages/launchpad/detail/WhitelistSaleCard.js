@@ -417,7 +417,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                           onChange={({ target }) => {
                             setAmount(target.value);
                             setAzeroBuyAmount(
-                              roundDown(+target.value * wlTokenPrice),
+                              multipleFloat(+target.value, +wlTokenPrice),
                               4
                             );
                           }}
