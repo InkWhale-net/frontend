@@ -22,6 +22,7 @@ const AddSingleWL = ({
   availableTokenAmount,
   phaseCapAmount,
   whitelist,
+  fetchPhaseData
 }) => {
   const { currentAccount } = useSelector((state) => state.wallet);
   const { api } = useAppContext();
@@ -96,6 +97,7 @@ const AddSingleWL = ({
         type: "launchpad",
         poolContract: launchpadData?.launchpadContract,
       });
+      fetchPhaseData()
       if (result) {
         setWLData({
           address: "",

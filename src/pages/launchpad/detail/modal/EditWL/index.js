@@ -190,7 +190,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   useEffect(() => {
     if (launchpadData) fetchPhaseData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [launchpadData]);
+  }, [launchpadData, api, visible, currentAccount]);
 
   useEffect(() => {
     if (selectedMode !== 0) setSelectedWL(null);
@@ -267,6 +267,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
           setQueries={setQueries}
           table={table}
           whitelist={whitelist}
+          fetchPhaseData={fetchPhaseData}
         />
       ),
       isDisabled: false,
@@ -355,7 +356,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
               <Text ml="12px">
                 Available for whitelist:{" "}
                 <Text as="span" fontWeight={600}>
-                  {`${formatNumDynDecimal(phaseHeaderInfo?.capAmount - +formatTokenAmountNumber(phaseHeaderInfo?.publicTotalAmount, launchpadData?.projectInfo?.token?.decimals))}
+                  {`${formatNumDynDecimal(availableTokenAmount)}
                 ${launchpadData?.projectInfo?.token?.symbol}`}
                 </Text>
               </Text>
@@ -403,6 +404,7 @@ function EditWhitelist({
   setQueries,
   table,
   whitelist,
+  fetchPhaseData
 }) {
   return (
     <Box display={["block", "flex"]}>
@@ -422,6 +424,7 @@ function EditWhitelist({
             availableTokenAmount={availableTokenAmount}
             phaseCapAmount={phaseHeaderInfo?.capAmount}
             whitelist={whitelist}
+            fetchPhaseData={fetchPhaseData}
           />
         )}
       </Box>
