@@ -42,13 +42,12 @@ const BalanceCard = ({ launchpadData }) => {
         currentAccount?.address
       );
       const tokenBalance = queryResult?.toHuman()?.Ok;
-
       setTokenBalance(
         formatNumDynDecimal(
           roundUp(
             +formatTokenAmountNumber(
               tokenBalance,
-              parseInt(launchpadData?.projectInfo?.token?.decimals)
+              launchpadData?.projectInfo?.token?.decimals
             )
           )
         )

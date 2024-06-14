@@ -282,7 +282,7 @@ const Phase = () => {
           >{`Token balance: ${launchpadData?.token?.balance} ${launchpadData?.token?.symbol}`}</Text>
         </SectionContainer>
         {/* =========================== */}
-        <Heading
+        {/* <Heading
           as="h2"
           size="h2"
           sx={{ marginTop: "16px" }}
@@ -295,9 +295,9 @@ const Phase = () => {
           >
             <QuestionOutlineIcon ml="6px" color="text.2" />
           </Tooltip>
-        </Heading>
+        </Heading> */}
 
-        <Box
+        {/* <Box
           bg={{ base: "#F6F6FC" }}
           borderRadius={{ base: "10px" }}
           padding={{ base: "30px" }}
@@ -328,7 +328,7 @@ const Phase = () => {
               )}
             </Field>
           </Box>
-        </Box>
+        </Box> */}
 
         {/* ================================================ */}
         <Heading

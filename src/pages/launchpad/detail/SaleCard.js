@@ -430,15 +430,18 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
   const totalWL = whitelistData?.reduce((acc, cur) => {
     return acc += +formatTokenAmountNumber(cur?.amount, tokenDecimal)
   }, 0)
+  const totalWLPurchased = whitelistData?.reduce((acc, cur) => {
+    return acc += +formatTokenAmountNumber(cur?.purchasedAmount, tokenDecimal)
+  }, 0)
   const phaseCap = +formatTokenAmountNumber(launchpadData?.phaseList[livePhase?.id]?.capAmount, tokenDecimal)
   const totalPurchase = publicSaleAmount?.total + totalWL
   const maxPurchaseAmount = totalPurchase > phaseCap ? phaseCap : totalPurchase
-  
+  const totalPurchasedPubnWL = publicSaleAmount?.purchased + totalWLPurchased
   const progressPublicSaleRatio = useMemo(
     () =>
       publicSaleAmount?.total != 0
         ? roundUp(
-            ((formatChainStringToNumber(publicSaleAmount?.purchased) || 0) /
+            ((totalPurchasedPubnWL || 0) /
               (maxPurchaseAmount || 0)) *
               100
           )
@@ -468,12 +471,13 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
   return (
     <>
       <Box sx={{ marginTop: "12px" }}>
-        <Text>Progress {`(${progressPublicSaleRatio}%)`}</Text>
+        <Text>Progress (Public + Whitelist purchase)</Text>
         <Progress
           sx={{ marginTop: "4px" }}
           w="full"
-          value={progressPublicSaleRatio}
+          value={progressPublicSaleRatio || 1}
           size="sm"
+          bgColor="rgba(147, 240, 245, 0.25)"
         />
         <Box
           sx={{
@@ -483,12 +487,12 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
             paddingRight: "2px",
           }}
         >
-          <div>{publicSaleAmount?.purchased}</div>
+          <div>{totalPurchasedPubnWL} {`(${progressPublicSaleRatio}%)`}</div>
           <div>{maxPurchaseAmount}</div>
         </Box>
       </Box>
       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
-        <Text sx={headerSX}>{`Amount (max: ${formatNumDynDecimal(
+        <Text sx={headerSX}>{`Public amount (max: ${formatNumDynDecimal(
           maxAmount
         )})`}</Text>
         <IWInput
