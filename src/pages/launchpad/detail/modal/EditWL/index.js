@@ -126,7 +126,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
       return acc += cur?.amount
     }, 0)
   }, [whitelist])
-  
+
   const fetchPhaseData = async () => {
     const result = await execContractQuery(
       currentAccount?.address,
@@ -263,7 +263,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
       ) -
       totalWLPhase
     );
-  }, [launchpadData?.projectInfo?.token?.decimals, phaseHeaderInfo?.capAmount, phaseHeaderInfo?.publicTotalAmount, totalWLPhase]);
+  }, [launchpadData, phaseHeaderInfo?.capAmount, phaseHeaderInfo?.publicTotalAmount, totalWLPhase]);
   // ++++++++++++++++++++++++++++++++++++++++++
 
   const tabsData = [
@@ -283,6 +283,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
           table={table}
           whitelist={whitelist}
           fetchPhaseData={fetchPhaseData}
+          availableWLAmount={availableWLAmount}
         />
       ),
       isDisabled: false,
@@ -296,6 +297,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
           availableTokenAmount={availableTokenAmount}
           setSelectedMode={setSelectedMode}
           hideModal={() => setVisible(false)}
+          availableWLAmount={availableWLAmount}
         />
       ),
       isDisabled: false,
@@ -371,7 +373,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
               <Text ml="12px">
                 Available for whitelist:{" "}
                 <Text as="span" fontWeight={600}>
-                  {`${formatNumDynDecimal(availableTokenAmount)}
+                  {`${formatNumDynDecimal(availableWLAmount)}
                 ${launchpadData?.projectInfo?.token?.symbol}`}
                 </Text>
               </Text>
@@ -419,7 +421,8 @@ function EditWhitelist({
   setQueries,
   table,
   whitelist,
-  fetchPhaseData
+  fetchPhaseData,
+  availableWLAmount
 }) {
   return (
     <Box display={["block", "flex"]}>
@@ -440,6 +443,7 @@ function EditWhitelist({
             phaseCapAmount={phaseHeaderInfo?.capAmount}
             whitelist={whitelist}
             fetchPhaseData={fetchPhaseData}
+            availableWLAmount={availableWLAmount}
           />
         )}
       </Box>

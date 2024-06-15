@@ -278,14 +278,6 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
         toast.error(toastMessages.NO_WALLET);
         return;
       }
-      const WLData = await getWLInfo()
-      const phaseCap = +formatTokenAmountNumber(launchpadData?.phaseList[livePhase?.id]?.capAmount, tokenDecimal)
-      if (+amount + +publicSaleAmount?.purchased + WLData?.totalWL > phaseCap) {
-        toast.error(
-          `Phase purchase cap is ${formatNumDynDecimal(phaseCap)}`
-        );
-        return;
-      }
       if (parseFloat(amount) > maxAllowWlPurchase) {
         toast.error(
           `Current max whitelist sale available is ${maxAllowWlPurchase}`

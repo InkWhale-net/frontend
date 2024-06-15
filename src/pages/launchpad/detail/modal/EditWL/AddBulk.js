@@ -23,7 +23,8 @@ const AddBulk = ({
   selectedPhase,
   availableTokenAmount,
   setSelectedMode,
-  hideModal
+  hideModal,
+  availableWLAmount
 }) => {
   const { currentAccount } = useSelector((state) => state.wallet);
   const { api } = useAppContext();
@@ -43,6 +44,7 @@ const AddBulk = ({
         return {...e, address: await resolveAZDomainToAddress(e?.address) || e?.address}
       }))
       const currentWl = launchpadData?.phaseList[selectedPhase]?.whitelist;
+      
       if (
         reformatWLData?.filter((e) => {
           return !currentWl.some((obj) => obj.account === e?.address);
@@ -51,11 +53,12 @@ const AddBulk = ({
         toast.error("Whitelist address existed");
         return;
       }
+      
       const totalAmountWL = reformatWLData.reduce((acc, object) => {
         return acc + +object?.amount;
       }, 0);
-      if (!(totalAmountWL <= availableTokenAmount)) {
-        toast.error("Not enough available token");
+      if (!(totalAmountWL <= availableWLAmount)) {
+        toast.error(`Not enough available token, Total whitelist amount is ${availableWLAmount}`);
         return;
       }
       const result = await execContractTx(

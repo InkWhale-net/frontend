@@ -325,14 +325,6 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         toast.error(toastMessages.NO_WALLET);
         return;
       }
-      const WLData = await getWLInfo()
-      const phaseCap = +formatTokenAmountNumber(launchpadData?.phaseList[livePhase?.id]?.capAmount, tokenDecimal)
-      if (+amount + +publicSaleAmount?.purchased + WLData?.totalWL > phaseCap) {
-        toast.error(
-          `Phase purchase cap is ${formatNumDynDecimal(phaseCap)}`
-        );
-        return;
-      }
       if (+amount + +publicSaleAmount?.purchased > +publicSaleAmount?.total) {
         toast.error(
           `Current max public sale available is ${formatNumDynDecimal(
@@ -401,11 +393,11 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
       setPublicSale({
         total: +formatTokenAmountNumber(
           publicSaleTotalAmount,
-          parseInt(launchpadData.projectInfo.token.decimals)
+          launchpadData.projectInfo.token.decimals
         ),
         purchased: +formatTokenAmountNumber(
           publicSaleTotalBuyedAmount,
-          parseInt(launchpadData.projectInfo.token.decimals)
+          launchpadData.projectInfo.token.decimals
         ),
       });
       const result1 = await execContractQuery(
@@ -441,8 +433,8 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
     () =>
       publicSaleAmount?.total != 0
         ? roundUp(
-            ((totalPurchasedPubnWL || 0) /
-              (maxPurchaseAmount || 0)) *
+            ((publicSaleAmount?.purchased || 0) /
+              (publicSaleAmount?.total || 0)) *
               100
           )
         : 0,
@@ -471,7 +463,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
   return (
     <>
       <Box sx={{ marginTop: "12px" }}>
-        <Text>Progress (Public + Whitelist purchase)</Text>
+        <Text>Progress {`(${progressPublicSaleRatio}%)`}</Text>
         <Progress
           sx={{ marginTop: "4px" }}
           w="full"
@@ -487,8 +479,8 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
             paddingRight: "2px",
           }}
         >
-          <div>{totalPurchasedPubnWL} {`(${progressPublicSaleRatio}%)`}</div>
-          <div>{maxPurchaseAmount}</div>
+          <div>{publicSaleAmount?.purchased}</div>
+          <div>{publicSaleAmount?.total}</div>
         </Box>
       </Box>
       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
