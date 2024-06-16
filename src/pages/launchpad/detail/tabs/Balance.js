@@ -1,6 +1,6 @@
 import { Box, Button, Divider, Heading, Text } from "@chakra-ui/react";
 import { useAppContext } from "contexts/AppContext";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBalance } from "redux/slices/walletSlice";
@@ -11,6 +11,7 @@ import TabLayout from "../Layout";
 import { formatChainStringToNumber } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { appChain } from "constants";
+import { formatTokenAmountNumber } from "utils";
 
 const Row = ({ label, value, divider = false, ...rest }) => {
   return (
@@ -37,6 +38,11 @@ const PhaseTag = ({ data, launchpadData }) => {
   const [publicBalance, setPublicBalance] = useState(null);
   const [WLBalance, setWLBalance] = useState(null);
   const dispatch = useDispatch();
+  const isSaleEnd = useMemo(() => {
+    const endTime = new Date(parseInt(data?.endTime?.replace(/,/g, "")));
+    const now = new Date();
+    return now > endTime
+  }, [api, currentAccount])
 
   const publicClaimHandler = async () => {
     try {
@@ -180,22 +186,23 @@ const PhaseTag = ({ data, launchpadData }) => {
           currentAccount?.address
         );
         const publicBuyer = query.toHuman().Ok;
+        console.log(publicBuyer);
 
         const decimalToken = parseInt(token.decimals);
         setPublicBalance({
-          claimedAmount: formatTokenAmount(
+          claimedAmount: +formatTokenAmountNumber(
             publicBuyer?.claimedAmount || 0,
             decimalToken
           ),
-          lastUpdatedTime: formatTokenAmount(
+          lastUpdatedTime: +formatTokenAmountNumber(
             publicBuyer?.lastUpdatedTime,
             decimalToken
           ),
-          purchasedAmount: formatTokenAmount(
+          purchasedAmount: +formatTokenAmountNumber(
             publicBuyer?.purchasedAmount || 0,
             decimalToken
           ),
-          vestingAmount: formatTokenAmount(
+          vestingAmount: +formatTokenAmountNumber(
             publicBuyer?.vestingAmount || 0,
             decimalToken
           ),
@@ -220,21 +227,21 @@ const PhaseTag = ({ data, launchpadData }) => {
         const decimalToken = parseInt(token.decimals);
 
         setWLBalance({
-          claimedAmount: formatTokenAmount(
+          claimedAmount: +formatTokenAmountNumber(
             WLBuyer?.claimedAmount,
             decimalToken
           ),
-          amount: formatTokenAmount(WLBuyer?.amount, decimalToken),
-          price: formatTokenAmount(WLBuyer?.price, decimalToken),
-          lastUpdatedTime: formatTokenAmount(
+          amount: +formatTokenAmountNumber(WLBuyer?.amount, decimalToken),
+          price: +formatTokenAmountNumber(WLBuyer?.price, decimalToken),
+          lastUpdatedTime: +formatTokenAmountNumber(
             WLBuyer?.lastUpdatedTime,
             decimalToken
           ),
-          purchasedAmount: formatTokenAmount(
+          purchasedAmount: +formatTokenAmountNumber(
             WLBuyer?.purchasedAmount,
             decimalToken
           ),
-          vestingAmount: formatTokenAmount(
+          vestingAmount: +formatTokenAmountNumber(
             WLBuyer?.vestingAmount,
             decimalToken
           ),
@@ -310,33 +317,41 @@ const PhaseTag = ({ data, launchpadData }) => {
         <Row
           label="Total Purchased"
           value={
-            `${formatNumDynDecimal(publicBalance?.purchasedAmount) || 0} ${token?.symbol
+            `${formatNumDynDecimal(publicBalance?.purchasedAmount) || 0} ${
+              token?.symbol
             }` || 0
           }
         />
         <Row
           label="Public price"
-          value={`${formatNumDynDecimal(publicPhaseInfo) || 0} ${appChain?.unit}` || 0}
+          value={
+            `${formatNumDynDecimal(publicPhaseInfo) || 0} ${appChain?.unit}` ||
+            0
+          }
         />
         <Row
           label="Total Vesting"
           value={
-            `${formatNumDynDecimal(publicBalance?.vestingAmount) || 0} ${token?.symbol
+            `${formatNumDynDecimal(publicBalance?.vestingAmount) || 0} ${
+              token?.symbol
             }` || 0
           }
         />
         <Row
           label="Claimed"
           value={
-            `${formatNumDynDecimal(publicBalance?.claimedAmount) || 0} ${token?.symbol
+            `${formatNumDynDecimal(publicBalance?.claimedAmount) || 0} ${
+              token?.symbol
             }` || 0
           }
         />
 
         <Button
           isDisabled={
-            !(parseFloat(publicBalance?.purchasedAmount) > 0) &&
-            publicBalance?.purchasedAmount === publicBalance?.claimedAmount
+            (!(parseFloat(publicBalance?.purchasedAmount) > 0) &&
+              publicBalance?.purchasedAmount ===
+                publicBalance?.claimedAmount) ||
+            !isSaleEnd
           }
           my="8px"
           w="full"
@@ -344,7 +359,7 @@ const PhaseTag = ({ data, launchpadData }) => {
           variant="outline"
           onClick={() => publicClaimHandler()}
         >
-          Claim
+          {isSaleEnd ? "Claim" : "Sale is not ended"}
         </Button>
       </>
       {/* )} */}
@@ -366,38 +381,44 @@ const PhaseTag = ({ data, launchpadData }) => {
         />
         <Row
           label="Whitelist Price"
-          value={`${formatNumDynDecimal(WLBalance?.price) || 0} ${appChain?.unit}` || 0}
+          value={
+            `${formatNumDynDecimal(WLBalance?.price) || 0} ${appChain?.unit}` ||
+            0
+          }
         />
         <Row
           label="Total Purchased"
           value={
-            `${formatNumDynDecimal(WLBalance?.purchasedAmount) || 0} ${token?.symbol
+            `${formatNumDynDecimal(WLBalance?.purchasedAmount) || 0} ${
+              token?.symbol
             }` || 0
           }
         />
         <Row
           label="Total Vesting"
           value={
-            `${formatNumDynDecimal(WLBalance?.vestingAmount) || 0} ${token?.symbol
+            `${formatNumDynDecimal(WLBalance?.vestingAmount) || 0} ${
+              token?.symbol
             }` || 0
           }
         />
         <Row
           label="Claimed"
           value={
-            `${formatNumDynDecimal(WLBalance?.claimedAmount) || 0} ${token?.symbol
+            `${formatNumDynDecimal(WLBalance?.claimedAmount) || 0} ${
+              token?.symbol
             }` || 0
           }
         />
         <Button
-          isDisabled={!(parseFloat(WLBalance?.purchasedAmount) > 0)}
+          isDisabled={(!(parseFloat(WLBalance?.purchasedAmount) > 0)) || !isSaleEnd}
           my="8px"
           w="full"
           height="40px"
           variant="outline"
           onClick={() => WLClaimHandler()}
         >
-          Claim
+          {isSaleEnd ? "Claim" : "Sale is not ended"}
         </Button>
 
         <Divider my="8px" />

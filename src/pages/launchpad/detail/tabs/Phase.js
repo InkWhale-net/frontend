@@ -21,6 +21,7 @@ import {
 import { format } from "utils/datetime";
 import TabLayout from "../Layout";
 import { formatChainStringToNumber } from "utils";
+import { formatTokenAmountNumber } from "utils";
 
 const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -47,23 +48,23 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
   }, [data]);
   const publicSaleInfo = useMemo(() => {
     return {
-      totalAmount: formatTokenAmount(
+      totalAmount: +formatTokenAmountNumber(
         tagData?.publicSaleInfor?.totalAmount,
         tokenDecimal
       ),
-      totalPurchasedAmount: formatTokenAmount(
+      totalPurchasedAmount: +formatTokenAmountNumber(
         tagData?.publicSaleInfor?.totalPurchasedAmount,
         tokenDecimal
       ),
-      totalClaimedAmount: formatTokenAmount(
+      totalClaimedAmount: +formatTokenAmountNumber(
         tagData?.publicSaleInfor?.totalClaimedAmount,
         tokenDecimal
       ),
-      availableAmount: formatTokenAmount(
+      availableAmount: +formatTokenAmountNumber(
         tagData?.publicSaleInfor?.availableAmount,
         tokenDecimal
       ),
-      price: formatTokenAmount(tagData?.publicSaleInfor?.price, 12),
+      price: +formatTokenAmountNumber(tagData?.publicSaleInfor?.price, 12),
     };
   }, [tagData]);
 
@@ -318,7 +319,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
           >
             <Text>Price</Text>
             <Text size="md">
-              {formatNumDynDecimal(formatTokenAmount(userWL?.price))}
+              {formatNumDynDecimal(formatTokenAmountNumber(userWL?.price))}
               <AzeroLogo
                 sx={{
                   marginLeft: "4px",
@@ -338,7 +339,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
             <Text>Amount</Text>
             <Text size="md">
               {`${formatNumDynDecimal(
-                formatTokenAmount(userWL?.amount, tokenDecimal)
+                formatTokenAmountNumber(userWL?.amount, tokenDecimal)
               )} ${tokenSymbol}`}
             </Text>
           </Box>

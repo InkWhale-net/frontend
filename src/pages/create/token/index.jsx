@@ -34,6 +34,7 @@ import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { formatNumDynDecimal } from "utils";
 import { formatNumToBNEther } from "utils";
 import { appChain } from "constants";
+import { formatTokenAmountNumber } from "utils";
 const PAGINATION_AMOUNT = 32;
 
 export default function CreateTokenPage() {
@@ -92,10 +93,7 @@ export default function CreateTokenPage() {
           "psp22Metadata::tokenDecimals"
         );
         const decimals = queryResult1.toHuman().Ok;
-        const totalSupply = roundUp(
-          rawTotalSupply?.replaceAll(",", "") / 10 ** parseInt(decimals),
-          0
-        );
+        const totalSupply = roundUp(+formatTokenAmountNumber(rawTotalSupply, decimals), 0);
         await delay(50);
         return {
           ...e,
@@ -103,6 +101,7 @@ export default function CreateTokenPage() {
         };
       })
     );
+
     setListToken(moveINWToBegin(processedTokenList));
   };
   useEffect(() => {

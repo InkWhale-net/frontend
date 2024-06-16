@@ -34,7 +34,7 @@ const Launchpad = () => {
 
   return (
     <>
-      {/* <SectionContainer
+      <SectionContainer
         title="Launchpads"
         right={
           isMobile ? null : (
@@ -58,7 +58,7 @@ const Launchpad = () => {
           </Button>
         ) : null}
         <IWTabs tabsData={tabsData} />
-      </SectionContainer> */}
+      </SectionContainer>
     </>
   );
 };

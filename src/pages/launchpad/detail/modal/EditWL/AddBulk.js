@@ -16,12 +16,15 @@ import { execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
 import AddKycBlockpass from "./AddKycBlockpass";
 import { PhaseHeaderInfo } from ".";
+import { resolveAZDomainToAddress } from "utils";
 
 const AddBulk = ({
   launchpadData,
   selectedPhase,
   availableTokenAmount,
   setSelectedMode,
+  hideModal,
+  availableWLAmount
 }) => {
   const { currentAccount } = useSelector((state) => state.wallet);
   const { api } = useAppContext();
@@ -37,20 +40,25 @@ const AddBulk = ({
         return;
       }
       const wlData = processStringToArray(wlString);
+      const reformatWLData = await Promise.all(wlData.map(async e => {
+        return {...e, address: await resolveAZDomainToAddress(e?.address) || e?.address}
+      }))
       const currentWl = launchpadData?.phaseList[selectedPhase]?.whitelist;
+      
       if (
-        wlData?.filter((e) => {
+        reformatWLData?.filter((e) => {
           return !currentWl.some((obj) => obj.account === e?.address);
-        })?.length != wlData?.length
+        })?.length != reformatWLData?.length
       ) {
         toast.error("Whitelist address existed");
         return;
       }
-      const totalAmountWL = wlData.reduce((acc, object) => {
+      
+      const totalAmountWL = reformatWLData.reduce((acc, object) => {
         return acc + +object?.amount;
       }, 0);
-      if (!(totalAmountWL <= availableTokenAmount)) {
-        toast.error("Not enough available token");
+      if (!(totalAmountWL <= availableWLAmount)) {
+        toast.error(`Not enough available token, Total whitelist amount is ${availableWLAmount}`);
         return;
       }
       const result = await execContractTx(
@@ -61,20 +69,21 @@ const AddBulk = ({
         0, //-> value
         "launchpadContractTrait::addMultiWhitelists",
         selectedPhase,
-        wlData.map((e) => e?.address),
-        wlData.map((e) =>
+        reformatWLData.map((e) => e?.address),
+        reformatWLData.map((e) =>
           parseUnits(
             e?.amount.toString(),
             parseInt(launchpadData?.projectInfo?.token.decimals)
           )
         ),
-        wlData.map((e) => parseUnits(e?.price.toString(), 12))
+        reformatWLData.map((e) => parseUnits(e?.price.toString(), 12))
       );
       await APICall.askBEupdate({
         type: "launchpad",
         poolContract: launchpadData?.launchpadContract,
       });
       if (result) {
+        hideModal()
         setSelectedMode(0);
         setWlString('');
         toast.promise(

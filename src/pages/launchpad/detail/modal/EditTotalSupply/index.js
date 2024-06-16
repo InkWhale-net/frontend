@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import { formatTokenAmountNumber } from "utils";
 import { formatNumToBN } from "utils";
 import { delay } from "utils";
 import { formatChainStringToNumber } from "utils";
@@ -60,7 +61,9 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
       "launchpadContractTrait::getAvailableTokenAmount"
     );
     const availableAmount = result.toHuman().Ok;
-    setAvailableTokenAmount(formatTokenAmount(availableAmount, tokenDecimal));
+    setAvailableTokenAmount(
+      +formatTokenAmountNumber(availableAmount, tokenDecimal)
+    );
   };
 
   useEffect(() => {
@@ -89,9 +92,8 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
         "psp22::balanceOf",
         currentAccount?.address
       );
-
-      const tokenBal = formatQueryResultToNumber(queryResult);
-
+      const tokenBalanceQR = queryResult?.toHuman()?.Ok;
+      const tokenBal = +formatTokenAmountNumber(tokenBalanceQR, tokenDecimal);
       setTokenBalance(tokenBal);
     };
     api && fetchData();
@@ -112,8 +114,6 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
             validationSchema={() =>
               Yup.lazy((values) => {
                 if (values?.totalSupply > totalSupply) {
-                  const bal = formatChainStringToNumber(tokenBalance);
-
                   return Yup.object().shape({
                     totalSupply: Yup.number()
                       .required(`This field is required`)
@@ -122,13 +122,11 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
                         `Total Supply must be greater than or equal to ${minAllowed} ${tokenSymbol}`
                       )
                       .max(
-                        totalSupply +
-                          parseInt(tokenBalance?.replaceAll(",", "")),
-                        parseInt(bal) === 0
+                        totalSupply + tokenBalance,
+                        tokenBalance === 0
                           ? `Can not topup because your balance has zero ${tokenSymbol}`
                           : `Total Supply must be less than or equal to ${
-                              totalSupply +
-                              parseInt(tokenBalance?.replaceAll(",", ""))
+                              totalSupply + tokenBalance
                             } ${tokenSymbol}`
                       ),
                   });
@@ -284,9 +282,7 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
                       justifyContent={["flex-start", "flex-start", "flex-end"]}
                       mb={["12px", "12px", "0px"]}
                     >
-                      <Text>{`${formatNumDynDecimal(
-                        parseInt(tokenBalance?.replaceAll(",", ""))
-                      )} ${tokenSymbol}`}</Text>
+                      <Text>{`${formatNumDynDecimal(tokenBalance)} ${tokenSymbol}`}</Text>
                     </Box>
                   </SimpleGrid>
 
@@ -302,8 +298,7 @@ const EditTotalSupply = ({ visible, setVisible, launchpadData }) => {
                       {values?.totalSupply > totalSupply ? (
                         <Text textAlign="left" color="brand.grayLight">
                           {` (max ${formatNumDynDecimal(
-                            totalSupply +
-                              parseInt(tokenBalance?.replaceAll(",", ""))
+                            totalSupply + tokenBalance
                           )} ${tokenSymbol})`}
                         </Text>
                       ) : null}

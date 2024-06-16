@@ -21,6 +21,7 @@ import { formatTokenAmount } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { formatNumToBNEther } from "utils";
 import { multipleFloat } from "utils";
+import { formatTokenAmountNumber } from "utils";
 import { formatQueryResultToNumberEthers } from "utils";
 import { formatChainStringToNumber } from "utils";
 import { execContractTxAndCallAPI } from "utils/contracts";
@@ -66,7 +67,7 @@ const WithdrawAzero = ({
           const publicInfo = queryResult?.toHuman()?.Ok;
           const totalPurchasedAmountPhase =
             publicInfo?.totalPurchasedAmount &&
-            formatTokenAmount(
+            +formatTokenAmountNumber(
               publicInfo?.totalPurchasedAmount,
               launchpadData?.projectInfo?.token?.decimals
             );
@@ -79,14 +80,14 @@ const WithdrawAzero = ({
             "launchpadContractTrait::getPublicSalePrice",
             phase?.phaseID
           );
-          const tokenPricee = formatTokenAmount(
+          const tokenPricee = +formatTokenAmountNumber(
             queryResult2?.toHuman()?.Ok,
             appChain?.decimal
           );
           return {
             totalAmount:
               publicInfo?.totalAmount &&
-              formatTokenAmount(
+              +formatTokenAmountNumber(
                 publicInfo?.totalAmount,
                 launchpadData?.projectInfo?.token?.decimals
               ),
@@ -113,7 +114,7 @@ const WithdrawAzero = ({
           const WLInfo = queryResult?.toHuman()?.Ok;
           const totalPurchasedAmountPhase =
             WLInfo?.totalPurchasedAmount &&
-            formatTokenAmount(
+            +formatTokenAmountNumber(
               WLInfo?.totalPurchasedAmount,
               launchpadData?.projectInfo?.token?.decimals
             );
@@ -152,11 +153,11 @@ const WithdrawAzero = ({
               );
               const WLAccountDetail = queryWLAccountDetail?.toHuman()?.Ok;
               const formatedAccountBuyer = {
-                price: formatTokenAmount(
+                price: +formatTokenAmountNumber(
                   WLAccountDetail?.price,
                   appChain?.decimals
                 ),
-                purchasedAmount: formatTokenAmount(
+                purchasedAmount: +formatTokenAmountNumber(
                   WLAccountDetail?.purchasedAmount,
                   tokenDecimal
                 ),
@@ -172,7 +173,7 @@ const WithdrawAzero = ({
           return {
             totalAmount:
               WLInfo?.totalAmount &&
-              formatTokenAmount(
+              +formatTokenAmountNumber(
                 WLInfo?.totalAmount,
                 launchpadData?.projectInfo?.token?.decimals
               ),
