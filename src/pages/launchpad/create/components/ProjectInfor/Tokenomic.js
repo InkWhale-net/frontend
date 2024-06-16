@@ -70,6 +70,7 @@ const DistributionTag = ({
             }}
             size="md"
             type="number"
+            step="any"
             value={data?.value}
             onChange={(event) => {
               if (currentTotalValue === 100) {

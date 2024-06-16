@@ -89,6 +89,7 @@ const IWCountDown = ({ saleTime, launchpadData }) => {
 };
 
 const LaunchpadTag = ({ launchpadData }) => {
+  console.log(launchpadData);
   const history = useHistory();
   const { launchpadContract, projectInfo } = launchpadData;
   const { projectInfor } = projectInfo || {};
@@ -152,6 +153,7 @@ const LaunchpadTag = ({ launchpadData }) => {
               top: "8px",
             }}
           >
+            {launchpadData?.isDoxxed && <DoxxedTag />}
             {launchpadData?.requireKyc && <RequireKyc />}
             <IWStatus
               isActive={launchpadData.isActive}
@@ -162,15 +164,15 @@ const LaunchpadTag = ({ launchpadData }) => {
               endRender={<EndStatusTag />}
             />
           </Flex>
-          <Flex
+          {/* <Flex
             style={{
               position: "absolute",
               right: "4px",
               bottom: "8px",
             }}
           >
-            {launchpadData?.isDoxxed && <DoxxedTag />}
-          </Flex>
+            
+          </Flex> */}
 
           <div
             style={{

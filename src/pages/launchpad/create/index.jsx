@@ -1,20 +1,18 @@
-import { Box, Button, Center } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import SectionContainer from "components/container/SectionContainer";
+import { appChain } from "constants";
+import { useAppContext } from "contexts/AppContext";
 import Steps from "rc-steps";
+import { useEffect, useState } from "react";
+import { isMobile } from "react-device-detect";
+import { useSelector } from "react-redux";
+import { formatNumDynDecimal, formatTokenAmountNumber } from "utils";
+import { execContractQuery } from "utils/contracts";
+import launchpad_generator from "utils/contracts/launchpad_generator";
 import CreateLaunchpadContextProvider, {
   useCreateLaunchpad,
 } from "./CreateLaunchpadContext";
 import styles from "./style.module.scss";
-import { useEffect, useMemo } from "react";
-import { useState } from "react";
-import { useSelector } from "react-redux";
-import { execContractQuery } from "utils/contracts";
-import { useAppContext } from "contexts/AppContext";
-import launchpad_generator from "utils/contracts/launchpad_generator";
-import { formatTokenAmount } from "utils";
-import { formatNumDynDecimal } from "utils";
-import { isMobile } from "react-device-detect";
-import { appChain } from "constants";
 
 function CreateLaunchpadLayout() {
   const {
@@ -26,6 +24,7 @@ function CreateLaunchpadLayout() {
     handleAddNewLaunchpad,
   } = useCreateLaunchpad();
   const [createFee, setCreateFee] = useState(null);
+  const [txRate, setTxRate] = useState(null);
   const { currentAccount } = useSelector((s) => s.wallet);
   const { api } = useAppContext();
 
@@ -40,7 +39,18 @@ function CreateLaunchpadLayout() {
         "launchpadGeneratorTrait::getCreationFee"
       );
       const fee = result.toHuman().Ok;
-      setCreateFee(formatNumDynDecimal(formatTokenAmount(fee, appChain?.decimal)));
+      setCreateFee(
+        formatNumDynDecimal(formatTokenAmountNumber(fee, appChain?.decimal))
+      );
+      const txRateQuery = await execContractQuery(
+        currentAccount?.address,
+        api,
+        launchpad_generator.CONTRACT_ABI,
+        launchpad_generator.CONTRACT_ADDRESS,
+        0,
+        "launchpadGeneratorTrait::getTxRate"
+      );
+      setTxRate(+txRateQuery?.toHuman()?.Ok / 100);
     } catch (error) {
       console.log(error);
     }
@@ -57,7 +67,9 @@ function CreateLaunchpadLayout() {
       description={
         <>
           The premier destination to launch your PSP22 token on Aleph Zero
-          Network. This action requires {createFee} INW2.
+          Network. This action requires {createFee} INW2 which will be burned
+          immediately. A charge of {txRate}% on project creator side will be
+          deducted for each successful purchase
         </>
       }
     >

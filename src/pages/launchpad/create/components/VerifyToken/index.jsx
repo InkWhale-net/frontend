@@ -27,6 +27,7 @@ import psp22_contract from "utils/contracts/psp22_contract";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import { formatTokenAmount } from "utils";
 import { formatTextAmount } from "utils";
+import { formatTokenAmountNumber } from "utils";
 
 export default function VerifyToken() {
   const { launchpadData, updateLaunchpadData, current, nextStep } =
@@ -40,7 +41,7 @@ export default function VerifyToken() {
   const tokenList = useMemo(() => {
     return (
       allTokensList?.filter((token) => {
-        return token.creator === currentAccount?.address;
+        return token.creator && token?.creator === currentAccount?.address && currentAccount?.address;
       }) || []
     );
   }, [currentAccount?.address, allTokensList]);
@@ -110,13 +111,12 @@ export default function VerifyToken() {
     );
 
     const balance = formatNumDynDecimal(
-      formatTokenAmount(queryResult?.toHuman()?.Ok, +decimals)
+      formatTokenAmountNumber(queryResult?.toHuman()?.Ok, +decimals)
     );
-    const totalSupply = formatTokenAmount(
+    const totalSupply = +formatTokenAmountNumber(
       formatTextAmount(rawTotalSupply),
       +decimals
     );
-    console.log(totalSupply);
 
     let tokenIconUrl = null;
     try {

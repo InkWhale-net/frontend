@@ -39,6 +39,7 @@ import { useCreateLaunchpad } from "./CreateLaunchpadContext";
 import { processStringToArray } from "./utils";
 import { formatTokenAmount } from "utils";
 import { formatTextAmount } from "utils";
+import { formatTokenAmountNumber } from "utils";
 
 const StepItem = ({
   isActive,
@@ -115,7 +116,7 @@ const FinishModal = ({}) => {
 
               const allowanceINW = allowanceINWQr.toHuman().Ok;
               if (
-                formatTokenAmount(formatTextAmount(allowanceINW), 12) <
+                +formatTokenAmountNumber(formatTextAmount(allowanceINW), 12) <
                 +formatTextAmount(createTokenFee)
               ) {
                 let approve = await execContractTxAndCallAPI(
@@ -170,7 +171,7 @@ const FinishModal = ({}) => {
                 launchpad_generator.CONTRACT_ADDRESS
               );
 
-              const allowanceToken = formatTokenAmount(
+              const allowanceToken = +formatTokenAmountNumber(
                 formatTextAmount(allowanceTokenQr?.toHuman().Ok),
                 +launchpadData?.token?.decimals
               );

@@ -7,7 +7,7 @@ const initialState = {
     tvlInAzero: 0,
     tvlInUSD: 0
   }
-}; 
+};
 
 export const statsSlice = createSlice({
   name: "stats",
@@ -31,16 +31,14 @@ export const fetchTotalValueLocked = createAsyncThunk(
     "stats/getTotalValueLocked",
     async () => {
       let data;
-  
+
       const { ret, status, message } = await APICall.getTotalValueLocked();
-  
       if (status === "OK") {
         data = ret;
       } else {
         toast.error(message);
       }
-  
+
       return data;
     }
   );
-  

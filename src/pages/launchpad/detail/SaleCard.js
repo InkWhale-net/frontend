@@ -2,6 +2,7 @@ import { Box, Button, Heading, Progress, Text } from "@chakra-ui/react";
 import { APICall } from "api/client";
 import { AzeroLogo } from "components/icons/Icons";
 import IWInput from "components/input/Input";
+import { appChain } from "constants";
 import { toastMessages } from "constants";
 import { useAppContext } from "contexts/AppContext";
 import { parseUnits } from "ethers";
@@ -13,8 +14,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { BeatLoader } from "react-spinners";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
+import { multipleFloat } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { formatChainStringToNumber } from "utils";
+import { formatTokenAmountNumber } from "utils";
 import {
   delay,
   formatNumToBN,
@@ -208,6 +211,109 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         });
     }
   );
+  const getWLInfo = async (phaseID) => {
+    try {
+      const txRateQuery = await execContractQuery(
+        currentAccount?.address,
+        api,
+        launchpad.CONTRACT_ABI,
+        launchpadData?.launchpadContract,
+        0,
+        "launchpadContractTrait::getTxRate"
+      );
+      const txRate = +txRateQuery?.toHuman()?.Ok / 10000;
+      const queryResult = await execContractQuery(
+        currentAccount?.address,
+        api,
+        launchpad.CONTRACT_ABI,
+        launchpadData?.launchpadContract,
+        0,
+        "launchpadContractTrait::getWhitelistSaleInfo",
+        phaseID
+      );
+      const WLInfo = queryResult?.toHuman()?.Ok;
+      const totalPurchasedAmountPhase =
+        WLInfo?.totalPurchasedAmount &&
+        +formatTokenAmountNumber(
+          WLInfo?.totalPurchasedAmount,
+          launchpadData?.projectInfo?.token?.decimals
+        );
+      const queryCountWL = await execContractQuery(
+        currentAccount?.address,
+        api,
+        launchpad.CONTRACT_ABI,
+        launchpadData?.launchpadContract,
+        0,
+        "launchpadContractTrait::getWhitelistAccountCount",
+        phaseID
+      );
+      const countWL = queryCountWL?.toHuman()?.Ok;
+      const WLList = await Promise.all(
+        new Array(+countWL).fill(0).map(async (e, index) => {
+          const queryWLAccount = await execContractQuery(
+            currentAccount?.address,
+            api,
+            launchpad.CONTRACT_ABI,
+            launchpadData?.launchpadContract,
+            0,
+            "launchpadContractTrait::getWhitelistAccount",
+            phaseID,
+            index
+          );
+          const WLAccount = queryWLAccount?.toHuman()?.Ok;
+          const queryWLAccountDetail = await execContractQuery(
+            currentAccount?.address,
+            api,
+            launchpad.CONTRACT_ABI,
+            launchpadData?.launchpadContract,
+            0,
+            "launchpadContractTrait::getWhitelistBuyer",
+            phaseID,
+            WLAccount
+          );
+          const WLAccountDetail = queryWLAccountDetail?.toHuman()?.Ok;
+          const formatedAccountBuyer = {
+            price: +formatTokenAmountNumber(
+              WLAccountDetail?.price,
+              appChain?.decimals
+            ),
+            purchasedAmount: +formatTokenAmountNumber(
+              WLAccountDetail?.purchasedAmount,
+              tokenDecimal
+            ),
+            amount: +formatTokenAmountNumber(
+              WLAccountDetail?.amount,
+              tokenDecimal
+            ),
+          };
+          return formatedAccountBuyer;
+        })
+      );
+      const totalSaledAzero = WLList.reduce((acc, current) => {
+        return (
+          acc + multipleFloat(current?.price, current?.purchasedAmount)
+        );
+      }, 0);
+      return {
+        WLList,
+        totalWL: WLList.reduce((acc, current) => {
+          return (
+            acc + (current?.amount || 0)
+          );
+        }, 0),
+        totalAmount:
+          WLInfo?.totalAmount &&
+          +formatTokenAmountNumber(
+            WLInfo?.totalAmount,
+            launchpadData?.projectInfo?.token?.decimals
+          ),
+        totalPurchasedAmount: totalPurchasedAmountPhase,
+        azeroAmount: multipleFloat(totalSaledAzero, 1 - txRate),
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  }
   const purchasePublicHandler = async () => {
     try {
       if (!api) {
@@ -227,7 +333,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         );
         return;
       }
-      const a0BuyAmount = isBuyWithA0 ? +azeroBuyAmount : +amount * +tokenPrice;
+      const a0BuyAmount = isBuyWithA0 ? +azeroBuyAmount : multipleFloat(+amount, +tokenPrice);
       const buyResult = await execContractTx(
         currentAccount,
         api,
@@ -285,13 +391,13 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
       );
       const publicSaleTotalBuyedAmount = result.toHuman()?.Ok;
       setPublicSale({
-        total: formatTokenAmount(
+        total: +formatTokenAmountNumber(
           publicSaleTotalAmount,
-          parseInt(launchpadData.projectInfo.token.decimals)
+          launchpadData.projectInfo.token.decimals
         ),
-        purchased: formatTokenAmount(
+        purchased: +formatTokenAmountNumber(
           publicSaleTotalBuyedAmount,
-          parseInt(launchpadData.projectInfo.token.decimals)
+          launchpadData.projectInfo.token.decimals
         ),
       });
       const result1 = await execContractQuery(
@@ -304,18 +410,31 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         livePhase?.id
       );
       const publicSalePrice = result1.toHuman()?.Ok;
-      setTokenPrice(formatTokenAmount(publicSalePrice, 12));
+      setTokenPrice(+formatTokenAmountNumber(publicSalePrice, 12));
     } catch (error) {
       console.log(error);
     }
   };
 
+  
+  const whitelistData = launchpadData?.phaseList[livePhase?.id]?.whitelist
+  const tokenDecimal = launchpadData?.projectInfo?.token?.decimals
+  const totalWL = whitelistData?.reduce((acc, cur) => {
+    return acc += +formatTokenAmountNumber(cur?.amount, tokenDecimal)
+  }, 0)
+  const totalWLPurchased = whitelistData?.reduce((acc, cur) => {
+    return acc += +formatTokenAmountNumber(cur?.purchasedAmount, tokenDecimal)
+  }, 0)
+  const phaseCap = +formatTokenAmountNumber(launchpadData?.phaseList[livePhase?.id]?.capAmount, tokenDecimal)
+  const totalPurchase = publicSaleAmount?.total + totalWL
+  const maxPurchaseAmount = totalPurchase > phaseCap ? phaseCap : totalPurchase
+  const totalPurchasedPubnWL = publicSaleAmount?.purchased + totalWLPurchased
   const progressPublicSaleRatio = useMemo(
     () =>
       publicSaleAmount?.total != 0
         ? roundUp(
-            ((formatChainStringToNumber(publicSaleAmount?.purchased) || 0) /
-              (formatChainStringToNumber(publicSaleAmount?.total) || 0)) *
+            ((publicSaleAmount?.purchased || 0) /
+              (publicSaleAmount?.total || 0)) *
               100
           )
         : 0,
@@ -348,8 +467,9 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         <Progress
           sx={{ marginTop: "4px" }}
           w="full"
-          value={progressPublicSaleRatio}
+          value={progressPublicSaleRatio || 1}
           size="sm"
+          bgColor="rgba(147, 240, 245, 0.25)"
         />
         <Box
           sx={{
@@ -364,7 +484,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         </Box>
       </Box>
       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
-        <Text sx={headerSX}>{`Amount (max: ${formatNumDynDecimal(
+        <Text sx={headerSX}>{`Public amount (max: ${formatNumDynDecimal(
           maxAmount
         )})`}</Text>
         <IWInput

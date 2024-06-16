@@ -169,7 +169,7 @@ export default function NavbarLinks(props) {
               </Link>
             </Flex>
           ))}
-          <Flex
+          {/* <Flex
             _hover={{ textDecoration: "none", bg: "bg.1" }}
             p="6px 10px"
             bg={"transparent"}
@@ -189,7 +189,7 @@ export default function NavbarLinks(props) {
                 Launchpad
               </Text>
             </Link>
-          </Flex>
+          </Flex> */}
         </Flex>
       </Show>
 
@@ -211,10 +211,10 @@ NavbarLinks.propTypes = {
 };
 
 export const menuListData = [
-  // {
-  //   title: "Buy on CommonFi",
-  //   href: "/launchpad",
-  // },
+  {
+    title: "Launchpad",
+    href: "/launchpad",
+  },
 ];
 
 export const inwTokenListData = [
@@ -233,6 +233,10 @@ export const inwTokenListData = [
 ];
 
 export const tokenMenuListData = [
+  // {
+  //   label: "PSP22 Tokens",
+  //   href: "/psp22tokens",
+  // },
   {
     label: "Create a PSP22 token",
     href: "/create/token",

@@ -52,6 +52,7 @@ import * as Yup from "yup";
 import { roundToMinute } from "pages/launchpad/create/components/Phase";
 import { processStringToArray } from "pages/launchpad/create/utils";
 import { checkDuplicatedWL } from "pages/launchpad/create/utils";
+import { formatTokenAmountNumber } from "utils";
 
 const EditPhase = ({ visible, setVisible, launchpadData }) => {
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
@@ -82,12 +83,12 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
             : parseFloat(e?.vestingUnit?.replace(/,/g, "")) /
               millisecondsInADay,
         allowPublicSale: e?.publicSaleInfor?.isPublic,
-        phasePublicAmount: formatTokenAmount(
+        phasePublicAmount: +formatTokenAmountNumber(
           e?.publicSaleInfor?.totalAmount,
           tokenDecimal
         ),
-        capAmount: formatTokenAmount(e?.capAmount, tokenDecimal),
-        phasePublicPrice: formatTokenAmount(e?.publicSaleInfor?.price, 12),
+        capAmount: +formatTokenAmountNumber(e?.capAmount, tokenDecimal),
+        phasePublicPrice: +formatTokenAmountNumber(e?.publicSaleInfor?.price, 12),
       };
     });
   }, [launchpadData]);
@@ -151,7 +152,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
       "launchpadContractTrait::getAvailableTokenAmount"
     );
     const availableAmount = result.toHuman().Ok;
-    setAvailableTokenAmount(formatTokenAmount(availableAmount, tokenDecimal));
+    setAvailableTokenAmount(+formatTokenAmountNumber(availableAmount, tokenDecimal));
   };
   useEffect(() => {
     if (!visible) {
@@ -717,6 +718,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                               >
                                 <IWInput
                                   type="number"
+                                  step="any"
                                   isDisabled={!isPhaseEditable}
                                   value={form.values.capAmount}
                                   onChange={({ target }) => {
@@ -759,6 +761,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                 <IWInput
                                   inputRightElementIcon={<b>%</b>}
                                   type="number"
+                                  step="any"
                                   isDisabled={!isPhaseEditable}
                                   value={form.values.immediateReleaseRate}
                                   onChange={({ target }) => {
@@ -809,6 +812,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                     !isPhaseEditable
                                   }
                                   type="number"
+                                  step="any"
                                   value={form.values.vestingLength}
                                   onChange={({ target }) =>
                                     form.setFieldValue(
@@ -852,6 +856,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                     !isPhaseEditable
                                   }
                                   type="number"
+                                  step="any"
                                   value={form.values.vestingUnit}
                                   onChange={({ target }) =>
                                     form.setFieldValue(
@@ -907,6 +912,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                   <IWInput
                                     isDisabled={!isPhaseEditable}
                                     type="number"
+                                    step="any"
                                     inputRightElementIcon={
                                       launchpadData?.token?.symbol
                                     }
@@ -958,7 +964,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                           {!launchpadData?.requireKyc && (
                             <>
                               <Divider sx={{ marginTop: "8px" }} />
-                              {selectedPhaseIndex === -1 && (
+                              {/* {selectedPhaseIndex === -1 && (
                                 <FormControl
                                   isInvalid={
                                     form.errors?.whiteList &&
@@ -1001,7 +1007,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
                                     </FormErrorMessage>
                                   </SectionContainer>
                                 </FormControl>
-                              )}
+                              )} */}
                             </>
                           )}
                           <Flex sx={{ justifyContent: "center" }}>

@@ -15,7 +15,7 @@ export const validationTwitter = Yup.string()
   .trim()
   .url("Invalid URL format")
   .max(100, "Must be at most 100 characters")
-  .matches(/\btwitter.com\b/, "URL must be twitter.com");
+  .matches(/\b(twitter\.com|x\.com)\b/, "URL must be twitter.com or x.com");
 
 export const validationDiscord = Yup.string()
   .trim()
