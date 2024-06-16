@@ -47,14 +47,17 @@ const INWV2 = () => {
         "psp22::balanceOf",
         swap_inw2_contract.CONTRACT_ADDRESS
       );
-
       const contractBalance = query2?.toHuman()?.Ok ?? 0;
+      console.log(
+        formatChainStringToNumber(formatTokenAmount(contractBalance, 12))
+      );
+      console.log(formatChainStringToNumber(inwTotalSupply));
       const totalBurn =
-        formatChainStringToNumber(formatTokenAmount(contractBalance, 12)) -
+        +formatChainStringToNumber(formatTokenAmount(contractBalance, 12)) -
         +formatChainStringToNumber(inwTotalSupply);
       setInwV2Info({
         inwInCur: formatNumDynDecimal(inwTotalSupply),
-        inwBurn: formatNumDynDecimal(totalBurn),
+        inwBurn: formatNumDynDecimal(+totalBurn + 11000000.5, 4),
       });
     } catch (error) {
       console.log(error);
@@ -111,22 +114,22 @@ const INWV2 = () => {
                     : 0
                 } INW2`,
               },
-              {
-                title: "Add liquidity",
-                content: (
-                  <Button
-                    size="sm"
-                    onClick={() =>
-                      window.open(
-                        "https://app.common.fi/pools/5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj",
-                        "_blank"
-                      )
-                    }
-                  >
-                    Common Fi Pool
-                  </Button>
-                ),
-              },
+              // {
+              //   title: "Add liquidity",
+              //   content: (
+              //     <Button
+              //       size="sm"
+              //       onClick={() =>
+              //         window.open(
+              //           "https://app.common.fi/pools/5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj",
+              //           "_blank"
+              //         )
+              //       }
+              //     >
+              //       Common Fi Pool
+              //     </Button>
+              //   ),
+              // },
             ]}
           />
           <Box w={"full"}>

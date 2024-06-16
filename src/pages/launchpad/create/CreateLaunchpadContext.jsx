@@ -19,6 +19,8 @@ import ProjectRoadmap from "./components/ProjectRoadmap";
 import Team from "./components/Team";
 import VerifyToken from "./components/VerifyToken";
 import { validatePhaseData } from "./utils";
+import { formatChainStringToNumber } from "utils";
+import { formatTokenAmountNumber } from "utils";
 
 export const CreateLaunchpadContext = createContext();
 
@@ -177,7 +179,7 @@ const CreateLaunchpadContextProvider = (props) => {
       if (
         !(
           +formatTextAmount(currentAccount?.balance?.inw2) >
-          formatTokenAmount(fee, 12)
+          +formatTokenAmountNumber(fee, 12)
         )
       ) {
         toast.error(`Low INW2 balance`);

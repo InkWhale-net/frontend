@@ -621,115 +621,115 @@ export default function FaucetPage({ api }) {
   const [isBigScreen] = useMediaQuery("(min-width: 480px)");
 
   const tabsData = [
-    // {
-    //   label: "Acquire INW",
-    //   component: (
-    //     <>
-    //       <Text mb="12px" ml="2px">
-    //         Acquire INW tokens to use the platform
-    //       </Text>
-    //       <IWCard
-    //         w="full"
-    //         variant="outline"
-    //         title={
-    //           <Flex justifyContent={"space-between"}>
-    //             {/* <Flex>
-    //               {saleInfo?.endTimeSale ? (
-    //                 notSaleStart ? (
-    //                   <>
-    //                     Sale start in:{" "}
-    //                     <Text paddingLeft={"4px"}>
-    //                       <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
-    //                     </Text>{" "}
-    //                   </>
-    //                 ) : !isSaleEnded ? (
-    //                   <>
-    //                     Ends in:{" "}
-    //                     <Text paddingLeft={"4px"}>
-    //                       <IWCountDown date={+saleInfo?.endTimeSale} />{" "}
-    //                     </Text>{" "}
-    //                   </>
-    //                 ) : (
-    //                   <>Ended</>
-    //                 )
-    //               ) : (
-    //                 ""
-    //               )}
-    //             </Flex> */}
-    //           </Flex>
-    //         }
-    //       >
-    //         <IWCard mt="16px" w="full" variant="solid">
-    //           <Stack
-    //             w="100%"
-    //             spacing="20px"
-    //             direction={{ base: "column" }}
-    //             align={{ base: "column", xl: "center" }}
-    //           >
-    //             <IWInput
-    //               value={inwBuyAmount}
-    //               onChange={onChangeInwInput}
-    //               type="number"
-    //               placeholder="Enter INW amount"
-    //               inputRightElementIcon={
-    //                 <Heading as="h5" size="h5" fontWeight="semibold">
-    //                   INW
-    //                 </Heading>
-    //               }
-    //             />
+    {
+      label: "Acquire INW",
+      component: (
+        <>
+          <Text mb="12px" ml="2px">
+            Acquire INW tokens to use the platform
+          </Text>
+          <IWCard
+            w="full"
+            variant="outline"
+            title={
+              <Flex justifyContent={"space-between"}>
+                {/* <Flex>
+                  {saleInfo?.endTimeSale ? (
+                    notSaleStart ? (
+                      <>
+                        Sale start in:{" "}
+                        <Text paddingLeft={"4px"}>
+                          <IWCountDown date={+saleInfo?.startTimeSale} />{" "}
+                        </Text>{" "}
+                      </>
+                    ) : !isSaleEnded ? (
+                      <>
+                        Ends in:{" "}
+                        <Text paddingLeft={"4px"}>
+                          <IWCountDown date={+saleInfo?.endTimeSale} />{" "}
+                        </Text>{" "}
+                      </>
+                    ) : (
+                      <>Ended</>
+                    )
+                  ) : (
+                    ""
+                  )}
+                </Flex> */}
+              </Flex>
+            }
+          >
+            <IWCard mt="16px" w="full" variant="solid">
+              <Stack
+                w="100%"
+                spacing="20px"
+                direction={{ base: "column" }}
+                align={{ base: "column", xl: "center" }}
+              >
+                <IWInput
+                  value={inwBuyAmount}
+                  onChange={onChangeInwInput}
+                  type="number"
+                  placeholder="Enter INW amount"
+                  inputRightElementIcon={
+                    <Heading as="h5" size="h5" fontWeight="semibold">
+                      INW
+                    </Heading>
+                  }
+                />
 
-    //             <IWInput
-    //               type="number"
-    //               value={azeroBuyAmount}
-    //               onChange={onChangeAzeroInput}
-    //               placeholder="Enter AZERO amount"
-    //               inputRightElementIcon={<AzeroLogo />}
-    //             />
-    //             {inwPrice > 0 && (
-    //               <Flex
-    //                 mt={{ base: "15px", lg: "0px" }}
-    //                 w="full"
-    //                 flexDirection={{ base: "column", lg: "row" }}
-    //                 justifyContent="space-between"
-    //               >
-    //                 <Text textAlign="left" fontSize="md" lineHeight="28px">
-    //                   Rate: {inwPrice} Azero / INW
-    //                 </Text>
-    //                 {/* <Text textAlign="left" fontSize="md" lineHeight="28px">
-    //                   INW Available to acquire: {availableMint}
-    //                 </Text> */}
-    //                 {console.log(availableMint)}
-    //               </Flex>
-    //             )}
+                <IWInput
+                  type="number"
+                  value={azeroBuyAmount}
+                  onChange={onChangeAzeroInput}
+                  placeholder="Enter AZERO amount"
+                  inputRightElementIcon={<AzeroLogo />}
+                />
+                {inwPrice > 0 && (
+                  <Flex
+                    mt={{ base: "15px", lg: "0px" }}
+                    w="full"
+                    flexDirection={{ base: "column", lg: "row" }}
+                    justifyContent="space-between"
+                  >
+                    <Text textAlign="left" fontSize="md" lineHeight="28px">
+                      Rate: {inwPrice} Azero / INW
+                    </Text>
+                    {/* <Text textAlign="left" fontSize="md" lineHeight="28px">
+                      INW Available to acquire: {availableMint}
+                    </Text> */}
+                    {console.log(availableMint)}
+                  </Flex>
+                )}
 
-    //             {/* {inwBuyAmount ? (
-    //               <Flex
-    //                 mt={{ base: "15px", lg: "0px" }}
-    //                 w="full"
-    //                 justifyContent="space-between"
-    //               >
-    //                 <Text textAlign="left" fontSize="md" lineHeight="28px">
-    //                   You will receive full amount of INW right after the
-    //                   purchase.
-    //                 </Text>
-    //               </Flex>
-    //             ) : (
-    //               ""
-    //             )} */}
-    //             <Button
-    //               w="full"
-    //               onClick={inwPublicMintHandler}
-    //               disabled={disableBuyBtn}
-    //             >
-    //               Acquire INW
-    //             </Button>
-    //           </Stack>
-    //         </IWCard>
-    //       </IWCard>
-    //     </>
-    //   ),
-    //   isDisabled: true,
-    // },
+                {/* {inwBuyAmount ? (
+                  <Flex
+                    mt={{ base: "15px", lg: "0px" }}
+                    w="full"
+                    justifyContent="space-between"
+                  >
+                    <Text textAlign="left" fontSize="md" lineHeight="28px">
+                      You will receive full amount of INW right after the
+                      purchase.
+                    </Text>
+                  </Flex>
+                ) : (
+                  ""
+                )} */}
+                <Button
+                  w="full"
+                  onClick={inwPublicMintHandler}
+                  disabled={disableBuyBtn}
+                >
+                  Acquire INW
+                </Button>
+              </Stack>
+            </IWCard>
+          </IWCard>
+        </>
+      ),
+      isDisabled: true,
+    },
     {
       label: <>Claim INW</>,
       component: (

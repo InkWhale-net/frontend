@@ -254,6 +254,7 @@ const Phase = () => {
               >
                 <IWInput
                   type="number"
+                  step="any"
                   value={field.value}
                   onChange={({ target }) => {
                     form.setFieldValue("totalSupply", target.value);
@@ -315,18 +316,20 @@ const Phase = () => {
             <Field name="requireKyc">
               {({ form }) => (
                 <Switch
+                  // isDisabled={true}
                   sx={{ mt: "4px", ml: "16px" }}
                   id="require-kyc"
                   isChecked={form.values.requireKyc}
                   onChange={() => {
-                    const newValue = !form.values.requireKyc;
-                    form.setFieldValue("requireKyc", newValue);
-                    updateRequireKyc(newValue);
+                    // const newValue = !form.values.requireKyc;
+                    // form.setFieldValue("requireKyc", newValue);
+                    // updateRequireKyc(newValue);
                   }}
                 />
               )}
             </Field>
           </Box>
+          <Text color="rgba(0, 0, 0, 0.4)">This feature will available later</Text>
         </Box>
 
         {/* ================================================ */}
@@ -525,6 +528,7 @@ const Phase = () => {
                       >
                         <IWInput
                           type="number"
+                          step="any"
                           value={obj?.capAmount}
                           onChange={({ target }) => {
                             const updatedArray = [...form.values.phase];
@@ -573,6 +577,7 @@ const Phase = () => {
                         <IWInput
                           inputRightElementIcon={<b>%</b>}
                           type="number"
+                          step="any"
                           value={obj?.immediateReleaseRate}
                           onChange={({ target }) =>
                             onChangeImmediateReleaseRate(
@@ -619,6 +624,7 @@ const Phase = () => {
                           inputRightElementIcon={<b>day(s)</b>}
                           isDisabled={+obj?.immediateReleaseRate == 100}
                           type="number"
+                          step="any"
                           value={obj?.vestingLength}
                           onChange={({ target }) =>
                             onChangeVestingDuration(form, target.value, index)
@@ -662,6 +668,7 @@ const Phase = () => {
                             parseFloat(obj?.immediateReleaseRate) === 100
                           }
                           type="number"
+                          step="any"
                           value={obj?.vestingUnit}
                           onChange={({ target }) =>
                             onChangeVestingReleasePeriod(
@@ -729,6 +736,7 @@ const Phase = () => {
                             >
                               <IWInput
                                 type="number"
+                                step="any"
                                 inputRightElementIcon={
                                   launchpadData?.token?.symbol
                                 }

@@ -53,6 +53,7 @@ import BridgePage from "pages/account/bridge";
 import TokensSwapHistoryPage from "pages/tokens/swap/history";
 import TokensSwapPage from "pages/tokens/swap";
 import LoginPage from "pages/login";
+import PSP22Tokens from "pages/psp22Tokens";
 
 const providerUrl = process.env.REACT_APP_PROVIDER_URL;
 const queryClient = new QueryClient();
@@ -206,23 +207,24 @@ const App = () => {
             component={TokensSwapPage}
           />
           <Route exact path={`/create/token`} component={CreateTokenPage} />
+          <Route exact path={`/psp22tokens`} component={PSP22Tokens} />
           <Route
             exact
             path={`/create/stake-pool`}
             component={CreateStakePoolPage}
           />
           <Route exact path={`/create/nft-lp`} component={CreateNFTLPPage} />
-          {/* <Route
+          <Route
             exact
             path={`/launchpad/create`}
             component={CreateLaunchpadPage}
-          /> */}
-          {/* <Route exact path={`/launchpad`} component={Launchpad} />
+          />
+          <Route exact path={`/launchpad`} component={Launchpad} />
           <Route
             exact
             path={`/launchpad/:launchpadContract`}
             component={PublicDetailLaunchpad}
-          /> */}
+          />
           <Route exact path={`/create/farming`} component={CreateTokenLPPage} />
           <Route exact path={`/farming`} component={LPPoolsPage} />
           <Route
@@ -249,7 +251,7 @@ const App = () => {
             component={MyPoolDetailPage}
           />
           <Route exact path={`/admin`} component={AdminPage} />
-          {/* <Route exact path={`/azero-staking`} component={AzeroStaking} /> */}
+          <Route exact path={`/azero-staking`} component={AzeroStaking} />
           <Route exact path={`/inw-v2`} component={INWV2} />
           {/* <Route exact path={`/bridge`} component={BridgePage} /> */}
           <Route>

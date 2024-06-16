@@ -22,6 +22,7 @@ import { toast } from "react-hot-toast";
 import { useMutation } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
+import { formatNumToBN } from "utils";
 import { delay } from "utils";
 import { execContractQuery, execContractTx, execContractTxAndCallAPI } from "utils/contracts";
 import launchpad_generator from "utils/contracts/launchpad_generator";
@@ -154,6 +155,7 @@ const Launchpad = () => {
   const dispatch = useDispatch();
   const [isAdmin, setIsAdmin] = useState(false);
   const [newAddress, setNewAddress] = useState("");
+  const [newCreateFee, setNewCreateFee] = useState("")
   const [isContractOwner, setIsContractOwner] = useState(false);
   const [lpAdminList, setLPAdminList] = useState([]);
   const grantNewAdmin = async () => {
@@ -285,7 +287,21 @@ const Launchpad = () => {
     ...e,
     phaseList: JSON.parse(e?.phaseList),
   }));
-
+  const createFeeMutation = useMutation(async () => {
+    try {
+      return await execContractTx(
+        currentAccount,
+        api,
+        launchpad_generator.CONTRACT_ABI,
+        launchpad_generator.CONTRACT_ADDRESS,
+        0,
+        "launchpadGeneratorTrait::setCreationFee",
+        formatNumToBN(newCreateFee, 12)
+      );
+    } catch (error) {
+      console.log("SET FEE ERROR: ", error);
+    }
+  })
   useEffect(() => {
     if (currentAccount) getIsAdmin();
     else setIsAdmin(false);
@@ -428,16 +444,45 @@ const Launchpad = () => {
           </TableContainer>
         </Box>
       )}
-      <Box display="flex" flexDirection="row" justifyContent="space-between" alignItems="end" mt="20px" mb="8px">
-        <Text sx={{ fontWeight: "700", color: "#57527E" }}>
-          LAUNCHPAD LIST
-        </Text>
-        <Button size="sm" onClick={() => {
-          APICall.askBEupdate({
-            type: "launchpad",
-            poolContract: "new",
-          });
-        }}>Refetch list BE</Button>
+      {isContractOwner && (
+        <Box>
+          <IWInput
+            placeholder="New create fee"
+            value={newCreateFee}
+            size="sm"
+            onChange={({ target }) => setNewCreateFee(target.value)}
+          />
+          <Button
+            isDisabled={!(newCreateFee?.length > 0)}
+            size="sm"
+            sx={{ marginTop: "8px" }}
+            isLoading={createFeeMutation.isLoading}
+            onClick={() => createFeeMutation.mutate()}
+          >
+            SET FEE
+          </Button>
+        </Box>
+      )}
+      <Box
+        display="flex"
+        flexDirection="row"
+        justifyContent="space-between"
+        alignItems="end"
+        mt="20px"
+        mb="8px"
+      >
+        <Text sx={{ fontWeight: "700", color: "#57527E" }}>LAUNCHPAD LIST</Text>
+        <Button
+          size="sm"
+          onClick={() => {
+            APICall.askBEupdate({
+              type: "launchpad",
+              poolContract: "new",
+            });
+          }}
+        >
+          Refetch list BE
+        </Button>
       </Box>
       <Divider />
       <Box>
@@ -454,7 +499,14 @@ const Launchpad = () => {
               </Tr>
             </Thead>
             <Tbody>
-              {launchpadRender?.map((obj, index) => <LPRow index={index} key={`index-row-lp`} obj={obj} fetchLP={fetchLP} />)}
+              {launchpadRender?.map((obj, index) => (
+                <LPRow
+                  index={index}
+                  key={`index-row-lp`}
+                  obj={obj}
+                  fetchLP={fetchLP}
+                />
+              ))}
             </Tbody>
           </Table>
         </TableContainer>

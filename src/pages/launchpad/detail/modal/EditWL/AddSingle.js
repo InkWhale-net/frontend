@@ -9,6 +9,7 @@ import { toast } from "react-hot-toast";
 import { AiFillExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import { resolveAZDomainToAddress } from "utils";
 import { delay } from "utils";
 import { execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
@@ -21,6 +22,8 @@ const AddSingleWL = ({
   availableTokenAmount,
   phaseCapAmount,
   whitelist,
+  fetchPhaseData,
+  availableWLAmount
 }) => {
   const { currentAccount } = useSelector((state) => state.wallet);
   const { api } = useAppContext();
@@ -48,12 +51,24 @@ const AddSingleWL = ({
 
   const addSingleWLHandler = async () => {
     try {
+      const wladdress = (await resolveAZDomainToAddress(wlData?.address)) || (isValidAddress(wlData?.address) && wlData?.address)
+      if(!wladdress) {
+        toast.error(`Address or ID not valid`);
+        return;
+      }
       if (availableTokenAmount * 1 <= 0) {
         toast.error(`No available token amount!`);
         return;
       }
-
-      if (phaseCapAmount < wlData?.amount) {
+      const WLAmount = +wlData?.amount || 0
+      const WLPrice = +wlData?.price || 0
+      if(WLAmount > availableWLAmount) {
+        toast.error(
+          `Max whitelist amount is ${availableWLAmount}`
+        );
+        return;
+      }
+      if (phaseCapAmount < WLAmount) {
         toast.error(
           `Whitelist amount can not be greater than phase cap amount!`
         );
@@ -61,11 +76,11 @@ const AddSingleWL = ({
       }
 
       const currentWl = launchpadData?.phaseList[selectedPhase]?.whitelist;
-      if (currentWl.some((obj) => obj.address === wlData?.address)) {
+      if (currentWl.some((obj) => obj.address === wladdress)) {
         toast.error("Whitelist address existed");
         return;
       }
-      if (+wlData?.amount > +availableTokenAmount) {
+      if (WLAmount > +availableTokenAmount) {
         toast.error(`Maximum amount is ${availableTokenAmount}`);
         return;
       }
@@ -77,19 +92,20 @@ const AddSingleWL = ({
         0, //-> value
         "launchpadContractTrait::addMultiWhitelists",
         selectedPhase,
-        [wlData?.address],
+        [wladdress],
         [
           parseUnits(
-            wlData?.amount.toString(),
+            WLAmount.toString(),
             parseInt(launchpadData?.projectInfo?.token.decimals)
           ),
         ],
-        [parseUnits(wlData?.price.toString(), 12)]
+        [parseUnits(WLPrice.toString(), 12)]
       );
       await APICall.askBEupdate({
         type: "launchpad",
         poolContract: launchpadData?.launchpadContract,
       });
+      fetchPhaseData()
       if (result) {
         setWLData({
           address: "",
@@ -118,22 +134,20 @@ const AddSingleWL = ({
         toast.error(`No available token amount!`);
         return;
       }
+      const WLAmount = +wlData?.amount || 0
+      const oldWLAmount = +selectedWL?.amount
+      const WLPrice = +wlData?.price || 0
 
-      if (phaseCapAmount < wlData?.amount) {
+      if (WLAmount - oldWLAmount > availableWLAmount) {
         toast.error(
-          `Whitelist amount can not be greater than phase cap amount!`
+          `Maximum new amount is ${availableWLAmount + oldWLAmount}`
         );
         return;
       }
-
-      if (
-        wlData?.amount < 0 ||
-        +wlData?.amount - +selectedWL?.amount > +availableTokenAmount
-      ) {
+      if (WLAmount < 0) {
         toast.error("Invalid token amount");
         return;
       }
-
       const result = await execContractTx(
         currentAccount,
         api,
@@ -145,11 +159,11 @@ const AddSingleWL = ({
         [wlData?.address],
         [
           parseUnits(
-            wlData?.amount.toString(),
+            WLAmount.toString(),
             parseInt(launchpadData?.projectInfo?.token.decimals)
           ),
         ],
-        [parseUnits(wlData?.price.toString(), 12)]
+        [parseUnits(WLPrice.toString(), 12)]
       );
       await APICall.askBEupdate({
         type: "launchpad",
@@ -182,41 +196,63 @@ const AddSingleWL = ({
   }, [selectedWL]);
 
   // ++++++++++++++++++++++++++
-  const inWLList = whitelist?.map((i) => i.account).includes(wlData?.address);
-
+  const [inWLList, setINWLList] = useState(false)
+  useEffect(()=> {
+    (async () => {
+      const wladdress = (await resolveAZDomainToAddress(wlData?.address)) || (isValidAddress(wlData?.address) && wlData?.address)
+      setINWLList(whitelist?.map((i) => i.account).includes(wladdress))
+    })()
+  }, [whitelist, wlData?.address])
   useEffect(() => {
-    if (inWLList) {
-      const found = whitelist?.find((i) => i.account === wlData?.address);
-
-      setWLData((prev) => ({ ...prev, ...found }));
-    } else {
-      setWLData((prev) => ({
-        ...prev,
-        amount: "",
-        price: "",
-      }));
-    }
+    (async () => {
+      if (inWLList) {
+        const wladdress = (await resolveAZDomainToAddress(wlData?.address)) || (isValidAddress(wlData?.address) && wlData?.address)
+        const found = whitelist?.find((i) => i.account === wladdress);
+        console.log(selectedWL)
+        setSelectedWL(found)
+        setWLData((prev) => ({ ...prev, ...found }));
+      } else {
+        setWLData((prev) => ({
+          ...prev,
+          amount: "",
+          price: "",
+        }));
+      }
+    })()
   }, [inWLList, whitelist, wlData?.address]);
 
   return (
     <Box sx={{ pt: "0px" }}>
       {isWhitelistEditable ? (
-        <Box
-          sx={{
-            bg: "#FED1CA",
-            display: "flex",
-            alignItems: "center",
-            px: "10px",
-            py: "8px",
-            mt: "10px",
-            borderRadius: "4px",
-          }}
-        >
-          <AiFillExclamationCircle />
-          <Text sx={{ ml: "8px" }}>
-            You can not edit this whitelist account
-          </Text>
-        </Box>
+        <>
+          <Box
+            sx={{
+              bg: "#FED1CA",
+              display: "flex",
+              alignItems: "center",
+              px: "10px",
+              py: "8px",
+              mt: "10px",
+              borderRadius: "4px",
+            }}
+          >
+            <AiFillExclamationCircle />
+            <Text sx={{ ml: "8px" }}>
+              You can not edit this whitelist account
+            </Text>
+          </Box>
+          <Button
+            w="full"
+            disabled={!selectedWL}
+            m="16px 2px"
+            size="md"
+            sx={{ bg: "#F6F6FC" }}
+            _hover={{ bg: "#E3E1EC" }}
+            onClick={() => setSelectedWL(null)}
+          >
+            Cancel
+          </Button>
+        </>
       ) : (
         <>
           <>
@@ -286,7 +322,6 @@ const AddSingleWL = ({
                   !(
                     wlData?.address?.length > 0 &&
                     wlData?.amount?.length > 0 &&
-                    wlData?.price?.length > 0 &&
                     (wlData?.address !== selectedWL?.account ||
                       wlData?.amount !== (+selectedWL?.amount).toString() ||
                       wlData?.price !== (+selectedWL?.price).toString())
@@ -324,9 +359,7 @@ const AddSingleWL = ({
                     isDisabled={
                       !(
                         wlData?.address?.length > 0 &&
-                        wlData?.amount?.length > 0 &&
-                        wlData?.price?.length > 0 &&
-                        isValidAddress(wlData?.address)
+                        wlData?.amount?.length > 0
                       )
                     }
                     m="16px 2px"

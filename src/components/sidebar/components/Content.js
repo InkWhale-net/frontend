@@ -41,7 +41,7 @@ function SidebarContent({ onClose }) {
         mt="8px"
         px="20px"
       >
-        <Flex
+        {/* <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
           p="6px 10px"
           bg={"transparent"}
@@ -64,7 +64,7 @@ function SidebarContent({ onClose }) {
               Trade INW2
             </Text>
           </Link>
-        </Flex>
+        </Flex> */}
 
         <GroupMenu
           {...groupButtonProps}
@@ -121,10 +121,10 @@ function SidebarContent({ onClose }) {
           onClose={onClose}
         />
         {[
-          // {
-          //   title: `Stake ${appChain?.unit} `,
-          //   href: "/azero-staking",
-          // },
+          {
+            title: `Stake ${appChain?.unit} `,
+            href: "/azero-staking",
+          },
         ]?.map(({ title, href }) => (
           <Flex
             w={"full"}
@@ -157,7 +157,7 @@ function SidebarContent({ onClose }) {
             </Link>
           </Flex>
         ))}
-        <Flex
+        {/* <Flex
           _hover={{ textDecoration: "none", bg: "bg.1" }}
           p="6px 10px"
           bg={"transparent"}
@@ -177,7 +177,7 @@ function SidebarContent({ onClose }) {
               Launchpad
             </Text>
           </Link>
-        </Flex>
+        </Flex> */}
         <Flex ml="30px" pt="10px" w="full">
           <WalletButton onCloseSidebar={onClose} />
         </Flex>

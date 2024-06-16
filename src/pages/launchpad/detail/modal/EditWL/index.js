@@ -50,6 +50,7 @@ import launchpad from "utils/contracts/launchpad";
 import AddBulk from "./AddBulk";
 import AddSingleWL from "./AddSingle";
 import { appChain } from "constants";
+import { formatTokenAmountNumber } from "utils";
 
 const EditWL = ({ visible, setVisible, launchpadData }) => {
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
@@ -99,16 +100,16 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
           const WLAccountDetail = queryWLAccountDetail?.toHuman()?.Ok;
           const formatedAccountBuyer = {
             account: WLAccount,
-            amount: formatTokenAmount(WLAccountDetail?.amount, tokenDecimal),
-            price: formatTokenAmount(
+            amount: +formatTokenAmountNumber(WLAccountDetail?.amount, tokenDecimal),
+            price: +formatTokenAmountNumber(
               WLAccountDetail?.price,
               appChain?.decimals
             ),
-            purchasedAmount: formatTokenAmount(
+            purchasedAmount: +formatTokenAmountNumber(
               WLAccountDetail?.purchasedAmount,
               tokenDecimal
             ),
-            claimedAmount: formatTokenAmount(
+            claimedAmount: +formatTokenAmountNumber(
               WLAccountDetail?.claimedAmount,
               tokenDecimal
             ),
@@ -119,6 +120,12 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
       setWL(WLList);
     })();
   }, [launchpadData?.phaseList, queries?.keyword, selectedPhase, tokenDecimal]);
+  
+  const totalWLPhase = useMemo(() => {
+    return whitelist.reduce((acc, cur) => {
+      return acc += cur?.amount
+    }, 0)
+  }, [whitelist])
 
   const fetchPhaseData = async () => {
     const result = await execContractQuery(
@@ -131,7 +138,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     );
     const availableAmount = result.toHuman().Ok;
 
-    setAvailableTokenAmount(formatTokenAmount(availableAmount, tokenDecimal));
+    setAvailableTokenAmount(formatTokenAmountNumber(availableAmount, tokenDecimal));
   };
 
   const tableData = {
@@ -189,7 +196,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
   useEffect(() => {
     if (launchpadData) fetchPhaseData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [launchpadData]);
+  }, [launchpadData, api, visible, currentAccount]);
 
   useEffect(() => {
     if (selectedMode !== 0) setSelectedWL(null);
@@ -216,23 +223,22 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     const currPLPhaseInfo = currPhaseInfo?.publicSaleInfor;
 
     const whitelistTotalAmount = currWLPhaseInfo?.reduce((prev, curr) => {
-      return prev + curr?.amount?.replaceAll(",", "") / 10 ** decimals;
+      return prev + +formatTokenAmountNumber(curr?.amount, decimals);
     }, 0);
-
+    
     const whitelistTotalPurchasedAmount = currWLPhaseInfo?.reduce(
       (prev, curr) =>
-        prev + curr?.purchasedAmount?.replaceAll(",", "") / 10 ** decimals,
+        prev + +formatTokenAmountNumber(curr?.purchasedAmount, decimals),
       0
     );
 
     const whitelistTotalClaimedAmount = currWLPhaseInfo?.reduce(
       (prev, curr) =>
-        prev + curr?.claimedAmount?.replaceAll(",", "") / 10 ** decimals,
+        prev + +formatTokenAmountNumber(curr?.claimedAmount, decimals),
       0
     );
-
     return {
-      capAmount: capAmountBN?.replaceAll(",", "") / 10 ** decimals,
+      capAmount: +formatTokenAmountNumber(capAmountBN, decimals),
 
       isPublic: currPLPhaseInfo?.isPublic,
       publicTotalAmount: currPLPhaseInfo?.totalAmount,
@@ -248,7 +254,16 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     launchpadData?.projectInfo?.token?.decimals,
     selectedPhase,
   ]);
-
+  const availableWLAmount = useMemo(() => {
+    return (
+      phaseHeaderInfo?.capAmount -
+      +formatTokenAmountNumber(
+        phaseHeaderInfo?.publicTotalAmount,
+        launchpadData?.projectInfo?.token?.decimals
+      ) -
+      totalWLPhase
+    );
+  }, [launchpadData, phaseHeaderInfo?.capAmount, phaseHeaderInfo?.publicTotalAmount, totalWLPhase]);
   // ++++++++++++++++++++++++++++++++++++++++++
 
   const tabsData = [
@@ -267,6 +282,8 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
           setQueries={setQueries}
           table={table}
           whitelist={whitelist}
+          fetchPhaseData={fetchPhaseData}
+          availableWLAmount={availableWLAmount}
         />
       ),
       isDisabled: false,
@@ -279,6 +296,8 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
           selectedPhase={selectedPhase}
           availableTokenAmount={availableTokenAmount}
           setSelectedMode={setSelectedMode}
+          hideModal={() => setVisible(false)}
+          availableWLAmount={availableWLAmount}
         />
       ),
       isDisabled: false,
@@ -344,11 +363,17 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
                 ${launchpadData?.projectInfo?.token?.symbol}`}
                 </Text>
               </Text> */}
-
               <Text>
                 Phase Cap:{" "}
                 <Text as="span" fontWeight={600}>
                   {`${formatNumDynDecimal(phaseHeaderInfo?.capAmount)}
+                ${launchpadData?.projectInfo?.token?.symbol}`}
+                </Text>
+              </Text>
+              <Text ml="12px">
+                Available for whitelist:{" "}
+                <Text as="span" fontWeight={600}>
+                  {`${formatNumDynDecimal(availableWLAmount)}
                 ${launchpadData?.projectInfo?.token?.symbol}`}
                 </Text>
               </Text>
@@ -396,6 +421,8 @@ function EditWhitelist({
   setQueries,
   table,
   whitelist,
+  fetchPhaseData,
+  availableWLAmount
 }) {
   return (
     <Box display={["block", "flex"]}>
@@ -415,12 +442,14 @@ function EditWhitelist({
             availableTokenAmount={availableTokenAmount}
             phaseCapAmount={phaseHeaderInfo?.capAmount}
             whitelist={whitelist}
+            fetchPhaseData={fetchPhaseData}
+            availableWLAmount={availableWLAmount}
           />
         )}
       </Box>
 
       <Box sx={{ flex: 1, pt: "30px" }}>
-        <Flex mb="16px">
+        {/* <Flex mb="16px">
           <IWInput
             size="md"
             value={queries?.keyword}
@@ -431,7 +460,7 @@ function EditWhitelist({
             placeholder="Search"
             inputRightElementIcon={<SearchIcon color="#57527E" />}
           />
-        </Flex>
+        </Flex> */}
         <TableContainer
           // mt="18px"
           width="full"

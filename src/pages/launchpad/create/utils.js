@@ -1,6 +1,7 @@
 import { decodeAddress, encodeAddress } from "@polkadot/keyring";
 import { hexToU8a, isHex } from "@polkadot/util";
 import { toast } from "react-hot-toast";
+import { resolveAZDomainToAddress } from "utils";
 
 export const verifyTokenValid = async (launchpadData, currentAccount) => {
   const owner = launchpadData?.token?.owner;
@@ -111,23 +112,34 @@ export const isValidAddress = (address) => {
   }
 };
 
-export const verifyWhitelist = (wlString) => {
+export const verifyWhitelist = async (wlString) => {
   const whitelistphase = processStringToArray(wlString);
   if (
-    whitelistphase?.filter((e) => isValidAddress(e?.address))?.length !=
+    whitelistphase?.filter(async (e) => {
+      const wladdress = (await resolveAZDomainToAddress(e?.address)) || (isValidAddress(e?.address) && e?.address)
+      return wladdress
+    })?.length !=
     whitelistphase?.length
-  )
+  ) {
+    toast.error("Invalid address");
     return false;
+  }
+    
   if (
     whitelistphase?.filter((e) => e?.amount > 0)?.length !=
     whitelistphase?.length
-  )
+  ) {
+    toast.error("Invalid amount");
     return false;
+  }
   if (
-    whitelistphase?.filter((e) => e?.price > 0 && regexTestNum.test(e?.price))
+    whitelistphase?.filter((e) => e?.price >= 0 && regexTestNum.test(e?.price))
       ?.length != whitelistphase?.length
-  )
+  ) {
+    toast.error("Invalid price");
     return false;
+  }
+    
   return true;
 };
 
