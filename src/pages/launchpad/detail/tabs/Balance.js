@@ -359,7 +359,7 @@ const PhaseTag = ({ data, launchpadData }) => {
           variant="outline"
           onClick={() => publicClaimHandler()}
         >
-          {isSaleEnd ? "Claim" : "Sale is not ended"}
+          {isSaleEnd ? "Claim" : "Sale has not ended"}
         </Button>
       </>
       {/* )} */}
@@ -418,7 +418,7 @@ const PhaseTag = ({ data, launchpadData }) => {
           variant="outline"
           onClick={() => WLClaimHandler()}
         >
-          {isSaleEnd ? "Claim" : "Sale is not ended"}
+          {isSaleEnd ? "Claim" : "Sale has not ended"}
         </Button>
 
         <Divider my="8px" />
