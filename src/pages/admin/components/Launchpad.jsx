@@ -10,21 +10,27 @@ import {
   Text,
   Th,
   Thead,
-  Tr
+  Tr,
 } from "@chakra-ui/react";
 import { APICall } from "api/client";
 import AddressCopier from "components/address-copier/AddressCopier";
 import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
+import { appChain } from "constants";
 import { useAppContext } from "contexts/AppContext";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useMutation } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
+import { formatTokenAmountNumber } from "utils";
 import { formatNumToBN } from "utils";
 import { delay } from "utils";
-import { execContractQuery, execContractTx, execContractTxAndCallAPI } from "utils/contracts";
+import {
+  execContractQuery,
+  execContractTx,
+  execContractTxAndCallAPI,
+} from "utils/contracts";
 import launchpad_generator from "utils/contracts/launchpad_generator";
 
 const LPRow = ({ obj, fetchLP, index }) => {
@@ -32,121 +38,140 @@ const LPRow = ({ obj, fetchLP, index }) => {
   const { api } = useAppContext();
   const history = useHistory();
   const doxxedUpdateMuation = useMutation(async (data) => {
-    await APICall.updateDoxxed(data)
-    await delay(2000)
+    await APICall.updateDoxxed(data);
+    await delay(2000);
     await fetchLP();
-  })
-  const activeLPMutation = useMutation(async ({ contractAddress, newValue }) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const result = await execContractTxAndCallAPI(
-          currentAccount,
-          api,
-          launchpad_generator.CONTRACT_ABI,
-          launchpad_generator.CONTRACT_ADDRESS,
-          0, //-> value
-          "launchpadGeneratorTrait::setIsActiveLaunchpad",
-          async () => {
-            await APICall.askBEupdate({
-              type: "launchpad",
-              poolContract: contractAddress,
-            });
-            await delay(2000);
-            await fetchLP();
-            resolve()
-          },
-          contractAddress,
-          newValue
-        );
-        if (!result) reject("UPDATE FAIL")
-      } catch (error) {
-        console.log(error);
-        reject("UPDATE FAIL")
-      }
-    })
-  })
+  });
+  const activeLPMutation = useMutation(
+    async ({ contractAddress, newValue }) => {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const result = await execContractTxAndCallAPI(
+            currentAccount,
+            api,
+            launchpad_generator.CONTRACT_ABI,
+            launchpad_generator.CONTRACT_ADDRESS,
+            0, //-> value
+            "launchpadGeneratorTrait::setIsActiveLaunchpad",
+            async () => {
+              await APICall.askBEupdate({
+                type: "launchpad",
+                poolContract: contractAddress,
+              });
+              await delay(2000);
+              await fetchLP();
+              resolve();
+            },
+            contractAddress,
+            newValue
+          );
+          if (!result) reject("UPDATE FAIL");
+        } catch (error) {
+          console.log(error);
+          reject("UPDATE FAIL");
+        }
+      });
+    }
+  );
   const loadingStatusActive = {
     isLoading: activeLPMutation.isLoading,
-    isDisabled: activeLPMutation.isLoading
-  }
-  return <Tr>
-    <Td>{index}</Td>
-    <Td><Text sx={{
-      fontWeight: "bold",
-      textDecor: "underline"
-    }} _hover={{
-      color: "#93F0F5",
-      cursor: "pointer"
-    }} onClick={() => {
-      history.push({
-        pathname: `/launchpad/${obj?.launchpadContract}`,
-      })
-    }}>{obj?.projectInfo?.projectInfor?.name}</Text></Td>
-    <Td>
-      {obj?.phaseList?.map((phaseObj, phaseIndex) => {
-        return <Box>{`${phaseIndex}: ${phaseObj?.name}`}</Box>;
-      })}
-    </Td>
-    <Td>
-      <AddressCopier address={obj?.launchpadContract} />
-    </Td>
-    <Td>
-      {obj?.isActive ? (
-        <Button
-          {...loadingStatusActive}
-          size="sm"
-          bg={"#D7D5E5"}
-          onClick={() => activeLPMutation.mutate({ contractAddress: obj?.launchpadContract, newValue: false })
-          }
+    isDisabled: activeLPMutation.isLoading,
+  };
+  return (
+    <Tr>
+      <Td>{index}</Td>
+      <Td>
+        <Text
+          sx={{
+            fontWeight: "bold",
+            textDecor: "underline",
+          }}
+          _hover={{
+            color: "#93F0F5",
+            cursor: "pointer",
+          }}
+          onClick={() => {
+            history.push({
+              pathname: `/launchpad/${obj?.launchpadContract}`,
+            });
+          }}
         >
-          Deactive
-        </Button>
-      ) : (
-        <Button
-          {...loadingStatusActive}
-          size="sm"
-          onClick={() =>
-            activeLPMutation.mutate({ contractAddress: obj?.launchpadContract, newValue: true })
-          }
-        >
-          Active
-        </Button>
-      )}
-    </Td>
-    <Td>
-      {obj?.isDoxxed ? (
-        <Button
-          isLoading={doxxedUpdateMuation.isLoading}
-          isDisabled={doxxedUpdateMuation.isLoading}
-          size="sm"
-          bg={"#D7D5E5"}
-          onClick={() =>
-            doxxedUpdateMuation.mutate({
-              contractAddress: obj?.launchpadContract,
-              newValue: false
-            })
-          }
-        >
-          Set NO
-        </Button>
-      ) : (
-        <Button
-          isLoading={doxxedUpdateMuation.isLoading}
-          isDisabled={doxxedUpdateMuation.isLoading}
-          size="sm"
-          onClick={() =>
-            doxxedUpdateMuation.mutate({
-              contractAddress: obj?.launchpadContract,
-              newValue: true
-            })
-          }
-        >
-          Set YES
-        </Button>
-      )}
-    </Td>
-  </Tr>
-}
+          {obj?.projectInfo?.projectInfor?.name}
+        </Text>
+      </Td>
+      <Td>
+        {obj?.phaseList?.map((phaseObj, phaseIndex) => {
+          return <Box>{`${phaseIndex}: ${phaseObj?.name}`}</Box>;
+        })}
+      </Td>
+      <Td>
+        <AddressCopier address={obj?.launchpadContract} />
+      </Td>
+      <Td>
+        {obj?.isActive ? (
+          <Button
+            {...loadingStatusActive}
+            size="sm"
+            bg={"#D7D5E5"}
+            onClick={() =>
+              activeLPMutation.mutate({
+                contractAddress: obj?.launchpadContract,
+                newValue: false,
+              })
+            }
+          >
+            Deactive
+          </Button>
+        ) : (
+          <Button
+            {...loadingStatusActive}
+            size="sm"
+            onClick={() =>
+              activeLPMutation.mutate({
+                contractAddress: obj?.launchpadContract,
+                newValue: true,
+              })
+            }
+          >
+            Active
+          </Button>
+        )}
+      </Td>
+      <Td>
+        {obj?.isDoxxed ? (
+          <Button
+            isLoading={doxxedUpdateMuation.isLoading}
+            isDisabled={doxxedUpdateMuation.isLoading}
+            size="sm"
+            bg={"#D7D5E5"}
+            onClick={() =>
+              doxxedUpdateMuation.mutate({
+                contractAddress: obj?.launchpadContract,
+                newValue: false,
+              })
+            }
+          >
+            Set NO
+          </Button>
+        ) : (
+          <Button
+            isLoading={doxxedUpdateMuation.isLoading}
+            isDisabled={doxxedUpdateMuation.isLoading}
+            size="sm"
+            onClick={() =>
+              doxxedUpdateMuation.mutate({
+                contractAddress: obj?.launchpadContract,
+                newValue: true,
+              })
+            }
+          >
+            Set YES
+          </Button>
+        )}
+      </Td>
+    </Tr>
+  );
+};
 const Launchpad = () => {
   const { currentAccount } = useSelector((s) => s.wallet);
   const { api } = useAppContext();
@@ -155,9 +180,32 @@ const Launchpad = () => {
   const dispatch = useDispatch();
   const [isAdmin, setIsAdmin] = useState(false);
   const [newAddress, setNewAddress] = useState("");
-  const [newCreateFee, setNewCreateFee] = useState("")
+  const [newCreateFee, setNewCreateFee] = useState("");
   const [isContractOwner, setIsContractOwner] = useState(false);
   const [lpAdminList, setLPAdminList] = useState([]);
+  const [contractBalance, setContractBalance] = useState(0);
+  useEffect(() => {
+    (async () => {
+      console.log(currentAccount && isAdmin);
+      if (currentAccount && isAdmin) {
+        const balanceQR = await execContractQuery(
+          currentAccount?.address,
+          "api",
+          launchpad_generator.CONTRACT_ABI,
+          launchpad_generator.CONTRACT_ADDRESS,
+          0,
+          "adminTrait::getBalance"
+        );
+        setContractBalance(
+          formatTokenAmountNumber(
+            balanceQR?.toHuman()?.Ok?.Ok,
+            appChain?.decimal
+          )
+        );
+      }
+    })();
+  }, [currentAccount, api]);
+
   const grantNewAdmin = async () => {
     try {
       if (currentAccount?.address == newAddress) {
@@ -301,7 +349,7 @@ const Launchpad = () => {
     } catch (error) {
       console.log("SET FEE ERROR: ", error);
     }
-  })
+  });
   useEffect(() => {
     if (currentAccount) getIsAdmin();
     else setIsAdmin(false);
@@ -341,6 +389,24 @@ const Launchpad = () => {
       setLPAdminList(adminList);
     }
   }, [currentAccount?.address]);
+  const withdrawMutation = useMutation(async () => {
+    try {
+      const result = await execContractTx(
+        currentAccount,
+        api,
+        launchpad_generator.CONTRACT_ABI,
+        launchpad_generator.CONTRACT_ADDRESS,
+        0, //-> value
+        "adminTrait::withdrawFee",
+        formatNumToBN(contractBalance, appChain?.decimal),
+        currentAccount?.address
+      );
+      if (result) toast.success("Withdraw successful");
+      else toast.error("Something wrong");
+    } catch (error) {
+      console.log(error);
+    }
+  });
   useEffect(() => {
     fetchLPAdmin();
   }, [currentAccount, fetchLPAdmin]);
@@ -404,6 +470,37 @@ const Launchpad = () => {
           </Box>
         )}
       </Box>
+      {isContractOwner && (
+        <>
+          <Box
+            sx={{
+              display: "flex",
+              mt: "32px",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text sx={{ fontWeight: "700", color: "#57527E" }}>
+              Contract balance
+            </Text>
+            <Text>{contractBalance}</Text>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <Button
+              size="sm"
+              isLoading={withdrawMutation.isLoading}
+              isDisabled={withdrawMutation.isLoading}
+              onClick={() => withdrawMutation.mutate()}
+            >
+              Withdraw
+            </Button>
+          </Box>
+        </>
+      )}
       {isContractOwner && (
         <Box>
           <Text sx={{ fontWeight: "700", color: "#57527E", mt: "32px" }}>
