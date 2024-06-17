@@ -157,6 +157,14 @@ const IWCountDown = ({ saleTime, launchpadData }) => {
               {livePhase?.name}
             </Text>
           </Box>
+          {livePhase?.publicSaleInfor?.isPublic &&
+          livePhase?.whitelist?.length > 0
+            ? `(Public sale/Whitelist sale)`
+            : livePhase?.publicSaleInfor?.isPublic
+            ? `(Public sale)`
+            : livePhase?.whitelist?.length > 0
+            ? `(Whitelist Only)`
+            : null}
           {livePhase?.publicSaleInfor?.isPublic && (
             <SaleLayout
               launchpadData={launchpadData}
