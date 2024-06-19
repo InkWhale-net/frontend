@@ -470,37 +470,35 @@ const Launchpad = () => {
           </Box>
         )}
       </Box>
-      {isContractOwner && (
-        <>
-          <Box
-            sx={{
-              display: "flex",
-              mt: "32px",
-              justifyContent: "space-between",
-            }}
+      <>
+        <Box
+          sx={{
+            display: "flex",
+            mt: "32px",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text sx={{ fontWeight: "700", color: "#57527E" }}>
+            Contract balance
+          </Text>
+          <Text fontWeight="bold">{contractBalance}</Text>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <Button
+            size="sm"
+            isLoading={withdrawMutation.isLoading}
+            isDisabled={withdrawMutation.isLoading || (!isContractOwner)}
+            onClick={() => withdrawMutation.mutate()}
           >
-            <Text sx={{ fontWeight: "700", color: "#57527E" }}>
-              Contract balance
-            </Text>
-            <Text>{contractBalance}</Text>
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <Button
-              size="sm"
-              isLoading={withdrawMutation.isLoading}
-              isDisabled={withdrawMutation.isLoading}
-              onClick={() => withdrawMutation.mutate()}
-            >
-              Withdraw
-            </Button>
-          </Box>
-        </>
-      )}
+            Withdraw
+          </Button>
+        </Box>
+      </>
       {isAdmin && (
         <Box>
           <Text sx={{ fontWeight: "700", color: "#57527E", mt: "32px" }}>
