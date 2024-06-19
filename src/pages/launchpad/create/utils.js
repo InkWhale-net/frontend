@@ -1,6 +1,7 @@
 import { decodeAddress, encodeAddress } from "@polkadot/keyring";
 import { hexToU8a, isHex } from "@polkadot/util";
 import { toast } from "react-hot-toast";
+import { formatNumToBN } from "utils";
 import { resolveAZDomainToAddress } from "utils";
 
 export const verifyTokenValid = async (launchpadData, currentAccount) => {
@@ -201,3 +202,12 @@ export const validatePhaseData = (phaseData, errorMsg) => {
   }
   return true;
 };
+
+export const parsePrice = (n, decimal = 12) => {
+  try {
+    if(+n <= 1) return n * 10 ** decimal
+    else return formatNumToBN(n, decimal)
+  } catch (error) {
+    console.log("parsePrice", error);
+  }
+}
