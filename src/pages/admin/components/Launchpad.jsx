@@ -428,8 +428,8 @@ const Launchpad = () => {
         <Box
           sx={{
             display: "flex",
-            flexDirection: isContractOwner ? "column" : "row",
-            alignItems: isContractOwner ? "flex-start" : "center",
+            flexDirection: isAdmin ? "column" : "row",
+            alignItems: isAdmin ? "flex-start" : "center",
           }}
         >
           Launchpad admin: <AddressCopier address={currentAccount?.address} />
@@ -437,13 +437,13 @@ const Launchpad = () => {
         <Box
           sx={{
             display: "flex",
-            flexDirection: isContractOwner ? "column" : "row",
-            alignItems: isContractOwner ? "flex-start" : "center",
+            flexDirection: isAdmin ? "column" : "row",
+            alignItems: isAdmin ? "flex-start" : "center",
           }}
         >
           Your Role: <Heading size="md">Admin</Heading>
         </Box>
-        {isContractOwner && (
+        {isAdmin && (
           <Box>
             <IWInput
               placeholder="New admin address"
@@ -501,7 +501,7 @@ const Launchpad = () => {
           </Box>
         </>
       )}
-      {isContractOwner && (
+      {isAdmin && (
         <Box>
           <Text sx={{ fontWeight: "700", color: "#57527E", mt: "32px" }}>
             LAUNCHPAD ADMIN LIST

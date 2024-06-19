@@ -325,7 +325,7 @@ const PhaseTag = ({ data, launchpadData }) => {
         <Row
           label="Public price"
           value={
-            `${formatNumDynDecimal(publicPhaseInfo) || 0} ${appChain?.unit}` ||
+            `${formatNumDynDecimal(publicPhaseInfo, 18) || 0} ${appChain?.unit}` ||
             0
           }
         />
@@ -382,7 +382,7 @@ const PhaseTag = ({ data, launchpadData }) => {
         <Row
           label="Whitelist Price"
           value={
-            `${formatNumDynDecimal(WLBalance?.price) || 0} ${appChain?.unit}` ||
+            `${formatNumDynDecimal(WLBalance?.price, 18) || 0} ${appChain?.unit}` ||
             0
           }
         />

@@ -25,7 +25,6 @@ function CreateLaunchpadLayout() {
     handleAddNewLaunchpad,
   } = useCreateLaunchpad();
   const publicCurrentAccount = getPublicCurrentAccount();
-  console.log(publicCurrentAccount?.address);
   const [createFee, setCreateFee] = useState(null);
   const [txRate, setTxRate] = useState(null);
   const { currentAccount } = useSelector((s) => s.wallet);
