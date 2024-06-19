@@ -286,8 +286,6 @@ const FinishModal = ({}) => {
 
                 return api.createType("PhaseInput", phase);
               });
-              console.log("phasesVector", phasesVector);
-              return
               const result = await execContractTxAndCallAPI(
                 currentAccount,
                 "api",
