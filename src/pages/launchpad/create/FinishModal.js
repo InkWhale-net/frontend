@@ -327,8 +327,9 @@ const FinishModal = ({}) => {
       isOpen={visible}
       isCentered
       size="lg"
+      closeOnOverlayClick={false}
     >
-      <ModalOverlay />
+      <ModalOverlay onClick={() => {}}/>
       <ModalContent>
         <ModalHeader>Launchpad Create Processing</ModalHeader>
         <ModalCloseButton onClick={() => setVisible(false)} />

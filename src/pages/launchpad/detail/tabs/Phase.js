@@ -27,7 +27,6 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
   const tokenDecimal = parseInt(launchpadData.projectInfo.token.decimals);
   const tokenSymbol = launchpadData?.projectInfo?.token?.symbol;
-
   const tagData = useMemo(() => {
     return {
       ...data,
@@ -47,6 +46,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
     };
   }, [data]);
   const publicSaleInfo = useMemo(() => {
+    console.log(tagData?.publicSaleInfor?.price)
     return {
       totalAmount: +formatTokenAmountNumber(
         tagData?.publicSaleInfor?.totalAmount,
@@ -292,7 +292,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
           >
             <Text>Price</Text>
             <Text size="md">
-              {formatNumDynDecimal(publicSaleInfo?.price)}
+              {formatNumDynDecimal(publicSaleInfo?.price, 18)}
               <AzeroLogo
                 sx={{
                   marginLeft: "4px",
@@ -319,7 +319,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
           >
             <Text>Price</Text>
             <Text size="md">
-              {formatNumDynDecimal(formatTokenAmountNumber(userWL?.price))}
+              {formatNumDynDecimal(formatTokenAmountNumber(userWL?.price), 18)}
               <AzeroLogo
                 sx={{
                   marginLeft: "4px",

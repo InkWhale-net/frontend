@@ -47,8 +47,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
     );
 
     const ret = queryResult?.toHuman().Ok?.Ok;
-    const ownerBL =
-      parseInt(ret?.replaceAll(",", ""), 10) / 10 ** appChain?.decimal;
+    const ownerBL = +formatTokenAmountNumber(ret, appChain?.decimal)
     setOwnerBalance(ownerBL);
     updateOwnerBalance(ownerBL);
     const fetchUnsoldToken = await execContractQuery(
