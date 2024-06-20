@@ -16,6 +16,7 @@ import { BeatLoader } from "react-spinners";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { formatNumDynDecimal } from "utils";
+import { formatDecimalNumberToString } from "utils";
 import { formatChainStringToNumber } from "utils";
 import { formatTokenAmountNumber } from "utils";
 import { multipleFloat } from "utils";
@@ -453,7 +454,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                           alignItems: "center",
                         }}
                       >
-                        Token price: {wlTokenPriceStr}
+                        Token price: {formatDecimalNumberToString(wlTokenPriceStr)}
                         <AzeroLogo
                           sx={{
                             display: "flex",

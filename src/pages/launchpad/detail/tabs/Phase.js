@@ -22,6 +22,7 @@ import { format } from "utils/datetime";
 import TabLayout from "../Layout";
 import { formatChainStringToNumber } from "utils";
 import { formatTokenAmountNumber } from "utils";
+import { formatDecimalNumberToString } from "utils";
 
 const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -292,7 +293,7 @@ const PhaseTag = ({ data, sx, isOwner, launchpadData }) => {
           >
             <Text>Price</Text>
             <Text size="md">
-              {formatNumDynDecimal(publicSaleInfo?.price, 18)}
+              {+publicSaleInfo?.price > 1 ? formatNumDynDecimal(publicSaleInfo?.price, 18) : formatDecimalNumberToString(publicSaleInfo?.price)}
               <AzeroLogo
                 sx={{
                   marginLeft: "4px",

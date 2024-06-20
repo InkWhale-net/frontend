@@ -3,6 +3,7 @@ import { APICall } from "api/client";
 import IWInput from "components/input/Input";
 import { useAppContext } from "contexts/AppContext";
 import { parseUnits } from "ethers";
+import { parsePrice } from "pages/launchpad/create/utils";
 import { isValidAddress } from "pages/launchpad/create/utils";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -99,7 +100,7 @@ const AddSingleWL = ({
             parseInt(launchpadData?.projectInfo?.token.decimals)
           ),
         ],
-        [parseUnits(WLPrice.toString(), 12)]
+        [parsePrice(WLPrice, 12)]
       );
       await APICall.askBEupdate({
         type: "launchpad",
@@ -163,7 +164,7 @@ const AddSingleWL = ({
             parseInt(launchpadData?.projectInfo?.token.decimals)
           ),
         ],
-        [parseUnits(WLPrice.toString(), 12)]
+        [parsePrice(WLPrice, 12)]
       );
       await APICall.askBEupdate({
         type: "launchpad",

@@ -1,6 +1,7 @@
 import { decodeAddress, encodeAddress } from "@polkadot/keyring";
 import { hexToU8a, isHex } from "@polkadot/util";
 import { toast } from "react-hot-toast";
+import { multipleFloat } from "utils";
 import { formatNumToBN } from "utils";
 import { resolveAZDomainToAddress } from "utils";
 
@@ -204,10 +205,12 @@ export const validatePhaseData = (phaseData, errorMsg) => {
 };
 
 export const parsePrice = (n, decimal = 12) => {
-  try {
-    if(+n <= 1) return n * 10 ** decimal
-    else return formatNumToBN(n, decimal)
-  } catch (error) {
-    console.log("parsePrice", error);
-  }
+  if(+n <= 1) return parseInt(n * 10 ** decimal)
+  else return formatNumToBN(n, decimal)
+}
+
+export const multiplePrice = (amount, price, decimal = 12) => {
+  if(+price < 0.001) {
+    return (+amount * parseInt(price * 10 ** decimal)).toString() / 10 ** 12
+  } else return multipleFloat(amount, price)
 }
