@@ -494,8 +494,8 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
             paddingRight: "2px",
           }}
         >
-          <div>{publicSaleAmount?.purchased}</div>
-          <div>{publicSaleAmount?.total}</div>
+          <div>{formatNumDynDecimal(publicSaleAmount?.purchased)}</div>
+          <div>{formatNumDynDecimal(publicSaleAmount?.total)}</div>
         </Box>
       </Box>
       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>

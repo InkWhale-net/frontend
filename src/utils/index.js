@@ -756,13 +756,5 @@ export const batchTxResponseErrorHandler = async ({
 };
 
 export const formatDecimalNumberToString = (num) => {
-  let str = num.toExponential();
-
-  let [coefficient, exponent] = str.split('e');
-
-  exponent = parseInt(exponent);
-
-  let decimalPlaces = Math.max(0, -exponent);
-
-  return num.toFixed(decimalPlaces);
+  return num.toFixed(20).toString().replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
 }

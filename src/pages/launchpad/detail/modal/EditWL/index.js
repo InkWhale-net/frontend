@@ -51,6 +51,7 @@ import AddBulk from "./AddBulk";
 import AddSingleWL from "./AddSingle";
 import { appChain } from "constants";
 import { formatTokenAmountNumber } from "utils";
+import { formatDecimalNumberToString } from "utils";
 
 const EditWL = ({ visible, setVisible, launchpadData }) => {
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
@@ -101,10 +102,10 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
           const formatedAccountBuyer = {
             account: WLAccount,
             amount: +formatTokenAmountNumber(WLAccountDetail?.amount, tokenDecimal),
-            price: +formatTokenAmountNumber(
+            price: formatDecimalNumberToString(+formatTokenAmountNumber(
               WLAccountDetail?.price,
               appChain?.decimals
-            ),
+            )),
             purchasedAmount: +formatTokenAmountNumber(
               WLAccountDetail?.purchasedAmount,
               tokenDecimal
@@ -162,6 +163,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
       {
         accessorKey: "price",
         header: "Price",
+        cell: (info) => <div>das</div>
       },
     ],
     data: whitelist || [],
