@@ -23,6 +23,8 @@ import { delay, formatTextAmount } from "utils";
 import * as Yup from "yup";
 import { useCreateLaunchpad } from "../../CreateLaunchpadContext";
 import SectionContainer from "../sectionContainer";
+import { multiplePrice } from "../../utils";
+import { MINIMUM_LAUNCHPAD_PURCHASE } from "constants";
 
 export const roundToMinute = (date) => {
   const roundedDate = new Date(date);
@@ -213,6 +215,15 @@ const Phase = () => {
                 allowPublicSale == false ||
                 (allowPublicSale == true && (+value || 0) <= +capAmount)
               );
+            }
+          )
+          .test(
+            "is-valid-phasePublicAmount",
+            `Minimum total sale(Public Amount * Phase Public Price) is 0.1`,
+            function (value) {
+              console.log(value, this.parent.phasePublicPrice)
+              const a0price = multiplePrice(value, this.parent.phasePublicPrice);
+              return a0price > MINIMUM_LAUNCHPAD_PURCHASE
             }
           ),
         phasePublicPrice: Yup.string().test(

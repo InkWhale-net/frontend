@@ -526,6 +526,9 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         isDisabled={!allowBuy || !(+maxAmount > 0)}
         onChange={({ target }) => {
           setAzeroBuyAmount(target.value);
+          if (+target.value < MINIMUM_LAUNCHPAD_PURCHASE) {
+            setAmountError(true);
+          } else setAmountError(false);
           setAmount(roundDown(+target.value / +tokenPrice, 12));
           setIsBuyWithA0(true);
         }}

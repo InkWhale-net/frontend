@@ -1,5 +1,6 @@
 import { decodeAddress, encodeAddress } from "@polkadot/keyring";
 import { hexToU8a, isHex } from "@polkadot/util";
+import { MINIMUM_LAUNCHPAD_PURCHASE } from "constants";
 import { toast } from "react-hot-toast";
 import { multipleFloat } from "utils";
 import { formatNumToBN } from "utils";
@@ -139,6 +140,16 @@ export const verifyWhitelist = async (wlString) => {
       ?.length != whitelistphase?.length
   ) {
     toast.error("Invalid price");
+    return false;
+  }
+  if (
+    whitelistphase?.filter((e) => {
+      const a0price = multiplePrice(e?.price, e?.amount);
+      return a0price >= MINIMUM_LAUNCHPAD_PURCHASE || +e?.price == 0
+    })
+      ?.length != whitelistphase?.length
+  ) {
+    toast.error("Minimum total sale(Amount * Price) is 0.1");
     return false;
   }
     

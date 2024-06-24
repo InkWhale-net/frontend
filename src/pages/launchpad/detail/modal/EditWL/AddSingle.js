@@ -1,8 +1,10 @@
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { APICall } from "api/client";
 import IWInput from "components/input/Input";
+import { MINIMUM_LAUNCHPAD_PURCHASE } from "constants";
 import { useAppContext } from "contexts/AppContext";
 import { parseUnits } from "ethers";
+import { multiplePrice } from "pages/launchpad/create/utils";
 import { parsePrice } from "pages/launchpad/create/utils";
 import { isValidAddress } from "pages/launchpad/create/utils";
 import { useEffect, useMemo, useState } from "react";
@@ -10,7 +12,10 @@ import { toast } from "react-hot-toast";
 import { AiFillExclamationCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
+import { formatDecimalNumberToString } from "utils";
+import { roundUp } from "utils";
 import { resolveAZDomainToAddress } from "utils";
+import { roundDown } from "utils";
 import { delay } from "utils";
 import { execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
@@ -63,6 +68,13 @@ const AddSingleWL = ({
       }
       const WLAmount = +wlData?.amount || 0
       const WLPrice = +wlData?.price || 0
+      const a0price = multiplePrice(WLAmount, WLPrice);
+      if(a0price < +MINIMUM_LAUNCHPAD_PURCHASE && WLPrice > 0) {
+        toast.error(
+          `Minimum total A0 sell is 0.1, minimum token amount with price ${formatDecimalNumberToString(WLPrice)} is ${roundUp(0.1 / WLPrice)}`
+        );
+        return;
+      }
       if(WLAmount > availableWLAmount) {
         toast.error(
           `Max whitelist amount is ${availableWLAmount}`
