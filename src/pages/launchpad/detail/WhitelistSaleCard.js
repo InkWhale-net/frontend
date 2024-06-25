@@ -383,7 +383,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                       }}
                     >
                       Max amount
-                      <Text size="md">{wlMaxAmount}</Text>
+                      <Text size="md">{formatNumDynDecimal(wlMaxAmount)}</Text>
                     </Box>
 
                     <Box
@@ -394,7 +394,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                       }}
                     >
                       Purchased
-                      <Text size="md">{wlPurchasedAmount}</Text>
+                      <Text size="md">{formatNumDynDecimal(wlPurchasedAmount)}</Text>
                     </Box>
                     <>
                       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>

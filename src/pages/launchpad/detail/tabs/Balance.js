@@ -12,6 +12,7 @@ import { formatChainStringToNumber } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { appChain } from "constants";
 import { formatTokenAmountNumber } from "utils";
+import { formatDecimalNumberToString } from "utils";
 
 const Row = ({ label, value, divider = false, ...rest }) => {
   return (
@@ -325,7 +326,7 @@ const PhaseTag = ({ data, launchpadData }) => {
         <Row
           label="Public price"
           value={
-            `${formatNumDynDecimal(publicPhaseInfo, 18) || 0} ${appChain?.unit}` ||
+            `${formatDecimalNumberToString(formatNumDynDecimal(publicPhaseInfo, 18)) || 0} ${appChain?.unit}` ||
             0
           }
         />

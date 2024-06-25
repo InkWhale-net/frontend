@@ -756,5 +756,5 @@ export const batchTxResponseErrorHandler = async ({
 };
 
 export const formatDecimalNumberToString = (num) => {
-  return num.toFixed(20).toString().replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+  return (+num).toFixed(20).toString().replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
 }
