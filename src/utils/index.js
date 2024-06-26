@@ -372,8 +372,8 @@ export async function getGasLimitBulkAction(
   const proofSize = gasRequired.proofSize.toHuman().replaceAll(",", "");
 
   const gasRequiredAdjust = api.registry.createType("WeightV2", {
-    refTime: new BN(refTime * 10 ** 0).mul(new BN(1)),
-    proofSize: new BN(proofSize * 10 ** 0).mul(new BN(1)),
+    refTime: new BN(refTime * 10 ** 0).mul(new BN(2)),
+    proofSize: new BN(proofSize * 10 ** 0).mul(new BN(2)),
   });
   console.log("gasRequiredAdjust", message, gasRequiredAdjust.toHuman());
 
