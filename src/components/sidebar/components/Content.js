@@ -56,7 +56,7 @@ function SidebarContent({ onClose }) {
             textDecoration="none"
             _focus={{ borderWidth: "0px" }}
             _hover={{ textDecoration: "none", bg: "bg.1" }}
-            onClick={() => window.open("https://app.common.fi/pools/5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj", "_blank")}
+            onClick={() => window.open("https://app.common.fi/?inputToken=5EA7h2xCP9TkAwEQ8Km2b7aQChPKVCqcS2BJWqYavoXiEsfx&outputToken=AZERO", "_blank")}
             display="flex"
             alignItems="center"
           >
