@@ -17,6 +17,7 @@ import launchpad from "utils/contracts/launchpad";
 import AddKycBlockpass from "./AddKycBlockpass";
 import { PhaseHeaderInfo } from ".";
 import { resolveAZDomainToAddress } from "utils";
+import { parsePrice } from "pages/launchpad/create/utils";
 
 const AddBulk = ({
   launchpadData,
@@ -76,7 +77,7 @@ const AddBulk = ({
             parseInt(launchpadData?.projectInfo?.token.decimals)
           )
         ),
-        reformatWLData.map((e) => parseUnits(e?.price.toString(), 12))
+        reformatWLData.map((e) => parsePrice(e?.price, 12))
       );
       await APICall.askBEupdate({
         type: "launchpad",

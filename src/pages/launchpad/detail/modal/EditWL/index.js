@@ -51,6 +51,7 @@ import AddBulk from "./AddBulk";
 import AddSingleWL from "./AddSingle";
 import { appChain } from "constants";
 import { formatTokenAmountNumber } from "utils";
+import { formatDecimalNumberToString } from "utils";
 
 const EditWL = ({ visible, setVisible, launchpadData }) => {
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
@@ -101,10 +102,10 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
           const formatedAccountBuyer = {
             account: WLAccount,
             amount: +formatTokenAmountNumber(WLAccountDetail?.amount, tokenDecimal),
-            price: +formatTokenAmountNumber(
+            price: formatDecimalNumberToString(+formatTokenAmountNumber(
               WLAccountDetail?.price,
               appChain?.decimals
-            ),
+            )),
             purchasedAmount: +formatTokenAmountNumber(
               WLAccountDetail?.purchasedAmount,
               tokenDecimal
@@ -166,7 +167,6 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
     ],
     data: whitelist || [],
   };
-
   const isPhaseEditable = useMemo(() => {
     if (selectedPhase >= 0) {
       const phaseData = launchpadData?.phaseList[selectedPhase];
@@ -312,7 +312,7 @@ const EditWL = ({ visible, setVisible, launchpadData }) => {
       onClose={() => setVisible(false)}
     >
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent sx={{minW: "1400px"}}>
         <ModalHeader fontSize={["2xl", "3xl"]}>
           {launchpadData?.requireKyc
             ? "Manage KYC & Whitelist"
@@ -497,6 +497,7 @@ function EditWhitelist({
               <>
                 <Tbody>
                   {table.getRowModel().rows.map((row, index) => {
+                    const rowData = row.original;
                     return (
                       <Tr
                         key={row.id}
@@ -510,7 +511,7 @@ function EditWhitelist({
                           return (
                             <Td key={cell.id}>
                               {formatDataCellTable(
-                                whitelist[index],
+                                rowData,
                                 cell.getContext().column.id
                               )}
                             </Td>

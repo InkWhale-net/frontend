@@ -47,8 +47,7 @@ const OwnerZoneCard = ({ launchpadData }) => {
     );
 
     const ret = queryResult?.toHuman().Ok?.Ok;
-    const ownerBL =
-      parseInt(ret?.replaceAll(",", ""), 10) / 10 ** appChain?.decimal;
+    const ownerBL = +formatTokenAmountNumber(ret, appChain?.decimal)
     setOwnerBalance(ownerBL);
     updateOwnerBalance(ownerBL);
     const fetchUnsoldToken = await execContractQuery(
@@ -163,20 +162,19 @@ const OwnerZoneCard = ({ launchpadData }) => {
 
   const tokenSymbol = launchpadData?.projectInfo?.token?.symbol;
 
-  const totalSupply =
-    formatChainStringToNumber(launchpadData?.totalSupply) /
-    Math.pow(10, tokenDecimal);
-
-  const availableAmount =
-    formatChainStringToNumber(launchpadData?.availableTokenAmount) /
-    Math.pow(10, tokenDecimal);
+  const totalSupply = +formatTokenAmountNumber(
+    launchpadData?.totalSupply,
+    tokenDecimal
+  );
+  const availableAmount = +formatTokenAmountNumber(
+    launchpadData?.availableTokenAmount,
+    tokenDecimal
+  );
 
   const totalWhitelistByPhase = launchpadData?.phaseList?.map((p) => {
     const totalSoldAmount = p?.whitelist?.reduce(
       (prev, curr) =>
-        prev +
-        formatChainStringToNumber(curr.purchasedAmount) /
-          Math.pow(10, tokenDecimal),
+        prev + +formatTokenAmountNumber(curr.purchasedAmount, tokenDecimal),
       0
     );
     return { ...p, totalSoldAmount };
@@ -190,18 +188,11 @@ const OwnerZoneCard = ({ launchpadData }) => {
     () =>
       totalWhitelist?.map((w) => ({
         ...w,
-        amount:
-          formatChainStringToNumber(w?.amount) / Math.pow(10, tokenDecimal),
-        claimedAmount:
-          formatChainStringToNumber(w?.claimedAmount) /
-          Math.pow(10, tokenDecimal),
-        price: formatChainStringToNumber(w?.price) / Math.pow(10, tokenDecimal),
-        purchasedAmount:
-          formatChainStringToNumber(w?.purchasedAmount) /
-          Math.pow(10, tokenDecimal),
-        vestingAmount:
-          formatChainStringToNumber(w?.vestingAmount) /
-          Math.pow(10, tokenDecimal),
+        amount: +formatTokenAmountNumber(w?.amount, tokenDecimal),
+        claimedAmount: +formatTokenAmountNumber(w?.claimedAmount, tokenDecimal),
+        price: +formatTokenAmountNumber(w?.price, tokenDecimal),
+        purchasedAmount: +formatTokenAmountNumber(w?.purchasedAmount, tokenDecimal),
+        vestingAmount: +formatTokenAmountNumber(w?.vestingAmount, tokenDecimal),
       })),
     [totalWhitelist, tokenDecimal]
   );

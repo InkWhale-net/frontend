@@ -12,6 +12,7 @@ import { formatChainStringToNumber } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { appChain } from "constants";
 import { formatTokenAmountNumber } from "utils";
+import { formatDecimalNumberToString } from "utils";
 
 const Row = ({ label, value, divider = false, ...rest }) => {
   return (
@@ -325,7 +326,7 @@ const PhaseTag = ({ data, launchpadData }) => {
         <Row
           label="Public price"
           value={
-            `${formatNumDynDecimal(publicPhaseInfo) || 0} ${appChain?.unit}` ||
+            `${formatDecimalNumberToString(formatNumDynDecimal(publicPhaseInfo, 18)) || 0} ${appChain?.unit}` ||
             0
           }
         />
@@ -359,7 +360,7 @@ const PhaseTag = ({ data, launchpadData }) => {
           variant="outline"
           onClick={() => publicClaimHandler()}
         >
-          {isSaleEnd ? "Claim" : "Sale is not ended"}
+          {isSaleEnd ? "Claim" : "Sale has not ended"}
         </Button>
       </>
       {/* )} */}
@@ -382,7 +383,7 @@ const PhaseTag = ({ data, launchpadData }) => {
         <Row
           label="Whitelist Price"
           value={
-            `${formatNumDynDecimal(WLBalance?.price) || 0} ${appChain?.unit}` ||
+            `${formatNumDynDecimal(WLBalance?.price, 18) || 0} ${appChain?.unit}` ||
             0
           }
         />
@@ -418,7 +419,7 @@ const PhaseTag = ({ data, launchpadData }) => {
           variant="outline"
           onClick={() => WLClaimHandler()}
         >
-          {isSaleEnd ? "Claim" : "Sale is not ended"}
+          {isSaleEnd ? "Claim" : "Sale has not ended"}
         </Button>
 
         <Divider my="8px" />

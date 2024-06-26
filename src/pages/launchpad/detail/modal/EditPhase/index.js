@@ -53,6 +53,7 @@ import { roundToMinute } from "pages/launchpad/create/components/Phase";
 import { processStringToArray } from "pages/launchpad/create/utils";
 import { checkDuplicatedWL } from "pages/launchpad/create/utils";
 import { formatTokenAmountNumber } from "utils";
+import { parsePrice } from "pages/launchpad/create/utils";
 
 const EditPhase = ({ visible, setVisible, launchpadData }) => {
   const currentAccount = useSelector((s) => s.wallet.currentAccount);
@@ -303,7 +304,7 @@ const EditPhase = ({ visible, setVisible, launchpadData }) => {
           ? parseUnits(values?.phasePublicAmount.toString(), tokenDecimal)
           : null,
         publicPrice: values?.allowPublicSale
-          ? parseUnits(values?.phasePublicPrice.toString(), 12)
+          ? parsePrice(values?.phasePublicPrice, 12)
           : null,
       });
 

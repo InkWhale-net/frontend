@@ -36,10 +36,11 @@ import launchpad from "utils/contracts/launchpad";
 import launchpad_generator from "utils/contracts/launchpad_generator";
 import psp22_contract_v2 from "utils/contracts/psp22_contract_V2";
 import { useCreateLaunchpad } from "./CreateLaunchpadContext";
-import { processStringToArray } from "./utils";
+import { parsePrice, processStringToArray } from "./utils";
 import { formatTokenAmount } from "utils";
 import { formatTextAmount } from "utils";
 import { formatTokenAmountNumber } from "utils";
+import { multipleFloat } from "utils";
 
 const StepItem = ({
   isActive,
@@ -252,6 +253,7 @@ const FinishModal = ({}) => {
               );
 
               const phasesVector = launchpadData.phase.map((p) => {
+                
                 const decimals = launchpadData?.token.decimals;
                 const capAmount = p.capAmount ?? 0;
                 const publicAmount = p?.allowPublicSale
@@ -260,7 +262,6 @@ const FinishModal = ({}) => {
                 const publicPrice = p?.allowPublicSale
                   ? p?.phasePublicPrice.toString().replaceAll(",", "")
                   : 0;
-
                 const phase = {
                   name: p.name,
                   startTime: p?.startDate?.getTime().toString(),
@@ -280,12 +281,11 @@ const FinishModal = ({}) => {
                   capAmount: formatNumToBN(capAmount, decimals),
                   isPublic: p.allowPublicSale,
                   publicAmount: formatNumToBN(publicAmount, decimals),
-                  publicPrice: formatNumToBN(publicPrice),
+                  publicPrice: parsePrice(publicPrice),
                 };
 
                 return api.createType("PhaseInput", phase);
               });
-
               const result = await execContractTxAndCallAPI(
                 currentAccount,
                 "api",
@@ -327,8 +327,9 @@ const FinishModal = ({}) => {
       isOpen={visible}
       isCentered
       size="lg"
+      closeOnOverlayClick={false}
     >
-      <ModalOverlay />
+      <ModalOverlay onClick={() => {}}/>
       <ModalContent>
         <ModalHeader>Launchpad Create Processing</ModalHeader>
         <ModalCloseButton onClick={() => setVisible(false)} />

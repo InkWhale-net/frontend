@@ -13,6 +13,7 @@ import CreateLaunchpadContextProvider, {
   useCreateLaunchpad,
 } from "./CreateLaunchpadContext";
 import styles from "./style.module.scss";
+import { getPublicCurrentAccount } from "utils";
 
 function CreateLaunchpadLayout() {
   const {
@@ -23,6 +24,7 @@ function CreateLaunchpadLayout() {
     isNextButtonActive,
     handleAddNewLaunchpad,
   } = useCreateLaunchpad();
+  const publicCurrentAccount = getPublicCurrentAccount();
   const [createFee, setCreateFee] = useState(null);
   const [txRate, setTxRate] = useState(null);
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -31,8 +33,8 @@ function CreateLaunchpadLayout() {
   const getCreateFee = async () => {
     try {
       const result = await execContractQuery(
-        currentAccount?.address,
-        api,
+        publicCurrentAccount?.address,
+        "api",
         launchpad_generator.CONTRACT_ABI,
         launchpad_generator.CONTRACT_ADDRESS,
         0,
@@ -43,8 +45,8 @@ function CreateLaunchpadLayout() {
         formatNumDynDecimal(formatTokenAmountNumber(fee, appChain?.decimal))
       );
       const txRateQuery = await execContractQuery(
-        currentAccount?.address,
-        api,
+        publicCurrentAccount?.address,
+        "api",
         launchpad_generator.CONTRACT_ABI,
         launchpad_generator.CONTRACT_ADDRESS,
         0,
@@ -57,7 +59,7 @@ function CreateLaunchpadLayout() {
   };
 
   useEffect(() => {
-    if (currentAccount) getCreateFee();
+    getCreateFee();
   }, [currentAccount, api]);
 
   return (
