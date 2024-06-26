@@ -15,6 +15,7 @@ import { BeatLoader } from "react-spinners";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { multipleFloat } from "utils";
+import { formatDecimalNumberToString } from "utils";
 import { formatNumDynDecimal } from "utils";
 import { formatChainStringToNumber } from "utils";
 import { formatTokenAmountNumber } from "utils";
@@ -27,6 +28,8 @@ import {
 } from "utils";
 import { execContractQuery, execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
+import { multiplePrice } from "../create/utils";
+import { MINIMUM_LAUNCHPAD_PURCHASE } from "constants";
 
 const headerSX = {
   fontWeight: "700",
@@ -206,6 +209,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
     purchased: 0,
     total: 0,
   });
+  const [amountError, setAmountError] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -298,16 +302,12 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         })
       );
       const totalSaledAzero = WLList.reduce((acc, current) => {
-        return (
-          acc + multipleFloat(current?.price, current?.purchasedAmount)
-        );
+        return acc + multipleFloat(current?.price, current?.purchasedAmount);
       }, 0);
       return {
         WLList,
         totalWL: WLList.reduce((acc, current) => {
-          return (
-            acc + (current?.amount || 0)
-          );
+          return acc + (current?.amount || 0);
         }, 0),
         totalAmount:
           WLInfo?.totalAmount &&
@@ -321,7 +321,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
     } catch (error) {
       console.log(error);
     }
-  }
+  };
   const purchasePublicHandler = async () => {
     try {
       if (!api) {
@@ -341,7 +341,9 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         );
         return;
       }
-      const a0BuyAmount = isBuyWithA0 ? +azeroBuyAmount : multipleFloat(+amount, +tokenPrice);
+      const a0BuyAmount = isBuyWithA0
+        ? +azeroBuyAmount
+        : multiplePrice(amount, tokenPrice);
       const buyResult = await execContractTx(
         currentAccount,
         api,
@@ -424,19 +426,24 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
     }
   };
 
-  
-  const whitelistData = launchpadData?.phaseList[livePhase?.id]?.whitelist
-  const tokenDecimal = launchpadData?.projectInfo?.token?.decimals
+  const whitelistData = launchpadData?.phaseList[livePhase?.id]?.whitelist;
+  const tokenDecimal = launchpadData?.projectInfo?.token?.decimals;
   const totalWL = whitelistData?.reduce((acc, cur) => {
-    return acc += +formatTokenAmountNumber(cur?.amount, tokenDecimal)
-  }, 0)
+    return (acc += +formatTokenAmountNumber(cur?.amount, tokenDecimal));
+  }, 0);
   const totalWLPurchased = whitelistData?.reduce((acc, cur) => {
-    return acc += +formatTokenAmountNumber(cur?.purchasedAmount, tokenDecimal)
-  }, 0)
-  const phaseCap = +formatTokenAmountNumber(launchpadData?.phaseList[livePhase?.id]?.capAmount, tokenDecimal)
-  const totalPurchase = publicSaleAmount?.total + totalWL
-  const maxPurchaseAmount = totalPurchase > phaseCap ? phaseCap : totalPurchase
-  const totalPurchasedPubnWL = publicSaleAmount?.purchased + totalWLPurchased
+    return (acc += +formatTokenAmountNumber(
+      cur?.purchasedAmount,
+      tokenDecimal
+    ));
+  }, 0);
+  const phaseCap = +formatTokenAmountNumber(
+    launchpadData?.phaseList[livePhase?.id]?.capAmount,
+    tokenDecimal
+  );
+  const totalPurchase = publicSaleAmount?.total + totalWL;
+  const maxPurchaseAmount = totalPurchase > phaseCap ? phaseCap : totalPurchase;
+  const totalPurchasedPubnWL = publicSaleAmount?.purchased + totalWLPurchased;
   const progressPublicSaleRatio = useMemo(
     () =>
       publicSaleAmount?.total != 0
@@ -457,7 +464,7 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         formatChainStringToNumber(publicSaleAmount?.total) -
           formatChainStringToNumber(publicSaleAmount?.purchased) >
         0
-      )
+      ) || amountError
     );
   }, [allowBuy, amount, publicSaleAmount]);
 
@@ -487,8 +494,8 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
             paddingRight: "2px",
           }}
         >
-          <div>{publicSaleAmount?.purchased}</div>
-          <div>{publicSaleAmount?.total}</div>
+          <div>{formatNumDynDecimal(publicSaleAmount?.purchased)}</div>
+          <div>{formatNumDynDecimal(publicSaleAmount?.total)}</div>
         </Box>
       </Box>
       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
@@ -499,7 +506,14 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
           isDisabled={!allowBuy || !(+maxAmount > 0)}
           onChange={({ target }) => {
             setAmount(target.value);
-            setAzeroBuyAmount(roundDown(+target.value * +tokenPrice, 8));
+            const a0price = multiplePrice(target.value, tokenPrice);
+            if (a0price < MINIMUM_LAUNCHPAD_PURCHASE) {
+              setAmountError(true);
+              // setAzeroBuyAmount(0.1);
+            } else {
+              setAmountError(false);
+              setAzeroBuyAmount(roundUp(a0price, 6));
+            }
             setIsBuyWithA0(false);
           }}
           type="number"
@@ -512,7 +526,10 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         isDisabled={!allowBuy || !(+maxAmount > 0)}
         onChange={({ target }) => {
           setAzeroBuyAmount(target.value);
-          setAmount(roundDown(+target.value / +tokenPrice, 8));
+          if (+target.value < MINIMUM_LAUNCHPAD_PURCHASE) {
+            setAmountError(true);
+          } else setAmountError(false);
+          setAmount(roundDown(+target.value / +tokenPrice, 12));
           setIsBuyWithA0(true);
         }}
         type="number"
@@ -521,8 +538,26 @@ const SaleLayout = ({ launchpadData, livePhase, allowBuy }) => {
         placeholder="0"
         inputRightElementIcon={<AzeroLogo />}
       />
+      {amountError && (
+        <Box
+          sx={{
+            fontSize: "14px",
+            alignItems: "center",
+            fontSize: 14,
+            color: "red",
+          }}
+        >
+          <Text>Minimum purchase amount is</Text>{" "}
+          <Box sx={{ display: "flex" }}>
+            <Text>{roundUp(0.1 / tokenPrice)}=0.1</Text>
+            <div style={{ marginLeft: "4px" }}>
+              <AzeroLogo />
+            </div>
+          </Box>
+        </Box>
+      )}
       <div style={{ fontSize: "14px", display: "flex", alignItems: "center" }}>
-        Token price: {tokenPrice}
+        Token price: {formatDecimalNumberToString(tokenPrice)}
         <div style={{ marginLeft: "4px" }}>
           <AzeroLogo />
         </div>

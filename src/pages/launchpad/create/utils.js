@@ -1,6 +1,8 @@
 import { decodeAddress, encodeAddress } from "@polkadot/keyring";
 import { hexToU8a, isHex } from "@polkadot/util";
+import { MINIMUM_LAUNCHPAD_PURCHASE } from "constants";
 import { toast } from "react-hot-toast";
+import { multipleFloat } from "utils";
 import { formatNumToBN } from "utils";
 import { resolveAZDomainToAddress } from "utils";
 
@@ -140,6 +142,16 @@ export const verifyWhitelist = async (wlString) => {
     toast.error("Invalid price");
     return false;
   }
+  if (
+    whitelistphase?.filter((e) => {
+      const a0price = multiplePrice(e?.price, e?.amount);
+      return a0price >= MINIMUM_LAUNCHPAD_PURCHASE || +e?.price == 0
+    })
+      ?.length != whitelistphase?.length
+  ) {
+    toast.error("Minimum total sale(Amount * Price) is 0.1");
+    return false;
+  }
     
   return true;
 };
@@ -204,10 +216,12 @@ export const validatePhaseData = (phaseData, errorMsg) => {
 };
 
 export const parsePrice = (n, decimal = 12) => {
-  try {
-    if(+n <= 1) return n * 10 ** decimal
-    else return formatNumToBN(n, decimal)
-  } catch (error) {
-    console.log("parsePrice", error);
-  }
+  if(+n <= 1) return parseInt(n * 10 ** decimal)
+  else return formatNumToBN(n, decimal)
+}
+
+export const multiplePrice = (amount, price, decimal = 12) => {
+  if(+price < 0.001) {
+    return (+amount * parseInt(price * 10 ** decimal)).toString() / 10 ** 12
+  } else return multipleFloat(amount, price)
 }

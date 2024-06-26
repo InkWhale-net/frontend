@@ -130,7 +130,7 @@ export const stakeStatus = {
 //       'https://addons.mozilla.org/en-US/firefox/addon/polkadot-js-extension/',
 //   },
 // ];
-
+export const MINIMUM_LAUNCHPAD_PURCHASE = 0.1
 export const supportedChain = [
   {
     name: "Alephzero",

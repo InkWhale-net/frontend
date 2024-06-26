@@ -48,6 +48,7 @@ import Icon5Ire from "assets/img/chains/5irechain.png";
 import IconQuestionMark from "assets/img/question-mark.png";
 import { InkwhaleLogo } from "components/icons/Icons";
 import { formatChainStringToNumber } from "utils";
+import { formatDecimalNumberToString } from "utils";
 
 const getStatusPool = (startTime, duration) => {
   if (startTime + duration * 1000 < new Date()) {
@@ -389,7 +390,7 @@ export const formatDataCellTable = (
     case "price":
       return (
         <>
-          <Text>{formatNumDynDecimal(itemObj[header])}</Text>
+          <Text>{+itemObj[header] > 0.001 ? formatNumDynDecimal(itemObj[header]) : formatDecimalNumberToString(itemObj[header])}</Text>
         </>
       );
 

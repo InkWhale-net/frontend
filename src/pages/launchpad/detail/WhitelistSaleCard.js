@@ -16,6 +16,7 @@ import { BeatLoader } from "react-spinners";
 import { fetchLaunchpads } from "redux/slices/launchpadSlice";
 import { fetchUserBalance } from "redux/slices/walletSlice";
 import { formatNumDynDecimal } from "utils";
+import { formatDecimalNumberToString } from "utils";
 import { formatChainStringToNumber } from "utils";
 import { formatTokenAmountNumber } from "utils";
 import { multipleFloat } from "utils";
@@ -29,6 +30,8 @@ import {
 import { execContractQuery } from "utils/contracts";
 import { execContractTx } from "utils/contracts";
 import launchpad from "utils/contracts/launchpad";
+import { multiplePrice } from "../create/utils";
+import { MINIMUM_LAUNCHPAD_PURCHASE } from "constants";
 
 const IWCountDown = ({ saleTime, phaseContainWL, launchpadData }) => {
   const renderer = ({ completed }) => {
@@ -98,6 +101,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
     purchased: 0,
     total: 0,
   });
+  const [amountError, setAmountError] = useState(false);
   const getPublicSaleInfo = async () => {
     try {
       const result0 = await execContractQuery(
@@ -163,7 +167,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
     );
   }, [livePhase, upComing, currentAccount]);
   const dispatch = useDispatch();
-  const tokenDecimal = launchpadData?.projectInfo?.token?.decimals
+  const tokenDecimal = launchpadData?.projectInfo?.token?.decimals;
   const getWLInfo = async (phaseID) => {
     try {
       const txRateQuery = await execContractQuery(
@@ -243,16 +247,12 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
         })
       );
       const totalSaledAzero = WLList.reduce((acc, current) => {
-        return (
-          acc + multipleFloat(current?.price, current?.purchasedAmount)
-        );
+        return acc + multipleFloat(current?.price, current?.purchasedAmount);
       }, 0);
       return {
         WLList,
         totalWL: WLList.reduce((acc, current) => {
-          return (
-            acc + (current?.amount || 0)
-          );
+          return acc + (current?.amount || 0);
         }, 0),
         totalAmount:
           WLInfo?.totalAmount &&
@@ -266,7 +266,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
     } catch (error) {
       console.log(error);
     }
-  }
+  };
   const wlBuyHandler = async (maxAllowWlPurchase) => {
     try {
       if (!api) {
@@ -278,7 +278,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
         toast.error(toastMessages.NO_WALLET);
         return;
       }
-      if (parseFloat(amount) > maxAllowWlPurchase) {
+      if (+amount > +maxAllowWlPurchase) {
         toast.error(
           `Current max whitelist sale available is ${maxAllowWlPurchase}`
         );
@@ -292,10 +292,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
         parseUnits(azeroBuyAmount.toString(), 12), //-> value
         "launchpadContractTrait::whitelistPurchase",
         livePhase?.phaseID,
-        formatNumToBN(
-          parseFloat(amount),
-          parseInt(launchpadData.projectInfo.token.decimals)
-        )
+        formatNumToBN(+amount, +launchpadData.projectInfo.token.decimals)
       );
       if (!buyResult) return;
       await delay(1000);
@@ -306,7 +303,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
 
       setAmount("");
       setAzeroBuyAmount("");
-      saleQuery.refetch()
+      saleQuery.refetch();
       toast.promise(
         delay(6000).then(() => {
           if (currentAccount) {
@@ -386,7 +383,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                       }}
                     >
                       Max amount
-                      <Text size="md">{wlMaxAmount}</Text>
+                      <Text size="md">{formatNumDynDecimal(wlMaxAmount)}</Text>
                     </Box>
 
                     <Box
@@ -397,7 +394,7 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                       }}
                     >
                       Purchased
-                      <Text size="md">{wlPurchasedAmount}</Text>
+                      <Text size="md">{formatNumDynDecimal(wlPurchasedAmount)}</Text>
                     </Box>
                     <>
                       <Box sx={{ marginTop: "20px", marginBottom: "8px" }}>
@@ -408,10 +405,21 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                           }
                           onChange={({ target }) => {
                             setAmount(target.value);
-                            setAzeroBuyAmount(
-                              multipleFloat(+target.value, +wlTokenPrice),
-                              4
+                            const a0price = multiplePrice(
+                              target.value,
+                              wlTokenPrice
                             );
+                            if (
+                              a0price < MINIMUM_LAUNCHPAD_PURCHASE &&
+                              +wlTokenPrice > 0
+                            ) {
+                              setAmountError(true);
+                              // setAzeroBuyAmount(0.1);
+                            } else {
+                              setAmountError(false);
+                              setAzeroBuyAmount(roundUp(a0price, 6));
+                            }
+                            // setIsBuyWithA0(false);
                           }}
                           type="number"
                           value={amount}
@@ -433,6 +441,9 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                         }
                         onChange={({ target }) => {
                           setAzeroBuyAmount(target.value);
+                          if (+target.value < MINIMUM_LAUNCHPAD_PURCHASE) {
+                            setAmountError(true);
+                          } else setAmountError(false);
                           setAmount(
                             roundDown(
                               parseFloat(target.value) /
@@ -446,6 +457,24 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                         placeholder="0"
                         inputRightElementIcon={<AzeroLogo />}
                       />
+                      {amountError && (
+                        <Box
+                          sx={{
+                            fontSize: "14px",
+                            alignItems: "center",
+                            fontSize: 14,
+                            color: "red",
+                          }}
+                        >
+                          <Text>Minimum purchase amount is</Text>{" "}
+                          <Box sx={{ display: "flex" }}>
+                            <Text>{roundUp(0.1 / wlTokenPrice)}=0.1</Text>
+                            <div style={{ marginLeft: "4px" }}>
+                              <AzeroLogo />
+                            </div>
+                          </Box>
+                        </Box>
+                      )}
                       <div
                         style={{
                           fontSize: "14px",
@@ -453,7 +482,8 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                           alignItems: "center",
                         }}
                       >
-                        Token price: {wlTokenPriceStr}
+                        Token price:{" "}
+                        {formatDecimalNumberToString(wlTokenPriceStr)}
                         <AzeroLogo
                           sx={{
                             display: "flex",
@@ -468,7 +498,8 @@ const SaleLayout = ({ launchpadData, livePhase, saleTime, upComing }) => {
                             !launchpadData?.isActive ||
                             !allowBuy ||
                             !(parseFloat(amount) > 0) ||
-                            upComing
+                            upComing ||
+                            amountError
                           }
                           sx={{ flex: 1, height: "40px", marginTop: "8px" }}
                           onClick={() =>
