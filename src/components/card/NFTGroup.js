@@ -11,6 +11,7 @@ import { toastMessages } from "constants";
 import { isPoolEnded } from "utils";
 import { isPoolNotStart } from "utils";
 import { formatTextAmount } from "utils";
+import { MAX_BULK_STAKE_NFT_AMOUNT } from "constants";
 
 const MAX_NFT_ACTION = 10;
 
@@ -83,7 +84,7 @@ const NFTGroup = ({
               }) NFTs`}
               disableBtn={!(listNFTStake?.length > 1)}
               onValidate={() => {
-                if (listNFTStake.length > MAX_NFT_ACTION) {
+                if (listNFTStake.length > MAX_BULK_STAKE_NFT_AMOUNT) {
                   toast.error(`Maximum bulk ${action} is ${MAX_NFT_ACTION} `);
                   return false;
                 }
