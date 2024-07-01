@@ -300,7 +300,7 @@ export default function PSP22Tokens() {
           {table.getRowModel().rows.map((row, index) => {
             const rowData = row.original;
             return (
-              <ElementCard tableHeader={tableData.columns} itemObj={rowData} />
+              <ElementCard onClickItemHandler={() => {}} tableHeader={tableData.columns} itemObj={rowData} />
             );
           })}
           <Box
