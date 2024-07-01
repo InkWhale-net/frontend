@@ -1,11 +1,14 @@
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
+  QuestionOutlineIcon,
   SearchIcon,
 } from "@chakra-ui/icons";
 import {
   Box,
   Button,
+  Flex,
+  Grid,
   IconButton,
   Image,
   SimpleGrid,
@@ -17,6 +20,7 @@ import {
   Tfoot,
   Th,
   Thead,
+  Tooltip,
   Tr,
   useBreakpointValue,
 } from "@chakra-ui/react";
@@ -31,8 +35,9 @@ import AddressCopier from "components/address-copier/AddressCopier";
 import SectionContainer from "components/container/SectionContainer";
 import IWInput from "components/input/Input";
 import { useAppContext } from "contexts/AppContext";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import FadeIn from "react-fade-in/lib/FadeIn";
 import {
   formatNumDynDecimal,
   formatTokenAmountNumber,
@@ -99,6 +104,41 @@ const formatDataCellTable = (
         </>
       );
   }
+};
+const ElementCard = ({ tableHeader, itemObj, mode, onClickItemHandler }) => {
+  return (
+    <Box
+      w={{ base: "full" }}
+      minH={{ base: "20px" }}
+      mb={{ base: "14px" }}
+      borderWidth={{ base: "2px" }}
+      borderRadius={{ base: "10px" }}
+      padding={{ base: "14px" }}
+      _hover={{
+        borderColor: "#93F0F5",
+        backgroundColor: "#E8FDFF",
+      }}
+      onClick={() => onClickItemHandler(itemObj)}
+    >
+      <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+        {tableHeader.map(({ header, accessorKey }, index) => {
+          return (
+            <React.Fragment key={index}>
+              <Flex alignItems="center">{header}</Flex>
+              <Box
+                p={{ base: "4px" }}
+                color={{ base: "#57527E" }}
+                fontWeight={{ base: "bold" }}
+                fontSize={["16px", "18px"]}
+              >
+                <FadeIn>{formatDataCellTable(itemObj, accessorKey)}</FadeIn>
+              </Box>
+            </React.Fragment>
+          );
+        })}
+      </Grid>
+    </Box>
+  );
 };
 export default function PSP22Tokens() {
   const { currentAccount } = useSelector((s) => s.wallet);
@@ -213,6 +253,7 @@ export default function PSP22Tokens() {
   useEffect(() => {
     if (table) table.setPageSize(PAGINATION_AMOUNT);
   }, [table]);
+  const tableHeaders = table?.getHeaderGroups()[0]?.headers.map((e) => e?.id);
   return (
     <SectionContainer
       mt={{ base: "0px", xl: "8px" }}
@@ -220,7 +261,7 @@ export default function PSP22Tokens() {
       description="Standard PSP22 (ERC20) tokens"
       maxW="1800px"
     >
-      <SimpleGrid columns={2}>
+      <SimpleGrid columns={isSmallerThanMd ? 1 : 2}>
         <Box sx={{ display: "flex" }}>
           <IWInput
             value={keywords?.queryAddress}
@@ -243,131 +284,206 @@ export default function PSP22Tokens() {
         </Box>
         <Box></Box>
       </SimpleGrid>
-      <TableContainer
-        // mt="18px"
-        width="full"
-        sx={{
-          mt: "18px",
-          mb: "18px",
-          border: "1px solid #E3DFF3",
-          borderRadius: 8,
-        }}
-      >
-        <Table variant="simple">
-          <Thead>
-            {table?.getHeaderGroups().map((headerGroup) => (
-              <Tr w="full" key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <Th key={header.id} colSpan={header.colSpan}>
-                      {
-                        <div>
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                        </div>
-                      }
-                    </Th>
-                  );
-                })}
-              </Tr>
-            ))}
-          </Thead>
-
-          {listToken?.length > 0 ? (
-            <>
-              <Tbody>
-                {table.getRowModel().rows.map((row, index) => {
-                  const rowData = row.original;
-                  return (
-                    <Tr
-                      key={row.id}
-                      border="1px solid transparent"
-                      _hover={{
-                        border: "1px solid #93F0F5",
-                        background: "#E8FDFF",
-                      }}
-                    >
-                      {row.getVisibleCells().map((cell) => {
-                        return (
-                          <Td key={cell.id}>
-                            {formatDataCellTable(
-                              rowData,
-                              cell.getContext().column.id
+      {isSmallerThanMd && (
+        <Button
+          sx={{ mt: "8px" }}
+          isDisabled={false}
+          onClick={() => {
+            searchTokens();
+          }}
+        >
+          Search
+        </Button>
+      )}
+      {isSmallerThanMd ? (
+        <Box mt="8px">
+          {table.getRowModel().rows.map((row, index) => {
+            const rowData = row.original;
+            return (
+              <ElementCard tableHeader={tableData.columns} itemObj={rowData} />
+            );
+          })}
+          <Box
+            sx={{
+              width: "full",
+              display: "flex",
+              alignItems: "center",
+              py: "8px",
+              pl: "8px",
+            }}
+          >
+            <IconButton
+              aria-label="previousPage"
+              width={"40px"}
+              height={"40px"}
+              variant={"solid"}
+              bg={"#93F0F5"}
+              borderRadius={"42px"}
+              icon={<ChevronLeftIcon size={"80px"} color="#FFF" />}
+              onClick={() => table.previousPage()}
+              isDisabled={!table.getCanPreviousPage()}
+            />
+            <IconButton
+              ml={"4px"}
+              aria-label="previousPage"
+              width={"40px"}
+              height={"40px"}
+              variant={"solid"}
+              bg={"#93F0F5"}
+              borderRadius={"42px"}
+              icon={<ChevronRightIcon size={"80px"} color="#FFF" />}
+              onClick={() => table.nextPage()}
+              isDisabled={!table.getCanNextPage()}
+            />
+            <Box sx={{ width: "64px", ml: "8px" }}>
+              <IWInput
+                size="md"
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  textAlign: "center",
+                }}
+                type="number"
+                value={table.getState().pagination.pageIndex + 1}
+                onChange={(e) => {
+                  const page = e.target.value ? Number(e.target.value) - 1 : 0;
+                  table.setPageIndex(page);
+                }}
+              />
+            </Box>{" "}
+            <Text sx={{ mr: "20px", ml: "8px" }}>
+              of {table.getPageCount()}
+            </Text>
+          </Box>
+        </Box>
+      ) : (
+        <TableContainer
+          // mt="18px"
+          width="full"
+          sx={{
+            mt: "18px",
+            mb: "18px",
+            border: "1px solid #E3DFF3",
+            borderRadius: 8,
+          }}
+        >
+          <Table variant="simple">
+            <Thead>
+              {table?.getHeaderGroups().map((headerGroup) => (
+                <Tr w="full" key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <Th key={header.id} colSpan={header.colSpan}>
+                        {
+                          <div>
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
                             )}
-                          </Td>
-                        );
-                      })}
-                    </Tr>
-                  );
-                })}
-              </Tbody>
-              <Tfoot sx={{ display: "flex" }}>
-                <Box
-                  sx={{
-                    width: "full",
-                    display: "flex",
-                    alignItems: "center",
-                    py: "8px",
-                    pl: "8px",
-                  }}
-                >
-                  <IconButton
-                    aria-label="previousPage"
-                    width={"40px"}
-                    height={"40px"}
-                    variant={"solid"}
-                    bg={"#93F0F5"}
-                    borderRadius={"42px"}
-                    icon={<ChevronLeftIcon size={"80px"} color="#FFF" />}
-                    onClick={() => table.previousPage()}
-                    isDisabled={!table.getCanPreviousPage()}
-                  />
-                  <IconButton
-                    ml={"4px"}
-                    aria-label="previousPage"
-                    width={"40px"}
-                    height={"40px"}
-                    variant={"solid"}
-                    bg={"#93F0F5"}
-                    borderRadius={"42px"}
-                    icon={<ChevronRightIcon size={"80px"} color="#FFF" />}
-                    onClick={() => table.nextPage()}
-                    isDisabled={!table.getCanNextPage()}
-                  />
-                  <Box sx={{ width: "64px", ml: "8px" }}>
-                    <IWInput
-                      size="md"
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        textAlign: "center",
-                      }}
-                      type="number"
-                      value={table.getState().pagination.pageIndex + 1}
-                      onChange={(e) => {
-                        const page = e.target.value
-                          ? Number(e.target.value) - 1
-                          : 0;
-                        table.setPageIndex(page);
-                      }}
+                          </div>
+                        }
+                      </Th>
+                    );
+                  })}
+                </Tr>
+              ))}
+            </Thead>
+
+            {listToken?.length > 0 ? (
+              <>
+                <Tbody>
+                  {table.getRowModel().rows.map((row, index) => {
+                    const rowData = row.original;
+                    return (
+                      <Tr
+                        key={row.id}
+                        border="1px solid transparent"
+                        _hover={{
+                          border: "1px solid #93F0F5",
+                          background: "#E8FDFF",
+                        }}
+                      >
+                        {row.getVisibleCells().map((cell) => {
+                          return (
+                            <Td key={cell.id}>
+                              {formatDataCellTable(
+                                rowData,
+                                cell.getContext().column.id
+                              )}
+                            </Td>
+                          );
+                        })}
+                      </Tr>
+                    );
+                  })}
+                </Tbody>
+                <Tfoot sx={{ display: "flex" }}>
+                  <Box
+                    sx={{
+                      width: "full",
+                      display: "flex",
+                      alignItems: "center",
+                      py: "8px",
+                      pl: "8px",
+                    }}
+                  >
+                    <IconButton
+                      aria-label="previousPage"
+                      width={"40px"}
+                      height={"40px"}
+                      variant={"solid"}
+                      bg={"#93F0F5"}
+                      borderRadius={"42px"}
+                      icon={<ChevronLeftIcon size={"80px"} color="#FFF" />}
+                      onClick={() => table.previousPage()}
+                      isDisabled={!table.getCanPreviousPage()}
                     />
-                  </Box>{" "}
-                  <Text sx={{ mr: "20px", ml: "8px" }}>
-                    of {table.getPageCount()}
-                  </Text>
-                </Box>
-              </Tfoot>
-            </>
-          ) : (
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
-              <div style={{ fontSize: 14 }}>No token data</div>
-            </Box>
-          )}
-        </Table>
-      </TableContainer>
+                    <IconButton
+                      ml={"4px"}
+                      aria-label="previousPage"
+                      width={"40px"}
+                      height={"40px"}
+                      variant={"solid"}
+                      bg={"#93F0F5"}
+                      borderRadius={"42px"}
+                      icon={<ChevronRightIcon size={"80px"} color="#FFF" />}
+                      onClick={() => table.nextPage()}
+                      isDisabled={!table.getCanNextPage()}
+                    />
+                    <Box sx={{ width: "64px", ml: "8px" }}>
+                      <IWInput
+                        size="md"
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          textAlign: "center",
+                        }}
+                        type="number"
+                        value={table.getState().pagination.pageIndex + 1}
+                        onChange={(e) => {
+                          const page = e.target.value
+                            ? Number(e.target.value) - 1
+                            : 0;
+                          table.setPageIndex(page);
+                        }}
+                      />
+                    </Box>{" "}
+                    <Text sx={{ mr: "20px", ml: "8px" }}>
+                      of {table.getPageCount()}
+                    </Text>
+                  </Box>
+                </Tfoot>
+              </>
+            ) : (
+              <Box sx={{ display: "flex", justifyContent: "center" }}>
+                <div style={{ fontSize: 14 }}>No token data</div>
+              </Box>
+            )}
+          </Table>
+        </TableContainer>
+      )}
     </SectionContainer>
   );
 }
