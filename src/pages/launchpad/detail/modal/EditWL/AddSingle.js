@@ -62,10 +62,10 @@ const AddSingleWL = ({
         toast.error(`Address or ID not valid`);
         return;
       }
-      if (availableTokenAmount * 1 <= 0) {
-        toast.error(`No available token amount!`);
-        return;
-      }
+      // if (availableTokenAmount * 1 <= 0) {
+      //   toast.error(`No available token amount!`);
+      //   return;
+      // }
       const WLAmount = +wlData?.amount || 0
       const WLPrice = +wlData?.price || 0
       const a0price = multiplePrice(WLAmount, WLPrice);
@@ -143,10 +143,10 @@ const AddSingleWL = ({
 
   const updateSingleWLHandler = async () => {
     try {
-      if (availableTokenAmount * 1 <= 0) {
-        toast.error(`No available token amount!`);
-        return;
-      }
+      // if (+availableTokenAmount <= 0) {
+      //   toast.error(`No available token amount!`);
+      //   return;
+      // }
       const WLAmount = +wlData?.amount || 0
       const oldWLAmount = +selectedWL?.amount
       const WLPrice = +wlData?.price || 0

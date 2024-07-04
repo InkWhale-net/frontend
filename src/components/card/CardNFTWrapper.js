@@ -8,6 +8,7 @@ import {
 } from "@chakra-ui/react";
 import ImageCloudFlare from "components/image-cf/ImageCF";
 import ConfirmModal from "components/modal/ConfirmModal";
+import { MAX_BULK_STAKE_NFT_AMOUNT } from "constants";
 import { useState } from "react";
 import { AiFillMinusSquare, AiOutlinePlusSquare } from "react-icons/ai";
 import { Fragment } from "react-is";
@@ -51,6 +52,7 @@ const NFTCard = (props) => {
               height={"42px"}
               marginTop={"16px"}
               // variant={isSelected ? "solid" : "outline"}
+              disabled={!isSelected && listNFTStake?.length >= MAX_BULK_STAKE_NFT_AMOUNT }
               icon={
                 isSelected ? (
                   <AiFillMinusSquare size={"42px"} color="#93F0F5" />

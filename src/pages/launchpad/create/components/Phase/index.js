@@ -221,9 +221,9 @@ const Phase = () => {
             "is-valid-phasePublicAmount",
             `Minimum total sale(Public Amount * Phase Public Price) is 0.1`,
             function (value) {
-              console.log(value, this.parent.phasePublicPrice)
+              const allowPublicSale = this.parent.allowPublicSale;
               const a0price = multiplePrice(value, this.parent.phasePublicPrice);
-              return a0price > MINIMUM_LAUNCHPAD_PURCHASE
+              return allowPublicSale == false ? true : a0price > MINIMUM_LAUNCHPAD_PURCHASE;
             }
           ),
         phasePublicPrice: Yup.string().test(
@@ -879,6 +879,9 @@ const Phase = () => {
               >
                 Previous
               </Button>
+              {
+                console.log(form.errors)
+              }
               <Flex align="center">
                 <Button
                   disabled={!!Object.entries(form.errors)?.length}

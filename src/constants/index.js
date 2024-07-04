@@ -187,6 +187,8 @@ export const swapableTokens = [
   },
 ];
 
+export const MAX_BULK_STAKE_NFT_AMOUNT = 5;
+
 export const appChain = supportedChain.find(
   (e) => e?.key === process.env.REACT_APP_CHAIN
 );
