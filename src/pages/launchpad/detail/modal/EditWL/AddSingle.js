@@ -93,10 +93,10 @@ const AddSingleWL = ({
         toast.error("Whitelist address existed");
         return;
       }
-      if (WLAmount > +availableTokenAmount) {
-        toast.error(`Maximum amount is ${availableTokenAmount}`);
-        return;
-      }
+      // if (WLAmount > +availableTokenAmount) {
+      //   toast.error(`Maximum amount is ${availableTokenAmount}`);
+      //   return;
+      // }
       const result = await execContractTx(
         currentAccount,
         api,
