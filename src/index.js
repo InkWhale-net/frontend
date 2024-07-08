@@ -207,7 +207,7 @@ const App = () => {
             component={TokensSwapPage}
           />
           <Route exact path={`/create/token`} component={CreateTokenPage} />
-          {/* <Route exact path={`/psp22tokens`} component={PSP22Tokens} /> */}
+          <Route exact path={`/psp22tokens`} component={PSP22Tokens} />
           <Route
             exact
             path={`/create/stake-pool`}
