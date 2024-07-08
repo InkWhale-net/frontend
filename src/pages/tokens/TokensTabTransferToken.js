@@ -214,6 +214,8 @@ const TokensTabTransferToken = (props) => {
                   setTransferBulkAddress("");
                   setTransferAddress("");
                   setTransferAmount("");
+                  loadTokenInfo();
+                  dispatch(fetchUserBalance({ currentAccount, api }));
                   toast.success(
                     reformatListTransfer?.length === 1
                       ? "Token has been transfered successfully                  "
@@ -369,11 +371,18 @@ const TokensTabTransferToken = (props) => {
               mt: "8px",
             }}
             value={transferBulkAddress}
-            onChange={({ target }) => setTransferBulkAddress(target.value)}
+            onChange={({ target }) => {
+              const newValue = target.value;
+              const lines = newValue.split("\n");
+
+              if (lines.length <= MAX_TRANSFER_AMOUNT) {
+                setTransferBulkAddress(target.value);
+              }
+            }}
             placeholder={`Enter one address, amount on each line. A decimal separator of amount must use dot (.)\nSample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn,100\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL,20`}
           />
           <Button
-            // isDisabled={!Number(transferAmount) || !transferAddress}
+            isDisabled={!(transferBulkAddress?.length > 0)}
             onClick={() => bulkTransferTokenHandler()}
             w="full"
             mt="8px"
