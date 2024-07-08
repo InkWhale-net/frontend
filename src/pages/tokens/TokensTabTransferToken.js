@@ -1,104 +1,67 @@
-import { CopyIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Button,
-  FormControl,
-  Heading,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
-import AddressCopier from "components/address-copier/AddressCopier";
+import { Box, Button, Collapse, Heading, Stack, Text } from "@chakra-ui/react";
 import IWCard from "components/card/Card";
-import IWCardOneColumn from "components/card/CardOneColumn";
 import IWInput from "components/input/Input";
 
+import { ContractPromise } from "@polkadot/api-contract";
+import { web3FromSource } from "@polkadot/extension-dapp";
+import IWTextArea from "components/input/TextArea";
+import { MAX_TRANSFER_AMOUNT, appChain } from "constants";
+import { useAppContext } from "contexts/AppContext";
+import { isValidAddress } from "pages/launchpad/create/utils";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { BsChevronDown, BsChevronRight } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBalance } from "redux/slices/walletSlice";
-import { addressShortener } from "utils";
-import { handleCopy } from "utils";
-import { resolveAZDomainToAddress } from "utils";
 import {
+  batchTxResponseErrorHandler,
   delay,
   formatChainStringToNumber,
   formatNumToBN,
+  getEstimatedGasBatchTx,
   isAddressValid,
+  resolveAZDomainToAddress,
 } from "utils";
 import { execContractTx } from "utils/contracts";
 import psp22_contract from "utils/contracts/psp22_contract";
 import MyAccountTab from "./myAccount";
-import { appChain } from "constants";
-import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
-import { web3FromSource } from "@polkadot/extension-dapp";
-import { ContractPromise } from "@polkadot/api-contract";
-import { getEstimatedGasBatchTx } from "utils";
-import { useAppContext } from "contexts/AppContext";
-import { batchTxResponseErrorHandler } from "utils";
-import { Field, Form, Formik } from "formik";
-import * as Yup from "yup";
+export const SINLE_TRANSFER_MODE = 0;
+export const BULK_TRANSFER_MODE = 1;
+const processStringToArray = (input) => {
+  try {
+    const lines = input?.trim().split("\n");
+    const result = [];
 
-const TokensTabTransferToken = ({
-  mode,
-  address,
-  balance,
-  tokenInfo,
-  selectedContractAddr,
-  loadTokenInfo,
-  ...rest
-}) => {
+    lines.forEach((line) => {
+      const [address, amount] = line?.trim().split(",");
+      result.push({ address, amount: Number(amount) });
+    });
+
+    return result;
+  } catch (error) {
+    console.log(error);
+  }
+};
+const TokensTabTransferToken = (props) => {
+  const {
+    mode,
+    address,
+    balance,
+    tokenInfo,
+    selectedContractAddr,
+    loadTokenInfo,
+    ...rest
+  } = props;
   const { currentAccount } = useSelector((s) => s.wallet);
   const { api } = useAppContext();
   const dispatch = useDispatch();
+  const [tmode, setTmode] = useState(SINLE_TRANSFER_MODE);
 
   const [transferAddress, setTransferAddress] = useState("");
-  const [addressFromDomain, setAddressFromDomain] = useState("");
+  const [transferBulkAddress, setTransferBulkAddress] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
-  const [transferList, setTransferList] = useState([
-    {
-      address: "",
-      amount: "",
-    },
-  ]);
-  const validationSchema = Yup.array().of(
-    Yup.object().shape({
-      address: Yup.string()
-        .trim()
-        // .min(2, "Must be at least 2 characters")
-        // .max(40, "Must be at most 100 characters")
-        .required("This field is required"),
-      amount: Yup.string()
-        .trim()
-        // .min(2, "Must be at least 2 characters")
-        // .max(100, "Must be at most 100 characters")
-        .required("This field is required"),
-    })
-  );
-  const addNewTranferE = () => {
-    setTransferList([
-      ...transferList,
-      {
-        address: "",
-        amount: "",
-      },
-    ]);
-  };
-  const updateAddress = (value, index) => {
-    let cloneList = [...transferList];
-    cloneList[index].address = value;
-    setTransferList(cloneList);
-  };
-  const updateAmount = (value, index) => {
-    let cloneList = [...transferList];
-    cloneList[index].amount = value;
-    setTransferList(cloneList);
-  };
-  const removeTransferE = (index) => {
-    setTransferList(
-      transferList.filter((e) => !(transferList.indexOf(e) == index))
-    );
-  };
-  const bulkTransferTokenHandler = async (transferValue, resetForm) => {
+
+  async function transferTokenHandler() {
     if (!currentAccount) {
       return toast.error("Please connect wallet!");
     }
@@ -106,7 +69,88 @@ const TokensTabTransferToken = ({
     if (!tokenInfo?.title) {
       return toast.error("Please load token first!");
     }
-    toast.success(transferValue?.length > 0 && `Bulk Transfer process...`);
+    const resolvedAddress = await resolveAZDomainToAddress(transferAddress);
+    if (!isAddressValid(transferAddress) && !resolvedAddress) {
+      return toast.error("Invalid address!");
+    }
+
+    if (transferAmount === 0 || !transferAmount) {
+      toast.error("Please enter amount to transfer!");
+      return;
+    }
+    if (+transferAmount > formatChainStringToNumber(tokenInfo?.content)) {
+      toast.error(
+        `You don't have enough ${tokenInfo?.title} tokens to transfer!`
+      );
+      return;
+    }
+    if (balance?.azero < 0.05) {
+      toast.error(`Low ${appChain?.unit} balance!`);
+      return;
+    }
+
+    await execContractTx(
+      currentAccount,
+      "api",
+      psp22_contract.CONTRACT_ABI,
+      selectedContractAddr,
+      0, //-> value
+      "psp22::transfer",
+      resolvedAddress ? resolvedAddress : transferAddress,
+      formatNumToBN(transferAmount, tokenInfo?.decimals),
+      []
+    );
+
+    await delay(2000).then(() => {
+      setTransferBulkAddress("");
+      setTransferAddress("");
+      setTransferAmount("");
+      loadTokenInfo();
+      dispatch(fetchUserBalance({ currentAccount, api }));
+    });
+  }
+
+  const verifyBulkString = async (listTransfer) => {
+    const isValidAddressList = await Promise.all(
+      listTransfer?.map(async (e) => {
+        const wladdress =
+          (await resolveAZDomainToAddress(e?.address)) ||
+          (isValidAddress(e?.address) && e?.address);
+        return wladdress;
+      })
+    );
+    if (isValidAddressList?.filter((e) => e)?.length != listTransfer?.length) {
+      toast.error("Invalid address");
+      return false;
+    }
+
+    if (
+      listTransfer?.filter((e) => e?.amount > 0)?.length != listTransfer?.length
+    ) {
+      toast.error("Invalid amount");
+      return false;
+    }
+
+    return true;
+  };
+  const bulkTransferTokenHandler = async () => {
+    const listTransfer = processStringToArray(transferBulkAddress);
+    if (!(await verifyBulkString(listTransfer))) {
+      return toast.error("Invalid transfer string");
+    }
+    if (listTransfer?.length > MAX_TRANSFER_AMOUNT) {
+      return toast.error(
+        `Max multiple transfer amount is ${MAX_TRANSFER_AMOUNT}`
+      );
+    }
+    if (!currentAccount) {
+      return toast.error("Please connect wallet!");
+    }
+
+    if (!tokenInfo?.title) {
+      return toast.error("Please load token first!");
+    }
+    toast.success(listTransfer?.length > 0 && `Bulk Transfer process...`);
     let unsubscribe;
     let transferTxALL;
 
@@ -122,18 +166,25 @@ const TokensTabTransferToken = ({
       psp22_contract.CONTRACT_ABI,
       selectedContractAddr
     );
-
+    const reformatListTransfer = await Promise.all(
+      listTransfer.map(async (e) => {
+        return {
+          ...e,
+          address: (await resolveAZDomainToAddress(e?.address)) || e?.address,
+        };
+      })
+    );
     gasLimit = await getEstimatedGasBatchTx(
       address,
       tokenContract,
       value,
       "psp22::transfer",
-      transferValue[0].address,
-      formatNumToBN(transferValue[0].amount, tokenInfo?.decimals),
+      reformatListTransfer[0].address,
+      formatNumToBN(reformatListTransfer[0].amount, tokenInfo?.decimals),
       []
     );
     await Promise.all(
-      transferValue.map(async (info) => {
+      reformatListTransfer.map(async (info) => {
         const ret = tokenContract.tx["psp22::transfer"](
           { gasLimit, value },
           info.address,
@@ -160,9 +211,11 @@ const TokensTabTransferToken = ({
                 }
 
                 if (api.events.utility?.BatchCompleted.is(event)) {
-                  resetForm();
+                  setTransferBulkAddress("");
+                  setTransferAddress("");
+                  setTransferAmount("");
                   toast.success(
-                    transferValue?.length === 1
+                    reformatListTransfer?.length === 1
                       ? "Token has been transfered successfully                  "
                       : "All Token have been transfered successfully"
                   );
@@ -180,7 +233,7 @@ const TokensTabTransferToken = ({
             // eslint-disable-next-line no-extra-boolean-cast
             if (!!totalSuccessTxCount) {
               toast.error(
-                transferValue?.length === 1
+                reformatListTransfer?.length === 1
                   ? "Transfer is not fully successful!                "
                   : `Bulk transfer are not fully successful! ${totalSuccessTxCount} transfer completed successfully.`
               );
@@ -203,317 +256,60 @@ const TokensTabTransferToken = ({
 
     return unsubscribe;
   };
-  async function transferTokenHandler(values, resetForm) {
-    if (!currentAccount) {
-      return toast.error("Please connect wallet!");
-    }
-
-    if (!tokenInfo?.title) {
-      return toast.error("Please load token first!");
-    }
-    const resolvedAddress = await resolveAZDomainToAddress(values.address);
-    setAddressFromDomain(resolvedAddress);
-    if (!isAddressValid(values.address) && !resolvedAddress) {
-      return toast.error("Invalid address!");
-    }
-
-    if (values.amount === 0 || !values.amount) {
-      toast.error("Please enter amount to transfer!");
-      return;
-    }
-    if (+values.amount > formatChainStringToNumber(tokenInfo?.content)) {
-      toast.error(
-        `You don't have enough ${tokenInfo?.title} tokens to transfer!`
-      );
-      return;
-    }
-    if (balance?.azero < 0.05) {
-      toast.error(`Low ${appChain?.unit} balance!`);
-      return;
-    }
-
-    await execContractTx(
-      currentAccount,
-      "api",
-      psp22_contract.CONTRACT_ABI,
-      selectedContractAddr,
-      0, //-> value
-      "psp22::transfer",
-      resolvedAddress ? resolvedAddress : values.address,
-      formatNumToBN(values.amount, tokenInfo?.decimals),
-      []
-    );
-
-    await delay(2000).then(() => {
-      setTransferAddress("");
-      setTransferAmount("");
-      loadTokenInfo();
-      dispatch(fetchUserBalance({ currentAccount, api }));
-      resetForm();
-    });
-  }
-  const handleSubmit = async (values, { resetForm }) => {
-    if (values.length == 1) {
-      transferTokenHandler(values[0], resetForm);
-    }
-    if (values.length > 1) {
-      bulkTransferTokenHandler(values, resetForm);
-    }
-  };
   return (
-    <Formik
-      initialValues={transferList}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
+    <Stack
+      w="full"
+      spacing="30px"
+      alignItems="start"
+      direction={{ base: "column", lg: "row" }}
     >
-      <Form>
-        <Stack
-          w="full"
-          spacing="30px"
-          alignItems="start"
-          direction={{ base: "column", lg: "row" }}
+      <MyAccountTab address={address} balance={balance} tokenInfo={tokenInfo} />
+
+      <IWCard
+        w="full"
+        variant="outline"
+        title={`Transfer ${tokenInfo?.title} Tokens`}
+      >
+        <Box
+          sx={{
+            bg: "#93F0F5",
+            cursor: "pointer",
+            p: "10px",
+            borderRadius: "4px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+          onClick={() => setTmode(SINLE_TRANSFER_MODE)}
         >
-          <MyAccountTab
-            address={address}
-            balance={balance}
-            tokenInfo={tokenInfo}
-          />
-
-          <IWCard
-            w="full"
-            variant="outline"
-            title={`Transfer ${tokenInfo?.title} Tokens`}
+          <Text
+            sx={{
+              color: "#57527E",
+              fontWeight: "bold",
+            }}
           >
-            <IWCard mt="16px" w="full" variant="solid">
-              <Field>
-                {({ form }) =>
-                  form.values?.map((obj, index) => {
-                    return (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          gap: "4px",
-                          mt: index > 0 ? "8px" : 0,
-                        }}
-                      >
-                        <FormControl
-                          isInvalid={
-                            form.errors?.[index]?.address &&
-                            form.touched?.[index]?.address
-                          }
-                        >
-                          <IWInput
-                            sx={{
-                              flex: 1,
-                              borderColor:
-                                form.errors?.[index]?.address &&
-                                form.touched?.[index]?.address
-                                  ? "red"
-                                  : null,
-                            }}
-                            value={obj.address}
-                            onChange={({ target }) => {
-                              const updatedArray = [...form.values];
-                              if (index >= 0 && index < updatedArray.length) {
-                                updatedArray[index] = {
-                                  ...updatedArray[index],
-                                  address: target.value,
-                                };
-                              }
-                              form.setValues(updatedArray);
-                            }}
-                            placeholder={`Address${
-                              appChain?.haveAzeroID ? " or azero.id" : ""
-                            } to transfer`}
-                          />
-                        </FormControl>
-
-                        <Box w="200px">
-                          <FormControl
-                            isInvalid={
-                              form.errors?.[index]?.address &&
-                              form.touched?.[index]?.address
-                            }
-                          >
-                            <IWInput
-                              value={obj.amount}
-                              type="number"
-                              sx={{
-                                borderColor:
-                                  form.errors?.[index]?.amount &&
-                                  form.touched?.[index]?.amount
-                                    ? "red"
-                                    : null,
-                              }}
-                              onChange={({ target }) => {
-                                const updatedArray = [...form.values];
-                                if (index >= 0 && index < updatedArray.length) {
-                                  updatedArray[index] = {
-                                    ...updatedArray[index],
-                                    amount: target.value,
-                                  };
-                                }
-                                form.setValues(updatedArray);
-                              }}
-                              placeholder={`Amount`}
-                            />
-                          </FormControl>
-                        </Box>
-                        {index <= form.values?.length - 2 ? (
-                          <Box
-                            sx={{
-                              w: "52px",
-                              h: "52px",
-                              bg: "#93F0F5",
-                              borderRadius: "6px",
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => {
-                              form.setValues([
-                                ...form.values.slice(0, index),
-                                ...form.values.slice(index + 1),
-                              ]);
-                            }}
-                          >
-                            <AiOutlineMinus color="white" />
-                          </Box>
-                        ) : (
-                          <Box
-                            sx={{
-                              w: "52px",
-                              h: "52px",
-                              bg: "#93F0F5",
-                              borderRadius: "6px",
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => {
-                              if (form.values?.length < 10) {
-                                form.setValues([
-                                  ...form.values,
-                                  {
-                                    address: "",
-                                    amount: "",
-                                  },
-                                ]);
-                              } else {
-                                toast("Max bulk transfer address is 10")
-                              }
-                            }}
-                          >
-                            <AiOutlinePlus color="white" />
-                          </Box>
-                        )}
-                      </Box>
-                    );
-                  })
-                }
-              </Field>
-              {/* {transferList?.map((obj, index) => (
-                <Box
-                  sx={{
-                    display: "flex",
-                    gap: "4px",
-                    mt: index > 0 ? "8px" : 0,
-                  }}
-                >
-                  <FormControl
-                    isInvalid={
-                      form.errors?.phase?.[index]?.name &&
-                      form.touched?.phase?.[index]?.name
-                    }
-                  >
-                    <IWInput
-                      sx={{
-                        flex: 1,
-                      }}
-                      value={transferList[index].address}
-                      onChange={({ target }) => {
-                        updateAddress(target.value, index);
-                        // setTransferAddress(target.value);
-                        // setAddressFromDomain("");
-                        // setTransferAmount("");
-                      }}
-                      placeholder={`Address${
-                        appChain?.haveAzeroID ? " or azero.id" : ""
-                      } to transfer`}
-                    />
-                  </FormControl>
-                  <Box w="200px">
-                    <IWInput
-                      value={transferList[index].amount}
-                      type="number"
-                      onChange={({ target }) => {
-                        updateAmount(target.value, index);
-                        // setTransferAddress(target.value);
-                        // setAddressFromDomain("");
-                        // setTransferAmount("");
-                      }}
-                      placeholder={`Amount`}
-                    />
-                  </Box>
-                  {index <= transferList?.length - 2 ? (
-                    <Box
-                      sx={{
-                        w: "52px",
-                        h: "52px",
-                        bg: "#93F0F5",
-                        borderRadius: "6px",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => removeTransferE(index)}
-                    >
-                      <AiOutlineMinus color="white" />
-                    </Box>
-                  ) : (
-                    <Box
-                      sx={{
-                        w: "52px",
-                        h: "52px",
-                        bg: "#93F0F5",
-                        borderRadius: "6px",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => addNewTranferE()}
-                    >
-                      <AiOutlinePlus color="white" />
-                    </Box>
-                  )}
-                </Box>
-              ))}
-              {addressFromDomain && transferAddress && (
-                <IWInput
-                  value={addressShortener(addressFromDomain)}
-                  readOnly
-                  inputRightElementIcon={
-                    <Box
-                      sx={{
-                        cursor: "pointer",
-                      }}
-                      ml="4px"
-                      mb="8px"
-                      w="20px"
-                      h="21px"
-                      color="#8C86A5"
-                      onClick={() => handleCopy("Address", address)}
-                    >
-                      <CopyIcon w="20px" h="21px" />
-                    </Box>
-                  }
-                />
-              )} */}
-              {/* <IWInput
+            Single transfer
+          </Text>
+          {tmode == SINLE_TRANSFER_MODE ? (
+            <BsChevronDown color="#57527E" />
+          ) : (
+            <BsChevronRight color="#57527E" />
+          )}
+        </Box>
+        <Collapse in={tmode == SINLE_TRANSFER_MODE} animateOpacity>
+          <IWInput
+            mt="4px"
+            value={transferAddress}
+            onChange={({ target }) => {
+              setTransferAddress(target.value);
+              setTransferAmount("");
+            }}
+            placeholder={`Address${
+              appChain?.haveAzeroID ? " or azero.id" : ""
+            } to transfer`}
+          />
+          <IWInput
+            mt="4px"
             value={transferAmount}
             onChange={({ target }) => setTransferAmount(target.value)}
             type="number"
@@ -523,21 +319,75 @@ const TokensTabTransferToken = ({
                 {tokenInfo?.title}
               </Heading>
             }
-          /> */}
+          />
 
-              <Button
-                // isDisabled={!Number(transferAmount) || !transferAddress}
-                type="submit"
-                w="full"
-                mt="8px"
-              >
-                Transfer
-              </Button>
-            </IWCard>
-          </IWCard>
-        </Stack>
-      </Form>
-    </Formik>
+          <Button
+            isDisabled={!Number(transferAmount) || !transferAddress}
+            onClick={() => transferTokenHandler()}
+            w="full"
+            mt="8px"
+            variant="outline"
+            sx={{
+              borderWidth: "4px",
+              borderColor: "#93F0F5",
+            }}
+          >
+            Transfer
+          </Button>
+        </Collapse>
+        <Box
+          sx={{
+            bg: "#93F0F5",
+            cursor: "pointer",
+            p: "8px",
+            borderRadius: "4px",
+            mt: "8px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+          onClick={() => setTmode(BULK_TRANSFER_MODE)}
+        >
+          <Text
+            sx={{
+              color: "#57527E",
+              fontWeight: "bold",
+            }}
+          >
+            Multiple transfer
+          </Text>
+          {tmode == BULK_TRANSFER_MODE ? (
+            <BsChevronDown color="#57527E" />
+          ) : (
+            <BsChevronRight color="#57527E" />
+          )}
+        </Box>
+        <Collapse in={tmode == BULK_TRANSFER_MODE} animateOpacity>
+          <IWTextArea
+            sx={{
+              height: "132px",
+              mt: "8px",
+            }}
+            value={transferBulkAddress}
+            onChange={({ target }) => setTransferBulkAddress(target.value)}
+            placeholder={`Enter one address, amount on each line. A decimal separator of amount must use dot (.)\nSample:\n5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn,100\n5ES8p7zN5kwNvvhrqjACtFQ5hPPub8GviownQeF9nkHfpnkL,20`}
+          />
+          <Button
+            // isDisabled={!Number(transferAmount) || !transferAddress}
+            onClick={() => bulkTransferTokenHandler()}
+            w="full"
+            mt="8px"
+            variant="outline"
+            sx={{
+              borderWidth: "4px",
+              borderColor: "#93F0F5",
+            }}
+          >
+            Transfer
+          </Button>
+        </Collapse>
+      </IWCard>
+    </Stack>
   );
 };
 
