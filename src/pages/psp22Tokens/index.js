@@ -253,6 +253,9 @@ export default function PSP22Tokens() {
     if (table) table.setPageSize(PAGINATION_AMOUNT);
   }, [table]);
   const tableHeaders = table?.getHeaderGroups()[0]?.headers.map((e) => e?.id);
+  const fetchTokenPools = async () => {
+    
+  }
   return (
     <SectionContainer
       mt={{ base: "0px", xl: "8px" }}
@@ -304,7 +307,9 @@ export default function PSP22Tokens() {
           {table.getRowModel().rows.map((row, index) => {
             const rowData = row.original;
             return (
-              <ElementCard onClickItemHandler={() => {}} tableHeader={tableData.columns} itemObj={rowData} />
+              <ElementCard onClickItemHandler={() => {
+                console.log("demo");
+              }} tableHeader={tableData.columns} itemObj={rowData} />
             );
           })}
           <Box
@@ -406,6 +411,10 @@ export default function PSP22Tokens() {
                         _hover={{
                           border: "1px solid #93F0F5",
                           background: "#E8FDFF",
+                          cursor: "pointer"
+                        }}
+                        onClick={() => {
+                          console.log(rowData)
                         }}
                       >
                         {row.getVisibleCells().map((cell) => {

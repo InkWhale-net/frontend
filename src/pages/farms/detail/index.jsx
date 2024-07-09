@@ -759,7 +759,7 @@ const MyStakeRewardInfoNFT = ({
       }
     );
   }
-
+  
   async function unstakeNftHandler(tokenID) {
     if (!currentAccount) {
       toast.error(toastMessages.NO_WALLET);
@@ -781,7 +781,7 @@ const MyStakeRewardInfoNFT = ({
         +formatTextAmount(unstakeFee)
     ) {
       toast.error(
-        `You don't have enough ${appChain?.inwName}. Unstake costs ${unstakeFee} ${appChain?.inwName}`
+        `You don't have enough INW. Unstake costs ${unstakeFee} INW`
       );
       return;
     }
@@ -1241,7 +1241,7 @@ const MyStakeRewardInfoToken = ({
         +formatTextAmount(unstakeFee)
     ) {
       toast.error(
-        `You don't have enough ${appChain?.inwName}. Unstake costs ${unstakeFee} ${appChain?.inwName}`
+        `You don't have enough INW. Unstake costs ${unstakeFee} INW`
       );
       return;
     }
