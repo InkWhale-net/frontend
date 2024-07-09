@@ -85,7 +85,7 @@ const formatDataCellTable = (
           borderRadius={"8px"}
           src={`${process.env.REACT_APP_IPFS_PUBLIC_URL}${itemObj[header]}`}
           alt="logo"
-          objectFit="cover"
+          objectFit="contain"
         />
       );
     case "totalSupply":
@@ -196,14 +196,13 @@ export default function PSP22Tokens() {
 
   const searchTokens = async () => {
     try {
-      console.log(listToken[0], keywords);
       setListTokenFiltered(
         listToken?.filter(
           (e) =>
-            e?.contractAddress?.toLowerCase() == keywords?.toLowerCase() ||
-            e?.creator?.toLowerCase() == keywords?.toLowerCase() ||
-            e?.name?.toLowerCase() == keywords?.toLowerCase() ||
-            e?.symbol?.toLowerCase() == keywords?.toLowerCase()
+            e?.contractAddress?.toLowerCase().includes(keywords?.toLowerCase()) ||
+            e?.creator?.toLowerCase().includes(keywords?.toLowerCase()) ||
+            e?.name?.toLowerCase().includes(keywords?.toLowerCase()) ||
+            e?.symbol?.toLowerCase().includes(keywords?.toLowerCase())
         )
       );
     } catch (error) {
@@ -269,6 +268,11 @@ export default function PSP22Tokens() {
             onChange={({ target }) => setKeywords(target.value)}
             placeholder="Enter keyword"
             inputRightElementIcon={<SearchIcon color="#57527E" />}
+            onKeyPress={(event) => {
+              if (event.key === 'Enter') {
+                searchTokens();
+              }
+            }}
           />
           {!isSmallerThanMd && (
             <Button

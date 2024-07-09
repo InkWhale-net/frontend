@@ -133,6 +133,23 @@ const TokensTabTransferToken = (props) => {
 
     return true;
   };
+  const checkDuplicateAddresses = (transactions) => {
+    const addressMap = new Map();
+    const duplicates = [];
+
+    transactions.forEach((transaction) => {
+      const { address, amount } = transaction;
+
+      if (addressMap.has(address)) {
+        duplicates.push(transaction);
+      } else {
+        addressMap.set(address, amount);
+      }
+    });
+
+    return duplicates;
+  };
+
   const bulkTransferTokenHandler = async () => {
     const listTransfer = processStringToArray(transferBulkAddress);
     if (!(await verifyBulkString(listTransfer))) {
@@ -150,6 +167,17 @@ const TokensTabTransferToken = (props) => {
     if (!tokenInfo?.title) {
       return toast.error("Please load token first!");
     }
+    const reformatListTransfer = await Promise.all(
+      listTransfer.map(async (e) => {
+        return {
+          ...e,
+          address: (await resolveAZDomainToAddress(e?.address)) || e?.address,
+        };
+      })
+    );
+    if (checkDuplicateAddresses(reformatListTransfer)?.length > 0) {
+      return toast.error("Duplicated address");
+    }
     toast.success(listTransfer?.length > 0 && `Bulk Transfer process...`);
     let unsubscribe;
     let transferTxALL;
@@ -166,14 +194,7 @@ const TokensTabTransferToken = (props) => {
       psp22_contract.CONTRACT_ABI,
       selectedContractAddr
     );
-    const reformatListTransfer = await Promise.all(
-      listTransfer.map(async (e) => {
-        return {
-          ...e,
-          address: (await resolveAZDomainToAddress(e?.address)) || e?.address,
-        };
-      })
-    );
+    
     gasLimit = await getEstimatedGasBatchTx(
       address,
       tokenContract,
@@ -218,7 +239,7 @@ const TokensTabTransferToken = (props) => {
                   dispatch(fetchUserBalance({ currentAccount, api }));
                   toast.success(
                     reformatListTransfer?.length === 1
-                      ? "Token has been transfered successfully                  "
+                      ? "Token has been transfered successfully"
                       : "All Token have been transfered successfully"
                   );
                 }
