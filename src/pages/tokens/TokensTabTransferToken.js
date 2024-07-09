@@ -125,7 +125,8 @@ const TokensTabTransferToken = (props) => {
     }
 
     if (
-      listTransfer?.filter((e) => e?.amount > 0)?.length != listTransfer?.length
+      listTransfer?.filter((e) => +e?.amount > 0)?.length !=
+      listTransfer?.length
     ) {
       toast.error("Invalid amount");
       return false;
@@ -159,6 +160,20 @@ const TokensTabTransferToken = (props) => {
       return toast.error(
         `Max multiple transfer amount is ${MAX_TRANSFER_AMOUNT}`
       );
+    }
+    const transferBulkAmount = listTransfer?.reduce(
+      (acc, cur) => (acc += +cur?.amount),
+      0
+    );
+    if (+transferBulkAmount > +formatChainStringToNumber(tokenInfo?.content)) {
+      toast.error(
+        `You don't have enough ${tokenInfo?.title} tokens to transfer!`
+      );
+      return;
+    }
+    if (balance?.azero < 0.05) {
+      toast.error(`Low ${appChain?.unit} balance!`);
+      return;
     }
     if (!currentAccount) {
       return toast.error("Please connect wallet!");
@@ -194,7 +209,7 @@ const TokensTabTransferToken = (props) => {
       psp22_contract.CONTRACT_ABI,
       selectedContractAddr
     );
-    
+
     gasLimit = await getEstimatedGasBatchTx(
       address,
       tokenContract,
