@@ -568,6 +568,25 @@ export const formatDataCellTable = (
           </Text>
         </Flex>
       );
+    case "tokenNameSymbol":
+      return (
+        <Flex alignItems={"center"}>
+          <Box
+            w={{ base: null, lg: "42px" }}
+            sx={{
+              h: "42px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <TokenIcon tokenContract={itemObj["tokenContract"]} />
+          </Box>
+          <Text textAlign="left" maxW="200px" lineHeight="1">
+            {itemObj[header]} ({itemObj?.symbol})
+          </Text>
+        </Flex>
+      );
     case "lptokenSymbol":
       return (
         <Flex
