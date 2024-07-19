@@ -65,6 +65,7 @@ import PoolInfo from "./PoolInfor";
 import { formatTextAmount } from "utils";
 import psp22_contract from "utils/contracts/psp22_contract";
 import { appChain } from "constants";
+import { formatTokenAmountNumber } from "utils";
 
 const FarmDetailPage = () => {
   const params = useParams();
@@ -1116,7 +1117,7 @@ const MyStakeRewardInfoToken = ({
       return;
     }
 
-    if (+formatChainStringToNumber(LPtokenBalance) < +LPTokenAmount) {
+    if (+formatChainStringToNumber(LPtokenBalance, lptokenDecimal) < +LPTokenAmount) {
       toast.error("There is not enough balance!");
       return;
     }
@@ -1141,7 +1142,7 @@ const MyStakeRewardInfoToken = ({
       let info = queryResult?.toHuman().Ok;
 
       const userCurrentStake = info?.stakedValue
-        ? formatTokenAmount(info?.stakedValue, +lptokenDecimal)
+        ? +formatTokenAmountNumber(info?.stakedValue, +lptokenDecimal)
         : 0;
       console.log(userCurrentStake);
       if (+userCurrentStake === 0) {
@@ -1250,16 +1251,13 @@ const MyStakeRewardInfoToken = ({
       toast.error("Invalid Amount!");
       return;
     }
-
+    console.log(+formatTokenAmountNumber(stakeInfo?.stakedValue?.toString(), +lptokenDecimal));
     if (
-      formatChainStringToNumber(
-        formatTokenAmount(stakeInfo?.stakedValue?.toString(), +lptokenDecimal)
-      ) < LPTokenAmount
+      +formatTokenAmountNumber(stakeInfo?.stakedValue, stakeInfo?.stakedValue?.toString(), +lptokenDecimal) < +LPTokenAmount
     ) {
       toast.error("There is not enough balance!");
       return;
     }
-
     //Approve
     toast("Step 1: Approving...");
 

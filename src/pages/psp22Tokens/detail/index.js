@@ -307,6 +307,7 @@ const TokenDetailPage = () => {
             minH="70px"
             flexDirection={{ base: "column", lg: "row" }}
             justifyContent={{ base: "space-between" }}
+            alignItems="start"
           >
             {cardData?.cardHeaderList?.map((item) => {
               const { name, label } = item;
