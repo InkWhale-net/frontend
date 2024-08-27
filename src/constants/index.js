@@ -185,6 +185,17 @@ export const swapableTokens = [
     contractAddress2: "5GCubYQbm9x6TQbthbWpUVrgEibXMDXhgisw8DFYCpPJQ5f7",
     swap_contract_address: "5Gi4UqSUMRavGu65et7nrP1yVZ7UHokM2igTisNdMoxx9t5J",
   },
+  {
+    token: "IMUN",
+    name: "IMUN",
+    symbol: "IMUN",
+    decimal: 12,
+    contractAddress: "5H1mGrwX7ACvRp8G9kGmEiKDjTDsu98TWBn8JdBnWM4ixZTW",
+    tokenVersion2: "IMUN V2",
+    nameVersion2: "IMUN V2",
+    contractAddress2: "5CAPVHqqLkjSY75SPSAN5HrRt3hWck9dujsrzMgdCKVkDhhy",
+    swap_contract_address: "5DVf5ytAGvNfnFa6dfuKWz8MLt1mCcRwHVNtAsdFpShmR41V",
+  }
 ];
 
 export const MAX_BULK_STAKE_NFT_AMOUNT = 5;
