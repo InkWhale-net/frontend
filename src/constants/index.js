@@ -185,6 +185,17 @@ export const swapableTokens = [
     contractAddress2: "5GCubYQbm9x6TQbthbWpUVrgEibXMDXhgisw8DFYCpPJQ5f7",
     swap_contract_address: "5Gi4UqSUMRavGu65et7nrP1yVZ7UHokM2igTisNdMoxx9t5J",
   },
+  {
+    token: "ImUn",
+    name: "Imagination Unleashed Token",
+    symbol: "ImUn",
+    decimal: 12,
+    contractAddress: "5HF21YapMFdWueDvfEEy2sAvVAvy12Qok2tiKjt6crae8Dod",
+    tokenVersion2: "IMUN2",
+    nameVersion2: "IMUN v2",
+    contractAddress2: "5GYJrUe22WUFFBMK7kUEx2BoUitWqr6DfwML17ZsKCvJRcbw",
+    swap_contract_address: "5HdgTttMhPx2btCoSHFQeB4uSj5EVb1EcHqjRxx18h3sU5ZJ",
+  },
 ];
 
 export const MAX_BULK_STAKE_NFT_AMOUNT = 5;
