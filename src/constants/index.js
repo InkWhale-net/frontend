@@ -194,7 +194,7 @@ export const swapableTokens = [
     tokenVersion2: "IMUN2",
     nameVersion2: "IMUN v2",
     contractAddress2: "5GYJrUe22WUFFBMK7kUEx2BoUitWqr6DfwML17ZsKCvJRcbw",
-    swap_contract_address: "5HdgTttMhPx2btCoSHFQeB4uSj5EVb1EcHqjRxx18h3sU5ZJ",
+    swap_contract_address: "5E4zXX3pgre7nC6WPxdNPpA2BDyXXmmfhpg588YRsvbxeKw1",
   },
 ];
 
